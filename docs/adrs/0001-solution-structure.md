@@ -4,7 +4,8 @@ Date: 2026-09-29
 
 Status: Accepted
 
-Amended by: ADR 0010 §1 (the `CareLog` folder is organised by entry kind)
+Amended by: ADR 0010 (the `CareLog` folder is organised by entry kind; a new shared `Coo.Codecs`
+project maps entry details between Contracts and Domain, for both sides)
 
 ## Context
 

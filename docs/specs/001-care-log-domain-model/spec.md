@@ -36,7 +36,7 @@ tables (the persistence specs; ADR 0010 §2 gives their shape).
 | `Membership`, `Role`, `Invitation` | The identity spec (ADR 0003 §6) |
 | `Entitlement`, `FeatureGate` | The billing spec (ADR 0004) |
 | `SleepClassifier`, `SleepPredictor` | The predictor spec (ADR 0008). This spec only stores the nap or night override. |
-| DTOs, JSON, merging back unknown properties, opaque entries | The contracts and mobile specs (ADR 0010 §3). The Domain never sees JSON. |
+| DTOs, JSON, codecs, upcasters, the write gate, merging back unknown properties, opaque entries | `Coo.Codecs` and the persistence specs (ADR 0010 §3, §7, §8). The Domain never sees JSON. Codecs build details only through the public details factories in this spec. |
 | Outbox, `seq`, `SyncRejected` | The sync spec (ADR 0002) |
 | Tiles, forms, timeline rows, reports, AI fragments for each kind | Their layer specs. ADR 0010 §4 lists what each kind must provide. |
 | Solids, medication, temperature, growth, stool colour | Later kinds and fields, added through ADR 0010 without any migration (§15, Q1 and Q3) |

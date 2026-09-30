@@ -4,7 +4,8 @@ Date: 2026-09-30
 
 Status: Proposed
 
-Amends: ADR 0001 §1 (the `CareLog` folder layout) and ADR 0002 §3 (the list of synced entity types).
+Amends: ADR 0001 §1 and §2 (the `CareLog` folder layout, and the new shared `Coo.Codecs` project) and
+ADR 0002 §3 (the list of synced entity types).
 
 ## Context
 
@@ -235,7 +236,130 @@ Rules:
 - **No remote feature flags in v1.** Kinds and features ship with the app. A server-driven kill
   switch can be added later as one more input to `FeatureGate`, if a need appears.
 
-### 7. What does not change
+### 7. Guards: corrupted details never reach a database
+
+The `details` column cannot be typed by the database the way a per-kind table would be. Instead,
+six guards sit between the code and the stored row, each one catching what the previous one might
+miss.
+
+```mermaid
+graph LR
+    F["G1 Domain factories"] --> C["G2 Codec write gate<br/>encode → decode → compare"]
+    C --> D["G3 Database constraints<br/>kind + version registered, JSON object"]
+    D --> R["G4 Read guard<br/>quarantine, never crash or drop"]
+    R --> S["G5 Integrity scan"]
+    T["G6 Tests: round-trip properties,<br/>golden fixtures forever, malformed input"] -.-> C
+```
+
+**G1 — Domain factories** (unchanged). No domain object exists that breaks a hard rule.
+
+**G2 — One codec per kind, and it is the only way in or out.**
+
+- A new shared project, **`Coo.Codecs`** (`net10.0`), references only `Coo.Domain` and
+  `Coo.Contracts`. For each kind it holds one `EntryDetailsCodec<TDetails>`: domain details ⇄ the
+  current details DTO ⇄ JSON, plus the version chain (section 8).
+- Both sides compile the same codec, so the phone and the server can never encode differently.
+  This amends ADR 0001 §2: contract ⇄ domain mapping for entry details lives in `Coo.Codecs`, not
+  separately in each Application layer.
+- **The write gate.** Every write encodes the details, immediately decodes the result back through
+  the same codec and the Domain factories, and requires the result to **equal** the original
+  domain value. If any step fails, the transaction is rolled back and nothing is written. It is
+  treated as a programming error, which is logged and fails the tests. A mapper bug therefore
+  cannot store a malformed or lossy document.
+- Repositories accept `CareEntry` domain objects only, never raw JSON. An architecture test
+  enforces that only `Coo.Codecs` and the two persistence folders touch the `details` column or
+  the JSON types.
+
+**G3 — The database refuses what the code does not know.**
+
+- **PostgreSQL:**
+  - `details jsonb NOT NULL CHECK (jsonb_typeof(details) = 'object')`.
+  - A generated column, `details_version int GENERATED ALWAYS AS ((details->>'v')::int) STORED`,
+    that is `NOT NULL`.
+  - A composite foreign key, `(kind, details_version)` → `entry_kind_versions(kind, version)`.
+    That table is filled at startup from the codecs' catalogue, with an idempotent insert.
+  - As a result, a row with an unregistered kind, an unregistered version or a non-object document
+    **cannot be inserted**, whatever code tries. Registering a kind is an insert into a reference
+    table, not a schema migration.
+- **SQLite** (the phone):
+  - `CHECK (json_valid(details) AND json_type(details) = 'object' AND json_extract(details, '$.v') >= 1)`.
+  - The phone has no foreign key on the kind. It must be able to store opaque entries from newer
+    clients (section 3). An opaque row is flagged `is_opaque`, and the write gate does not apply to
+    it: it is stored byte for byte as received, and only the server's codec ever validated it.
+
+**G4 — The read guard.** Every read decodes through the codec. A row that fails to decode never
+crashes the app, and is never silently dropped:
+
+- It is **quarantined**: the raw row is kept and marked, and excluded from totals, predictions and
+  reports.
+- On the phone, it appears in "Needs attention" as "This entry could not be read". The person can
+  view its time and kind, and can delete it.
+- On the server, it is logged with the row ID and counted in a metric that raises an alert.
+
+**G5 — The integrity scan.**
+
+- On the server, a daily background job, and an admin command
+  (`coo-admin verify`), decode every row through the codecs and the Domain rules and report every
+  failure.
+- On the phone, the same scan runs once after every app update, after migrations and data
+  migrations (section 9).
+
+**G6 — Tests that make the guards trustworthy.**
+
+- **Round-trip property tests** for each kind (FsCheck, test projects only): generate valid domain
+  details, then encode and decode, and the result must be equal. Thousands of cases per kind, on
+  every build.
+- **Golden fixtures for every released details version, kept forever.** For example,
+  `feeding.v1.breast.json` and `feeding.v1.bottle-mixed.json`. They must decode to the expected
+  domain value in every future build. Deleting one fails the build, as with the released-codes list
+  in Spec 001 §7.1.
+- **Malformed-input tests.** Wrong types, missing fields, extra nesting, out-of-range numbers and
+  an unknown `v` must be rejected by the codec, and must never produce a domain object.
+- **The G3 constraints are tested against real PostgreSQL** (Testcontainers) and real SQLite, by
+  inserting bad rows directly and expecting the database to refuse them.
+
+### 8. Evolving stored data: versioned details, upcasters and data migrations
+
+Changing what is stored must stay possible, and safe, for years.
+
+**Every details document carries its version**, `"v": n`, per kind.
+
+- **Reading any version works.** Each codec holds a chain of **upcasters**, pure C# functions from
+  one DTO version to the next, for example `FeedingDetailsV1 → FeedingDetailsV2`. A v1 row is
+  decoded as v1, upcast step by step, and handed to the Domain as the current model.
+- **Writing is always the current version.** An old row is therefore upgraded the next time it is
+  edited, with no extra work.
+- **Serving older clients** (ADR 0002 §11, N and N−1): the server downcasts where the older shape can
+  hold the data. Where it cannot, the older client receives the entry as unrepresentable, and shows
+  it read-only (section 3.3). It never receives a lossy copy.
+- **Additive fields need no new version.** A new optional field (stool colour) is read as absent
+  from older documents, and old clients preserve it (section 3.2). A version bump is only for
+  changes in shape: a renamed field, a split field, or a change of unit.
+
+**Data migrations, for rewriting stored rows in bulk.** Alongside EF schema migrations, both sides
+have an `IDataMigration` runner:
+
+- A data migration is a C# class with a permanent ID. It is recorded in a `data_migrations` table
+  when it completes, and it is idempotent, so a crash halfway through resumes safely.
+- It runs in batches: on the server at startup, in the background, and on the phone after an app
+  update, before the integrity scan.
+- It decodes each row (upcasting as needed), and writes it back through the write gate (G2) in the
+  current version.
+- **Every data migration has an equivalence test.** `decode(before)` must equal `decode(after)` for
+  the whole fixture corpus. A migration may change how data is stored, never what it means.
+
+There are two kinds of change, and they are handled differently:
+
+| Change | Example | How it is done | Syncs? |
+|---|---|---|---|
+| **Representation.** The same meaning, stored differently. | Renaming a field, moving a value from details to a core column, splitting `v1` into `v2` | An upcaster, plus an optional data migration on each side. `version` and `seq` are **not** bumped, because every device upcasts on read anyway. | No |
+| **Correction.** The meaning changes. | Fixing entries stored with a wrong unit by a bug | A domain use case that edits each affected entry through the normal write path, with new HLC stamps. It is written as a named, reviewed, one-off job. | Yes, like any edit |
+
+**Changing the core** (for example, adding a column) is an EF schema migration plus, where data
+moves, a paired data migration with its equivalence test. The core is therefore still changeable,
+with the same safety as the details.
+
+### 9. What does not change
 
 - The Domain remains dependency-free. Kinds are plain C# types, and the catalogue is a static
   list, not DI.
@@ -255,22 +379,33 @@ Rules:
   kind, with no ripple effects.
 - The shared surfaces (timeline, sync, duplicates, "Needs attention", export, undo) are written
   once, against the core, and are tested once.
+- **Corrupted details cannot be written, and unreadable ones are never lost.** The write gate, the
+  database constraints, the read guard and the integrity scan (section 7) stop them.
+- **Stored data can evolve** through versioned details, upcasters and equivalence-tested data
+  migrations (section 8). Old rows stay readable forever, which the golden fixtures prove.
 - The explicit registration keeps trimmed Release builds safe and the object graph readable.
 - The recipe plus the completeness tests make "add a feature" a routine, predictable task for a
   person or an agent.
 
 ### Negative
 
-- **The database no longer type-checks details.** Constraints inside `details` are enforced only by
-  the Domain. That is the same Domain code on both sides, but a bug in a mapper can store a
-  malformed document. Golden fixtures and round-trip tests per kind are the mitigation.
+- **The database does not type-check the inside of `details` field by field.** Instead it refuses
+  unregistered kinds and versions, and anything that is not an object (G3). Everything finer is
+  enforced by the codec write gate, the Domain and the integrity scan (G2, G4, G5). That is five
+  layers of code guard in front of one layer of database guard, where a per-kind table would give
+  one strong database layer.
 - Queries into details (for example "all bottles over 200 ml") are JSON queries, or are done in
   memory. That is fine at this volume, but it is less convenient than columns.
-- Merging back unknown properties adds real complexity to the phone's mapping, and needs its own
-  tests: an old DTO edits an entry that holds a newer property, and the property survives.
+- Merging back unknown properties is real complexity. **It is not caused by JSON**: any design
+  with old clients and last-writer-wins needs it, including one table per kind. It lives in one
+  generic, tested component in `Coo.Codecs`, not in each kind.
+- The guards cost work: a new shared project, a codec per kind, the version chains, the data
+  migration runner, the scans and the property tests. They are written once, and each new kind
+  adds only its codec, its fixtures and its generators.
 - The read-only fallback for unrepresentable values means an old client occasionally cannot edit
   an entry until it updates. That is accepted over silent corruption.
-- The core is harder to change later than a per-type table would be. Core fields must therefore be
+- Changing the core needs a schema migration **and** a data migration, both with tests. That is
+  safe (section 8), but it is more work than changing a kind's details, so the core should still be
   chosen carefully now (Spec 001 §6).
 - The indirection (descriptors, registries, modules) is more ceremony than four hard-coded types.
   It pays off from the fifth kind onwards, and the backlog already has more than ten.
