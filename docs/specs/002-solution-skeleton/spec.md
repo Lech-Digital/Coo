@@ -2,7 +2,7 @@
 
 Date: 2026-09-30
 
-Status: **Draft — for review**
+Status: Accepted (2026-09-30: Q1 yes, Q2 26, Q3 yes, Q4 yes)
 
 Depends on: ADR 0001 (layout and dependency rules), ADR 0010 (the `Coo.Codecs` project), and the
 sibling apps' `BUILD.md` (the verified toolchain).
@@ -34,6 +34,7 @@ CooApp/
 ├── NuGet.config
 ├── .editorconfig
 ├── BannedSymbols.txt            # shared banned-API list (§5)
+├── eng/banned-non-host/BannedSymbols.txt   # TimeProvider.System, for non-host projects
 ├── BUILD.md                     # the verified build recipe (§8)
 ├── .github/workflows/ci.yml
 ├── src/
@@ -52,12 +53,11 @@ CooApp/
 │       ├── Coo.Mobile.Presentation/
 │       └── Coo.Mobile/
 └── tests/
-    ├── Coo.Architecture.Tests/
-    └── Coo.Domain.Tests/
+    └── Coo.Architecture.Tests/
 ```
 
 **Test projects are created when their first test is written**, not all at once. Increment 1 needs
-only the two above. The others in ADR 0001 §1 (and `Coo.Codecs.Tests`) arrive with the increments
+only the architecture tests. `Coo.Domain.Tests` arrives with Increment 2. The others in ADR 0001 §1 (and `Coo.Codecs.Tests`) arrive with the increments
 that give them something to test. An empty test project would only prove that it compiles.
 
 **Source projects are all created now**, even empty ones. The architecture tests then guard the
@@ -179,7 +179,10 @@ cheaper than a test:
 | `Task.Result`, `Task.Wait()`, `Task.GetAwaiter().GetResult()` | Async all the way (CS-DATA-03) | nowhere |
 | `System.Random` constructors, `Random.Shared` | Makes tests non-deterministic | nowhere in `src/` |
 
-The two hosts use a `BannedSymbols.Hosts.txt` without the `TimeProvider.System` line.
+`TimeProvider.System` is in a second list, `eng/banned-non-host/BannedSymbols.txt`, which every
+project except the two hosts includes. The analyzer (3.3.x) reads only files named exactly
+`BannedSymbols.txt`: a file called `BannedSymbols.NonHost.txt` was silently ignored. The
+deliberate-violation check in §9 found that, which is exactly why that check exists.
 
 Increment 1's verification includes a deliberate violation (§9), to prove the guard fires.
 
@@ -226,9 +229,7 @@ The Android app is not built in CI, as in the sibling apps: the MAUI workload ad
 run. It is built locally (§8). A manually triggered Android job can be added with the first
 release build.
 
-**This needs a GitHub remote.** The workflow file is committed in Increment 1. Creating the
-repository (for example a private `adziusmaster/Coo`) and pushing to it is the owner's call
-(§11, Q1).
+The remote is the private repository `Lech-Digital/Coo`, in the owner's organisation (§11, Q1).
 
 ## 8. `BUILD.md`
 
@@ -269,7 +270,7 @@ release signing each arrive with their own increment (`docs/ROADMAP.md`).
 
 | # | Question | Recommendation |
 |---|---|---|
-| Q1 | Create a private GitHub repository `adziusmaster/Coo` and push, so that CI runs? | **Yes**, as for PurePrep. It is your account, so I will push only after you say so. |
+| Q1 | Create a private GitHub repository and push, so that CI runs? | **Yes: `Lech-Digital/Coo`**, a private repository in the owner's organisation. |
 | Q2 | Minimum Android version 26 (Android 8.0) instead of the siblings' 23 | **26**: it avoids pre-notification-channel code paths |
 | Q3 | Create test projects when their first test exists, not all nine now | **Yes** |
 | Q4 | FluentAssertions pinned below version 8, for the licence | **Yes**. The alternative is switching to Shouldly or AwesomeAssertions, but your standards name FluentAssertions. |

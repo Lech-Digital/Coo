@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    name: Build, format and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      # The Android projects are not built here: they need the maui-android workload, which adds
+      # minutes to every run. Everything testable lives in net10.0 projects (ADR 0001 §3),
+      # and Coo.Tests.slnf covers them all. See BUILD.md for the Android build.
+      - name: Restore
+        run: dotnet restore Coo.Tests.slnf
+
+      - name: Format
+        run: dotnet format Coo.Tests.slnf --verify-no-changes --no-restore
+
+      - name: Build
+        run: dotnet build Coo.Tests.slnf --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test Coo.Tests.slnf --configuration Release --no-build --verbosity normal

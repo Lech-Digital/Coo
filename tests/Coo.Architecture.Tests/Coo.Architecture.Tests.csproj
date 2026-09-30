@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+
+  <!-- Every net10.0 source project, so type-level rules can load their assemblies.
+       The Android-only projects are checked through their csproj files instead. -->
+  <ItemGroup>
+    <ProjectReference Include="../../src/Shared/Coo.Domain/Coo.Domain.csproj" />
+    <ProjectReference Include="../../src/Shared/Coo.Contracts/Coo.Contracts.csproj" />
+    <ProjectReference Include="../../src/Shared/Coo.Codecs/Coo.Codecs.csproj" />
+    <ProjectReference Include="../../src/Backend/Coo.Api.Application/Coo.Api.Application.csproj" />
+    <ProjectReference Include="../../src/Backend/Coo.Api.Infrastructure/Coo.Api.Infrastructure.csproj" />
+    <ProjectReference Include="../../src/Backend/Coo.Api/Coo.Api.csproj" />
+    <ProjectReference Include="../../src/Mobile/Coo.Mobile.Application/Coo.Mobile.Application.csproj" />
+    <ProjectReference Include="../../src/Mobile/Coo.Mobile.Infrastructure/Coo.Mobile.Infrastructure.csproj" />
+    <ProjectReference Include="../../src/Mobile/Coo.Mobile.Presentation/Coo.Mobile.Presentation.csproj" />
+  </ItemGroup>
+
+</Project>

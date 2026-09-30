@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Increment 1 only: proves the toolchain produces an app that installs and starts (Spec 002 §3.1). -->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Coo.Mobile.PlaceholderPage"
+             BackgroundColor="#F1EDE5">
+  <VerticalStackLayout VerticalOptions="Center" Spacing="8">
+    <Label Text="Coo" FontSize="48" TextColor="#2A2823" HorizontalOptions="Center" />
+    <Label x:Name="BuildLabel" FontSize="15" TextColor="#6B665C" HorizontalOptions="Center" />
+  </VerticalStackLayout>
+</ContentPage>

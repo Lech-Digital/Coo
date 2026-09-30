@@ -9,7 +9,7 @@ two.
 
 | # | Increment | Spec | Deliverable you can test | Status |
 |---|---|---|---|---|
-| 1 | **Solution skeleton** | 002 | The solution builds with zero warnings. The architecture tests pass, and deliberate violations fail. `/health` answers. A placeholder app installs and opens on your phone. | Spec drafted |
+| 1 | **Solution skeleton** | 002 (accepted) | The solution builds with zero warnings. The architecture tests pass, and deliberate violations fail. `/health` answers. A placeholder app installs and opens on your phone. | Built; phone install pending |
 | 2 | **Care-log domain and codecs** | 001 (accepted) | The whole domain from Spec 001, and `Coo.Codecs`: kinds, rules, duplicates, time resolver, HLC, codecs with the write gate and the upcaster chain, and the ADR 0010 completeness tests. **Test:** `dotnet test` runs the complete Spec 001 §14 list plus the round-trip property tests, all green. | — |
 | 3 | **Local storage and the write path** | 004 | EF Core SQLite on the phone: the `care_entries` table with the G3 constraints, repositories through the codecs, the read guard, the local integrity scan, the outbox table (filled, not sent yet), and data-migration runner v1. **Test:** real-SQLite tests; a debug screen on the phone adds and lists entries that survive an app restart. | — |
 | 4 | **Look and feel: styles** | 003 | The Washi UX tokens as MAUI resources, bundled Figtree, Auto/Day/Night switching, and the token-contrast test. **Test:** a style-gallery page on the phone, checked against `washi-ux.html`, which also closes the handover's open checks on tabular figures and Polish diacritics. | — |

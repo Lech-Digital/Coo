@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Backend/">
+    <Project Path="src/Backend/Coo.Api.Application/Coo.Api.Application.csproj" />
+    <Project Path="src/Backend/Coo.Api.Infrastructure/Coo.Api.Infrastructure.csproj" />
+    <Project Path="src/Backend/Coo.Api/Coo.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Mobile/">
+    <Project Path="src/Mobile/Coo.Mobile.Application/Coo.Mobile.Application.csproj" />
+    <Project Path="src/Mobile/Coo.Mobile.Infrastructure/Coo.Mobile.Infrastructure.csproj" />
+    <Project Path="src/Mobile/Coo.Mobile.Platform/Coo.Mobile.Platform.csproj" />
+    <Project Path="src/Mobile/Coo.Mobile.Presentation/Coo.Mobile.Presentation.csproj" />
+    <Project Path="src/Mobile/Coo.Mobile/Coo.Mobile.csproj" />
+  </Folder>
+  <Folder Name="/src/Shared/">
+    <Project Path="src/Shared/Coo.Codecs/Coo.Codecs.csproj" />
+    <Project Path="src/Shared/Coo.Contracts/Coo.Contracts.csproj" />
+    <Project Path="src/Shared/Coo.Domain/Coo.Domain.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Coo.Architecture.Tests/Coo.Architecture.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -81,3 +81,6 @@ play-service-account*.json
 .gradle/
 build/
 local.properties
+
+# MSBuild SDK-resolver leftovers
+*.SdkResolver.*.Backup.tmp

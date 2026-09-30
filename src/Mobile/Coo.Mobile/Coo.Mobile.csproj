@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Single-targets Android (ADR 0001 §3). Never multi-target and never pass
+         -p:TargetFrameworks=...: see BUILD.md for the NETSDK1147 / NETSDK1005 traps. -->
+    <TargetFramework>net10.0-android</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Coo.Mobile</RootNamespace>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+    <MauiXamlInflator>SourceGen</MauiXamlInflator>
+
+    <ApplicationTitle>Coo</ApplicationTitle>
+    <ApplicationId>com.lechdigital.coo</ApplicationId>
+    <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>1</ApplicationVersion>
+
+    <!-- Android 8.0: notification channels always exist (Spec 002 §3.1, ADR 0007). -->
+    <SupportedOSPlatformVersion>26.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Placeholder artwork until the brand work; colours are Washi UX Ground and Accent. -->
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#F1EDE5" />
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#F1EDE5" BaseSize="128,128" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Maui.Controls" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Coo.Mobile.Presentation/Coo.Mobile.Presentation.csproj" />
+    <ProjectReference Include="../Coo.Mobile.Infrastructure/Coo.Mobile.Infrastructure.csproj" />
+    <ProjectReference Include="../Coo.Mobile.Platform/Coo.Mobile.Platform.csproj" />
+  </ItemGroup>
+
+</Project>

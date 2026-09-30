@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <!--
+    A deliberate, documented exception to CS-MOD-01 (Spec 001 §3.5): persistence and contract
+    mapping rebuild records through internal Rehydrate factories. The architecture test
+    Domain_InternalsVisibleTo_IsExactlyTheApprovedList fails if this list changes.
+  -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="Coo.Api.Application" />
+    <InternalsVisibleTo Include="Coo.Api.Infrastructure" />
+    <InternalsVisibleTo Include="Coo.Mobile.Application" />
+    <InternalsVisibleTo Include="Coo.Mobile.Infrastructure" />
+    <InternalsVisibleTo Include="Coo.Domain.Tests" />
+    <InternalsVisibleTo Include="Coo.Codecs.Tests" />
+    <InternalsVisibleTo Include="Coo.Api.Application.Tests" />
+    <InternalsVisibleTo Include="Coo.Api.Infrastructure.Tests" />
+    <InternalsVisibleTo Include="Coo.Mobile.Application.Tests" />
+    <InternalsVisibleTo Include="Coo.Mobile.Infrastructure.Tests" />
+  </ItemGroup>
+
+</Project>

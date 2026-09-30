@@ -1,0 +1,17 @@
+{
+  "solution": {
+    "path": "Coo.slnx",
+    "projects": [
+      "src/Backend/Coo.Api.Application/Coo.Api.Application.csproj",
+      "src/Backend/Coo.Api.Infrastructure/Coo.Api.Infrastructure.csproj",
+      "src/Backend/Coo.Api/Coo.Api.csproj",
+      "src/Mobile/Coo.Mobile.Application/Coo.Mobile.Application.csproj",
+      "src/Mobile/Coo.Mobile.Infrastructure/Coo.Mobile.Infrastructure.csproj",
+      "src/Mobile/Coo.Mobile.Presentation/Coo.Mobile.Presentation.csproj",
+      "src/Shared/Coo.Codecs/Coo.Codecs.csproj",
+      "src/Shared/Coo.Contracts/Coo.Contracts.csproj",
+      "src/Shared/Coo.Domain/Coo.Domain.csproj",
+      "tests/Coo.Architecture.Tests/Coo.Architecture.Tests.csproj"
+    ]
+  }
+}

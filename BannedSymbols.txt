@@ -1,0 +1,17 @@
+P:System.DateTime.Now;Time is injected: take 'now' as a parameter or use the injected TimeProvider (ADR 0001 §2)
+P:System.DateTime.UtcNow;Time is injected: take 'now' as a parameter or use the injected TimeProvider (ADR 0001 §2)
+P:System.DateTime.Today;Time is injected: take 'now' as a parameter or use the injected TimeProvider (ADR 0001 §2)
+P:System.DateTimeOffset.Now;Time is injected: take 'now' as a parameter or use the injected TimeProvider (ADR 0001 §2)
+P:System.DateTimeOffset.UtcNow;Time is injected: take 'now' as a parameter or use the injected TimeProvider (ADR 0001 §2)
+M:System.Guid.NewGuid;Record IDs are UUIDv7: use Guid.CreateVersion7(timeProvider.GetUtcNow()) (ADR 0002 §1)
+M:System.Guid.CreateVersion7;This overload reads the system clock: pass the injected time (ADR 0002 §1)
+P:System.Threading.Tasks.Task`1.Result;Async all the way (CS-DATA-03)
+M:System.Threading.Tasks.Task.Wait;Async all the way (CS-DATA-03)
+M:System.Threading.Tasks.Task.Wait(System.Int32);Async all the way (CS-DATA-03)
+M:System.Threading.Tasks.Task.Wait(System.TimeSpan);Async all the way (CS-DATA-03)
+M:System.Threading.Tasks.Task.Wait(System.Threading.CancellationToken);Async all the way (CS-DATA-03)
+M:System.Runtime.CompilerServices.TaskAwaiter.GetResult;Async all the way (CS-DATA-03)
+M:System.Runtime.CompilerServices.TaskAwaiter`1.GetResult;Async all the way (CS-DATA-03)
+M:System.Random.#ctor;Randomness makes behaviour non-deterministic: inject it
+M:System.Random.#ctor(System.Int32);Randomness makes behaviour non-deterministic: inject it
+P:System.Random.Shared;Randomness makes behaviour non-deterministic: inject it
