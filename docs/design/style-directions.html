@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coo Style Directions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,0..100&family=Figtree:wght@400;500;600&family=M+PLUS+Rounded+1c:wght@400;500;700&family=Nunito+Sans:wght@400;600;700&family=Fredoka:wght@400;500;600&family=Albert+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one row per direction — day phone, 03:12 night phone, token sheet. Opens directly in a browser. */
+:root { --page: #E7E4DE; --pageInk: #2A2823; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--pageInk); font-family: 'Figtree', system-ui, sans-serif; padding: 40px 24px 80px; }
+h1 { font: 500 28px/1.2 'Fraunces', Georgia, serif; margin: 0 0 6px; }
+.lede { margin: 0 0 40px; color: #5F5A51; max-width: 70ch; line-height: 1.5; }
+.row { margin-bottom: 72px; }
+.row h2 { font: 500 24px/1.2 'Fraunces', Georgia, serif; margin: 0 0 4px; }
+.row .why { margin: 0 0 20px; color: #5F5A51; max-width: 75ch; line-height: 1.5; }
+.boards { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+button { font-family: inherit; cursor: pointer; }
+
+/* ---------- Direction tokens ---------- */
+.washi { --bg:#F1EDE5; --surface:#FAF8F3; --line:#DDD6C9; --ink:#2A2823; --ink2:#6B665C; --accent:#5E7150; --accentSoft:#E3E7D9; --accentInk:#46553B;
+  --feed:#B98A5E; --feedBg:#F1E4D6; --feedInk:#6E4B2A; --diaper:#6F8494; --diaperBg:#E2E8EC; --diaperInk:#3E5261;
+  --sleep:#5E7150; --sleepBg:#E3E7D9; --sleepInk:#46553B; --pump:#B97A6C; --pumpBg:#F2DFD8; --pumpInk:#7A4336;
+  --cheek:#E8C4B8; --cheekInk:#6E3F33; --voiceBg:#2A2823; --voiceInk:#F1EDE5; --voiceHint:#B8B1A4;
+  --display:'Fraunces', Georgia, serif; --dispVar:'SOFT' 100, 'opsz' 144; --dispW:300; --body:'Figtree', system-ui, sans-serif;
+  --r:22px; --tileR:20px; --cardBorder:1px solid var(--line); --cardShadow:none; }
+.washi.night { --bg:#16130F; --surface:#211D18; --line:#332D26; --ink:#E9C9A0; --ink2:#A88E70; --accent:#C9A46A; --accentSoft:#2E2820; --accentInk:#E9C9A0;
+  --voiceBg:#C9A46A; --voiceInk:#16130F; }
+
+.kumo { --bg:#EDF0F2; --surface:#FFFFFF; --line:#D6DCE1; --ink:#1D2733; --ink2:#566170; --accent:#3F5486; --accentSoft:#DCE2EF; --accentInk:#2E3F68;
+  --feed:#C0765A; --feedBg:#F7E3DA; --feedInk:#7E3E27; --diaper:#4E7FA3; --diaperBg:#DDEAF3; --diaperInk:#2B516E;
+  --sleep:#3F5486; --sleepBg:#DCE2EF; --sleepInk:#2E3F68; --pump:#7B6A9C; --pumpBg:#E7E2F0; --pumpInk:#4F4170;
+  --cheek:#F3C9B5; --cheekInk:#7E3E27; --voiceBg:#3F5486; --voiceInk:#FFFFFF; --voiceHint:#C3CCE2;
+  --display:'M PLUS Rounded 1c', 'Nunito Sans', system-ui, sans-serif; --dispVar:normal; --dispW:500; --body:'Nunito Sans', system-ui, sans-serif;
+  --r:28px; --tileR:26px; --cardBorder:none; --cardShadow:0 1px 2px rgba(29,39,51,.06), 0 8px 24px rgba(29,39,51,.06); }
+.kumo.night { --bg:#12141C; --surface:#1B1E29; --line:#2A2E3C; --ink:#EBC0A8; --ink2:#A38A80; --accent:#E3A68A; --accentSoft:#26293A; --accentInk:#EBC0A8;
+  --voiceBg:#E3A68A; --voiceInk:#12141C; --cardShadow:none; }
+
+.mochi { --bg:#FBFAF7; --surface:#FFFFFF; --line:#ECE8E1; --ink:#26231F; --ink2:#6E685F; --accent:#8C4A4F; --accentSoft:#F3E3E2; --accentInk:#6E363B;
+  --feed:#E4A283; --feedBg:#F6D9C8; --feedInk:#7C3F22; --diaper:#D8B94C; --diaperBg:#F5E7B0; --diaperInk:#6B5310;
+  --sleep:#9C8AD0; --sleepBg:#E1DAF3; --sleepInk:#46377A; --pump:#86B07A; --pumpBg:#D5E8CE; --pumpInk:#35562B;
+  --cheek:#F6D9C8; --cheekInk:#7C3F22; --voiceBg:#8C4A4F; --voiceInk:#FFFFFF; --voiceHint:#E7C3C5;
+  --display:'Fredoka', 'Albert Sans', system-ui, sans-serif; --dispVar:normal; --dispW:500; --body:'Albert Sans', system-ui, sans-serif;
+  --r:24px; --tileR:32px; --cardBorder:1px solid var(--line); --cardShadow:none; }
+.mochi.night { --bg:#121012; --surface:#1C191C; --line:#2E292E; --ink:#EBCBBE; --ink2:#A38F88; --accent:#D99A9E; --accentSoft:#2A2226; --accentInk:#EBCBBE;
+  --voiceBg:#D99A9E; --voiceInk:#121012; }
+
+/* ---------- Phone ---------- */
+.phone { width: 390px; min-height: 844px; background: var(--bg); color: var(--ink); font-family: var(--body); border-radius: 36px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,.14); }
+.top { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px 8px; }
+.mark { font-family: var(--display); font-variation-settings: var(--dispVar); font-size: 26px; font-weight: 500; letter-spacing: -.5px; }
+.mark span { color: var(--accent); }
+.baby { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px 0 6px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font-size: 15px; font-weight: 500; }
+.baby i { font-style: normal; width: 28px; height: 28px; border-radius: 999px; background: var(--cheek); color: var(--cheekInk); display: grid; place-items: center; font-size: 13px; font-weight: 600; }
+.night .baby i { background: var(--accentSoft); color: var(--ink); }
+.eyebrow { font-size: 13px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink2); font-weight: 600; }
+.status { padding: 20px 24px 4px; display: flex; flex-direction: column; gap: 4px; }
+.big { font-family: var(--display); font-variation-settings: var(--dispVar); font-weight: var(--dispW); font-size: 64px; line-height: 1; letter-spacing: -2px; font-variant-numeric: tabular-nums; }
+.sub { font-size: 15px; color: var(--ink2); }
+.card { margin: 16px 24px 0; padding: 18px 20px; background: var(--surface); border: var(--cardBorder); box-shadow: var(--cardShadow); border-radius: var(--r); display: flex; flex-direction: column; gap: 6px; }
+.card .head { display: flex; align-items: center; justify-content: space-between; }
+.card .head .eyebrow { color: var(--accent); }
+.pill { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: var(--accentSoft); color: var(--accentInk); font-weight: 600; }
+.window { font-family: var(--display); font-variation-settings: var(--dispVar); font-size: 32px; font-weight: 400; letter-spacing: -.5px; font-variant-numeric: tabular-nums; }
+.why2 { font-size: 14px; color: var(--ink2); line-height: 1.4; }
+.tiles { margin: 20px 24px 0; display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+.tile { height: 92px; border: none; border-radius: var(--tileR); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: 600; }
+.t-feed { background: var(--feedBg); color: var(--feedInk); } .t-diaper { background: var(--diaperBg); color: var(--diaperInk); }
+.t-sleep { background: var(--sleepBg); color: var(--sleepInk); } .t-pump { background: var(--pumpBg); color: var(--pumpInk); }
+.voice { margin: 12px 24px 0; height: 60px; border: none; border-radius: 999px; background: var(--voiceBg); color: var(--voiceInk); display: flex; align-items: center; gap: 12px; padding: 0 22px; font-size: 16px; font-weight: 500; text-align: left; }
+.voice small { display: block; font-size: 13px; color: var(--voiceHint); }
+.sect { margin: 28px 24px 0; display: flex; align-items: baseline; justify-content: space-between; }
+.sect h3 { margin: 0; font-family: var(--display); font-variation-settings: var(--dispVar); font-size: 22px; font-weight: 500; }
+.sect a { color: var(--accent); font-size: 14px; font-weight: 600; text-decoration: none; }
+.tl { margin: 8px 24px 0; }
+.ev { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.ev:last-child { border-bottom: none; }
+.ev time { width: 44px; font-size: 14px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+.ev b { width: 10px; height: 10px; border-radius: 999px; }
+.ev span { flex: 1; font-size: 15px; font-weight: 500; }
+.ev em { font-style: normal; font-size: 13px; color: var(--ink2); }
+.d-feed { background: var(--feed); } .d-diaper { background: var(--diaper); } .d-sleep { background: var(--sleep); } .d-pump { background: var(--pump); }
+.nav { margin-top: auto; height: 76px; border-top: 1px solid var(--line); background: var(--surface); display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); }
+.nav button { border: none; background: none; color: var(--ink2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 12px; font-weight: 500; }
+.nav button.on { color: var(--ink); font-weight: 700; }
+
+/* ---------- Night ---------- */
+.nt { padding: 22px 24px 0; display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: var(--ink2); }
+.timer { padding: 64px 24px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.timer .big { font-size: 88px; letter-spacing: -3px; }
+.nbtns { margin: 32px 24px 0; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+.nbtn { height: 64px; border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 17px; font-weight: 600; }
+.nbtn.primary { background: var(--accent); color: var(--bg); border: none; }
+.facts { margin: 28px 24px 0; padding: 16px 18px; border-radius: var(--r); background: var(--surface); display: flex; flex-direction: column; gap: 10px; font-size: 15px; }
+.facts div { display: flex; justify-content: space-between; } .facts em { font-style: normal; color: var(--ink2); }
+.quick { margin: 20px 24px 0; display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+.quick button { height: 64px; border-radius: var(--tileR); border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 14px; font-weight: 600; }
+.hush { margin: auto 24px 28px; text-align: center; font-size: 13px; color: var(--ink2); }
+
+/* ---------- Token sheet ---------- */
+.sheet { width: 600px; min-height: 844px; background: var(--bg); color: var(--ink); font-family: var(--body); border-radius: 20px; padding: 32px; display: flex; flex-direction: column; gap: 26px; box-shadow: 0 20px 50px rgba(0,0,0,.10); }
+.sheet h4 { margin: 0 0 10px; font-size: 13px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink2); font-weight: 600; }
+.sw { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 10px; }
+.sw div { display: flex; flex-direction: column; gap: 6px; font-size: 11px; color: var(--ink2); }
+.sw div::before { content: ""; height: 52px; border-radius: 12px; background: var(--c); border: 1px solid rgba(0,0,0,.06); }
+.spec1 { font-family: var(--display); font-variation-settings: var(--dispVar); font-weight: var(--dispW); font-size: 48px; line-height: 1.05; letter-spacing: -1px; }
+.spec2 { font-family: var(--display); font-variation-settings: var(--dispVar); font-size: 24px; font-weight: 500; }
+.spec3 { font-size: 16px; line-height: 1.5; max-width: 52ch; }
+.comp { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { height: 48px; padding: 0 20px; border-radius: 999px; border: none; font-size: 15px; font-weight: 600; background: var(--accent); color: var(--surface); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.chip { height: 36px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 14px; font-weight: 600; }
+.nightstrip { border-radius: 14px; padding: 16px; display: flex; gap: 10px; background: var(--nbg); }
+.nightstrip div { flex: 1; height: 40px; border-radius: 10px; background: var(--c); }
+</style>
+</head>
+<body>
+<h1>Coo · style directions</h1>
+<p class="lede">Three Japandi directions. Each row shows the daytime Today screen, the same app at 03:12 with a feed running, and the tokens. Night mode is warm and dim in every direction: no bright whites and no blue-heavy text after dark, big targets, only what a half-awake parent needs. The type specimen includes a Polish pangram so missing diacritics are visible.</p>
+
+<div id="rows"></div>
+
+<template id="day">
+<div class="phone">
+  <div class="top"><div class="mark">co<span>o</span></div><button class="baby"><i>Z</i>Zosia · 5 mo</button></div>
+  <div class="status"><div class="eyebrow">Awake for</div><div class="big">1 h 20 m</div><div class="sub">since 12:25, after a 1 h 15 m nap</div></div>
+  <div class="card"><div class="head"><div class="eyebrow">Next nap window</div><div class="pill">High confidence</div></div>
+    <div class="window">14:10 – 14:40</div><div class="why2">Her wake windows have been about 2 h 10 m this week.</div></div>
+  <div class="tiles">
+    <button class="tile t-feed"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v3l-2 3v10a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9l-2-3V3M8 13h8"/></svg>Feed</button>
+    <button class="tile t-diaper"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c3 4 6 7.2 6 10.5a6 6 0 0 1-12 0c0-3.3 3-6.5 6-10.5z"/></svg>Diaper</button>
+    <button class="tile t-sleep"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>Sleep</button>
+    <button class="tile t-pump"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14l-5 5v3h-4v-3z"/><path d="M10 13v6a2 2 0 0 0 4 0v-6"/></svg>Pump</button>
+  </div>
+  <button class="voice" aria-label="Log by voice"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Tell Coo<small>“120 ml formula and a wet diaper”</small></span></button>
+  <div class="sect"><h3>Today</h3><a href="#">See all</a></div>
+  <div class="tl">
+    <div class="ev"><time>13:05</time><b class="d-diaper"></b><span>Diaper · wet</span><em>Naïma</em></div>
+    <div class="ev"><time>12:40</time><b class="d-feed"></b><span>Breast · left · 14 min</span><em>You</em></div>
+    <div class="ev"><time>11:10</time><b class="d-sleep"></b><span>Nap · 1 h 15 m</span><em>Naïma</em></div>
+    <div class="ev"><time>10:30</time><b class="d-feed"></b><span>Bottle · formula · 120 ml</span><em>Tomek</em></div>
+  </div>
+  <div class="nav">
+    <button class="on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"/></svg>Today</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>Log</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M11 20V5M17 20v-6M3 20h18"/></svg>Insights</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 6"/></svg>Family</button>
+  </div>
+</div>
+</template>
+
+<template id="night">
+<div class="phone">
+  <div class="nt"><span>03:12 · Night mode</span><button class="baby"><i>Z</i>Zosia</button></div>
+  <div class="timer"><div class="eyebrow">Feeding · right side</div><div class="big">08:42</div><div class="sub">started 03:04</div></div>
+  <div class="nbtns"><button class="nbtn">Switch side</button><button class="nbtn primary">Stop</button></div>
+  <div class="facts"><div><span>Last feed</span><em>23:50 · left · 18 min</em></div><div><span>Last diaper</span><em>23:55 · wet</em></div></div>
+  <div class="quick"><button>Wet</button><button>Dirty</button><button>Mixed</button><button>Sleep</button></div>
+  <div class="hush">Quiet hours · family alerts paused until 07:00</div>
+</div>
+</template>
+
+<template id="sheet">
+<div class="sheet">
+  <div><h4>Day palette</h4><div class="sw">
+    <div style="--c:var(--bg)">ground</div><div style="--c:var(--surface)">surface</div><div style="--c:var(--ink)">ink</div>
+    <div style="--c:var(--accent)">accent</div><div style="--c:var(--accentSoft)">accent soft</div><div style="--c:var(--cheek)">cheek</div></div></div>
+  <div><h4>Care events</h4><div class="comp">
+    <span class="chip t-feed">Feed</span><span class="chip t-diaper">Diaper</span><span class="chip t-sleep">Sleep</span><span class="chip t-pump">Pump</span></div></div>
+  <div><h4>Night palette</h4><div class="nightstrip" data-night></div></div>
+  <div><h4>Type</h4>
+    <div class="spec1">Zażółć gęślą jaźń</div>
+    <div class="spec2">Nap window 14:10 – 14:40</div>
+    <p class="spec3">Body text for help and explanations. Dürfen wir Zosias Schlaf schätzen? Ça marche, ¿verdad? Bij 120 ml.</p>
+  </div>
+  <div><h4>Controls</h4><div class="comp"><button class="btn">Save 2 entries</button><button class="btn ghost">Log manually</button><span class="pill">High confidence</span></div></div>
+</div>
+</template>
+
+<script>
+const dirs = [
+  { cls: 'washi', name: 'A · Washi & Matcha',
+    why: 'Rice-paper ground, sumi ink, a matcha accent and a blush cheek colour. A soft serif (Fraunces, "soft" axis) for numbers and headings over a clean sans. Hairline borders, lots of space. The calmest of the three, closest to classic Japandi. At night it becomes candle-lit: warm charcoal with amber text.',
+    night: ['#16130F','#211D18','#E9C9A0','#C9A46A'] },
+  { cls: 'kumo', name: 'B · Kumo & Ai',
+    why: '"Cloud and indigo": cool fog-grey ground, aizome indigo accent, peach for warmth. Rounded Japanese-style display type (M PLUS Rounded) makes it friendly without being childish. Soft shadows instead of borders, pillowy corners. More modern and airy. At night the ground goes indigo-black and the text turns peach.',
+    night: ['#12141C','#1B1E29','#EBC0A8','#E3A68A'] },
+  { cls: 'mochi', name: 'C · Mochi',
+    why: 'Near-white ground with pastel "mochi" colours per care event: peach feed, yuzu diaper, lavender sleep, matcha pump. Colour-coded events make the timeline scannable at a glance. The rounded Fredoka display face is the cutest of the three, and the red-bean accent keeps it grown-up. At night the pastels become outlines on near-black.',
+    night: ['#121012','#1C191C','#EBCBBE','#D99A9E'] },
+];
+const root = document.getElementById('rows');
+for (const d of dirs) {
+  const row = document.createElement('section'); row.className = 'row';
+  row.innerHTML = `<h2>${d.name}</h2><p class="why">${d.why}</p><div class="boards"></div>`;
+  const boards = row.querySelector('.boards');
+  const day = document.getElementById('day').content.cloneNode(true); day.firstElementChild.classList.add(d.cls);
+  const night = document.getElementById('night').content.cloneNode(true); night.firstElementChild.classList.add(d.cls, 'night');
+  const sheet = document.getElementById('sheet').content.cloneNode(true); sheet.firstElementChild.classList.add(d.cls);
+  const strip = sheet.querySelector('[data-night]'); strip.style.setProperty('--nbg', d.night[0]);
+  strip.innerHTML = d.night.slice(1).map(c => `<div style="--c:${c}"></div>`).join('');
+  boards.append(day, night, sheet); root.append(row);
+}
+</script>
+</body>
+</html>
