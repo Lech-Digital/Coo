@@ -2,7 +2,7 @@
 
 Date: 2026-09-30
 
-Status: Proposed
+Status: Accepted
 
 Amends: ADR 0001 §1 and §2 (the `CareLog` folder layout, and the new shared `Coo.Codecs` project) and
 ADR 0002 §3 (the list of synced entity types).

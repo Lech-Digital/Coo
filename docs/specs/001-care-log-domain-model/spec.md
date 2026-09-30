@@ -2,7 +2,7 @@
 
 Date: 2026-09-30
 
-Status: **Draft (revision 2) — for review**
+Status: Accepted (revision 2)
 
 Depends on: ADR 0001 (layout), 0002 (sync), 0003 (households), 0005 (AI logging), 0006 (units and
 times), 0008 (sleep predictor), 0009 (Wear OS), **0010 (extensibility)**.
@@ -740,5 +740,5 @@ gets a test at its boundary value and a test just past it.
 
 ### Still open
 
-None for the domain. ADR 0010 itself needs the owner's acceptance. It amends ADR 0001 §1 and
+None. ADR 0010 was accepted on 2026-09-30. It amends ADR 0001 §1 and
 ADR 0002 §3.
