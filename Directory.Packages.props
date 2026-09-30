@@ -8,7 +8,7 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.2" />
 
     <!-- Runtime -->
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.12" />
     <!-- Matches the installed maui-android workload (10.0.0); see BUILD.md. -->
     <PackageVersion Include="Microsoft.Maui.Controls" Version="10.0.0" />
 
