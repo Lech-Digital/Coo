@@ -4,6 +4,8 @@ Date: 2026-09-29
 
 Status: Accepted
 
+Amended by: ADR 0010 §3 (the synced entity types are `CareEntry`, `BabyProfile`, `HouseholdSettings` and `DuplicateDismissal`)
+
 ## Context
 
 Coo is used by several caregivers of one baby: typically two parents and a nanny. Each of them

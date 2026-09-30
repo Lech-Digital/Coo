@@ -4,6 +4,8 @@ Date: 2026-09-29
 
 Status: Accepted
 
+Amended by: ADR 0010 §1 (the `CareLog` folder is organised by entry kind)
+
 ## Context
 
 Coo is an offline-first, family-synced baby care tracker: a .NET MAUI app with a local SQLite
