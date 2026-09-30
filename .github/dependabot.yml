@@ -1,0 +1,23 @@
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      test-tooling:
+        patterns: ["xunit*", "Microsoft.NET.Test.Sdk", "coverlet.*", "NSubstitute", "NetArchTest.*"]
+      microsoft-extensions:
+        patterns: ["Microsoft.Extensions.*"]
+    ignore:
+      # FluentAssertions 8+ is under a commercial licence (Directory.Packages.props).
+      - dependency-name: FluentAssertions
+        versions: [">= 8.0.0"]
+      # Must match the installed maui-android workload; bumped by hand with it (BUILD.md).
+      - dependency-name: Microsoft.Maui.Controls
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
