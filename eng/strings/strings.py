@@ -77,6 +77,10 @@ S = {
 'Milk.Both': ('Both', 'Beides', 'Les deux', 'Ambas', 'Entrambi', 'Oba', 'Beide'),
 'Pump.HowMuch': ('How much?', 'Wie viel?', 'Combien ?', '¿Cuánto?', 'Quanto?', 'Ile?', 'Hoeveel?'),
 
+'Awake.Title': ('{0} is asleep', '{0} schläft', '{0} dort', '{0} está durmiendo', '{0} sta dormendo', '{0} śpi', '{0} slaapt'),
+'Awake.WokeUp': ('Woke up', 'Aufgewacht', 'Réveillé', 'Se despertó', 'Sveglio', 'Pobudka', 'Wakker'),
+'Awake.StillAsleep': ('Still asleep', 'Schläft weiter', 'Dort encore', 'Sigue dormido', 'Dorme ancora', 'Nadal śpi', 'Slaapt nog'),
+'Awake.Hint': ('For a dream feed or a sleepy change, choose Still asleep.', 'Bei einer Traumfütterung oder einem schläfrigen Wickeln wähle „Schläft weiter“.', 'Pour une tétée de rêve ou un change endormi, choisissez « Dort encore ».', 'Para una toma dormida o un cambio medio dormido, elige «Sigue dormido».', 'Per una poppata nel sonno o un cambio assonnato, scegli «Dorme ancora».', 'Przy karmieniu przez sen lub sennej zmianie pieluchy wybierz „Nadal śpi”.', 'Bij een droomvoeding of een slaperige verschoning kies je ‘Slaapt nog’.'),
 'Toast.Logged': ('Logged · {0}', 'Eingetragen · {0}', 'Noté · {0}', 'Registrado · {0}', 'Registrato · {0}', 'Zapisano · {0}', 'Gelogd · {0}'),
 
 'Entry.Breast': ('Breast · {0}', 'Stillen · {0}', 'Sein · {0}', 'Pecho · {0}', 'Seno · {0}', 'Pierś · {0}', 'Borst · {0}'),

@@ -42,6 +42,7 @@ public sealed partial class TodayViewModel : ObservableObject
     private BabyProfile? _baby;
     private TodaySummary? _summary;
     private EntryId? _pumpForYield;
+    private AwakeCheck? _awakeCheck;
 
     [ObservableProperty]
     private HomeSheet _sheet;
@@ -67,6 +68,12 @@ public sealed partial class TodayViewModel : ObservableObject
     [ObservableProperty]
     private DateTime _birthDate;
 
+    [ObservableProperty]
+    private string _awakeTitle = "";
+
+    [ObservableProperty]
+    private string _awakeSince = "";
+
     public TodayViewModel(
         IEnumerable<IHomeSection> sections, IHouseholdStore households, GetToday getToday, HomeActions actions,
         ThemeController theme, IClockFormat clock, RecordBirth recordBirth, TimeProvider time)
@@ -81,6 +88,16 @@ public sealed partial class TodayViewModel : ObservableObject
         };
         _actions.SheetRequested += (_, request) => OpenSheet(request.Sheet, request.Entry);
         _actions.IsPump = id => _summary?.Running.Any(e => e.Id == id && e.Details is PumpDetails) == true;
+        _actions.RunningSleep = () => _summary?.Running.FirstOrDefault(e => e.Details is Coo.Domain.CareLog.Kinds.Sleep.SleepDetails) is { } sleep
+            ? (sleep.Id, sleep.Timing.OccurredAt)
+            : null;
+        _actions.AwakeCheckRequested += (_, check) =>
+        {
+            _awakeCheck = check;
+            AwakeTitle = Strings.Format("Awake.Title", _baby?.Name ?? "");
+            AwakeSince = Strings.Format("Hero.Since", Formats().Time(check.AsleepSince));
+            Sheet = HomeSheet.AwakeCheck;
+        };
         _theme.PaletteChanged += (_, _) => Relayout();
     }
 
@@ -130,7 +147,22 @@ public sealed partial class TodayViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void CloseSheet() => Sheet = HomeSheet.None;
+    private void CloseSheet()
+    {
+        _awakeCheck = null;
+        Sheet = HomeSheet.None;
+    }
+
+    /// <summary>The answer to "woke up or still asleep?" (Spec 006 §5a).</summary>
+    [RelayCommand]
+    private async Task ResolveAwake(bool wokeUp)
+    {
+        if (_awakeCheck is not { } check)
+            return;
+        _awakeCheck = null;
+        Sheet = HomeSheet.None;
+        await _actions.ResolveAwakeCheckAsync(check, wokeUp);
+    }
 
     [RelayCommand]
     private Task StartBreast(BreastSide side) => _actions.StartBreastAsync(side);

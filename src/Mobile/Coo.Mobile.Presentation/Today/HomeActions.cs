@@ -22,7 +22,13 @@ public enum HomeSheet
     Diaper,
     PumpYield,
     RecordBirth,
+
+    /// <summary>The baby is asleep: woke up, or still asleep? (Spec 006 §5a).</summary>
+    AwakeCheck,
 }
+
+/// <summary>A log that waits for the answer to "woke up or still asleep?" (Spec 006 §5a).</summary>
+public sealed record AwakeCheck(EntryId Sleep, DateTimeOffset AsleepSince, Func<Task> Log);
 
 /// <summary>A log finished: a toast to show, or an error message.</summary>
 public sealed record ActionOutcome(bool Succeeded, string Message);
@@ -37,6 +43,21 @@ public sealed class HomeActions(LogEntry log, ReviseEntry revise, TimeProvider t
 
     public event EventHandler<ActionOutcome>? Done;
 
+    /// <summary>Raised instead of logging when the baby is asleep; Today asks, then calls <see cref="ResolveAwakeCheckAsync"/>.</summary>
+    public event EventHandler<AwakeCheck>? AwakeCheckRequested;
+
+    /// <summary>Set by Today: the running sleep of this baby, if any (Spec 006 §5a).</summary>
+    public Func<(EntryId Id, DateTimeOffset Since)?> RunningSleep { get; set; } = () => null;
+
+    /// <summary>"Woke up" ends the sleep now and then logs; "still asleep" only logs.</summary>
+    public async Task ResolveAwakeCheckAsync(AwakeCheck check, bool wokeUp)
+    {
+        ArgumentNullException.ThrowIfNull(check);
+        if (wokeUp)
+            await EndSessionAsync(check.Sleep);
+        await check.Log();
+    }
+
     /// <summary>A section asks Today to open a sheet; for the pump yield, which session it is for.</summary>
     public event EventHandler<(HomeSheet Sheet, EntryId? Entry)>? SheetRequested;
 
@@ -46,18 +67,17 @@ public sealed class HomeActions(LogEntry log, ReviseEntry revise, TimeProvider t
 
     public void RequestRecordBirth() => SheetRequested?.Invoke(this, (HomeSheet.RecordBirth, null));
 
-    public Task StartBreastAsync(BreastSide side) =>
-        LogAsync(BreastFeed.Start(side, time.GetLocalNow()), null, EntrySource.Timer, Strings.Get(side == BreastSide.Left ? "Hero.FeedingLeft" : "Hero.FeedingRight"));
+    public Task StartBreastAsync(BreastSide side) => NeedsAwake(() => LogAsync(BreastFeed.Start(side, time.GetLocalNow()), null, EntrySource.Timer, Strings.Get(side == BreastSide.Left ? "Hero.FeedingLeft" : "Hero.FeedingRight")));
 
     public Task LogBottleAsync(BottleFeed bottle, Formats formats)
     {
         ArgumentNullException.ThrowIfNull(bottle);
         ArgumentNullException.ThrowIfNull(formats);
-        return LogAsync(bottle, EntryTiming.Point(time.GetLocalNow()), EntrySource.Manual, Strings.Format("Entry.Bottle", Formats.MilkName(bottle.Components), formats.Volume(bottle.Total)));
+        return NeedsAwake(() => LogAsync(bottle, EntryTiming.Point(time.GetLocalNow()), EntrySource.Manual, Strings.Format("Entry.Bottle", Formats.MilkName(bottle.Components), formats.Volume(bottle.Total))));
     }
 
     public Task LogDiaperAsync(DiaperContents contents) =>
-        LogAsync(new DiaperDetails(contents), EntryTiming.Point(time.GetLocalNow()), EntrySource.Manual, Strings.Format("Entry.Diaper", Formats.Contents(contents)));
+        NeedsAwake(() => LogAsync(new DiaperDetails(contents), EntryTiming.Point(time.GetLocalNow()), EntrySource.Manual, Strings.Format("Entry.Diaper", Formats.Contents(contents))));
 
     public Task StartSleepAsync() =>
         LogAsync(new SleepDetails(), EntryTiming.Session(TimeRange.Open(time.GetLocalNow())), EntrySource.Timer, Strings.Get("Hero.Sleeping"));
@@ -96,6 +116,15 @@ public sealed class HomeActions(LogEntry log, ReviseEntry revise, TimeProvider t
 
     /// <summary>Set by Today: which running entries are pumping sessions, for the toast text.</summary>
     public Func<EntryId, bool> IsPump { get; set; } = _ => false;
+
+    /// <summary>A diaper, a bottle or a breast feed needs the baby awake: if a sleep runs, ask first (Spec 006 §5a).</summary>
+    private Task NeedsAwake(Func<Task> log)
+    {
+        if (RunningSleep() is not { } sleep)
+            return log();
+        AwakeCheckRequested?.Invoke(this, new AwakeCheck(sleep.Id, sleep.Since, log));
+        return Task.CompletedTask;
+    }
 
     private async Task LogAsync(EntryDetails details, EntryTiming? timing, EntrySource source, string what, bool caregiver = false)
     {

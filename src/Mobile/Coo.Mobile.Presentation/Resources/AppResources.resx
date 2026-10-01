@@ -18,6 +18,10 @@
   <data name="Age.Months.other" xml:space="preserve"><value>{0} mo</value></data>
   <data name="Age.Weeks.one" xml:space="preserve"><value>{0} wk</value></data>
   <data name="Age.Weeks.other" xml:space="preserve"><value>{0} wk</value></data>
+  <data name="Awake.Hint" xml:space="preserve"><value>For a dream feed or a sleepy change, choose Still asleep.</value></data>
+  <data name="Awake.StillAsleep" xml:space="preserve"><value>Still asleep</value></data>
+  <data name="Awake.Title" xml:space="preserve"><value>{0} is asleep</value></data>
+  <data name="Awake.WokeUp" xml:space="preserve"><value>Woke up</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Welcome, {0}</value></data>
   <data name="Diaper.Dirty" xml:space="preserve"><value>Dirty</value></data>
   <data name="Diaper.Mixed" xml:space="preserve"><value>Mixed</value></data>

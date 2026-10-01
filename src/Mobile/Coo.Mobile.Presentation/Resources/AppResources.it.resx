@@ -18,6 +18,10 @@
   <data name="Age.Months.other" xml:space="preserve"><value>{0} mesi</value></data>
   <data name="Age.Weeks.one" xml:space="preserve"><value>{0} sett.</value></data>
   <data name="Age.Weeks.other" xml:space="preserve"><value>{0} sett.</value></data>
+  <data name="Awake.Hint" xml:space="preserve"><value>Per una poppata nel sonno o un cambio assonnato, scegli «Dorme ancora».</value></data>
+  <data name="Awake.StillAsleep" xml:space="preserve"><value>Dorme ancora</value></data>
+  <data name="Awake.Title" xml:space="preserve"><value>{0} sta dormendo</value></data>
+  <data name="Awake.WokeUp" xml:space="preserve"><value>Sveglio</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Benvenuto, {0}</value></data>
   <data name="Diaper.Dirty" xml:space="preserve"><value>Sporco</value></data>
   <data name="Diaper.Mixed" xml:space="preserve"><value>Entrambi</value></data>

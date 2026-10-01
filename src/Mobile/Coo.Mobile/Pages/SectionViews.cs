@@ -182,8 +182,11 @@ internal static class SectionViews
 
         var stack = new VerticalStackLayout { Spacing = 20 };
         stack.Add(top);
-        if (s.Timer is { } timer)
-            stack.Add(RunningCards([timer], night: true));
+        // The first timer in big night digits; any other (the sleep during a dream feed) as a compact card below.
+        if (s.Timers.Count > 0)
+            stack.Add(RunningCards([s.Timers[0]], night: true));
+        if (s.Timers.Count > 1)
+            stack.Add(RunningCards([.. s.Timers.Skip(1)], night: false));
 
         var facts = new VerticalStackLayout { Spacing = 14, Padding = new Thickness(24, 8) };
         foreach (var fact in s.Facts)

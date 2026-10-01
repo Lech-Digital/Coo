@@ -159,6 +159,29 @@ Top to bottom, following the mockup:
 - After a log, a quiet confirmation ("Logged · Diaper · wet") shows for 3 seconds. Undo arrives with
   editing in Increment 7.
 
+## 5a. Logging while the baby is asleep (added 2026-10-01, at the owner's request)
+
+When a sleep is running and the parent logs something that needs the baby awake (a **diaper**, a **bottle**, or
+the start of a **breast feed**, in the day or the night layout), Coo does not log it straight away. A sheet asks
+first:
+
+- **"Zosia is asleep · since 20:05"**, then two buttons:
+  - **Woke up** ends the sleep now, then logs the entry;
+  - **Still asleep** logs the entry and leaves the sleep running.
+- **The hint line:** "For a dream feed or a sleepy change, choose Still asleep."
+- A tap outside, or Back, cancels: nothing is logged.
+
+**Why ask, rather than end the sleep automatically:** dream feeds and sleepy night changes are real. A guessed end
+time would corrupt the sleep totals and, later, the sleep predictor (ADR 0008). The parent decides with one tap, and
+Coo never guesses.
+
+**What does not ask:**
+
+- **Pumping:** it is about the parent, not the baby, and runs alongside a sleep.
+- **Starting a sleep while a feed runs:** falling asleep at the breast is normal.
+
+The sleep's end time is the moment of the tap, the same moment the new entry gets.
+
 ## 6. Today at night
 
 When the palette is Night (Spec 005 §6), Today switches to the **03:12 layout** of the mockup. It is
@@ -278,6 +301,18 @@ All deliverables of §11 were checked on the owner's phone, on a clean install:
 | "Karmienie" broke mid-word on its tile | Long tile names step down to 12.5 sp; tiles have 10 dp side padding |
 | A language change while running crashed MAUI's Shell teardown | `MainActivity` handles locale changes and rebuilds the page tree instead of recreating the activity |
 | The setup hint promised "everything stays on this phone", which will not be true after sync | "No account needed to start. You can share with family later." |
+
+**Asleep check (§5a), verified on the same phone:**
+
+- Diaper while asleep asks the question, and **Woke up** ends the sleep, then logs.
+- A night **Feed L** during a sleep asks too, and **Still asleep** keeps the sleep and starts the feed.
+
+Two more findings, fixed:
+
+| Finding | Fix |
+|---|---|
+| At night only one running timer showed, so a dream feed's Switch side and Stop were unreachable | The night layout shows every running timer: active care first in big digits, the sleep below |
+| A cold start in dark mode showed the night layout in day colours: the window's Created event re-applied Day after the theme had chosen Night | Created applies the controller's current palette |
 
 **Known gaps, carried forward:**
 

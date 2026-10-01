@@ -36,7 +36,10 @@ public partial class App : Microsoft.Maui.Controls.Application
     protected override Window CreateWindow(IActivationState? activationState)
     {
         var window = new Window(_services.GetRequiredService<StartupPage>());
-        window.Created += (_, _) => _services.GetRequiredService<ThemeHost>().Apply(PaletteKind.Day);
+        // Apply the controller's current palette, never a fixed one: on a cold start in dark mode, Created fires after
+        // the controller has already chosen Night, and a hard-coded Day here overwrote it (found on the phone).
+        var theme = _services.GetRequiredService<ThemeController>();
+        window.Created += (_, _) => _services.GetRequiredService<ThemeHost>().Apply(theme.Current);
         window.Resumed += (_, _) => _services.GetRequiredService<ThemeController>().Refresh();
         return window;
     }

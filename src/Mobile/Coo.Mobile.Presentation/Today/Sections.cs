@@ -285,8 +285,12 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
     [ObservableProperty]
     private string _babyName = "";
 
+    /// <summary>
+    /// Every running timer, active care first: during a dream feed both the feed and the sleep run, and the feed's
+    /// Switch side and Stop must be reachable at night (Spec 006 §5a, found on the phone).
+    /// </summary>
     [ObservableProperty]
-    private RunningItem? _timer;
+    private IReadOnlyList<RunningItem> _timers = [];
 
     [ObservableProperty]
     private IReadOnlyList<FactItem> _facts = [];
@@ -303,9 +307,10 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
         var t = s.Today;
         Title = Strings.Format("Night.Title", s.Formats.Time(s.Now));
         BabyName = s.Baby.Name;
-        var timer = t is { Running.Count: > 0 } ? Running.Item(t.Running[0], s, actions, Timer) : null;
-        if (!ReferenceEquals(timer, Timer))
-            Timer = timer;
+        var running = (t?.Running ?? []).OrderBy(e => e.Details is SleepDetails ? 1 : 0).ThenBy(e => e.Timing.OccurredAt);
+        var timers = running.Select(e => Running.Item(e, s, actions, Timers.FirstOrDefault(i => i.Id == e.Id))).ToList();
+        if (Running.Changed(Timers, timers, i => i.Id.ToString()))
+            Timers = timers;
 
         var feed = t?.LastFeed is { } f ? f.Details switch
         {

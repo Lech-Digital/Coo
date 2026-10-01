@@ -107,6 +107,7 @@ public sealed class TodayPage : ContentPage
             HomeSheet.Diaper => DiaperSheet(),
             HomeSheet.PumpYield => PumpSheet(),
             HomeSheet.RecordBirth => BirthSheet(),
+            HomeSheet.AwakeCheck => AwakeSheet(),
             _ => null,
         };
 
@@ -170,6 +171,13 @@ public sealed class TodayPage : ContentPage
             Amount(Strings.Get("Feed.Right"), nameof(TodayViewModel.PumpRight)),
             Row(Ghost(Strings.Get("Action.Skip"), _model.SavePumpYieldCommand, true), Primary(Strings.Get("Action.Save"), _model.SavePumpYieldCommand, false)));
     }
+
+    /// <summary>"Zosia is asleep · since 20:05": woke up, or still asleep (Spec 006 §5a). Tap outside cancels.</summary>
+    private View AwakeSheet() => Panel(
+        _model.AwakeTitle,
+        Ui.Text(_model.AwakeSince, "Body", "Ink2"),
+        Row(Ghost(Strings.Get("Awake.StillAsleep"), _model.ResolveAwakeCommand, false), Primary(Strings.Get("Awake.WokeUp"), _model.ResolveAwakeCommand, true)),
+        Ui.Text(Strings.Get("Awake.Hint"), "Meta"));
 
     private View BirthSheet()
     {

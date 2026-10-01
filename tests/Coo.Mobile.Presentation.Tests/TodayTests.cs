@@ -55,7 +55,7 @@ public sealed class TodayTests
         section.Update(Snapshot(summary, PaletteKind.Night));
 
         // Assert
-        section.Timer!.Digits.Should().Be("08:00");
+        section.Timers.Should().ContainSingle().Which.Digits.Should().Be("08:00");
         section.Facts.Should().HaveCount(3);
         section.Quick.Select(q => q.KindCode).Should().Contain(["diaper", "sleep", "feeding"]);
         section.AppliesTo(HomeStage.Born, PaletteKind.Night).Should().BeTrue();
@@ -126,6 +126,157 @@ public sealed class TodayTests
         var baby = BabyProfile.Create(Baby, Household, "Zosia", [], new DateOnly(2026, 5, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
         return new HomeSnapshot(Settings(), baby, summary, Now, palette, new Formats(true, VolumeUnit.Millilitres));
     }
+
+    private sealed class FixedTime(DateTimeOffset now) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => now.ToUniversalTime();
+
+        public override TimeZoneInfo LocalTimeZone { get; } = TimeZoneInfo.CreateCustomTimeZone("plus2", now.Offset, "plus2", "plus2");
+    }
+}
+
+public sealed class AwakeCheckTests
+{
+    private static readonly DateTimeOffset Now = new(2026, 10, 1, 3, 12, 0, TimeSpan.FromHours(2));
+    private static readonly HouseholdId Household = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a1"));
+    private static readonly BabyId Baby = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
+    private static readonly DeviceId Device = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1"));
+
+    private readonly ICareLogStore _store = Substitute.For<ICareLogStore>();
+    private readonly IVersionClock _clock = Substitute.For<IVersionClock>();
+    private readonly List<CareEntry> _saved = [];
+    private long _wall = 1;
+
+    public AwakeCheckTests()
+    {
+        _clock.NextAsync(Arg.Any<CancellationToken>()).Returns(_ => new HlcStamp(++_wall, 0, Device));
+        _store.SaveAsync(Arg.Do<CareEntry>(e => _saved.Add(e)), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task LogDiaperAsync_WhileAsleep_AsksFirstAndLogsNothing()
+    {
+        // Arrange
+        var actions = Actions(asleep: Sleep());
+        AwakeCheck? asked = null;
+        actions.AwakeCheckRequested += (_, check) => asked = check;
+
+        // Act
+        await actions.LogDiaperAsync(Coo.Domain.CareLog.Kinds.Diaper.DiaperContents.Wet);
+
+        // Assert
+        asked.Should().NotBeNull();
+        _saved.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ResolveAwakeCheckAsync_WokeUp_EndsTheSleepThenLogs()
+    {
+        // Arrange
+        var sleep = Sleep();
+        var actions = Actions(asleep: sleep);
+        _store.FindAsync(sleep.Id, Arg.Any<CancellationToken>()).Returns(new LiveEntry(sleep));
+        AwakeCheck? asked = null;
+        actions.AwakeCheckRequested += (_, check) => asked = check;
+        await actions.LogDiaperAsync(Coo.Domain.CareLog.Kinds.Diaper.DiaperContents.Wet);
+
+        // Act
+        await actions.ResolveAwakeCheckAsync(asked!, wokeUp: true);
+
+        // Assert
+        sleep.Timing.IsInProgress.Should().BeFalse("woke up ends the sleep now");
+        _saved.Select(e => e.KindCode.Value).Should().Equal("sleep", "diaper");
+    }
+
+    [Fact]
+    public async Task ResolveAwakeCheckAsync_StillAsleep_LogsAndKeepsTheSleepRunning()
+    {
+        // Arrange: a dream feed.
+        var sleep = Sleep();
+        var actions = Actions(asleep: sleep);
+        AwakeCheck? asked = null;
+        actions.AwakeCheckRequested += (_, check) => asked = check;
+        await actions.StartBreastAsync(BreastSide.Left);
+
+        // Act
+        await actions.ResolveAwakeCheckAsync(asked!, wokeUp: false);
+
+        // Assert
+        sleep.Timing.IsInProgress.Should().BeTrue();
+        _saved.Should().ContainSingle(e => e.Details is BreastFeed);
+    }
+
+    [Fact]
+    public async Task StartPumpAsync_WhileAsleep_DoesNotAsk()
+    {
+        // Arrange: pumping is about the parent, and runs alongside a sleep.
+        var actions = Actions(asleep: Sleep());
+        var asked = false;
+        actions.AwakeCheckRequested += (_, _) => asked = true;
+
+        // Act
+        await actions.StartPumpAsync();
+
+        // Assert
+        asked.Should().BeFalse();
+        _saved.Should().ContainSingle();
+    }
+
+    private HomeActions Actions(CareEntry? asleep)
+    {
+        var time = new FixedTime(Now);
+        return new HomeActions(new LogEntry(_store, _clock, time), new ReviseEntry(_store, _clock, time), time)
+        {
+            Context = new HomeContext(Household, Baby),
+            RunningSleep = () => asleep is null ? null : (asleep.Id, asleep.Timing.OccurredAt),
+        };
+    }
+
+    private CareEntry Sleep() =>
+        CareEntry.Create(new EntryId(Guid.CreateVersion7(Now)), Household, EntrySubject.Baby(Baby), new Coo.Domain.CareLog.Kinds.Sleep.SleepDetails(),
+            EntryTiming.Session(TimeRange.Open(Now.AddHours(-3))), PersonRef.ThisDevicesPerson, EntrySource.Timer, new HlcStamp(++_wall, 0, Device), Now).Value;
+
+    private sealed class FixedTime(DateTimeOffset now) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => now.ToUniversalTime();
+
+        public override TimeZoneInfo LocalTimeZone { get; } = TimeZoneInfo.CreateCustomTimeZone("plus2", now.Offset, "plus2", "plus2");
+    }
+}
+
+public sealed class NightTimersTests
+{
+    private static readonly DateTimeOffset Now = new(2026, 10, 1, 3, 12, 0, TimeSpan.FromHours(2));
+    private static readonly HouseholdId Household = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a1"));
+    private static readonly BabyId Baby = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
+    private static readonly DeviceId Device = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1"));
+    private long _wall = 1;
+
+    [Fact]
+    public void Update_DreamFeedDuringSleep_ShowsBothTimersFeedFirst()
+    {
+        // Arrange: the sleep started first, then a dream feed.
+        var sleep = Entry(new Coo.Domain.CareLog.Kinds.Sleep.SleepDetails(), EntryTiming.Session(TimeRange.Open(Now.AddHours(-2))));
+        var feed = Entry(BreastFeed.Start(BreastSide.Left, Now.AddMinutes(-5)), null);
+        var summary = new TodaySummary([sleep, feed], feed, null, sleep, null, null, [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc));
+        var time = new FixedTime(Now);
+        var store = Substitute.For<ICareLogStore>();
+        var clock = Substitute.For<IVersionClock>();
+        var section = new NightSection(new HomeActions(new LogEntry(store, clock, time), new ReviseEntry(store, clock, time), time));
+        var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
+
+        // Act
+        section.Update(new HomeSnapshot(settings, baby, summary, Now, PaletteKind.Night, new Formats(true, VolumeUnit.Millilitres)));
+
+        // Assert
+        section.Timers.Select(t => t.KindCode).Should().Equal("feeding", "sleep");
+        section.Timers[0].Actions.Should().HaveCount(2, "the feed keeps Switch side and Stop at night");
+    }
+
+    private CareEntry Entry(EntryDetails details, EntryTiming? timing) =>
+        CareEntry.Create(new EntryId(Guid.CreateVersion7(Now.AddMilliseconds(++_wall))), Household, EntrySubject.Baby(Baby), details, timing,
+            PersonRef.ThisDevicesPerson, EntrySource.Timer, new HlcStamp(++_wall, 0, Device), Now).Value;
 
     private sealed class FixedTime(DateTimeOffset now) : TimeProvider
     {

@@ -21,6 +21,10 @@
   <data name="Age.Weeks.few" xml:space="preserve"><value>{0} tyg.</value></data>
   <data name="Age.Weeks.many" xml:space="preserve"><value>{0} tyg.</value></data>
   <data name="Age.Weeks.one" xml:space="preserve"><value>{0} tydz.</value></data>
+  <data name="Awake.Hint" xml:space="preserve"><value>Przy karmieniu przez sen lub sennej zmianie pieluchy wybierz „Nadal śpi”.</value></data>
+  <data name="Awake.StillAsleep" xml:space="preserve"><value>Nadal śpi</value></data>
+  <data name="Awake.Title" xml:space="preserve"><value>{0} śpi</value></data>
+  <data name="Awake.WokeUp" xml:space="preserve"><value>Pobudka</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Witaj, {0}</value></data>
   <data name="Diaper.Dirty" xml:space="preserve"><value>Brudna</value></data>
   <data name="Diaper.Mixed" xml:space="preserve"><value>Obie</value></data>
