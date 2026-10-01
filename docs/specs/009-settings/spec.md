@@ -2,7 +2,7 @@
 
 Date: 2026-10-01
 
-Status: Accepted (2026-10-01: Q1–Q5 answered in the session; Q6–Q8 as recommended)
+Status: Accepted (2026-10-01: Q1–Q5 answered in the session; Q6–Q8 as recommended; Q9 and §3.7 added during planning)
 
 Depends on: Spec 001 (`BabyProfile`, `HouseholdSettings`, `HiddenKinds`), Spec 004 (storage, outbox, `app_state`),
 Spec 005 (appearance modes, quiet hours, `ThemeController`), Spec 006 (Today, Log, the tab bar), ADR 0006 §1 and §5
@@ -70,8 +70,8 @@ makes Today and Log follow each change.
 
 - **Theme:** a segmented control, **Auto | Day | Night**. Auto's line: "Night colours during quiet hours, or when
   your phone is in dark mode."
-- **Quiet hours:** a row with the start and the end (time pickers), with the line "Night colours start at this time.
-  Later, notifications stay silent too." Equal start and end means none.
+- **Quiet hours:** a row with the start and the end (time pickers), with the line "Night colours and quieter
+  notifications during these hours." Equal start and end means none.
 - **Per device**, never synced (Spec 005 §6.3). Applied at once through `ThemeController.SetAsync`.
 
 ### 3.5 Language
@@ -98,11 +98,21 @@ makes Today and Log follow each change.
   Increment 18; until then the link does not resolve, which is accepted for internal builds. The DNS record for
   `coo.lechdigital.nl` is already in the owner's setup list.
 
+### 3.7 Night ↔ day from Today (Q9)
+
+- **A sun or moon button on Today**, in both palettes: a moon in the day header, a sun next to the night title. It
+  switches to the other palette at once.
+- **In Auto, the switch holds until the next change:** the next quiet-hours start or end (day at 03:00 lasts until
+  22:00; night at 15:00 lasts until 07:00), then Auto decides again. With no quiet hours, it holds for 12 hours. It is
+  stored per device, so a restart at 3 AM keeps it.
+- **With Day or Night fixed in Settings,** the button changes that setting to the other one.
+- Choosing a theme in Settings, or changing the quiet hours, ends any temporary switch.
+
 ## 4. How changes reach Today and Log
 
 - **Units, hidden kinds and the baby:** Today and Log already reload the household and the baby when they appear
   (Spec 006), so a tab switch shows the change. No event is added for these.
-- **Theme and quiet hours:** live, through `ThemeController`, as today.
+- **Theme, quiet hours and the Today switch:** live, through `ThemeController`, as today.
 - **Language:** the rebuild in §3.5.
 
 ## 5. Storage
@@ -111,7 +121,7 @@ makes Today and Log follow each change.
   hidden kinds; `app_state` the per-device values.
 - Every household-wide change goes through the existing store: one save, with its outbox row, in one transaction,
   with a new HLC version (Spec 004).
-- `app_state` gains the key `language`.
+- `app_state` gains the keys `language`, `appearance.override_palette` and `appearance.override_until`.
 
 ## 6. Where it lives
 
@@ -148,7 +158,7 @@ makes Today and Log follow each change.
 | 2 | Edit the baby | Change the name and the due date; Today's header follows. A name of spaces is refused. |
 | 3 | Hide a kind | Hide Pumping: its tile and totals go, old pump entries stay in the timeline. The last kind cannot be hidden. |
 | 4 | Units | Switch to oz: the bottle sheet and the totals show oz; switch back, and 120 ml is still 120 ml |
-| 5 | Theme and quiet hours | Night now, then Auto with quiet hours around the current time: the palette follows at once |
+| 5 | Theme and quiet hours | Night now, then Auto with quiet hours around the current time: the palette follows at once. During quiet hours, the sun on Today brings day colours back, and they stay after a forced stop. |
 | 6 | Language | Pick Polski: the app is in Polish at once, and still after a forced stop. System brings back Android's language. |
 | 7 | About | The version shows 0.9.0 and the commit; the licences open; Send feedback opens the mail app |
 | 8 | CI green | GitHub Actions |
@@ -165,3 +175,4 @@ makes Today and Log follow each change.
 | Q6 | No 12/24-hour setting; a hint that it follows the phone | **Yes.** ADR 0006 §5 decided this; a second switch that can disagree with Android's is a source of confusion. |
 | Q7 | Language applies at once, by rebuilding the pages, without a restart | **Yes.** `App.ReloadForLanguage` already does it; a restart prompt is friction for a setting that is changed once. |
 | Q8 | A running timer of a hidden kind keeps its card until stopped | **Yes.** Hiding a kind must never strand a running timer or lose its entry. |
+| Q9 | Night ↔ day from Today (owner, during planning) | **Answered: until the next change** (§3.7); with a fixed theme, it changes the setting. |
