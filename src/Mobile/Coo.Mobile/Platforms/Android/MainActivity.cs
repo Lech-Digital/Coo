@@ -23,7 +23,8 @@ public class MainActivity : MauiAppCompatActivity
         base.OnConfigurationChanged(newConfig);
         var language = newConfig.Locales.Get(0)?.ToLanguageTag();
         if (_language is not null && language != _language)
-            (Microsoft.Maui.Controls.Application.Current as App)?.ReloadForLanguage(language);
+            IPlatformApplication.Current?.Services.GetRequiredService<Coo.Mobile.Presentation.Localization.LanguageController>()
+                .SystemChanged(System.Globalization.CultureInfo.GetCultureInfo(language!));
         _language = language;
     }
 

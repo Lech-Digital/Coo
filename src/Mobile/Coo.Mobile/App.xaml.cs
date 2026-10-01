@@ -10,27 +10,33 @@ public partial class App : Microsoft.Maui.Controls.Application
 
     public App(IServiceProvider services)
     {
+        // Read before anything changes the process culture.
+        _ = SystemCulture;
         InitializeComponent();
         _services = services;
     }
 
-    /// <summary>
-    /// The app's language changed while it ran: apply the culture, and rebuild the pages so every string is re-read
-    /// (ADR 0006). The data and the palette are untouched.
-    /// </summary>
-    public void ReloadForLanguage(string? languageTag)
-    {
-        if (!string.IsNullOrEmpty(languageTag))
-        {
-            var culture = System.Globalization.CultureInfo.GetCultureInfo(languageTag);
-            System.Globalization.CultureInfo.CurrentUICulture = culture;
-            System.Globalization.CultureInfo.CurrentCulture = culture;
-            System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
-            System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culture;
-        }
+    /// <summary>Android's language at process start, before Coo set a culture of its own (Spec 009 §3.5).</summary>
+    public static System.Globalization.CultureInfo SystemCulture { get; } = System.Globalization.CultureInfo.CurrentUICulture;
 
-        if (Windows.Count > 0 && Windows[0].Page is AppShell)
-            Windows[0].Page = _services.GetRequiredService<AppShell>();
+    /// <summary>
+    /// The language in effect changed (Spec 009 §3.5, ADR 0006): apply it to the process, and rebuild the pages so
+    /// every string is re-read. The data and the palette are untouched. From Settings, the new shell opens on Settings.
+    /// </summary>
+    public void ApplyLanguage(bool returnToSettings)
+    {
+        var culture = Coo.Mobile.Presentation.Localization.Strings.Culture;
+        System.Globalization.CultureInfo.CurrentUICulture = culture;
+        System.Globalization.CultureInfo.CurrentCulture = culture;
+        System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
+        System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culture;
+
+        if (Windows.Count == 0 || Windows[0].Page is not AppShell)
+            return;
+        var shell = _services.GetRequiredService<AppShell>();
+        Windows[0].Page = shell;
+        if (returnToSettings)
+            shell.Dispatcher.Dispatch(async () => await shell.GoToAsync("//settings"));
     }
 
     protected override Window CreateWindow(IActivationState? activationState)

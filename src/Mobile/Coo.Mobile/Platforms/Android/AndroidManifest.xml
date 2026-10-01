@@ -3,6 +3,13 @@
   <!-- allowBackup is off: care data is health data about a child, and must not be extractable
        through adb backup or auto-synced off the device. Backup is a deliberate feature (ADR 0003). -->
   <application android:allowBackup="false" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true"></application>
+  <!-- Android 11+ hides other apps unless declared: "Send feedback" needs to see a mail app (Spec 009 §3.6). -->
+  <queries>
+    <intent>
+      <action android:name="android.intent.action.SENDTO" />
+      <data android:scheme="mailto" />
+    </intent>
+  </queries>
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 </manifest>

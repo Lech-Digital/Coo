@@ -31,6 +31,18 @@ internal static class Ui
             border.SetDynamicResource(Border.StrokeProperty, borderKey + "Brush");
         return border;
     }
+
+    /// <summary>A pushed page's top: the round back button and the title (as on Edit and Needs attention).</summary>
+    public static Grid BackHeader(string title, Func<Task> back)
+    {
+        var button = Rounded(new Icon(IconGeometry.ChevronLeft, "Ink", 24).Tap(i => i.HorizontalOptions = LayoutOptions.Center), "Surface", 999, new Thickness(12), "Line");
+        button.WidthRequest = button.HeightRequest = 48;
+        button.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await back()) });
+        var header = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 12 };
+        header.Add(button, 0);
+        header.Add(Text(title, "Title").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
+        return header;
+    }
 }
 
 /// <summary>Status only, never an action: <c>AccentSoft</c> fill, <c>AccentInk</c> text.</summary>

@@ -12,8 +12,10 @@
 
     <ApplicationTitle>Coo</ApplicationTitle>
     <ApplicationId>com.lechdigital.coo</ApplicationId>
-    <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
-    <ApplicationVersion>11</ApplicationVersion>
+    <ApplicationDisplayVersion>0.9.0</ApplicationDisplayVersion>
+    <ApplicationVersion>12</ApplicationVersion>
+    <!-- The informational version is 0.9.0+<commit> (SourceLink), shown in About like the API's /health. -->
+    <Version>$(ApplicationDisplayVersion)</Version>
 
     <!-- Android 8.0: notification channels always exist (Spec 002 §3.1, ADR 0007). -->
     <SupportedOSPlatformVersion>26.0</SupportedOSPlatformVersion>

@@ -44,6 +44,11 @@ public static class MauiProgram
         builder.Services.AddTransient<LogPage>();
         builder.Services.AddTransient<EditPage>();
         builder.Services.AddTransient<AttentionPage>();
+        builder.Services.AddTransient<SettingsPage>();
+        builder.Services.AddTransient<BabyPage>();
+        builder.Services.AddTransient<LicencesPage>();
+        builder.Services.AddSingleton<Coo.Mobile.Presentation.Settings.IAboutInfo, Settings.MauiAboutInfo>();
+        builder.Services.AddSingleton<Coo.Mobile.Presentation.Settings.IExternalLauncher, Settings.MauiExternalLauncher>();
         builder.Services.AddTransient<AppShell>();
 #if DEBUG_SCREEN
         builder.Services.AddTransient<DebugScreen.DebugPage>();
