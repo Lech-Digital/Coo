@@ -155,6 +155,27 @@ public sealed class SettingsTests
         await _households.Received(2).SaveBabyAsync(_baby, Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task SetUnit_OuncesThenMillilitres_OnlyChangesTheDisplayOfA120MlBottle()
+    {
+        // Arrange (Spec 009 §7): amounts are stored in ml; the unit is display only.
+        var bottle = Coo.Domain.CareLog.Volume.FromMillilitres(120).Value;
+        var model = Model();
+        await model.RefreshAsync();
+
+        // Act
+        await model.SetUnitCommand.ExecuteAsync(VolumeUnit.Ounces);
+        var inOunces = new Coo.Mobile.Presentation.Formatting.Formats(true, _settings.VolumeUnit).Volume(bottle);
+        await model.SetUnitCommand.ExecuteAsync(VolumeUnit.Millilitres);
+        var inMillilitres = new Coo.Mobile.Presentation.Formatting.Formats(true, _settings.VolumeUnit).Volume(bottle);
+
+        // Assert
+        inOunces.Should().Be("4.1 oz");
+        inMillilitres.Should().Be("120 ml");
+        bottle.Millilitres.Should().Be(120);
+        await _households.Received(2).SaveSettingsAsync(_settings, Arg.Any<CancellationToken>());
+    }
+
     private SettingsViewModel Model() => new(
         _households, new ChangeVolumeUnit(_households, _clock), new SetHiddenKinds(_households, _clock),
         new ThemeController(_preferences, Substitute.For<IOsAppearance>(), _time), new LanguageController(_preferences),
