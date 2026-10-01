@@ -193,6 +193,22 @@ public sealed class SettingsTests
         await _households.Received(1).SaveSettingsAsync(_settings, Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task RefreshAsync_NothingChanged_RaisesNoPropertyChanged()
+    {
+        // Arrange: owner's finding on the Pixel 10 — every visit to Settings redrew it, even with nothing new.
+        var model = Model();
+        await model.RefreshAsync();
+        var changed = new List<string?>();
+        model.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+        // Act
+        await model.RefreshAsync();
+
+        // Assert
+        changed.Should().BeEmpty();
+    }
+
     private SettingsViewModel Model() => new(
         _households, new ChangeVolumeUnit(_households, _clock), new SetHiddenKinds(_households, _clock),
         new ThemeController(_preferences, Substitute.For<IOsAppearance>(), _time), new LanguageController(_preferences),

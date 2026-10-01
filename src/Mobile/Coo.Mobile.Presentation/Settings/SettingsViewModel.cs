@@ -80,11 +80,15 @@ public sealed partial class SettingsViewModel(
         }
 
         var shown = KindNames.Count(k => Today.KindVisibility.IsShown(_household, k.Code));
-        Kinds = [.. KindNames.Select(k =>
+        IReadOnlyList<KindToggle> kinds = [.. KindNames.Select(k =>
         {
             var isShown = Today.KindVisibility.IsShown(_household, k.Code);
             return new KindToggle(k.Code, Strings.Get(k.NameKey), isShown, CanChange: !isShown || shown > 1);
         })];
+
+        // The same switches raise no change, so the page does not redraw for nothing (owner's finding, Pixel 10).
+        if (!Kinds.SequenceEqual(kinds))
+            Kinds = kinds;
         IsOunces = _household.VolumeUnit == VolumeUnit.Ounces;
         Mode = theme.Settings.Mode;
         (QuietStart, QuietEnd) = (theme.Settings.QuietHours.Start.ToTimeSpan(), theme.Settings.QuietHours.End.ToTimeSpan());
