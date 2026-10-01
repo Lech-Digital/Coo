@@ -2,7 +2,7 @@
 
 Date: 2026-10-01
 
-Status: Draft (Q1–Q5 answered in the session on 2026-10-01; Q6–Q8 waiting for the owner)
+Status: Accepted (2026-10-01: Q1–Q5 answered in the session; Q6–Q8 as recommended)
 
 Depends on: Spec 001 (`BabyProfile`, `HouseholdSettings`, `HiddenKinds`), Spec 004 (storage, outbox, `app_state`),
 Spec 005 (appearance modes, quiet hours, `ThemeController`), Spec 006 (Today, Log, the tab bar), ADR 0006 §1 and §5
