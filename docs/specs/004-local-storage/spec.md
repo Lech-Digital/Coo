@@ -4,7 +4,7 @@ Date: 2026-10-01
 
 Status: **Draft — for review**
 
-Depends on: ADR 0001 §4 (EF Core SQLite, migrations), ADR 0002 §2 (record plus outbox in one
+Depends on: ADR 0001 §4 (on-device SQLite with versioned migrations; **amended by this spec**, see §13), ADR 0002 §2 (record plus outbox in one
 transaction), ADR 0003 §1 (the provisional household), ADR 0010 §2, §3 and §7 (storage, forward
 compatibility, the guards G3–G5); Spec 001 (the domain); Spec 003 (the codecs).
 
@@ -14,7 +14,8 @@ Delivered by: **Increment 4** (`docs/ROADMAP.md`).
 
 The phone gets a database that never loses an entry, and never holds a corrupted one:
 
-- EF Core SQLite in `Coo.Mobile.Infrastructure`, with its schema managed by **migrations**;
+- SQLite through `Microsoft.Data.Sqlite` in `Coo.Mobile.Infrastructure`, with its schema managed by
+  **numbered SQL migration scripts** (§7.1). There is no EF Core on the phone (§13);
 - the tables, with the database-level guards (G3);
 - the write path: record, outbox entry and version clock, through the codecs;
 - reading back: live, read-only (newer than this app), or quarantined (unreadable) entries (G4);
@@ -29,7 +30,7 @@ duplicates UI (Increment 7), and baby onboarding (Increment 6).
 ## 2. Ports (`Coo.Mobile.Application`)
 
 The Application layer owns the ports (CS-HEX-02). Infrastructure implements them, and the use
-cases never see EF Core, SQL or JSON.
+cases never see SQL or JSON.
 
 | Port | Purpose |
 |---|---|
@@ -65,9 +66,9 @@ This increment needs only the generic ones. The debug screen calls them.
 
 ## 4. Tables (`Coo.Mobile.Infrastructure/Persistence`)
 
-Domain objects are never mapped to EF Core directly. Each table has an internal row class, and the
-repository maps between rows and the Domain (CS-DDD-03). The Domain stays free of EF attributes
-and private constructors written for EF.
+Repositories read and write rows with explicit, parameterised SQL, and map between rows and the
+Domain (CS-DDD-03). The Domain stays free of persistence attributes, and of constructors written
+for an ORM. SQL is never built by string concatenation of values: every value is a parameter.
 
 ### 4.1 `care_entries`
 
@@ -136,7 +137,8 @@ guarantees that every write leaves its outbox row in the same transaction.
 
 ### 4.5 Why instants are integers
 
-EF Core stores a `DateTimeOffset` in SQLite as text. Text sorts by its characters, so
+SQLite has no date type. Stored as ISO text, as ORMs usually do, a `DateTimeOffset` sorts by its
+characters, so
 `14:00+02:00` sorts after `13:30+00:00` even though it happened earlier. The timeline would be
 wrong whenever offsets differ: across a time change, while travelling, or with a phone set to the
 wrong zone. Instants are therefore stored as **UTC milliseconds, which sort correctly, plus the
@@ -158,7 +160,7 @@ transaction**:
 
 **A row is never written outside this path.** Repositories accept Domain objects, never JSON
 (ADR 0010 §7, G2). An architecture test enforces that only `Coo.Mobile.Infrastructure/Persistence`
-references EF Core.
+references `Microsoft.Data.Sqlite`.
 
 Tombstones go through the same transaction: set `is_deleted` and the version, keep `details`
 unchanged, and append a `delete` outbox row. Deleting a read-only or quarantined row never needs to
@@ -186,7 +188,7 @@ fails to decode never throws out of a read: one bad row cannot blank the timelin
 
 `MauiProgram` runs one `StartupTasks.RunAsync(ct)` before the first page is shown:
 
-1. `MigrateAsync()`: the EF schema migrations (never `EnsureCreated`, ADR 0001 §4).
+1. **Schema migrations** (§7.1). Never `EnsureCreated`-style "create what is missing" (ADR 0001 §4).
 2. **Data migrations**: run each `IDataMigration` not yet in `data_migrations`, in ID order.
    - Each one is idempotent, works in batches of 200 rows, and records itself only when done. A
      crash resumes safely.
@@ -198,6 +200,20 @@ fails to decode never throws out of a read: one bad row cannot blank the timelin
 
 On a phone with a few thousand entries, this must finish in under one second. A test measures the
 scan over 10,000 rows on the CI machine, and fails above 2 seconds.
+
+### 7.1 Schema migrations
+
+- Each migration is an embedded SQL script, `Persistence/Migrations/NNNN-kebab-name.sql`, applied in
+  number order, **each in its own transaction**.
+- SQLite's `PRAGMA user_version` holds the number of the last one applied. It is set in the same
+  transaction as the script, so a crash leaves the schema at a whole version, never half-way.
+- **A released script never changes.** `migrations-manifest.txt` lists the SHA-256 of every released
+  script, and a test fails if one changes or disappears. A fix is always a new script.
+- A database whose `user_version` is higher than this build knows (a downgrade, or a restored
+  newer backup) is **not opened for writing**. The app says that an update is needed, and touches
+  nothing.
+- The runner is about fifty lines in `Persistence/`. It uses no reflection, so trimming cannot break
+  it.
 
 ## 8. The debug screen (Debug builds only)
 
@@ -222,16 +238,18 @@ work before onboarding exists.
 
 ## 9. Trimming
 
-EF Core finds migrations by reflection, and the trimmed Release build can remove what reflection
-needs. This increment therefore includes **one Release build on a real phone**:
+There is no reflection in the persistence code: no ORM, no model building, and no migration
+discovery. The trimmer therefore has nothing to remove that the code needs. The remaining
+platform piece is the native SQLite library (`SQLitePCLRaw.bundle_e_sqlite3`), which the sibling
+apps already ship in trimmed Release builds. It is a recent SQLite build with the JSON functions
+built in, which the `CHECK`s need, so the app never depends on the phone's own system SQLite.
 
-- the host roots `Coo.Mobile.Infrastructure` (`TrimmerRootAssembly`). The sibling apps run EF Core in
-  trimmed builds, but only with `EnsureCreated`, never with migrations, so this is unproven here;
+This increment still includes **one Release build on a real phone**, because "nothing to break"
+must be shown, not assumed:
+
 - a clean install opens, migrates, and logs and lists entries;
-- an over-the-top install of a later build keeps the data.
-
-What was needed is recorded in `BUILD.md`. This closes the open question early, before there are
-users whose data depends on it.
+- an over-the-top install of a later build keeps the data;
+- the cold start to the first page is measured and written in `BUILD.md`.
 
 ## 10. Tests
 
@@ -241,6 +259,9 @@ never an in-memory fake, because the guards are SQLite behaviour.
 | Test | Proves |
 |---|---|
 | `Migrate_EmptyDatabase_CreatesSchema` | The migrations apply from nothing |
+| `Migrate_ReleasedScripts_MatchManifestChecksums` | A released migration never changes |
+| `Migrate_CrashInsideScript_LeavesPreviousVersion` | Each script is atomic |
+| `Open_DatabaseFromNewerBuild_RefusesToWrite` | A downgrade never corrupts data |
 | `Insert_InvalidDetails_IsRefusedByDatabase` (one per `CHECK` in §4.1) | G3 holds even against raw SQL |
 | `SaveThenLoad_EveryKind_ReturnsEqualEntry` | The mapping is lossless, for all four kinds |
 | `SaveThenLoad_NonUtcOffsets_PreservesOffsets` | §4.5 |
@@ -261,9 +282,9 @@ never an in-memory fake, because the guards are SQLite behaviour.
 **`tests/Coo.Mobile.Application.Tests`** use NSubstitute for the ports only (never for Domain
 types): `LogEntry` happy path, a Domain error writes nothing, and an unknown entry ID on revise.
 
-**Architecture tests:** EF Core is referenced only from `Coo.Mobile.Infrastructure`, and inside it
-only from `Persistence/`. `Coo.Mobile.Infrastructure` takes its first packages:
-`Microsoft.EntityFrameworkCore.Sqlite` (and the design-time package for creating migrations).
+**Architecture tests:** `Microsoft.Data.Sqlite` is referenced only from `Coo.Mobile.Infrastructure`,
+and inside it only from `Persistence/`. `Coo.Mobile.Infrastructure` takes its first packages:
+`Microsoft.Data.Sqlite.Core` and `SQLitePCLRaw.bundle_e_sqlite3`.
 
 ## 11. Increment 4 — deliverables
 
@@ -282,5 +303,30 @@ only from `Persistence/`. `Coo.Mobile.Infrastructure` takes its first packages:
 |---|---|---|
 | Q1 | A Debug-only, unstyled debug screen now, deleted when the Today screen arrives | **Yes.** It makes this increment testable on the phone without designing screens early. |
 | Q2 | The outbox stores which record changed and its version, not a copy, because sync sends current state | **Yes.** It keeps the outbox small and exact. Coalescing is decided in the sync spec. |
-| Q3 | Instants stored as UTC milliseconds plus the offset, not as EF's text `DateTimeOffset` | **Yes.** Text ordering breaks across offsets (§4.5). |
-| Q4 | One trimmed Release build on your phone as part of this increment | **Yes.** It removes the biggest unknown about EF on Android before anyone's data depends on it. It needs your phone once. |
+| Q3 | Instants stored as UTC milliseconds plus the offset, not as ISO text | **Yes.** Text ordering breaks across offsets (§4.5). |
+| Q4 | One trimmed Release build on your phone as part of this increment | **Yes.** It proves the storage works in the build users get, before anyone's data depends on it. It needs your phone once. |
+| Q5 | No EF Core on the phone: `Microsoft.Data.Sqlite`, explicit SQL and numbered SQL migrations (§13) | **Yes.** It amends ADR 0001 §4. |
+
+## 13. Amendment to ADR 0001 §4: no EF Core on the phone
+
+ADR 0001 §4 chose EF Core SQLite with migrations on the phone, because the sibling apps ship EF
+Core in trimmed Release builds. Looking closer, they only use `EnsureCreated`, which is the very
+pattern ADR 0001 rules out. EF migrations on trimmed Android were never proven by them.
+
+On the phone, EF Core would bring:
+
+- **reflection**: migration discovery and model building, which the trimmer can break silently;
+- **cold-start cost**: building the model on first use, paid on every launch, including the 3 AM one;
+- **an abstraction this design does not use**: repositories map rows by hand (CS-DDD-03), ports
+  return lists rather than queries (CS-DATA-01), and the guards are SQLite-specific (`CHECK`s,
+  `json_valid`, integer instants), so most of them would be raw SQL inside EF anyway.
+
+**The decision:** the phone uses `Microsoft.Data.Sqlite` with explicit SQL, and numbered,
+checksummed SQL migration scripts (§7.1). **The server keeps EF Core with Npgsql and EF
+migrations**, where reflection and model-building cost do not matter.
+
+**Costs:** more hand-written SQL and mapping, and a small migration runner of our own. Both are
+covered by the real-SQLite tests in §10.
+
+When this spec is accepted, ADR 0001 §4 is updated to match, with a note pointing here.
+
