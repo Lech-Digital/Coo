@@ -44,8 +44,10 @@ public sealed class LogPage : ContentPage
     {
         base.OnAppearing();
         _undo.DataChanged += OnDataChanged;
-        await _model.RefreshAsync();
+
+        // Draw what is already loaded at once; the refresh redraws only if the rows changed.
         Render();
+        await _model.RefreshAsync();
     }
 
     private void OnChanged(object? sender, PropertyChangedEventArgs e)
@@ -83,7 +85,9 @@ public sealed class LogPage : ContentPage
         ribbon.Show(_model.Ribbon, WashiPalette.For(_theme.Current));
 
         var legend = new HorizontalStackLayout { Spacing = 14 };
-        foreach (var (kind, key) in new[] { ("feeding", "Kind.Feed"), ("diaper", "Kind.Diaper"), ("sleep", "Kind.Sleep"), ("pump", "Kind.Pump") })
+        // The legend names the kinds that have totals, so hidden kinds leave both (Spec 009 §3.2).
+        var names = new Dictionary<string, string> { ["feeding"] = "Kind.Feed", ["diaper"] = "Kind.Diaper", ["sleep"] = "Kind.Sleep", ["pump"] = "Kind.Pump" };
+        foreach (var (kind, key) in _model.Totals.Where(t => names.ContainsKey(t.KindCode)).Select(t => (t.KindCode, names[t.KindCode])))
         {
             var dot = new Microsoft.Maui.Controls.Shapes.Ellipse { WidthRequest = 8, HeightRequest = 8, VerticalOptions = LayoutOptions.Center };
             dot.SetDynamicResource(Microsoft.Maui.Controls.Shapes.Shape.FillProperty, EventAppearance.For(kind).Mark + "Brush");

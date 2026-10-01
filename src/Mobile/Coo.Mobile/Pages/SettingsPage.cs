@@ -20,6 +20,7 @@ public sealed class SettingsPage : ContentPage
     private readonly UndoService _undo;
     private readonly ContentView _body = new();
     private bool _rendering;
+    private bool _renderQueued;
 
     public SettingsPage(SettingsViewModel model, IClockFormat clock, UndoService undo, ThemeController theme, IServiceProvider services)
     {
@@ -38,9 +39,9 @@ public sealed class SettingsPage : ContentPage
                 return;
             }
 
-            Dispatcher.Dispatch(Render);
+            QueueRender();
         };
-        theme.PaletteChanged += (_, _) => Dispatcher.Dispatch(Render);
+        theme.PaletteChanged += (_, _) => QueueRender();
         var root = new Grid();
         root.Add(new ScrollView { Content = _body });
         root.Add(new UndoToastView(undo));
@@ -50,8 +51,23 @@ public sealed class SettingsPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _model.RefreshAsync();
+
+        // Draw what is already loaded at once; the refresh redraws once, if anything changed.
         Render();
+        await _model.RefreshAsync();
+    }
+
+    /// <summary>A refresh sets a dozen properties; they become one redraw, not twelve (review, owner's finding).</summary>
+    private void QueueRender()
+    {
+        if (_renderQueued)
+            return;
+        _renderQueued = true;
+        Dispatcher.Dispatch(() =>
+        {
+            _renderQueued = false;
+            Render();
+        });
     }
 
     private void Render()

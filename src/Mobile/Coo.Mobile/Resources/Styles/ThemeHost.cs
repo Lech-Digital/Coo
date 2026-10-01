@@ -36,6 +36,27 @@ public sealed class ThemeHost : IOsAppearance
         return dictionary;
     }
 
+    /// <summary>
+    /// A palette change while Coo is on screen (Spec 009 §3.7, design system §7): the window behind the page takes the
+    /// new ground colour, the page fades out, the colours swap unseen, and the page fades back in. Repainting every
+    /// view takes a moment; the fade hides it (owner's finding on the Pixel 10).
+    /// </summary>
+    public async Task ApplyAnimatedAsync(PaletteKind kind)
+    {
+        var windows = Microsoft.Maui.Controls.Application.Current?.Windows;
+        var page = windows is { Count: > 0 } ? windows[0].Page : null;
+        if (page is null || page.Opacity < 1)
+        {
+            Apply(kind);
+            return;
+        }
+
+        SystemBars.Apply(Color.FromArgb(WashiPalette.For(kind).Ground), lightContent: kind == PaletteKind.Night);
+        await page.FadeToAsync(0, 120, Easing.CubicIn);
+        Apply(kind);
+        await page.FadeToAsync(1, 180, Easing.CubicOut);
+    }
+
     public void Apply(PaletteKind kind)
     {
         var resources = Microsoft.Maui.Controls.Application.Current?.Resources

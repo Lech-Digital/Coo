@@ -54,7 +54,7 @@ public sealed class StartupPage : ContentPage
         // The palette (Spec 005 §6.2): the controller decides, the host applies, on the main thread.
         var theme = _services.GetRequiredService<ThemeController>();
         var host = _services.GetRequiredService<ThemeHost>();
-        theme.PaletteChanged += (_, kind) => MainThread.BeginInvokeOnMainThread(() => host.Apply(kind));
+        theme.PaletteChanged += (_, kind) => MainThread.BeginInvokeOnMainThread(async () => await host.ApplyAnimatedAsync(kind));
         await theme.StartAsync(CancellationToken.None);
 
         // The first real page (Spec 006 §3): setup when the household has no baby yet, Today otherwise.
@@ -63,6 +63,7 @@ public sealed class StartupPage : ContentPage
         if ((await households.ListBabiesAsync(household.Id, CancellationToken.None)).Count > 0)
         {
             Window.Page = _services.GetRequiredService<AppShell>();
+            await PrewarmTabsAsync();
             return;
         }
 
@@ -72,5 +73,15 @@ public sealed class StartupPage : ContentPage
         ((Coo.Mobile.Presentation.Setup.SetupViewModel)setup.BindingContext).Completed +=
             (_, _) => MainThread.BeginInvokeOnMainThread(() => window.Page = _services.GetRequiredService<AppShell>());
         window.Page = setup;
+    }
+
+    /// <summary>
+    /// Log and Settings load their data now, so their first visit draws at once instead of blank-then-full (owner's
+    /// finding on the Pixel 10: tabs loaded and jumped).
+    /// </summary>
+    private async Task PrewarmTabsAsync()
+    {
+        await _services.GetRequiredService<Coo.Mobile.Presentation.Log.LogViewModel>().RefreshAsync();
+        await _services.GetRequiredService<Coo.Mobile.Presentation.Settings.SettingsViewModel>().RefreshAsync();
     }
 }
