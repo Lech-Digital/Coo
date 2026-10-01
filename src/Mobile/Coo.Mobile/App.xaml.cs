@@ -20,10 +20,11 @@ public partial class App : Microsoft.Maui.Controls.Application
     public static System.Globalization.CultureInfo SystemCulture { get; } = System.Globalization.CultureInfo.CurrentUICulture;
 
     /// <summary>
-    /// The language in effect changed (Spec 009 §3.5, ADR 0006): apply it to the process, and rebuild the pages so
-    /// every string is re-read. The data and the palette are untouched. From Settings, the new shell opens on Settings.
+    /// The language in effect changed (Spec 009 §3.5, ADR 0006): apply it to the process (date pickers format with it)
+    /// and relabel the tabs. The pages on screen redraw themselves from <c>LanguageController.Changed</c>, and the others
+    /// when they next appear. The data and the palette are untouched.
     /// </summary>
-    public void ApplyLanguage(bool returnToSettings)
+    public void ApplyLanguage()
     {
         var culture = Coo.Mobile.Presentation.Localization.Strings.Culture;
         System.Globalization.CultureInfo.CurrentUICulture = culture;
@@ -31,12 +32,8 @@ public partial class App : Microsoft.Maui.Controls.Application
         System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
         System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culture;
 
-        if (Windows.Count == 0 || Windows[0].Page is not AppShell)
-            return;
-        var shell = _services.GetRequiredService<AppShell>();
-        Windows[0].Page = shell;
-        if (returnToSettings)
-            shell.Dispatcher.Dispatch(async () => await shell.GoToAsync("//settings"));
+        if (Windows.Count > 0 && Windows[0].Page is AppShell shell)
+            shell.Relabel();
     }
 
     protected override Window CreateWindow(IActivationState? activationState)

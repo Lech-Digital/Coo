@@ -6,6 +6,8 @@ namespace Coo.Mobile;
 /// <summary>Three tabs: Today, Log and Settings (Spec 006 §2, Spec 009 §2), styled as the design system's bottom navigation.</summary>
 public sealed class AppShell : Shell
 {
+    private static readonly string[] TitleKeys = ["Tab.Today", "Tab.Log", "Tab.Settings"];
+
     public AppShell(IServiceProvider services)
     {
         SetDynamicResource(BackgroundColorProperty, "Ground");
@@ -42,5 +44,21 @@ public sealed class AppShell : Shell
                 },
             },
         });
+    }
+
+    /// <summary>
+    /// A language change relabels the tabs in place (Spec 009 §3.5); the pages redraw themselves. Rebuilding the whole
+    /// shell instead took over a second on the Pixel 10.
+    /// </summary>
+    public void Relabel()
+    {
+        var sections = Items[0].Items;
+        for (var i = 0; i < sections.Count && i < TitleKeys.Length; i++)
+        {
+            var title = Strings.Get(TitleKeys[i]);
+            sections[i].Title = title;
+            foreach (var content in sections[i].Items)
+                content.Title = title;
+        }
     }
 }

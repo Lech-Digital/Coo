@@ -19,29 +19,19 @@ public sealed class SettingsPage : ContentPage
     private readonly IClockFormat _clock;
     private readonly UndoService _undo;
     private readonly ContentView _body = new();
+    private readonly LanguageController _language;
     private bool _rendering;
     private bool _renderQueued;
+    private string? _renderedLanguage;
 
-    public SettingsPage(SettingsViewModel model, IClockFormat clock, UndoService undo, ThemeController theme, IServiceProvider services)
+    public SettingsPage(SettingsViewModel model, IClockFormat clock, UndoService undo, LanguageController language, IServiceProvider services)
     {
         _model = model;
+        _language = language;
         _clock = clock;
         _undo = undo;
         _services = services;
         Shell.SetNavBarIsVisible(this, false);
-        model.PropertyChanged += (_, e) =>
-        {
-            if (e.PropertyName == nameof(SettingsViewModel.Toast))
-            {
-                if (!string.IsNullOrEmpty(model.Toast))
-                    _undo.Say(model.Toast);
-                model.Toast = "";
-                return;
-            }
-
-            QueueRender();
-        };
-        theme.PaletteChanged += (_, _) => QueueRender();
         var root = new Grid();
         root.Add(new ScrollView { Content = _body });
         root.Add(new UndoToastView(undo));
@@ -52,10 +42,42 @@ public sealed class SettingsPage : ContentPage
     {
         base.OnAppearing();
 
-        // Draw what is already loaded at once; the refresh redraws once, if anything changed.
-        Render();
+        // Listening only while on screen: the view model outlives this page (owner's finding on the Pixel 10). Colours
+        // are resources, so a palette change needs no redraw here.
+        _model.PropertyChanged += OnModelChanged;
+        _language.Changed += OnLanguageChanged;
+
+        // Load first (a few milliseconds), then draw once, in the language now in effect.
         await _model.RefreshAsync();
+        if (_body.Content is null || _renderedLanguage != Strings.Language)
+            QueueRender();
     }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        _model.PropertyChanged -= OnModelChanged;
+        _language.Changed -= OnLanguageChanged;
+    }
+
+    private void OnModelChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(SettingsViewModel.Toast))
+        {
+            if (!string.IsNullOrEmpty(_model.Toast))
+                _undo.Say(_model.Toast);
+            _model.Toast = "";
+            return;
+        }
+
+        QueueRender();
+    }
+
+    private void OnLanguageChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
+    {
+        await _model.RefreshAsync();
+        QueueRender();
+    });
 
     /// <summary>A refresh sets a dozen properties; they become one redraw, not twelve (review, owner's finding).</summary>
     private void QueueRender()
@@ -151,6 +173,7 @@ public sealed class SettingsPage : ContentPage
         stack.Add(Row(Ui.Text(Strings.Get("Settings.Privacy"), "Body"), () => _model.OpenPrivacyCommand.ExecuteAsync(null)));
 
         _body.Content = stack;
+        _renderedLanguage = Strings.Language;
         _rendering = false;
     }
 

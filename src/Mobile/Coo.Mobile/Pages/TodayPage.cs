@@ -1,4 +1,5 @@
 using System.Collections.Specialized;
+using System.ComponentModel;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.CareLog.Kinds.Feeding;
 using Coo.Domain.Common;
@@ -16,13 +17,18 @@ public sealed class TodayPage : ContentPage
     private readonly VerticalStackLayout _sections = new() { Padding = new Thickness(0, 24, 0, 24) };
     private readonly Sheet _sheet = new();
     private readonly UndoService _undo;
+    private readonly LanguageController _language;
     private IDispatcherTimer? _tick;
     private bool _pageSheet;
+    private bool _rebuildQueued;
+    private IReadOnlyList<IHomeSection> _built = [];
+    private string? _builtLanguage;
 
-    public TodayPage(TodayViewModel model, UndoService undo, IServiceProvider services)
+    public TodayPage(TodayViewModel model, UndoService undo, LanguageController language, IServiceProvider services)
     {
         _model = model;
         _undo = undo;
+        _language = language;
         _services = services;
         Shell.SetNavBarIsVisible(this, false);
 
@@ -30,14 +36,6 @@ public sealed class TodayPage : ContentPage
         // and its Save button above the keyboard. Found on the phone: without it, the second field and Save were hidden.
         SafeAreaEdges = new SafeAreaEdges(SafeAreaRegions.Container, SafeAreaRegions.Container, SafeAreaRegions.Container, SafeAreaRegions.SoftInput);
 
-        model.Sections.CollectionChanged += OnSectionsChanged;
-        model.PropertyChanged += async (_, e) =>
-        {
-            if (e.PropertyName == nameof(TodayViewModel.Sheet))
-                await ShowSheetAsync();
-            else if (e.PropertyName == nameof(TodayViewModel.Toast))
-                ShowToast(model.Toast);
-        };
         _sheet.Closed += (_, _) =>
         {
             _pageSheet = false;
@@ -55,9 +53,17 @@ public sealed class TodayPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        // Listening only while on screen: the view model outlives this page (Spec 009, owner's finding on the Pixel 10).
         _undo.DataChanged += OnDataChanged;
+        _model.Sections.CollectionChanged += OnSectionsChanged;
+        _model.PropertyChanged += OnModelChanged;
+        _language.Changed += OnLanguageChanged;
         await _model.RefreshAsync();
-        Rebuild();
+
+        // The section views update themselves; they are rebuilt only when the sections or the language changed.
+        if (!_built.SequenceEqual(_model.Sections) || _builtLanguage != Strings.Language)
+            QueueRebuild();
         _tick ??= Dispatcher.CreateTimer();
         _tick.Interval = TimeSpan.FromSeconds(1);
         _tick.Tick += OnTick;
@@ -68,6 +74,9 @@ public sealed class TodayPage : ContentPage
     {
         base.OnDisappearing();
         _undo.DataChanged -= OnDataChanged;
+        _model.Sections.CollectionChanged -= OnSectionsChanged;
+        _model.PropertyChanged -= OnModelChanged;
+        _language.Changed -= OnLanguageChanged;
         if (_tick is not null)
         {
             _tick.Stop();
@@ -96,13 +105,44 @@ public sealed class TodayPage : ContentPage
 
     private void OnTick(object? sender, EventArgs e) => _model.Tick();
 
-    private void OnSectionsChanged(object? sender, NotifyCollectionChangedEventArgs e) => Dispatcher.Dispatch(Rebuild);
+    private async void OnModelChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(TodayViewModel.Sheet))
+            await ShowSheetAsync();
+        else if (e.PropertyName == nameof(TodayViewModel.Toast))
+            ShowToast(_model.Toast);
+    }
+
+    // A palette change clears and refills the sections: seven events, one rebuild.
+    private void OnSectionsChanged(object? sender, NotifyCollectionChangedEventArgs e) => QueueRebuild();
+
+    private void OnLanguageChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
+    {
+        await _model.RefreshAsync();
+        QueueRebuild();
+    });
+
+    private void QueueRebuild()
+    {
+        if (_rebuildQueued)
+            return;
+        _rebuildQueued = true;
+        Dispatcher.Dispatch(() =>
+        {
+            _rebuildQueued = false;
+            Rebuild();
+        });
+    }
 
     private void Rebuild()
     {
+        foreach (var old in _sections.Children)
+            LiveView.Release(old as IVisualTreeElement);
         _sections.Children.Clear();
         foreach (var section in _model.Sections)
             _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model)));
+        _built = [.. _model.Sections];
+        _builtLanguage = Strings.Language;
     }
 
     private async void OpenEntry(EntryId id)

@@ -15,16 +15,18 @@ public sealed class LogPage : ContentPage
     private readonly IServiceProvider _services;
     private readonly UndoService _undo;
     private readonly ContentView _body = new();
+    private readonly LanguageController _language;
+    private bool _renderQueued;
+    private string? _renderedLanguage;
 
-    public LogPage(LogViewModel model, ThemeController theme, UndoService undo, IServiceProvider services)
+    public LogPage(LogViewModel model, ThemeController theme, UndoService undo, LanguageController language, IServiceProvider services)
     {
         _model = model;
+        _language = language;
         _undo = undo;
         _theme = theme;
         _services = services;
         Shell.SetNavBarIsVisible(this, false);
-        model.PropertyChanged += OnChanged;
-        theme.PaletteChanged += (_, _) => Dispatcher.Dispatch(Render);
         var root = new Grid();
         root.Add(new ScrollView { Content = _body });
         root.Add(new UndoToastView(undo));
@@ -35,6 +37,9 @@ public sealed class LogPage : ContentPage
     {
         base.OnDisappearing();
         _undo.DataChanged -= OnDataChanged;
+        _model.PropertyChanged -= OnChanged;
+        _theme.PaletteChanged -= OnPaletteChanged;
+        _language.Changed -= OnLanguageChanged;
     }
 
     // After an undo, or a delete that the window commits, the page shows what is now stored.
@@ -43,17 +48,41 @@ public sealed class LogPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        // Listening only while on screen: the view model outlives this page (owner's finding on the Pixel 10).
         _undo.DataChanged += OnDataChanged;
+        _model.PropertyChanged += OnChanged;
+        _theme.PaletteChanged += OnPaletteChanged;
+        _language.Changed += OnLanguageChanged;
 
-        // Draw what is already loaded at once; the refresh redraws only if the rows changed.
-        Render();
+        // Loading takes a few milliseconds, so load first and draw once, in the language now in effect. A refresh with
+        // nothing new raises no change, and then nothing is redrawn.
         await _model.RefreshAsync();
+        if (_body.Content is null || _renderedLanguage != Strings.Language)
+            QueueRender();
     }
 
-    private void OnChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnChanged(object? sender, PropertyChangedEventArgs e) => QueueRender();
+
+    // The ribbon is drawn with the palette's colours, not resources.
+    private void OnPaletteChanged(object? sender, PaletteKind e) => QueueRender();
+
+    private void OnLanguageChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
     {
-        if (e.PropertyName == nameof(LogViewModel.Rows))
-            Dispatcher.Dispatch(Render);
+        await _model.RefreshAsync();
+        QueueRender();
+    });
+
+    /// <summary>Several changes in a row become one redraw.</summary>
+    private void QueueRender()
+    {
+        if (_renderQueued)
+            return;
+        _renderQueued = true;
+        Dispatcher.Dispatch(() =>
+        {
+            _renderQueued = false;
+            Render();
+        });
     }
 
     private async void OpenEntry(Coo.Domain.Common.EntryId id)
@@ -111,6 +140,7 @@ public sealed class LogPage : ContentPage
             timeline.Add(new TimelineRow(row.Time, row.KindCode, row.Title, row.Who, () => OpenEntry(id)));
         }
 
+        _renderedLanguage = Strings.Language;
         _body.Content = new VerticalStackLayout
         {
             Padding = new Thickness(24, 40, 24, 24),

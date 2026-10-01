@@ -42,19 +42,18 @@ public sealed class StartupPage : ContentPage
 
         await _household.ExecuteAsync(CancellationToken.None);
 
-        // The language (Spec 009 §3.5), before the first real page is built. A later change rebuilds the pages; from
-        // Settings, the new shell opens on Settings again.
+        // The language (Spec 009 §3.5), before the first real page is built. A later change relabels the tabs, and the
+        // pages redraw themselves.
         var language = _services.GetRequiredService<Coo.Mobile.Presentation.Localization.LanguageController>();
         await language.StartAsync(App.SystemCulture, CancellationToken.None);
         var app = (App)Microsoft.Maui.Controls.Application.Current!;
-        app.ApplyLanguage(returnToSettings: false);
-        language.Changed += (_, _) => MainThread.BeginInvokeOnMainThread(() =>
-            app.ApplyLanguage(returnToSettings: Shell.Current?.CurrentState.Location.OriginalString.Contains("settings", StringComparison.Ordinal) == true));
+        app.ApplyLanguage();
+        language.Changed += (_, _) => app.ApplyLanguage();
 
         // The palette (Spec 005 §6.2): the controller decides, the host applies, on the main thread.
         var theme = _services.GetRequiredService<ThemeController>();
         var host = _services.GetRequiredService<ThemeHost>();
-        theme.PaletteChanged += (_, kind) => MainThread.BeginInvokeOnMainThread(async () => await host.ApplyAnimatedAsync(kind));
+        theme.PaletteChanged += (_, kind) => MainThread.BeginInvokeOnMainThread(() => host.Apply(kind));
         await theme.StartAsync(CancellationToken.None);
 
         // The first real page (Spec 006 §3): setup when the household has no baby yet, Today otherwise.

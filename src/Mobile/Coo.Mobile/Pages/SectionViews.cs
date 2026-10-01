@@ -15,6 +15,79 @@ namespace Coo.Mobile.Pages;
 /// <summary>What a section view can ask its page to do.</summary>
 internal sealed record SectionHost(Action? OpenDebug, Action<EntryId> OpenEntry, Action OpenAttention, Action OpenEarlier, TodayViewModel Today);
 
+/// <summary>
+/// A view that redraws when its source changes, coalesced to one redraw per change burst. Off screen it only notes the
+/// change and redraws when it is back; once replaced, <see cref="Dispose"/> stops it listening. Views from earlier
+/// rebuilds used to stay subscribed to the shared section models and redraw unseen (owner's finding on the Pixel 10).
+/// </summary>
+internal sealed class LiveView : ContentView, IDisposable
+{
+    private readonly INotifyPropertyChanged _source;
+    private readonly Func<View> _render;
+    private readonly Func<string?, bool> _relevant;
+    private bool _pending;
+    private bool _stale;
+    private bool _onScreen = true;
+
+    public LiveView(INotifyPropertyChanged source, Func<View> render, Func<string?, bool> relevant)
+    {
+        (_source, _render, _relevant) = (source, render, relevant);
+        Content = render();
+        source.PropertyChanged += OnSourceChanged;
+        Loaded += (_, _) =>
+        {
+            _onScreen = true;
+            if (_stale)
+                Queue();
+        };
+        Unloaded += (_, _) => _onScreen = false;
+    }
+
+    public void Dispose()
+    {
+        _source.PropertyChanged -= OnSourceChanged;
+        Release(Content);
+    }
+
+    /// <summary>Stops every live view inside a view that is being thrown away (a header holds the Today switch).</summary>
+    public static void Release(IVisualTreeElement? element)
+    {
+        if (element is LiveView live)
+        {
+            live.Dispose();
+            return;
+        }
+
+        foreach (var child in element?.GetVisualChildren() ?? [])
+            Release(child);
+    }
+
+    private void OnSourceChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (!_relevant(e.PropertyName))
+            return;
+        if (_onScreen)
+            Queue();
+        else
+            _stale = true;
+    }
+
+    private void Queue()
+    {
+        if (_pending)
+            return;
+        _pending = true;
+        Dispatcher.Dispatch(() =>
+        {
+            _pending = false;
+            _stale = false;
+            var old = Content;
+            Content = _render();
+            Release(old);
+        });
+    }
+}
+
 internal static class SectionViews
 {
     public static View Create(IHomeSection section, SectionHost host) => section switch
@@ -34,47 +107,28 @@ internal static class SectionViews
     /// Re-renders the content when the section raises PropertyChanged, at most once per UI frame. Properties listed in
     /// <paramref name="boundInPlace"/> are bound to their labels instead, so they never rebuild the view.
     /// </summary>
-    private static ContentView Live(INotifyPropertyChanged section, Func<View> render, params string[] boundInPlace)
-    {
-        var view = new ContentView { Content = render() };
-        var pending = false;
-        section.PropertyChanged += (_, e) =>
-        {
-            if (pending || boundInPlace.Contains(e.PropertyName))
-                return;
-            pending = true;
-            view.Dispatcher.Dispatch(() =>
-            {
-                pending = false;
-                view.Content = render();
-            });
-        };
-        return view;
-    }
+    private static LiveView Live(INotifyPropertyChanged section, Func<View> render, params string[] boundInPlace) =>
+        new(section, render, property => !boundInPlace.Contains(property));
 
     /// <summary>
     /// The Today switch (Spec 009 §3.7): a moon by day, a sun by night, 44 dp to tap. It redraws when the palette
     /// changes, because a section that shows in both palettes is not rebuilt then.
     /// </summary>
-    private static View ThemeSwitch(SectionHost host)
+    private static LiveView ThemeSwitch(SectionHost host)
     {
-        var view = new ContentView { WidthRequest = 44, HeightRequest = 44, VerticalOptions = LayoutOptions.Center };
-        void Render()
+        var view = new LiveView(host.Today, () =>
         {
             var night = host.Today.IsNight;
-            view.Content = new Icon(night ? IconGeometry.Sun : IconGeometry.Sleep, "Ink2")
+            return new Icon(night ? IconGeometry.Sun : IconGeometry.Sleep, "Ink2")
                 .Tap(i => { i.HorizontalOptions = LayoutOptions.Center; i.VerticalOptions = LayoutOptions.Center; });
-            SemanticProperties.SetDescription(view, Strings.Get(night ? "Theme.ToDay" : "Theme.ToNight"));
-        }
-
-        host.Today.PropertyChanged += (_, e) =>
+        }, property => property == nameof(TodayViewModel.IsNight))
         {
-            if (e.PropertyName == nameof(TodayViewModel.IsNight))
-                view.Dispatcher.Dispatch(Render);
+            WidthRequest = 44,
+            HeightRequest = 44,
+            VerticalOptions = LayoutOptions.Center,
         };
-        var tap = new TapGestureRecognizer { Command = host.Today.ToggleThemeCommand };
-        view.GestureRecognizers.Add(tap);
-        Render();
+        SemanticProperties.SetDescription(view, Strings.Get(host.Today.IsNight ? "Theme.ToDay" : "Theme.ToNight"));
+        view.GestureRecognizers.Add(new TapGestureRecognizer { Command = host.Today.ToggleThemeCommand });
         return view;
     }
 
