@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coo contrast proposal</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&display=swap">
+<style>
+
+/* Layout: four boards in a wrapping row — Today, Timeline, 03:12 night, tokens (day + night). */
+/* ============ Washi UX tokens (source of truth for the MAUI resource dictionary) ============ */
+.day {
+  /* base — Washi & Matcha */
+  --bg:#F1EDE5; --surface:#FAF8F3; --line:#DDD6C9; --ink:#2A2823; --ink2:#6B665C;
+  --accent:#5E7150; --accentSoft:#E3E7D9; --accentInk:#46553B; --onAccent:#FAF8F3; --cheek:#E8C4B8; --cheekInk:#6E3F33;
+  /* care events — soft pastels tuned to the washi ground; each has tint (fill), mark (dot/bar) and ink (text/icon on tint) */
+  --feedTint:#F5DCCB;   --feedMark:#D9936C;   --feedInk:#7A3F20;    /* peach */
+  --diaperTint:#F3E6B3; --diaperMark:#CFAE3E; --diaperInk:#6A5410;  /* yuzu */
+  --sleepTint:#E2DCEF;  --sleepMark:#9587C2;  --sleepInk:#473A78;   /* lavender */
+  --pumpTint:#D6E9E2;   --pumpMark:#6FA895;   --pumpInk:#2D5A4C;    /* mint */
+  --voiceBg:#2A2823; --voiceInk:#F1EDE5; --voiceHint:#B8B1A4;
+}
+.night {
+  /* candle-lit amber — no white, no blue-dominant text */
+  --bg:#16130F; --surface:#211D18; --line:#332D26; --ink:#E9C9A0; --ink2:#A88E70;
+  --accent:#C9A46A; --accentSoft:#2E2820; --accentInk:#E9C9A0; --onAccent:#16130F; --cheek:#2E2820; --cheekInk:#E9C9A0;
+  /* events at night: dark tints, dimmed warm-shifted marks; ink = mark */
+  --feedTint:#2E2219;   --feedMark:#C98A63;   --feedInk:#D9A07C;
+  --diaperTint:#2C2716; --diaperMark:#BFA34E; --diaperInk:#CDB266;
+  --sleepTint:#25222E;  --sleepMark:#9A8AB5;  --sleepInk:#B1A3C9;
+  --pumpTint:#1F2724;   --pumpMark:#7FA08F;   --pumpInk:#98B7A6;
+  --voiceBg:#C9A46A; --voiceInk:#16130F; --voiceHint:#5A4A33;
+}
+/* type — Figtree everywhere */
+:root { --font:'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --t-hero:64px; --t-timer:88px; --t-title:28px; --t-window:32px; --t-section:20px; --t-body:15px; --t-meta:13px; --t-label:12px;
+  --r-card:22px; --r-tile:20px; --r-pill:999px; --gutter:24px;
+  --page:#E7E4DE; --pageInk:#2A2823; --pageInk2:#5F5A51; }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--pageInk); font-family: var(--font); padding: 40px 24px 80px; }
+h1 { font-size: 28px; font-weight: 600; letter-spacing: -.3px; margin: 0 0 6px; }
+.lede { margin: 0 0 32px; color: var(--pageInk2); max-width: 72ch; line-height: 1.5; }
+.boards { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+.cap { font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--pageInk2); margin: 0 0 10px; }
+button { font-family: inherit; cursor: pointer; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ============ Phone ============ */
+.phone { width: 390px; min-height: 844px; background: var(--bg); color: var(--ink); font-family: var(--font); border-radius: 36px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,.14); }
+.top { display: flex; align-items: center; justify-content: space-between; padding: 22px var(--gutter) 8px; }
+.mark { font-size: 24px; font-weight: 700; letter-spacing: -.6px; }
+.mark span { color: var(--accent); }
+.baby { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px 0 6px; border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--surface); color: var(--ink); font-size: var(--t-body); font-weight: 500; }
+.baby i { font-style: normal; width: 28px; height: 28px; border-radius: 999px; background: var(--cheek); color: var(--cheekInk); display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+.eyebrow { font-size: var(--t-label); letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink2); font-weight: 600; }
+.status { padding: 20px var(--gutter) 4px; display: flex; flex-direction: column; gap: 6px; }
+.hero { font-size: var(--t-hero); font-weight: 300; line-height: 1; letter-spacing: -2.5px; font-variant-numeric: tabular-nums; }
+.hero small { font-size: .55em; letter-spacing: -1px; font-weight: 400; color: var(--ink2); margin: 0 .12em; }
+.sub { font-size: var(--t-body); color: var(--ink2); }
+.card { margin: 16px var(--gutter) 0; padding: 18px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); display: flex; flex-direction: column; gap: 6px; }
+.card .head { display: flex; align-items: center; justify-content: space-between; }
+.card .head .eyebrow { color: var(--sleepInk); }
+.pill { font-size: var(--t-label); padding: 4px 10px; border-radius: var(--r-pill); background: var(--accentSoft); color: var(--accentInk); font-weight: 600; }
+.window { font-size: var(--t-window); font-weight: 500; letter-spacing: -.8px; font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 10px; }
+.window b { width: 12px; height: 12px; border-radius: 999px; background: var(--sleepMark); }
+.why2 { font-size: 14px; color: var(--ink2); line-height: 1.4; }
+.tiles { margin: 20px var(--gutter) 0; display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+.tile { height: 96px; border: none; border-radius: var(--r-tile); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 14px; font-weight: 600; }
+.tile small { font-size: 11px; font-weight: 500; opacity: .85; font-variant-numeric: tabular-nums; }
+.feed { background: var(--feedTint); color: var(--feedInk); } .diaper { background: var(--diaperTint); color: var(--diaperInk); }
+.sleep { background: var(--sleepTint); color: var(--sleepInk); } .pump { background: var(--pumpTint); color: var(--pumpInk); }
+.voice { margin: 12px var(--gutter) 0; height: 60px; border: none; border-radius: var(--r-pill); background: var(--voiceBg); color: var(--voiceInk); display: flex; align-items: center; gap: 12px; padding: 0 22px; font-size: 16px; font-weight: 600; text-align: left; }
+.voice small { display: block; font-size: 13px; font-weight: 400; color: var(--voiceHint); }
+.sect { margin: 26px var(--gutter) 0; display: flex; align-items: baseline; justify-content: space-between; }
+.sect h3 { margin: 0; font-size: var(--t-section); font-weight: 600; letter-spacing: -.3px; }
+.sect a { color: var(--accentInk); font-size: 14px; font-weight: 600; text-decoration: none; }
+.tl { margin: 6px var(--gutter) 0; }
+.ev { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.ev:last-child { border-bottom: none; }
+.ev time { width: 44px; font-size: 14px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+.badge { width: 34px; height: 34px; border-radius: 12px; display: grid; place-items: center; flex: none; }
+.ev span { flex: 1; font-size: var(--t-body); font-weight: 500; min-width: 0; }
+.ev em { font-style: normal; font-size: var(--t-meta); color: var(--ink2); }
+.nav { margin-top: auto; height: 76px; border-top: 1px solid var(--line); background: var(--surface); display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); }
+.nav button { border: none; background: none; color: var(--ink2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 12px; font-weight: 500; }
+.nav button.on { color: var(--ink); font-weight: 700; }
+
+/* timeline screen */
+.ttl { padding: 22px var(--gutter) 0; display: flex; align-items: center; justify-content: space-between; }
+.ttl h2 { margin: 0; font-size: var(--t-title); font-weight: 600; letter-spacing: -.6px; }
+.day-nav { display: flex; gap: 6px; }
+.day-nav button { width: 40px; height: 40px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); display: grid; place-items: center; }
+.ribbon { margin: 18px var(--gutter) 0; }
+.ribbon .bar { position: relative; height: 44px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; }
+.ribbon .bar i { position: absolute; top: 6px; bottom: 6px; border-radius: 8px; }
+.ribbon .bar i.s { background: var(--sleepTint); border: 1px solid var(--sleepMark); }
+.ribbon .bar i.f { background: var(--feedMark); width: 4px; }
+.ribbon .bar i.d { background: var(--diaperMark); width: 4px; top: 26px; }
+.ribbon .bar i.p { background: var(--pumpMark); width: 4px; top: 16px; }
+.ribbon .hours { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink2); margin-top: 6px; font-variant-numeric: tabular-nums; }
+.totals { margin: 16px var(--gutter) 0; display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; }
+.total { border-radius: 16px; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; }
+.total strong { font-size: 20px; font-weight: 600; letter-spacing: -.4px; font-variant-numeric: tabular-nums; }
+.total span { font-size: 12px; font-weight: 500; }
+.legend { margin: 10px var(--gutter) 0; display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--ink2); }
+.legend b { display: inline-block; width: 9px; height: 9px; border-radius: 999px; margin-right: 5px; vertical-align: 0; }
+
+/* night */
+.nt { padding: 22px var(--gutter) 0; display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: var(--ink2); }
+.timer { padding: 60px var(--gutter) 0; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.timer .eyebrow { color: var(--feedInk); display: flex; align-items: center; gap: 8px; }
+.timer .eyebrow b { width: 10px; height: 10px; border-radius: 999px; background: var(--feedMark); }
+.timer .clock { font-size: var(--t-timer); font-weight: 300; line-height: 1; letter-spacing: -3px; font-variant-numeric: tabular-nums; }
+.nbtns { margin: 32px var(--gutter) 0; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+.nbtn { height: 64px; border-radius: var(--r-card); border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 17px; font-weight: 600; }
+.nbtn.primary { background: var(--accent); color: var(--onAccent); border: none; }
+.facts { margin: 26px var(--gutter) 0; padding: 16px 18px; border-radius: var(--r-card); background: var(--surface); display: flex; flex-direction: column; gap: 12px; font-size: var(--t-body); }
+.facts div { display: flex; align-items: center; gap: 10px; }
+.facts div span { flex: 1; } .facts em { font-style: normal; color: var(--ink2); font-variant-numeric: tabular-nums; }
+.facts b { width: 10px; height: 10px; border-radius: 999px; }
+.quick { margin: 18px var(--gutter) 0; display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+.quick button { height: 68px; border-radius: var(--r-tile); border: none; font-size: 14px; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.hush { margin: auto var(--gutter) 28px; text-align: center; font-size: 13px; color: var(--ink2); }
+
+/* token sheet */
+.sheet { width: 640px; background: var(--bg); color: var(--ink); font-family: var(--font); border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 22px; box-shadow: 0 20px 50px rgba(0,0,0,.10); }
+.sheet h4 { margin: 0 0 10px; font-size: var(--t-label); letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink2); font-weight: 600; }
+.sw { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 10px; }
+.sw div { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--ink2); min-width: 0; }
+.sw div::before { content: ""; height: 44px; border-radius: 12px; background: var(--c); border: 1px solid var(--line); }
+.sw code { font-size: 10px; color: var(--ink2); }
+.evgrid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+.evcard { border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.evcard .row { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+.evcard .row b { width: 12px; height: 12px; border-radius: 999px; }
+.evcard code { font-size: 10px; line-height: 1.5; opacity: .9; }
+.spec { display: flex; flex-direction: column; gap: 8px; }
+.spec .a { font-size: 56px; font-weight: 300; letter-spacing: -2px; line-height: 1; font-variant-numeric: tabular-nums; }
+.spec .b { font-size: 28px; font-weight: 600; letter-spacing: -.6px; }
+.spec .c { font-size: 15px; line-height: 1.5; max-width: 60ch; }
+.spec .d { font-size: 12px; color: var(--ink2); }
+.comp { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { height: 48px; padding: 0 20px; border-radius: var(--r-pill); border: none; font-size: 15px; font-weight: 600; background: var(--accent); color: var(--onAccent); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+
+/* ===== Spec 005 Q5 proposal: same hue, darker, just enough for WCAG ===== */
+.proposed.day { --feedMark:#CC6F3B; --diaperMark:#A08528; --sleepMark:#8E7FBE; --pumpMark:#5A9481; }
+.proposed.night { --voiceHint:#4A3D2A; }
+.pair { display:flex; gap:32px; flex-wrap:wrap; align-items:flex-start; margin-bottom:48px; }
+.zoom { width:800px; overflow:hidden; padding:8px 0 16px; border-radius:24px; }
+.zoom .ribbon { transform:scale(1); }
+.voicebox { width:390px; padding:24px 0; border-radius:24px; }
+table.cmp { border-collapse:collapse; margin:0 0 40px; font-size:14px; background:#FAF8F3; border-radius:16px; overflow:hidden; }
+table.cmp td, table.cmp th { padding:10px 14px; border-bottom:1px solid #DDD6C9; text-align:left; vertical-align:middle; }
+table.cmp code { font-size:13px; margin:0 6px; }
+.sw { display:inline-grid; place-items:center; width:34px; height:22px; border-radius:6px; vertical-align:middle; border:1px solid #DDD6C9; }
+.sw i { display:block; width:20px; height:8px; border-radius:3px; }
+b.ok { color:#46553B; } b.bad { color:#8A2A1B; }
+h2.sec { font-size:20px; font-weight:600; margin:8px 0 14px; }
+</style>
+</head>
+<body>
+<h1>Coo · contrast proposal (Spec 005, Q5)</h1>
+<p class="lede">Left: the locked Washi UX colours. Right: the proposal. Each colour keeps its hue and gets only as much darker as WCAG needs: 3:1 for meaningful graphics (the ribbon ticks, dots and sleep outlines), and 4.5:1 for text (the voice hint). Nothing else changes. All night marks already pass.</p>
+
+<table class="cmp"><tr><th>Token</th><th>Mode</th><th>Now</th><th>Proposed</th><th>Needs</th></tr><tr><td>Feed mark</td><td>Day</td><td><span class="sw" style="background:#F1EDE5"><i style="background:#D9936C"></i></span><code>#D9936C</code> <b class="bad">2.16:1</b></td><td><span class="sw" style="background:#F1EDE5"><i style="background:#CC6F3B"></i></span><code>#CC6F3B</code> <b class="ok">3.05:1</b></td><td>3:1 against Ground</td></tr><tr><td>Diaper mark</td><td>Day</td><td><span class="sw" style="background:#F1EDE5"><i style="background:#CFAE3E"></i></span><code>#CFAE3E</code> <b class="bad">1.84:1</b></td><td><span class="sw" style="background:#F1EDE5"><i style="background:#A08528"></i></span><code>#A08528</code> <b class="ok">3.06:1</b></td><td>3:1 against Ground</td></tr><tr><td>Sleep mark</td><td>Day</td><td><span class="sw" style="background:#F1EDE5"><i style="background:#9587C2"></i></span><code>#9587C2</code> <b class="bad">2.76:1</b></td><td><span class="sw" style="background:#F1EDE5"><i style="background:#8E7FBE"></i></span><code>#8E7FBE</code> <b class="ok">3.03:1</b></td><td>3:1 against Ground</td></tr><tr><td>Pump mark</td><td>Day</td><td><span class="sw" style="background:#F1EDE5"><i style="background:#6FA895"></i></span><code>#6FA895</code> <b class="bad">2.33:1</b></td><td><span class="sw" style="background:#F1EDE5"><i style="background:#5A9481"></i></span><code>#5A9481</code> <b class="ok">3.00:1</b></td><td>3:1 against Ground</td></tr><tr><td>Voice hint</td><td>Night</td><td><span class="sw" style="background:#C9A46A"><i style="background:#5A4A33"></i></span><code>#5A4A33</code> <b class="bad">3.66:1</b></td><td><span class="sw" style="background:#C9A46A"><i style="background:#4A3D2A"></i></span><code>#4A3D2A</code> <b class="ok">4.52:1</b></td><td>4.5:1 against VoiceBg</td></tr></table>
+
+<h2 class="sec">The day ribbon at 2× size, where the marks matter most</h2>
+<div class="pair">
+<div><p class="cap">Now</p><div class="day zoom" style="background:var(--bg)"><div style="width:390px;transform:scale(2);transform-origin:top left;height:0;padding-bottom:0">  <div class="ribbon">
+    <div class="bar">
+      <i class="s" style="left:0%;width:29%"></i>
+      <i class="f" style="left:9%"></i><i class="d" style="left:10%"></i>
+      <i class="f" style="left:29.5%"></i><i class="d" style="left:30.5%"></i><i class="p" style="left:38%"></i>
+      <i class="s" style="left:37.5%;width:5%"></i>
+      <i class="f" style="left:43.7%"></i>
+      <i class="s" style="left:46.5%;width:5.2%"></i>
+      <i class="f" style="left:52.8%"></i><i class="d" style="left:54.5%"></i>
+    </div>
+    <div class="hours"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+  </div></div><div style="height:190px"></div></div></div>
+</div>
+<div class="pair">
+<div><p class="cap">Proposed</p><div class="day proposed zoom" style="background:var(--bg)"><div style="width:390px;transform:scale(2);transform-origin:top left;height:0">  <div class="ribbon">
+    <div class="bar">
+      <i class="s" style="left:0%;width:29%"></i>
+      <i class="f" style="left:9%"></i><i class="d" style="left:10%"></i>
+      <i class="f" style="left:29.5%"></i><i class="d" style="left:30.5%"></i><i class="p" style="left:38%"></i>
+      <i class="s" style="left:37.5%;width:5%"></i>
+      <i class="f" style="left:43.7%"></i>
+      <i class="s" style="left:46.5%;width:5.2%"></i>
+      <i class="f" style="left:52.8%"></i><i class="d" style="left:54.5%"></i>
+    </div>
+    <div class="hours"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+  </div></div><div style="height:190px"></div></div></div>
+</div>
+
+<h2 class="sec">Log · the full screen</h2>
+<div class="pair">
+<div><p class="cap">Now</p><div class="phone day">
+  <div class="ttl"><h2>Tuesday</h2><div class="day-nav">
+    <button aria-label="Previous day"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <button aria-label="Next day"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></div></div>
+  <div class="ribbon">
+    <div class="bar">
+      <i class="s" style="left:0%;width:29%"></i>
+      <i class="f" style="left:9%"></i><i class="d" style="left:10%"></i>
+      <i class="f" style="left:29.5%"></i><i class="d" style="left:30.5%"></i><i class="p" style="left:38%"></i>
+      <i class="s" style="left:37.5%;width:5%"></i>
+      <i class="f" style="left:43.7%"></i>
+      <i class="s" style="left:46.5%;width:5.2%"></i>
+      <i class="f" style="left:52.8%"></i><i class="d" style="left:54.5%"></i>
+    </div>
+    <div class="hours"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+  </div>
+  <div class="legend"><span><b style="background:var(--feedMark)"></b>Feed</span><span><b style="background:var(--diaperMark)"></b>Diaper</span><span><b style="background:var(--sleepMark)"></b>Sleep</span><span><b style="background:var(--pumpMark)"></b>Pump</span></div>
+  <div class="totals">
+    <div class="total feed"><strong>6</strong><span>feeds</span></div>
+    <div class="total diaper"><strong>5</strong><span>diapers</span></div>
+    <div class="total sleep"><strong>9 h 40</strong><span>sleep</span></div>
+    <div class="total pump"><strong>210</strong><span>ml pumped</span></div>
+  </div>
+  <div class="tl" style="margin-top:14px">
+    <div class="ev"><time>13:05</time><span class="badge diaper"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c3 4 6 7.2 6 10.5a6 6 0 0 1-12 0c0-3.3 3-6.5 6-10.5z"/></svg></span><span>Diaper · wet</span><em>Naïma</em></div>
+    <div class="ev"><time>12:40</time><span class="badge feed"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v3l-2 3v10a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9l-2-3V3M8 13h8"/></svg></span><span>Breast · left · 14 min</span><em>You</em></div>
+    <div class="ev"><time>11:10</time><span class="badge sleep"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span><span>Nap · 1 h 15 m</span><em>Naïma</em></div>
+    <div class="ev"><time>10:30</time><span class="badge feed"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v3l-2 3v10a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9l-2-3V3M8 13h8"/></svg></span><span>Bottle · formula · 120 ml</span><em>Tomek</em></div>
+    <div class="ev"><time>09:15</time><span class="badge pump"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14l-5 5v3h-4v-3z"/><path d="M10 13v6a2 2 0 0 0 4 0v-6"/></svg></span><span>Pumping · 110 ml</span><em>You</em></div>
+    <div class="ev"><time>09:00</time><span class="badge sleep"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span><span>Nap · 1 h 12 m</span><em>You</em></div>
+  </div>
+  <div class="nav">
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"/></svg>Today</button>
+    <button class="on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>Log</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M11 20V5M17 20v-6M3 20h18"/></svg>Insights</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 6"/></svg>Family</button>
+  </div>
+</div></div>
+<div><p class="cap">Proposed</p><div class="phone day proposed">
+  <div class="ttl"><h2>Tuesday</h2><div class="day-nav">
+    <button aria-label="Previous day"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <button aria-label="Next day"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></div></div>
+  <div class="ribbon">
+    <div class="bar">
+      <i class="s" style="left:0%;width:29%"></i>
+      <i class="f" style="left:9%"></i><i class="d" style="left:10%"></i>
+      <i class="f" style="left:29.5%"></i><i class="d" style="left:30.5%"></i><i class="p" style="left:38%"></i>
+      <i class="s" style="left:37.5%;width:5%"></i>
+      <i class="f" style="left:43.7%"></i>
+      <i class="s" style="left:46.5%;width:5.2%"></i>
+      <i class="f" style="left:52.8%"></i><i class="d" style="left:54.5%"></i>
+    </div>
+    <div class="hours"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+  </div>
+  <div class="legend"><span><b style="background:var(--feedMark)"></b>Feed</span><span><b style="background:var(--diaperMark)"></b>Diaper</span><span><b style="background:var(--sleepMark)"></b>Sleep</span><span><b style="background:var(--pumpMark)"></b>Pump</span></div>
+  <div class="totals">
+    <div class="total feed"><strong>6</strong><span>feeds</span></div>
+    <div class="total diaper"><strong>5</strong><span>diapers</span></div>
+    <div class="total sleep"><strong>9 h 40</strong><span>sleep</span></div>
+    <div class="total pump"><strong>210</strong><span>ml pumped</span></div>
+  </div>
+  <div class="tl" style="margin-top:14px">
+    <div class="ev"><time>13:05</time><span class="badge diaper"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c3 4 6 7.2 6 10.5a6 6 0 0 1-12 0c0-3.3 3-6.5 6-10.5z"/></svg></span><span>Diaper · wet</span><em>Naïma</em></div>
+    <div class="ev"><time>12:40</time><span class="badge feed"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v3l-2 3v10a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9l-2-3V3M8 13h8"/></svg></span><span>Breast · left · 14 min</span><em>You</em></div>
+    <div class="ev"><time>11:10</time><span class="badge sleep"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span><span>Nap · 1 h 15 m</span><em>Naïma</em></div>
+    <div class="ev"><time>10:30</time><span class="badge feed"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v3l-2 3v10a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9l-2-3V3M8 13h8"/></svg></span><span>Bottle · formula · 120 ml</span><em>Tomek</em></div>
+    <div class="ev"><time>09:15</time><span class="badge pump"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14l-5 5v3h-4v-3z"/><path d="M10 13v6a2 2 0 0 0 4 0v-6"/></svg></span><span>Pumping · 110 ml</span><em>You</em></div>
+    <div class="ev"><time>09:00</time><span class="badge sleep"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span><span>Nap · 1 h 12 m</span><em>You</em></div>
+  </div>
+  <div class="nav">
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"/></svg>Today</button>
+    <button class="on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>Log</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M11 20V5M17 20v-6M3 20h18"/></svg>Insights</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 6"/></svg>Family</button>
+  </div>
+</div></div>
+</div>
+
+<h2 class="sec">Today · day</h2>
+<div class="pair">
+<div><p class="cap">Now</p><div class="phone day">
+  <div class="top"><div class="mark">co<span>o</span></div><button class="baby"><i>Z</i>Zosia · 5 mo</button></div>
+  <div class="status"><div class="eyebrow">Awake for</div><div class="hero">1<small>h</small>20<small>m</small></div><div class="sub">since 12:25, after a 1 h 15 m nap</div></div>
+  <div class="card"><div class="head"><div class="eyebrow">Next nap window</div><div class="pill">High confidence</div></div>
+    <div class="window"><b></b>14:10 – 14:40</div><div class="why2">Her wake windows have been about 2 h 10 m this week.</div></div>
+  <div class="tiles">
+    <button class="tile feed"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v3l-2 3v10a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9l-2-3V3M8 13h8"/></svg>Feed<small>12:40 · L</small></button>
+    <button class="tile diaper"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c3 4 6 7.2 6 10.5a6 6 0 0 1-12 0c0-3.3 3-6.5 6-10.5z"/></svg>Diaper<small>13:05</small></button>
+    <button class="tile sleep"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>Sleep<small>woke 12:25</small></button>
+    <button class="tile pump"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14l-5 5v3h-4v-3z"/><path d="M10 13v6a2 2 0 0 0 4 0v-6"/></svg>Pump<small>09:15</small></button>
+  </div>
+  <button class="voice" aria-label="Log by voice"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Tell Coo<small>“120 ml formula and a wet diaper”</small></span></button>
+  <div class="sect"><h3>Today</h3><a href="#">See all</a></div>
+  <div class="tl">
+    <div class="ev"><time>13:05</time><span class="badge diaper"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c3 4 6 7.2 6 10.5a6 6 0 0 1-12 0c0-3.3 3-6.5 6-10.5z"/></svg></span><span>Diaper · wet</span><em>Naïma</em></div>
+    <div class="ev"><time>12:40</time><span class="badge feed"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v3l-2 3v10a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9l-2-3V3M8 13h8"/></svg></span><span>Breast · left · 14 min</span><em>You</em></div>
+    <div class="ev"><time>11:10</time><span class="badge sleep"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span><span>Nap · 1 h 15 m</span><em>Naïma</em></div>
+    <div class="ev"><time>10:30</time><span class="badge feed"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v3l-2 3v10a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9l-2-3V3M8 13h8"/></svg></span><span>Bottle · formula · 120 ml</span><em>Tomek</em></div>
+  </div>
+  <div class="nav">
+    <button class="on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"/></svg>Today</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>Log</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M11 20V5M17 20v-6M3 20h18"/></svg>Insights</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 6"/></svg>Family</button>
+  </div>
+</div></div>
+<div><p class="cap">Proposed</p><div class="phone day proposed">
+  <div class="top"><div class="mark">co<span>o</span></div><button class="baby"><i>Z</i>Zosia · 5 mo</button></div>
+  <div class="status"><div class="eyebrow">Awake for</div><div class="hero">1<small>h</small>20<small>m</small></div><div class="sub">since 12:25, after a 1 h 15 m nap</div></div>
+  <div class="card"><div class="head"><div class="eyebrow">Next nap window</div><div class="pill">High confidence</div></div>
+    <div class="window"><b></b>14:10 – 14:40</div><div class="why2">Her wake windows have been about 2 h 10 m this week.</div></div>
+  <div class="tiles">
+    <button class="tile feed"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v3l-2 3v10a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9l-2-3V3M8 13h8"/></svg>Feed<small>12:40 · L</small></button>
+    <button class="tile diaper"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c3 4 6 7.2 6 10.5a6 6 0 0 1-12 0c0-3.3 3-6.5 6-10.5z"/></svg>Diaper<small>13:05</small></button>
+    <button class="tile sleep"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>Sleep<small>woke 12:25</small></button>
+    <button class="tile pump"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14l-5 5v3h-4v-3z"/><path d="M10 13v6a2 2 0 0 0 4 0v-6"/></svg>Pump<small>09:15</small></button>
+  </div>
+  <button class="voice" aria-label="Log by voice"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Tell Coo<small>“120 ml formula and a wet diaper”</small></span></button>
+  <div class="sect"><h3>Today</h3><a href="#">See all</a></div>
+  <div class="tl">
+    <div class="ev"><time>13:05</time><span class="badge diaper"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c3 4 6 7.2 6 10.5a6 6 0 0 1-12 0c0-3.3 3-6.5 6-10.5z"/></svg></span><span>Diaper · wet</span><em>Naïma</em></div>
+    <div class="ev"><time>12:40</time><span class="badge feed"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v3l-2 3v10a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9l-2-3V3M8 13h8"/></svg></span><span>Breast · left · 14 min</span><em>You</em></div>
+    <div class="ev"><time>11:10</time><span class="badge sleep"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span><span>Nap · 1 h 15 m</span><em>Naïma</em></div>
+    <div class="ev"><time>10:30</time><span class="badge feed"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v3l-2 3v10a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9l-2-3V3M8 13h8"/></svg></span><span>Bottle · formula · 120 ml</span><em>Tomek</em></div>
+  </div>
+  <div class="nav">
+    <button class="on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"/></svg>Today</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>Log</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M11 20V5M17 20v-6M3 20h18"/></svg>Insights</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 6"/></svg>Family</button>
+  </div>
+</div></div>
+</div>
+
+<h2 class="sec">The voice bar at night</h2>
+<div class="pair">
+<div><p class="cap">Now</p><div class="night voicebox" style="background:var(--bg)"><button class="voice" aria-label="Log by voice"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Tell Coo<small>“120 ml formula and a wet diaper”</small></span></button></div></div>
+<div><p class="cap">Proposed</p><div class="night proposed voicebox" style="background:var(--bg)"><button class="voice" aria-label="Log by voice"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Tell Coo<small>“120 ml formula and a wet diaper”</small></span></button></div></div>
+</div>
+</body>
+</html>
