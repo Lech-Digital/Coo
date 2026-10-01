@@ -103,6 +103,9 @@ fonts.
   with `IllegalStateException: The specified child already has a parent`. Create views fresh on each rebuild.
 - **Modal pages open in their own Android window,** so they don't get the palette's system-bar colours, and UI
   automation does not see their views. Real screens are not modal; the Increment 6 spec decides how sheets work.
+- **The .NET `.gitignore` template ignores every folder named `Log/`**, so source folders with that name need the
+  `!src/**/Log/` negation (it hid the Log screen's view model from CI). After adding a folder, check
+  `git status --ignored`.
 - **A view that rebuilds every second swallows taps.** Keep interactive views stable, and bind the text that ticks.
 - **Sheets and the keyboard:** a page with input sheets sets `SafeAreaEdges` bottom to `SafeAreaRegions.SoftInput`.
   On a `Grid` inside the page it has no effect.
