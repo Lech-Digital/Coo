@@ -19,6 +19,9 @@ public static class ServiceCollectionExtensions
         services.AddTransient<GetDay>();
         services.AddTransient<SetUpBaby>();
         services.AddTransient<RecordBirth>();
+        services.AddTransient<UpdateBabyProfile>();
+        services.AddTransient<ChangeVolumeUnit>();
+        services.AddTransient<SetHiddenKinds>();
         services.AddTransient<GetAttention>();
         services.AddTransient<DismissDuplicate>();
         return services;
