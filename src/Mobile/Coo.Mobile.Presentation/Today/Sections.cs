@@ -239,7 +239,7 @@ public sealed partial class LogTilesSection(HomeActions actions) : ObservableObj
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         var t = snapshot.Today;
-        IReadOnlyList<TileItem> next =
+        IReadOnlyList<TileItem> all =
         [
             new("feeding", Strings.Get("Kind.Feed"), Running.LastFeed(t?.LastFeed, snapshot), new RelayCommand(() => actions.RequestSheet(HomeSheet.Feed))),
             new("diaper", Strings.Get("Kind.Diaper"), Running.LastDiaper(t?.LastDiaper, snapshot), new RelayCommand(() => actions.RequestSheet(HomeSheet.Diaper))),
@@ -250,6 +250,7 @@ public sealed partial class LogTilesSection(HomeActions actions) : ObservableObj
                 new AsyncRelayCommand(() => t?.Running.FirstOrDefault(e => e.Details is PumpDetails) is { } run
                     ? Pump(run.Id) : actions.StartPumpAsync())),
         ];
+        IReadOnlyList<TileItem> next = [.. all.Where(tile => KindVisibility.IsShown(snapshot.Household, tile.KindCode))];
         if (Running.Changed(Tiles, next, i => i.Name + i.LastAt))
             Tiles = next;
     }
@@ -351,6 +352,7 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
                 : new("sleep", Strings.Get("Night.AwakeSince"), t?.AwakeSince is { } a ? s.Formats.Time(a) : Strings.Get("Tile.Never")),
         ];
 
+        facts = [.. facts.Where(f => KindVisibility.IsShown(s.Household, f.KindCode))];
         if (Running.Changed(Facts, facts, f => f.Label + f.Value))
             Facts = facts;
 
@@ -365,6 +367,7 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
             new("feeding", Strings.Get("Night.FeedL"), new AsyncRelayCommand(() => actions.StartBreastAsync(BreastSide.Left))),
             new("feeding", Strings.Get("Night.FeedR"), new AsyncRelayCommand(() => actions.StartBreastAsync(BreastSide.Right))),
         ];
+        quick = [.. quick.Where(q => KindVisibility.IsShown(s.Household, q.KindCode))];
         if (Running.Changed(Quick, quick, q => q.Label))
             Quick = quick;
     }

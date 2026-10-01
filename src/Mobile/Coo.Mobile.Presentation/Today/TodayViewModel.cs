@@ -117,6 +117,9 @@ public sealed partial class TodayViewModel : ObservableObject
 
     public string UnitLabel => Strings.Get(_household?.VolumeUnit == VolumeUnit.Ounces ? "Unit.Oz" : "Unit.Ml");
 
+    /// <summary>For the page's "Earlier…" choices (Spec 009 §3.2).</summary>
+    public bool IsShown(string kindCode) => _household is null || KindVisibility.IsShown(_household, kindCode);
+
     private decimal Step => _household?.VolumeUnit == VolumeUnit.Ounces ? 0.5m : 10m;
 
     /// <summary>Loads everything from the store. Called on appearing and after every action.</summary>

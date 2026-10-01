@@ -55,13 +55,15 @@ public sealed partial class LogViewModel(IHouseholdStore households, GetDay getD
         var pumped = household.VolumeUnit == VolumeUnit.Ounces
             ? (Math.Round(day.Totals.PumpedMl / Coo.Domain.CareLog.Volume.MillilitresPerUsFluidOunce, 1).ToString("0.#", Strings.Culture), Strings.Get("Totals.PumpedOz"))
             : (Math.Round(day.Totals.PumpedMl).ToString("0", Strings.Culture), Strings.Get("Totals.PumpedMl"));
-        Totals =
+        // Hidden kinds have no totals; their entries stay in the timeline (Spec 009 §3.2).
+        TotalItem[] totals =
         [
             new("feeding", day.Totals.Feeds.ToString(Strings.Culture), PluralWord("Totals.Feeds", day.Totals.Feeds)),
             new("diaper", day.Totals.Diapers.ToString(Strings.Culture), PluralWord("Totals.Diapers", day.Totals.Diapers)),
             new("sleep", Formats.Duration(day.Totals.Sleep), Strings.Get("Totals.Sleep")),
             new("pump", pumped.Item1, pumped.Item2),
         ];
+        Totals = [.. totals.Where(t => KindVisibility.IsShown(household, t.KindCode))];
         Rows = [.. day.Entries.Where(e => e.Id != undo.PendingDelete).Select(e => new TimelineItem(e.Id, formats.Time(e.Start), e.KindCode, formats.Title(e, now), Strings.Get("Who.You")))];
     }
 

@@ -118,10 +118,16 @@ public sealed class TodayPage : ContentPage
     private async void OpenEarlier()
     {
         _pageSheet = true;
-        await _sheet.ShowAsync(Panel(
-            Strings.Get("Edit.Earlier"),
-            Row(EarlierButton("feeding", "Kind.Feed"), EarlierButton("feeding", "Feed.Bottle", bottle: true)),
-            Row(EarlierButton("diaper", "Kind.Diaper"), EarlierButton("sleep", "Kind.Sleep"), EarlierButton("pump", "Kind.Pump"))));
+        // Hidden kinds offer no "Earlier…" choice (Spec 009 §3.2).
+        var rows = new (string Kind, View Button)[]
+        {
+            ("feeding", EarlierButton("feeding", "Kind.Feed")),
+            ("feeding", EarlierButton("feeding", "Feed.Bottle", bottle: true)),
+            ("diaper", EarlierButton("diaper", "Kind.Diaper")),
+            ("sleep", EarlierButton("sleep", "Kind.Sleep")),
+            ("pump", EarlierButton("pump", "Kind.Pump")),
+        }.Where(b => _model.IsShown(b.Kind)).Select(b => b.Button).Chunk(2).Select(pair => (View)Row(pair)).ToArray();
+        await _sheet.ShowAsync(Panel(Strings.Get("Edit.Earlier"), rows));
     }
 
     private Button EarlierButton(string kindCode, string key, bool bottle = false)
