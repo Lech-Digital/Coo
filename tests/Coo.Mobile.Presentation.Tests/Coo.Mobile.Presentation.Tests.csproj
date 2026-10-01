@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Mobile/Coo.Mobile.Presentation/Coo.Mobile.Presentation.csproj" />
+  </ItemGroup>
+
+  <!-- The palette is checked against the design document itself (Spec 005 §2). -->
+  <ItemGroup>
+    <None Include="../../docs/design/design-system.md" Link="design-system.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

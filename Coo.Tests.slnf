@@ -15,7 +15,8 @@
       "tests/Coo.Codecs.Tests/Coo.Codecs.Tests.csproj",
       "tests/Coo.Domain.Tests/Coo.Domain.Tests.csproj",
       "tests/Coo.Mobile.Application.Tests/Coo.Mobile.Application.Tests.csproj",
-      "tests/Coo.Mobile.Infrastructure.Tests/Coo.Mobile.Infrastructure.Tests.csproj"
+      "tests/Coo.Mobile.Infrastructure.Tests/Coo.Mobile.Infrastructure.Tests.csproj",
+      "tests/Coo.Mobile.Presentation.Tests/Coo.Mobile.Presentation.Tests.csproj"
     ]
   }
 }

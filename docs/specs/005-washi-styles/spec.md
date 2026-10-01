@@ -57,7 +57,7 @@ without two copies drifting apart.
 | `Contrast_GraphicsAndLargeText_MeetThreeToOne` | WCAG 1.4.11, for graphics that carry meaning: `Accent` on `Ground` (links, icons); each event's `Mark` on `Ground` and on `Surface` (ribbon ticks, dots, sleep-block outlines) |
 | `Palette_ContainsNoPureWhite` | No token is `#FFFFFF` |
 | `Night_TextColours_AreNotBlueDominant` | For every night text token, blue is not the largest channel |
-| `Events_AreDistinctFromEachOtherAndFromAccent` | Every event tint differs from the others and from `AccentSoft` by a minimum colour distance (ΔE 2000 ≥ 10), so pump never reads as matcha |
+| `Events_AreDistinctFromEachOtherAndFromAccent` | Every event tint differs from the others and from `AccentSoft` by a minimum colour distance (ΔE 2000 ≥ 5: clearly noticeable at a glance; tints are never the only cue, since every event also has its icon and ink, and night tints are near-black by design), so pump never reads as matcha |
 
 The contrast ratio uses the WCAG 2.x relative-luminance formula, in a small pure function with its
 own tests against published examples (black on white is 21:1).
@@ -75,6 +75,14 @@ these are pairs it did not list:
 | `SleepMark` on `Ground` | Day | `#9587C2`, 2.76:1 | `#8E7FBE` | 3.03:1 (3.34) |
 | `PumpMark` on `Ground` | Day | `#6FA895`, 2.33:1 | `#5A9481` | 3.00:1 (3.30) |
 | `VoiceHint` on `VoiceBg` | Night | `#5A4A33`, 3.66:1 | `#4A3D2A` | 4.52:1 |
+
+A third came from the night rule: the night `SleepInk` `#B1A3C9` was blue-dominant (blue C9 above red B1).
+It is warmed to `#C0A8C0`, a dusty mauve, which raises its contrast on `SleepTint` from 6.65 to 7.13:1.
+Accepted by the owner on 2026-10-01, after the comparison in `docs/design/contrast-proposal.html`.
+
+With the event-distinctness bar at ΔE 5, night `AccentSoft` (`#2E2820`, the pill and selected-state fill) was only
+ΔE 4.2 from the night feed tint. It is lifted to `#37322B`: the same warm hue, slightly lighter and greyer. That puts it
+at ΔE 6.5 or more from every event tint, with `AccentInk` on it at 8.06:1. `Cheek` keeps `#2E2820`.
 
 The day marks matter: they are the ticks of the day ribbon, which caregivers read at a glance, and
 the design system says no event may be conveyed by colour alone. They must at least be *visible*

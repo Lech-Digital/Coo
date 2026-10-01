@@ -23,5 +23,6 @@
     <Project Path="tests/Coo.Domain.Tests/Coo.Domain.Tests.csproj" />
     <Project Path="tests/Coo.Mobile.Application.Tests/Coo.Mobile.Application.Tests.csproj" />
     <Project Path="tests/Coo.Mobile.Infrastructure.Tests/Coo.Mobile.Infrastructure.Tests.csproj" />
+    <Project Path="tests/Coo.Mobile.Presentation.Tests/Coo.Mobile.Presentation.Tests.csproj" />
   </Folder>
 </Solution>

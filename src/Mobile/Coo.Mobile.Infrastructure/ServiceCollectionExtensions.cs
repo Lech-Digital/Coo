@@ -1,5 +1,6 @@
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
+using Coo.Mobile.Application.Preferences;
 using Coo.Mobile.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,6 +25,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IHouseholdStore, HouseholdStore>();
         services.AddSingleton<IDeviceLocale, SystemDeviceLocale>();
         services.AddSingleton<IStorageDiagnostics, StorageDiagnostics>();
+        services.AddSingleton<IDevicePreferences, DevicePreferences>();
 
         // There are no data migrations in v1 (Spec 004 §7). New ones are registered here, by hand.
         services.AddSingleton(sp => new DataMigrationRunner([], sp.GetRequiredService<TimeProvider>()));

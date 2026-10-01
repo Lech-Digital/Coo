@@ -91,3 +91,53 @@ public sealed class DeviceAndMigrationTests
         }
     }
 }
+
+public sealed class DevicePreferencesTests
+{
+    [Fact]
+    public async Task GetAppearanceAsync_NothingStored_ReturnsDefaults()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var preferences = new DevicePreferences(db.Database);
+
+        // Act
+        var appearance = await preferences.GetAppearanceAsync(CancellationToken.None);
+
+        // Assert
+        appearance.Should().Be(Coo.Mobile.Application.Preferences.AppearancePreferences.Default);
+    }
+
+    [Fact]
+    public async Task SetThenGet_CustomAppearance_RoundTrips()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var preferences = new DevicePreferences(db.Database);
+        var custom = new Coo.Mobile.Application.Preferences.AppearancePreferences(
+            Coo.Mobile.Application.Preferences.AppearanceMode.Night,
+            new Coo.Mobile.Application.Preferences.QuietHours(new TimeOnly(21, 30), new TimeOnly(6, 15)));
+
+        // Act
+        await preferences.SetAppearanceAsync(custom, CancellationToken.None);
+        var read = await new DevicePreferences(db.Database).GetAppearanceAsync(CancellationToken.None);
+
+        // Assert
+        read.Should().Be(custom);
+    }
+
+    [Fact]
+    public async Task GetAppearanceAsync_UnreadableStoredValue_FallsBackToDefault()
+    {
+        // Arrange: a value from a newer build that this one cannot read.
+        await using var db = await TestDatabase.CreateAsync();
+        await using (var connection = await db.OpenAsync())
+            await connection.ExecuteAsync("INSERT INTO app_state (key, value) VALUES ('appearance.mode', 'Sepia');", CancellationToken.None);
+
+        // Act
+        var appearance = await new DevicePreferences(db.Database).GetAppearanceAsync(CancellationToken.None);
+
+        // Assert
+        appearance.Mode.Should().Be(Coo.Mobile.Application.Preferences.AppearanceMode.Auto);
+    }
+}

@@ -1,5 +1,7 @@
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
+using Coo.Mobile.Presentation.Theme;
+using Coo.Mobile.Resources.Styles;
 
 namespace Coo.Mobile;
 
@@ -39,6 +41,12 @@ public sealed class StartupPage : ContentPage
         }
 
         await _household.ExecuteAsync(CancellationToken.None);
+
+        // The palette (Spec 005 §6.2): the controller decides, the host applies, on the main thread.
+        var theme = _services.GetRequiredService<ThemeController>();
+        var host = _services.GetRequiredService<ThemeHost>();
+        theme.PaletteChanged += (_, kind) => MainThread.BeginInvokeOnMainThread(() => host.Apply(kind));
+        await theme.StartAsync(CancellationToken.None);
 
 #if DEBUG_SCREEN
         Page next = _services.GetRequiredService<DebugScreen.DebugPage>();

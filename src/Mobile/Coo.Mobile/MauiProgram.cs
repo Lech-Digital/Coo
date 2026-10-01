@@ -1,15 +1,28 @@
 using Coo.Mobile.Application;
+using Coo.Mobile.Components;
 using Coo.Mobile.Infrastructure;
 using Coo.Mobile.Platform;
+using Coo.Mobile.Presentation.Theme;
+using Coo.Mobile.Resources.Styles;
 
 namespace Coo.Mobile;
 
 public static class MauiProgram
 {
+    private static readonly string[] Weights = ["Light", "Regular", "Medium", "SemiBold", "Bold"];
+
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
-        builder.UseMauiApp<App>();
+        builder.UseMauiApp<App>().ConfigureFonts(fonts =>
+        {
+            // One alias per weight: MAUI selects weights by file on Android (Spec 005 §4.1).
+            foreach (var weight in Weights)
+            {
+                fonts.AddFont($"Figtree-{weight}.ttf", $"Figtree{weight}");
+            }
+        });
+        Tabular.Register();
 
         // Composition root (ADR 0001 §2): the only place on the mobile side that creates the real clock.
         builder.Services.AddSingleton(TimeProvider.System);
@@ -18,10 +31,16 @@ public static class MauiProgram
             databasePath: Path.Combine(FileSystem.AppDataDirectory, "coo.db"),
             appVersion: $"{AppInfo.Current.VersionString}+{AppInfo.Current.BuildString}");
         builder.Services.AddMobilePlatform();
+
+        builder.Services.AddSingleton<ThemeHost>();
+        builder.Services.AddSingleton<IOsAppearance>(sp => sp.GetRequiredService<ThemeHost>());
+        builder.Services.AddSingleton<ThemeController>();
+
         builder.Services.AddTransient<StartupPage>();
         builder.Services.AddTransient<PlaceholderPage>();
 #if DEBUG_SCREEN
         builder.Services.AddTransient<DebugScreen.DebugPage>();
+        builder.Services.AddTransient<DebugScreen.GalleryPage>();
 #endif
 
         return builder.Build();

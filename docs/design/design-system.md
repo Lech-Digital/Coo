@@ -1,6 +1,8 @@
 # Coo design system — "Washi UX"
 
-Status: Locked (2026-09-29; day `Mark`s and night `VoiceHint` darkened for contrast on 2026-10-01, Spec 005 Q5). Visual reference: `docs/design/washi-ux.html`.
+Status: Locked (2026-09-29; day `Mark`s and night `VoiceHint` darkened for contrast, and night `SleepInk` warmed
+from `#B1A3C9` so night text is never blue-dominant, and night `AccentSoft` lifted from `#2E2820` so a selected
+state never looks like a feed tile, on 2026-10-01, Spec 005). Visual reference: `docs/design/washi-ux.html`.
 Superseded explorations: `docs/design/style-directions.html`.
 
 Washi UX combines three things:
@@ -40,7 +42,7 @@ They are the contract between this document and the XAML.
 | `Ink` | `#2A2823` | `#E9C9A0` | Primary text and icons |
 | `Ink2` | `#6B665C` | `#A88E70` | Secondary text, metadata |
 | `Accent` | `#5E7150` (matcha) | `#C9A46A` (amber) | Primary actions, links |
-| `AccentSoft` | `#E3E7D9` | `#2E2820` | Pills, selected states |
+| `AccentSoft` | `#E3E7D9` | `#37322B` | Pills, selected states |
 | `AccentInk` | `#46553B` | `#E9C9A0` | Text on `AccentSoft`; link text |
 | `OnAccent` | `#FAF8F3` | `#16130F` | Text on `Accent` |
 | `Cheek` | `#E8C4B8` | `#2E2820` | Baby avatar fill |
@@ -59,7 +61,7 @@ Each event has three tokens:
 |---|---|---|
 | **Feed** (peach) | `#F5DCCB` / `#CC6F3B` / `#7A3F20` | `#2E2219` / `#C98A63` / `#D9A07C` |
 | **Diaper** (yuzu) | `#F3E6B3` / `#A08528` / `#6A5410` | `#2C2716` / `#BFA34E` / `#CDB266` |
-| **Sleep** (lavender) | `#E2DCEF` / `#8E7FBE` / `#473A78` | `#25222E` / `#9A8AB5` / `#B1A3C9` |
+| **Sleep** (lavender) | `#E2DCEF` / `#8E7FBE` / `#473A78` | `#25222E` / `#9A8AB5` / `#C0A8C0` |
 | **Pump** (mint) | `#D6E9E2` / `#5A9481` / `#2D5A4C` | `#1F2724` / `#7FA08F` / `#98B7A6` |
 
 Keys follow the pattern `FeedTint`, `FeedMark`, `FeedInk`, and so on.
@@ -114,9 +116,11 @@ app with no fonts).
 
 Type rules:
 
-- **Tabular figures** for every time, duration and amount, so timers do not jitter. Before XAML
-  work starts, confirm that Figtree's tabular figures render on Android. If they do not, the
-  timers fall back to fixed-width digit layout.
+- **Tabular figures** for every time, duration and amount, so timers do not jitter. Confirmed on a
+  Pixel 10 on 2026-10-01: Figtree's `tnum` feature, applied with Android's `fontFeatureSettings`, aligns
+  every weight. Plain Figtree digits are proportional and do jitter (Spec 005 §4.2).
+- **Tracking** values are px at each style's size. In MAUI they are converted to `CharacterSpacing`
+  units (px / size / 0.0624), because Android applies `CharacterSpacing` in sixteenths of an em.
 - **Units in the hero** are smaller and lighter than the digits: 1<small>h</small> 20<small>m</small>.
 - **Font scaling.** The app honours Android font scaling, and layouts wrap rather than clip up to
   200%. `Timer` and `Hero` are exempt from scaling (`FontAutoScalingEnabled="False"`): they are

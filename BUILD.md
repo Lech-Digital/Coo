@@ -79,6 +79,33 @@ Measure the cold start with the phone **unlocked**: a locked screen distorts it 
 ~/android-sdk/platform-tools/adb shell am start -W -n com.lechdigital.coo/crc64f635aa2239ac8606.MainActivity
 ```
 
+## Fonts
+
+After every Android build, check that the fonts reached the package:
+
+```sh
+eng/verify-apk-fonts.sh src/Mobile/Coo.Mobile/bin/Release/net10.0-android/com.lechdigital.coo-Signed.apk
+```
+
+When font files are added or removed, delete `src/Mobile/Coo.Mobile/obj` and `bin` first (run
+`dotnet build-server shutdown` if the delete fails). A stale `ProcessMauiFonts` stamp once shipped CoreChoice with no
+fonts.
+
+## MAUI lessons recorded while building the styles (Increment 5)
+
+- **`CharacterSpacing` is not in pixels.** Android applies it as 0.0624 em per unit, so the design system's tracking
+  (px at each size) is converted to px / size / 0.0624. Using the px value directly made the timer digits overlap.
+- **The XAML source generator cannot set `StyleClass` in a style `Setter`** (`MAUIG1001: The method or operation is
+  not implemented`). Number styles get the "Tabular" class in code instead (`Components/Components.cs`).
+- **`{StaticResource}` across merged dictionaries** is not resolvable by the source generator when `Styles.xaml` is
+  compiled on its own, so the touch-target sizes in `Styles.xaml` are literal values (48 and 64).
+- **A view cannot be added to a second parent.** Rebuilding a page that re-adds a view it kept in a field crashes
+  with `IllegalStateException: The specified child already has a parent`. Create views fresh on each rebuild.
+- **Modal pages open in their own Android window,** so they don't get the palette's system-bar colours, and UI
+  automation does not see their views. Real screens are not modal; the Increment 6 spec decides how sheets work.
+- **Inside the `Coo.Mobile` namespace, `Application` and `Platform` name projects,** not the MAUI types. Use
+  `Microsoft.Maui.Controls.Application` and `Microsoft.Maui.ApplicationModel.Platform`.
+
 ## Traps that are designed out
 
 | Sibling-app failure | Why it cannot happen here |

@@ -27,13 +27,14 @@ public sealed class DebugPage : ContentPage
     private readonly TimeProvider _time;
 
     private readonly Label _status = new() { FontSize = 13 };
+    private readonly Label _counters = new() { FontSize = 13 };
     private readonly VerticalStackLayout _list = new() { Spacing = 6 };
     private HouseholdId _household;
     private BabyId _baby;
 
     public DebugPage(
         LogEntry log, ReviseEntry revise, DeleteEntry delete, GetEntries entries, ICareLogStore store,
-        IHouseholdStore households, IVersionClock clock, IStorageDiagnostics diagnostics, TimeProvider time)
+        IHouseholdStore households, IVersionClock clock, IStorageDiagnostics diagnostics, TimeProvider time, IServiceProvider services)
     {
         (_log, _revise, _delete, _entries, _store, _households, _clock, _diagnostics, _time) =
             (log, revise, delete, entries, store, households, clock, diagnostics, time);
@@ -50,6 +51,7 @@ public sealed class DebugPage : ContentPage
                 {
                     new Label { Text = "Coo · debug screen", FontSize = 22 },
                     _status,
+                    _counters,
                     Row(Button("Diaper wet", () => LogPoint(new DiaperDetails(DiaperContents.Wet))),
                         Button("Diaper dirty", () => LogPoint(new DiaperDetails(DiaperContents.Dirty)))),
                     Row(Button("Bottle 120 ml", () => LogPoint(BottleFeed.Of(Milk.Formula, Volume.FromMillilitres(120).Value).Value)),
@@ -69,6 +71,7 @@ public sealed class DebugPage : ContentPage
                             await _diagnostics.InsertForeignKindRowAsync(_household, _baby, CancellationToken.None);
                             Report(Result.Success);
                         })),
+                    Row(Button("Style gallery", () => Navigation.PushModalAsync(services.GetRequiredService<GalleryPage>()))),
                     new Label { Text = "Last 20 entries", FontSize = 17, Margin = new Thickness(0, 12, 0, 0) },
                     _list,
                 },
@@ -166,7 +169,7 @@ public sealed class DebugPage : ContentPage
         // Read the entries first: reading classifies new rows, so the counters below are current.
         var recent = await RecentAsync();
         var counts = await _store.CountsAsync(_household, CancellationToken.None);
-        _status.Text += $"\nOutbox {counts.PendingOutbox} · read-only {counts.ReadOnly} · quarantined {counts.Quarantined}" +
+        _counters.Text = $"Outbox {counts.PendingOutbox} · read-only {counts.ReadOnly} · quarantined {counts.Quarantined}" +
                         $"\n{AppInfo.Current.VersionString} ({AppInfo.Current.BuildString}) · {_diagnostics.DatabasePath}";
 
         _list.Children.Clear();
