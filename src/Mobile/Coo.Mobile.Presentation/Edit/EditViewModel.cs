@@ -102,7 +102,7 @@ public sealed partial class EditViewModel(
 
     public string UnitLabel => Strings.Get(_household?.VolumeUnit == VolumeUnit.Ounces ? "Unit.Oz" : "Unit.Ml");
 
-    public DateTime Today => time.GetLocalNow().Date;
+    public DateTime Today => DateTime.SpecifyKind(time.GetLocalNow().Date, DateTimeKind.Unspecified);
 
     /// <summary>Raised when the form is done (saved or deleted); the host closes it.</summary>
     public event EventHandler? Closed;
@@ -445,13 +445,16 @@ public sealed partial class EditViewModel(
         OnPropertyChanged(nameof(UnitLabel));
     }
 
-    private void SetStart(DateTimeOffset at) => (StartDate, StartTime) = (at.LocalDateTime.Date, at.LocalDateTime.TimeOfDay);
+    // The form shows wall-clock time in the TimeProvider's zone, never the machine's: CI runs in UTC, the phone does not.
+    private void SetStart(DateTimeOffset at) => (StartDate, StartTime) = (Local(at).Date, Local(at).TimeOfDay);
 
-    private void SetEnd(DateTimeOffset at) => (EndDate, EndTime) = (at.LocalDateTime.Date, at.LocalDateTime.TimeOfDay);
+    private void SetEnd(DateTimeOffset at) => (EndDate, EndTime) = (Local(at).Date, Local(at).TimeOfDay);
+
+    private DateTime Local(DateTimeOffset at) => DateTime.SpecifyKind(TimeZoneInfo.ConvertTime(at, time.LocalTimeZone).DateTime, DateTimeKind.Unspecified);
 
     private DateTimeOffset Combine(DateTime date, TimeSpan clock)
     {
-        var local = date.Date + new TimeSpan(clock.Hours, clock.Minutes, 0);
+        var local = DateTime.SpecifyKind(date.Date + new TimeSpan(clock.Hours, clock.Minutes, 0), DateTimeKind.Unspecified);
         return new DateTimeOffset(local, time.LocalTimeZone.GetUtcOffset(local));
     }
 

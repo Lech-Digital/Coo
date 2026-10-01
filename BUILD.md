@@ -124,6 +124,9 @@ fonts.
   close. Pushed pages pop themselves in `OnBackButtonPressed`.
 - **A view model that reacts to its own property changes runs while it loads.** Guard it, or a half-filled form
   (a `DateTime` of 0001-01-01) throws east of UTC. Tests that touch local time run in a +02:00 zone.
+- **Local time comes from the `TimeProvider`'s zone only,** never `DateTimeOffset.LocalDateTime` (the machine's
+  zone). The Mac is at +02:00 and CI at UTC, so a mix passes here and fails there. Before pushing, also run
+  `TZ=UTC dotnet test Coo.Tests.slnf`.
 - **Android's own dialogs (date and time pickers) take `colorPrimary` and `colorAccent`** from
   `Platforms/Android/Resources/values/colors.xml`, not the MAUI resources.
 - **`uiautomator dump` fails while a view ticks every second,** so the tap helper finds nothing on Today with a timer

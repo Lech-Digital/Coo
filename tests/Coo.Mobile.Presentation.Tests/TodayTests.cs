@@ -298,7 +298,7 @@ public sealed class NightTimersTests
 
         // Assert
         section.Items[0].Should().BeSameAs(card, "the card stays put, so taps on its buttons are never lost");
-        card.Started.Should().NotBe(before).And.Contain("03:00");
+        card.Started.Should().NotBe(before).And.Contain(new Formats(true, VolumeUnit.Millilitres).Time(Now.AddMinutes(-12)));
     }
 
     private CareEntry Entry(EntryDetails details, EntryTiming? timing) =>

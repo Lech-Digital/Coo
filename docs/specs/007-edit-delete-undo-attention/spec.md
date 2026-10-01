@@ -196,6 +196,7 @@ All deliverables of §10 were checked on the owner's phone:
 | Undo, in the accent green, was hard to read on the dark toast | `VoiceInk`, bold |
 | The Android time and date pickers were Material blue | The Android theme colours are Washi's accent, day and night |
 | A running card kept "started 14:35" after its start moved | The start line is bound, and updates in place |
+| CI (UTC) failed where the Mac (+02:00) passed: the form read times in the machine's zone and wrote them in the `TimeProvider`'s | The form uses the `TimeProvider`'s zone both ways |
 
 **Carried forward:**
 
