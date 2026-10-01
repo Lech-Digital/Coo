@@ -119,4 +119,32 @@ public sealed class AppearanceRuleTests
         // Assert
         next.Should().BeNull();
     }
+
+    [Fact]
+    public void Resolve_AutoInQuietHoursWithActiveDayOverride_IsDay()
+    {
+        // Arrange
+        var now = new DateTimeOffset(2026, 10, 1, 3, 0, 0, TimeSpan.FromHours(2));
+        var dayUntilMorning = new AppearanceOverride(AppearanceMode.Day, new DateTimeOffset(2026, 10, 1, 7, 0, 0, TimeSpan.FromHours(2)));
+
+        // Act
+        var palette = AppearanceRule.Resolve(AppearanceMode.Auto, now, Default, osIsDark: false, dayUntilMorning);
+
+        // Assert
+        palette.Should().Be(PaletteKind.Day);
+    }
+
+    [Fact]
+    public void Resolve_ExpiredOverride_FollowsAuto()
+    {
+        // Arrange
+        var now = new DateTimeOffset(2026, 10, 1, 23, 0, 0, TimeSpan.FromHours(2));
+        var expired = new AppearanceOverride(AppearanceMode.Day, now.AddHours(-1));
+
+        // Act
+        var palette = AppearanceRule.Resolve(AppearanceMode.Auto, now, Default, osIsDark: false, expired);
+
+        // Assert
+        palette.Should().Be(PaletteKind.Night);
+    }
 }

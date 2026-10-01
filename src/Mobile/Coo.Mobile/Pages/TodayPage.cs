@@ -102,7 +102,7 @@ public sealed class TodayPage : ContentPage
     {
         _sections.Children.Clear();
         foreach (var section in _model.Sections)
-            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier)));
+            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model)));
     }
 
     private async void OpenEntry(EntryId id)

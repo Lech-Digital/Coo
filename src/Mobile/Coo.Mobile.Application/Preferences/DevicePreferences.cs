@@ -24,8 +24,11 @@ public sealed record QuietHours(TimeOnly Start, TimeOnly End)
         : time >= Start || time < End;
 }
 
+/// <summary>"Day for now" from Today (Spec 009 §3.7): in Auto, <see cref="Palette"/> (Day or Night) until <see cref="Until"/>.</summary>
+public sealed record AppearanceOverride(AppearanceMode Palette, DateTimeOffset Until);
+
 /// <summary>This phone's appearance settings. Per device, never synced: parents differ (Spec 005 §6.3).</summary>
-public sealed record AppearancePreferences(AppearanceMode Mode, QuietHours QuietHours)
+public sealed record AppearancePreferences(AppearanceMode Mode, QuietHours QuietHours, AppearanceOverride? Override = null)
 {
     public static AppearancePreferences Default { get; } = new(AppearanceMode.Auto, QuietHours.Default);
 }

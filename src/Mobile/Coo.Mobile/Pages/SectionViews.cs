@@ -13,13 +13,13 @@ namespace Coo.Mobile.Pages;
 /// one renders as nothing rather than breaking Today. Each view re-renders when its section changes.
 /// </summary>
 /// <summary>What a section view can ask its page to do.</summary>
-internal sealed record SectionHost(Action? OpenDebug, Action<EntryId> OpenEntry, Action OpenAttention, Action OpenEarlier);
+internal sealed record SectionHost(Action? OpenDebug, Action<EntryId> OpenEntry, Action OpenAttention, Action OpenEarlier, TodayViewModel Today);
 
 internal static class SectionViews
 {
     public static View Create(IHomeSection section, SectionHost host) => section switch
     {
-        BabyHeaderSection s => Live(s, () => Header(s, host.OpenDebug)),
+        BabyHeaderSection s => Live(s, () => Header(s, host)),
         DueDateSection s => Live(s, () => DueDate(s)),
         StatusHeroSection s => Live(s, () => Hero(s)),
         RunningSection s => Live(s, () => RunningCards(s.Items, night: false, host)),
@@ -52,8 +52,35 @@ internal static class SectionViews
         return view;
     }
 
-    private static View Header(BabyHeaderSection s, Action? longPress)
+    /// <summary>
+    /// The Today switch (Spec 009 §3.7): a moon by day, a sun by night, 44 dp to tap. It redraws when the palette
+    /// changes, because a section that shows in both palettes is not rebuilt then.
+    /// </summary>
+    private static View ThemeSwitch(SectionHost host)
     {
+        var view = new ContentView { WidthRequest = 44, HeightRequest = 44, VerticalOptions = LayoutOptions.Center };
+        void Render()
+        {
+            var night = host.Today.IsNight;
+            view.Content = new Icon(night ? IconGeometry.Sun : IconGeometry.Sleep, "Ink2")
+                .Tap(i => { i.HorizontalOptions = LayoutOptions.Center; i.VerticalOptions = LayoutOptions.Center; });
+            SemanticProperties.SetDescription(view, Strings.Get(night ? "Theme.ToDay" : "Theme.ToNight"));
+        }
+
+        host.Today.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(TodayViewModel.IsNight))
+                view.Dispatcher.Dispatch(Render);
+        };
+        var tap = new TapGestureRecognizer { Command = host.Today.ToggleThemeCommand };
+        view.GestureRecognizers.Add(tap);
+        Render();
+        return view;
+    }
+
+    private static View Header(BabyHeaderSection s, SectionHost host)
+    {
+        var longPress = host.OpenDebug;
         var mark = new Label
         {
             FormattedText = new FormattedString
@@ -77,9 +104,10 @@ internal static class SectionViews
             Children = { initial, Ui.Text($"{s.BabyName} · {s.Age}", "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center) },
         }, "Surface", 999, new Thickness(6, 6, 14, 6), "Line");
 
-        var grid = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], Padding = new Thickness(24, 16, 24, 8) };
+        var grid = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto)], ColumnSpacing = 4, Padding = new Thickness(24, 16, 24, 8) };
         grid.Add(mark, 0);
-        grid.Add(chip, 1);
+        grid.Add(ThemeSwitch(host), 1);
+        grid.Add(chip, 2);
         return grid;
     }
 
@@ -206,9 +234,10 @@ internal static class SectionViews
     {
         var title = Bound(s, nameof(NightSection.Title), "Meta");
         AttachLongPress(title, host.OpenDebug);
-        var top = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], Padding = new Thickness(24, 16, 24, 0) };
+        var top = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto)], ColumnSpacing = 4, Padding = new Thickness(24, 16, 24, 0) };
         top.Add(title.Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
-        top.Add(Ui.Rounded(Ui.Text(s.BabyName, "BodyStrong"), "Surface", 999, new Thickness(14, 8), "Line"), 1);
+        top.Add(ThemeSwitch(host), 1);
+        top.Add(Ui.Rounded(Ui.Text(s.BabyName, "BodyStrong"), "Surface", 999, new Thickness(14, 8), "Line"), 2);
 
         var stack = new VerticalStackLayout { Spacing = 20 };
         stack.Add(top);

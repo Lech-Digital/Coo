@@ -15,6 +15,8 @@ public static class IconGeometry
     public const string Log = "M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01";
     public const string Insights = "M5 20V11M11 20V5M17 20v-6M3 20h18";
     public const string Family = "M6 8a3 3 0 1 0 6 0a3 3 0 1 0-6 0M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 6";
+    /// <summary>The Today switch to day colours (Spec 009 §3.7); the switch to night uses <see cref="Sleep"/>, the moon.</summary>
+    public const string Sun = "M12 8.5a3.5 3.5 0 1 0 0 7a3.5 3.5 0 1 0 0-7M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4l1.4-1.4M17 7l1.4-1.4";
     public const string ChevronLeft = "M15 6l-6 6 6 6";
     public const string ChevronRight = "M9 6l6 6-6 6";
 
@@ -35,6 +37,7 @@ public static class IconGeometry
         [nameof(Log)] = Log,
         [nameof(Insights)] = Insights,
         [nameof(Family)] = Family,
+        [nameof(Sun)] = Sun,
         [nameof(ChevronLeft)] = ChevronLeft,
         [nameof(ChevronRight)] = ChevronRight,
         [nameof(SideLeft)] = SideLeft,

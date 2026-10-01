@@ -58,6 +58,60 @@ public sealed class ThemeControllerTests
         await _preferences.Received(1).SetAppearanceAsync(Arg.Any<AppearancePreferences>(), Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task ToggleAsync_AutoAtThreeAm_ShowsDayUntilTheNextBoundaryAndStoresIt()
+    {
+        // Arrange: 03:00, quiet hours 22:00–07:00, so Auto shows night.
+        _preferences.GetAppearanceAsync(Arg.Any<CancellationToken>()).Returns(AppearancePreferences.Default);
+        using var controller = Controller(at: new DateTimeOffset(2026, 10, 1, 3, 0, 0, TimeSpan.FromHours(2)));
+        await controller.StartAsync(CancellationToken.None);
+
+        // Act
+        await controller.ToggleAsync(CancellationToken.None);
+
+        // Assert
+        controller.Current.Should().Be(PaletteKind.Day);
+        controller.Settings.Mode.Should().Be(AppearanceMode.Auto);
+        controller.Settings.Override.Should().Be(new AppearanceOverride(AppearanceMode.Day, new DateTimeOffset(2026, 10, 1, 7, 0, 0, TimeSpan.FromHours(2))));
+        await _preferences.Received(1).SetAppearanceAsync(controller.Settings, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task ToggleAsync_FixedNight_StoresDayMode()
+    {
+        // Arrange
+        _preferences.GetAppearanceAsync(Arg.Any<CancellationToken>()).Returns(AppearancePreferences.Default with { Mode = AppearanceMode.Night });
+        using var controller = Controller(at: new DateTimeOffset(2026, 10, 1, 15, 0, 0, TimeSpan.FromHours(2)));
+        await controller.StartAsync(CancellationToken.None);
+
+        // Act
+        await controller.ToggleAsync(CancellationToken.None);
+
+        // Assert
+        controller.Settings.Mode.Should().Be(AppearanceMode.Day);
+        controller.Settings.Override.Should().BeNull();
+        controller.Current.Should().Be(PaletteKind.Day);
+    }
+
+    [Fact]
+    public async Task ToggleAsync_TwiceInAuto_ClearsTheOverride()
+    {
+        // Arrange
+        _preferences.GetAppearanceAsync(Arg.Any<CancellationToken>()).Returns(AppearancePreferences.Default);
+        using var controller = Controller(at: new DateTimeOffset(2026, 10, 1, 3, 0, 0, TimeSpan.FromHours(2)));
+        await controller.StartAsync(CancellationToken.None);
+
+        // Act
+        await controller.ToggleAsync(CancellationToken.None);
+        await controller.ToggleAsync(CancellationToken.None);
+
+        // Assert
+        controller.Current.Should().Be(PaletteKind.Night);
+        controller.Settings.Override.Should().BeNull();
+    }
+
+    private ThemeController Controller(DateTimeOffset at) => new(_preferences, _os, new FixedTime(at));
+
     private sealed class FakeOs : IOsAppearance
     {
         public bool IsDark { get; private set; }

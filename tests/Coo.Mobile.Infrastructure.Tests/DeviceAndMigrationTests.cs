@@ -183,6 +183,47 @@ public sealed class DevicePreferencesTests
         // Assert
         language.IsSystem.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task SetThenGet_DayOverride_RoundTrips()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var withOverride = Coo.Mobile.Application.Preferences.AppearancePreferences.Default with
+        {
+            Override = new Coo.Mobile.Application.Preferences.AppearanceOverride(
+                Coo.Mobile.Application.Preferences.AppearanceMode.Day, new DateTimeOffset(2026, 10, 1, 7, 0, 0, TimeSpan.FromHours(2))),
+        };
+
+        // Act
+        await new DevicePreferences(db.Database).SetAppearanceAsync(withOverride, CancellationToken.None);
+        var read = await new DevicePreferences(db.Database).GetAppearanceAsync(CancellationToken.None);
+
+        // Assert
+        read.Override!.Palette.Should().Be(withOverride.Override.Palette);
+        read.Override.Until.Should().Be(withOverride.Override.Until);
+    }
+
+    [Fact]
+    public async Task SetThenGet_OverrideCleared_ReadsNone()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var preferences = new DevicePreferences(db.Database);
+        var withOverride = Coo.Mobile.Application.Preferences.AppearancePreferences.Default with
+        {
+            Override = new Coo.Mobile.Application.Preferences.AppearanceOverride(
+                Coo.Mobile.Application.Preferences.AppearanceMode.Night, new DateTimeOffset(2026, 10, 1, 22, 0, 0, TimeSpan.FromHours(2))),
+        };
+        await preferences.SetAppearanceAsync(withOverride, CancellationToken.None);
+
+        // Act
+        await preferences.SetAppearanceAsync(withOverride with { Override = null }, CancellationToken.None);
+        var read = await preferences.GetAppearanceAsync(CancellationToken.None);
+
+        // Assert
+        read.Override.Should().BeNull();
+    }
 }
 
 public sealed class ExpectedBabyMigrationTests

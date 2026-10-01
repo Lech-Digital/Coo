@@ -51,6 +51,26 @@ public sealed class ThemeController(IDevicePreferences preferences, IOsAppearanc
         Evaluate(force: false);
     }
 
+    /// <summary>
+    /// The sun or moon on Today (Spec 009 §3.7). In Auto, the other palette until the next quiet-hours boundary (12 h
+    /// without quiet hours); with Day or Night fixed, the other mode. Toggling back to what Auto would show anyway
+    /// clears the override.
+    /// </summary>
+    public Task ToggleAsync(CancellationToken cancellationToken)
+    {
+        var target = Current == PaletteKind.Night ? AppearanceMode.Day : AppearanceMode.Night;
+        if (_settings.Mode != AppearanceMode.Auto)
+            return SetAsync(_settings with { Mode = target, Override = null }, cancellationToken);
+
+        var now = time.GetLocalNow();
+        var auto = AppearanceRule.Resolve(AppearanceMode.Auto, TimeOnly.FromDateTime(now.DateTime), _settings.QuietHours, os.IsDark);
+        if ((auto == PaletteKind.Night) == (target == AppearanceMode.Night))
+            return SetAsync(_settings with { Override = null }, cancellationToken);
+
+        var until = AppearanceRule.NextChange(AppearanceMode.Auto, now, _settings.QuietHours, time.LocalTimeZone) ?? now.AddHours(12);
+        return SetAsync(_settings with { Override = new AppearanceOverride(target, until) }, cancellationToken);
+    }
+
     public void Dispose()
     {
         os.Changed -= OnOsChanged;
@@ -62,7 +82,7 @@ public sealed class ThemeController(IDevicePreferences preferences, IOsAppearanc
     private void Evaluate(bool force)
     {
         var now = time.GetLocalNow();
-        var next = AppearanceRule.Resolve(_settings.Mode, TimeOnly.FromDateTime(now.DateTime), _settings.QuietHours, os.IsDark);
+        var next = AppearanceRule.Resolve(_settings.Mode, now, _settings.QuietHours, os.IsDark, _settings.Override);
         Schedule(now);
 
         if (next == Current && !force)
@@ -76,7 +96,10 @@ public sealed class ThemeController(IDevicePreferences preferences, IOsAppearanc
     {
         _timer?.Dispose();
         _timer = null;
-        if (AppearanceRule.NextChange(_settings.Mode, now, _settings.QuietHours, time.LocalTimeZone) is { } at)
+        // The earlier of the next quiet-hours boundary and the end of a Today switch.
+        var boundary = AppearanceRule.NextChange(_settings.Mode, now, _settings.QuietHours, time.LocalTimeZone);
+        DateTimeOffset? until = _settings.Override is { } o && o.Until > now ? o.Until : null;
+        if ((boundary, until) switch { ({ } b, { } u) => b < u ? b : u, ({ } b, null) => b, (null, { } u) => u, _ => (DateTimeOffset?)null } is { } at)
         {
             // A second past the boundary, so the rule sees the new side of it.
             var due = at - now + TimeSpan.FromSeconds(1);

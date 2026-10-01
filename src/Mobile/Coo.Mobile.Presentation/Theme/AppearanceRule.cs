@@ -18,6 +18,12 @@ public static class AppearanceRule
         };
     }
 
+    /// <summary>As above, with the Today switch (Spec 009 §3.7): in Auto, an override that has not expired wins.</summary>
+    public static PaletteKind Resolve(AppearanceMode mode, DateTimeOffset now, QuietHours quietHours, bool osIsDark, AppearanceOverride? @override) =>
+        mode == AppearanceMode.Auto && @override is { } o && now < o.Until
+            ? (o.Palette == AppearanceMode.Night ? PaletteKind.Night : PaletteKind.Day)
+            : Resolve(mode, TimeOnly.FromDateTime(now.DateTime), quietHours, osIsDark);
+
     /// <summary>
     /// The next local moment at which the result can change on its own: the next quiet-hours start or end.
     /// Null when nothing time-based can change it (Day, Night, or no quiet hours).

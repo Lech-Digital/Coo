@@ -158,6 +158,13 @@ public sealed partial class TodayViewModel : ObservableObject
             section.Update(snapshot);
     }
 
+    /// <summary>Whether the night palette shows, for the Today switch's glyph (Spec 009 §3.7).</summary>
+    public bool IsNight => _theme.Current == PaletteKind.Night;
+
+    /// <summary>The sun or moon on Today (Spec 009 §3.7).</summary>
+    [RelayCommand]
+    private Task ToggleTheme() => _theme.ToggleAsync(CancellationToken.None);
+
     [RelayCommand]
     private void CloseSheet()
     {
@@ -275,6 +282,7 @@ public sealed partial class TodayViewModel : ObservableObject
         }
 
         OnPropertyChanged(nameof(Stage));
+        OnPropertyChanged(nameof(IsNight));
         Tick();
     }
 

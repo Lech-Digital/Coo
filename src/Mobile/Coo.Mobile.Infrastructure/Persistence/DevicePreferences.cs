@@ -9,6 +9,8 @@ internal sealed class DevicePreferences(LocalDatabase database) : IDevicePrefere
     private const string ModeKey = "appearance.mode";
     private const string QuietStartKey = "appearance.quiet_start";
     private const string QuietEndKey = "appearance.quiet_end";
+    private const string OverridePaletteKey = "appearance.override_palette";
+    private const string OverrideUntilKey = "appearance.override_until";
     private const string LanguageKey = "language";
     private const string SystemLanguage = "system";
 
@@ -18,11 +20,14 @@ internal sealed class DevicePreferences(LocalDatabase database) : IDevicePrefere
         var mode = (string?)await connection.ScalarAsync("SELECT value FROM app_state WHERE key = $k;", cancellationToken, null, ("$k", ModeKey));
         var start = (string?)await connection.ScalarAsync("SELECT value FROM app_state WHERE key = $k;", cancellationToken, null, ("$k", QuietStartKey));
         var end = (string?)await connection.ScalarAsync("SELECT value FROM app_state WHERE key = $k;", cancellationToken, null, ("$k", QuietEndKey));
+        var overridePalette = (string?)await connection.ScalarAsync("SELECT value FROM app_state WHERE key = $k;", cancellationToken, null, ("$k", OverridePaletteKey));
+        var overrideUntil = (string?)await connection.ScalarAsync("SELECT value FROM app_state WHERE key = $k;", cancellationToken, null, ("$k", OverrideUntilKey));
 
         var defaults = AppearancePreferences.Default;
         return new AppearancePreferences(
             Enum.TryParse<AppearanceMode>(mode, out var m) && Enum.IsDefined(m) ? m : defaults.Mode,
-            new QuietHours(ParseTime(start) ?? defaults.QuietHours.Start, ParseTime(end) ?? defaults.QuietHours.End));
+            new QuietHours(ParseTime(start) ?? defaults.QuietHours.Start, ParseTime(end) ?? defaults.QuietHours.End),
+            ParseOverride(overridePalette, overrideUntil));
     }
 
     public async Task SetAppearanceAsync(AppearancePreferences preferences, CancellationToken cancellationToken)
@@ -35,6 +40,8 @@ internal sealed class DevicePreferences(LocalDatabase database) : IDevicePrefere
                      (ModeKey, preferences.Mode.ToString()),
                      (QuietStartKey, preferences.QuietHours.Start.ToString("HH:mm", CultureInfo.InvariantCulture)),
                      (QuietEndKey, preferences.QuietHours.End.ToString("HH:mm", CultureInfo.InvariantCulture)),
+                     (OverridePaletteKey, preferences.Override?.Palette.ToString() ?? ""),
+                     (OverrideUntilKey, preferences.Override?.Until.ToString("O", CultureInfo.InvariantCulture) ?? ""),
                  })
         {
             await connection.ExecuteAsync(
@@ -60,6 +67,13 @@ internal sealed class DevicePreferences(LocalDatabase database) : IDevicePrefere
             "INSERT INTO app_state (key, value) VALUES ($k, $v) ON CONFLICT (key) DO UPDATE SET value = excluded.value;",
             cancellationToken, null, ("$k", LanguageKey), ("$v", preference.Language ?? SystemLanguage));
     }
+
+    /// <summary>Only a whole, readable override counts; anything else means none.</summary>
+    private static AppearanceOverride? ParseOverride(string? palette, string? until) =>
+        Enum.TryParse<AppearanceMode>(palette, out var p) && p is AppearanceMode.Day or AppearanceMode.Night
+        && DateTimeOffset.TryParseExact(until, "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out var u)
+            ? new AppearanceOverride(p, u)
+            : null;
 
     private static TimeOnly? ParseTime(string? value) =>
         TimeOnly.TryParseExact(value, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var t) ? t : null;
