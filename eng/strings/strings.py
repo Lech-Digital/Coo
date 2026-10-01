@@ -9,7 +9,7 @@ S = {
 'Tab.Log': ('Log', 'Verlauf', 'Journal', 'Registro', 'Registro', 'Dziennik', 'Logboek'),
 
 'Setup.Title': ('Welcome to Coo', 'Willkommen bei Coo', 'Bienvenue dans Coo', 'Te damos la bienvenida a Coo', 'Benvenuti in Coo', 'Witaj w Coo', 'Welkom bij Coo'),
-'Setup.Hint': ('Everything stays on this phone. No account needed.', 'Alles bleibt auf diesem Handy. Kein Konto nötig.', 'Tout reste sur ce téléphone. Aucun compte nécessaire.', 'Todo se queda en este teléfono. No hace falta cuenta.', 'Tutto resta su questo telefono. Nessun account necessario.', 'Wszystko zostaje na tym telefonie. Konto nie jest potrzebne.', 'Alles blijft op deze telefoon. Geen account nodig.'),
+'Setup.Hint': ('No account needed to start. You can share with family later.', 'Zum Start brauchst du kein Konto. Mit der Familie teilen kannst du später.', "Pas besoin de compte pour commencer. Vous pourrez partager avec la famille plus tard.", 'Para empezar no necesitas cuenta. Podrás compartir con la familia más adelante.', 'Per iniziare non serve un account. Potrai condividere con la famiglia più avanti.', 'Na start nie potrzebujesz konta. Udostępnić rodzinie możesz później.', 'Je hebt geen account nodig om te beginnen. Delen met familie kan later.'),
 'Setup.Arrived': ('Has the baby arrived?', 'Ist das Baby schon da?', 'Le bébé est-il né ?', '¿Ya ha nacido el bebé?', 'Il bambino è già nato?', 'Czy dziecko jest już na świecie?', 'Is de baby al geboren?'),
 'Setup.Yes': ('Yes', 'Ja', 'Oui', 'Sí', 'Sì', 'Tak', 'Ja'),
 'Setup.NotYet': ('Not yet', 'Noch nicht', 'Pas encore', 'Todavía no', 'Non ancora', 'Jeszcze nie', 'Nog niet'),
@@ -45,7 +45,7 @@ S = {
 
 'Tile.Running': ('running', 'läuft', 'en cours', 'en curso', 'in corso', 'trwa', 'loopt'),
 'Tile.Never': ('not yet', 'noch nicht', 'pas encore', 'todavía no', 'non ancora', 'jeszcze nie', 'nog niet'),
-'Tile.Woke': ('woke {0}', 'wach {0}', 'réveil {0}', 'despertó {0}', 'sveglio {0}', 'wstał(a) {0}', 'wakker {0}'),
+'Tile.Woke': ('woke {0}', 'wach {0}', 'réveil {0}', 'despertó {0}', 'sveglio {0}', 'pobudka {0}', 'wakker {0}'),
 'Tile.Asleep': ('asleep {0}', 'schläft seit {0}', 'dort depuis {0}', 'duerme desde {0}', 'dorme dalle {0}', 'śpi od {0}', 'slaapt sinds {0}'),
 
 'Side.L': ('L', 'L', 'G', 'I', 'S', 'L', 'L'),
@@ -55,7 +55,7 @@ S = {
 
 'Action.SwitchSide': ('Switch side', 'Seite wechseln', 'Changer de côté', 'Cambiar de lado', 'Cambia lato', 'Zmień stronę', 'Andere kant'),
 'Action.Stop': ('Stop', 'Stopp', 'Arrêter', 'Parar', 'Ferma', 'Stop', 'Stop'),
-'Action.WokeUp': ('Woke up', 'Aufgewacht', 'Réveillé', 'Se despertó', 'Sveglio', 'Obudził(a) się', 'Wakker'),
+'Action.WokeUp': ('Woke up', 'Aufgewacht', 'Réveillé', 'Se despertó', 'Sveglio', 'Pobudka', 'Wakker'),
 'Action.Skip': ('Skip', 'Überspringen', 'Passer', 'Omitir', 'Salta', 'Pomiń', 'Overslaan'),
 'Action.Save': ('Save', 'Speichern', 'Enregistrer', 'Guardar', 'Salva', 'Zapisz', 'Opslaan'),
 'Action.LogBottle': ('Log bottle', 'Fläschchen eintragen', 'Noter le biberon', 'Registrar biberón', 'Registra biberon', 'Zapisz butelkę', 'Fles loggen'),

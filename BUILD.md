@@ -103,6 +103,13 @@ fonts.
   with `IllegalStateException: The specified child already has a parent`. Create views fresh on each rebuild.
 - **Modal pages open in their own Android window,** so they don't get the palette's system-bar colours, and UI
   automation does not see their views. Real screens are not modal; the Increment 6 spec decides how sheets work.
+- **A view that rebuilds every second swallows taps.** Keep interactive views stable, and bind the text that ticks.
+- **Sheets and the keyboard:** a page with input sheets sets `SafeAreaEdges` bottom to `SafeAreaRegions.SoftInput`.
+  On a `Grid` inside the page it has no effect.
+- **A language change must not recreate the activity:** MAUI's Shell teardown then crashes. `MainActivity` declares
+  `ConfigChanges.Locale | LayoutDirection` and rebuilds the pages itself.
+- **Per-app language for testing:** `adb shell cmd locale set-app-locales com.lechdigital.coo --locales pl-PL`
+  (and `--locales ""` to follow the phone again).
 - **Inside the `Coo.Mobile` namespace, `Application` and `Platform` name projects,** not the MAUI types. Use
   `Microsoft.Maui.Controls.Application` and `Microsoft.Maui.ApplicationModel.Platform`.
 

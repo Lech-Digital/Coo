@@ -10,7 +10,7 @@
   <data name="Action.Skip" xml:space="preserve"><value>Pomiń</value></data>
   <data name="Action.Stop" xml:space="preserve"><value>Stop</value></data>
   <data name="Action.SwitchSide" xml:space="preserve"><value>Zmień stronę</value></data>
-  <data name="Action.WokeUp" xml:space="preserve"><value>Obudził(a) się</value></data>
+  <data name="Action.WokeUp" xml:space="preserve"><value>Pobudka</value></data>
   <data name="Age.Corrected" xml:space="preserve"><value>{0} (korygowany)</value></data>
   <data name="Age.Days.few" xml:space="preserve"><value>{0} dni</value></data>
   <data name="Age.Days.many" xml:space="preserve"><value>{0} dni</value></data>
@@ -93,7 +93,7 @@
   <data name="Setup.Continue" xml:space="preserve"><value>Dalej</value></data>
   <data name="Setup.DefaultName" xml:space="preserve"><value>Maluszek</value></data>
   <data name="Setup.DueDate" xml:space="preserve"><value>Termin porodu</value></data>
-  <data name="Setup.Hint" xml:space="preserve"><value>Wszystko zostaje na tym telefonie. Konto nie jest potrzebne.</value></data>
+  <data name="Setup.Hint" xml:space="preserve"><value>Na start nie potrzebujesz konta. Udostępnić rodzinie możesz później.</value></data>
   <data name="Setup.Name" xml:space="preserve"><value>Imię</value></data>
   <data name="Setup.NotYet" xml:space="preserve"><value>Jeszcze nie</value></data>
   <data name="Setup.Title" xml:space="preserve"><value>Witaj w Coo</value></data>
@@ -107,7 +107,7 @@
   <data name="Tile.Asleep" xml:space="preserve"><value>śpi od {0}</value></data>
   <data name="Tile.Never" xml:space="preserve"><value>jeszcze nie</value></data>
   <data name="Tile.Running" xml:space="preserve"><value>trwa</value></data>
-  <data name="Tile.Woke" xml:space="preserve"><value>wstał(a) {0}</value></data>
+  <data name="Tile.Woke" xml:space="preserve"><value>pobudka {0}</value></data>
   <data name="Timeline.Empty" xml:space="preserve"><value>Dziś jeszcze nic nie zapisano</value></data>
   <data name="Toast.Logged" xml:space="preserve"><value>Zapisano · {0}</value></data>
   <data name="Totals.Diapers.few" xml:space="preserve"><value>pieluchy</value></data>

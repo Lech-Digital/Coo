@@ -14,6 +14,8 @@ public sealed class Sheet : Grid
     public Sheet()
     {
         IsVisible = false;
+
+
         _backdrop = new BoxView { Color = Colors.Black, Opacity = 0 };
         var tap = new TapGestureRecognizer();
         tap.Tapped += (_, _) => Closed?.Invoke(this, EventArgs.Empty);

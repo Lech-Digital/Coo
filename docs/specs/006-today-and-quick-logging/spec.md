@@ -253,3 +253,36 @@ is tested on the global SDK.
 | Q6 | I write all seven languages now, marked for native review before release | **Yes.** A parent can use it in their own language today, and the review stays on the release checklist. |
 | Q7 | Today switches to the 03:12 night layout whenever the palette is Night | **Yes.** It is the design system's "night is a mode, not a theme". |
 | Q8 | Room for pregnancy features: an expected baby (due date, no birth date yet), `RecordBirth`, migration 0002, and Today built from stage-aware `IHomeSection`s, with only the due-date card for now | **Yes** (asked for by the owner). The later features become additions, not changes. |
+
+## 13. Built and verified (2026-10-01, Pixel 10)
+
+All deliverables of §11 were checked on the owner's phone, on a clean install:
+
+- **Setup:** both paths, "Yes" and "Not yet".
+- **The expected stage:** the due-date card, then "The baby has arrived".
+- **Quick logging:** breast on the right with switch side and stop; a bottle with the stepper; diaper; sleep;
+  pumping with its amount.
+- **A timer survives a forced stop.**
+- **The night layout** and its quick row.
+- **Log**, in the day and the night palettes.
+- **Polish,** switched live, and back.
+
+**Found on the phone, and fixed:**
+
+| Finding | Fix |
+|---|---|
+| Today rebuilt every view each second, so taps on tiles were lost | Running items are stable objects with bound digits; lists change only when what they show changes |
+| The app crashed after setup: the start page's `Window` is null once replaced | The window is kept before navigating |
+| The Log page's ‹ › had no Figtree glyph | Chevron icons |
+| The keyboard hid a sheet's second field and Save | The Today page pads for the keyboard (MAUI 10 `SafeAreaRegions.SoftInput`) |
+| "Karmienie" broke mid-word on its tile | Long tile names step down to 12.5 sp; tiles have 10 dp side padding |
+| A language change while running crashed MAUI's Shell teardown | `MainActivity` handles locale changes and rebuilds the page tree instead of recreating the activity |
+| The setup hint promised "everything stays on this phone", which will not be true after sync | "No account needed to start. You can share with family later." |
+
+**Known gaps, carried forward:**
+
+- The hero's units are not yet smaller than its digits (design system §3).
+- The debug screen opens with three taps on the wordmark, because MAUI has no long-press gesture.
+- A durations under a minute reads "0 m".
+- Translations still await the native-speaker review (handover item 5).
+

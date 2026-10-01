@@ -58,11 +58,17 @@ public sealed class LogTile : ContentView
             Children =
             {
                 new Icon(look.Icon, look.Ink, 26),
-                Ui.Text(name, "Tile", look.Ink),
+                Ui.Text(name, "Tile", look.Ink).Tap(l =>
+                {
+                    // Labels shrink, never break inside a word (design system §3): "Karmienie" broke mid-word on the phone.
+                    if (name.Length > 8)
+                        l.FontSize = 12.5;
+                    l.LineBreakMode = LineBreakMode.NoWrap;
+                }),
                 Ui.Text(lastAt, "Meta", look.Ink),
             },
         };
-        var tile = Ui.Rounded(stack, look.Tint, 20, new Thickness(12));
+        var tile = Ui.Rounded(stack, look.Tint, 20, new Thickness(10, 12));
         if (!fill)
             tile.WidthRequest = 96;
         tile.MinimumHeightRequest = 96;

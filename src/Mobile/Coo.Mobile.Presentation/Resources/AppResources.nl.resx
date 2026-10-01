@@ -87,7 +87,7 @@
   <data name="Setup.Continue" xml:space="preserve"><value>Doorgaan</value></data>
   <data name="Setup.DefaultName" xml:space="preserve"><value>Baby</value></data>
   <data name="Setup.DueDate" xml:space="preserve"><value>Uitgerekende datum</value></data>
-  <data name="Setup.Hint" xml:space="preserve"><value>Alles blijft op deze telefoon. Geen account nodig.</value></data>
+  <data name="Setup.Hint" xml:space="preserve"><value>Je hebt geen account nodig om te beginnen. Delen met familie kan later.</value></data>
   <data name="Setup.Name" xml:space="preserve"><value>Naam</value></data>
   <data name="Setup.NotYet" xml:space="preserve"><value>Nog niet</value></data>
   <data name="Setup.Title" xml:space="preserve"><value>Welkom bij Coo</value></data>

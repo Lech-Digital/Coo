@@ -57,9 +57,11 @@ public sealed class StartupPage : ContentPage
             return;
         }
 
+        // Keep the window: once setup replaces this page, this page's Window property is null.
+        var window = Window;
         var setup = _services.GetRequiredService<Pages.SetupPage>();
         ((Coo.Mobile.Presentation.Setup.SetupViewModel)setup.BindingContext).Completed +=
-            (_, _) => MainThread.BeginInvokeOnMainThread(() => Window.Page = _services.GetRequiredService<AppShell>());
-        Window.Page = setup;
+            (_, _) => MainThread.BeginInvokeOnMainThread(() => window.Page = _services.GetRequiredService<AppShell>());
+        window.Page = setup;
     }
 }

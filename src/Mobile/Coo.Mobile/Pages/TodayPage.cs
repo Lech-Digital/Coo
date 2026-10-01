@@ -24,6 +24,10 @@ public sealed class TodayPage : ContentPage
         _model = model;
         _services = services;
         Shell.SetNavBarIsVisible(this, false);
+
+        // The page pads its bottom for the keyboard (MAUI 10's SoftInput region), so a sheet with fields keeps them
+        // and its Save button above the keyboard. Found on the phone: without it, the second field and Save were hidden.
+        SafeAreaEdges = new SafeAreaEdges(SafeAreaRegions.Container, SafeAreaRegions.Container, SafeAreaRegions.Container, SafeAreaRegions.SoftInput);
         _toast = Ui.Rounded(_toastText, "VoiceBg", 999, new Thickness(20, 14));
         _toast.Margin = new Thickness(24, 0, 24, 16);
         _toast.VerticalOptions = LayoutOptions.End;

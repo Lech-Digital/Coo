@@ -87,7 +87,7 @@
   <data name="Setup.Continue" xml:space="preserve"><value>Weiter</value></data>
   <data name="Setup.DefaultName" xml:space="preserve"><value>Baby</value></data>
   <data name="Setup.DueDate" xml:space="preserve"><value>Errechneter Termin</value></data>
-  <data name="Setup.Hint" xml:space="preserve"><value>Alles bleibt auf diesem Handy. Kein Konto nötig.</value></data>
+  <data name="Setup.Hint" xml:space="preserve"><value>Zum Start brauchst du kein Konto. Mit der Familie teilen kannst du später.</value></data>
   <data name="Setup.Name" xml:space="preserve"><value>Name</value></data>
   <data name="Setup.NotYet" xml:space="preserve"><value>Noch nicht</value></data>
   <data name="Setup.Title" xml:space="preserve"><value>Willkommen bei Coo</value></data>
