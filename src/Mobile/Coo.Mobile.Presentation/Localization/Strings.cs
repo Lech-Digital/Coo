@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Resources;
+using Coo.Mobile.Application.Preferences;
 
 namespace Coo.Mobile.Presentation.Localization;
 
@@ -14,17 +15,23 @@ public static class Strings
     private static readonly ResourceManager Resources =
         new("Coo.Mobile.Presentation.Resources.AppResources", typeof(Strings).Assembly);
 
+    private static LanguagePreference _preference = LanguagePreference.System;
+    private static CultureInfo? _system;
+
     /// <summary>
-    /// The language in effect: the OS language if Coo supports it, English otherwise (ADR 0006 §1). Background code
-    /// asks this rather than assuming the app has set a culture.
+    /// The language in effect (ADR 0006 §1, Spec 009 §3.5): the stored choice, else the OS language if Coo supports
+    /// it, else English. Background code asks this rather than assuming the app has set a culture.
     /// </summary>
-    public static CultureInfo Culture
+    public static CultureInfo Culture => LanguageRule.Resolve(_preference, _system ?? CultureInfo.CurrentUICulture);
+
+    /// <summary>
+    /// Set by <see cref="LanguageController"/> only. <paramref name="system"/> is Android's language as captured before
+    /// Coo changed the process culture; null reads <see cref="CultureInfo.CurrentUICulture"/>.
+    /// </summary>
+    public static void Use(LanguagePreference preference, CultureInfo? system)
     {
-        get
-        {
-            var ui = CultureInfo.CurrentUICulture;
-            return Supported.Contains(ui.TwoLetterISOLanguageName) ? ui : CultureInfo.GetCultureInfo("en");
-        }
+        _preference = preference ?? throw new ArgumentNullException(nameof(preference));
+        _system = system;
     }
 
     public static string Language => Culture.TwoLetterISOLanguageName;

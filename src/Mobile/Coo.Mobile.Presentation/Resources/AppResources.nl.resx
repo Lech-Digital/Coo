@@ -32,6 +32,8 @@
   <data name="Awake.StillAsleep" xml:space="preserve"><value>Slaapt nog</value></data>
   <data name="Awake.Title" xml:space="preserve"><value>{0} slaapt</value></data>
   <data name="Awake.WokeUp" xml:space="preserve"><value>Wakker</value></data>
+  <data name="Baby.Nicknames" xml:space="preserve"><value>Andere namen die jullie gebruiken</value></data>
+  <data name="Baby.NicknamesHint" xml:space="preserve"><value>Scheid met komma’s</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Welkom, {0}</value></data>
   <data name="Diaper.Dirty" xml:space="preserve"><value>Vies</value></data>
   <data name="Diaper.Mixed" xml:space="preserve"><value>Beide</value></data>
@@ -80,6 +82,8 @@
   <data name="Error.baby.birth-or-due-date-required" xml:space="preserve"><value>Voeg een geboortedatum of uitgerekende datum toe.</value></data>
   <data name="Error.baby.due-date-out-of-range" xml:space="preserve"><value>Die uitgerekende datum lijkt niet te kloppen.</value></data>
   <data name="Error.baby.name-invalid" xml:space="preserve"><value>Vul een naam in van maximaal 40 tekens.</value></data>
+  <data name="Error.baby.nickname-duplicate" xml:space="preserve"><value>Elke naam mag maar één keer voorkomen.</value></data>
+  <data name="Error.baby.not-born-yet" xml:space="preserve"><value>Leg eerst de geboorte vast bij Vandaag.</value></data>
   <data name="Error.bottle.total-out-of-range" xml:space="preserve"><value>Een fles bevat hoogstens 1.000 ml.</value></data>
   <data name="Error.breast.no-segments" xml:space="preserve"><value>Vul de minuten van minstens één kant in.</value></data>
   <data name="Error.breast.side-duration-invalid" xml:space="preserve"><value>Minuten per kant: 1 tot 240.</value></data>
@@ -88,6 +92,7 @@
   <data name="Error.entry.not-found" xml:space="preserve"><value>Dit item bestaat niet meer.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>Een notitie heeft hoogstens 500 tekens.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Kolven duurt hoogstens 4 uur. Controleer de tijden.</value></data>
+  <data name="Error.settings.all-kinds-hidden" xml:space="preserve"><value>Laat ten minste één soort zichtbaar.</value></data>
   <data name="Error.sleep.too-long" xml:space="preserve"><value>Een slaap duurt hoogstens 24 uur. Controleer de tijden.</value></data>
   <data name="Error.time.end-not-after-start" xml:space="preserve"><value>Het einde moet na het begin liggen.</value></data>
   <data name="Error.time.too-far-in-future" xml:space="preserve"><value>Die tijd ligt te ver in de toekomst.</value></data>
@@ -123,6 +128,34 @@
   <data name="Night.Title" xml:space="preserve"><value>{0} · Nachtmodus</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Hoeveel?</value></data>
   <data name="Section.Today" xml:space="preserve"><value>Vandaag</value></data>
+  <data name="Settings.About" xml:space="preserve"><value>Over Coo</value></data>
+  <data name="Settings.Appearance" xml:space="preserve"><value>Weergave</value></data>
+  <data name="Settings.AutoHint" xml:space="preserve"><value>Nachtkleuren tijdens de rustige uren, of als je telefoon in de donkere modus staat.</value></data>
+  <data name="Settings.Baby" xml:space="preserve"><value>Baby</value></data>
+  <data name="Settings.ClockHint" xml:space="preserve"><value>De tijdnotatie volgt de instellingen van je telefoon.</value></data>
+  <data name="Settings.Feedback" xml:space="preserve"><value>Feedback sturen</value></data>
+  <data name="Settings.FeedbackBody" xml:space="preserve"><value>
+
+—
+Coo {0} ({1}), Android {2}</value></data>
+  <data name="Settings.FeedbackCopied" xml:space="preserve"><value>Geen mailapp gevonden. Adres gekopieerd: {0}</value></data>
+  <data name="Settings.FeedbackSubject" xml:space="preserve"><value>Feedback over Coo</value></data>
+  <data name="Settings.Kinds" xml:space="preserve"><value>Wat je bijhoudt</value></data>
+  <data name="Settings.KindsHint" xml:space="preserve"><value>Verborgen soorten houden hun eerdere items.</value></data>
+  <data name="Settings.Language" xml:space="preserve"><value>Taal</value></data>
+  <data name="Settings.LanguageSystem" xml:space="preserve"><value>Systeem ({0})</value></data>
+  <data name="Settings.Licences" xml:space="preserve"><value>Opensourcelicenties</value></data>
+  <data name="Settings.Privacy" xml:space="preserve"><value>Privacybeleid</value></data>
+  <data name="Settings.QuietFrom" xml:space="preserve"><value>Van</value></data>
+  <data name="Settings.QuietHint" xml:space="preserve"><value>Nachtkleuren en stillere meldingen tijdens deze uren.</value></data>
+  <data name="Settings.QuietHours" xml:space="preserve"><value>Rustige uren</value></data>
+  <data name="Settings.QuietTo" xml:space="preserve"><value>Tot</value></data>
+  <data name="Settings.Theme.Auto" xml:space="preserve"><value>Auto</value></data>
+  <data name="Settings.Theme.Day" xml:space="preserve"><value>Dag</value></data>
+  <data name="Settings.Theme.Night" xml:space="preserve"><value>Nacht</value></data>
+  <data name="Settings.Units" xml:space="preserve"><value>Eenheden</value></data>
+  <data name="Settings.Version" xml:space="preserve"><value>Coo {0} ({1})</value></data>
+  <data name="Settings.Volume" xml:space="preserve"><value>Volume</value></data>
   <data name="Setup.Arrived" xml:space="preserve"><value>Is de baby al geboren?</value></data>
   <data name="Setup.BirthDate" xml:space="preserve"><value>Geboortedatum</value></data>
   <data name="Setup.BornEarly" xml:space="preserve"><value>Te vroeg geboren? Voeg de uitgerekende datum toe</value></data>
@@ -139,7 +172,10 @@
   <data name="Side.R" xml:space="preserve"><value>R</value></data>
   <data name="Side.Right" xml:space="preserve"><value>rechts</value></data>
   <data name="Tab.Log" xml:space="preserve"><value>Logboek</value></data>
+  <data name="Tab.Settings" xml:space="preserve"><value>Instellingen</value></data>
   <data name="Tab.Today" xml:space="preserve"><value>Vandaag</value></data>
+  <data name="Theme.ToDay" xml:space="preserve"><value>Naar dagkleuren</value></data>
+  <data name="Theme.ToNight" xml:space="preserve"><value>Naar nachtkleuren</value></data>
   <data name="Tile.Asleep" xml:space="preserve"><value>slaapt sinds {0}</value></data>
   <data name="Tile.Never" xml:space="preserve"><value>nog niet</value></data>
   <data name="Tile.Running" xml:space="preserve"><value>loopt</value></data>

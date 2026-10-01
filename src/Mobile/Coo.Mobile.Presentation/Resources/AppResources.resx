@@ -32,6 +32,8 @@
   <data name="Awake.StillAsleep" xml:space="preserve"><value>Still asleep</value></data>
   <data name="Awake.Title" xml:space="preserve"><value>{0} is asleep</value></data>
   <data name="Awake.WokeUp" xml:space="preserve"><value>Woke up</value></data>
+  <data name="Baby.Nicknames" xml:space="preserve"><value>Other names you call them</value></data>
+  <data name="Baby.NicknamesHint" xml:space="preserve"><value>Separate with commas</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Welcome, {0}</value></data>
   <data name="Diaper.Dirty" xml:space="preserve"><value>Dirty</value></data>
   <data name="Diaper.Mixed" xml:space="preserve"><value>Mixed</value></data>
@@ -80,6 +82,8 @@
   <data name="Error.baby.birth-or-due-date-required" xml:space="preserve"><value>Add a birth date or a due date.</value></data>
   <data name="Error.baby.due-date-out-of-range" xml:space="preserve"><value>That due date does not look right.</value></data>
   <data name="Error.baby.name-invalid" xml:space="preserve"><value>Enter a name of up to 40 characters.</value></data>
+  <data name="Error.baby.nickname-duplicate" xml:space="preserve"><value>Each name can be used only once.</value></data>
+  <data name="Error.baby.not-born-yet" xml:space="preserve"><value>Record the birth on Today first.</value></data>
   <data name="Error.bottle.total-out-of-range" xml:space="preserve"><value>A bottle can hold at most 1,000 ml.</value></data>
   <data name="Error.breast.no-segments" xml:space="preserve"><value>Add the minutes for at least one side.</value></data>
   <data name="Error.breast.side-duration-invalid" xml:space="preserve"><value>Minutes on a side must be from 1 to 240.</value></data>
@@ -88,6 +92,7 @@
   <data name="Error.entry.not-found" xml:space="preserve"><value>This entry no longer exists.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>A note can be at most 500 characters.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Pumping can be at most 4 hours. Check the times.</value></data>
+  <data name="Error.settings.all-kinds-hidden" xml:space="preserve"><value>Keep at least one type visible.</value></data>
   <data name="Error.sleep.too-long" xml:space="preserve"><value>A sleep can be at most 24 hours. Check the times.</value></data>
   <data name="Error.time.end-not-after-start" xml:space="preserve"><value>The end must be after the start.</value></data>
   <data name="Error.time.too-far-in-future" xml:space="preserve"><value>That time is too far in the future.</value></data>
@@ -123,6 +128,34 @@
   <data name="Night.Title" xml:space="preserve"><value>{0} · Night mode</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>How much?</value></data>
   <data name="Section.Today" xml:space="preserve"><value>Today</value></data>
+  <data name="Settings.About" xml:space="preserve"><value>About</value></data>
+  <data name="Settings.Appearance" xml:space="preserve"><value>Appearance</value></data>
+  <data name="Settings.AutoHint" xml:space="preserve"><value>Night colours during quiet hours, or when your phone is in dark mode.</value></data>
+  <data name="Settings.Baby" xml:space="preserve"><value>Baby</value></data>
+  <data name="Settings.ClockHint" xml:space="preserve"><value>Time format follows your phone's settings.</value></data>
+  <data name="Settings.Feedback" xml:space="preserve"><value>Send feedback</value></data>
+  <data name="Settings.FeedbackBody" xml:space="preserve"><value>
+
+—
+Coo {0} ({1}), Android {2}</value></data>
+  <data name="Settings.FeedbackCopied" xml:space="preserve"><value>No mail app found. Address copied: {0}</value></data>
+  <data name="Settings.FeedbackSubject" xml:space="preserve"><value>Coo feedback</value></data>
+  <data name="Settings.Kinds" xml:space="preserve"><value>What you log</value></data>
+  <data name="Settings.KindsHint" xml:space="preserve"><value>Hidden types keep their past entries.</value></data>
+  <data name="Settings.Language" xml:space="preserve"><value>Language</value></data>
+  <data name="Settings.LanguageSystem" xml:space="preserve"><value>System ({0})</value></data>
+  <data name="Settings.Licences" xml:space="preserve"><value>Open-source licences</value></data>
+  <data name="Settings.Privacy" xml:space="preserve"><value>Privacy policy</value></data>
+  <data name="Settings.QuietFrom" xml:space="preserve"><value>From</value></data>
+  <data name="Settings.QuietHint" xml:space="preserve"><value>Night colours and quieter notifications during these hours.</value></data>
+  <data name="Settings.QuietHours" xml:space="preserve"><value>Quiet hours</value></data>
+  <data name="Settings.QuietTo" xml:space="preserve"><value>To</value></data>
+  <data name="Settings.Theme.Auto" xml:space="preserve"><value>Auto</value></data>
+  <data name="Settings.Theme.Day" xml:space="preserve"><value>Day</value></data>
+  <data name="Settings.Theme.Night" xml:space="preserve"><value>Night</value></data>
+  <data name="Settings.Units" xml:space="preserve"><value>Units</value></data>
+  <data name="Settings.Version" xml:space="preserve"><value>Coo {0} ({1})</value></data>
+  <data name="Settings.Volume" xml:space="preserve"><value>Volume</value></data>
   <data name="Setup.Arrived" xml:space="preserve"><value>Has the baby arrived?</value></data>
   <data name="Setup.BirthDate" xml:space="preserve"><value>Birth date</value></data>
   <data name="Setup.BornEarly" xml:space="preserve"><value>Born early? Add the due date</value></data>
@@ -139,7 +172,10 @@
   <data name="Side.R" xml:space="preserve"><value>R</value></data>
   <data name="Side.Right" xml:space="preserve"><value>right</value></data>
   <data name="Tab.Log" xml:space="preserve"><value>Log</value></data>
+  <data name="Tab.Settings" xml:space="preserve"><value>Settings</value></data>
   <data name="Tab.Today" xml:space="preserve"><value>Today</value></data>
+  <data name="Theme.ToDay" xml:space="preserve"><value>Switch to day colours</value></data>
+  <data name="Theme.ToNight" xml:space="preserve"><value>Switch to night colours</value></data>
   <data name="Tile.Asleep" xml:space="preserve"><value>asleep {0}</value></data>
   <data name="Tile.Never" xml:space="preserve"><value>not yet</value></data>
   <data name="Tile.Running" xml:space="preserve"><value>running</value></data>

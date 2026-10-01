@@ -36,6 +36,8 @@
   <data name="Awake.StillAsleep" xml:space="preserve"><value>Nadal śpi</value></data>
   <data name="Awake.Title" xml:space="preserve"><value>{0} śpi</value></data>
   <data name="Awake.WokeUp" xml:space="preserve"><value>Pobudka</value></data>
+  <data name="Baby.Nicknames" xml:space="preserve"><value>Inne imiona, których używacie</value></data>
+  <data name="Baby.NicknamesHint" xml:space="preserve"><value>Oddziel przecinkami</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Witaj, {0}</value></data>
   <data name="Diaper.Dirty" xml:space="preserve"><value>Brudna</value></data>
   <data name="Diaper.Mixed" xml:space="preserve"><value>Obie</value></data>
@@ -87,6 +89,8 @@
   <data name="Error.baby.birth-or-due-date-required" xml:space="preserve"><value>Dodaj datę urodzenia albo termin porodu.</value></data>
   <data name="Error.baby.due-date-out-of-range" xml:space="preserve"><value>Ten termin porodu wygląda na błędny.</value></data>
   <data name="Error.baby.name-invalid" xml:space="preserve"><value>Wpisz imię do 40 znaków.</value></data>
+  <data name="Error.baby.nickname-duplicate" xml:space="preserve"><value>Każde imię może wystąpić tylko raz.</value></data>
+  <data name="Error.baby.not-born-yet" xml:space="preserve"><value>Najpierw zapisz narodziny w zakładce Dziś.</value></data>
   <data name="Error.bottle.total-out-of-range" xml:space="preserve"><value>Butelka mieści najwyżej 1000 ml.</value></data>
   <data name="Error.breast.no-segments" xml:space="preserve"><value>Podaj minuty dla co najmniej jednej strony.</value></data>
   <data name="Error.breast.side-duration-invalid" xml:space="preserve"><value>Minuty na stronę: od 1 do 240.</value></data>
@@ -95,6 +99,7 @@
   <data name="Error.entry.not-found" xml:space="preserve"><value>Ten wpis już nie istnieje.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>Notatka może mieć najwyżej 500 znaków.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Odciąganie trwa najwyżej 4 godziny. Sprawdź godziny.</value></data>
+  <data name="Error.settings.all-kinds-hidden" xml:space="preserve"><value>Zostaw widoczny co najmniej jeden rodzaj.</value></data>
   <data name="Error.sleep.too-long" xml:space="preserve"><value>Sen trwa najwyżej 24 godziny. Sprawdź godziny.</value></data>
   <data name="Error.time.end-not-after-start" xml:space="preserve"><value>Koniec musi być po początku.</value></data>
   <data name="Error.time.too-far-in-future" xml:space="preserve"><value>Ta godzina jest zbyt daleko w przyszłości.</value></data>
@@ -130,6 +135,34 @@
   <data name="Night.Title" xml:space="preserve"><value>{0} · Tryb nocny</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Ile?</value></data>
   <data name="Section.Today" xml:space="preserve"><value>Dziś</value></data>
+  <data name="Settings.About" xml:space="preserve"><value>O aplikacji</value></data>
+  <data name="Settings.Appearance" xml:space="preserve"><value>Wygląd</value></data>
+  <data name="Settings.AutoHint" xml:space="preserve"><value>Nocne kolory w godzinach ciszy albo gdy telefon ma tryb ciemny.</value></data>
+  <data name="Settings.Baby" xml:space="preserve"><value>Dziecko</value></data>
+  <data name="Settings.ClockHint" xml:space="preserve"><value>Format godziny jest taki jak w ustawieniach telefonu.</value></data>
+  <data name="Settings.Feedback" xml:space="preserve"><value>Wyślij opinię</value></data>
+  <data name="Settings.FeedbackBody" xml:space="preserve"><value>
+
+—
+Coo {0} ({1}), Android {2}</value></data>
+  <data name="Settings.FeedbackCopied" xml:space="preserve"><value>Brak aplikacji poczty. Skopiowano adres: {0}</value></data>
+  <data name="Settings.FeedbackSubject" xml:space="preserve"><value>Opinia o Coo</value></data>
+  <data name="Settings.Kinds" xml:space="preserve"><value>Co zapisujesz</value></data>
+  <data name="Settings.KindsHint" xml:space="preserve"><value>Ukryte rodzaje zachowują swoje wpisy.</value></data>
+  <data name="Settings.Language" xml:space="preserve"><value>Język</value></data>
+  <data name="Settings.LanguageSystem" xml:space="preserve"><value>Systemowy ({0})</value></data>
+  <data name="Settings.Licences" xml:space="preserve"><value>Licencje open source</value></data>
+  <data name="Settings.Privacy" xml:space="preserve"><value>Polityka prywatności</value></data>
+  <data name="Settings.QuietFrom" xml:space="preserve"><value>Od</value></data>
+  <data name="Settings.QuietHint" xml:space="preserve"><value>W tych godzinach nocne kolory i cichsze powiadomienia.</value></data>
+  <data name="Settings.QuietHours" xml:space="preserve"><value>Godziny ciszy</value></data>
+  <data name="Settings.QuietTo" xml:space="preserve"><value>Do</value></data>
+  <data name="Settings.Theme.Auto" xml:space="preserve"><value>Auto</value></data>
+  <data name="Settings.Theme.Day" xml:space="preserve"><value>Dzień</value></data>
+  <data name="Settings.Theme.Night" xml:space="preserve"><value>Noc</value></data>
+  <data name="Settings.Units" xml:space="preserve"><value>Jednostki</value></data>
+  <data name="Settings.Version" xml:space="preserve"><value>Coo {0} ({1})</value></data>
+  <data name="Settings.Volume" xml:space="preserve"><value>Objętość</value></data>
   <data name="Setup.Arrived" xml:space="preserve"><value>Czy dziecko jest już na świecie?</value></data>
   <data name="Setup.BirthDate" xml:space="preserve"><value>Data urodzenia</value></data>
   <data name="Setup.BornEarly" xml:space="preserve"><value>Urodzone przed terminem? Dodaj termin porodu</value></data>
@@ -146,7 +179,10 @@
   <data name="Side.R" xml:space="preserve"><value>P</value></data>
   <data name="Side.Right" xml:space="preserve"><value>prawa</value></data>
   <data name="Tab.Log" xml:space="preserve"><value>Dziennik</value></data>
+  <data name="Tab.Settings" xml:space="preserve"><value>Ustawienia</value></data>
   <data name="Tab.Today" xml:space="preserve"><value>Dziś</value></data>
+  <data name="Theme.ToDay" xml:space="preserve"><value>Przełącz na kolory dzienne</value></data>
+  <data name="Theme.ToNight" xml:space="preserve"><value>Przełącz na kolory nocne</value></data>
   <data name="Tile.Asleep" xml:space="preserve"><value>śpi od {0}</value></data>
   <data name="Tile.Never" xml:space="preserve"><value>jeszcze nie</value></data>
   <data name="Tile.Running" xml:space="preserve"><value>trwa</value></data>

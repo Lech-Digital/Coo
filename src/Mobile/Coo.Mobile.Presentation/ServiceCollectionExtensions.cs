@@ -1,5 +1,6 @@
 using Coo.Mobile.Presentation.Attention;
 using Coo.Mobile.Presentation.Edit;
+using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Log;
 using Coo.Mobile.Presentation.Setup;
 using Coo.Mobile.Presentation.Theme;
@@ -18,6 +19,7 @@ public static class ServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         services.AddSingleton<ThemeController>();
+        services.AddSingleton<LanguageController>();
         services.AddSingleton<UndoService>();
         services.AddSingleton(sp => new HomeActions(
             sp.GetRequiredService<Coo.Mobile.Application.CareLog.LogEntry>(), sp.GetRequiredService<Coo.Mobile.Application.CareLog.ReviseEntry>(),
