@@ -95,6 +95,31 @@ public sealed class BabyProfile : SyncedRecord<BabyId>
     public Result SetDueDate(DateOnly? dueDate, HlcStamp version, DateOnly today) =>
         Apply(version, () => CheckDates(BirthDate, dueDate, today), () => DueDate = dueDate);
 
+    /// <summary>
+    /// Changes the name, nicknames and dates in one write (Spec 009 §3.1). A born baby keeps a birth date; an expected
+    /// baby has none, and becomes born only through <see cref="RecordBirth"/>.
+    /// </summary>
+    public Result Revise(string name, IEnumerable<string> nicknames, DateOnly? birthDate, DateOnly? dueDate, HlcStamp version, DateOnly today)
+    {
+        ArgumentNullException.ThrowIfNull(nicknames);
+        var cleanName = CleanName(name);
+        var cleanNicknames = nicknames.Select(CleanName).ToList();
+        return Apply(
+            version,
+            () => Result.FirstFailure(
+                () => Result.Check(IsBorn == birthDate.HasValue, IsBorn ? BabyErrors.BirthOrDueDateRequired : BabyErrors.NotBornYet),
+                () => CheckName(cleanName),
+                () => CheckNicknames(cleanName, cleanNicknames),
+                () => CheckDates(birthDate, dueDate, today)),
+            () =>
+            {
+                Name = cleanName!;
+                Nicknames = cleanNicknames!.AsReadOnly()!;
+                BirthDate = birthDate;
+                DueDate = dueDate;
+            });
+    }
+
     internal static BabyProfile Rehydrate(
         BabyId id, HouseholdId householdId, string name, IReadOnlyList<string> nicknames,
         DateOnly? birthDate, DateOnly? dueDate, HlcStamp version, bool isDeleted) =>

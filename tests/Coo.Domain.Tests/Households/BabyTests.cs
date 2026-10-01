@@ -199,4 +199,83 @@ public sealed class ExpectedBabyTests
         // Assert
         act.Should().Throw<InvalidOperationException>();
     }
+
+    [Fact]
+    public void Revise_AllFields_ChangesThemUnderOneVersion()
+    {
+        // Arrange
+        var baby = BabyProfile.Create(A.Baby, A.Household, "Zosia", [], Today.AddMonths(-2), null, A.Stamp(), Today).Value;
+        var version = A.Stamp();
+
+        // Act
+        var result = baby.Revise("Zofia", ["Zo", "Mimi"], Today.AddMonths(-2).AddDays(-1), Today.AddMonths(-1), version, Today);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        baby.Name.Should().Be("Zofia");
+        baby.Nicknames.Should().Equal("Zo", "Mimi");
+        baby.BirthDate.Should().Be(Today.AddMonths(-2).AddDays(-1));
+        baby.DueDate.Should().Be(Today.AddMonths(-1));
+        baby.Version.Should().Be(version);
+    }
+
+    [Fact]
+    public void Revise_NameOfSpaces_FailsAndChangesNothing()
+    {
+        // Arrange
+        var baby = BabyProfile.Create(A.Baby, A.Household, "Zosia", ["Zo"], Today.AddMonths(-2), null, A.Stamp(), Today).Value;
+        var before = baby.Version;
+
+        // Act
+        var result = baby.Revise("   ", [], Today.AddMonths(-2), null, A.Stamp(), Today);
+
+        // Assert
+        result.Error!.Code.Should().Be(BabyErrors.NameInvalid);
+        baby.Name.Should().Be("Zosia");
+        baby.Nicknames.Should().Equal("Zo");
+        baby.Version.Should().Be(before);
+    }
+
+    [Fact]
+    public void Revise_BirthDateForExpectedBaby_FailsWithNotBornYet()
+    {
+        // Arrange
+        var baby = BabyProfile.Create(A.Baby, A.Household, "Baby", [], null, Today.AddDays(30), A.Stamp(), Today).Value;
+
+        // Act
+        var result = baby.Revise("Baby", [], Today, Today.AddDays(30), A.Stamp(), Today);
+
+        // Assert
+        result.Error!.Code.Should().Be(BabyErrors.NotBornYet);
+        baby.IsBorn.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Revise_NameWithSurroundingSpaces_StoresItTrimmed()
+    {
+        // Arrange
+        var baby = BabyProfile.Create(A.Baby, A.Household, "Zosia", [], Today.AddMonths(-2), null, A.Stamp(), Today).Value;
+
+        // Act
+        var result = baby.Revise("  Zofia ", [" Zo "], Today.AddMonths(-2), null, A.Stamp(), Today);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        baby.Name.Should().Be("Zofia");
+        baby.Nicknames.Should().Equal("Zo");
+    }
+
+    [Fact]
+    public void Revise_StaleVersion_FailsWithStaleVersion()
+    {
+        // Arrange
+        var stamp = A.Stamp();
+        var baby = BabyProfile.Create(A.Baby, A.Household, "Zosia", [], Today.AddMonths(-2), null, stamp, Today).Value;
+
+        // Act
+        var result = baby.Revise("Zofia", [], Today.AddMonths(-2), null, stamp, Today);
+
+        // Assert
+        result.Error!.Code.Should().Be(Coo.Domain.Common.RecordErrors.StaleVersion);
+    }
 }
