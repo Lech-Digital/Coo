@@ -13,10 +13,13 @@ namespace Coo.Mobile.Presentation.Settings;
 /// <summary>One "What you log" switch (Spec 009 §3.2). The last visible kind cannot be switched off.</summary>
 public sealed record KindToggle(string Code, string Name, bool IsShown, bool CanChange);
 
+/// <summary>What a "What you log" switch was set to.</summary>
+public sealed record KindChange(string Code, bool Shown);
+
 /// <summary>The Settings tab (Spec 009 §3). It knows nothing about MAUI.</summary>
 public sealed partial class SettingsViewModel(
     IHouseholdStore households, ChangeVolumeUnit changeUnit, SetHiddenKinds setHidden, ThemeController theme,
-    LanguageController language, IAboutInfo about, IExternalLauncher launcher, TimeProvider time) : ObservableObject
+    LanguageController language, IAboutInfo about, IExternalLauncher launcher, TimeProvider time) : ObservableObject, IDisposable
 {
     public const string FeedbackAddress = "andrzej@lechdigital.nl";
     public static readonly Uri PrivacyUrl = new("https://coo.lechdigital.nl/privacy");
@@ -24,6 +27,7 @@ public sealed partial class SettingsViewModel(
     private static readonly (string Code, string NameKey)[] KindNames =
         [("feeding", "Kind.Feed"), ("diaper", "Kind.Diaper"), ("sleep", "Kind.Sleep"), ("pump", "Kind.Pump")];
 
+    private readonly SemaphoreSlim _kindWrites = new(1, 1);
     private HouseholdSettings? _household;
 
     [ObservableProperty]
@@ -55,6 +59,8 @@ public sealed partial class SettingsViewModel(
 
     [ObservableProperty]
     private string _toast = "";
+
+    public void Dispose() => _kindWrites.Dispose();
 
     public IReadOnlyList<LanguageOption> Languages => LanguageRule.Options(language.SystemCulture);
 
@@ -98,15 +104,27 @@ public sealed partial class SettingsViewModel(
         await RefreshAsync();
     }
 
+    /// <summary>
+    /// A "What you log" switch moved to <see cref="KindChange.Shown"/>. The switch's own value is sent, not the state of
+    /// the last render, and changes run one at a time, so a quick off/on flick ends where the switch ends.
+    /// </summary>
     [RelayCommand]
-    private async Task ToggleKind(KindToggle toggle)
+    private async Task SetKindShown(KindChange change)
     {
-        if (_household is null || !toggle.CanChange)
-            return;
-        var result = await setHidden.ExecuteAsync(_household, EntryKindCode.From(toggle.Code).Value, hidden: toggle.IsShown, CancellationToken.None);
-        if (result.IsFailure)
-            Toast = Strings.Error(result.Error!.Code);
-        await RefreshAsync();
+        await _kindWrites.WaitAsync();
+        try
+        {
+            if (_household is null || EntryKindCode.From(change.Code) is not { IsSuccess: true } code)
+                return;
+            var result = await setHidden.ExecuteAsync(_household, code.Value, hidden: !change.Shown, CancellationToken.None);
+            if (result.IsFailure)
+                Toast = Strings.Error(result.Error!.Code);
+            await RefreshAsync();
+        }
+        finally
+        {
+            _kindWrites.Release();
+        }
     }
 
     [RelayCommand]

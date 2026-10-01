@@ -72,8 +72,12 @@ public sealed class SettingsPage : ContentPage
         {
             var toggle = new Switch { IsToggled = kind.IsShown, IsEnabled = kind.CanChange, VerticalOptions = LayoutOptions.Center };
             toggle.SetDynamicResource(Switch.OnColorProperty, "Accent");
-            var current = kind;
-            toggle.Toggled += (_, _) => _model.ToggleKindCommand.Execute(current);
+            var code = kind.Code;
+            toggle.Toggled += (_, e) =>
+            {
+                if (!_rendering)
+                    _model.SetKindShownCommand.Execute(new KindChange(code, e.Value));
+            };
             var line = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], MinimumHeightRequest = 48 };
             line.Add(Ui.Text(kind.Name, "Body").Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
             line.Add(toggle, 1);

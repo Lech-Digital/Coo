@@ -176,6 +176,23 @@ public sealed class SettingsTests
         await _households.Received(2).SaveSettingsAsync(_settings, Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task SetKindShown_SameValueTwice_ShowsItOnce()
+    {
+        // Arrange: reviewer's finding — a quick off/on flick sent "hide" twice, from the state of the last render.
+        var model = Model();
+        await model.RefreshAsync();
+        var show = new KindChange("diaper", Shown: true);
+
+        // Act
+        await model.SetKindShownCommand.ExecuteAsync(show);
+        await model.SetKindShownCommand.ExecuteAsync(show);
+
+        // Assert
+        model.Kinds.Single(k => k.Code == "diaper").IsShown.Should().BeTrue();
+        await _households.Received(1).SaveSettingsAsync(_settings, Arg.Any<CancellationToken>());
+    }
+
     private SettingsViewModel Model() => new(
         _households, new ChangeVolumeUnit(_households, _clock), new SetHiddenKinds(_households, _clock),
         new ThemeController(_preferences, Substitute.For<IOsAppearance>(), _time), new LanguageController(_preferences),
