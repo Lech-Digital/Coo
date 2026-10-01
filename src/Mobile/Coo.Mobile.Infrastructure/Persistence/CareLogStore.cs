@@ -13,7 +13,7 @@ namespace Coo.Mobile.Infrastructure.Persistence;
 /// </summary>
 internal sealed class CareLogStore(LocalDatabase database, TimeProvider time) : ICareLogStore
 {
-    private const string EntityType = "CareEntry";
+    private const string EntityType = SyncedEntityType.CareEntry;
 
     public async Task SaveAsync(CareEntry entry, CancellationToken cancellationToken)
     {

@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Coo.Domain.Common;
 using Coo.Mobile.Components;
 using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Theme;
@@ -11,17 +12,21 @@ namespace Coo.Mobile.Pages;
 /// The view for each <see cref="IHomeSection"/> (Spec 006 §3a). A new section type gets one more case here; an unknown
 /// one renders as nothing rather than breaking Today. Each view re-renders when its section changes.
 /// </summary>
+/// <summary>What a section view can ask its page to do.</summary>
+internal sealed record SectionHost(Action? OpenDebug, Action<EntryId> OpenEntry, Action OpenAttention, Action OpenEarlier);
+
 internal static class SectionViews
 {
-    public static View Create(IHomeSection section, Action? onWordmarkLongPress = null) => section switch
+    public static View Create(IHomeSection section, SectionHost host) => section switch
     {
-        BabyHeaderSection s => Live(s, () => Header(s, onWordmarkLongPress)),
+        BabyHeaderSection s => Live(s, () => Header(s, host.OpenDebug)),
         DueDateSection s => Live(s, () => DueDate(s)),
         StatusHeroSection s => Live(s, () => Hero(s)),
-        RunningSection s => Live(s, () => RunningCards(s.Items, night: false)),
-        LogTilesSection s => Live(s, () => Tiles(s)),
-        TimelineSection s => Live(s, () => Timeline(s)),
-        NightSection s => Live(s, () => Night(s, onWordmarkLongPress), nameof(NightSection.Title)),
+        RunningSection s => Live(s, () => RunningCards(s.Items, night: false, host)),
+        AttentionSection s => Live(s, () => Attention(s, host)),
+        LogTilesSection s => Live(s, () => Tiles(s, host)),
+        TimelineSection s => Live(s, () => Timeline(s, host)),
+        NightSection s => Live(s, () => Night(s, host), nameof(NightSection.Title)),
         _ => new ContentView(),
     };
 
@@ -107,7 +112,7 @@ internal static class SectionViews
         },
     };
 
-    internal static View RunningCards(IReadOnlyList<RunningItem> items, bool night)
+    internal static View RunningCards(IReadOnlyList<RunningItem> items, bool night, SectionHost host)
     {
         var stack = new VerticalStackLayout { Spacing = 12, Padding = new Thickness(24, items.Count == 0 ? 0 : 12, 24, 0) };
         foreach (var item in items)
@@ -138,17 +143,33 @@ internal static class SectionViews
                 {
                     new HorizontalStackLayout { Spacing = 8, Children = { dot, Bound(item, nameof(RunningItem.Title), "Label", upper: true) } },
                     Bound(item, nameof(RunningItem.Digits), night ? "Timer" : "Window"),
-                    Ui.Text(item.Started, "Meta"),
+                    Bound(item, nameof(RunningItem.Started), "Meta"),
                     actions,
                 },
             };
-            stack.Add(night ? body : new Card(body));
+            // A tap on the card opens the entry, so a timer started late can have its start moved back (Spec 007 §2).
+            View card = night ? body : new Card(body);
+            var id = item.Id;
+            card.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => host.OpenEntry(id)) });
+            stack.Add(card);
         }
 
         return stack;
     }
 
-    private static View Tiles(LogTilesSection s)
+    /// <summary>"2 need attention": a quiet line with a dot, only when there is something (Spec 007 §6).</summary>
+    private static View Attention(AttentionSection s, SectionHost host)
+    {
+        if (s.Count == 0)
+            return new ContentView();
+        var dot = new Ellipse { WidthRequest = 8, HeightRequest = 8, VerticalOptions = LayoutOptions.Center };
+        dot.SetDynamicResource(Shape.FillProperty, "AccentBrush");
+        var row = new HorizontalStackLayout { Spacing = 8, Padding = new Thickness(24, 12, 24, 0), Children = { dot, Ui.Text(s.Text, "Body", "Ink2") } };
+        row.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(host.OpenAttention) });
+        return row;
+    }
+
+    private static View Tiles(LogTilesSection s, SectionHost host)
     {
         var grid = new Grid { ColumnSpacing = 8, Padding = new Thickness(24, 16, 24, 0) };
         for (var i = 0; i < s.Tiles.Count; i++)
@@ -158,24 +179,33 @@ internal static class SectionViews
             grid.Add(new LogTile(t.KindCode, t.Name, t.LastAt, t.Command, fill: true), i);
         }
 
-        return grid;
+        // "Earlier…" (Spec 007 §4): log something that already happened, of any kind.
+        var earlier = Ui.Text(Strings.Get("Edit.Earlier"), "Label", "Ink2");
+        earlier.Padding = new Thickness(0, 12);
+        earlier.HorizontalOptions = LayoutOptions.End;
+        earlier.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(host.OpenEarlier) });
+        return new VerticalStackLayout { Children = { grid, new ContentView { Padding = new Thickness(24, 0), Content = earlier } } };
     }
 
-    private static View Timeline(TimelineSection s)
+    private static View Timeline(TimelineSection s, SectionHost host)
     {
         var stack = new VerticalStackLayout { Padding = new Thickness(24, 24, 24, 24), Spacing = 4 };
         stack.Add(Ui.Text(Strings.Get("Section.Today"), "Section"));
         if (s.Items.Count == 0)
             stack.Add(Ui.Text(Strings.Get("Timeline.Empty"), "Body", "Ink2").Tap(l => l.Margin = new Thickness(0, 8)));
         foreach (var row in s.Items)
-            stack.Add(new TimelineRow(row.Time, row.KindCode, row.Title, row.Who));
+        {
+            var id = row.Id;
+            stack.Add(new TimelineRow(row.Time, row.KindCode, row.Title, row.Who, () => host.OpenEntry(id)));
+        }
+
         return stack;
     }
 
-    private static View Night(NightSection s, Action? longPress)
+    private static View Night(NightSection s, SectionHost host)
     {
         var title = Bound(s, nameof(NightSection.Title), "Meta");
-        AttachLongPress(title, longPress);
+        AttachLongPress(title, host.OpenDebug);
         var top = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], Padding = new Thickness(24, 16, 24, 0) };
         top.Add(title.Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
         top.Add(Ui.Rounded(Ui.Text(s.BabyName, "BodyStrong"), "Surface", 999, new Thickness(14, 8), "Line"), 1);
@@ -184,9 +214,9 @@ internal static class SectionViews
         stack.Add(top);
         // The first timer in big night digits; any other (the sleep during a dream feed) as a compact card below.
         if (s.Timers.Count > 0)
-            stack.Add(RunningCards([s.Timers[0]], night: true));
+            stack.Add(RunningCards([s.Timers[0]], night: true, host));
         if (s.Timers.Count > 1)
-            stack.Add(RunningCards([.. s.Timers.Skip(1)], night: false));
+            stack.Add(RunningCards([.. s.Timers.Skip(1)], night: false, host));
 
         var facts = new VerticalStackLayout { Spacing = 14, Padding = new Thickness(24, 8) };
         foreach (var fact in s.Facts)

@@ -31,5 +31,23 @@ public class MainActivity : MauiAppCompatActivity
     {
         base.OnCreate(savedInstanceState);
         _language = Resources?.Configuration?.Locales.Get(0)?.ToLanguageTag();
+        OnBackPressedDispatcher.AddCallback(this, new BackToPage(this));
+    }
+
+    /// <summary>
+    /// Back goes to the MAUI page tree: a sheet closes, a pushed page pops. With nothing left to close, Coo moves to
+    /// the background rather than finishing the activity. Found on the Pixel 10 (Android 16) in Increment 7: Back
+    /// finished the activity without asking the pages, and MAUI's Shell teardown then crashed (ObjectDisposedException
+    /// in ShellFragmentContainer.OnDestroy).
+    /// </summary>
+    private sealed class BackToPage(Activity activity) : AndroidX.Activity.OnBackPressedCallback(true)
+    {
+        public override void HandleOnBackPressed()
+        {
+            var windows = Microsoft.Maui.Controls.Application.Current?.Windows;
+            var page = windows is { Count: > 0 } ? windows[0].Page : null;
+            if (page?.SendBackButtonPressed() != true)
+                activity.MoveTaskToBack(true);
+        }
     }
 }

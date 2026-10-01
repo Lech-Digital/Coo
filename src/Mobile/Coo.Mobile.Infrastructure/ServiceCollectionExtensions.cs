@@ -26,6 +26,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IDeviceLocale, SystemDeviceLocale>();
         services.AddSingleton<IStorageDiagnostics, StorageDiagnostics>();
         services.AddSingleton<IDevicePreferences, DevicePreferences>();
+        services.AddSingleton<IDuplicateDismissalStore, DuplicateDismissalStore>();
 
         // There are no data migrations in v1 (Spec 004 §7). New ones are registered here, by hand.
         services.AddSingleton(sp => new DataMigrationRunner([], sp.GetRequiredService<TimeProvider>()));

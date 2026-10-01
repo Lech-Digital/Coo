@@ -10,6 +10,7 @@
   <data name="Action.Skip" xml:space="preserve"><value>Overslaan</value></data>
   <data name="Action.Stop" xml:space="preserve"><value>Stop</value></data>
   <data name="Action.SwitchSide" xml:space="preserve"><value>Andere kant</value></data>
+  <data name="Action.Undo" xml:space="preserve"><value>Ongedaan maken</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Wakker</value></data>
   <data name="Age.Corrected" xml:space="preserve"><value>{0} (gecorrigeerd)</value></data>
   <data name="Age.Days.one" xml:space="preserve"><value>{0} dag</value></data>
@@ -18,6 +19,15 @@
   <data name="Age.Months.other" xml:space="preserve"><value>{0} mnd</value></data>
   <data name="Age.Weeks.one" xml:space="preserve"><value>{0} wk</value></data>
   <data name="Age.Weeks.other" xml:space="preserve"><value>{0} wk</value></data>
+  <data name="Attention.Badge.one" xml:space="preserve"><value>{0} vraagt aandacht</value></data>
+  <data name="Attention.Badge.other" xml:space="preserve"><value>{0} vragen aandacht</value></data>
+  <data name="Attention.Duplicates" xml:space="preserve"><value>Waarschijnlijk dubbel</value></data>
+  <data name="Attention.Empty" xml:space="preserve"><value>Niets vraagt aandacht.</value></data>
+  <data name="Attention.KeepBoth" xml:space="preserve"><value>Beide houden</value></data>
+  <data name="Attention.KeepThis" xml:space="preserve"><value>Deze houden</value></data>
+  <data name="Attention.Newer" xml:space="preserve"><value>Uit een nieuwere versie</value></data>
+  <data name="Attention.Title" xml:space="preserve"><value>Vraagt aandacht</value></data>
+  <data name="Attention.Unreadable" xml:space="preserve"><value>Kon niet worden gelezen</value></data>
   <data name="Awake.Hint" xml:space="preserve"><value>Bij een droomvoeding of een slaperige verschoning kies je ‘Slaapt nog’.</value></data>
   <data name="Awake.StillAsleep" xml:space="preserve"><value>Slaapt nog</value></data>
   <data name="Awake.Title" xml:space="preserve"><value>{0} slaapt</value></data>
@@ -36,6 +46,22 @@
   <data name="Due.Today" xml:space="preserve"><value>Vandaag uitgerekend</value></data>
   <data name="Duration.HoursMinutes" xml:space="preserve"><value>{0} u {1} min</value></data>
   <data name="Duration.Minutes" xml:space="preserve"><value>{0} min</value></data>
+  <data name="Edit.Delete" xml:space="preserve"><value>Verwijderen</value></data>
+  <data name="Edit.Earlier" xml:space="preserve"><value>Eerder…</value></data>
+  <data name="Edit.End" xml:space="preserve"><value>Einde</value></data>
+  <data name="Edit.FirstSide" xml:space="preserve"><value>Begonnen aan</value></data>
+  <data name="Edit.KindAuto" xml:space="preserve"><value>Automatisch</value></data>
+  <data name="Edit.KindNap" xml:space="preserve"><value>Dutje</value></data>
+  <data name="Edit.KindNight" xml:space="preserve"><value>Nacht</value></data>
+  <data name="Edit.Minutes" xml:space="preserve"><value>{0} min</value></data>
+  <data name="Edit.Newer" xml:space="preserve"><value>Dit item komt uit een nieuwere versie van Coo. Werk de app bij om het te zien.</value></data>
+  <data name="Edit.Note" xml:space="preserve"><value>Notitie</value></data>
+  <data name="Edit.Start" xml:space="preserve"><value>Begin</value></data>
+  <data name="Edit.StillRunning" xml:space="preserve"><value>Loopt nog</value></data>
+  <data name="Edit.Time" xml:space="preserve"><value>Tijd</value></data>
+  <data name="Edit.Title" xml:space="preserve"><value>Bewerken</value></data>
+  <data name="Edit.Total" xml:space="preserve"><value>Totaal</value></data>
+  <data name="Edit.Unreadable" xml:space="preserve"><value>Dit item kon niet worden gelezen.</value></data>
   <data name="Entry.Bottle" xml:space="preserve"><value>Fles · {0} · {1}</value></data>
   <data name="Entry.Breast" xml:space="preserve"><value>Borst · {0}</value></data>
   <data name="Entry.BreastSide" xml:space="preserve"><value>{0} {1}</value></data>
@@ -54,6 +80,18 @@
   <data name="Error.baby.birth-or-due-date-required" xml:space="preserve"><value>Voeg een geboortedatum of uitgerekende datum toe.</value></data>
   <data name="Error.baby.due-date-out-of-range" xml:space="preserve"><value>Die uitgerekende datum lijkt niet te kloppen.</value></data>
   <data name="Error.baby.name-invalid" xml:space="preserve"><value>Vul een naam in van maximaal 40 tekens.</value></data>
+  <data name="Error.bottle.total-out-of-range" xml:space="preserve"><value>Een fles bevat hoogstens 1.000 ml.</value></data>
+  <data name="Error.breast.no-segments" xml:space="preserve"><value>Vul de minuten van minstens één kant in.</value></data>
+  <data name="Error.breast.side-duration-invalid" xml:space="preserve"><value>Minuten per kant: 1 tot 240.</value></data>
+  <data name="Error.breast.too-long" xml:space="preserve"><value>Een borstvoeding duurt hoogstens 6 uur. Controleer de tijden.</value></data>
+  <data name="Error.entry.not-editable" xml:space="preserve"><value>Dit item kan in deze versie van Coo niet worden bewerkt.</value></data>
+  <data name="Error.entry.not-found" xml:space="preserve"><value>Dit item bestaat niet meer.</value></data>
+  <data name="Error.note.too-long" xml:space="preserve"><value>Een notitie heeft hoogstens 500 tekens.</value></data>
+  <data name="Error.pump.too-long" xml:space="preserve"><value>Kolven duurt hoogstens 4 uur. Controleer de tijden.</value></data>
+  <data name="Error.sleep.too-long" xml:space="preserve"><value>Een slaap duurt hoogstens 24 uur. Controleer de tijden.</value></data>
+  <data name="Error.time.end-not-after-start" xml:space="preserve"><value>Het einde moet na het begin liggen.</value></data>
+  <data name="Error.time.too-far-in-future" xml:space="preserve"><value>Die tijd ligt te ver in de toekomst.</value></data>
+  <data name="Error.volume.out-of-range" xml:space="preserve"><value>Vul een hoeveelheid in boven 0 en tot 1.000 ml.</value></data>
   <data name="Expecting.Eyebrow" xml:space="preserve"><value>In verwachting</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Fles</value></data>
   <data name="Feed.BreastHint" xml:space="preserve"><value>Start een timer aan die kant</value></data>
@@ -107,7 +145,10 @@
   <data name="Tile.Running" xml:space="preserve"><value>loopt</value></data>
   <data name="Tile.Woke" xml:space="preserve"><value>wakker {0}</value></data>
   <data name="Timeline.Empty" xml:space="preserve"><value>Vandaag nog niets gelogd</value></data>
+  <data name="Toast.Deleted" xml:space="preserve"><value>Verwijderd · {0}</value></data>
   <data name="Toast.Logged" xml:space="preserve"><value>Gelogd · {0}</value></data>
+  <data name="Toast.Saved" xml:space="preserve"><value>Opgeslagen · {0}</value></data>
+  <data name="Toast.Undone" xml:space="preserve"><value>Ongedaan gemaakt</value></data>
   <data name="Totals.Diapers.one" xml:space="preserve"><value>luier</value></data>
   <data name="Totals.Diapers.other" xml:space="preserve"><value>luiers</value></data>
   <data name="Totals.Feeds.one" xml:space="preserve"><value>voeding</value></data>
@@ -117,5 +158,12 @@
   <data name="Totals.Sleep" xml:space="preserve"><value>slaap</value></data>
   <data name="Unit.Ml" xml:space="preserve"><value>ml</value></data>
   <data name="Unit.Oz" xml:space="preserve"><value>oz</value></data>
+  <data name="Warn.before-birth" xml:space="preserve"><value>Dit is vóór de geboorte van {0}.</value></data>
+  <data name="Warn.bottle-amount" xml:space="preserve"><value>Dat valt buiten de gebruikelijke hoeveelheid (5–400 ml).</value></data>
+  <data name="Warn.breast-long" xml:space="preserve"><value>Dat is een lange voeding (meer dan 90 minuten).</value></data>
+  <data name="Warn.in-future" xml:space="preserve"><value>Dit ligt in de toekomst.</value></data>
+  <data name="Warn.pump-amount" xml:space="preserve"><value>Dat is meer dan gewoonlijk (meer dan 500 ml).</value></data>
+  <data name="Warn.running-long" xml:space="preserve"><value>Deze timer loopt al lang.</value></data>
+  <data name="Warn.sleep-long" xml:space="preserve"><value>Dat is een lange slaap (meer dan 16 uur).</value></data>
   <data name="Who.You" xml:space="preserve"><value>Jij</value></data>
 </root>

@@ -153,6 +153,7 @@ public sealed class ExpectedBabyMigrationTests
         {
             await connection.ExecuteAsync(
                 """
+                DROP TABLE duplicate_dismissals;
                 DROP TABLE baby_profiles;
                 CREATE TABLE baby_profiles (id TEXT NOT NULL PRIMARY KEY, household_id TEXT NOT NULL, name TEXT NOT NULL,
                     nicknames TEXT NOT NULL, birth_date TEXT NOT NULL, due_date TEXT NULL, version_wall_ms INTEGER NOT NULL,
@@ -205,5 +206,83 @@ public sealed class ExpectedBabyMigrationTests
 
         // Assert
         await act.Should().ThrowAsync<Microsoft.Data.Sqlite.SqliteException>();
+    }
+}
+
+public sealed class DismissalAndOutboxTests
+{
+    [Fact]
+    public async Task Migrate_0002DatabaseWithOutboxRows_KeepsThemInOrderThrough0003()
+    {
+        // Arrange: a database at version 2, with two outbox rows, as on the owner's phone before this release.
+        await using var db = await TestDatabase.CreateAsync();
+        await db.DiaperAsync(new DateTimeOffset(2026, 10, 1, 9, 0, 0, TimeSpan.FromHours(2)));
+        await db.DiaperAsync(new DateTimeOffset(2026, 10, 1, 9, 5, 0, TimeSpan.FromHours(2)));
+        await using (var connection = await db.OpenAsync())
+        {
+            await connection.ExecuteAsync(
+                """
+                DROP TABLE duplicate_dismissals;
+                CREATE TABLE outbox_old AS SELECT * FROM outbox;
+                DROP TABLE outbox;
+                CREATE TABLE outbox (seq INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, change_id TEXT NOT NULL UNIQUE,
+                    entity_type TEXT NOT NULL CHECK (entity_type IN ('CareEntry', 'BabyProfile', 'HouseholdSettings')),
+                    entity_id TEXT NOT NULL, operation TEXT NOT NULL, version_wall_ms INTEGER NOT NULL,
+                    version_counter INTEGER NOT NULL, version_device TEXT NOT NULL) STRICT;
+                INSERT INTO outbox SELECT * FROM outbox_old;
+                DROP TABLE outbox_old;
+                PRAGMA user_version = 2;
+                """,
+                CancellationToken.None);
+        }
+
+        var before = await db.ScalarAsync("SELECT count(*) FROM outbox;");
+
+        // Act
+        await db.StartupAsync("1.0.2");
+
+        // Assert
+        (await db.ScalarAsync("PRAGMA user_version;")).Should().Be(Persistence.SchemaMigrator.LatestVersion);
+        (await db.ScalarAsync("SELECT count(*) FROM outbox;")).Should().Be(2);
+        (await db.ScalarAsync("SELECT max(seq) FROM outbox;")).Should().Be(2);
+        before.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task SaveThenList_Dismissal_RoundTripsInEitherOrder()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var a = new Coo.Domain.Common.EntryId(Guid.Parse("00000000-0000-7000-8000-00000000000a"));
+        var b = new Coo.Domain.Common.EntryId(Guid.Parse("00000000-0000-7000-8000-00000000000b"));
+        var store = new DuplicateDismissalStore(db.Database, db.Time);
+        var dismissal = Coo.Domain.CareLog.Duplicates.DuplicateDismissal.Create(
+            new Coo.Domain.Common.DismissalId(Guid.Parse("00000000-0000-7000-8000-0000000000dd")), TestDatabase.Household,
+            new Coo.Domain.CareLog.Duplicates.EntryPair(b, a), await db.Device.NextAsync(CancellationToken.None));
+
+        // Act
+        await store.SaveAsync(dismissal, CancellationToken.None);
+        var pairs = await store.ListAsync(TestDatabase.Household, CancellationToken.None);
+
+        // Assert
+        pairs.Should().Contain(new Coo.Domain.CareLog.Duplicates.EntryPair(a, b));
+        (await db.ScalarAsync("SELECT count(*) FROM outbox WHERE entity_type = 'DuplicateDismissal';")).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task AppendAsync_UnknownEntityType_IsRefusedByCode()
+    {
+        // Arrange: the database CHECK is gone (0003); the closed list in code guards instead.
+        await using var db = await TestDatabase.CreateAsync();
+        var stamp = await db.Device.NextAsync(CancellationToken.None);
+        await using var connection = await db.OpenAsync();
+        await using var transaction = (Microsoft.Data.Sqlite.SqliteTransaction)await connection.BeginTransactionAsync();
+
+        // Act
+        var act = () => Outbox.AppendAsync(connection, transaction, "Recipe", Guid.Parse("00000000-0000-7000-8000-00000000000a"),
+            false, stamp, db.Time, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<ArgumentOutOfRangeException>();
     }
 }

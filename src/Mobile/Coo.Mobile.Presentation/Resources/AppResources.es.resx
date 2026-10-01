@@ -10,6 +10,7 @@
   <data name="Action.Skip" xml:space="preserve"><value>Omitir</value></data>
   <data name="Action.Stop" xml:space="preserve"><value>Parar</value></data>
   <data name="Action.SwitchSide" xml:space="preserve"><value>Cambiar de lado</value></data>
+  <data name="Action.Undo" xml:space="preserve"><value>Deshacer</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Se despertó</value></data>
   <data name="Age.Corrected" xml:space="preserve"><value>{0} (corregida)</value></data>
   <data name="Age.Days.one" xml:space="preserve"><value>{0} día</value></data>
@@ -18,6 +19,15 @@
   <data name="Age.Months.other" xml:space="preserve"><value>{0} meses</value></data>
   <data name="Age.Weeks.one" xml:space="preserve"><value>{0} sem.</value></data>
   <data name="Age.Weeks.other" xml:space="preserve"><value>{0} sem.</value></data>
+  <data name="Attention.Badge.one" xml:space="preserve"><value>{0} necesita atención</value></data>
+  <data name="Attention.Badge.other" xml:space="preserve"><value>{0} necesitan atención</value></data>
+  <data name="Attention.Duplicates" xml:space="preserve"><value>Probablemente repetido</value></data>
+  <data name="Attention.Empty" xml:space="preserve"><value>Nada necesita atención.</value></data>
+  <data name="Attention.KeepBoth" xml:space="preserve"><value>Conservar ambos</value></data>
+  <data name="Attention.KeepThis" xml:space="preserve"><value>Conservar esta</value></data>
+  <data name="Attention.Newer" xml:space="preserve"><value>De una versión más nueva</value></data>
+  <data name="Attention.Title" xml:space="preserve"><value>Necesita atención</value></data>
+  <data name="Attention.Unreadable" xml:space="preserve"><value>No se ha podido leer</value></data>
   <data name="Awake.Hint" xml:space="preserve"><value>Para una toma dormida o un cambio medio dormido, elige «Sigue dormido».</value></data>
   <data name="Awake.StillAsleep" xml:space="preserve"><value>Sigue dormido</value></data>
   <data name="Awake.Title" xml:space="preserve"><value>{0} está durmiendo</value></data>
@@ -36,6 +46,22 @@
   <data name="Due.Today" xml:space="preserve"><value>La fecha prevista es hoy</value></data>
   <data name="Duration.HoursMinutes" xml:space="preserve"><value>{0} h {1} min</value></data>
   <data name="Duration.Minutes" xml:space="preserve"><value>{0} min</value></data>
+  <data name="Edit.Delete" xml:space="preserve"><value>Eliminar</value></data>
+  <data name="Edit.Earlier" xml:space="preserve"><value>Antes…</value></data>
+  <data name="Edit.End" xml:space="preserve"><value>Fin</value></data>
+  <data name="Edit.FirstSide" xml:space="preserve"><value>Empezó en</value></data>
+  <data name="Edit.KindAuto" xml:space="preserve"><value>Automático</value></data>
+  <data name="Edit.KindNap" xml:space="preserve"><value>Siesta</value></data>
+  <data name="Edit.KindNight" xml:space="preserve"><value>Noche</value></data>
+  <data name="Edit.Minutes" xml:space="preserve"><value>{0} min</value></data>
+  <data name="Edit.Newer" xml:space="preserve"><value>Esta entrada es de una versión más nueva de Coo. Actualiza la app para verla.</value></data>
+  <data name="Edit.Note" xml:space="preserve"><value>Nota</value></data>
+  <data name="Edit.Start" xml:space="preserve"><value>Inicio</value></data>
+  <data name="Edit.StillRunning" xml:space="preserve"><value>Sigue en curso</value></data>
+  <data name="Edit.Time" xml:space="preserve"><value>Hora</value></data>
+  <data name="Edit.Title" xml:space="preserve"><value>Editar</value></data>
+  <data name="Edit.Total" xml:space="preserve"><value>Total</value></data>
+  <data name="Edit.Unreadable" xml:space="preserve"><value>No se ha podido leer esta entrada.</value></data>
   <data name="Entry.Bottle" xml:space="preserve"><value>Biberón · {0} · {1}</value></data>
   <data name="Entry.Breast" xml:space="preserve"><value>Pecho · {0}</value></data>
   <data name="Entry.BreastSide" xml:space="preserve"><value>{0} {1}</value></data>
@@ -54,6 +80,18 @@
   <data name="Error.baby.birth-or-due-date-required" xml:space="preserve"><value>Añade una fecha de nacimiento o una fecha prevista.</value></data>
   <data name="Error.baby.due-date-out-of-range" xml:space="preserve"><value>Esa fecha prevista no parece correcta.</value></data>
   <data name="Error.baby.name-invalid" xml:space="preserve"><value>Escribe un nombre de hasta 40 caracteres.</value></data>
+  <data name="Error.bottle.total-out-of-range" xml:space="preserve"><value>Un biberón lleva como máximo 1.000 ml.</value></data>
+  <data name="Error.breast.no-segments" xml:space="preserve"><value>Añade los minutos de al menos un lado.</value></data>
+  <data name="Error.breast.side-duration-invalid" xml:space="preserve"><value>Minutos por lado: de 1 a 240.</value></data>
+  <data name="Error.breast.too-long" xml:space="preserve"><value>Una toma dura como máximo 6 horas. Revisa las horas.</value></data>
+  <data name="Error.entry.not-editable" xml:space="preserve"><value>Esta entrada no se puede editar en esta versión de Coo.</value></data>
+  <data name="Error.entry.not-found" xml:space="preserve"><value>Esta entrada ya no existe.</value></data>
+  <data name="Error.note.too-long" xml:space="preserve"><value>Una nota tiene como máximo 500 caracteres.</value></data>
+  <data name="Error.pump.too-long" xml:space="preserve"><value>La extracción dura como máximo 4 horas. Revisa las horas.</value></data>
+  <data name="Error.sleep.too-long" xml:space="preserve"><value>Un sueño dura como máximo 24 horas. Revisa las horas.</value></data>
+  <data name="Error.time.end-not-after-start" xml:space="preserve"><value>El final debe ser posterior al inicio.</value></data>
+  <data name="Error.time.too-far-in-future" xml:space="preserve"><value>Esa hora está demasiado en el futuro.</value></data>
+  <data name="Error.volume.out-of-range" xml:space="preserve"><value>Escribe una cantidad mayor que 0 y hasta 1.000 ml.</value></data>
   <data name="Expecting.Eyebrow" xml:space="preserve"><value>Ya queda poco</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Biberón</value></data>
   <data name="Feed.BreastHint" xml:space="preserve"><value>Inicia un temporizador en ese lado</value></data>
@@ -107,7 +145,10 @@
   <data name="Tile.Running" xml:space="preserve"><value>en curso</value></data>
   <data name="Tile.Woke" xml:space="preserve"><value>despertó {0}</value></data>
   <data name="Timeline.Empty" xml:space="preserve"><value>Nada registrado hoy</value></data>
+  <data name="Toast.Deleted" xml:space="preserve"><value>Eliminado · {0}</value></data>
   <data name="Toast.Logged" xml:space="preserve"><value>Registrado · {0}</value></data>
+  <data name="Toast.Saved" xml:space="preserve"><value>Guardado · {0}</value></data>
+  <data name="Toast.Undone" xml:space="preserve"><value>Deshecho</value></data>
   <data name="Totals.Diapers.one" xml:space="preserve"><value>pañal</value></data>
   <data name="Totals.Diapers.other" xml:space="preserve"><value>pañales</value></data>
   <data name="Totals.Feeds.one" xml:space="preserve"><value>toma</value></data>
@@ -117,5 +158,12 @@
   <data name="Totals.Sleep" xml:space="preserve"><value>sueño</value></data>
   <data name="Unit.Ml" xml:space="preserve"><value>ml</value></data>
   <data name="Unit.Oz" xml:space="preserve"><value>oz</value></data>
+  <data name="Warn.before-birth" xml:space="preserve"><value>Esto es antes de que naciera {0}.</value></data>
+  <data name="Warn.bottle-amount" xml:space="preserve"><value>Está fuera de la cantidad habitual (5–400 ml).</value></data>
+  <data name="Warn.breast-long" xml:space="preserve"><value>Es una toma larga (más de 90 minutos).</value></data>
+  <data name="Warn.in-future" xml:space="preserve"><value>Esto es en el futuro.</value></data>
+  <data name="Warn.pump-amount" xml:space="preserve"><value>Es más de lo habitual (más de 500 ml).</value></data>
+  <data name="Warn.running-long" xml:space="preserve"><value>Este temporizador lleva mucho tiempo en marcha.</value></data>
+  <data name="Warn.sleep-long" xml:space="preserve"><value>Es un sueño largo (más de 16 horas).</value></data>
   <data name="Who.You" xml:space="preserve"><value>Tú</value></data>
 </root>

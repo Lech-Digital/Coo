@@ -274,6 +274,33 @@ public sealed class NightTimersTests
         section.Timers[0].Actions.Should().HaveCount(2, "the feed keeps Switch side and Stop at night");
     }
 
+    [Fact]
+    public void Update_RunningStartMovedBack_KeepsTheCardAndUpdatesItsStart()
+    {
+        // Arrange: found on the phone; the card kept "started 14:35" after the start was moved to 14:25.
+        var sleep = Entry(new Coo.Domain.CareLog.Kinds.Sleep.SleepDetails(), EntryTiming.Session(TimeRange.Open(Now.AddMinutes(-2))));
+        var time = new FixedTime(Now);
+        var store = Substitute.For<ICareLogStore>();
+        var clock = Substitute.For<IVersionClock>();
+        var section = new RunningSection(new HomeActions(new LogEntry(store, clock, time), new ReviseEntry(store, clock, time), time));
+        var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
+        HomeSnapshot Snapshot(CareEntry running) => new(settings, baby,
+            new TodaySummary([running], null, null, running, null, null, [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc)),
+            Now, PaletteKind.Day, new Formats(true, VolumeUnit.Millilitres));
+        section.Update(Snapshot(sleep));
+        var card = section.Items[0];
+        var before = card.Started;
+
+        // Act
+        sleep.Retime(EntryTiming.Session(TimeRange.Open(Now.AddMinutes(-12))), new HlcStamp(++_wall, 0, Device), Now);
+        section.Update(Snapshot(sleep));
+
+        // Assert
+        section.Items[0].Should().BeSameAs(card, "the card stays put, so taps on its buttons are never lost");
+        card.Started.Should().NotBe(before).And.Contain("03:00");
+    }
+
     private CareEntry Entry(EntryDetails details, EntryTiming? timing) =>
         CareEntry.Create(new EntryId(Guid.CreateVersion7(Now.AddMilliseconds(++_wall))), Household, EntrySubject.Baby(Baby), details, timing,
             PersonRef.ThisDevicesPerson, EntrySource.Timer, new HlcStamp(++_wall, 0, Device), Now).Value;

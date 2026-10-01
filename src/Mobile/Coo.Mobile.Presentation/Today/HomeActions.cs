@@ -37,7 +37,7 @@ public sealed record ActionOutcome(bool Succeeded, string Message);
 /// Every quick-log action of Spec 006 §5 and §6, on top of the existing use cases. Sections call these; after each,
 /// <see cref="Done"/> tells Today to refresh and show the toast.
 /// </summary>
-public sealed class HomeActions(LogEntry log, ReviseEntry revise, TimeProvider time)
+public sealed class HomeActions(LogEntry log, ReviseEntry revise, TimeProvider time, UndoService? undo = null)
 {
     public HomeContext? Context { get; set; }
 
@@ -132,7 +132,12 @@ public sealed class HomeActions(LogEntry log, ReviseEntry revise, TimeProvider t
         var subject = caregiver ? EntrySubject.Caregiver(PersonRef.ThisDevicesPerson) : EntrySubject.Baby(context.Baby);
         var result = await log.ExecuteAsync(
             new LogEntryCommand(context.Household, subject, details, timing, PersonRef.ThisDevicesPerson, source), CancellationToken.None);
-        Done?.Invoke(this, result.IsSuccess ? new(true, Strings.Format("Toast.Logged", what)) : new(false, Strings.Error(result.Error?.Code)));
+        var message = result.IsSuccess ? Strings.Format("Toast.Logged", what) : Strings.Error(result.Error?.Code);
+
+        // A quick log can be undone for 5 seconds; Undo writes a tombstone (Spec 007 §5).
+        if (result.IsSuccess && undo is not null)
+            undo.OfferUndoForLog(result.Value.Id, message);
+        Done?.Invoke(this, new(result.IsSuccess, undo is not null && result.IsSuccess ? "" : message));
     }
 
     private async Task ReviseAsync(EntryId id, Func<CareEntry, Coo.Domain.Common.Versioning.HlcStamp, DateTimeOffset, Result> change, string what)

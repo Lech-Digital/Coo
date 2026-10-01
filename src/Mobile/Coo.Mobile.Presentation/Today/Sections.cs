@@ -18,6 +18,7 @@ public sealed record RunningAction(string Label, bool IsPrimary, IAsyncRelayComm
 /// <summary>
 /// One running timer. The same instance lives as long as the session runs, and only <see cref="Title"/> and
 /// <see cref="Digits"/> change each second, so the view updates in place and taps on its buttons are never lost.
+/// <see cref="Started"/> changes when the start is moved back (Spec 007 §2).
 /// </summary>
 public sealed partial class RunningItem(EntryId id, string kindCode, string started, IReadOnlyList<RunningAction> actions) : ObservableObject
 {
@@ -25,7 +26,8 @@ public sealed partial class RunningItem(EntryId id, string kindCode, string star
 
     public string KindCode { get; } = kindCode;
 
-    public string Started { get; } = started;
+    [ObservableProperty]
+    private string _started = started;
 
     public IReadOnlyList<RunningAction> Actions { get; } = actions;
 
@@ -38,7 +40,7 @@ public sealed partial class RunningItem(EntryId id, string kindCode, string star
 
 public sealed record TileItem(string KindCode, string Name, string LastAt, IRelayCommand Command);
 
-public sealed record TimelineItem(string Time, string KindCode, string Title, string Who);
+public sealed record TimelineItem(EntryId Id, string Time, string KindCode, string Title, string Who);
 
 public sealed record FactItem(string KindCode, string Label, string Value);
 
@@ -51,6 +53,7 @@ internal static class Running
     public static RunningItem Item(CareEntry entry, HomeSnapshot s, HomeActions actions, RunningItem? existing)
     {
         var item = existing is not null && existing.Id == entry.Id ? existing : Create(entry, s, actions);
+        item.Started = Strings.Format("Hero.Started", s.Formats.Time(entry.Timing.OccurredAt));
         (item.Title, item.Digits) = entry.Details switch
         {
             BreastFeed f => (
@@ -271,7 +274,28 @@ public sealed partial class TimelineSection : ObservableObject, IHomeSection
     }
 
     internal static TimelineItem Row(StoredEntry e, HomeSnapshot s) =>
-        new(s.Formats.Time(e.Start), e.KindCode, s.Formats.Title(e, s.Now), Strings.Get("Who.You"));
+        new(e.Id, s.Formats.Time(e.Start), e.KindCode, s.Formats.Title(e, s.Now), Strings.Get("Who.You"));
+}
+
+/// <summary>"2 need attention" (Spec 007 §6): a quiet line on Today, shown only when there is something.</summary>
+public sealed partial class AttentionSection : ObservableObject, IHomeSection
+{
+    public int Order => 25;
+
+    [ObservableProperty]
+    private int _count;
+
+    [ObservableProperty]
+    private string _text = "";
+
+    public bool AppliesTo(HomeStage stage, PaletteKind palette) => stage == HomeStage.Born;
+
+    public void Update(HomeSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        Count = snapshot.AttentionCount;
+        Text = Count == 0 ? "" : Strings.Plural("Attention.Badge", Count);
+    }
 }
 
 /// <summary>Today at night: the 03:12 layout (Spec 006 §6). Big timer, three facts, the quick row.</summary>

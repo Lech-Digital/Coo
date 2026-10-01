@@ -1,3 +1,5 @@
+using Coo.Mobile.Presentation.Attention;
+using Coo.Mobile.Presentation.Edit;
 using Coo.Mobile.Presentation.Log;
 using Coo.Mobile.Presentation.Setup;
 using Coo.Mobile.Presentation.Theme;
@@ -16,17 +18,23 @@ public static class ServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         services.AddSingleton<ThemeController>();
-        services.AddSingleton<HomeActions>();
+        services.AddSingleton<UndoService>();
+        services.AddSingleton(sp => new HomeActions(
+            sp.GetRequiredService<Coo.Mobile.Application.CareLog.LogEntry>(), sp.GetRequiredService<Coo.Mobile.Application.CareLog.ReviseEntry>(),
+            sp.GetRequiredService<TimeProvider>(), sp.GetRequiredService<UndoService>()));
         services.AddSingleton<IHomeSection, BabyHeaderSection>();
         services.AddSingleton<IHomeSection, DueDateSection>();
         services.AddSingleton<IHomeSection, StatusHeroSection>();
         services.AddSingleton<IHomeSection, NightSection>();
+        services.AddSingleton<IHomeSection, AttentionSection>();
         services.AddSingleton<IHomeSection, RunningSection>();
         services.AddSingleton<IHomeSection, LogTilesSection>();
         services.AddSingleton<IHomeSection, TimelineSection>();
         services.AddSingleton<TodayViewModel>();
         services.AddTransient<SetupViewModel>();
         services.AddSingleton<LogViewModel>();
+        services.AddTransient<EditViewModel>();
+        services.AddTransient<AttentionViewModel>();
         return services;
     }
 }

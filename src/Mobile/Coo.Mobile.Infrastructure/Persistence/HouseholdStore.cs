@@ -59,7 +59,7 @@ internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time) 
                 .. Columns.Stamp(settings.Version),
                 ("$deleted", settings.IsDeleted ? 1 : 0),
             ]);
-        await Outbox.AppendAsync(connection, transaction, "HouseholdSettings", settings.Id.Value, settings.IsDeleted, settings.Version, time, cancellationToken);
+        await Outbox.AppendAsync(connection, transaction, SyncedEntityType.HouseholdSettings, settings.Id.Value, settings.IsDeleted, settings.Version, time, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
     }
 
@@ -116,7 +116,7 @@ internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time) 
                 .. Columns.Stamp(baby.Version),
                 ("$deleted", baby.IsDeleted ? 1 : 0),
             ]);
-        await Outbox.AppendAsync(connection, transaction, "BabyProfile", baby.Id.Value, baby.IsDeleted, baby.Version, time, cancellationToken);
+        await Outbox.AppendAsync(connection, transaction, SyncedEntityType.BabyProfile, baby.Id.Value, baby.IsDeleted, baby.Version, time, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
     }
 }

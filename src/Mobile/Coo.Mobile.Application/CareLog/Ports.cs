@@ -67,3 +67,11 @@ public static class ApplicationErrors
     public const string EntryNotFound = "entry.not-found";
     public const string EntryNotEditable = "entry.not-editable";
 }
+
+/// <summary>The "keep both" decisions (Spec 007 §6). Each one syncs, so no phone asks about the pair again.</summary>
+public interface IDuplicateDismissalStore
+{
+    Task SaveAsync(Coo.Domain.CareLog.Duplicates.DuplicateDismissal dismissal, CancellationToken cancellationToken);
+
+    Task<IReadOnlySet<Coo.Domain.CareLog.Duplicates.EntryPair>> ListAsync(HouseholdId household, CancellationToken cancellationToken);
+}

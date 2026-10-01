@@ -2,7 +2,7 @@
 
 Date: 2026-10-01
 
-Status: **Draft — for review**
+Status: Accepted (2026-10-01: Q1–Q6 as recommended)
 
 Depends on: Spec 001 (Revise, Retime, tombstones, plausibility, duplicates), Spec 004 (storage), Spec 006
 (Today, sheets, Log), ADR 0002 §9 (duplicates, "keep both"), ADR 0010 §3 (read-only entries).
@@ -157,3 +157,48 @@ something. Tapping it opens the **Needs attention** page (pushed, not modal), wi
 | Q4 | Plausibility warnings only in the forms (edit and earlier), never on one-tap quick logs | **Yes.** Quick logs are "now" with sensible values; warnings there would be noise. |
 | Q5 | The outbox's list of entity types moves from a database CHECK into code, through migration 0003 | **Yes.** Otherwise every new synced type rebuilds the outbox table (ADR 0010 extensibility). |
 | Q6 | "Earlier…" defaults to 15 minutes ago | **Yes.** It is the most common "I forgot" gap, and it is one tap to change. |
+
+## 12. Built and verified (2026-10-01, Pixel 10)
+
+All deliverables of §10 were checked on the owner's phone:
+
+| # | Checked |
+|---|---|
+| 1 | A wet diaper at 14:21 was edited to mixed at 13:21. The timeline, and the Log page's totals, followed. |
+| 2 | A sleep timer started at 14:35 was moved to 14:25. The timer and the hero followed. |
+| 3 | Delete, then Undo: the entry came back. Delete and wait: it was gone, also after a forced stop. |
+| 4 | Dirty by mistake, then Undo: "Undone", and no entry. |
+| 5 | "Earlier…": a 14:00 bottle and a nap from 10:00 to 11:15. The hero changed to "Awake for 3 h 20 m, after a 1 h 15 m nap". |
+| 6 | Two wet diapers a minute apart showed "1 needs attention". After Keep both, the badge stayed away, also after a restart. |
+| 7 | A 500 ml bottle showed "That is outside the usual bottle size (5–400 ml)", and saved. |
+| 8 | CI, on the push of this increment |
+
+**How it was built, where it differs from the text above:**
+
+- **The edit form is a pushed page, not a sheet.** It holds pickers, several fields and the keyboard, and a page gives
+  them Back and the full height. The quick-log sheets stay sheets.
+- **"Earlier…" sits in the feed, bottle and diaper sheets, and below the tiles.** The link below the tiles opens a
+  chooser for all five forms, because sleep and pumping start a timer at once and have no sheet.
+- **Keep this one and log-earlier have no use case of their own.** Keep this one is a delete with undo
+  (`UndoService`), and an earlier entry goes through `LogEntry` with `Source = Manual`, built by `EditViewModel` from
+  the Domain factories.
+- **The duplicate check runs when Today refreshes,** after every write and at start-up, over the last 7 days. That
+  is the same moments as §6, over a wider window.
+
+**Found on the phone, and fixed:**
+
+| Finding | Fix |
+|---|---|
+| Opening an entry crashed: warnings were computed while the form loaded, from a date of 0001-01-01, which is no valid time east of UTC | No warnings while loading; a test at +02:00 |
+| Back closed the activity without asking the pages, and MAUI's Shell teardown crashed (Android 16) | `MainActivity` sends Back to the page tree; with nothing to close, Coo moves to the background |
+| The Needs attention page did not redraw after Keep both | It redraws when its groups change |
+| "Saved · Diaper · Wet" named the old value after an edit to mixed | The toast names the entry as saved |
+| Undo, in the accent green, was hard to read on the dark toast | `VoiceInk`, bold |
+| The Android time and date pickers were Material blue | The Android theme colours are Washi's accent, day and night |
+| A running card kept "started 14:35" after its start moved | The start line is bound, and updates in place |
+
+**Carried forward:**
+
+- The duplicate pair does not show who logged each entry. On one phone it is always "You"; it matters with sync
+  (Increment 10).
+- The Android pickers follow the phone's dark mode, not Coo's own palette (they are Android's dialogs).

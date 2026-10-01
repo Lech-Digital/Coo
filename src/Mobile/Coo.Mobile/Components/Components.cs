@@ -81,7 +81,7 @@ public sealed class LogTile : ContentView
 /// <summary>Time (tabular), a 34 dp event badge, the title, and who logged it, over a hairline.</summary>
 public sealed class TimelineRow : ContentView
 {
-    public TimelineRow(string time, string kindCode, string title, string who)
+    public TimelineRow(string time, string kindCode, string title, string who, Action? onTap = null)
     {
         var look = EventAppearance.For(kindCode);
         var badge = Ui.Rounded(new Icon(look.Icon, look.Ink, 20), look.Tint, 12, new Thickness(7));
@@ -112,6 +112,8 @@ public sealed class TimelineRow : ContentView
         var line = new BoxView { HeightRequest = 1 };
         line.SetDynamicResource(BoxView.ColorProperty, "Line");
         Content = new VerticalStackLayout { Children = { grid, line } };
+        if (onTap is not null)
+            GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(onTap) });
     }
 }
 

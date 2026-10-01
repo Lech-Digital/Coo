@@ -5,6 +5,7 @@ using Coo.Domain.CareLog.Kinds.Sleep;
 using Coo.Domain.Common;
 using Coo.Domain.Common.Versioning;
 using Coo.Mobile.Application.CareLog;
+using NSubstitute;
 
 namespace Coo.Mobile.Application.Tests;
 
@@ -162,4 +163,74 @@ public sealed class DayQueriesTests
 
         public Task<StoreCounts> CountsAsync(HouseholdId household, CancellationToken cancellationToken) => throw new NotSupportedException();
     }
+}
+
+public sealed class AttentionTests
+{
+    private static readonly TimeSpan Cest = TimeSpan.FromHours(2);
+    private static readonly HouseholdId Household = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a1"));
+    private static readonly BabyId Baby = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
+    private static readonly DeviceId Device = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1"));
+    private static readonly DateTimeOffset Now = new(2026, 10, 1, 14, 0, 0, Cest);
+    private long _wall = 1;
+
+    [Fact]
+    public async Task ExecuteAsync_TwoDiapersAMinuteApart_ReportsOnePair()
+    {
+        // Arrange
+        var (a, b) = (Diaper(Now.AddMinutes(-10)), Diaper(Now.AddMinutes(-9)));
+        var store = NSubstitute.Substitute.For<ICareLogStore>();
+        store.ListAsync(Household, NSubstitute.Arg.Any<DateTimeOffset>(), NSubstitute.Arg.Any<DateTimeOffset>(), NSubstitute.Arg.Any<CancellationToken>())
+            .Returns([new LiveEntry(a), new LiveEntry(b)]);
+        var dismissals = NSubstitute.Substitute.For<IDuplicateDismissalStore>();
+        dismissals.ListAsync(Household, NSubstitute.Arg.Any<CancellationToken>()).Returns(new HashSet<Coo.Domain.CareLog.Duplicates.EntryPair>());
+
+        // Act
+        var attention = await new GetAttention(store, dismissals).ExecuteAsync(Household, Now, CancellationToken.None);
+
+        // Assert
+        attention.Duplicates.Should().ContainSingle();
+        attention.Count.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_PairKeptBoth_IsNotReported()
+    {
+        // Arrange
+        var (a, b) = (Diaper(Now.AddMinutes(-10)), Diaper(Now.AddMinutes(-9)));
+        var store = NSubstitute.Substitute.For<ICareLogStore>();
+        store.ListAsync(Household, NSubstitute.Arg.Any<DateTimeOffset>(), NSubstitute.Arg.Any<DateTimeOffset>(), NSubstitute.Arg.Any<CancellationToken>())
+            .Returns([new LiveEntry(a), new LiveEntry(b)]);
+        var dismissals = NSubstitute.Substitute.For<IDuplicateDismissalStore>();
+        dismissals.ListAsync(Household, NSubstitute.Arg.Any<CancellationToken>())
+            .Returns(new HashSet<Coo.Domain.CareLog.Duplicates.EntryPair> { new(b.Id, a.Id) });
+
+        // Act
+        var attention = await new GetAttention(store, dismissals).ExecuteAsync(Household, Now, CancellationToken.None);
+
+        // Assert
+        attention.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_QuarantinedEntry_IsReported()
+    {
+        // Arrange
+        var store = NSubstitute.Substitute.For<ICareLogStore>();
+        store.ListAsync(Household, NSubstitute.Arg.Any<DateTimeOffset>(), NSubstitute.Arg.Any<DateTimeOffset>(), NSubstitute.Arg.Any<CancellationToken>())
+            .Returns([new QuarantinedEntry(new EntryId(Guid.CreateVersion7(Now)), "feeding", Now, "breast.no-segments")]);
+        var dismissals = NSubstitute.Substitute.For<IDuplicateDismissalStore>();
+        dismissals.ListAsync(Household, NSubstitute.Arg.Any<CancellationToken>()).Returns(new HashSet<Coo.Domain.CareLog.Duplicates.EntryPair>());
+
+        // Act
+        var attention = await new GetAttention(store, dismissals).ExecuteAsync(Household, Now, CancellationToken.None);
+
+        // Assert
+        attention.Quarantined.Should().ContainSingle();
+    }
+
+    private CareEntry Diaper(DateTimeOffset at) =>
+        CareEntry.Create(new EntryId(Guid.CreateVersion7(at.AddMilliseconds(++_wall))), Household, EntrySubject.Baby(Baby),
+            new DiaperDetails(DiaperContents.Wet), EntryTiming.Point(at), PersonRef.ThisDevicesPerson, EntrySource.Manual,
+            new HlcStamp(++_wall, 0, Device), Now).Value;
 }

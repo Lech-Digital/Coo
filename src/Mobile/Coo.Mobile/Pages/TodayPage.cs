@@ -1,6 +1,7 @@
 using System.Collections.Specialized;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.CareLog.Kinds.Feeding;
+using Coo.Domain.Common;
 using Coo.Mobile.Components;
 using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Today;
@@ -14,24 +15,20 @@ public sealed class TodayPage : ContentPage
     private readonly IServiceProvider _services;
     private readonly VerticalStackLayout _sections = new() { Padding = new Thickness(0, 24, 0, 24) };
     private readonly Sheet _sheet = new();
-    private readonly Label _toastText = Ui.Text("", "BodyStrong", "VoiceInk");
-    private readonly Border _toast;
+    private readonly UndoService _undo;
     private IDispatcherTimer? _tick;
-    private int _toastVersion;
+    private bool _pageSheet;
 
-    public TodayPage(TodayViewModel model, IServiceProvider services)
+    public TodayPage(TodayViewModel model, UndoService undo, IServiceProvider services)
     {
         _model = model;
+        _undo = undo;
         _services = services;
         Shell.SetNavBarIsVisible(this, false);
 
         // The page pads its bottom for the keyboard (MAUI 10's SoftInput region), so a sheet with fields keeps them
         // and its Save button above the keyboard. Found on the phone: without it, the second field and Save were hidden.
         SafeAreaEdges = new SafeAreaEdges(SafeAreaRegions.Container, SafeAreaRegions.Container, SafeAreaRegions.Container, SafeAreaRegions.SoftInput);
-        _toast = Ui.Rounded(_toastText, "VoiceBg", 999, new Thickness(20, 14));
-        _toast.Margin = new Thickness(24, 0, 24, 16);
-        _toast.VerticalOptions = LayoutOptions.End;
-        _toast.IsVisible = false;
 
         model.Sections.CollectionChanged += OnSectionsChanged;
         model.PropertyChanged += async (_, e) =>
@@ -41,11 +38,16 @@ public sealed class TodayPage : ContentPage
             else if (e.PropertyName == nameof(TodayViewModel.Toast))
                 ShowToast(model.Toast);
         };
-        _sheet.Closed += (_, _) => model.CloseSheetCommand.Execute(null);
+        _sheet.Closed += (_, _) =>
+        {
+            _pageSheet = false;
+            model.CloseSheetCommand.Execute(null);
+        };
+
 
         var root = new Grid();
         root.Add(new ScrollView { Content = _sections });
-        root.Add(_toast);
+        root.Add(new UndoToastView(undo));
         root.Add(_sheet);
         Content = root;
     }
@@ -53,6 +55,7 @@ public sealed class TodayPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        _undo.DataChanged += OnDataChanged;
         await _model.RefreshAsync();
         Rebuild();
         _tick ??= Dispatcher.CreateTimer();
@@ -64,6 +67,7 @@ public sealed class TodayPage : ContentPage
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
+        _undo.DataChanged -= OnDataChanged;
         if (_tick is not null)
         {
             _tick.Stop();
@@ -74,11 +78,21 @@ public sealed class TodayPage : ContentPage
     /// <summary>Back closes an open sheet before it leaves the page (Spec 006 §2).</summary>
     protected override bool OnBackButtonPressed()
     {
+        if (_pageSheet)
+        {
+            _ = _sheet.HideAsync();
+            _pageSheet = false;
+            return true;
+        }
+
         if (_model.Sheet == HomeSheet.None)
             return base.OnBackButtonPressed();
         _model.CloseSheetCommand.Execute(null);
         return true;
     }
+
+    // After an undo, or a delete that the window commits, the sections show what is now stored.
+    private void OnDataChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () => await _model.RefreshAsync());
 
     private void OnTick(object? sender, EventArgs e) => _model.Tick();
 
@@ -88,7 +102,51 @@ public sealed class TodayPage : ContentPage
     {
         _sections.Children.Clear();
         foreach (var section in _model.Sections)
-            _sections.Add(SectionViews.Create(section, OpenDebug));
+            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier)));
+    }
+
+    private async void OpenEntry(EntryId id)
+    {
+        var page = _services.GetRequiredService<EditPage>();
+        await page.OpenAsync(id);
+        await Navigation.PushAsync(page);
+    }
+
+    private async void OpenAttention() => await Navigation.PushAsync(_services.GetRequiredService<AttentionPage>());
+
+    /// <summary>"Earlier…" below the tiles: which kind, then the form (Spec 007 §4).</summary>
+    private async void OpenEarlier()
+    {
+        _pageSheet = true;
+        await _sheet.ShowAsync(Panel(
+            Strings.Get("Edit.Earlier"),
+            Row(EarlierButton("feeding", "Kind.Feed"), EarlierButton("feeding", "Feed.Bottle", bottle: true)),
+            Row(EarlierButton("diaper", "Kind.Diaper"), EarlierButton("sleep", "Kind.Sleep"), EarlierButton("pump", "Kind.Pump"))));
+    }
+
+    private Button EarlierButton(string kindCode, string key, bool bottle = false)
+    {
+        var button = Big(Strings.Get(key), new Command(async () => await OpenNewAsync(kindCode, bottle)), kindCode, kindCode);
+        return button;
+    }
+
+    private View EarlierLink(string kindCode, bool bottle = false)
+    {
+        var link = Ui.Text(Strings.Get("Edit.Earlier"), "Label", "Ink2");
+        link.Padding = new Thickness(0, 8);
+        link.HorizontalOptions = LayoutOptions.End;
+        link.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await OpenNewAsync(kindCode, bottle)) });
+        return link;
+    }
+
+    private async Task OpenNewAsync(string kindCode, bool bottle)
+    {
+        _pageSheet = false;
+        _model.CloseSheetCommand.Execute(null);
+        await _sheet.HideAsync();
+        var page = _services.GetRequiredService<EditPage>();
+        await page.NewAsync(kindCode, bottle);
+        await Navigation.PushAsync(page);
     }
 
     private void OpenDebug()
@@ -123,14 +181,16 @@ public sealed class TodayPage : ContentPage
             Big(Strings.Get("Feed.Left"), _model.StartBreastCommand, BreastSide.Left, "feeding"),
             Big(Strings.Get("Feed.Right"), _model.StartBreastCommand, BreastSide.Right, "feeding")),
         Ui.Text(Strings.Get("Feed.BreastHint"), "Meta"),
-        Ghost(Strings.Get("Feed.Bottle"), _model.OpenBottleCommand));
+        Ghost(Strings.Get("Feed.Bottle"), _model.OpenBottleCommand),
+        EarlierLink("feeding"));
 
     private View DiaperSheet() => Panel(
         Strings.Get("Kind.Diaper"),
         Row(
             Big(Strings.Get("Diaper.Wet"), _model.LogDiaperCommand, DiaperContents.Wet, "diaper"),
             Big(Strings.Get("Diaper.Dirty"), _model.LogDiaperCommand, DiaperContents.Dirty, "diaper"),
-            Big(Strings.Get("Diaper.Mixed"), _model.LogDiaperCommand, DiaperContents.Mixed, "diaper")));
+            Big(Strings.Get("Diaper.Mixed"), _model.LogDiaperCommand, DiaperContents.Mixed, "diaper")),
+        EarlierLink("diaper"));
 
     private View BottleSheet()
     {
@@ -151,6 +211,7 @@ public sealed class TodayPage : ContentPage
         if (_model.Milk == BottleMilk.Both)
             children.Add(Stepper(() => _model.SecondAmount, _model.ChangeSecondAmountCommand, Strings.Get("Milk.Formula")));
         children.Add(Primary(Strings.Get("Action.LogBottle"), _model.LogBottleCommand));
+        children.Add(EarlierLink("feeding", bottle: true));
         return Panel(Strings.Get("Feed.Bottle"), [.. children]);
     }
 
@@ -255,19 +316,12 @@ public sealed class TodayPage : ContentPage
         return button;
     }
 
-    private async void ShowToast(string text)
+    /// <summary>Plain messages ("Switch side") go through the one toast; logs with Undo arrive from the service.</summary>
+    private void ShowToast(string text)
     {
         if (string.IsNullOrEmpty(text))
             return;
-
-        // Each toast shows for 3 seconds; a newer one replaces it, and the older timer then does nothing.
-        var version = ++_toastVersion;
-        _toastText.Text = text;
-        _toast.IsVisible = true;
-        await Task.Delay(3000);
-        if (version != _toastVersion)
-            return;
-        _toast.IsVisible = false;
+        _undo.Say(text);
         _model.Toast = "";
     }
 }

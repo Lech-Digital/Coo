@@ -87,3 +87,6 @@ local.properties
 
 # The template ignores [Ll]og/ for build logs; source folders named Log (the Log screen) must not be ignored.
 !src/**/Log/
+
+# Python bytecode from eng/strings
+__pycache__/

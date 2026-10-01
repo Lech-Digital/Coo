@@ -116,6 +116,19 @@ fonts.
 - **Inside the `Coo.Mobile` namespace, `Application` and `Platform` name projects,** not the MAUI types. Use
   `Microsoft.Maui.Controls.Application` and `Microsoft.Maui.ApplicationModel.Platform`.
 
+## MAUI lessons from Increment 7
+
+- **Android 16 finishes the activity on Back without asking MAUI,** and the Shell teardown then crashes
+  (`ObjectDisposedException` in `ShellFragmentContainer.OnDestroy`). `MainActivity` registers an
+  `OnBackPressedCallback` that sends Back to the page tree, and moves Coo to the background when nothing is left to
+  close. Pushed pages pop themselves in `OnBackButtonPressed`.
+- **A view model that reacts to its own property changes runs while it loads.** Guard it, or a half-filled form
+  (a `DateTime` of 0001-01-01) throws east of UTC. Tests that touch local time run in a +02:00 zone.
+- **Android's own dialogs (date and time pickers) take `colorPrimary` and `colorAccent`** from
+  `Platforms/Android/Resources/values/colors.xml`, not the MAUI resources.
+- **`uiautomator dump` fails while a view ticks every second,** so the tap helper finds nothing on Today with a timer
+  running. Tap by coordinates there.
+
 ## Traps that are designed out
 
 | Sibling-app failure | Why it cannot happen here |

@@ -3,6 +3,7 @@ using Coo.Mobile.Components;
 using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Log;
 using Coo.Mobile.Presentation.Theme;
+using Coo.Mobile.Presentation.Today;
 
 namespace Coo.Mobile.Pages;
 
@@ -11,21 +12,38 @@ public sealed class LogPage : ContentPage
 {
     private readonly LogViewModel _model;
     private readonly ThemeController _theme;
+    private readonly IServiceProvider _services;
+    private readonly UndoService _undo;
     private readonly ContentView _body = new();
 
-    public LogPage(LogViewModel model, ThemeController theme)
+    public LogPage(LogViewModel model, ThemeController theme, UndoService undo, IServiceProvider services)
     {
         _model = model;
+        _undo = undo;
         _theme = theme;
+        _services = services;
         Shell.SetNavBarIsVisible(this, false);
         model.PropertyChanged += OnChanged;
         theme.PaletteChanged += (_, _) => Dispatcher.Dispatch(Render);
-        Content = new ScrollView { Content = _body };
+        var root = new Grid();
+        root.Add(new ScrollView { Content = _body });
+        root.Add(new UndoToastView(undo));
+        Content = root;
     }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        _undo.DataChanged -= OnDataChanged;
+    }
+
+    // After an undo, or a delete that the window commits, the page shows what is now stored.
+    private void OnDataChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () => await _model.RefreshAsync());
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        _undo.DataChanged += OnDataChanged;
         await _model.RefreshAsync();
         Render();
     }
@@ -34,6 +52,13 @@ public sealed class LogPage : ContentPage
     {
         if (e.PropertyName == nameof(LogViewModel.Rows))
             Dispatcher.Dispatch(Render);
+    }
+
+    private async void OpenEntry(Coo.Domain.Common.EntryId id)
+    {
+        var page = _services.GetRequiredService<EditPage>();
+        await page.OpenAsync(id);
+        await Navigation.PushAsync(page);
     }
 
     private void Render()
@@ -77,7 +102,10 @@ public sealed class LogPage : ContentPage
         if (_model.Rows.Count == 0)
             timeline.Add(Ui.Text(Strings.Get("Timeline.Empty"), "Body", "Ink2"));
         foreach (var row in _model.Rows)
-            timeline.Add(new TimelineRow(row.Time, row.KindCode, row.Title, row.Who));
+        {
+            var id = row.Id;
+            timeline.Add(new TimelineRow(row.Time, row.KindCode, row.Title, row.Who, () => OpenEntry(id)));
+        }
 
         _body.Content = new VerticalStackLayout
         {
