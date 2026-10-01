@@ -230,6 +230,11 @@ Each takes a stamp. `today` is passed in where a rule needs it.
 
 The pseudonymiser reuses it. Inflection matching belongs to the pseudonymiser, not the domain.
 
+**Amended by Spec 006 §3a (2026-10-01): an expected baby.** `BirthDate` is optional. A profile needs a
+birth date or a due date (`baby.birth-or-due-date-required`). While unborn, the due date lies between
+6 weeks before and 44 weeks after `today`. `RecordBirth(birthDate, version, today)` sets the birth date,
+and `IsBorn` reports it.
+
 ### 5.2 Age
 
 `BabyAge.On(profile, today)` returns:

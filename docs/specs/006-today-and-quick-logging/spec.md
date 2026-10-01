@@ -2,7 +2,7 @@
 
 Date: 2026-10-01
 
-Status: **Draft — for review**
+Status: Accepted (2026-10-01: Q1–Q8 as recommended; §3a added at the owner's request)
 
 Depends on: Spec 001 (domain), Spec 004 (storage), Spec 005 (styles and components), ADR 0006
 (seven languages), the design system and `docs/design/washi-ux.html` (Today, Log, and the 03:12 night
@@ -59,6 +59,51 @@ localized text from their codes.
 - Nicknames, a second baby, and units are changed in settings later.
 - Units default from the region (Spec 004 §3).
 - No account and no network are needed (ADR 0003 §1).
+
+## 3a. Expecting a baby: room for pregnancy features later
+
+The owner wants room for pregnancy features later: tips before the birth, information, exercises,
+perhaps a contraction timer. **None of them is built now.** What is built is the room for them, so
+that adding them later is a new feature, not a rework.
+
+**The baby can be expected, not only born.**
+
+- `BabyProfile` gets an optional `BirthDate`. A profile needs a **birth date or a due date**
+  (`baby.birth-or-due-date-required`). While the birth date is missing, the baby is **expected**.
+- An expected baby's due date must be at most 44 weeks ahead of today, and at most 6 weeks behind it,
+  because babies come late (`baby.due-date-out-of-range`).
+- `RecordBirth(birthDate, version, today)` turns an expected baby into a born one. The due date is
+  kept, and is checked against the birth date as before, so corrected age works for a preterm birth.
+- `BabyProfile.IsBorn`, and `BabyAge.On` is defined only for a born baby.
+- Storage: `baby_profiles.birth_date` becomes nullable, through **migration 0002**, a table rebuild
+  with `CHECK (birth_date IS NOT NULL OR due_date IS NOT NULL)`. Script 0001 is on the owner's phone
+  already, so it is not edited: this is the first real use of "a fix is a new script" (Spec 004 §7.1).
+  A test migrates a 0001 database with data to 0002 and checks that nothing is lost.
+
+**Setup** asks "Has the baby arrived?":
+
+- **Yes:** the name and the birth date, plus the optional due date, as in §3.
+- **Not yet:** a name, which may be a placeholder ("Baby"), and the due date.
+
+**Today is built from stage-aware sections.** An `IHomeSection` extension point (ADR 0010 §5) lets a
+feature add a section to Today for a stage, `Expecting` or `Born`. Today itself only lays out the
+sections for the current stage, in order:
+
+- **Born:** the sections of §4. They are written as sections too, so Today has no special case.
+- **Expecting:** one section now, **the due-date card**: "Due in 6 weeks · 14 November" (or
+  "Due today", or "3 days past the due date"), with **The baby has arrived**, which records the
+  birth and switches Today to the born stage. The log tiles are not shown while the baby is
+  expected.
+
+**How the later features would fit:**
+
+| Later feature | Fits as |
+|---|---|
+| Tips and information before the birth | An `Expecting` home section, with localized content |
+| Exercises | An `Expecting` home section, and perhaps its own page |
+| Contraction timer | A new entry kind `contraction` (ADR 0010 §4): a session about the pregnant parent (subject `Caregiver`), with a Today section for the timer and a "time between contractions" readout. It syncs, exports and survives app kills like every other kind, with no migration. |
+
+This adds one decision, Q8 below.
 
 ## 4. Today (day palette)
 
@@ -207,3 +252,4 @@ is tested on the global SDK.
 | Q5 | The debug screen leaves the normal flow. In Debug builds and `-p:CooDebugScreen=true` builds, a long press on the Coo wordmark opens it. | **Yes.** The read-guard tools stay available for testing. |
 | Q6 | I write all seven languages now, marked for native review before release | **Yes.** A parent can use it in their own language today, and the review stays on the release checklist. |
 | Q7 | Today switches to the 03:12 night layout whenever the palette is Night | **Yes.** It is the design system's "night is a mode, not a theme". |
+| Q8 | Room for pregnancy features: an expected baby (due date, no birth date yet), `RecordBirth`, migration 0002, and Today built from stage-aware `IHomeSection`s, with only the due-date card for now | **Yes** (asked for by the owner). The later features become additions, not changes. |

@@ -208,6 +208,7 @@ and consumed by the shared surface:
 | `IReportSection` | PDF reports | A growth-chart page |
 | `INeedsAttentionSource` | "Needs attention" list | A stash item nearing expiry |
 | `ISettingsSection` | The settings screen | Per-feature preferences |
+| `IHomeSection` (stage-aware: `Expecting`, `Born`) | The Today screen (Spec 006 §3a) | Pregnancy tips, exercises, a contraction timer |
 
 Rules:
 
