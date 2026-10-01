@@ -11,7 +11,8 @@
       "src/Shared/Coo.Codecs/Coo.Codecs.csproj",
       "src/Shared/Coo.Contracts/Coo.Contracts.csproj",
       "src/Shared/Coo.Domain/Coo.Domain.csproj",
-      "tests/Coo.Architecture.Tests/Coo.Architecture.Tests.csproj"
+      "tests/Coo.Architecture.Tests/Coo.Architecture.Tests.csproj",
+      "tests/Coo.Domain.Tests/Coo.Domain.Tests.csproj"
     ]
   }
 }

@@ -19,5 +19,6 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Coo.Architecture.Tests/Coo.Architecture.Tests.csproj" />
+    <Project Path="tests/Coo.Domain.Tests/Coo.Domain.Tests.csproj" />
   </Folder>
 </Solution>

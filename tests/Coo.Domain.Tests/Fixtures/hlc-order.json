@@ -1,0 +1,14 @@
+{
+  "description": "HLC stamps in ascending order. Shared with the Wear OS app (ADR 0009): both implementations must sort a shuffled copy back into exactly this order. DeviceId compares as its 16 bytes in RFC 4122 big-endian order, each byte UNSIGNED. Beware: java.util.UUID.compareTo compares signed longs and puts ffffffff-... before 7fffffff-...; the last pair catches that.",
+  "stamps": [
+    { "wallClockMs": 1790000000000, "counter": 0, "deviceId": "ffffffff-ffff-7fff-bfff-ffffffffffff" },
+    { "wallClockMs": 1790000000000, "counter": 1, "deviceId": "00000000-0000-7000-8000-000000000001" },
+    { "wallClockMs": 1790000000000, "counter": 2, "deviceId": "00000000-0000-7000-8000-000000000001" },
+    { "wallClockMs": 1790000000001, "counter": 0, "deviceId": "00000001-0000-7000-8000-000000000000" },
+    { "wallClockMs": 1790000000001, "counter": 0, "deviceId": "01000000-0000-7000-8000-000000000000" },
+    { "wallClockMs": 1790000000001, "counter": 0, "deviceId": "01000000-0100-7000-8000-000000000000" },
+    { "wallClockMs": 1790000000001, "counter": 0, "deviceId": "01000000-0100-7001-8000-000000000000" },
+    { "wallClockMs": 1790000000002, "counter": 0, "deviceId": "7fffffff-ffff-7fff-bfff-ffffffffffff" },
+    { "wallClockMs": 1790000000002, "counter": 0, "deviceId": "ffffffff-ffff-7fff-bfff-ffffffffffff" }
+  ]
+}

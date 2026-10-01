@@ -354,12 +354,15 @@ therefore never needs an "unknown" branch.
 2. **Kind lookup:** the details type is registered in `EntryKinds.All` (`kind.unknown`, which is
    a programming error on any client that compiled the kind).
 3. **Subject:** the subject type matches the kind (`entry.subject-not-allowed`).
-4. **Timing shape:** the kind's `TimingFor(details)` allows this shape (`entry.timing-shape-not-allowed`).
+4. **Change rules** (`Revise` only): the kind's `ValidateChange(before, after)`, for example
+   `feeding.method-change-not-allowed`. This runs before the timing shape, so a breast feed revised into a
+   bottle reports the method change, not the shape that would follow from it.
+5. **Timing shape:** the kind's `TimingFor(details)` allows this shape (`entry.timing-shape-not-allowed`).
    Derived timing must match what the details imply.
-5. **Future bound:** no instant is more than **24 hours** after `now` (`time.too-far-in-future`).
+6. **Future bound:** no instant is more than **24 hours** after `now` (`time.too-far-in-future`).
    This matches the HLC bound. The everyday "a few minutes ahead" case is a warning (§8), so that a
    phone with a fast clock can still log "now".
-6. **The kind's own rules:** `IEntryKind.Validate`, in the order listed for each kind in §7.
+7. **The kind's own rules:** `IEntryKind.Validate`, in the order listed for each kind in §7.
 
 ## 7. Entry kinds (`Coo.Domain/CareLog/Kinds`)
 
