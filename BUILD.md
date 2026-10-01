@@ -68,7 +68,11 @@ Verified on 2026-10-01, on a Pixel 10:
 - The app installs, starts, and logs no exceptions.
 - No `TrimmerRootAssembly` is needed, because the persistence code uses no reflection (Spec 004 §13).
 
-Measure the cold start with the phone **unlocked**: a locked screen distorts it.
+Measured on the same Pixel 10 with the screen unlocked: the first launch after install, including the migrations,
+took about 860 ms to the first frame (`TotalTime`). Later cold starts took 530–850 ms. Build 2 installed over build 1
+kept all data, and its integrity scan ran once.
+
+Measure the cold start with the phone **unlocked**: a locked screen distorts it (it read about 3 s).
 
 ```sh
 ~/android-sdk/platform-tools/adb shell am force-stop com.lechdigital.coo

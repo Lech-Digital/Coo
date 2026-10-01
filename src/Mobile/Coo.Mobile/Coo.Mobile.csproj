@@ -13,7 +13,7 @@
     <ApplicationTitle>Coo</ApplicationTitle>
     <ApplicationId>com.lechdigital.coo</ApplicationId>
     <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
-    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationVersion>2</ApplicationVersion>
 
     <!-- Android 8.0: notification channels always exist (Spec 002 §3.1, ADR 0007). -->
     <SupportedOSPlatformVersion>26.0</SupportedOSPlatformVersion>

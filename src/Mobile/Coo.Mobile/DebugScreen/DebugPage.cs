@@ -59,8 +59,16 @@ public sealed class DebugPage : ContentPage
                     Row(Button("Breast L start", StartBreast),
                         Button("Switch side", () => ReviseLatestBreast((d, now) => d.SwitchSide(now))),
                         Button("Complete", () => ReviseLatestBreast((d, now) => d.Complete(now)))),
-                    Row(Button("Corrupt one row", () => _diagnostics.InsertMalformedRowAsync(_household, _baby, CancellationToken.None)),
-                        Button("Foreign row", () => _diagnostics.InsertForeignKindRowAsync(_household, _baby, CancellationToken.None))),
+                    Row(Button("Corrupt one row", async () =>
+                        {
+                            await _diagnostics.InsertMalformedRowAsync(_household, _baby, CancellationToken.None);
+                            Report(Result.Success);
+                        }),
+                        Button("Foreign row", async () =>
+                        {
+                            await _diagnostics.InsertForeignKindRowAsync(_household, _baby, CancellationToken.None);
+                            Report(Result.Success);
+                        })),
                     new Label { Text = "Last 20 entries", FontSize = 17, Margin = new Thickness(0, 12, 0, 0) },
                     _list,
                 },
@@ -155,12 +163,14 @@ public sealed class DebugPage : ContentPage
 
     private async Task RefreshAsync()
     {
+        // Read the entries first: reading classifies new rows, so the counters below are current.
+        var recent = await RecentAsync();
         var counts = await _store.CountsAsync(_household, CancellationToken.None);
         _status.Text += $"\nOutbox {counts.PendingOutbox} · read-only {counts.ReadOnly} · quarantined {counts.Quarantined}" +
                         $"\n{AppInfo.Current.VersionString} ({AppInfo.Current.BuildString}) · {_diagnostics.DatabasePath}";
 
         _list.Children.Clear();
-        foreach (var stored in (await RecentAsync()).Take(20))
+        foreach (var stored in recent.Take(20))
         {
             var id = stored.Id;
             _list.Children.Add(Row(
