@@ -31,6 +31,9 @@ public sealed partial class RunningItem(EntryId id, string kindCode, string star
 
     public IReadOnlyList<RunningAction> Actions { get; } = actions;
 
+    /// <summary>The language its button labels were made in; another language means a new item (Spec 009 §3.5).</summary>
+    public string Language { get; } = Strings.Language;
+
     [ObservableProperty]
     private string _title = "";
 
@@ -52,7 +55,7 @@ internal static class Running
     /// <summary>Reuses the item for a session that is still running, so its view and buttons stay put.</summary>
     public static RunningItem Item(CareEntry entry, HomeSnapshot s, HomeActions actions, RunningItem? existing)
     {
-        var item = existing is not null && existing.Id == entry.Id ? existing : Create(entry, s, actions);
+        var item = existing is not null && existing.Id == entry.Id && existing.Language == Strings.Language ? existing : Create(entry, s, actions);
         item.Started = Strings.Format("Hero.Started", s.Formats.Time(entry.Timing.OccurredAt));
         (item.Title, item.Digits) = entry.Details switch
         {
@@ -214,7 +217,7 @@ public sealed partial class RunningSection(HomeActions actions) : ObservableObje
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         var next = (snapshot.Today?.Running ?? []).Select(e => Running.Item(e, snapshot, actions, Items.FirstOrDefault(i => i.Id == e.Id))).ToList();
-        if (Running.Changed(Items, next, i => i.Id.ToString()))
+        if (Running.Changed(Items, next, i => i.Id + i.Language))
             Items = next;
     }
 }
@@ -337,7 +340,7 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
         BabyName = s.Baby.Name;
         var running = (t?.Running ?? []).OrderBy(e => e.Details is SleepDetails ? 1 : 0).ThenBy(e => e.Timing.OccurredAt);
         var timers = running.Select(e => Running.Item(e, s, actions, Timers.FirstOrDefault(i => i.Id == e.Id))).ToList();
-        if (Running.Changed(Timers, timers, i => i.Id.ToString()))
+        if (Running.Changed(Timers, timers, i => i.Id + i.Language))
             Timers = timers;
 
         var feed = t?.LastFeed is { } f ? f.Details switch
