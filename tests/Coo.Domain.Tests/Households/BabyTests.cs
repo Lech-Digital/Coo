@@ -109,3 +109,94 @@ public sealed class BabyTests
         age.IsBeforeDueDate.Should().BeTrue();
     }
 }
+
+public sealed class ExpectedBabyTests
+{
+    private static readonly DateOnly Today = new(2026, 10, 1);
+
+    [Fact]
+    public void Create_DueDateOnly_IsExpected()
+    {
+        // Arrange
+        var due = Today.AddDays(42);
+
+        // Act
+        var baby = BabyProfile.Create(A.Baby, A.Household, "Baby", [], null, due, A.Stamp(), Today).Value;
+
+        // Assert
+        baby.IsBorn.Should().BeFalse();
+        baby.DueDate.Should().Be(due);
+    }
+
+    [Fact]
+    public void Create_NeitherBirthNorDueDate_FailsWithBirthOrDueDateRequired()
+    {
+        // Arrange
+        DateOnly? none = null;
+
+        // Act
+        var result = BabyProfile.Create(A.Baby, A.Household, "Baby", [], none, none, A.Stamp(), Today);
+
+        // Assert
+        result.Error!.Code.Should().Be(BabyErrors.BirthOrDueDateRequired);
+    }
+
+    [Theory]
+    [InlineData(-42, true)]
+    [InlineData(-43, false)]
+    [InlineData(308, true)]
+    [InlineData(309, false)]
+    public void Create_ExpectedDueDateAtBounds_AcceptsSixWeeksPastToFortyFourAhead(int days, bool accepted)
+    {
+        // Arrange
+        var due = Today.AddDays(days);
+
+        // Act
+        var result = BabyProfile.Create(A.Baby, A.Household, "Baby", [], null, due, A.Stamp(), Today);
+
+        // Assert
+        result.IsSuccess.Should().Be(accepted);
+    }
+
+    [Fact]
+    public void RecordBirth_ExpectedBaby_BecomesBornAndKeepsDueDate()
+    {
+        // Arrange: born three weeks early.
+        var due = Today.AddDays(21);
+        var baby = BabyProfile.Create(A.Baby, A.Household, "Baby", [], null, due, A.Stamp(), Today).Value;
+
+        // Act
+        var result = baby.RecordBirth(Today, A.Stamp(), Today);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        baby.IsBorn.Should().BeTrue();
+        BabyAge.On(baby, Today.AddDays(30)).IsCorrected.Should().BeTrue();
+    }
+
+    [Fact]
+    public void RecordBirth_AlreadyBorn_FailsWithAlreadyBorn()
+    {
+        // Arrange
+        var baby = BabyProfile.Create(A.Baby, A.Household, "Maja", [], Today.AddDays(-10), null, A.Stamp(), Today).Value;
+
+        // Act
+        var result = baby.RecordBirth(Today, A.Stamp(), Today);
+
+        // Assert
+        result.Error!.Code.Should().Be(BabyErrors.AlreadyBorn);
+    }
+
+    [Fact]
+    public void On_ExpectedBaby_Throws()
+    {
+        // Arrange
+        var baby = BabyProfile.Create(A.Baby, A.Household, "Baby", [], null, Today.AddDays(30), A.Stamp(), Today).Value;
+
+        // Act
+        var act = () => BabyAge.On(baby, Today);
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>();
+    }
+}

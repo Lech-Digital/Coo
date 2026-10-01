@@ -10,13 +10,16 @@ public sealed record BabyAge(int ActualDays, int CorrectedDays, bool IsCorrected
 
     public int CorrectedWeeks => CorrectedDays / 7;
 
+    /// <summary>The age of a born baby. Asking for an expected baby's age is a programming error: check <c>IsBorn</c>.</summary>
     public static BabyAge On(BabyProfile profile, DateOnly today)
     {
         ArgumentNullException.ThrowIfNull(profile);
+        var birth = profile.BirthDate
+            ?? throw new InvalidOperationException("An expected baby has no age yet; check IsBorn first.");
 
-        var actual = Math.Max(0, today.DayNumber - profile.BirthDate.DayNumber);
-        var preterm = profile.DueDate is { } due && due > profile.BirthDate;
-        var underLimit = today < profile.BirthDate.AddMonths(CorrectedAgeUntilMonths);
+        var actual = Math.Max(0, today.DayNumber - birth.DayNumber);
+        var preterm = profile.DueDate is { } due && due > birth;
+        var underLimit = today < birth.AddMonths(CorrectedAgeUntilMonths);
 
         if (!preterm || !underLimit)
             return new BabyAge(actual, actual, IsCorrected: false, IsBeforeDueDate: false);

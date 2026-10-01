@@ -48,11 +48,18 @@ public sealed class StartupPage : ContentPage
         theme.PaletteChanged += (_, kind) => MainThread.BeginInvokeOnMainThread(() => host.Apply(kind));
         await theme.StartAsync(CancellationToken.None);
 
-#if DEBUG_SCREEN
-        Page next = _services.GetRequiredService<DebugScreen.DebugPage>();
-#else
-        Page next = _services.GetRequiredService<PlaceholderPage>();
-#endif
-        Window.Page = next;
+        // The first real page (Spec 006 §3): setup when the household has no baby yet, Today otherwise.
+        var households = _services.GetRequiredService<IHouseholdStore>();
+        var household = (await households.ListHouseholdsAsync(CancellationToken.None)).First(h => !h.IsDeleted);
+        if ((await households.ListBabiesAsync(household.Id, CancellationToken.None)).Count > 0)
+        {
+            Window.Page = _services.GetRequiredService<AppShell>();
+            return;
+        }
+
+        var setup = _services.GetRequiredService<Pages.SetupPage>();
+        ((Coo.Mobile.Presentation.Setup.SetupViewModel)setup.BindingContext).Completed +=
+            (_, _) => MainThread.BeginInvokeOnMainThread(() => Window.Page = _services.GetRequiredService<AppShell>());
+        Window.Page = setup;
     }
 }

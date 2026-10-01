@@ -69,7 +69,7 @@ internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time) 
         await using var command = connection.Command(
             """
             SELECT id, household_id, name, nicknames, birth_date, due_date, version_wall_ms, version_counter, version_device, is_deleted
-            FROM baby_profiles WHERE household_id = $household AND is_deleted = 0 ORDER BY birth_date, name;
+            FROM baby_profiles WHERE household_id = $household AND is_deleted = 0 ORDER BY coalesce(birth_date, due_date), name;
             """,
             null,
             ("$household", Columns.Id(household.Value)));
@@ -82,7 +82,7 @@ internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time) 
                 new HouseholdId(Guid.Parse(r.GetString(1))),
                 r.GetString(2),
                 JsonSerializer.Deserialize(r.GetString(3), StringListJson.Default.ListString) ?? [],
-                DateOnly.ParseExact(r.GetString(4), "yyyy-MM-dd", CultureInfo.InvariantCulture),
+                r.IsDBNull(4) ? null : DateOnly.ParseExact(r.GetString(4), "yyyy-MM-dd", CultureInfo.InvariantCulture),
                 r.IsDBNull(5) ? null : DateOnly.ParseExact(r.GetString(5), "yyyy-MM-dd", CultureInfo.InvariantCulture),
                 Columns.ParseStamp(r.GetInt64(6), r.GetInt64(7), r.GetString(8))!.Value,
                 r.GetInt64(9) == 1));
@@ -111,7 +111,7 @@ internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time) 
                 ("$household", Columns.Id(baby.HouseholdId.Value)),
                 ("$name", baby.Name),
                 ("$nicknames", JsonSerializer.Serialize(baby.Nicknames.ToList(), StringListJson.Default.ListString)),
-                ("$birth", baby.BirthDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+                ("$birth", baby.BirthDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
                 ("$due", baby.DueDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
                 .. Columns.Stamp(baby.Version),
                 ("$deleted", baby.IsDeleted ? 1 : 0),

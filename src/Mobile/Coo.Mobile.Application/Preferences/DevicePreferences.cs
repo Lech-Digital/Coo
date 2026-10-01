@@ -37,3 +37,9 @@ public interface IDevicePreferences
 
     Task SetAppearanceAsync(AppearancePreferences preferences, CancellationToken cancellationToken);
 }
+
+/// <summary>Whether the phone shows 24-hour times. It follows the Android setting, not the language (ADR 0006 §5).</summary>
+public interface IClockFormat
+{
+    bool Is24Hour { get; }
+}

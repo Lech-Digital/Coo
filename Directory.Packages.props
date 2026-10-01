@@ -10,6 +10,7 @@
     <!-- Runtime -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.12" />
     <!-- Matches the installed maui-android workload (10.0.0); see BUILD.md. -->
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <!-- Phone storage: plain SQLite, no ORM (Spec 004 §13). The bundle ships its own SQLite with JSON built in. -->
     <PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="10.0.0" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.13" />

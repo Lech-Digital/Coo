@@ -49,7 +49,7 @@ public sealed class Card : ContentView
 /// <summary>A 96 dp square in the event tint: icon, name, and a "last at" line such as "12:40 · L".</summary>
 public sealed class LogTile : ContentView
 {
-    public LogTile(string kindCode, string name, string lastAt)
+    public LogTile(string kindCode, string name, string lastAt, System.Windows.Input.ICommand? command = null, bool fill = false)
     {
         var look = EventAppearance.For(kindCode);
         var stack = new VerticalStackLayout
@@ -63,8 +63,11 @@ public sealed class LogTile : ContentView
             },
         };
         var tile = Ui.Rounded(stack, look.Tint, 20, new Thickness(12));
-        tile.WidthRequest = 96;
+        if (!fill)
+            tile.WidthRequest = 96;
         tile.MinimumHeightRequest = 96;
+        if (command is not null)
+            tile.GestureRecognizers.Add(new TapGestureRecognizer { Command = command });
         Content = tile;
     }
 }
@@ -175,5 +178,15 @@ public sealed class NightTimer : ContentView
         var elapsed = _time.GetUtcNow() - _start;
         return elapsed.TotalHours >= 1 ? elapsed.ToString(@"h\:mm\:ss", System.Globalization.CultureInfo.InvariantCulture)
             : elapsed.ToString(@"mm\:ss", System.Globalization.CultureInfo.InvariantCulture);
+    }
+}
+
+/// <summary>Configures a view inline while building a tree in C#.</summary>
+internal static class ViewExtensions
+{
+    public static T Tap<T>(this T view, Action<T> configure)
+    {
+        configure(view);
+        return view;
     }
 }

@@ -1,7 +1,9 @@
 using Coo.Mobile.Application;
 using Coo.Mobile.Components;
 using Coo.Mobile.Infrastructure;
+using Coo.Mobile.Pages;
 using Coo.Mobile.Platform;
+using Coo.Mobile.Presentation;
 using Coo.Mobile.Presentation.Theme;
 using Coo.Mobile.Resources.Styles;
 
@@ -31,13 +33,16 @@ public static class MauiProgram
             databasePath: Path.Combine(FileSystem.AppDataDirectory, "coo.db"),
             appVersion: $"{AppInfo.Current.VersionString}+{AppInfo.Current.BuildString}");
         builder.Services.AddMobilePlatform();
+        builder.Services.AddMobilePresentation();
 
         builder.Services.AddSingleton<ThemeHost>();
         builder.Services.AddSingleton<IOsAppearance>(sp => sp.GetRequiredService<ThemeHost>());
-        builder.Services.AddSingleton<ThemeController>();
 
         builder.Services.AddTransient<StartupPage>();
-        builder.Services.AddTransient<PlaceholderPage>();
+        builder.Services.AddTransient<SetupPage>();
+        builder.Services.AddTransient<TodayPage>();
+        builder.Services.AddTransient<LogPage>();
+        builder.Services.AddTransient<AppShell>();
 #if DEBUG_SCREEN
         builder.Services.AddTransient<DebugScreen.DebugPage>();
         builder.Services.AddTransient<DebugScreen.GalleryPage>();

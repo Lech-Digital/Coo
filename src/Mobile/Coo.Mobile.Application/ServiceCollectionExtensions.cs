@@ -15,6 +15,10 @@ public static class ServiceCollectionExtensions
         services.AddTransient<DeleteEntry>();
         services.AddTransient<GetEntries>();
         services.AddTransient<EnsureProvisionalHousehold>();
+        services.AddTransient<GetToday>();
+        services.AddTransient<GetDay>();
+        services.AddTransient<SetUpBaby>();
+        services.AddTransient<RecordBirth>();
         return services;
     }
 }

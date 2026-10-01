@@ -181,12 +181,3 @@ public sealed class GalleryPage : ContentPage
         return row;
     }
 }
-
-internal static class ViewExtensions
-{
-    public static T Tap<T>(this T view, Action<T> configure)
-    {
-        configure(view);
-        return view;
-    }
-}

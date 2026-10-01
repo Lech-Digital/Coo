@@ -1,3 +1,4 @@
+using Coo.Mobile.Application.Preferences;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Coo.Mobile.Platform;
@@ -8,6 +9,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddMobilePlatform(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
+        services.AddSingleton<IClockFormat, AndroidClockFormat>();
         return services;
     }
 }

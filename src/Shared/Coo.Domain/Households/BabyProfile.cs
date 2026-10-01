@@ -3,7 +3,10 @@ using Coo.Domain.Common.Versioning;
 
 namespace Coo.Domain.Households;
 
-/// <summary>A baby in a household (Spec 001 §5.1).</summary>
+/// <summary>
+/// A baby in a household (Spec 001 §5.1), born or still expected (Spec 006 §3a). An expected baby has a due date and
+/// no birth date yet; <see cref="RecordBirth"/> turns it into a born one.
+/// </summary>
 public sealed class BabyProfile : SyncedRecord<BabyId>
 {
     public const int NameMaxLength = 40;
@@ -11,9 +14,15 @@ public sealed class BabyProfile : SyncedRecord<BabyId>
     public static readonly int DueDateEarliestDaysBeforeBirth = 6 * 7;
     public static readonly int DueDateLatestDaysAfterBirth = 24 * 7;
 
+    /// <summary>While expected, a due date may lie up to 6 weeks in the past: babies come late.</summary>
+    public static readonly int ExpectedDueDateLatestDaysPast = 6 * 7;
+
+    /// <summary>While expected, a due date may lie up to 44 weeks ahead: a whole pregnancy, and a margin.</summary>
+    public static readonly int ExpectedDueDateLatestDaysAhead = 44 * 7;
+
     private BabyProfile(
         BabyId id, HouseholdId householdId, string name, IReadOnlyList<string> nicknames,
-        DateOnly birthDate, DateOnly? dueDate, HlcStamp version, bool isDeleted)
+        DateOnly? birthDate, DateOnly? dueDate, HlcStamp version, bool isDeleted)
         : base(id, householdId, version, isDeleted)
     {
         Name = name;
@@ -27,14 +36,20 @@ public sealed class BabyProfile : SyncedRecord<BabyId>
     /// <summary>What parents actually call the baby; hidden from the AI like the name (ADR 0005 §4a).</summary>
     public IReadOnlyList<string> Nicknames { get; private set; }
 
-    public DateOnly BirthDate { get; private set; }
+    /// <summary>Null while the baby is expected (Spec 006 §3a).</summary>
+    public DateOnly? BirthDate { get; private set; }
 
-    /// <summary>Set for a preterm baby, so the predictor uses the corrected age (ADR 0008 §2).</summary>
+    /// <summary>
+    /// For an expected baby, when the baby is due. For a born preterm baby, it gives the corrected age
+    /// (ADR 0008 §2).
+    /// </summary>
     public DateOnly? DueDate { get; private set; }
+
+    public bool IsBorn => BirthDate is not null;
 
     public static Result<BabyProfile> Create(
         BabyId id, HouseholdId householdId, string name, IEnumerable<string> nicknames,
-        DateOnly birthDate, DateOnly? dueDate, HlcStamp version, DateOnly today)
+        DateOnly? birthDate, DateOnly? dueDate, HlcStamp version, DateOnly today)
     {
         ArgumentNullException.ThrowIfNull(nicknames);
 
@@ -43,8 +58,7 @@ public sealed class BabyProfile : SyncedRecord<BabyId>
         var outcome = Result.FirstFailure(
             () => CheckName(cleanName),
             () => CheckNicknames(cleanName, cleanNicknames),
-            () => CheckBirthDate(birthDate, today),
-            () => CheckDueDate(birthDate, dueDate));
+            () => CheckDates(birthDate, dueDate, today));
 
         return outcome.IsSuccess
             ? new BabyProfile(id, householdId, cleanName!, cleanNicknames!.AsReadOnly()!, birthDate, dueDate, version, isDeleted: false)
@@ -64,15 +78,26 @@ public sealed class BabyProfile : SyncedRecord<BabyId>
         return Apply(version, () => CheckNicknames(Name, clean), () => Nicknames = clean!.AsReadOnly()!);
     }
 
-    public Result SetBirthDate(DateOnly birthDate, HlcStamp version, DateOnly today) =>
-        Apply(version, () => Result.FirstFailure(() => CheckBirthDate(birthDate, today), () => CheckDueDate(birthDate, DueDate)), () => BirthDate = birthDate);
+    /// <summary>The baby has arrived. The due date is kept, for corrected age.</summary>
+    public Result RecordBirth(DateOnly birthDate, HlcStamp version, DateOnly today) =>
+        Apply(
+            version,
+            () => Result.FirstFailure(() => Result.Check(!IsBorn, BabyErrors.AlreadyBorn), () => CheckDates(birthDate, DueDate, today)),
+            () => BirthDate = birthDate);
 
-    public Result SetDueDate(DateOnly? dueDate, HlcStamp version) =>
-        Apply(version, () => CheckDueDate(BirthDate, dueDate), () => DueDate = dueDate);
+    /// <summary>Corrects the birth date of a born baby.</summary>
+    public Result SetBirthDate(DateOnly birthDate, HlcStamp version, DateOnly today) =>
+        Apply(
+            version,
+            () => Result.FirstFailure(() => Result.Check(IsBorn, BabyErrors.NotBornYet), () => CheckDates(birthDate, DueDate, today)),
+            () => BirthDate = birthDate);
+
+    public Result SetDueDate(DateOnly? dueDate, HlcStamp version, DateOnly today) =>
+        Apply(version, () => CheckDates(BirthDate, dueDate, today), () => DueDate = dueDate);
 
     internal static BabyProfile Rehydrate(
         BabyId id, HouseholdId householdId, string name, IReadOnlyList<string> nicknames,
-        DateOnly birthDate, DateOnly? dueDate, HlcStamp version, bool isDeleted) =>
+        DateOnly? birthDate, DateOnly? dueDate, HlcStamp version, bool isDeleted) =>
         new(id, householdId, name, nicknames, birthDate, dueDate, version, isDeleted);
 
     private Result Apply(HlcStamp version, Func<Result> rules, Action change)
@@ -101,14 +126,18 @@ public sealed class BabyProfile : SyncedRecord<BabyId>
         return Result.Check(keys.Distinct().Count() == keys.Count && (nameKey is null || !keys.Contains(nameKey)), BabyErrors.NicknameDuplicate);
     }
 
-    private static Result CheckBirthDate(DateOnly birthDate, DateOnly today) =>
-        Result.Check(birthDate <= today.AddDays(1), BabyErrors.BirthInFuture);
-
-    private static Result CheckDueDate(DateOnly birthDate, DateOnly? dueDate) =>
-        Result.Check(
-            dueDate is not { } due
-            || (due >= birthDate.AddDays(-DueDateEarliestDaysBeforeBirth) && due <= birthDate.AddDays(DueDateLatestDaysAfterBirth)),
-            BabyErrors.DueDateOutOfRange);
+    private static Result CheckDates(DateOnly? birthDate, DateOnly? dueDate, DateOnly today) => (birthDate, dueDate) switch
+    {
+        (null, null) => Result.Failure(BabyErrors.BirthOrDueDateRequired),
+        ({ } birth, _) when birth > today.AddDays(1) => Result.Failure(BabyErrors.BirthInFuture),
+        ({ } birth, { } due) => Result.Check(
+            due >= birth.AddDays(-DueDateEarliestDaysBeforeBirth) && due <= birth.AddDays(DueDateLatestDaysAfterBirth),
+            BabyErrors.DueDateOutOfRange),
+        (null, { } due) => Result.Check(
+            due >= today.AddDays(-ExpectedDueDateLatestDaysPast) && due <= today.AddDays(ExpectedDueDateLatestDaysAhead),
+            BabyErrors.DueDateOutOfRange),
+        _ => Result.Success,
+    };
 }
 
 public static class BabyErrors
@@ -117,4 +146,7 @@ public static class BabyErrors
     public const string NicknameDuplicate = "baby.nickname-duplicate";
     public const string BirthInFuture = "baby.birth-in-future";
     public const string DueDateOutOfRange = "baby.due-date-out-of-range";
+    public const string BirthOrDueDateRequired = "baby.birth-or-due-date-required";
+    public const string AlreadyBorn = "baby.already-born";
+    public const string NotBornYet = "baby.not-born-yet";
 }
