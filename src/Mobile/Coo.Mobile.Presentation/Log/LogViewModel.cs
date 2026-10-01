@@ -51,7 +51,7 @@ public sealed partial class LogViewModel(IHouseholdStore households, GetDay getD
 
         Title = Date == today ? Strings.Get("Section.Today") : Date.ToString("dddd d MMMM", Strings.Culture);
         CanGoNext = Date < today;
-        Ribbon = day.Ribbon;
+        Ribbon = Same(Ribbon, day.Ribbon);
         var pumped = household.VolumeUnit == VolumeUnit.Ounces
             ? (Math.Round(day.Totals.PumpedMl / Coo.Domain.CareLog.Volume.MillilitresPerUsFluidOunce, 1).ToString("0.#", Strings.Culture), Strings.Get("Totals.PumpedOz"))
             : (Math.Round(day.Totals.PumpedMl).ToString("0", Strings.Culture), Strings.Get("Totals.PumpedMl"));
@@ -63,8 +63,8 @@ public sealed partial class LogViewModel(IHouseholdStore households, GetDay getD
             new("sleep", Formats.Duration(day.Totals.Sleep), Strings.Get("Totals.Sleep")),
             new("pump", pumped.Item1, pumped.Item2),
         ];
-        Totals = [.. totals.Where(t => KindVisibility.IsShown(household, t.KindCode))];
-        Rows = [.. day.Entries.Where(e => e.Id != undo.PendingDelete).Select(e => new TimelineItem(e.Id, formats.Time(e.Start), e.KindCode, formats.Title(e, now), Strings.Get("Who.You")))];
+        Totals = Same(Totals, [.. totals.Where(t => KindVisibility.IsShown(household, t.KindCode))]);
+        Rows = Same(Rows, [.. day.Entries.Where(e => e.Id != undo.PendingDelete).Select(e => new TimelineItem(e.Id, formats.Time(e.Start), e.KindCode, formats.Title(e, now), Strings.Get("Who.You")))]);
     }
 
     [RelayCommand]
@@ -82,6 +82,13 @@ public sealed partial class LogViewModel(IHouseholdStore households, GetDay getD
         Date = Date.AddDays(1);
         return RefreshAsync();
     }
+
+    /// <summary>
+    /// The current list when the new one shows the same thing, so a refresh with nothing new raises no change and the
+    /// page does not redraw (owner's finding on the Pixel 10: every tab visit redrew Log).
+    /// </summary>
+    private static IReadOnlyList<T> Same<T>(IReadOnlyList<T> current, IReadOnlyList<T> next) =>
+        current.SequenceEqual(next) ? current : next;
 
     private static string PluralWord(string key, int n) =>
         Strings.Get($"{key}.{PluralRules.Select(Strings.Language, n)}");
