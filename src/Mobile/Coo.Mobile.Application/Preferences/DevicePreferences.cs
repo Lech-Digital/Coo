@@ -30,12 +30,27 @@ public sealed record AppearancePreferences(AppearanceMode Mode, QuietHours Quiet
     public static AppearancePreferences Default { get; } = new(AppearanceMode.Auto, QuietHours.Default);
 }
 
+/// <summary>
+/// The app's language on this phone (ADR 0006 §1): System (Android's language if Coo has it), or a two-letter tag.
+/// Per device, never synced. Which tags are supported is the presentation's business.
+/// </summary>
+public sealed record LanguagePreference(string? Language)
+{
+    public static LanguagePreference System { get; } = new((string?)null);
+
+    public bool IsSystem => Language is null;
+}
+
 /// <summary>Settings that belong to this phone, not to the household.</summary>
 public interface IDevicePreferences
 {
     Task<AppearancePreferences> GetAppearanceAsync(CancellationToken cancellationToken);
 
     Task SetAppearanceAsync(AppearancePreferences preferences, CancellationToken cancellationToken);
+
+    Task<LanguagePreference> GetLanguageAsync(CancellationToken cancellationToken);
+
+    Task SetLanguageAsync(LanguagePreference preference, CancellationToken cancellationToken);
 }
 
 /// <summary>Whether the phone shows 24-hour times. It follows the Android setting, not the language (ADR 0006 §5).</summary>

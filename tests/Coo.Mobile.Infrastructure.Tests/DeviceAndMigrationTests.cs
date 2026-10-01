@@ -140,6 +140,49 @@ public sealed class DevicePreferencesTests
         // Assert
         appearance.Mode.Should().Be(Coo.Mobile.Application.Preferences.AppearanceMode.Auto);
     }
+
+    [Fact]
+    public async Task GetLanguageAsync_NothingStored_ReturnsSystem()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+
+        // Act
+        var language = await new DevicePreferences(db.Database).GetLanguageAsync(CancellationToken.None);
+
+        // Assert
+        language.Should().Be(Coo.Mobile.Application.Preferences.LanguagePreference.System);
+    }
+
+    [Fact]
+    public async Task SetThenGet_Polish_RoundTrips()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var polish = new Coo.Mobile.Application.Preferences.LanguagePreference("pl");
+
+        // Act
+        await new DevicePreferences(db.Database).SetLanguageAsync(polish, CancellationToken.None);
+        var read = await new DevicePreferences(db.Database).GetLanguageAsync(CancellationToken.None);
+
+        // Assert
+        read.Should().Be(polish);
+    }
+
+    [Fact]
+    public async Task GetLanguageAsync_UnreadableValue_ReturnsSystem()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        await using (var connection = await db.OpenAsync())
+            await connection.ExecuteAsync("INSERT INTO app_state (key, value) VALUES ('language', 'Klingon!');", CancellationToken.None);
+
+        // Act
+        var language = await new DevicePreferences(db.Database).GetLanguageAsync(CancellationToken.None);
+
+        // Assert
+        language.IsSystem.Should().BeTrue();
+    }
 }
 
 public sealed class ExpectedBabyMigrationTests

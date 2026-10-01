@@ -3,12 +3,14 @@ using Coo.Mobile.Application.Preferences;
 
 namespace Coo.Mobile.Infrastructure.Persistence;
 
-/// <summary>Per-device settings in <c>app_state</c>; never synced (Spec 005 §6.3). Missing or unreadable values fall back to the defaults.</summary>
+/// <summary>Per-device settings in <c>app_state</c>, appearance and language; never synced (Spec 005 §6.3, Spec 009 §3.5). Missing or unreadable values fall back to the defaults.</summary>
 internal sealed class DevicePreferences(LocalDatabase database) : IDevicePreferences
 {
     private const string ModeKey = "appearance.mode";
     private const string QuietStartKey = "appearance.quiet_start";
     private const string QuietEndKey = "appearance.quiet_end";
+    private const string LanguageKey = "language";
+    private const string SystemLanguage = "system";
 
     public async Task<AppearancePreferences> GetAppearanceAsync(CancellationToken cancellationToken)
     {
@@ -41,6 +43,22 @@ internal sealed class DevicePreferences(LocalDatabase database) : IDevicePrefere
         }
 
         await transaction.CommitAsync(cancellationToken);
+    }
+
+    public async Task<LanguagePreference> GetLanguageAsync(CancellationToken cancellationToken)
+    {
+        await using var connection = await database.OpenAsync(cancellationToken);
+        var value = (string?)await connection.ScalarAsync("SELECT value FROM app_state WHERE key = $k;", cancellationToken, null, ("$k", LanguageKey));
+        return value is { Length: 2 } && value.All(char.IsAsciiLetterLower) ? new LanguagePreference(value) : LanguagePreference.System;
+    }
+
+    public async Task SetLanguageAsync(LanguagePreference preference, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(preference);
+        await using var connection = await database.OpenAsync(cancellationToken);
+        await connection.ExecuteAsync(
+            "INSERT INTO app_state (key, value) VALUES ($k, $v) ON CONFLICT (key) DO UPDATE SET value = excluded.value;",
+            cancellationToken, null, ("$k", LanguageKey), ("$v", preference.Language ?? SystemLanguage));
     }
 
     private static TimeOnly? ParseTime(string? value) =>
