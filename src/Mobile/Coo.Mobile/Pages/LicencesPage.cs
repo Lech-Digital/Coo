@@ -37,9 +37,17 @@ public sealed class LicencesPage : ContentPage
             {
                 if (string.IsNullOrEmpty(text.Text))
                 {
-                    await using var stream = await FileSystem.OpenAppPackageFileAsync($"licences/{licence.AssetFile}");
-                    using var reader = new StreamReader(stream);
-                    text.Text = await reader.ReadToEndAsync();
+                    try
+                    {
+                        await using var stream = await FileSystem.OpenAppPackageFileAsync($"licences/{licence.AssetFile}");
+                        using var reader = new StreamReader(stream);
+                        text.Text = await reader.ReadToEndAsync();
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        // A missing text must never crash About; the name and licence above still say what applies.
+                        return;
+                    }
                 }
 
                 text.IsVisible = !text.IsVisible;

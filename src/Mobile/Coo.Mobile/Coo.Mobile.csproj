@@ -42,6 +42,8 @@
     <MauiFont Include="Resources\Fonts\*.ttf" />
     <!-- Tab icons, from the same 24-grid paths as the Icon control (design system §5). -->
     <MauiImage Include="Resources\Images\*.svg" BaseSize="24,24" />
+    <!-- The licence texts (Spec 009 §3.6), read with FileSystem.OpenAppPackageFileAsync("licences/…"). -->
+    <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
