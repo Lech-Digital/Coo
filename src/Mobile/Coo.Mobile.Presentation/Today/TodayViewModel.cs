@@ -189,12 +189,18 @@ public sealed partial class TodayViewModel : ObservableObject
     [RelayCommand]
     private void OpenBottle()
     {
+        PrefillBottle();
+        Sheet = HomeSheet.Bottle;
+    }
+
+    /// <summary>Last bottle's amounts and milk, or a sensible start; also when the night row asks for the sheet.</summary>
+    private void PrefillBottle()
+    {
         var last = _summary?.LastFeed?.Details as BottleFeed;
         BottleAmount = last is null ? (_household?.VolumeUnit == VolumeUnit.Ounces ? 4m : 120m) : ToUnit(last.Components[0].Volume);
         SecondAmount = last is { Components.Count: > 1 } ? ToUnit(last.Components[1].Volume) : BottleAmount;
         Milk = last is null ? BottleMilk.Formula : last.Components.Count > 1 ? BottleMilk.Both
             : last.Components[0].Milk == Coo.Domain.CareLog.Kinds.Feeding.Milk.Formula ? BottleMilk.Formula : BottleMilk.Breast;
-        Sheet = HomeSheet.Bottle;
     }
 
     [RelayCommand]
@@ -265,6 +271,9 @@ public sealed partial class TodayViewModel : ObservableObject
 
         if (sheet == HomeSheet.RecordBirth)
             BirthDate = _time.GetLocalNow().Date;
+
+        if (sheet == HomeSheet.Bottle)
+            PrefillBottle();
 
         Sheet = sheet;
     }

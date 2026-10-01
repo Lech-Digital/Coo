@@ -108,6 +108,14 @@ makes Today and Log follow each change.
 - **With Day or Night fixed in Settings,** the button changes that setting to the other one.
 - Choosing a theme in Settings, or changing the quiet hours, ends any temporary switch.
 
+### 3.8 A bottle at night (owner's finding, 2026-10-01)
+
+- The night quick row had Feed L and Feed R only, so a bottle could not be logged at night. It gains **Bottle**,
+  which opens the same bottle sheet as the day tile, with the last bottle's amounts.
+- The row is now diapers (Wet, Dirty, Mixed), then feeds (Feed L, Feed R, Bottle), then Sleep or Woke up across the
+  whole width.
+- A hidden kind's buttons drop out of the row (§3.2).
+
 ## 4. How changes reach Today and Log
 
 - **Units, hidden kinds and the baby:** Today and Log already reload the household and the baby when they appear
@@ -158,6 +166,7 @@ makes Today and Log follow each change.
 | 2 | Edit the baby | Change the name and the due date; Today's header follows. A name of spaces is refused. |
 | 3 | Hide a kind | Hide Pumping: its tile and totals go, old pump entries stay in the timeline. The last kind cannot be hidden. |
 | 4 | Units | Switch to oz: the bottle sheet and the totals show oz; switch back, and 120 ml is still 120 ml |
+| 5a | A bottle at night | At night, Bottle opens the bottle sheet; the bottle is logged and shows in the timeline |
 | 5 | Theme and quiet hours | Night now, then Auto with quiet hours around the current time: the palette follows at once. During quiet hours, the sun on Today brings day colours back, and they stay after a forced stop. |
 | 6 | Language | Pick Polski: the app is in Polish at once, and still after a forced stop. System brings back Android's language. |
 | 7 | About | The version shows 0.9.0 and the commit; the licences open; Send feedback opens the mail app |

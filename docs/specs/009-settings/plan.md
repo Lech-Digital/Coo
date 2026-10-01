@@ -1448,6 +1448,15 @@ git commit -m "Night and day from Today, until the next change (Spec 009 §3.7)"
 
 ---
 
+### Task 5c: A bottle at night (Spec 009 §3.8; added during execution)
+
+The owner found that the night quick row cannot log a bottle. `NightSection` gains a Bottle button
+(`actions.RequestSheet(HomeSheet.Bottle)`), the row is ordered diapers, feeds, sleep, and a lone last button spans
+the row. `TodayViewModel.OpenSheet` pre-fills the bottle sheet as `OpenBottle` does. Test:
+`HiddenKindsTests.Update_Night_OffersABottleThatOpensTheBottleSheet`.
+
+---
+
 ### Task 6: The Settings and baby view models, ports and licences (Presentation)
 
 **Files:**

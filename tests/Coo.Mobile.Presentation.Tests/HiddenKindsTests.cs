@@ -78,6 +78,25 @@ public sealed class HiddenKindsTests
         section.Quick.Select(q => q.KindCode).Should().NotContain("diaper");
     }
 
+    [Fact]
+    public void Update_Night_OffersABottleThatOpensTheBottleSheet()
+    {
+        // Arrange: owner's finding, 2026-10-01: at night there was no way to log a bottle.
+        var actions = Actions();
+        HomeSheet? requested = null;
+        actions.SheetRequested += (_, r) => requested = r.Sheet;
+        var section = new NightSection(actions);
+        section.Update(Snapshot(Settings(), Summary([]), PaletteKind.Night));
+        var bottle = section.Quick.Single(q => q.Label == "Bottle");
+
+        // Act
+        bottle.Command.Execute(null);
+
+        // Assert
+        bottle.KindCode.Should().Be("feeding");
+        requested.Should().Be(HomeSheet.Bottle);
+    }
+
     private HomeActions Actions()
     {
         var time = new FixedTime(Now);

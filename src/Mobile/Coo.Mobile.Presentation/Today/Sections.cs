@@ -299,7 +299,10 @@ public sealed partial class AttentionSection : ObservableObject, IHomeSection
     }
 }
 
-/// <summary>Today at night: the 03:12 layout (Spec 006 §6). Big timer, three facts, the quick row.</summary>
+/// <summary>
+/// Today at night: the 03:12 layout (Spec 006 §6). Big timer, three facts, the quick row: diapers, then feeds (left,
+/// right, bottle: Spec 009 §3.8), then sleep.
+/// </summary>
 public sealed partial class NightSection(HomeActions actions) : ObservableObject, IHomeSection
 {
     public int Order => 20;
@@ -361,11 +364,16 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
             new("diaper", Strings.Get("Diaper.Wet"), new AsyncRelayCommand(() => actions.LogDiaperAsync(DiaperContents.Wet))),
             new("diaper", Strings.Get("Diaper.Dirty"), new AsyncRelayCommand(() => actions.LogDiaperAsync(DiaperContents.Dirty))),
             new("diaper", Strings.Get("Diaper.Mixed"), new AsyncRelayCommand(() => actions.LogDiaperAsync(DiaperContents.Mixed))),
+            new("feeding", Strings.Get("Night.FeedL"), new AsyncRelayCommand(() => actions.StartBreastAsync(BreastSide.Left))),
+            new("feeding", Strings.Get("Night.FeedR"), new AsyncRelayCommand(() => actions.StartBreastAsync(BreastSide.Right))),
+            new("feeding", Strings.Get("Feed.Bottle"), new AsyncRelayCommand(() =>
+            {
+                actions.RequestSheet(HomeSheet.Bottle);
+                return Task.CompletedTask;
+            })),
             sleeping is not null
                 ? new("sleep", Strings.Get("Action.WokeUp"), new AsyncRelayCommand(() => actions.EndSessionAsync(sleeping.Id)))
                 : new("sleep", Strings.Get("Kind.Sleep"), new AsyncRelayCommand(actions.StartSleepAsync)),
-            new("feeding", Strings.Get("Night.FeedL"), new AsyncRelayCommand(() => actions.StartBreastAsync(BreastSide.Left))),
-            new("feeding", Strings.Get("Night.FeedR"), new AsyncRelayCommand(() => actions.StartBreastAsync(BreastSide.Right))),
         ];
         quick = [.. quick.Where(q => KindVisibility.IsShown(s.Household, q.KindCode))];
         if (Running.Changed(Quick, quick, q => q.Label))

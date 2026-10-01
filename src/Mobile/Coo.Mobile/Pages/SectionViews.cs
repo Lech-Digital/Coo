@@ -273,6 +273,10 @@ internal static class SectionViews
             button.SetDynamicResource(VisualElement.BackgroundColorProperty, look.Tint);
             button.SetDynamicResource(Button.TextColorProperty, look.Ink);
             quick.Add(button, i % 3, i / 3);
+
+            // A last button alone on its row (sleep, Spec 009 §3.8) takes the whole row: a bigger target at 3 AM.
+            if (i == s.Quick.Count - 1 && i % 3 == 0)
+                Grid.SetColumnSpan(button, 3);
         }
 
         stack.Add(quick);
