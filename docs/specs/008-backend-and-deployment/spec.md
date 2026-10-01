@@ -2,7 +2,7 @@
 
 Date: 2026-10-01
 
-Status: Accepted (2026-10-01: Q1 (a), done by Claude through the Hetzner CLI; Q2 after this increment; Q3 Docker Desktop on the Mac; Q4 its own PostgreSQL)
+Status: Accepted (2026-10-01: Q1 (a), found already enabled; Q2 after this increment; Q3 Docker Desktop on the Mac; Q4 its own PostgreSQL)
 
 Depends on: ADR 0001 §4–§5 (server persistence, deployment shape), ADR 0002 §6 (per-household `seq`), ADR 0010 §2
 and G3–G5 (storage, database guards, integrity scan), Spec 003 (codecs). Recipe: PurePrep's `deploy/` and
@@ -220,3 +220,33 @@ and a silent skip would hide a gap. The deploy script's interlock needs them gre
 | Q2 | **Settings, before or after this?** The Settings tab (baby profile, units, language, theme, quiet hours, about) works offline. | **After: as Increment 9**, ahead of sign-in. Sign-in, Family and Premium then each add their section to a tab that already exists. The roadmap shifts by one. |
 | Q3 | **Docker on the Mac**, for the PostgreSQL tests and the deploy interlock. | **Start Docker Desktop when deploying,** or keep it running. The CLI is already installed, but its daemon isn't running. No other tool is needed. |
 | Q4 | **Its own PostgreSQL, or a database inside Coldstart's?** Owner: "its own. It's a different product, and this one can be big. It must be clean and proper." | **Its own `coo-postgres`, as ADR 0001 §5 decided.** It costs about 100–200 MB of memory. Coldstart and Coo can then be upgraded, restored and moved independently. |
+
+## 13. Built and verified (2026-10-01, `coldstart-prod`)
+
+All deliverables of §10 were checked on the server, on commit `e03dbdf`:
+
+| # | Checked |
+|---|---|
+| 1 | `https://api.coo.lechdigital.nl/health` answers `{"status":"ok","version":"0.8.0+e03dbdf","database":"ok"}`, through Caddy, with a certificate issued on the first request |
+| 2 | getcoldstart.nl, PurePrep's and CoreChoice's `/health` all answered 200 after the Caddy reload; every neighbour container kept its uptime |
+| 3 | The G3 tests, green in CI on `b7afdf9`, and again in the deploy interlock |
+| 4 | `restore-drill.sh --fresh`: `DRILL OK`, households 0/0, entry_kind_versions 4/4, care_entries 0/0. Hetzner backups are enabled: daily, window 02–06 UTC, seven images kept |
+| 5 | `verify`: `0 rows checked, 0 failures`, exit 0. The database is still empty; the scan meets real rows with Sync (Increment 11) |
+| 6 | A second `deploy-prod.sh --confirm` recreated `coo-api` only; `coo-postgres` and `coo-backup` kept running on the same volume, and `/health` reported the commit |
+| 7 | CI, green on `b7afdf9` |
+
+**How it went, where it differs from the text above:**
+
+- **Q1 needed no action.** The server's Hetzner backups were already on, with images going back to 2026-09-25, so
+  the `hcloud` context was only used to confirm it.
+- **The first deploy reports `DEPLOY FAILED`, by design.** Its health check goes through the public URL, and Caddy
+  has no route until the one-time Caddy block. The containers were checked on the host instead, and the second
+  deploy is the one that proves the interlock. `DEPLOY.md` says so.
+- **`coo-api` has no `curl` or `wget`,** so it has no container health check; health is only checked from outside,
+  through Caddy, which also proves the routing.
+- **The Caddy block has two spaces in `reverse_proxy  coo-api:8080`,** and Caddy warns that the file is not
+  formatted. It works. `caddy fmt --overwrite` would rewrite the whole shared file, so it was left alone. The
+  pre-edit copy is `/opt/coldstart/Caddyfile.bak-2026-10-01`.
+- **The production steps were run by the owner** (`!` in the session): Claude Code's auto mode refuses deploys and
+  writes over SSH to the production host, even when approved in chat.
+

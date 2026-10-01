@@ -38,6 +38,10 @@ The database volume survives every deploy. Migrations run when the API starts, b
 
 ## First deployment: the Caddy block (once)
 
+On the very first deploy, `deploy-prod.sh` ends with `DEPLOY FAILED`: its health check goes through Caddy, which has
+no route yet. Check the containers with `ssh coldstart-prod 'docker ps'`, add the block below, and the next deploy
+passes.
+
 Caddy is `coldstart-caddy-1`, its config `/opt/coldstart/Caddyfile`. Append:
 
 ```
