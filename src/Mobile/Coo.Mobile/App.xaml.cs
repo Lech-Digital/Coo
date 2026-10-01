@@ -1,6 +1,7 @@
 namespace Coo.Mobile;
 
-public partial class App : Application
+// Fully qualified: inside the Coo.Mobile namespace, "Application" names the Coo.Mobile.Application project.
+public partial class App : Microsoft.Maui.Controls.Application
 {
     private readonly IServiceProvider _services;
 
@@ -11,5 +12,5 @@ public partial class App : Application
     }
 
     protected override Window CreateWindow(IActivationState? activationState) =>
-        new(_services.GetRequiredService<PlaceholderPage>());
+        new(_services.GetRequiredService<StartupPage>());
 }

@@ -4,7 +4,7 @@ Date: 2026-09-29
 
 Status: Accepted
 
-Amended by: ADR 0010 (the `CareLog` folder is organised by entry kind; a new shared `Coo.Codecs`
+Amended by: Spec 004 §13 (§4: no EF Core on the phone); ADR 0010 (the `CareLog` folder is organised by entry kind; a new shared `Coo.Codecs`
 project maps entry details between Contracts and Domain, for both sides)
 
 ## Context
@@ -156,9 +156,12 @@ graph TD
 
 ### 4. Persistence choices that affect structure
 
-- **On-device:** EF Core SQLite in `Coo.Mobile.Infrastructure`. Both sibling apps ship it in
-  trimmed Release builds on Play, so it is the proven path on this toolchain. The schema is managed
-  by EF Core migrations applied at startup (`Migrate()`), not `EnsureCreated`.
+- **On-device:** SQLite through `Microsoft.Data.Sqlite` in `Coo.Mobile.Infrastructure`, with
+  explicit SQL and numbered, checksummed SQL migration scripts applied at startup, never
+  `EnsureCreated`. There is no EF Core on the phone: it would add reflection that trimming can
+  break, and model-building cost on every cold start, for an abstraction this design does not use.
+  *(Amended 2026-10-01 by Spec 004 §13. The original choice, EF Core SQLite with EF migrations,
+  rested on the sibling apps, which turned out to use only `EnsureCreated`.)*
 - **Server:** EF Core with Npgsql in `Coo.Api.Infrastructure`. The schema is managed by EF Core
   migrations. `EnsureCreated` is never used in any environment.
 

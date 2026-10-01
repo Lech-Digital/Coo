@@ -19,6 +19,17 @@
     <SupportedOSPlatformVersion>26.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
+  <!-- The debug screen (Spec 004 §8): in Debug builds, and in a Release build only when asked for with
+       -p:CooDebugScreen=true, for the trimmed-build check on a phone. Never in a store build. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' Or '$(CooDebugScreen)' == 'true'">
+    <DefineConstants>$(DefineConstants);DEBUG_SCREEN</DefineConstants>
+    <CooIncludeDebugScreen>true</CooIncludeDebugScreen>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(CooIncludeDebugScreen)' != 'true'">
+    <Compile Remove="DebugScreen/**" />
+  </ItemGroup>
+
   <ItemGroup>
     <!-- Placeholder artwork until the brand work; colours are Washi UX Ground and Accent. -->
     <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#F1EDE5" />

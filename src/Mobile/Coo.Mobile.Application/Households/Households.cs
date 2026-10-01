@@ -1,0 +1,52 @@
+using Coo.Domain.Common;
+using Coo.Domain.Households;
+using Coo.Mobile.Application.CareLog;
+
+namespace Coo.Mobile.Application.Households;
+
+/// <summary>Households, their settings and their babies on this phone (Spec 004 §2).</summary>
+public interface IHouseholdStore
+{
+    Task<IReadOnlyList<HouseholdSettings>> ListHouseholdsAsync(CancellationToken cancellationToken);
+
+    /// <summary>Saves the settings and appends their outbox row, in one transaction.</summary>
+    Task SaveSettingsAsync(HouseholdSettings settings, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<BabyProfile>> ListBabiesAsync(HouseholdId household, CancellationToken cancellationToken);
+
+    /// <summary>Saves the baby and appends its outbox row, in one transaction.</summary>
+    Task SaveBabyAsync(BabyProfile baby, CancellationToken cancellationToken);
+}
+
+/// <summary>What the phone says about where it is: the defaults for a new household (ADR 0006 §5).</summary>
+public interface IDeviceLocale
+{
+    /// <summary>The IANA time zone ID.</summary>
+    string TimeZoneId { get; }
+
+    /// <summary>The device region defaults to ounces (the US), rather than millilitres.</summary>
+    bool PrefersOunces { get; }
+}
+
+/// <summary>
+/// On first launch, creates the provisional household and its settings (ADR 0003 §1); afterwards, returns it.
+/// No account is needed for any of this.
+/// </summary>
+public sealed class EnsureProvisionalHousehold(IHouseholdStore households, IVersionClock clock, IDeviceLocale locale, TimeProvider time)
+{
+    public async Task<HouseholdSettings> ExecuteAsync(CancellationToken cancellationToken)
+    {
+        var existing = await households.ListHouseholdsAsync(cancellationToken);
+        if (existing.FirstOrDefault(h => !h.IsDeleted) is { } household)
+            return household;
+
+        var id = new HouseholdId(Guid.CreateVersion7(time.GetUtcNow()));
+        var unit = locale.PrefersOunces ? VolumeUnit.Ounces : VolumeUnit.Millilitres;
+        var settings = HouseholdSettings.Create(id, unit, locale.TimeZoneId, await clock.NextAsync(cancellationToken));
+        if (settings.IsFailure)
+            throw new InvalidOperationException($"The device time zone '{locale.TimeZoneId}' is unusable: {settings.Error}.");
+
+        await households.SaveSettingsAsync(settings.Value, cancellationToken);
+        return settings.Value;
+    }
+}

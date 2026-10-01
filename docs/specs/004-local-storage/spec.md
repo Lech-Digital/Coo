@@ -2,7 +2,7 @@
 
 Date: 2026-10-01
 
-Status: **Draft — for review**
+Status: Accepted (2026-10-01: Q1–Q5 as recommended)
 
 Depends on: ADR 0001 §4 (on-device SQLite with versioned migrations; **amended by this spec**, see §13), ADR 0002 §2 (record plus outbox in one
 transaction), ADR 0003 §1 (the provisional household), ADR 0010 §2, §3 and §7 (storage, forward
@@ -98,6 +98,10 @@ for an ORM. SQL is never built by string concatenation of values: every value is
 - `end_utc_ms IS NULL OR end_utc_ms > start_utc_ms`;
 - `is_session = 1 OR end_utc_ms IS NULL`;
 - `is_deleted IN (0, 1)`, and `integrity IN ('ok', 'read-only', 'quarantined')`.
+
+Every `CHECK` that tests a JSON type uses `IS`, never `=`. A `CHECK` that evaluates to NULL passes,
+and `json_type()` is NULL when the property is missing. The test `Insert_InvalidRow_IsRefusedByDatabase`
+caught exactly that in the first draft of the schema.
 
 There is no foreign key on `kind`: the phone must store kinds it does not know (ADR 0010 §7, G3).
 
@@ -328,5 +332,5 @@ migrations**, where reflection and model-building cost do not matter.
 **Costs:** more hand-written SQL and mapping, and a small migration runner of our own. Both are
 covered by the real-SQLite tests in §10.
 
-When this spec is accepted, ADR 0001 §4 is updated to match, with a note pointing here.
+ADR 0001 §4 was updated to match on 2026-10-01, with a note pointing here.
 

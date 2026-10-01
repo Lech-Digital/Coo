@@ -48,6 +48,33 @@ Install it on a phone with USB debugging enabled:
 ~/android-sdk/platform-tools/adb install -r src/Mobile/Coo.Mobile/bin/Debug/net10.0-android/com.lechdigital.coo-Signed.apk
 ```
 
+## A trimmed Release build with the debug screen (Spec 004 §9)
+
+This is the build the store gets, trimmed, plus the debug screen, so the storage can be checked on a phone. It is
+signed with the debug key and is never uploaded.
+
+```sh
+dotnet build src/Mobile/Coo.Mobile/Coo.Mobile.csproj -c Release -f net10.0-android --no-restore \
+  -p:UseDefaultPublishRuntimeIdentifier=false -p:AndroidPackageFormat=apk -p:CooDebugScreen=true \
+  -p:AndroidSdkDirectory=$HOME/android-sdk -p:JavaSdkDirectory=$JAVA_HOME
+~/android-sdk/platform-tools/adb install -r src/Mobile/Coo.Mobile/bin/Release/net10.0-android/com.lechdigital.coo-Signed.apk
+```
+
+Verified on 2026-10-01, on a Pixel 10:
+
+- The trimmer runs (`obj/Release/net10.0-android/android-arm64/linked/`).
+- It reports no trimming (IL) warnings.
+- The migration script survives inside the trimmed `Coo.Mobile.Infrastructure.dll`.
+- The app installs, starts, and logs no exceptions.
+- No `TrimmerRootAssembly` is needed, because the persistence code uses no reflection (Spec 004 §13).
+
+Measure the cold start with the phone **unlocked**: a locked screen distorts it.
+
+```sh
+~/android-sdk/platform-tools/adb shell am force-stop com.lechdigital.coo
+~/android-sdk/platform-tools/adb shell am start -W -n com.lechdigital.coo/crc64f635aa2239ac8606.MainActivity
+```
+
 ## Traps that are designed out
 
 | Sibling-app failure | Why it cannot happen here |
