@@ -24,7 +24,7 @@ Parents make mistakes at 3 AM, and log things late. This increment lets them:
 
 | Not in this increment | Where |
 |---|---|
-| Sync, and its rejected entries | Increment 10; "Needs attention" is ready for them |
+| Sync, and its rejected entries | Increment 11; "Needs attention" is ready for them |
 | Editing the baby, the units, the language, or the quiet hours | A settings increment |
 
 ## 2. Opening an entry
@@ -94,7 +94,7 @@ something. Tapping it opens the **Needs attention** page (pushed, not modal), wi
 | **From a newer version** | Read-only entries (ADR 0010 §3) | The info sheet, and **Delete** |
 
 - The duplicate check runs on this phone **after every write** and **at start-up**, over the entries within
-  ±24 hours of the new one. After sync (Increment 10), it also runs after every pull (ADR 0002 §9).
+  ±24 hours of the new one. After sync (Increment 11), it also runs after every pull (ADR 0002 §9).
 - The group for **sync rejections** (ADR 0002 §11) is added with sync. The page already lists groups in order,
   as an extension point.
 - Nothing here interrupts. There are no dialogs. The badge is the only signal.
@@ -201,5 +201,5 @@ All deliverables of §10 were checked on the owner's phone:
 **Carried forward:**
 
 - The duplicate pair does not show who logged each entry. On one phone it is always "You"; it matters with sync
-  (Increment 10).
+  (Increment 11).
 - The Android pickers follow the phone's dark mode, not Coo's own palette (they are Android's dialogs).

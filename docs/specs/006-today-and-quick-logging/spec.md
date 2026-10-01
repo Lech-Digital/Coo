@@ -30,10 +30,10 @@ It replaces the debug screen as the first page.
 | Not in this increment | Where |
 |---|---|
 | Editing or deleting an entry, undo, logging a past event at a chosen time, duplicates, plausibility warnings in the UI | Increment 7 |
-| The nap window card (the predictor; its age table also needs the pediatric review) | Increment 13 |
-| Voice logging ("Tell Coo") | Increment 14 |
+| The nap window card (the predictor; its age table also needs the pediatric review) | Increment 14 |
+| Voice logging ("Tell Coo") | Increment 15 |
 | Insights and Family tabs | With their features |
-| A notification for a running timer | Increment 12 |
+| A notification for a running timer | Increment 13 |
 
 ## 2. Navigation
 
@@ -196,7 +196,7 @@ the same screen, simpler and with larger targets:
   **Sleep** (or **Woke up**), plus **Feed L** and **Feed R**. Each logs in one tap, with no sheet;
 - no timeline, and no decorative motion.
 
-The quiet-hours line ("family alerts paused until 07:00") arrives with notifications (Increment 12).
+The quiet-hours line ("family alerts paused until 07:00") arrives with notifications (Increment 13).
 
 ## 7. Log
 
@@ -271,7 +271,7 @@ is tested on the global SDK.
 | Q1 | Two tabs now (Today, Log), and Insights and Family added with their features | **Yes.** No "coming soon" tabs. |
 | Q2 | Sheets as in-page overlays, not modal pages | **Yes.** It avoids the modal-window problems found in Increment 5. |
 | Q3 | First-launch setup asks only the name, the birth date, and optionally the due date | **Yes.** Everything else has a sensible default and can be changed later. |
-| Q4 | No nap window card until the predictor (Increment 13), not even the age-typical range | **Yes.** The age table still needs its pediatric review (handover item 4), and an unreviewed range is exactly what ADR 0008 warns against. |
+| Q4 | No nap window card until the predictor (Increment 14), not even the age-typical range | **Yes.** The age table still needs its pediatric review (handover item 4), and an unreviewed range is exactly what ADR 0008 warns against. |
 | Q5 | The debug screen leaves the normal flow. In Debug builds and `-p:CooDebugScreen=true` builds, a long press on the Coo wordmark opens it. | **Yes.** The read-guard tools stay available for testing. |
 | Q6 | I write all seven languages now, marked for native review before release | **Yes.** A parent can use it in their own language today, and the review stays on the release checklist. |
 | Q7 | Today switches to the 03:12 night layout whenever the palette is Night | **Yes.** It is the design system's "night is a mode, not a theme". |

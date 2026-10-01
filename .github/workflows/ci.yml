@@ -36,3 +36,8 @@ jobs:
 
       - name: Test
         run: dotnet test Coo.Tests.slnf --configuration Release --no-build --verbosity normal
+
+      # The PostgreSQL tests above use Docker (Testcontainers). Building the API image here means a broken
+      # Dockerfile fails CI, not the deploy (Spec 008 §9).
+      - name: Build the API image
+        run: docker build --build-arg GIT_SHA=${GITHUB_SHA::7} -t coo-api:ci .

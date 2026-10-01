@@ -1,0 +1,12 @@
+# Only the backend and the shared projects go into the image (Spec 008 §7).
+**/bin/
+**/obj/
+.git/
+.github/
+docs/
+tests/
+deploy/
+src/Mobile/
+eng/strings/
+**/.DS_Store
+**/*.md

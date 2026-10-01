@@ -1,0 +1,99 @@
+# Coo backend, production stack (Spec 008 §2). It runs beside Coldstart, PurePrep and CoreChoice on the same
+# Hetzner host and reuses Coldstart's Caddy (the `coldstart_default` network) for HTTPS. Caddy proxies
+# api.coo.lechdigital.nl to the CONTAINER name `coo-api`.
+#
+# Names are product-prefixed (ADR 0001 §5): Compose publishes service names as DNS aliases on the shared
+# network, and a generic name such as "web" or "db" once hijacked a neighbour's traffic.
+#
+# Deploy with deploy/deploy-prod.sh, which runs, from /opt/coo:
+#   GIT_SHA=<commit> docker compose --env-file .env -f deploy/docker-compose.prod.yml up -d --build
+name: coo
+
+services:
+  coo-api:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        GIT_SHA: ${GIT_SHA:-unknown}
+    image: coo-api
+    container_name: coo-api
+    restart: unless-stopped
+    depends_on:
+      coo-postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Coo: Host=coo-postgres;Database=coo;Username=coo;Password=${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env};Gss Encryption Mode=Disable
+    networks:
+      - coo_internal
+      - coldstart_default
+    expose:
+      - "8080"
+    mem_limit: 384m
+
+  coo-postgres:
+    image: postgres:17
+    container_name: coo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: coo
+      POSTGRES_USER: coo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    command: ["postgres", "-c", "shared_buffers=64MB", "-c", "max_connections=50"]
+    volumes:
+      - coo-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coo -d coo"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    # Private network only: Caddy cannot reach the database, and it publishes no port.
+    networks:
+      - coo_internal
+    mem_limit: 384m
+
+  # Coldstart's backup container, with Coo's names (Spec 008 §6): the first dump 10 minutes after start, so the API
+  # has applied its migrations, then every 24 hours, kept RETENTION_DAYS days on the host. Hetzner's server backups
+  # copy them off the machine.
+  coo-backup:
+    image: postgres:17
+    container_name: coo-backup
+    restart: unless-stopped
+    depends_on:
+      coo-postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      RETENTION_DAYS: "14"
+    entrypoint:
+      - bash
+      - -c
+      - |
+        sleep 600
+        while true; do
+          ts=$$(date -u +%F-%H%M)
+          if pg_dump -h coo-postgres -U coo -d coo -Fc -f "/backups/coo-$$ts.dump"; then
+            echo "backup ok: coo-$$ts.dump"
+            find /backups -name 'coo-*.dump' -mtime "+$$RETENTION_DAYS" -delete
+          else
+            echo "backup FAILED at $$ts" >&2
+          fi
+          sleep 86400
+        done
+    volumes:
+      - ${COO_BACKUP_DIR:-/opt/coo/backups}:/backups
+    networks:
+      - coo_internal
+    mem_limit: 128m
+
+networks:
+  coo_internal:
+    name: coo_internal
+    internal: true
+  # Coldstart's Caddy lives on this network; joining it lets Caddy reach coo-api by its container name.
+  coldstart_default:
+    external: true
+
+volumes:
+  coo-postgres-data:

@@ -3,7 +3,10 @@ using NetArchTest.Rules;
 
 namespace Coo.Architecture.Tests;
 
-/// <summary>SQLite is touched only by the persistence folder of the mobile infrastructure (Spec 004 §5, §10).</summary>
+/// <summary>
+/// SQLite is touched only by the persistence folder of the mobile infrastructure (Spec 004 §5, §10), and PostgreSQL
+/// only by the persistence folder of the API infrastructure (Spec 008 §8).
+/// </summary>
 public sealed class PersistenceRuleTests
 {
     [Fact]
@@ -37,5 +40,39 @@ public sealed class PersistenceRuleTests
 
         // Assert
         result.FailingTypeNames.Should().BeNullOrEmpty("the use cases never see SQL (Spec 004 §2)");
+    }
+
+    [Fact]
+    public void ApiInfrastructure_OutsidePersistence_DoesNotDependOnEfCoreOrNpgsql()
+    {
+        // Arrange
+        var assembly = Assembly.Load("Coo.Api.Infrastructure");
+
+        // Act
+        var result = Types.InAssembly(assembly)
+            .That().DoNotResideInNamespace("Coo.Api.Infrastructure.Persistence")
+            .And().DoNotHaveName("ServiceCollectionExtensions")
+            .ShouldNot().HaveDependencyOnAny("Microsoft.EntityFrameworkCore", "Npgsql")
+            .GetResult();
+
+        // Assert
+        result.FailingTypeNames.Should().BeNullOrEmpty();
+    }
+
+    [Theory]
+    [InlineData("Coo.Domain")]
+    [InlineData("Coo.Codecs")]
+    [InlineData("Coo.Api.Application")]
+    [InlineData("Coo.Api")]
+    public void OtherProjects_DoNotDependOnEfCoreOrNpgsql(string assemblyName)
+    {
+        // Arrange
+        var assembly = Assembly.Load(assemblyName);
+
+        // Act
+        var result = Types.InAssembly(assembly).ShouldNot().HaveDependencyOnAny("Microsoft.EntityFrameworkCore", "Npgsql").GetResult();
+
+        // Assert
+        result.FailingTypeNames.Should().BeNullOrEmpty("the use cases and the host never see SQL (Spec 008 §8)");
     }
 }

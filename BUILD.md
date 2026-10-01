@@ -132,6 +132,29 @@ fonts.
 - **`uiautomator dump` fails while a view ticks every second,** so the tap helper finds nothing on Today with a timer
   running. Tap by coordinates there.
 
+## The backend (Increment 8)
+
+- **Deploying:** `DEPLOY.md`. Its tests and the deploy interlock need **Docker Desktop** running
+  (Testcontainers, PostgreSQL 17).
+- **A new migration:**
+
+  ```sh
+  dotnet tool restore
+  dotnet tool run dotnet-ef migrations add <Name> --project src/Backend/Coo.Api.Infrastructure \
+    --startup-project src/Backend/Coo.Api.Infrastructure --output-dir Persistence/Migrations \
+    --namespace Coo.Api.Infrastructure.Persistence.Migrations
+  ```
+
+  - Then make the generated classes `internal`: the architecture test requires it, and EF finds internal migrations.
+  - With `--namespace`, EF writes the model snapshot into a folder named after the namespace (`Coo/Api/...`). Move it
+    into `Persistence/Migrations`.
+- **One EF Core patch everywhere.** Npgsql's provider brings an older EF Core (10.0.4) than the design package
+  (10.0.12), and the mismatch is warning MSB3277, which is an error here. `Microsoft.EntityFrameworkCore.Relational` is
+  pinned in `Directory.Packages.props`.
+- **Npgsql tries Kerberos** and logs `libgssapi_krb5.so.2` in the slim ASP.NET image. The connection string sets
+  `Gss Encryption Mode=Disable`.
+- **Test projects** are those whose names end in `.Tests` or `.IntegrationTests` (`Directory.Build.props`).
+
 ## Traps that are designed out
 
 | Sibling-app failure | Why it cannot happen here |

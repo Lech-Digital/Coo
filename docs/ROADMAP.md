@@ -17,17 +17,18 @@ two.
 | 6 | **Today and quick logging (offline)** | 006 | The Today screen and the log tiles for the four kinds: breast timer with side switching, bottle, diaper, sleep, pump. The timeline and the day ribbon. Localized in seven languages. **Test:** you use it for real, offline, for a day. | Done |
 | 7 | **Edit, delete, undo, Needs attention** | 007 | Editing forms, undo, the duplicate check with "Keep both", and the plausibility warnings in the UI. **Test:** the scenarios in the spec, by hand, on the phone. | Done |
 | 8 | **Backend and deployment** | 008 | `Coo.Api` with PostgreSQL (G3 constraints, `entry_kind_versions`), Docker, deployed to `coldstart-prod` behind Caddy, and the server integrity scan. **Test:** `https://api.coo.lechdigital.nl/health`. | — |
-| 9 | **Identity and households** | 009 | Sign in with Google, the provisional household upgrade, invitations. **Test:** sign in on two phones, and invite one from the other. | — |
-| 10 | **Sync** | 010 | Push and pull, HLC, tombstones, the SignalR doorbell, `membership-revoked`. **Test:** two phones, offline edits, both converge, and nothing is lost. | — |
-| 11 | **Billing and entitlements** | 011 | Play Billing, the trial, RTDN, the reconciler, `FeatureGate`. **Test:** Play license testers. | — |
-| 12 | **Reminders and notifications** | 012 | The local reminders from ADR 0007, and WorkManager sync. | — |
-| 13 | **Sleep predictor** | 013 | ADR 0008, with the backtest harness gating it. | — |
-| 14 | **AI logging** | 014 | Voice and text to proposals, the confirmation card, pending notes, evals. | — |
-| 15 | **Reports (PDF)** | 015 | The pediatrician report, designed first. | — |
-| 16 | **Wear OS companion** | 016 | ADR 0009. | — |
-| 17 | **Release** | 017 | Signing, the Play listing in seven languages, the privacy policy, closed testing. | — |
+| 9 | **Settings** | 009 | A third tab with everything that works offline: the baby's profile, units, language, theme and quiet hours, about. Sign-in, Family and Premium add their sections to it later. **Test:** change each setting on the phone, and see Today and Log follow. | — |
+| 10 | **Identity and households** | 010 | Sign in with Google, the provisional household upgrade, invitations. **Test:** sign in on two phones, and invite one from the other. | — |
+| 11 | **Sync** | 011 | Push and pull, HLC, tombstones, the SignalR doorbell, `membership-revoked`. **Test:** two phones, offline edits, both converge, and nothing is lost. | — |
+| 12 | **Billing and entitlements** | 012 | Play Billing, the trial, RTDN, the reconciler, `FeatureGate`. **Test:** Play license testers. | — |
+| 13 | **Reminders and notifications** | 013 | The local reminders from ADR 0007, and WorkManager sync. | — |
+| 14 | **Sleep predictor** | 014 | ADR 0008, with the backtest harness gating it. | — |
+| 15 | **AI logging** | 015 | Voice and text to proposals, the confirmation card, pending notes, evals. | — |
+| 16 | **Reports (PDF)** | 016 | The pediatrician report, designed first. | — |
+| 17 | **Wear OS companion** | 017 | ADR 0009. | — |
+| 18 | **Release** | 018 | Signing, the Play listing in seven languages, the privacy policy, closed testing. | — |
 
-Increments 1–7 need no server and no accounts. By the end of increment 7, the app is a usable
+Increments 1–7 and 9 need no server and no accounts. By the end of increment 7, the app is a usable
 **single-phone baby log**. Everything after that adds the family, Premium and the smart features.
 
 ## Owner setup tasks that take calendar time
