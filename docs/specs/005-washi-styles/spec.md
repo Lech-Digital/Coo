@@ -2,7 +2,7 @@
 
 Date: 2026-10-01
 
-Status: **Draft — for review**
+Status: Accepted (2026-10-01: Q1–Q5 as recommended; Q5 checked visually with `docs/design/contrast-proposal.html`)
 
 Depends on: `docs/design/design-system.md` (locked), `docs/design/washi-ux.html` (the visual
 reference), ADR 0007 §4 (quiet hours), ADR 0006 (seven languages, font scaling), ADR 0001 (layers).

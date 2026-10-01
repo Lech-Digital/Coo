@@ -1,6 +1,6 @@
 # Coo design system — "Washi UX"
 
-Status: Locked (2026-09-29). Visual reference: `docs/design/washi-ux.html`.
+Status: Locked (2026-09-29; day `Mark`s and night `VoiceHint` darkened for contrast on 2026-10-01, Spec 005 Q5). Visual reference: `docs/design/washi-ux.html`.
 Superseded explorations: `docs/design/style-directions.html`.
 
 Washi UX combines three things:
@@ -45,7 +45,7 @@ They are the contract between this document and the XAML.
 | `OnAccent` | `#FAF8F3` | `#16130F` | Text on `Accent` |
 | `Cheek` | `#E8C4B8` | `#2E2820` | Baby avatar fill |
 | `CheekInk` | `#6E3F33` | `#E9C9A0` | Baby avatar initial |
-| `VoiceBg` / `VoiceInk` / `VoiceHint` | `#2A2823` / `#F1EDE5` / `#B8B1A4` | `#C9A46A` / `#16130F` / `#5A4A33` | The "Tell Coo" bar |
+| `VoiceBg` / `VoiceInk` / `VoiceHint` | `#2A2823` / `#F1EDE5` / `#B8B1A4` | `#C9A46A` / `#16130F` / `#4A3D2A` | The "Tell Coo" bar |
 
 ### Care events
 
@@ -57,10 +57,10 @@ Each event has three tokens:
 
 | Event | Day tint / mark / ink | Night tint / mark / ink |
 |---|---|---|
-| **Feed** (peach) | `#F5DCCB` / `#D9936C` / `#7A3F20` | `#2E2219` / `#C98A63` / `#D9A07C` |
-| **Diaper** (yuzu) | `#F3E6B3` / `#CFAE3E` / `#6A5410` | `#2C2716` / `#BFA34E` / `#CDB266` |
-| **Sleep** (lavender) | `#E2DCEF` / `#9587C2` / `#473A78` | `#25222E` / `#9A8AB5` / `#B1A3C9` |
-| **Pump** (mint) | `#D6E9E2` / `#6FA895` / `#2D5A4C` | `#1F2724` / `#7FA08F` / `#98B7A6` |
+| **Feed** (peach) | `#F5DCCB` / `#CC6F3B` / `#7A3F20` | `#2E2219` / `#C98A63` / `#D9A07C` |
+| **Diaper** (yuzu) | `#F3E6B3` / `#A08528` / `#6A5410` | `#2C2716` / `#BFA34E` / `#CDB266` |
+| **Sleep** (lavender) | `#E2DCEF` / `#8E7FBE` / `#473A78` | `#25222E` / `#9A8AB5` / `#B1A3C9` |
+| **Pump** (mint) | `#D6E9E2` / `#5A9481` / `#2D5A4C` | `#1F2724` / `#7FA08F` / `#98B7A6` |
 
 Keys follow the pattern `FeedTint`, `FeedMark`, `FeedInk`, and so on.
 
@@ -74,7 +74,8 @@ Colour rules:
   `Critical` (sync rejected). They must remain distinguishable in lightness, not only in hue.
 - **Contrast.** Text and background pairs meet WCAG AA: 4.5:1 for body text, and 3:1 for text of
   24 px or more and for icons. The event `Ink` on its `Tint`, `Ink`/`Ink2` on `Ground` and
-  `Surface`, and `OnAccent` on `Accent` were chosen for this in both modes. A contrast test in
+  `Surface`, and `OnAccent` on `Accent` were chosen for this in both modes. Meaningful graphics (the
+  event `Mark`s on `Ground` and `Surface`: ribbon ticks, dots, outlines) meet 3:1 (WCAG 1.4.11). A contrast test in
   `Coo.Mobile.Presentation.Tests` asserts these pairs from the token file, so a colour tweak cannot
   quietly break them.
 
