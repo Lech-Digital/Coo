@@ -37,7 +37,7 @@
   <data name="Awake.Title" xml:space="preserve"><value>{0} śpi</value></data>
   <data name="Awake.WokeUp" xml:space="preserve"><value>Pobudka</value></data>
   <data name="Baby.Nicknames" xml:space="preserve"><value>Inne imiona, których używacie</value></data>
-  <data name="Baby.NicknamesHint" xml:space="preserve"><value>Oddziel przecinkami</value></data>
+  <data name="Baby.NicknamesHint" xml:space="preserve"><value>Do 5, oddzielone przecinkami</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Witaj, {0}</value></data>
   <data name="Diaper.Dirty" xml:space="preserve"><value>Brudna</value></data>
   <data name="Diaper.Mixed" xml:space="preserve"><value>Obie</value></data>
@@ -90,6 +90,7 @@
   <data name="Error.baby.due-date-out-of-range" xml:space="preserve"><value>Ten termin porodu wygląda na błędny.</value></data>
   <data name="Error.baby.name-invalid" xml:space="preserve"><value>Wpisz imię do 40 znaków.</value></data>
   <data name="Error.baby.nickname-duplicate" xml:space="preserve"><value>Każde imię może wystąpić tylko raz.</value></data>
+  <data name="Error.baby.nicknames-invalid" xml:space="preserve"><value>Do 5 innych imion, każde do 40 znaków.</value></data>
   <data name="Error.baby.not-born-yet" xml:space="preserve"><value>Najpierw zapisz narodziny w zakładce Dziś.</value></data>
   <data name="Error.bottle.total-out-of-range" xml:space="preserve"><value>Butelka mieści najwyżej 1000 ml.</value></data>
   <data name="Error.breast.no-segments" xml:space="preserve"><value>Podaj minuty dla co najmniej jednej strony.</value></data>

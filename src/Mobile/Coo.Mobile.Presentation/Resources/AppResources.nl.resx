@@ -33,7 +33,7 @@
   <data name="Awake.Title" xml:space="preserve"><value>{0} slaapt</value></data>
   <data name="Awake.WokeUp" xml:space="preserve"><value>Wakker</value></data>
   <data name="Baby.Nicknames" xml:space="preserve"><value>Andere namen die jullie gebruiken</value></data>
-  <data name="Baby.NicknamesHint" xml:space="preserve"><value>Scheid met komma’s</value></data>
+  <data name="Baby.NicknamesHint" xml:space="preserve"><value>Maximaal 5, gescheiden door komma’s</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Welkom, {0}</value></data>
   <data name="Diaper.Dirty" xml:space="preserve"><value>Vies</value></data>
   <data name="Diaper.Mixed" xml:space="preserve"><value>Beide</value></data>
@@ -83,6 +83,7 @@
   <data name="Error.baby.due-date-out-of-range" xml:space="preserve"><value>Die uitgerekende datum lijkt niet te kloppen.</value></data>
   <data name="Error.baby.name-invalid" xml:space="preserve"><value>Vul een naam in van maximaal 40 tekens.</value></data>
   <data name="Error.baby.nickname-duplicate" xml:space="preserve"><value>Elke naam mag maar één keer voorkomen.</value></data>
+  <data name="Error.baby.nicknames-invalid" xml:space="preserve"><value>Maximaal 5 andere namen, elk tot 40 tekens.</value></data>
   <data name="Error.baby.not-born-yet" xml:space="preserve"><value>Leg eerst de geboorte vast bij Vandaag.</value></data>
   <data name="Error.bottle.total-out-of-range" xml:space="preserve"><value>Een fles bevat hoogstens 1.000 ml.</value></data>
   <data name="Error.breast.no-segments" xml:space="preserve"><value>Vul de minuten van minstens één kant in.</value></data>

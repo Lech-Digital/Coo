@@ -278,4 +278,18 @@ public sealed class ExpectedBabyTests
         // Assert
         result.Error!.Code.Should().Be(Coo.Domain.Common.RecordErrors.StaleVersion);
     }
+
+    [Fact]
+    public void Revise_SixNicknames_FailsWithNicknamesInvalid()
+    {
+        // Arrange: reviewer's finding — six short nicknames were told "Enter a name of up to 40 characters."
+        var baby = BabyProfile.Create(A.Baby, A.Household, "Zosia", [], Today.AddMonths(-2), null, A.Stamp(), Today).Value;
+        string[] six = ["Zo", "Mimi", "Zuzu", "Bean", "Pip", "Bug"];
+
+        // Act
+        var result = baby.Revise("Zosia", six, Today.AddMonths(-2), null, A.Stamp(), Today);
+
+        // Assert
+        result.Error!.Code.Should().Be(BabyErrors.NicknamesInvalid);
+    }
 }

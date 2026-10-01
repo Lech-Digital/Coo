@@ -144,7 +144,7 @@ public sealed class BabyProfile : SyncedRecord<BabyId>
     private static Result CheckNicknames(string? name, IReadOnlyCollection<string?> nicknames)
     {
         if (nicknames.Count > MaxNicknames || nicknames.Any(n => n is not { Length: > 0 and <= NameMaxLength }))
-            return Result.Failure(BabyErrors.NameInvalid);
+            return Result.Failure(BabyErrors.NicknamesInvalid);
 
         var keys = nicknames.Select(n => NameKey.From(n!)).ToList();
         var nameKey = name is null ? null : NameKey.From(name);
@@ -169,6 +169,7 @@ public static class BabyErrors
 {
     public const string NameInvalid = "baby.name-invalid";
     public const string NicknameDuplicate = "baby.nickname-duplicate";
+    public const string NicknamesInvalid = "baby.nicknames-invalid";
     public const string BirthInFuture = "baby.birth-in-future";
     public const string DueDateOutOfRange = "baby.due-date-out-of-range";
     public const string BirthOrDueDateRequired = "baby.birth-or-due-date-required";

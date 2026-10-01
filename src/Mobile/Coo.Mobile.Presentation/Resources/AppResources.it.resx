@@ -33,7 +33,7 @@
   <data name="Awake.Title" xml:space="preserve"><value>{0} sta dormendo</value></data>
   <data name="Awake.WokeUp" xml:space="preserve"><value>Sveglio</value></data>
   <data name="Baby.Nicknames" xml:space="preserve"><value>Altri nomi che usate</value></data>
-  <data name="Baby.NicknamesHint" xml:space="preserve"><value>Separati da virgole</value></data>
+  <data name="Baby.NicknamesHint" xml:space="preserve"><value>Fino a 5, separati da virgole</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Benvenuto, {0}</value></data>
   <data name="Diaper.Dirty" xml:space="preserve"><value>Sporco</value></data>
   <data name="Diaper.Mixed" xml:space="preserve"><value>Entrambi</value></data>
@@ -83,6 +83,7 @@
   <data name="Error.baby.due-date-out-of-range" xml:space="preserve"><value>Questa data prevista non sembra corretta.</value></data>
   <data name="Error.baby.name-invalid" xml:space="preserve"><value>Inserisci un nome di massimo 40 caratteri.</value></data>
   <data name="Error.baby.nickname-duplicate" xml:space="preserve"><value>Ogni nome può comparire una sola volta.</value></data>
+  <data name="Error.baby.nicknames-invalid" xml:space="preserve"><value>Fino a 5 altri nomi, ciascuno di massimo 40 caratteri.</value></data>
   <data name="Error.baby.not-born-yet" xml:space="preserve"><value>Registra prima la nascita in Oggi.</value></data>
   <data name="Error.bottle.total-out-of-range" xml:space="preserve"><value>Un biberon contiene al massimo 1.000 ml.</value></data>
   <data name="Error.breast.no-segments" xml:space="preserve"><value>Aggiungi i minuti di almeno un lato.</value></data>
