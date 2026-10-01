@@ -337,5 +337,43 @@ h2.sec { font-size:20px; font-weight:600; margin:8px 0 14px; }
 <div><p class="cap">Now</p><div class="night voicebox" style="background:var(--bg)"><button class="voice" aria-label="Log by voice"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Tell Coo<small>“120 ml formula and a wet diaper”</small></span></button></div></div>
 <div><p class="cap">Proposed</p><div class="night proposed voicebox" style="background:var(--bg)"><button class="voice" aria-label="Log by voice"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Tell Coo<small>“120 ml formula and a wet diaper”</small></span></button></div></div>
 </div>
+
+<h2 class="sec">Night sleep ink: the night rule says no blue-dominant text</h2>
+<p class="lede">The locked night lavender <code>#B1A3C9</code> has more blue than red (C9 &gt; B1), which breaks the design system's own night rule. Both candidates keep the lightness and raise the contrast on the sleep tint, from 6.65 to about 7.1:1, by turning lavender a little toward mauve. Only sleep's night ink changes. It colours sleep icons, sleep totals and sleep labels at night.</p>
+<div class="pair">
+<div><p class="cap">Now · #B1A3C9 (blue-dominant)</p><div class="night" style="background:var(--bg);width:300px;padding:20px;border-radius:24px;font-family:var(--font)">
+<div style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
+<span style="width:34px;height:34px;border-radius:12px;background:var(--sleepTint);color:#B1A3C9;display:grid;place-items:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span>
+<span style="color:var(--ink);font-weight:500">Nap · 1 h 15 m</span><span style="color:var(--ink2);font-size:13px;margin-left:auto">03:12</span></div>
+<div style="background:var(--sleepTint);border-radius:16px;padding:14px 16px;color:#B1A3C9"><div style="font-size:24px;font-weight:500;font-variant-numeric:tabular-nums">9 h 40</div><div style="font-size:13px">sleep</div></div>
+<div style="display:flex;gap:8px;margin-top:16px">
+<span style="background:var(--feedTint);color:var(--feedInk);border-radius:12px;padding:8px 10px;font-size:13px">Feed</span>
+<span style="background:var(--diaperTint);color:var(--diaperInk);border-radius:12px;padding:8px 10px;font-size:13px">Diaper</span>
+<span style="background:var(--sleepTint);color:#B1A3C9;border-radius:12px;padding:8px 10px;font-size:13px">Sleep</span>
+<span style="background:var(--pumpTint);color:var(--pumpInk);border-radius:12px;padding:8px 10px;font-size:13px">Pump</span></div>
+<p style="color:var(--ink2);font-size:12px;margin:14px 0 0"><code style="color:var(--ink2)">#B1A3C9</code></p></div></div>
+<div><p class="cap">Option A · #C0A8C0 dusty mauve</p><div class="night" style="background:var(--bg);width:300px;padding:20px;border-radius:24px;font-family:var(--font)">
+<div style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
+<span style="width:34px;height:34px;border-radius:12px;background:var(--sleepTint);color:#C0A8C0;display:grid;place-items:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span>
+<span style="color:var(--ink);font-weight:500">Nap · 1 h 15 m</span><span style="color:var(--ink2);font-size:13px;margin-left:auto">03:12</span></div>
+<div style="background:var(--sleepTint);border-radius:16px;padding:14px 16px;color:#C0A8C0"><div style="font-size:24px;font-weight:500;font-variant-numeric:tabular-nums">9 h 40</div><div style="font-size:13px">sleep</div></div>
+<div style="display:flex;gap:8px;margin-top:16px">
+<span style="background:var(--feedTint);color:var(--feedInk);border-radius:12px;padding:8px 10px;font-size:13px">Feed</span>
+<span style="background:var(--diaperTint);color:var(--diaperInk);border-radius:12px;padding:8px 10px;font-size:13px">Diaper</span>
+<span style="background:var(--sleepTint);color:#C0A8C0;border-radius:12px;padding:8px 10px;font-size:13px">Sleep</span>
+<span style="background:var(--pumpTint);color:var(--pumpInk);border-radius:12px;padding:8px 10px;font-size:13px">Pump</span></div>
+<p style="color:var(--ink2);font-size:12px;margin:14px 0 0"><code style="color:var(--ink2)">#C0A8C0</code></p></div></div>
+<div><p class="cap">Option B · #C9A3C9 orchid</p><div class="night" style="background:var(--bg);width:300px;padding:20px;border-radius:24px;font-family:var(--font)">
+<div style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
+<span style="width:34px;height:34px;border-radius:12px;background:var(--sleepTint);color:#C9A3C9;display:grid;place-items:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span>
+<span style="color:var(--ink);font-weight:500">Nap · 1 h 15 m</span><span style="color:var(--ink2);font-size:13px;margin-left:auto">03:12</span></div>
+<div style="background:var(--sleepTint);border-radius:16px;padding:14px 16px;color:#C9A3C9"><div style="font-size:24px;font-weight:500;font-variant-numeric:tabular-nums">9 h 40</div><div style="font-size:13px">sleep</div></div>
+<div style="display:flex;gap:8px;margin-top:16px">
+<span style="background:var(--feedTint);color:var(--feedInk);border-radius:12px;padding:8px 10px;font-size:13px">Feed</span>
+<span style="background:var(--diaperTint);color:var(--diaperInk);border-radius:12px;padding:8px 10px;font-size:13px">Diaper</span>
+<span style="background:var(--sleepTint);color:#C9A3C9;border-radius:12px;padding:8px 10px;font-size:13px">Sleep</span>
+<span style="background:var(--pumpTint);color:var(--pumpInk);border-radius:12px;padding:8px 10px;font-size:13px">Pump</span></div>
+<p style="color:var(--ink2);font-size:12px;margin:14px 0 0"><code style="color:var(--ink2)">#C9A3C9</code></p></div></div>
+</div>
 </body>
 </html>
