@@ -9,4 +9,8 @@
     <ProjectReference Include="../Coo.Contracts/Coo.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Coo.Codecs.Tests" />
+  </ItemGroup>
+
 </Project>

@@ -2,7 +2,7 @@
 
 Date: 2026-10-01
 
-Status: **Draft — for review**
+Status: Accepted (2026-10-01: Q1, Q2 and Q3 as recommended)
 
 Depends on: ADR 0010 §3 (forward compatibility), §7 (the guards) and §8 (evolving stored data);
 Spec 001 (the details types).
@@ -173,6 +173,9 @@ When an older app edits an entry, it must not erase the fields that a newer app 
   yield) are closed: a property added *inside* them is not additive. It needs a new version, and
   older clients then see the document as unrepresentable, and read-only. Merging inside arrays by
   position would be guesswork, and guesswork is how data gets corrupted.
+- **`previous` is upcast to the current version before merging.** Otherwise the properties that an
+  older version used, and a newer one renamed, would look unknown and be carried over next to their
+  replacements.
 - The merged document still passes the write gate. The gate's equality check runs on the decoded
   value, which ignores unknown properties, so preserving them never makes the gate fail.
 
@@ -226,7 +229,8 @@ fixture is missing (ADR 0010 G6, "kept forever").
 | `Decode_TestKindV1_UpcastsToV2` | The upcaster chain |
 | `Decode_SameVersionTwice_IsDeterministic` | No hidden state |
 
-**Completeness tests** (the first of ADR 0010 §4), in `Coo.Architecture.Tests`:
+**Completeness tests** (the first of ADR 0010 §4). The two that need test assets (fixtures,
+generators) live in `Coo.Codecs.Tests`; the others in `Coo.Architecture.Tests`:
 
 | Test | Rule |
 |---|---|

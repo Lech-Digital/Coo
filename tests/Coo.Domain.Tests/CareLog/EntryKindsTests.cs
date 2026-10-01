@@ -53,7 +53,7 @@ public sealed class EntryKindsTests
     public void Find_UnknownCode_ReturnsNull()
     {
         // Arrange
-        var code = EntryKindCode.From("medication").Value;
+        var code = EntryKindCode.From("never-released-test-kind").Value;
 
         // Act
         var kind = EntryKinds.Find(code);
