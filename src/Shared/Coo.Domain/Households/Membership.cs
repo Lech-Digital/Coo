@@ -1,0 +1,59 @@
+using Coo.Domain.Common;
+
+namespace Coo.Domain.Households;
+
+/// <summary>What a member may do in a household (ADR 0003 §6). Every role may log and view.</summary>
+public enum Role
+{
+    /// <summary>The creator; exactly one per household.</summary>
+    Owner,
+
+    Parent,
+
+    /// <summary>For example a nanny: logs and views, nothing else.</summary>
+    Caregiver,
+}
+
+/// <summary>
+/// A user's place in a household (ADR 0003 §6). A user may belong to several households (the nanny case). Until
+/// Increment 11b every household has only its Owner.
+/// </summary>
+public sealed class Membership
+{
+    private Membership(HouseholdId householdId, UserId userId, Role role, DateTimeOffset joinedAt)
+    {
+        HouseholdId = householdId;
+        UserId = userId;
+        Role = role;
+        JoinedAt = joinedAt;
+    }
+
+    public HouseholdId HouseholdId { get; }
+
+    public UserId UserId { get; }
+
+    public Role Role { get; }
+
+    public DateTimeOffset JoinedAt { get; }
+
+    /// <summary>An Owner or a Parent: "a parent" in ADR 0003 §8's deletion rules.</summary>
+    public bool IsParent => Role is Role.Owner or Role.Parent;
+
+    public bool CanInvite => IsParent;
+
+    public bool CanManageBaby => IsParent;
+
+    public bool CanManageBilling => IsParent;
+
+    public static Membership Create(HouseholdId householdId, UserId userId, Role role, DateTimeOffset joinedAt) =>
+        Enum.IsDefined(role)
+            ? new Membership(householdId, userId, role, joinedAt)
+            : throw new ArgumentOutOfRangeException(nameof(role), role, "Unknown role.");
+
+    /// <summary>An Owner or Parent may remove another member of the same household, except the Owner.</summary>
+    public bool CanRemove(Membership other)
+    {
+        ArgumentNullException.ThrowIfNull(other);
+        return IsParent && other.HouseholdId == HouseholdId && other.UserId != UserId && other.Role != Role.Owner;
+    }
+}
