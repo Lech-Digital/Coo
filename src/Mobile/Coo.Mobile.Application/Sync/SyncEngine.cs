@@ -121,6 +121,9 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
     /// <summary>The debug screen's Fresh bootstrap (Spec 011 §11): only with an empty outbox; the log comes back from cursor 0.</summary>
     public async Task<bool> FreshBootstrapAsync(CancellationToken cancellationToken)
     {
+        // A cycle in flight would pull into the household being wiped. A cycle that starts after this wait is accepted
+        // (a debug action: the worst case is repeating it).
+        await _scheduler.WhenIdleAsync().WaitAsync(cancellationToken);
         if (await _sessions.GetAsync(cancellationToken) is not { JoinPending: false } session)
             return false;
         if (!await _moves.FreshBootstrapAsync(session.AccountHousehold, cancellationToken))

@@ -155,6 +155,37 @@ public sealed class SyncEngineTests : IDisposable
     }
 
     [Fact]
+    public async Task FreshBootstrapAsync_ACycleIsInFlight_WipesOnlyAfterTheCycleFinishes()
+    {
+        // Arrange: a cycle is held inside its pull.
+        await SignInAsync();
+        await _engine.WhenIdleAsync();
+        var inPull = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var releasePull = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _api.PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+        {
+            inPull.TrySetResult();
+            await releasePull.Task;
+            return new PulledPage([], 0, false, 0);
+        });
+        _moves.FreshBootstrapAsync(Household, Arg.Any<CancellationToken>()).Returns(true);
+        var running = _engine.SyncNowAsync(CancellationToken.None);
+        await inPull.Task.WaitAsync(TimeSpan.FromSeconds(10));
+
+        // Act
+        var bootstrap = _engine.FreshBootstrapAsync(CancellationToken.None);
+        var wipedWhileRunning = _moves.ReceivedCalls().Any(c => c.GetMethodInfo().Name == nameof(IHouseholdMoves.FreshBootstrapAsync));
+        releasePull.SetResult();
+        var done = await bootstrap.WaitAsync(TimeSpan.FromSeconds(10));
+        await running;
+
+        // Assert
+        wipedWhileRunning.Should().BeFalse();
+        done.Should().BeTrue();
+        await _moves.Received(1).FreshBootstrapAsync(Household, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task JoinCompleted_BringOverDone_TellsThePagesToRefresh()
     {
         // Arrange (subscribed first: the engine's own first cycle may complete the join at once)

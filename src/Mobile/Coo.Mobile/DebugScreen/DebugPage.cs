@@ -8,6 +8,7 @@ using Coo.Domain.Households;
 using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
+using Coo.Mobile.Application.Sync;
 
 namespace Coo.Mobile.DebugScreen;
 
@@ -33,7 +34,12 @@ public sealed class DebugPage : ContentPage
     private readonly Label _status = new() { FontSize = 13 };
     private readonly Label _counters = new() { FontSize = 13 };
     private readonly Label _accountLine = new() { FontSize = 13 };
-    private string? _keptToken;
+    private readonly Label _syncLine = new() { FontSize = 13 };
+    private readonly SyncEngine _sync;
+
+    // For the process lifetime: this transient page is rebuilt on every visit, and the token must outlive a sign-out
+    // (Spec 010 §10.6: Keep token, sign out in Settings, reopen this page, then try the token).
+    private static string? _keptToken;
     private readonly VerticalStackLayout _list = new() { Spacing = 6 };
     private HouseholdId _household;
     private BabyId _baby;
@@ -41,10 +47,11 @@ public sealed class DebugPage : ContentPage
     public DebugPage(
         LogEntry log, ReviseEntry revise, DeleteEntry delete, GetEntries entries, ICareLogStore store,
         IHouseholdStore households, IVersionClock clock, IStorageDiagnostics diagnostics, IAccountApi accountApi,
-        ISessionStore sessions, Account account, TimeProvider time, IServiceProvider services)
+        ISessionStore sessions, Account account, TimeProvider time, SyncEngine sync, IServiceProvider services)
     {
         (_log, _revise, _delete, _entries, _store, _households, _clock, _diagnostics, _accountApi, _sessions, _account, _time) =
             (log, revise, delete, entries, store, households, clock, diagnostics, accountApi, sessions, account, time);
+        _sync = sync;
 
         Title = "Coo debug";
         BackgroundColor = Colors.White;
@@ -84,6 +91,22 @@ public sealed class DebugPage : ContentPage
                     Row(Button("Account (/api/me)", ShowServerAccountAsync),
                         Button("Keep token", KeepTokenAsync),
                         Button("Old token → /api/me", TryOldTokenAsync)),
+                    new Label { Text = "Sync (Spec 011 §11)", FontSize = 17, Margin = new Thickness(0, 12, 0, 0) },
+                    _syncLine,
+                    Row(Button("Sync now", async () =>
+                        {
+                            await _sync.SyncNowAsync(CancellationToken.None);
+                            await ShowSyncAsync();
+                        }),
+                        Button("Fresh bootstrap", async () =>
+                        {
+                            // Only with an empty outbox and no rejections (Spec 011 §11): clears this household here and pulls it from 0.
+                            _status.Text = await _sync.FreshBootstrapAsync(CancellationToken.None)
+                                ? "Fresh bootstrap: done"
+                                : "Fresh bootstrap refused: the outbox or the rejected list is not empty (or not signed in)";
+                            await ShowSyncAsync();
+                            await RefreshAsync();
+                        })),
                     new Label { Text = "Last 20 entries", FontSize = 17, Margin = new Thickness(0, 12, 0, 0) },
                     _list,
                 },
@@ -94,6 +117,27 @@ public sealed class DebugPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        _sync.StatusChanged -= OnSyncStatus;
+        _sync.StatusChanged += OnSyncStatus;
+        try
+        {
+            await LoadAsync();
+        }
+        catch (Exception e)
+        {
+            // Clicked-style catch-all: OnAppearing is async void, nothing may escape into the Android looper.
+            _status.Text = $"{e.GetType().Name} {e.Message}";
+        }
+    }
+
+    protected override void OnDisappearing()
+    {
+        _sync.StatusChanged -= OnSyncStatus;
+        base.OnDisappearing();
+    }
+
+    private async Task LoadAsync()
+    {
         var household = (await _households.ListHouseholdsAsync(CancellationToken.None)).First(h => !h.IsDeleted);
         _household = household.Id;
 
@@ -110,7 +154,32 @@ public sealed class DebugPage : ContentPage
 
         _baby = babies[0].Id;
         await RefreshAsync();
+        await ShowSyncAsync();
     }
+
+    private async Task ShowSyncAsync()
+    {
+        var counts = await _sync.CountsAsync(CancellationToken.None);
+        var s = _sync.Status;
+        _syncLine.Text = counts is null
+            ? "signed out"
+            : $"cursor {counts.Cursor} · outbox {counts.Outbox} · rejected {counts.Rejections}\n"
+              + $"last: {s.Last?.ToString() ?? "none"}{(s.LastError is null ? "" : $" ({s.LastError})")}"
+              + $"{(s.LastSyncedAt is { } at ? $" · synced {at:HH:mm:ss}" : "")}{(s.IsRunning ? " · running" : "")}";
+    }
+
+    // Raised from background threads: dispatched to the main thread, with a catch-all (async void).
+    private void OnSyncStatus(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
+    {
+        try
+        {
+            await ShowSyncAsync();
+        }
+        catch (Exception ex)
+        {
+            _syncLine.Text = ex.GetType().Name;
+        }
+    });
 
     private async Task LogPoint(EntryDetails details) =>
         Report(await _log.ExecuteAsync(
@@ -173,7 +242,21 @@ public sealed class DebugPage : ContentPage
     private void Report(Result result)
     {
         _status.Text = result.IsSuccess ? "Saved." : $"Refused: {result.Error}";
-        _ = RefreshAsync();
+        _ = RefreshQuietlyAsync();
+    }
+
+    // Fire-and-forget: nothing may escape into an unobserved task.
+    private async Task RefreshQuietlyAsync()
+    {
+        try
+        {
+            await RefreshAsync();
+            await ShowSyncAsync();
+        }
+        catch (Exception e)
+        {
+            _status.Text = $"{e.GetType().Name} {e.Message}";
+        }
     }
 
     private async Task RefreshAsync()
