@@ -16,5 +16,9 @@ public static class Licences
         new("CommunityToolkit.Mvvm", "MIT", "communitytoolkit-mit.txt", ["CommunityToolkit.Mvvm"]),
         new("SQLitePCLRaw", "Apache License 2.0", "sqlitepclraw-apache2.txt", ["SQLitePCLRaw.bundle_e_sqlite3"]),
         new("SQLite", "Public domain", "sqlite-public-domain.txt", []),
+        new("AndroidX Credential Manager", "Apache License 2.0 (bindings: MIT)", "androidx-credentials-apache2.txt",
+            ["Xamarin.AndroidX.Credentials", "Xamarin.AndroidX.Credentials.PlayServicesAuth"]),
+        new("Google Identity Services (Sign in with Google)", "Android Software Development Kit License (bindings: MIT)", "google-identity-notice.txt",
+            ["Xamarin.GoogleAndroid.Libraries.Identity.GoogleId"]),
     ];
 }

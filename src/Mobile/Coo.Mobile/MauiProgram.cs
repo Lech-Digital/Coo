@@ -31,8 +31,10 @@ public static class MauiProgram
         builder.Services.AddMobileApplication();
         builder.Services.AddMobileInfrastructure(
             databasePath: Path.Combine(FileSystem.AppDataDirectory, "coo.db"),
-            appVersion: $"{AppInfo.Current.VersionString}+{AppInfo.Current.BuildString}");
-        builder.Services.AddMobilePlatform();
+            appVersion: $"{AppInfo.Current.VersionString}+{AppInfo.Current.BuildString}",
+            apiBaseAddress: BuildConstants.ApiBaseAddress);
+        builder.Services.AddMobilePlatform(() => Microsoft.Maui.ApplicationModel.Platform.CurrentActivity, BuildConstants.GoogleWebClientId);
+        builder.Services.AddSingleton<Coo.Mobile.Application.Auth.ISecretStore, Auth.MauiSecretStore>();
         builder.Services.AddMobilePresentation();
 
         builder.Services.AddSingleton<ThemeHost>();

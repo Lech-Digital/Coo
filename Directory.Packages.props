@@ -15,6 +15,11 @@
     <PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="10.0.0" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.13" />
     <PackageVersion Include="Microsoft.Maui.Controls" Version="10.0.0" />
+    <!-- Sign in with Google (Spec 010a §5): exactly these. Newer ones pull AndroidX libraries newer than MAUI 10.0.0 pins
+         (NU1608) or need a newer GoogleId (NU1605), errors here. Revisit with the next MAUI upgrade. -->
+    <PackageVersion Include="Xamarin.AndroidX.Credentials" Version="1.5.0" />
+    <PackageVersion Include="Xamarin.AndroidX.Credentials.PlayServicesAuth" Version="1.5.0" />
+    <PackageVersion Include="Xamarin.GoogleAndroid.Libraries.Identity.GoogleId" Version="1.1.0.8" />
     <!-- Server storage: PostgreSQL through EF Core, schema by migrations (ADR 0001 §4, Spec 008 §4). -->
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12" />

@@ -16,6 +16,9 @@ updates:
         versions: [">= 8.0.0"]
       # Must match the installed maui-android workload; bumped by hand with it (BUILD.md).
       - dependency-name: Microsoft.Maui.Controls
+      # Pinned by Spec 010a §5: newer ones clash with MAUI 10.0.0. Bumped by hand with MAUI.
+      - dependency-name: Xamarin.AndroidX.Credentials*
+      - dependency-name: Xamarin.GoogleAndroid.Libraries.Identity.GoogleId
 
   - package-ecosystem: github-actions
     directory: /
