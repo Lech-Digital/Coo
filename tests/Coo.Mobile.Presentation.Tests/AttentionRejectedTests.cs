@@ -42,7 +42,11 @@ public sealed class AttentionRejectedTests : IDisposable
         _dismissals.ListAsync(Household, Arg.Any<CancellationToken>()).Returns(new HashSet<EntryPair>());
     }
 
-    public void Dispose() => Strings.Use(LanguagePreference.System, null);
+    public void Dispose()
+    {
+        _undo?.Dispose();
+        Strings.Use(LanguagePreference.System, null);
+    }
 
     private CareEntry Diaper(int n)
     {
@@ -60,12 +64,14 @@ public sealed class AttentionRejectedTests : IDisposable
             _store.FindAsync(entry.Id, Arg.Any<CancellationToken>()).Returns(new LiveEntry(entry));
     }
 
+    private UndoService? _undo;
+
     private AttentionViewModel Model()
     {
         var clockFormat = Substitute.For<IClockFormat>();
         clockFormat.Is24Hour.Returns(true);
-        var undo = new UndoService(new DeleteEntry(_store, _clock), new ReviseEntry(_store, _clock, _time), _store, _time);
-        return new AttentionViewModel(_households, new GetAttention(_store, _dismissals, _sync), new DismissDuplicate(_dismissals, _clock, _time), undo, clockFormat, _time);
+        _undo = new UndoService(new DeleteEntry(_store, _clock), new ReviseEntry(_store, _clock, _time), _store, _time);
+        return new AttentionViewModel(_households, new GetAttention(_store, _dismissals, _sync), new DismissDuplicate(_dismissals, _clock, _time), _undo, clockFormat, _time);
     }
 
     [Fact]
@@ -151,5 +157,113 @@ public sealed class AttentionRejectedTests : IDisposable
 
         // Assert
         raised.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task DeleteRejectedCommand_ARejectedEntry_LeavesTheListWhilePendingAndNamesItsTimeInTheToast()
+    {
+        // Arrange
+        Rejected(1);
+        var model = Model();
+        await model.RefreshAsync();
+        var item = model.Rejected[0];
+        UndoToast? toast = null;
+        _undo!.ToastChanged += (_, t) => toast = t;
+
+        // Act
+        await model.DeleteRejectedCommand.ExecuteAsync(item.Id);
+        await model.RefreshAsync();
+
+        // Assert
+        model.Rejected.Should().BeEmpty();
+        toast!.CanUndo.Should().BeTrue();
+        toast.Text.Should().Contain(item.Text);
+    }
+
+    [Fact]
+    public async Task UndoAsync_AfterDeletingARejectedEntry_ListsItAgain()
+    {
+        // Arrange
+        Rejected(1);
+        var model = Model();
+        await model.RefreshAsync();
+        await model.DeleteRejectedCommand.ExecuteAsync(model.Rejected[0].Id);
+
+        // Act
+        await _undo!.UndoAsync();
+        await model.RefreshAsync();
+
+        // Assert
+        model.Rejected.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ARejectionOfAnotherType_IsSkipped()
+    {
+        // Arrange
+        _sync.ListRejectionsAsync(Household, Arg.Any<CancellationToken>()).Returns(
+            [new SyncRejection(SyncEntityTypes.BabyProfile, Guid.Parse("7a1c0000-0000-7000-9000-0000000000ff"), "sync.role-forbidden", Now)]);
+
+        // Act
+        var attention = await new GetAttention(_store, _dismissals, _sync).ExecuteAsync(Household, Now, CancellationToken.None);
+
+        // Assert
+        attention.Rejected.Should().BeEmpty();
+        attention.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task RefreshAsync_AnUnknownReason_ReadsAsTheGenericMessage()
+    {
+        // Arrange
+        var entry = Diaper(1);
+        _sync.ListRejectionsAsync(Household, Arg.Any<CancellationToken>()).Returns(
+            [new SyncRejection(SyncEntityTypes.CareEntry, entry.Id.Value, "sync.something-new", Now)]);
+        _store.FindAsync(entry.Id, Arg.Any<CancellationToken>()).Returns(new LiveEntry(entry));
+        var model = Model();
+
+        // Act
+        await model.RefreshAsync();
+
+        // Assert
+        model.Rejected.Should().ContainSingle().Which.Reason.Should().Be(Strings.Get("Error.Generic"));
+    }
+
+    [Fact]
+    public async Task ShowMoreRejectedCommand_OnTheLastPage_ClearsHasMoreRejected()
+    {
+        // Arrange
+        Rejected(AttentionViewModel.RejectedPageSize + 10);
+        var model = Model();
+        await model.RefreshAsync();
+        var before = model.HasMoreRejected;
+
+        // Act
+        model.ShowMoreRejectedCommand.Execute(null);
+
+        // Assert
+        before.Should().BeTrue();
+        model.HasMoreRejected.Should().BeFalse();
+        model.Rejected.Count.Should().Be(AttentionViewModel.RejectedPageSize + 10);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ARejectedEntryThatIsAlsoUnreadable_IsListedOnceInItsOwnGroup()
+    {
+        // Arrange
+        var id = new EntryId(Guid.Parse("7a1c0000-0000-7000-9000-0000000000aa"));
+        var quarantined = new QuarantinedEntry(id, "diaper", Now.AddMinutes(-5), "bad");
+        _store.ListAsync(Household, Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>()).Returns([quarantined]);
+        _sync.ListRejectionsAsync(Household, Arg.Any<CancellationToken>()).Returns(
+            [new SyncRejection(SyncEntityTypes.CareEntry, id.Value, "time.end-not-after-start", Now)]);
+        _store.FindAsync(id, Arg.Any<CancellationToken>()).Returns(quarantined);
+
+        // Act
+        var attention = await new GetAttention(_store, _dismissals, _sync).ExecuteAsync(Household, Now, CancellationToken.None);
+
+        // Assert
+        attention.Quarantined.Should().ContainSingle();
+        attention.Rejected.Should().BeEmpty();
+        attention.Count.Should().Be(1);
     }
 }

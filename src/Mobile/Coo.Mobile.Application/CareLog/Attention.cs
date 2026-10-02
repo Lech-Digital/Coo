@@ -41,7 +41,8 @@ public sealed class GetAttention(ICareLogStore store, IDuplicateDismissalStore d
         {
             if (rejection.EntityType != SyncEntityTypes.CareEntry)
                 continue;
-            if (await store.FindAsync(new EntryId(rejection.EntityId), cancellationToken) is { } entry && entry is not LiveEntry { Entry.IsDeleted: true })
+            // An unreadable or newer-version entry already sits in its own group, with the action that fits it.
+            if (await store.FindAsync(new EntryId(rejection.EntityId), cancellationToken) is LiveEntry { Entry.IsDeleted: false } entry)
                 rejected.Add(new RejectedEntry(entry, rejection.Reason));
         }
 

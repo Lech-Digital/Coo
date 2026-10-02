@@ -12,6 +12,7 @@ public sealed class AttentionPage : ContentPage
     private readonly AttentionViewModel _model;
     private readonly UndoService _undo;
     private readonly IServiceProvider _services;
+    private bool _opening;
     private readonly ContentView _body = new();
 
     public AttentionPage(AttentionViewModel model, UndoService undo, IServiceProvider services)
@@ -40,6 +41,9 @@ public sealed class AttentionPage : ContentPage
 
     private void OnEditRequested(object? sender, Coo.Domain.Common.EntryId id) => Dispatcher.Dispatch(async () =>
     {
+        if (_opening)
+            return;
+        _opening = true;
 #pragma warning disable CA1031 // Fire-and-forget: an escaped exception would crash the app.
         try
         {
@@ -51,11 +55,15 @@ public sealed class AttentionPage : ContentPage
         {
             // The page stays where it is; the entry is still listed.
         }
+        finally
+        {
+            _opening = false;
+        }
 #pragma warning restore CA1031
     });
 
     // After an undo, or a delete that the window commits, the page shows what is now stored.
-    private void OnDataChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () => await RefreshAsync());
+    private void OnDataChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () => await SafeRefreshAsync());
 
     /// <summary>
     /// Back returns to the page below. Shell did not pop pushed pages on Back (found on the Pixel 10 in Increment 7):
@@ -72,8 +80,22 @@ public sealed class AttentionPage : ContentPage
         base.OnAppearing();
         _undo.DataChanged += OnDataChanged;
         _model.EditRequested += OnEditRequested;
-        await RefreshAsync();
+        await SafeRefreshAsync();
     }
+
+#pragma warning disable CA1031 // Fire-and-forget: an escaped exception would crash the app.
+    private async Task SafeRefreshAsync()
+    {
+        try
+        {
+            await RefreshAsync();
+        }
+        catch (Exception)
+        {
+            // The page keeps what it showed; the next change refreshes it.
+        }
+    }
+#pragma warning restore CA1031
 
     private async Task RefreshAsync()
     {
