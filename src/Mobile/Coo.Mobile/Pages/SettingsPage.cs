@@ -296,14 +296,30 @@ public sealed class SettingsPage : ContentPage
     private static Label Hint(string key) => Ui.Text(Strings.Get(key), "Meta", "Ink2");
 
     /// <summary>A tappable card row with a chevron.</summary>
-    private static View Row(View content, Func<Task> tapped)
+    private View Row(View content, Func<Task> tapped)
     {
         var grid = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], MinimumHeightRequest = 32 };
         grid.Add(content.Tap(c => c.VerticalOptions = LayoutOptions.Center), 0);
         grid.Add(new Icon(IconGeometry.ChevronRight, "Ink2", 20).Tap(i => i.VerticalOptions = LayoutOptions.Center), 1);
         var card = new Card(grid);
-        card.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await tapped()) });
+        card.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await RunTappedAsync(tapped)) });
         return card;
+    }
+
+    /// <summary>
+    /// The tap's command is async void: nothing may escape it. A failure the view models do not turn into a toast (the
+    /// phone's secret store refusing a write while signing in or out, say) shows the generic one instead of crashing.
+    /// </summary>
+    private async Task RunTappedAsync(Func<Task> tapped)
+    {
+        try
+        {
+            await tapped();
+        }
+        catch (Exception)
+        {
+            _undo.Say(Strings.Get("Error.Generic"));
+        }
     }
 
     /// <summary>A segmented choice: the selected one is the primary button, the others ghost buttons.</summary>
