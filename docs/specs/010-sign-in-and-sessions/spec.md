@@ -2,7 +2,7 @@
 
 Date: 2026-10-02
 
-Status: Draft
+Status: Accepted (2026-10-02: Q1, Q2, Q5, Q6 as recommended; Q3 and Q4 answered by the owner)
 
 Depends on: ADR 0003 (identity, sessions, households), ADR 0002 §10 (the outbox waits until there is an account),
 Spec 004 (local storage, the outbox), Spec 008 (the backend, `households`), Spec 009 (Settings), Spec 010a (the
@@ -44,8 +44,10 @@ baby with his girlfriend, each on their own phone with their own Google account.
     section shows the signed-out state. **Nothing local is deleted** (ADR 0003 §4).
   - **Delete account**: opens §5.
 
-Sign-in is offered **only here** in this increment (Q3). Invitations (11b) and Premium (12) will ask for it where they
-need it.
+**Sign-in is offered wherever something needs it** (Q3): sharing the household and inviting someone (11b), and
+Premium (12), each open the same sign-in in place, then carry on with what the person was doing. In this increment
+nothing else needs it yet, so the Account section is its only entry. The sign-in flow is one reusable piece
+(`SignIn` and its sheet), so those features call it rather than send the person to Settings.
 
 Being signed out, offline, or having an expired session **never blocks logging** (ADR 0003 §4).
 
@@ -159,9 +161,10 @@ ADR 0003 §8 and Google Play's rule (an in-app path and a web path).
   always goes.
 - **On the phone:** the tokens are cleared and the section shows the signed-out state. **The local log stays** on the
   phone as it was before signing in (Q2). Signing in again later starts a new account.
-- **On the web:** a page at `https://lechdigital.nl/projects/coo/delete-account` (the Coo website, Spec 008) explains
-  the in-app path, and gives an address to ask for deletion without the app. Its text is in English for now; the
-  site's other languages come with the release. Its URL goes into the Play listing at the release.
+- **On the web:** a page at `https://lechdigital.nl/projects/coo/delete-account` explains the in-app path, and gives
+  an address to ask for deletion without the app. It sits on Coo's project page on lechdigital.nl, next to the
+  privacy policy at `https://lechdigital.nl/projects/coo/privacy` (Q4). Its URL goes into the Play listing at the
+  release.
 
 ## 6. On the phone
 
@@ -210,9 +213,9 @@ The outbox keeps filling as before. Nothing is sent until Increment 11.
 
 | # | Question | Answer or recommendation |
 |---|---|---|
-| Q1 | The same account on a second phone that already has entries: bring them into the account's household now, or with sync? | **With sync (Increment 11).** Bringing entries over means mapping that phone's baby to the household's baby, and the household's babies only reach the phone through sync. Until then the second phone keeps its entries untouched and says so. |
-| Q2 | After deleting the account, what happens to the log on the phone? | **It stays on the phone,** as before signing in. Deleting the account is about the server's copy; wiping the phone too would destroy the only other copy without a second, separate confirmation. |
-| Q3 | Where is sign-in offered in this increment? | **Only in Settings.** Invitations and Premium will ask for it where they need it. A "Sign in instead" on the first-launch setup page waits for sync, because without sync a new phone would have nothing to show. |
-| Q4 | Website addresses | **`lechdigital.nl/projects/coo/…`** for the deletion page, as Spec 008 decided for the website. Spec 009's privacy link points at `coo.lechdigital.nl/privacy`, a host that does not exist (only `api.coo` has DNS): it should move to `https://lechdigital.nl/projects/coo/privacy` in this increment. |
-| Q5 | Token lifetimes | **As ADR 0003:** 15 minutes for the access token, 180 days sliding for the refresh token. |
-| Q6 | Spike first | **Yes, Spec 010a,** as ADR 0003 requires. If Credential Manager fails in a trimmed build, this spec still holds: only the adapter behind `ISignInProvider` changes. |
+| Q1 | The same account on a second phone that already has entries: bring them into the account's household now, or with sync? | **Answered (as recommended):** **With sync (Increment 11).** Bringing entries over means mapping that phone's baby to the household's baby, and the household's babies only reach the phone through sync. Until then the second phone keeps its entries untouched and says so. |
+| Q2 | After deleting the account, what happens to the log on the phone? | **Answered (as recommended):** **It stays on the phone,** as before signing in. Deleting the account is about the server's copy; wiping the phone too would destroy the only other copy without a second, separate confirmation. |
+| Q3 | Where is sign-in offered? | **Answered: wherever it is needed** — sharing and inviting (11b), Premium (12) — in place, through one reusable sign-in. In this increment that is only the Account section in Settings. |
+| Q4 | Website addresses | **Answered: Coo's page on lechdigital.nl,** a flagship project on the home page, with the privacy policy at `https://lechdigital.nl/projects/coo/privacy` (as PurePrep's) and the deletion page beside it. Spec 009's privacy link (`coo.lechdigital.nl/privacy`, a host with no DNS) moves there in this increment. |
+| Q5 | Token lifetimes | **Answered (as recommended):** **As ADR 0003:** 15 minutes for the access token, 180 days sliding for the refresh token. |
+| Q6 | Spike first | **Answered (as recommended):** **Yes, Spec 010a,** as ADR 0003 requires. If Credential Manager fails in a trimmed build, this spec still holds: only the adapter behind `ISignInProvider` changes. |
