@@ -1,9 +1,13 @@
 using Coo.Api.Application.Auth;
 using Coo.Api.Application.CareLog;
 using Coo.Api.Application.Health;
+using Coo.Api.Infrastructure.Identity;
 using Coo.Api.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Npgsql;
 
 namespace Coo.Api.Infrastructure;
@@ -36,6 +40,23 @@ public static class ServiceCollectionExtensions
 
         // Registered first, so it finishes before any other hosted service starts and before the server listens.
         services.AddHostedService<DatabaseStartup>();
+        return services;
+    }
+
+    /// <summary>
+    /// Sign-in (Spec 010 §4): the access-token issuer and the bearer validation (one or two signing keys, one of them
+    /// active), and the Google ID token verifier for <paramref name="googleWebClientId"/>. A null client ID refuses every
+    /// sign-in. The host checks the settings at start-up and calls <c>AddAuthentication().AddJwtBearer()</c> itself.
+    /// </summary>
+    public static IServiceCollection AddApiIdentity(
+        this IServiceCollection services, string? googleWebClientId, string activeKeyId, IReadOnlyDictionary<string, byte[]> signingKeys)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        services.AddSingleton(new SigningKeyRing(activeKeyId, signingKeys));
+        services.AddSingleton<ITokenIssuer, JwtTokenIssuer>();
+        services.AddSingleton<IExternalIdentityVerifier>(sp => new GoogleIdTokenVerifier(
+            googleWebClientId, sp.GetRequiredService<TimeProvider>(), sp.GetRequiredService<ILogger<GoogleIdTokenVerifier>>()));
+        services.AddSingleton<IConfigureOptions<JwtBearerOptions>, JwtBearerSetup>();
         return services;
     }
 }
