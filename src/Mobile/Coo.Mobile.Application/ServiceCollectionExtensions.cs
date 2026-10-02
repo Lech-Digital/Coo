@@ -1,3 +1,4 @@
+using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,13 @@ public static class ServiceCollectionExtensions
         services.AddTransient<SetHiddenKinds>();
         services.AddTransient<GetAttention>();
         services.AddTransient<DismissDuplicate>();
+
+        // Sign-in and sessions (Spec 010 §6).
+        services.AddSingleton<Account>();
+        services.AddTransient<SignIn>();
+        services.AddTransient<SignOut>();
+        services.AddTransient<DeleteAccount>();
+        services.AddTransient<RefreshAccount>();
         return services;
     }
 }
