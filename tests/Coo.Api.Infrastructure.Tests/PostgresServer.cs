@@ -1,3 +1,4 @@
+using Coo.Api.Application.Auth;
 using Coo.Api.Application.CareLog;
 using Coo.Api.Infrastructure.Persistence;
 using Coo.Domain.Common;
@@ -71,6 +72,13 @@ internal sealed class ServerDatabase : IAsyncDisposable
     public IHouseholdRegistry Households => _services.GetRequiredService<IHouseholdRegistry>();
 
     public NpgsqlDataSource DataSource => _services.GetRequiredService<NpgsqlDataSource>();
+
+    public IAuthNonceStore Nonces => _services.GetRequiredService<IAuthNonceStore>();
+
+    public IDeviceSessionStore Sessions => _services.GetRequiredService<IDeviceSessionStore>();
+
+    /// <summary>A request's worth of scoped services: <see cref="IAccountStore"/> lives here.</summary>
+    public AsyncServiceScope NewScope() => _services.CreateAsyncScope();
 
     public static async Task<ServerDatabase> CreateAsync(PostgresServer server, bool migrate = true)
     {

@@ -57,6 +57,9 @@ internal static class ServerColumns
     {
         if (offsetMin is < -14 * 60 or > 14 * 60)
             return null;
-        return new DateTimeOffset(DateTime.SpecifyKind(utc, DateTimeKind.Utc)).ToOffset(TimeSpan.FromMinutes(offsetMin));
+        return Utc(utc).ToOffset(TimeSpan.FromMinutes(offsetMin));
     }
+
+    /// <summary>A <c>timestamptz</c> read back as the UTC instant it is, whatever kind the reader gave the value.</summary>
+    public static DateTimeOffset Utc(DateTime value) => new(DateTime.SpecifyKind(value, DateTimeKind.Utc));
 }
