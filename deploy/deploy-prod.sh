@@ -14,6 +14,7 @@ set -euo pipefail
 HOST="${COO_HOST:-coldstart-prod}"
 PUBLIC_URL="${COO_PUBLIC_URL:-https://api.coo.lechdigital.nl}"
 REMOTE_DIR="${COO_REMOTE_DIR:-/opt/coo}"
+GOOGLE_WEB_CLIENT_ID="${COO_GOOGLE_WEB_CLIENT_ID:-282211746968-l54aogbkec1gf1g0rp0n7bk2mhbg2c7r.apps.googleusercontent.com}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if [ "${1:-}" != "--confirm" ]; then
@@ -36,14 +37,24 @@ dotnet test "$ROOT/Coo.Tests.slnf" -c Release --nologo -v q >/dev/null || {
   echo "REFUSING TO DEPLOY: tests are failing (or Docker is not running for the PostgreSQL tests)." >&2; exit 1; }
 echo "    Tests green."
 
-# ---- First deploy only: the folders and the secret --------------------------------------------
-# The password is generated on the server and written straight into .env (mode 600). It is never printed.
+# ---- The folders and the secrets ----------------------------------------------------------------
+# Generated on the server and written straight into .env (mode 600); never printed. Existing values are kept.
 echo "==> Preparing $HOST:$REMOTE_DIR"
 ssh "$HOST" "set -e; mkdir -p $REMOTE_DIR/deploy $REMOTE_DIR/backups $REMOTE_DIR/eng
+  umask 077
   if [ ! -f $REMOTE_DIR/.env ]; then
-    umask 077
     printf 'POSTGRES_PASSWORD=%s\n' \"\$(openssl rand -hex 32)\" > $REMOTE_DIR/.env
     echo '    Created .env with a new database password.'
+  fi
+  if ! grep -q '^AUTH_GOOGLE_WEB_CLIENT_ID=.' $REMOTE_DIR/.env; then
+    sed -i '/^AUTH_GOOGLE_WEB_CLIENT_ID=/d' $REMOTE_DIR/.env
+    printf 'AUTH_GOOGLE_WEB_CLIENT_ID=%s\n' '$GOOGLE_WEB_CLIENT_ID' >> $REMOTE_DIR/.env
+    echo '    Added the Google Web client ID to .env.'
+  fi
+  if ! grep -q '^AUTH_SIGNING_KEY_K1=.' $REMOTE_DIR/.env; then
+    sed -i '/^AUTH_SIGNING_KEY_K1=/d' $REMOTE_DIR/.env
+    printf 'AUTH_SIGNING_KEY_K1=%s\n' \"\$(openssl rand -base64 32)\" >> $REMOTE_DIR/.env
+    echo '    Added a new access-token signing key to .env.'
   fi"
 
 # ---- Sync -------------------------------------------------------------------------------------

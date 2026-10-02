@@ -29,12 +29,37 @@ The script:
 
 1. refuses when the backend has uncommitted changes, because `/health` reports the commit;
 2. runs every test, including the PostgreSQL ones, so **Docker Desktop must be running**;
-3. on the first deploy, creates `/opt/coo/.env` with a database password generated on the server and never printed;
+3. creates `/opt/coo/.env` on the first deploy (database password generated on the server, never printed) and adds the
+   sign-in settings when they are missing (see below);
 4. rsyncs the backend source and builds the image on the server;
 5. waits until `https://api.coo.lechdigital.nl/health` reports the new commit. On failure it prints the API's last
    30 log lines.
 
 The database volume survives every deploy. Migrations run when the API starts, before it takes a request.
+
+## Sign-in settings (Spec 010 §4.3)
+
+`coo-api` needs two values from `/opt/coo/.env`, and **refuses to start without them** (as it does without the
+database password):
+
+| `.env` | Becomes | What |
+|---|---|---|
+| `AUTH_GOOGLE_WEB_CLIENT_ID` | `Auth__GoogleWebClientId` | The Web client of Google Cloud project `coo-app-510411` (`docs/google-sign-in-setup.md` §6): the `aud` every Google ID token must carry. Not a secret. |
+| `AUTH_SIGNING_KEY_K1` | `Auth__SigningKeys__k1` | The HMAC key that signs access tokens: 32 random bytes, base64. |
+
+`deploy-prod.sh` adds both when they are missing: the client ID from the script, the key with `openssl rand -base64 32`
+**on the server**, never printed. Check that they are there (names only):
+
+    ssh coldstart-prod "grep -o '^AUTH_[A-Z0-9_]*=' /opt/coo/.env"
+
+**Rotating the signing key** without signing anyone out (ADR 0003 §4): add `AUTH_SIGNING_KEY_K2` to `.env` (generated on
+the server as above), add `Auth__SigningKeys__k2: ${AUTH_SIGNING_KEY_K2}` and `Auth__ActiveSigningKeyId: k2` to the
+compose file, and deploy. After at least 15 minutes (the access-token lifetime), remove `k1` from both and deploy again.
+Refresh tokens are not signed, so they survive any rotation.
+
+**If every sign-in fails with `auth.google-token-invalid`:** the API logs `Google ID token refused (<reason>)`. An
+`HttpRequestException` means the container cannot reach `www.googleapis.com` (fail closed, ADR 0003 §5); an
+`InvalidJwtException` naming the audience means the client ID in `.env` is not the one the app was built with.
 
 ## First deployment: the Caddy block (once)
 
