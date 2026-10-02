@@ -16,7 +16,7 @@ namespace Coo.Mobile.Infrastructure.Persistence;
 internal sealed class SyncStore(LocalDatabase database) : ISyncStore
 {
     /// <summary>The outbox rows whose record belongs to <c>$h</c>; settings are keyed by the household itself.</summary>
-    private const string InHousehold =
+    internal const string InHousehold =
         """
         ((o.entity_type = 'CareEntry' AND EXISTS (SELECT 1 FROM care_entries c WHERE c.id = o.entity_id AND c.household_id = $h))
          OR (o.entity_type = 'BabyProfile' AND EXISTS (SELECT 1 FROM baby_profiles b WHERE b.id = o.entity_id AND b.household_id = $h))

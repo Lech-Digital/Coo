@@ -43,6 +43,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ISyncControl>(sp => sp.GetRequiredService<SyncEngine>());
         services.AddTransient<RecordConsent>();
         services.AddTransient<DeclineConsent>();
+        services.AddTransient<BringEntriesOver>();
         return services;
     }
 }

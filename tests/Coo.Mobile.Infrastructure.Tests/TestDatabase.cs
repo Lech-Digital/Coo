@@ -64,6 +64,12 @@ internal sealed class TestDatabase : IAsyncDisposable
         return Task.FromResult(new EntryId(Guid.CreateVersion7(Time.GetUtcNow())));
     }
 
+    public async Task ExecuteAsync(string sql)
+    {
+        await using var connection = await OpenAsync();
+        await connection.ExecuteAsync(sql, CancellationToken.None);
+    }
+
     public async Task<long> ScalarAsync(string sql)
     {
         await using var connection = await OpenAsync();
