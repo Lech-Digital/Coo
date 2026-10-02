@@ -1,6 +1,7 @@
 using Coo.Domain.CareLog;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.CareLog.Kinds.Feeding;
+using Coo.Domain.CareLog.Kinds.Pump;
 using Coo.Domain.CareLog.Kinds.Sleep;
 using Coo.Domain.Common;
 using Coo.Domain.Common.Versioning;
@@ -132,6 +133,76 @@ public sealed class DayQueriesTests
         day.Ribbon.Where(m => !m.IsBlock).Should().HaveCount(3);
     }
 
+    [Fact]
+    public async Task ExecuteAsync_BreastFeed_MarkRunsFromStartToEndWithItsEntryId()
+    {
+        // Arrange
+        var feed = Breast(At(10, 0), 30);
+        var store = new FakeStore(feed);
+
+        // Act
+        var day = await new GetDay(store).ExecuteAsync(Household, Baby, new DateOnly(2026, 10, 1), Amsterdam, Now, CancellationToken.None);
+
+        // Assert
+        var mark = day.Ribbon.Should().ContainSingle().Which;
+        mark.EntryId.Should().Be(feed.Id);
+        mark.From.Should().BeApproximately(10.0 / 24, 1e-9);
+        mark.To.Should().BeApproximately(10.5 / 24, 1e-9);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_Bottle_MarkIsAPoint()
+    {
+        // Arrange
+        var store = new FakeStore(Bottle(At(8, 0)));
+
+        // Act
+        var day = await new GetDay(store).ExecuteAsync(Household, Baby, new DateOnly(2026, 10, 1), Amsterdam, Now, CancellationToken.None);
+
+        // Assert
+        var mark = day.Ribbon.Should().ContainSingle().Which;
+        mark.To.Should().Be(mark.From);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_PumpSession_MarkRunsToItsEnd()
+    {
+        // Arrange
+        var store = new FakeStore(Pump(At(9, 0), At(9, 30)));
+
+        // Act
+        var day = await new GetDay(store).ExecuteAsync(Household, Baby, new DateOnly(2026, 10, 1), Amsterdam, Now, CancellationToken.None);
+
+        // Assert
+        day.Ribbon.Should().ContainSingle().Which.To.Should().BeApproximately(9.5 / 24, 1e-9);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_SleepRunningToday_MarkEndsAtNow()
+    {
+        // Arrange: now is 14:00.
+        var store = new FakeStore(Sleep(At(13, 0), null));
+
+        // Act
+        var day = await new GetDay(store).ExecuteAsync(Household, Baby, new DateOnly(2026, 10, 1), Amsterdam, Now, CancellationToken.None);
+
+        // Assert
+        day.Ribbon.Should().ContainSingle().Which.To.Should().BeApproximately(14.0 / 24, 1e-9);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_SleepRunningSinceYesterday_YesterdaysMarkEndsAtMidnight()
+    {
+        // Arrange
+        var store = new FakeStore(Sleep(At(23, 0).AddDays(-1), null));
+
+        // Act
+        var day = await new GetDay(store).ExecuteAsync(Household, Baby, new DateOnly(2026, 9, 30), Amsterdam, Now, CancellationToken.None);
+
+        // Assert
+        day.Ribbon.Should().ContainSingle().Which.To.Should().Be(1);
+    }
+
     private static DateTimeOffset At(int hour, int minute) => new(2026, 10, 1, hour, minute, 0, Cest);
 
     private CareEntry Sleep(DateTimeOffset start, DateTimeOffset? end) =>
@@ -143,7 +214,13 @@ public sealed class DayQueriesTests
     private CareEntry Bottle(DateTimeOffset at) =>
         Make(EntrySubject.Baby(Baby), BottleFeed.Of(Milk.Formula, Volume.FromMillilitres(120).Value).Value, EntryTiming.Point(at));
 
-    private CareEntry Make(EntrySubject subject, EntryDetails details, EntryTiming timing) =>
+    private CareEntry Breast(DateTimeOffset start, int rightMinutes) =>
+        Make(EntrySubject.Baby(Baby), BreastFeed.FromSideDurations(start, [(BreastSide.Right, rightMinutes)]).Value, null);
+
+    private CareEntry Pump(DateTimeOffset start, DateTimeOffset end) =>
+        Make(EntrySubject.Caregiver(PersonRef.ThisDevicesPerson), new PumpDetails(), EntryTiming.Session(TimeRange.Create(start, end).Value));
+
+    private CareEntry Make(EntrySubject subject, EntryDetails details, EntryTiming? timing) =>
         CareEntry.Create(new EntryId(Guid.CreateVersion7(Now.AddMilliseconds(++_wall))), Household, subject, details, timing,
             PersonRef.ThisDevicesPerson, EntrySource.Manual, new HlcStamp(++_wall, 0, Device), Now).Value;
 

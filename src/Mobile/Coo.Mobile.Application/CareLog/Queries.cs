@@ -19,8 +19,11 @@ public sealed record TodaySummary(
     IReadOnlyList<StoredEntry> TodayEntries,
     LocalDay Today);
 
-/// <summary>One sleep block or one tick on the day ribbon, as fractions of the day (Spec 006 §7).</summary>
-public sealed record RibbonMark(string KindCode, double From, double To, bool IsBlock);
+/// <summary>
+/// One mark on the day chart, as fractions of the day (Spec 006 §7, Spec 009b §2): a sleep block, or a feed, diaper or
+/// pump. A session runs to its end (a running one to now, or the day's end); a point has <c>To == From</c>.
+/// </summary>
+public sealed record RibbonMark(string KindCode, double From, double To, bool IsBlock, EntryId EntryId);
 
 public sealed record DayTotals(int Feeds, int Diapers, TimeSpan Sleep, decimal PumpedMl);
 
@@ -106,19 +109,19 @@ public sealed class GetDay(ICareLogStore store)
             {
                 case SleepDetails:
                     sleep += day.Overlap(start, end);
-                    ribbon.Add(new RibbonMark(entry.KindCode.Value, day.Fraction(start), day.Fraction(end), IsBlock: true));
+                    ribbon.Add(new RibbonMark(entry.KindCode.Value, day.Fraction(start), day.Fraction(end), IsBlock: true, entry.Id));
                     break;
                 case FeedingDetails when day.Contains(start):
                     feeds++;
-                    ribbon.Add(new RibbonMark(entry.KindCode.Value, day.Fraction(start), day.Fraction(start), IsBlock: false));
+                    ribbon.Add(new RibbonMark(entry.KindCode.Value, day.Fraction(start), day.Fraction(end), IsBlock: false, entry.Id));
                     break;
                 case DiaperDetails when day.Contains(start):
                     diapers++;
-                    ribbon.Add(new RibbonMark(entry.KindCode.Value, day.Fraction(start), day.Fraction(start), IsBlock: false));
+                    ribbon.Add(new RibbonMark(entry.KindCode.Value, day.Fraction(start), day.Fraction(start), IsBlock: false, entry.Id));
                     break;
                 case PumpDetails pump when day.Contains(start):
                     pumped += pump.Yield?.Total.Millilitres ?? 0m;
-                    ribbon.Add(new RibbonMark(entry.KindCode.Value, day.Fraction(start), day.Fraction(start), IsBlock: false));
+                    ribbon.Add(new RibbonMark(entry.KindCode.Value, day.Fraction(start), day.Fraction(end), IsBlock: false, entry.Id));
                     break;
             }
         }
