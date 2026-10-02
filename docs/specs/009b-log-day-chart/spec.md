@@ -2,7 +2,7 @@
 
 Date: 2026-10-02
 
-Status: Draft (layout and the tap behaviour chosen by the owner in the session, from mockups: band "B", zoomed day "2")
+Status: Accepted (2026-10-02: Q1–Q3 answered in the session from mockups, band "B" and zoomed day "2"; Q4–Q6 as recommended)
 
 Depends on: Spec 006 §7 (the Log screen, the day ribbon), Spec 007 (opening an entry to edit it), Spec 005 (palettes,
 quiet hours), Spec 009 §3.2 and §3.4 (hidden kinds, quiet hours), the design system's "Day ribbon" entry.
