@@ -42,6 +42,9 @@ public sealed class StartupPage : ContentPage
 
         await _household.ExecuteAsync(CancellationToken.None);
 
+        // Who is signed in (Spec 010 §3.3), read once from SecureStorage. Signed in or not, Today opens the same way.
+        await _services.GetRequiredService<Coo.Mobile.Application.Auth.Account>().LoadAsync(CancellationToken.None);
+
         // The language (Spec 009 §3.5), before the first real page is built. A later change relabels the tabs, and the
         // pages redraw themselves.
         var language = _services.GetRequiredService<Coo.Mobile.Presentation.Localization.LanguageController>();

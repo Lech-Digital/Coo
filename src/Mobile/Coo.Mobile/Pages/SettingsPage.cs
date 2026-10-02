@@ -9,12 +9,13 @@ using Coo.Mobile.Presentation.Today;
 namespace Coo.Mobile.Pages;
 
 /// <summary>
-/// The Settings tab (Spec 009 §2–§3): baby, what you log, units, appearance, language, about. One scrolling page; it
-/// is rebuilt from the model whenever the model changes, like Log.
+/// The Settings tab (Spec 009 §2–§3, Spec 010 §2): account, baby, what you log, units, appearance, language, about.
+/// One scrolling page; it is rebuilt from the model whenever the model changes, like Log.
 /// </summary>
 public sealed class SettingsPage : ContentPage
 {
     private readonly SettingsViewModel _model;
+    private readonly AccountViewModel _account;
     private readonly IServiceProvider _services;
     private readonly IClockFormat _clock;
     private readonly UndoService _undo;
@@ -24,9 +25,10 @@ public sealed class SettingsPage : ContentPage
     private bool _renderQueued;
     private string? _renderedLanguage;
 
-    public SettingsPage(SettingsViewModel model, IClockFormat clock, UndoService undo, LanguageController language, IServiceProvider services)
+    public SettingsPage(SettingsViewModel model, AccountViewModel account, IClockFormat clock, UndoService undo, LanguageController language, IServiceProvider services)
     {
         _model = model;
+        _account = account;
         _language = language;
         _clock = clock;
         _undo = undo;
@@ -46,6 +48,7 @@ public sealed class SettingsPage : ContentPage
         // are resources, so a palette change needs no redraw here.
         _model.PropertyChanged += OnModelChanged;
         _language.Changed += OnLanguageChanged;
+        _account.PropertyChanged += OnAccountChanged;
 
         // The first visit draws at once from the data loaded at start-up, before the page's first frame: drawing after
         // the refresh showed one blank frame (recorded on the Pixel 10).
@@ -54,6 +57,9 @@ public sealed class SettingsPage : ContentPage
         await _model.RefreshAsync();
         if (_renderedLanguage != Strings.Language)
             QueueRender();
+
+        // The latest name and email, without holding up the page; offline nothing changes (Spec 010 deliverable 5).
+        Dispatcher.Dispatch(async () => await _account.RefreshAsync());
     }
 
     protected override void OnDisappearing()
@@ -61,6 +67,7 @@ public sealed class SettingsPage : ContentPage
         base.OnDisappearing();
         _model.PropertyChanged -= OnModelChanged;
         _language.Changed -= OnLanguageChanged;
+        _account.PropertyChanged -= OnAccountChanged;
     }
 
     private void OnModelChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -75,6 +82,20 @@ public sealed class SettingsPage : ContentPage
 
         QueueRender();
     }
+
+    // The account can change from a background refresh (a refused session), so everything goes through the dispatcher.
+    private void OnAccountChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) => Dispatcher.Dispatch(() =>
+    {
+        if (e.PropertyName == nameof(AccountViewModel.Toast))
+        {
+            if (!string.IsNullOrEmpty(_account.Toast))
+                _undo.Say(_account.Toast);
+            _account.Toast = "";
+            return;
+        }
+
+        QueueRender();
+    });
 
     private void OnLanguageChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
     {
@@ -101,6 +122,9 @@ public sealed class SettingsPage : ContentPage
         _rendering = true;
         var stack = new VerticalStackLayout { Spacing = 12, Padding = new Thickness(24, 32, 24, 96) };
         stack.Add(Ui.Text(Strings.Get("Tab.Settings"), "Title"));
+
+        foreach (var view in AccountViews())
+            stack.Add(view);
 
         stack.Add(Header("Settings.Baby"));
         stack.Add(Row(
@@ -178,6 +202,39 @@ public sealed class SettingsPage : ContentPage
         _body.Content = stack;
         _renderedLanguage = Strings.Language;
         _rendering = false;
+    }
+
+    /// <summary>The Account section, first in Settings (Spec 010 §2).</summary>
+    private IEnumerable<View> AccountViews()
+    {
+        yield return Header("Account.Title");
+        if (!_account.IsSignedIn)
+        {
+            yield return Row(
+                new VerticalStackLayout { Spacing = 2, Children = { Ui.Text(Strings.Get("Account.SignIn"), "BodyStrong"), Ui.Text(_account.StatusLine, "Meta", "Ink2") } },
+                () => _account.SignInCommand.ExecuteAsync(null));
+            yield break;
+        }
+
+        yield return new Card(new VerticalStackLayout { Spacing = 2, Children = { Ui.Text(_account.Name, "BodyStrong"), Ui.Text(_account.Email, "Meta", "Ink2") } });
+        if (_account.StatusLine.Length > 0)
+            yield return Ui.Text(_account.StatusLine, "Meta", "Ink2");
+        yield return Row(Ui.Text(Strings.Get("Account.SignOut"), "Body"), ConfirmSignOutAsync);
+        yield return Row(Ui.Text(Strings.Get("Account.Delete"), "Body"), ConfirmDeleteAsync);
+    }
+
+    private async Task ConfirmSignOutAsync()
+    {
+        var prompt = _account.SignOutPrompt;
+        if (await DisplayAlertAsync(prompt.Title, prompt.Message, prompt.Accept, prompt.Cancel))
+            await _account.SignOutCommand.ExecuteAsync(null);
+    }
+
+    private async Task ConfirmDeleteAsync()
+    {
+        var prompt = await _account.DeletePromptAsync();
+        if (await DisplayAlertAsync(prompt.Title, prompt.Message, prompt.Accept, prompt.Cancel))
+            await _account.DeleteAccountCommand.ExecuteAsync(null);
     }
 
     private async Task ChooseLanguageAsync()
