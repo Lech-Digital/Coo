@@ -1,3 +1,5 @@
+using Coo.Contracts.Sync;
+
 namespace Coo.Contracts.Auth;
 
 // Wire DTOs for sign-in and sessions (Spec 010 §3, §4.1). Versioned by adding, never by renaming (ADR 0001 §1).
@@ -12,7 +14,8 @@ public sealed record UserDto(Guid Id, string Email, string DisplayName);
 public sealed record SessionResponse(
     string AccessToken, DateTimeOffset AccessTokenExpiresAt, string RefreshToken, UserDto User, Guid HouseholdId, string Outcome);
 
-public sealed record RefreshRequest(string RefreshToken);
+/// <summary><see cref="NextRefreshToken"/> is the token the phone proposes as the next one (Spec 011 §8.2); 0.10.0 phones omit it.</summary>
+public sealed record RefreshRequest(string RefreshToken, string? NextRefreshToken = null);
 
 public sealed record TokensResponse(string AccessToken, DateTimeOffset AccessTokenExpiresAt, string RefreshToken);
 
@@ -21,7 +24,7 @@ public sealed record MembershipDto(Guid HouseholdId, string Role);
 
 public sealed record DeviceSessionDto(Guid Id, string DeviceName, DateTimeOffset LastUsedAt, bool IsCurrent);
 
-public sealed record MeResponse(UserDto User, MembershipDto? Household, IReadOnlyList<DeviceSessionDto> Devices);
+public sealed record MeResponse(UserDto User, MembershipDto? Household, IReadOnlyList<DeviceSessionDto> Devices, ConsentDto? Consent = null);
 
 public sealed record DeleteAccountRequest(bool Confirm);
 
