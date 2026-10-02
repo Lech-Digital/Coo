@@ -1,9 +1,11 @@
 using System.Net;
 using System.Reflection;
+using System.Security.Cryptography;
 using Coo.Api.Application.CareLog;
 using Coo.Api.Application.Health;
 using Coo.Api.Hosting;
 using Coo.Api.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +15,17 @@ var verifyOnly = args is ["verify", ..];
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddApiInfrastructure(
     StartupChecks.RequireConnectionString(builder.Configuration.GetConnectionString(StartupChecks.ConnectionStringName)));
+
+// Sign-in (Spec 010 §4.3): Production refuses to start without the Google Web client ID and a signing key.
+var auth = StartupChecks.SelectAuth(
+    builder.Configuration[StartupChecks.GoogleWebClientIdKey],
+    builder.Configuration.GetSection(StartupChecks.SigningKeysSection).GetChildren().Select(c => KeyValuePair.Create(c.Key, c.Value)),
+    builder.Configuration[StartupChecks.ActiveSigningKeyIdKey],
+    builder.Environment.IsProduction(),
+    RandomNumberGenerator.GetBytes(StartupChecks.MinimumKeyBytes));
+builder.Services.AddApiIdentity(auth.GoogleWebClientId, auth.ActiveKeyId, auth.SigningKeys);
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+builder.Services.AddAuthorization();
 builder.Services.AddSingleton<VerifyIntegrity>();
 if (!verifyOnly)
     builder.Services.AddHostedService<IntegrityScanJob>();
@@ -35,8 +48,10 @@ forwarded.KnownProxies.Clear();
 forwarded.KnownIPNetworks.Add(new System.Net.IPNetwork(IPAddress.Parse("10.0.0.0"), 8));
 forwarded.KnownIPNetworks.Add(new System.Net.IPNetwork(IPAddress.Parse("172.16.0.0"), 12));
 app.UseForwardedHeaders(forwarded);
+app.UseAuthentication();
+app.UseAuthorization();
 
-// "0.8.0+<commit>": the deploy script compares the commit with the one it shipped (Spec 008 §5).
+// "0.10.0+<commit>": the deploy script compares the commit with the one it shipped (Spec 008 §5).
 var version = typeof(Program).Assembly
     .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown";
 

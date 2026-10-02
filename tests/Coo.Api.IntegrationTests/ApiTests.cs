@@ -44,7 +44,7 @@ public sealed class ApiTests : IAsyncLifetime
         var body = await response.Content.ReadFromJsonAsync<JsonElement>();
         body.GetProperty("status").GetString().Should().Be("ok");
         body.GetProperty("database").GetString().Should().Be("ok");
-        body.GetProperty("version").GetString().Should().StartWith("0.8.0");
+        body.GetProperty("version").GetString().Should().StartWith("0.10.0");
         (await KindVersionsAsync()).Should().BePositive("start-up migrates and registers the kinds before serving");
     }
 
@@ -95,11 +95,7 @@ public sealed class ApiTests : IAsyncLifetime
     }
 
     private static WebApplicationFactory<Program> Api(string connectionString) =>
-        new WebApplicationFactory<Program>().WithWebHostBuilder(host =>
-        {
-            host.UseEnvironment("Production");
-            host.UseSetting($"ConnectionStrings:{StartupChecks.ConnectionStringName}", connectionString);
-        });
+        TestApi.Create(connectionString);
 
     private async Task<long> KindVersionsAsync()
     {
