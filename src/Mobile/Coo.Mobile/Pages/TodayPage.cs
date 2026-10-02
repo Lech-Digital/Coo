@@ -32,13 +32,17 @@ public sealed class TodayPage : ContentPage
         _services = services;
         Shell.SetNavBarIsVisible(this, false);
 
-        // The page pads its bottom for the keyboard (MAUI 10's SoftInput region), so a sheet with fields keeps them
-        // and its Save button above the keyboard. Found on the phone: without it, the second field and Save were hidden.
-        SafeAreaEdges = new SafeAreaEdges(SafeAreaRegions.Container, SafeAreaRegions.Container, SafeAreaRegions.Container, SafeAreaRegions.SoftInput);
-
-        _sheet.Closed += (_, _) =>
+        // "Earlier…" is the page's own sheet, not the view model's, so a tap outside hides it here. Closing it through
+        // the view model left it open and forgot it, and Back then sent Coo to the background (owner, Pixel 10).
+        _sheet.Closed += async (_, _) =>
         {
-            _pageSheet = false;
+            if (_pageSheet)
+            {
+                _pageSheet = false;
+                await _sheet.HideAsync();
+                return;
+            }
+
             model.CloseSheetCommand.Execute(null);
         };
 
