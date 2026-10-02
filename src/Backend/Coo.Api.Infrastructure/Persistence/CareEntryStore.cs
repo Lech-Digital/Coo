@@ -29,18 +29,8 @@ internal sealed partial class CareEntryStore(
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
-        // 1. The stored document, so the codec carries over properties this build does not know (Spec 003 §7).
-        string? previous;
-        await using (var select = new NpgsqlCommand("SELECT details::text FROM care_entries WHERE id = @id FOR UPDATE;", connection, transaction))
-        {
-            select.Parameters.AddWithValue("id", entry.Id.Value);
-            previous = (string?)await select.ExecuteScalarAsync(cancellationToken);
-        }
-
-        // 2. The write gate. A DetailsEncodingException leaves the transaction uncommitted: nothing is written.
-        var details = EntryDetailsCodecs.For(entry.Details).Encode(entry.Details, previous);
-
-        // 3. The household's next seq. Updating its counter row serialises writes within one household (ADR 0002 §6).
+        // 1. The household's next seq. Updating its counter row serialises writes within one household (ADR 0002 §6) and is
+        // taken before the entry's row lock, the same order as sync, so writers never deadlock.
         long seq;
         await using (var next = new NpgsqlCommand(
             "UPDATE households SET next_seq = next_seq + 1 WHERE id = @household RETURNING next_seq - 1;", connection, transaction))
@@ -51,12 +41,23 @@ internal sealed partial class CareEntryStore(
                 : throw new HouseholdNotFoundException($"Household {entry.HouseholdId.Value} does not exist on the server.");
         }
 
+        // 2. The stored document, so the codec carries over properties this build does not know (Spec 003 §7).
+        string? previous;
+        await using (var select = new NpgsqlCommand("SELECT details::text FROM care_entries WHERE id = @id FOR UPDATE;", connection, transaction))
+        {
+            select.Parameters.AddWithValue("id", entry.Id.Value);
+            previous = (string?)await select.ExecuteScalarAsync(cancellationToken);
+        }
+
+        // 3. The write gate. A DetailsEncodingException leaves the transaction uncommitted: nothing is written.
+        var details = EntryDetailsCodecs.For(entry.Details).Encode(entry.Details, previous);
+
         // 4. The row. An existing ID in another household is refused, never moved; a newer stored version is kept.
         await using (var upsert = new NpgsqlCommand(CareEntryWriter.UpsertSql, connection, transaction))
         {
             CareEntryWriter.AddParameters(upsert, entry, details, seq);
             if (await upsert.ExecuteNonQueryAsync(cancellationToken) != 1)
-                throw new InvalidOperationException($"Entry {entry.Id.Value} belongs to another household, or a newer version is stored.");
+                throw new InvalidOperationException($"Entry {entry.Id.Value} belongs to another household, is of another kind, or a newer version is stored.");
         }
 
         await transaction.CommitAsync(cancellationToken);

@@ -393,6 +393,35 @@ public sealed class SyncApiTests(AuthApi api) : IClassFixture<AuthApi>
     }
 
     [Fact]
+    public async Task Push_WithoutAToken_Is401()
+    {
+        // Arrange
+        using var client = api.Factory.CreateClient();
+        var device = Calls.Id(6181);
+
+        // Act
+        var response = await Calls.SendAsync(client, HttpMethod.Post, SyncCalls.Push, null,
+            new PushRequest(Calls.Id(6182), device, SchemaVersions.Current, [SyncCalls.Diaper(Calls.Id(6183), Calls.Id(6184), SyncCalls.Wall, device)]));
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Consents_WithoutAToken_Is401()
+    {
+        // Arrange
+        using var client = api.Factory.CreateClient();
+
+        // Act
+        var response = await Calls.SendAsync(client, HttpMethod.Post, SyncCalls.Consents, null,
+            new ConsentRequest(CareDataConsent.Purpose, CareDataConsent.CurrentWording, "0.11.0", "en"));
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
     public async Task Membership_WithoutAToken_Is401()
     {
         // Arrange

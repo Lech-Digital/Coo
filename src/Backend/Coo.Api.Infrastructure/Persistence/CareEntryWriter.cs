@@ -6,7 +6,7 @@ namespace Coo.Api.Infrastructure.Persistence;
 
 /// <summary>
 /// The one upsert of a care entry (Spec 008 §4), shared by the store and sync. An existing ID in another household is
-/// refused, never moved, and a stored version at least as high is kept (the WHERE, compared as a tuple like
+/// refused, never moved, a stored row of another kind is refused (the kind never changes), and a stored version at least as high is kept (the WHERE, compared as a tuple like
 /// <c>HlcStamp</c>): no row affected means the write did not land. Immutable columns (kind, subject, who logged it,
 /// source) are never updated.
 /// </summary>
@@ -28,6 +28,7 @@ internal static class CareEntryWriter
             details = excluded.details, version_wall_ms = excluded.version_wall_ms, version_counter = excluded.version_counter,
             version_device = excluded.version_device, is_deleted = excluded.is_deleted, seq = excluded.seq
         WHERE care_entries.household_id = excluded.household_id
+            AND care_entries.kind = excluded.kind
             AND (care_entries.version_wall_ms, care_entries.version_counter, care_entries.version_device)
                 < (excluded.version_wall_ms, excluded.version_counter, excluded.version_device);
         """;

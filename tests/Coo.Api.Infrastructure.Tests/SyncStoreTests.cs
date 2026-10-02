@@ -4,6 +4,7 @@ using Coo.Contracts.Sync;
 using Coo.Domain.CareLog;
 using Coo.Domain.CareLog.Duplicates;
 using Coo.Domain.CareLog.Kinds.Diaper;
+using Coo.Domain.CareLog.Kinds.Sleep;
 using Coo.Domain.Common;
 using Coo.Domain.Common.Versioning;
 using Coo.Domain.Households;
@@ -487,6 +488,93 @@ public sealed class SyncStoreTests(PostgresServer server)
         // Assert
         result.Should().Be(ChangeResult.Superseded);
         (await db.ScalarAsync($"SELECT version_device FROM care_entries WHERE id = '{id}';")).Should().Be(high.Value);
+    }
+
+    [Fact]
+    public async Task ApplyAsync_CareEntryOfAnotherHouseholdThanTheCallers_ThrowsAndStoresNothing()
+    {
+        // Arrange
+        await using var db = await DatabaseAsync(server);
+        var other = new HouseholdId(db.NewId());
+        var id = db.NewId();
+
+        // Act
+        Func<Task> act = async () => await ApplyAsync(db, Diaper(db, id, db.NextStamp(), household: other));
+
+        // Assert
+        await act.Should().ThrowAsync<ArgumentException>();
+        (await db.ScalarAsync("SELECT count(*) FROM care_entries;")).Should().Be(0L);
+    }
+
+    [Fact]
+    public async Task ApplyAsync_BabyProfileOfAnotherHouseholdThanTheCallers_Throws()
+    {
+        // Arrange
+        await using var db = await DatabaseAsync(server);
+        var other = new HouseholdId(db.NewId());
+        var baby = BabyProfile.Create(new BabyId(db.NewId()), other, "Maja", [], new DateOnly(2026, 8, 20), null, db.NextStamp(), new DateOnly(2026, 10, 1)).Value;
+
+        // Act
+        Func<Task> act = async () => await ApplyAsync(db, new BabyProfileWrite(baby));
+
+        // Assert
+        await act.Should().ThrowAsync<ArgumentException>();
+        (await db.ScalarAsync("SELECT count(*) FROM baby_profiles;")).Should().Be(0L);
+    }
+
+    [Fact]
+    public async Task ApplyAsync_DismissalOfAnotherHouseholdThanTheCallers_Throws()
+    {
+        // Arrange
+        await using var db = await DatabaseAsync(server);
+        var other = new HouseholdId(db.NewId());
+        var dismissal = DuplicateDismissal.Create(new DismissalId(db.NewId()), other, new EntryPair(new EntryId(db.NewId()), new EntryId(db.NewId())), db.NextStamp());
+
+        // Act
+        Func<Task> act = async () => await ApplyAsync(db, new DismissalWrite(dismissal));
+
+        // Assert
+        await act.Should().ThrowAsync<ArgumentException>();
+        (await db.ScalarAsync("SELECT count(*) FROM duplicate_dismissals;")).Should().Be(0L);
+    }
+
+    [Fact]
+    public async Task ApplyAsync_EditThatChangesTheKind_IsRejectedAsMalformedAndTheRowStays()
+    {
+        // Arrange: the kind is immutable once stored.
+        await using var db = await DatabaseAsync(server);
+        var id = db.NewId();
+        await ApplyAsync(db, Diaper(db, id, db.NextStamp()));
+        var asSleep = new CareEntryWrite(CareEntry.Create(new EntryId(id), Household, EntrySubject.Baby(ServerDatabase.Baby), new SleepDetails(),
+            EntryTiming.Session(TimeRange.Create(T0, T0.AddMinutes(50)).Value), PersonRef.User(new UserId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c1"))),
+            EntrySource.Manual, db.NextStamp(), T0).Value, """{"v":1}""");
+
+        // Act
+        var result = await ApplyAsync(db, asSleep);
+
+        // Assert
+        result.Should().Be(ChangeResult.Rejected(RejectionReasons.ChangeMalformed));
+        (await db.ScalarAsync($"SELECT kind FROM care_entries WHERE id = '{id}';")).Should().Be("diaper");
+        (await db.ScalarAsync($"SELECT next_seq FROM households WHERE id = '{Household.Value}';")).Should().Be(2L);
+        (await db.ScalarAsync("SELECT count(*) FROM sync_conflicts;")).Should().Be(0L);
+    }
+
+    [Fact]
+    public async Task ApplyAsync_ManyWritersEditingOneRecordAndCreatingOthers_AllFinishWithoutADeadlock()
+    {
+        // Arrange: the household counter lock is always taken before the row lock.
+        await using var db = await DatabaseAsync(server);
+        var shared = db.NewId();
+        await ApplyAsync(db, Diaper(db, shared, db.NextStamp()));
+        var writes = Enumerable.Range(0, 24)
+            .Select(i => i % 2 == 0 ? Diaper(db, shared, db.NextStamp()) : Diaper(db, db.NewId(), db.NextStamp()))
+            .ToList();
+
+        // Act
+        var results = await Task.WhenAll(writes.Select(w => ApplyAsync(db, w)));
+
+        // Assert
+        results.Should().OnlyContain(r => r.Outcome != ChangeOutcome.Rejected);
     }
 
     [Fact]

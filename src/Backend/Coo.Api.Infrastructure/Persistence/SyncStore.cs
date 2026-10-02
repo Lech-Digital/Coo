@@ -40,15 +40,22 @@ internal sealed class SyncStore(NpgsqlDataSource dataSource) : ISyncStore
     public async Task<ChangeResult> ApplyAsync(HouseholdId household, Guid changeId, SyncWrite write, DateTimeOffset now, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(write);
+        EnsureOwnHousehold(household, write);
         var table = Tables[write.EntityType];
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
-        // 1. The stored version, locked until this transaction ends. A missing row locks nothing: a concurrent writer of
+        // 1. The household's seq counter row, locked until this transaction ends: one counter for all four tables
+        // (ADR 0002 §6), and the lock serialises every write within one household. Always taken before the row lock of
+        // step 2, so two writers never wait on each other's locks in opposite order (no 40P01). The counter only moves
+        // for a write that lands (step 4), so seqs stay gapless.
+        var seq = await LockNextSeqAsync(connection, transaction, household, cancellationToken);
+
+        // 2. The stored version, locked until this transaction ends. A missing row locks nothing: a concurrent writer of
         // the same new ID is caught by the version guard in step 4 instead (PF1).
         var stored = await ReadStoredAsync(connection, transaction, table, write.EntityId, cancellationToken);
 
-        // 2. The rule, with Coo.Domain's HlcStamp.
+        // 3. The rule, with Coo.Domain's HlcStamp.
         var result = await DecideAsync(connection, transaction, household, changeId, write, stored, now, cancellationToken);
 
         // A delete of a record the server never stored needs nothing: only its own phone ever had it (ruling 1).
@@ -57,12 +64,9 @@ internal sealed class SyncStore(NpgsqlDataSource dataSource) : ISyncStore
 
         if (result is null)
         {
-            // 3. The household's next seq, under its counter row lock: one counter for all four tables (ADR 0002 §6), and
-            // the lock serialises every write within one household.
-            var seq = await LockNextSeqAsync(connection, transaction, household, cancellationToken);
-
             // 4. The row, guarded by household and version in the same statement. One row means it won; none means a
-            // concurrent writer stored this ID after step 1 (another household's, or a version at least as high).
+            // concurrent writer stored this ID after step 2 (another household's, or a version at least as high), or a
+            // care entry's kind differs from the stored one (the kind never changes).
             if (await WriteAsync(connection, transaction, household, write, table, seq, cancellationToken))
             {
                 await AdvanceSeqAsync(connection, transaction, household, cancellationToken);
@@ -72,7 +76,9 @@ internal sealed class SyncStore(NpgsqlDataSource dataSource) : ISyncStore
             {
                 stored = await ReadStoredAsync(connection, transaction, table, write.EntityId, cancellationToken);
                 result = await DecideAsync(connection, transaction, household, changeId, write, stored, now, cancellationToken)
-                    ?? throw new InvalidOperationException($"{write.EntityType} {write.EntityId} was neither written nor outranked.");
+                    ?? (write is CareEntryWrite
+                        ? ChangeResult.Rejected(RejectionReasons.ChangeMalformed)
+                        : throw new InvalidOperationException($"{write.EntityType} {write.EntityId} was neither written nor outranked."));
             }
         }
 
@@ -173,6 +179,21 @@ internal sealed class SyncStore(NpgsqlDataSource dataSource) : ISyncStore
             default:
                 return null;
         }
+    }
+
+    /// <summary>The write was built for the caller's household; one for another is a programming error, not a data problem.</summary>
+    private static void EnsureOwnHousehold(HouseholdId household, SyncWrite write)
+    {
+        var owner = write switch
+        {
+            CareEntryWrite care => care.Entry.HouseholdId,
+            BabyProfileWrite baby => baby.Baby.HouseholdId,
+            DismissalWrite dismissal => dismissal.Dismissal.HouseholdId,
+            HouseholdSettingsWrite settings => settings.Settings.Id,
+            _ => household,
+        };
+        if (owner != household)
+            throw new ArgumentException($"{write.EntityType} {write.EntityId} belongs to household {owner.Value}, not {household.Value}.", nameof(write));
     }
 
     private static async Task<long> LockNextSeqAsync(NpgsqlConnection connection, NpgsqlTransaction transaction, HouseholdId household, CancellationToken cancellationToken)
