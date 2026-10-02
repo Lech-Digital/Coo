@@ -96,11 +96,11 @@ Client IDs are not secrets: they are built into the app, and this repository is 
 secret, a password or a key file here.**
 
 ```text
-Google Cloud project ID:         <paste, e.g. coo-app-123456>
-Web client ID (Coo server):      <paste>.apps.googleusercontent.com
-Android client ID (debug):       <paste>.apps.googleusercontent.com
-Test users added:                <yes / no — the addresses themselves need not be written here>
-Done on (date):                  <paste>
+Google Cloud project ID:         coo-app-510411
+Web client ID (Coo server):      282211746968-l54aogbkec1gf1g0rp0n7bk2mhbg2c7r.apps.googleusercontent.com
+Android client ID (debug):       282211746968-l2qdu76vceqfj9dubcbauceahepqv6s4.apps.googleusercontent.com
+Test users added:                yes
+Done on (date):                  2026-10-02
 ```
 
 Later, before Play (section 5):
