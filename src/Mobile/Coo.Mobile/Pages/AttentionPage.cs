@@ -6,19 +6,21 @@ using Coo.Mobile.Presentation.Today;
 
 namespace Coo.Mobile.Pages;
 
-/// <summary>Needs attention (Spec 007 §6): probable duplicates, unreadable entries, entries from a newer app.</summary>
+/// <summary>Needs attention (Spec 007 §6): probable duplicates, unreadable entries, entries from a newer app, changes the server did not accept.</summary>
 public sealed class AttentionPage : ContentPage
 {
     private readonly AttentionViewModel _model;
     private readonly UndoService _undo;
+    private readonly IServiceProvider _services;
     private readonly ContentView _body = new();
 
-    public AttentionPage(AttentionViewModel model, UndoService undo)
+    public AttentionPage(AttentionViewModel model, UndoService undo, IServiceProvider services)
     {
         _model = model;
+        _services = services;
         model.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(AttentionViewModel.Duplicates))
+            if (e.PropertyName is nameof(AttentionViewModel.Duplicates) or nameof(AttentionViewModel.Rejected))
                 Dispatcher.Dispatch(Render);
         };
         _undo = undo;
@@ -33,7 +35,24 @@ public sealed class AttentionPage : ContentPage
     {
         base.OnDisappearing();
         _undo.DataChanged -= OnDataChanged;
+        _model.EditRequested -= OnEditRequested;
     }
+
+    private void OnEditRequested(object? sender, Coo.Domain.Common.EntryId id) => Dispatcher.Dispatch(async () =>
+    {
+#pragma warning disable CA1031 // Fire-and-forget: an escaped exception would crash the app.
+        try
+        {
+            var page = _services.GetRequiredService<EditPage>();
+            await page.OpenAsync(id);
+            await Navigation.PushAsync(page);
+        }
+        catch (Exception)
+        {
+            // The page stays where it is; the entry is still listed.
+        }
+#pragma warning restore CA1031
+    });
 
     // After an undo, or a delete that the window commits, the page shows what is now stored.
     private void OnDataChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () => await RefreshAsync());
@@ -52,6 +71,7 @@ public sealed class AttentionPage : ContentPage
     {
         base.OnAppearing();
         _undo.DataChanged += OnDataChanged;
+        _model.EditRequested += OnEditRequested;
         await RefreshAsync();
     }
 
@@ -111,6 +131,28 @@ public sealed class AttentionPage : ContentPage
                     },
                 }));
             }
+        }
+
+        if (_model.Rejected.Count > 0)
+        {
+            stack.Add(Ui.Text(Strings.Get("Attention.Rejected"), "Section"));
+            foreach (var item in _model.Rejected)
+            {
+                stack.Add(new Card(new VerticalStackLayout
+                {
+                    Spacing = 8,
+                    Children =
+                    {
+                        Ui.Text(item.Text, "BodyStrong"),
+                        Ui.Text(item.Reason, "Meta"),
+                        Small(Strings.Get("Edit.Title"), _model.EditRejectedCommand, primary: true, parameter: item.Id),
+                        Small(Strings.Get("Edit.Delete"), _model.DeleteRejectedCommand, parameter: item.Id),
+                    },
+                }));
+            }
+
+            if (_model.HasMoreRejected)
+                stack.Add(Small(Strings.Get("Attention.ShowMore"), _model.ShowMoreRejectedCommand));
         }
 
         _body.Content = stack;

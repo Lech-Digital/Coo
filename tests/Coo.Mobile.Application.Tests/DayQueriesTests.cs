@@ -263,7 +263,7 @@ public sealed class AttentionTests
         dismissals.ListAsync(Household, NSubstitute.Arg.Any<CancellationToken>()).Returns(new HashSet<Coo.Domain.CareLog.Duplicates.EntryPair>());
 
         // Act
-        var attention = await new GetAttention(store, dismissals).ExecuteAsync(Household, Now, CancellationToken.None);
+        var attention = await new GetAttention(store, dismissals, NoRejections()).ExecuteAsync(Household, Now, CancellationToken.None);
 
         // Assert
         attention.Duplicates.Should().ContainSingle();
@@ -283,7 +283,7 @@ public sealed class AttentionTests
             .Returns(new HashSet<Coo.Domain.CareLog.Duplicates.EntryPair> { new(b.Id, a.Id) });
 
         // Act
-        var attention = await new GetAttention(store, dismissals).ExecuteAsync(Household, Now, CancellationToken.None);
+        var attention = await new GetAttention(store, dismissals, NoRejections()).ExecuteAsync(Household, Now, CancellationToken.None);
 
         // Assert
         attention.Count.Should().Be(0);
@@ -300,7 +300,7 @@ public sealed class AttentionTests
         dismissals.ListAsync(Household, NSubstitute.Arg.Any<CancellationToken>()).Returns(new HashSet<Coo.Domain.CareLog.Duplicates.EntryPair>());
 
         // Act
-        var attention = await new GetAttention(store, dismissals).ExecuteAsync(Household, Now, CancellationToken.None);
+        var attention = await new GetAttention(store, dismissals, NoRejections()).ExecuteAsync(Household, Now, CancellationToken.None);
 
         // Assert
         attention.Quarantined.Should().ContainSingle();
@@ -310,4 +310,11 @@ public sealed class AttentionTests
         CareEntry.Create(new EntryId(Guid.CreateVersion7(at.AddMilliseconds(++_wall))), Household, EntrySubject.Baby(Baby),
             new DiaperDetails(DiaperContents.Wet), EntryTiming.Point(at), PersonRef.ThisDevicesPerson, EntrySource.Manual,
             new HlcStamp(++_wall, 0, Device), Now).Value;
+
+    private static Coo.Mobile.Application.Sync.ISyncStore NoRejections()
+    {
+        var sync = NSubstitute.Substitute.For<Coo.Mobile.Application.Sync.ISyncStore>();
+        sync.ListRejectionsAsync(NSubstitute.Arg.Any<HouseholdId>(), NSubstitute.Arg.Any<CancellationToken>()).Returns([]);
+        return sync;
+    }
 }

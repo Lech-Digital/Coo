@@ -33,6 +33,9 @@ public sealed class UndoService(DeleteEntry delete, ReviseEntry revise, ICareLog
     /// <summary>Raised when stored data changed (a delete was written, or an undo ran): pages refresh.</summary>
     public event EventHandler? DataChanged;
 
+    /// <summary>Data changed under the pages without an action of theirs (a sync pull, a move): they refresh.</summary>
+    public void ExternalChange() => DataChanged?.Invoke(this, EventArgs.Empty);
+
     /// <summary>The entry waiting to be deleted, which lists hide meanwhile.</summary>
     public EntryId? PendingDelete
     {

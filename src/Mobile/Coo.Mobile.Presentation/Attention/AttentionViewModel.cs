@@ -32,8 +32,23 @@ public sealed partial class AttentionViewModel(
     [ObservableProperty]
     private IReadOnlyList<AttentionEntry> _newer = [];
 
+    public const int RejectedPageSize = 50;
+
+    private IReadOnlyList<AttentionEntry> _allRejected = [];
+    private int _rejectedShown = RejectedPageSize;
+
+    [ObservableProperty]
+    private IReadOnlyList<AttentionEntry> _rejected = [];
+
     [ObservableProperty]
     private bool _isEmpty;
+
+    public int RejectedTotal => _allRejected.Count;
+
+    public bool HasMoreRejected => Rejected.Count < _allRejected.Count;
+
+    /// <summary>The page opens the edit form for a rejected entry (fixing it writes a new version, which goes back out).</summary>
+    public event EventHandler<EntryId>? EditRequested;
 
     public async Task RefreshAsync()
     {
@@ -63,7 +78,31 @@ public sealed partial class AttentionViewModel(
             .Select(q => new AttentionEntry(q.Id, q.KindCode, formats.Time(q.Start), Strings.Get("Edit.Unreadable")))];
         Newer = [.. attention.ReadOnly.Where(r => r.Id != pending)
             .Select(r => new AttentionEntry(r.Id, r.KindCode, formats.Time(r.Start), Strings.Get("Edit.Newer")))];
-        IsEmpty = Duplicates.Count + Unreadable.Count + Newer.Count == 0;
+        _allRejected = [.. attention.Rejected.Where(r => r.Entry.Id != pending)
+            .Select(r => new AttentionEntry(r.Entry.Id, r.Entry.KindCode, formats.Time(r.Entry.Start), Strings.Error(r.Reason)))];
+        ShowRejected();
+        IsEmpty = Duplicates.Count + Unreadable.Count + Newer.Count + _allRejected.Count == 0;
+    }
+
+    [RelayCommand]
+    private void ShowMoreRejected()
+    {
+        _rejectedShown += RejectedPageSize;
+        ShowRejected();
+    }
+
+    [RelayCommand]
+    private Task DeleteRejected(EntryId id) =>
+        undo.DeleteWithUndoAsync(id, _allRejected.FirstOrDefault(r => r.Id == id)?.Text ?? Strings.Get("Entry.Quarantined"));
+
+    [RelayCommand]
+    private void EditRejected(EntryId id) => EditRequested?.Invoke(this, id);
+
+    private void ShowRejected()
+    {
+        Rejected = [.. _allRejected.Take(_rejectedShown)];
+        OnPropertyChanged(nameof(RejectedTotal));
+        OnPropertyChanged(nameof(HasMoreRejected));
     }
 
     [RelayCommand]
