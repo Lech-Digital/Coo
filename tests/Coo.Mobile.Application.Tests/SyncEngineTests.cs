@@ -143,6 +143,7 @@ public sealed class SyncEngineTests : IDisposable
         // Arrange
         await SignInAsync();
         _moves.FreshBootstrapAsync(Household, Arg.Any<CancellationToken>()).Returns(false);
+        await _engine.WhenIdleAsync(); // the sign-in's own cycle pulls; it must finish before the calls are cleared
         _api.ClearReceivedCalls();
 
         // Act
