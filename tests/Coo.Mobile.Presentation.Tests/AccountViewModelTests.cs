@@ -320,6 +320,7 @@ public sealed class AccountViewModelTests : IDisposable
     {
         // Arrange
         await _account.SignedInAsync(new StoredSession("a", Expires, "r", Profile, AccountsHousehold, JoinPending: true), CancellationToken.None);
+        _sync.Status.Returns(SyncStatus.Initial with { Last = CycleOutcome.JoinPending, JoinReady = true });
         using var model = Model();
         var asked = 0;
         model.BringOverRequested += (_, _) => asked++;

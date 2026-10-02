@@ -78,17 +78,61 @@ public sealed class StartupPage : ContentPage
         }
 
         // Keep the window: once setup replaces this page, this page's Window property is null.
-        var window = Window;
+        ShowSetup(Window, startSync: true);
+    }
+
+    /// <summary>The first-launch baby step (Spec 006 §3); Today once the baby is saved.</summary>
+    private void ShowSetup(Window window, bool startSync)
+    {
         var setup = _services.GetRequiredService<Pages.SetupPage>();
         ((Coo.Mobile.Presentation.Setup.SetupViewModel)setup.BindingContext).Completed +=
             (_, _) => MainThread.BeginInvokeOnMainThread(() =>
             {
-                window.Page = _services.GetRequiredService<AppShell>();
+                try
+                {
+                    window.Page = _services.GetRequiredService<AppShell>();
+                }
+#pragma warning disable CA1031 // A main-thread callback must not end the app; the next launch shows Today.
+                catch (Exception e)
+#pragma warning restore CA1031
+                {
+                    global::Android.Util.Log.Warn("Coo", $"Today did not open after setup: {e}");
+                    return;
+                }
 
                 // After the shell is up, in the same main-thread turn: a sheet the first cycle opens goes over Today.
-                StartSync();
+                if (startSync)
+                    StartSync();
             });
         window.Page = setup;
+    }
+
+    /// <summary>
+    /// Final review I1: sync made a household with no baby yet active (a refused move into a new family, or a family with
+    /// no baby): Today, Log and Settings have nothing to show, so the first-launch baby step opens, as on a cold start.
+    /// Main thread; catches everything.
+    /// </summary>
+    private async Task ShowSetupIfNoBabyAsync()
+    {
+        try
+        {
+            if (Microsoft.Maui.Controls.Application.Current?.Windows is not { Count: > 0 } windows || windows[0] is not { Page: AppShell } window)
+                return;
+            var households = _services.GetRequiredService<IHouseholdStore>();
+            if ((await households.ListHouseholdsAsync(CancellationToken.None)).FirstOrDefault(h => !h.IsDeleted) is not { } household
+                || (await households.ListBabiesAsync(household.Id, CancellationToken.None)).Count > 0)
+                return;
+
+            // Checked again after the reads: another change may have opened setup meanwhile.
+            if (window.Page is AppShell)
+                ShowSetup(window, startSync: false);
+        }
+#pragma warning disable CA1031 // Fire-and-forget on the main thread: the next change or launch checks again.
+        catch (Exception e)
+#pragma warning restore CA1031
+        {
+            global::Android.Util.Log.Warn("Coo", $"Setup check failed: {e}");
+        }
     }
 
     /// <summary>Set once sync has started; the window's lifecycle triggers wait for it. Once per process, like the singletons it wires.</summary>
@@ -123,6 +167,8 @@ public sealed class StartupPage : ContentPage
 #pragma warning restore CA1031
                 {
                 }
+
+                _ = ShowSetupIfNoBabyAsync();
             });
             _services.GetRequiredService<Sync.SyncPrompter>().Attach();
             var connectivity = _services.GetRequiredService<Coo.Mobile.Application.Sync.IConnectivityWatcher>();
@@ -141,6 +187,10 @@ public sealed class StartupPage : ContentPage
             };
             connectivity.Start();
             engine.Start();
+
+            // Started while Coo is not on screen (a Stopped that came before this page finished): no 30-second pull then.
+            if (!App.IsForeground)
+                engine.Backgrounded();
         }
 #pragma warning disable CA1031 // Logging never depends on sync (ADR 0002): a failure here leaves the app as it was.
         catch (Exception e)
@@ -167,6 +217,9 @@ public sealed class StartupPage : ContentPage
 
     private void ResumeSync()
     {
+        // Not on screen: Resumed does this when the window comes back.
+        if (!App.IsForeground)
+            return;
         try
         {
             _services.GetRequiredService<Coo.Mobile.Application.Sync.SyncEngine>().Resumed();

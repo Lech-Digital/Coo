@@ -7,7 +7,11 @@ namespace Coo.Mobile.Application.Sync;
 /// <param name="LastSyncedAt">The phone's local time of the last successful cycle.</param>
 /// <param name="Pending">Outbox rows of the account's household.</param>
 /// <param name="Removal">A household the person was removed from, waiting for <see cref="SyncEngine.AcknowledgeRemovalAsync"/>.</param>
-public sealed record SyncStatus(CycleOutcome? Last, DateTimeOffset? LastSyncedAt, int Pending, bool IsRunning, string? LastError, HouseholdId? Removal)
+/// <param name="JoinReady">
+/// Join-pending, consent given, and a pull of the account's household has completed: bring-over may be offered (Spec 011 §4).
+/// </param>
+public sealed record SyncStatus(
+    CycleOutcome? Last, DateTimeOffset? LastSyncedAt, int Pending, bool IsRunning, string? LastError, HouseholdId? Removal, bool JoinReady = false)
 {
     public static SyncStatus Initial { get; } = new(null, null, 0, false, null, null);
 }
@@ -177,6 +181,7 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
         }
 
         var pending = await PendingAsync(cancellationToken);
+        var joinReady = await JoinReadyAsync(cancellationToken);
         var now = _time.GetLocalNow();
         var signedOut = report.Outcome == CycleOutcome.NotSignedIn;
         var outlived = false;
@@ -198,6 +203,7 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
                 IsRunning = false,
                 LastError = report.Error,
                 Removal = report.Outcome == CycleOutcome.Removed ? report.Household : signedOut ? null : s.Removal,
+                JoinReady = joinReady ?? (!signedOut && s.JoinReady),
             };
         });
         if (report.DataChanged)
@@ -206,6 +212,10 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
         // The account change requested its own cycle; this one must not back off or stop and swallow it.
         if (outlived)
             return true;
+
+        // Marks the running cycle dirty: the scheduler runs the next one as soon as this one returns.
+        if (report.RunAgain)
+            _scheduler.Request(SyncTrigger.Manual);
 
         if (report is { Outcome: CycleOutcome.Failed, Error: SyncCycle.HouseholdMismatchError or SyncCycle.NoProgressError })
         {
@@ -231,12 +241,30 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
         }
     }
 
+    /// <summary>For the sync line and the prompter (final review C1): null when it could not be read; the last value stays.</summary>
+    private async Task<bool?> JoinReadyAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _sessions.GetAsync(cancellationToken) is { JoinPending: true } session
+                && await _consent.CachedAsync(session.Profile.UserId, cancellationToken) == ConsentState.Given
+                && await _store.HasPulledAsync(session.AccountHousehold, cancellationToken);
+        }
+#pragma warning disable CA1031 // A store failure: the line keeps what it showed; the next cycle reads it again.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+            return null;
+        }
+    }
+
     private async Task RefreshPendingAsync()
     {
         try
         {
-            if (await PendingAsync(CancellationToken.None) is { } pending)
-                Update(s => s with { Pending = pending });
+            var pending = await PendingAsync(CancellationToken.None);
+            var joinReady = await JoinReadyAsync(CancellationToken.None);
+            Update(s => s with { Pending = pending ?? s.Pending, JoinReady = joinReady ?? s.JoinReady });
         }
 #pragma warning disable CA1031 // Fire-and-forget: the count is for the sync line only; the next cycle refreshes it.
         catch (Exception)

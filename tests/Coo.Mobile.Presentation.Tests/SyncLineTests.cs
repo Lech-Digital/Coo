@@ -98,14 +98,53 @@ public sealed class SyncLineTests : IDisposable
         line.Text.Should().Be("Update Coo to keep sharing. Your changes are safe on this phone.");
     }
 
+    private static readonly AccountState Joining = new JoinPending(Profile, new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a9")));
+
     [Fact]
-    public void For_JoinPending_SaysTheEntriesAreNotInTheFamilysLogAndOffersTheChoice()
+    public void For_JoinPendingAndTheFamilyPulled_SaysTheEntriesAreNotInTheFamilysLogAndOffersTheChoice()
     {
         // Act
-        var line = SyncLine.For(new JoinPending(Profile, new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a9"))), SyncStatus.Initial, is24Hour: true);
+        var line = SyncLine.For(Joining, SyncStatus.Initial with { Last = CycleOutcome.JoinPending, JoinReady = true }, is24Hour: true);
 
         // Assert
         line.Should().Be(new SyncLineView("Signed in. The entries on this phone aren't in your family's log yet.", SyncLineAction.ChooseWhatToDo));
+    }
+
+    [Fact]
+    public void For_JoinPendingBeforeTheFamilyIsPulled_OffersNoChoiceYet()
+    {
+        // Act (final review C1 b)
+        var line = SyncLine.For(Joining, SyncStatus.Initial, is24Hour: true);
+
+        // Assert
+        line.Should().Be(new SyncLineView("Signed in. The entries on this phone aren't in your family's log yet.", SyncLineAction.None));
+    }
+
+    [Theory]
+    [InlineData(CycleOutcome.ConsentNeeded)]
+    [InlineData(CycleOutcome.ConsentDeclined)]
+    public void For_JoinPendingWithoutConsent_OffersToTurnOnSharing(CycleOutcome last)
+    {
+        // Act (final review C1 b, Minor 6)
+        var line = SyncLine.For(Joining, Status(last), is24Hour: true);
+
+        // Assert
+        line.Should().Be(new SyncLineView("Sharing is off. Your log is only on this phone.", SyncLineAction.TurnOnSharing));
+    }
+
+    [Fact]
+    public void For_StoppedInPolish_IsNotThePausedWording()
+    {
+        // Arrange: "wstrzymane" is Sync.Paused's word; a stop must read differently.
+        Strings.Use(new LanguagePreference("pl"), null);
+
+        // Act
+        var mismatch = SyncLine.For(Signed, Status(CycleOutcome.Failed) with { LastError = SyncCycle.HouseholdMismatchError }, is24Hour: true);
+        var noProgress = SyncLine.For(Signed, Status(CycleOutcome.Failed) with { LastError = SyncCycle.NoProgressError }, is24Hour: true);
+
+        // Assert
+        mismatch.Text.Should().StartWith("Udostępnianie zatrzymane:");
+        noProgress.Text.Should().StartWith("Udostępnianie zatrzymane.");
     }
 
     [Fact]

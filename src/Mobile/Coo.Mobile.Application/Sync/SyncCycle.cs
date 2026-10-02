@@ -154,8 +154,9 @@ public sealed class SyncCycle(
         switch (status)
         {
             case MembershipStatus.Active:
+                // Lifted: the next cycle syncs at once rather than at the next 30-second tick.
                 await state.SetSoftLockAsync(household, false, cancellationToken);
-                return new CycleReport(CycleOutcome.Interrupted);
+                return new CycleReport(CycleOutcome.Interrupted, RunAgain: true);
             case MembershipStatus.Revoked:
                 // Confirmed. Deleting waits for the person (ADR 0002 §10; ruling 13).
                 return new CycleReport(CycleOutcome.Removed, Household: household);

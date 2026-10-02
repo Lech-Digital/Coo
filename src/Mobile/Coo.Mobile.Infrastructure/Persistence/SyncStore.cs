@@ -149,6 +149,14 @@ internal sealed class SyncStore(LocalDatabase database) : ISyncStore
         return new SyncCursor(0, Convert.ToInt64(holds, CultureInfo.InvariantCulture) == 1 ? 0 : null);
     }
 
+    public async Task<bool> HasPulledAsync(HouseholdId household, CancellationToken cancellationToken)
+    {
+        await using var connection = await database.OpenAsync(cancellationToken);
+        var pulled = await connection.ScalarAsync(
+            "SELECT EXISTS (SELECT 1 FROM sync_cursors WHERE household_id = $h AND bootstrap_head IS NULL);", cancellationToken, null, ("$h", Columns.Id(household.Value)));
+        return Convert.ToInt64(pulled, CultureInfo.InvariantCulture) == 1;
+    }
+
     public async Task ApplyPageAsync(HouseholdId household, PulledPage page, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(page);
@@ -236,10 +244,10 @@ internal sealed class SyncStore(LocalDatabase database) : ISyncStore
                     await using var r = await command.ExecuteReaderAsync(cancellationToken);
                     if (!await r.ReadAsync(cancellationToken) || Columns.ParseStamp(r.GetInt64(4), r.GetInt64(5), r.GetString(6)) is not { } version)
                         return null;
+                    if (!TryDate(r, 2, out var birth) || !TryDate(r, 3, out var due))
+                        return null;
                     return new State(version, r.GetInt64(7) == 1, new BabyProfilePayload(
-                        r.GetString(0), JsonSerializer.Deserialize(r.GetString(1), StringListJson.Default.ListString) ?? [],
-                        r.IsDBNull(2) ? null : DateOnly.ParseExact(r.GetString(2), "yyyy-MM-dd", CultureInfo.InvariantCulture),
-                        r.IsDBNull(3) ? null : DateOnly.ParseExact(r.GetString(3), "yyyy-MM-dd", CultureInfo.InvariantCulture)));
+                        r.GetString(0), JsonSerializer.Deserialize(r.GetString(1), StringListJson.Default.ListString) ?? [], birth, due));
                 }
 
             case SyncEntityTypes.HouseholdSettings:
@@ -262,12 +270,26 @@ internal sealed class SyncStore(LocalDatabase database) : ISyncStore
                     await using var r = await command.ExecuteReaderAsync(cancellationToken);
                     if (!await r.ReadAsync(cancellationToken) || Columns.ParseStamp(r.GetInt64(2), r.GetInt64(3), r.GetString(4)) is not { } version)
                         return null;
-                    return new State(version, r.GetInt64(5) == 1, new DismissalPayload(Guid.Parse(r.GetString(0)), Guid.Parse(r.GetString(1))));
+                    if (Columns.ParseGuid(r.GetString(0)) is not { } a || Columns.ParseGuid(r.GetString(1)) is not { } b)
+                        return null;
+                    return new State(version, r.GetInt64(5) == 1, new DismissalPayload(a, b));
                 }
 
             default:
                 return null;
         }
+    }
+
+    /// <summary>A null column is no date; a stored value no <see cref="DateOnly"/> can hold makes the record unreadable (final review M9).</summary>
+    private static bool TryDate(SqliteDataReader reader, int column, out DateOnly? date)
+    {
+        date = null;
+        if (reader.IsDBNull(column))
+            return true;
+        if (!DateOnly.TryParseExact(reader.GetString(column), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
+            return false;
+        date = parsed;
+        return true;
     }
 
     /// <summary>A local row with this ID that belongs to another household is never touched by a pull.</summary>

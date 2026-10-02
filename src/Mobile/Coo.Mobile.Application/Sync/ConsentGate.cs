@@ -18,8 +18,9 @@ public sealed class ConsentGate(ISyncState state, IAccountApi accounts, IConsent
 
         try
         {
+            // An answer for another account (it changed while the call was in flight) says nothing about this one.
             var me = await accounts.GetMeAsync(cancellationToken);
-            if (me.Consent?.Wording != CareDataConsent.CurrentWording)
+            if (me.Profile.UserId != user || me.Consent?.Wording != CareDataConsent.CurrentWording)
                 return ConsentState.Unknown;
         }
         catch (Exception e) when (e is AuthUnavailableException or AuthRejectedException)
@@ -30,6 +31,9 @@ public sealed class ConsentGate(ISyncState state, IAccountApi accounts, IConsent
         await state.SetConsentAsync(user, ConsentState.Given, cancellationToken);
         return ConsentState.Given;
     }
+
+    /// <summary>What this phone has cached for the account; never asks the server.</summary>
+    public Task<ConsentState> CachedAsync(UserId user, CancellationToken cancellationToken) => state.GetConsentAsync(user, cancellationToken);
 
     /// <summary>Agree and share. False when the server could not record it (offline): nothing is cached then.</summary>
     public async Task<bool> AgreeAsync(UserId user, string appVersion, string language, CancellationToken cancellationToken)

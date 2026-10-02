@@ -474,4 +474,68 @@ public sealed class SyncStoreTests
         (await CountAsync(db, "SELECT count(*) FROM outbox;")).Should().Be(0);
         (await store.ListRejectionsAsync(TestDatabase.Household, CancellationToken.None)).Should().BeEmpty();
     }
+    private static async Task InsertPendingAsync(TestDatabase db, string table, string columns, string values, string entityType, Guid id)
+    {
+        await db.ExecuteAsync(
+            $"""
+            INSERT INTO {table} ({columns}) VALUES ({values});
+            INSERT INTO outbox (change_id, entity_type, entity_id, operation, version_wall_ms, version_counter, version_device)
+            VALUES ('{(await db.NewIdAsync()).Value}', '{entityType}', '{id}', 'upsert', 5, 0, '{Remote.Value}');
+            """);
+    }
+
+    [Fact]
+    public async Task NextBatchAsync_ABabyWithAnUnreadableDate_IsDroppedAndTheBatchStillFills()
+    {
+        // Arrange: year 0 passes the table's date() check but no DateOnly can hold it (final review M9).
+        await using var db = await TestDatabase.CreateAsync();
+        var baby = (await db.NewIdAsync()).Value;
+        await InsertPendingAsync(db, "baby_profiles", "id, household_id, name, nicknames, birth_date, version_wall_ms, version_counter, version_device",
+            $"'{baby}', '{TestDatabase.Household.Value}', 'Maja', '[]', '0000-01-01', 5, 0, '{Remote.Value}'", SyncEntityTypes.BabyProfile, baby);
+        await db.DiaperAsync(db.Time.GetLocalNow());
+
+        // Act
+        var batch = await Store(db).NextBatchAsync(TestDatabase.Household, 1, CancellationToken.None);
+
+        // Assert
+        batch.Should().ContainSingle().Which.EntityType.Should().Be(SyncEntityTypes.CareEntry);
+        (await CountAsync(db, $"SELECT count(*) FROM outbox WHERE entity_id = '{baby}';")).Should().Be(0);
+    }
+
+    [Fact]
+    public async Task NextBatchAsync_ADismissalNamingAnUnreadableEntry_IsDroppedAndTheBatchStillFills()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var dismissal = (await db.NewIdAsync()).Value;
+        await InsertPendingAsync(db, "duplicate_dismissals", "id, household_id, entry_a, entry_b, version_wall_ms, version_counter, version_device",
+            $"'{dismissal}', '{TestDatabase.Household.Value}', 'bad-a', 'bad-b', 5, 0, '{Remote.Value}'", SyncEntityTypes.DuplicateDismissal, dismissal);
+        await db.DiaperAsync(db.Time.GetLocalNow());
+
+        // Act
+        var batch = await Store(db).NextBatchAsync(TestDatabase.Household, 1, CancellationToken.None);
+
+        // Assert
+        batch.Should().ContainSingle().Which.EntityType.Should().Be(SyncEntityTypes.CareEntry);
+        (await CountAsync(db, $"SELECT count(*) FROM outbox WHERE entity_id = '{dismissal}';")).Should().Be(0);
+    }
+
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData("(500, 900)", false)]
+    [InlineData("(500, NULL)", true)]
+    [InlineData("(0, NULL)", true)]
+    public async Task HasPulledAsync_TheCursorRow_IsTrueOnlyForACompletedPull(string? cursor, bool expected)
+    {
+        // Arrange: no row (never pulled); a head (mid-bootstrap); no head (a pull completed, even an empty one).
+        await using var db = await TestDatabase.CreateAsync();
+        if (cursor is not null)
+            await db.ExecuteAsync($"INSERT INTO sync_cursors (household_id, last_seq, bootstrap_head) VALUES ('{Other.Value}', {cursor.Trim('(', ')')});");
+
+        // Act
+        var pulled = await Store(db).HasPulledAsync(Other, CancellationToken.None);
+
+        // Assert
+        pulled.Should().Be(expected);
+    }
 }

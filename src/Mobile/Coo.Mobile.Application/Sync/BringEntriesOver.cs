@@ -22,9 +22,13 @@ public enum BringOverResult
 /// "Bring my entries over" (Spec 011 §4): each local baby to a family baby, or added as new, then one transaction moves
 /// everything and the phone shows the family's log. "Keep them separate" is simply not calling it (Q4).
 /// </summary>
-public sealed class BringEntriesOver(ISessionStore sessions, IHouseholdMoves moves, Account account, ISyncControl sync)
+public sealed class BringEntriesOver(ISessionStore sessions, IHouseholdMoves moves, ISyncStore store, ConsentGate consent, Account account, ISyncControl sync)
 {
-    /// <summary>What the sheet shows; null when this phone is not join-pending.</summary>
+    /// <summary>
+    /// What the sheet shows. Null when this phone is not join-pending, and while the choice cannot be made yet: without
+    /// consent, or before a pull of the family's household has completed, nothing is offered and nothing changes (final
+    /// review C1). Null too when the use case completed the join itself: a household that synced, or no entries to bring.
+    /// </summary>
     public async Task<BringOverChoice?> PrepareAsync(CancellationToken cancellationToken)
     {
         var generation = account.Generation;
@@ -32,6 +36,9 @@ public sealed class BringEntriesOver(ISessionStore sessions, IHouseholdMoves mov
             return null;
         var local = await moves.ActiveHouseholdAsync(cancellationToken);
         if (local == session.AccountHousehold)
+            return null;
+        if (await consent.CachedAsync(session.Profile.UserId, cancellationToken) != ConsentState.Given
+            || !await store.HasPulledAsync(session.AccountHousehold, cancellationToken))
             return null;
 
         // A household that has synced is never offered (Spec 011 §4): the account's household simply becomes active.
@@ -41,8 +48,16 @@ public sealed class BringEntriesOver(ISessionStore sessions, IHouseholdMoves mov
             return null;
         }
 
+        // No entries to bring (final review M7): the family's log simply shows.
+        var mine = await moves.SummaryAsync(local, cancellationToken);
+        if (mine.EntryCount == 0)
+        {
+            await CompleteWithoutMoveAsync(session, generation, cancellationToken);
+            return null;
+        }
+
         var family = await moves.SummaryAsync(session.AccountHousehold, cancellationToken);
-        return new BringOverChoice(await moves.SummaryAsync(local, cancellationToken), family.Babies);
+        return new BringOverChoice(mine, family.Babies);
     }
 
     /// <summary>A target that is not one of the family's babies counts as "Add as a new baby". A failing move throws (rolled back).</summary>

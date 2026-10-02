@@ -15,8 +15,8 @@ public enum SyncTrigger
 
 /// <summary>
 /// When cycles run (Spec 011 §6.3, ADR 0002 §7): one at a time; a trigger during a cycle marks it dirty and one more runs
-/// after it (coalesced, never queued); local writes are debounced by a second; every 30 seconds in the foreground; one
-/// last cycle on the way to the background. A failed cycle backs off from 2 s, doubling to 5 minutes, jittered ×[0.5, 1];
+/// after it (coalesced, never queued); local writes are debounced by a second; every 30 seconds in the foreground; on the
+/// way to the background, one more cycle after any backoff. A failed cycle backs off from 2 s, doubling to 5 minutes, jittered ×[0.5, 1];
 /// during a backoff only Start, Resume, connectivity regained and Manual run at once (they reset it, ruling 12).
 /// Nothing escapes: a cycle that throws is a failure.
 /// </summary>

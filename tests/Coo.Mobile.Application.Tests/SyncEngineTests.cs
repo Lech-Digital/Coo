@@ -415,4 +415,41 @@ public sealed class SyncEngineTests : IDisposable
         });
         return (entered.Task, release);
     }
+    [Fact]
+    public async Task SyncNowAsync_SoftLockLiftedByAnActiveMembership_RunsTheNextCycleWithoutWaitingForTheTick()
+    {
+        // Arrange (final review M5): locked for the first cycle only.
+        await SignInAsync();
+        await _engine.WhenIdleAsync();
+        _api.ClearReceivedCalls();
+        _state.IsSoftLockedAsync(Household, Arg.Any<CancellationToken>()).Returns(true, false);
+        _api.GetMembershipAsync(Household, Arg.Any<CancellationToken>()).Returns(MembershipStatus.Active);
+
+        // Act
+        await _engine.SyncNowAsync(CancellationToken.None);
+
+        // Assert: the follow-up cycle pulled; no time passed.
+        await _api.Received(1).PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
+        _engine.Status.Last.Should().Be(CycleOutcome.Synced);
+    }
+
+    [Theory]
+    [InlineData(ConsentState.Given, true, true)]
+    [InlineData(ConsentState.Given, false, false)]
+    [InlineData(ConsentState.Declined, true, false)]
+    public async Task SyncNowAsync_JoinPending_StatusSaysWhetherBringOverMayBeOffered(ConsentState consent, bool pulled, bool expected)
+    {
+        // Arrange (final review C1 b)
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
+        _state.GetConsentAsync(User, Arg.Any<CancellationToken>()).Returns(consent);
+        _store.HasPulledAsync(Household, Arg.Any<CancellationToken>()).Returns(pulled);
+        await _account.SignedInAsync(
+            new StoredSession("access", Now.AddMinutes(15), "refresh", Profile, Household, JoinPending: true), CancellationToken.None);
+
+        // Act
+        await _engine.SyncNowAsync(CancellationToken.None);
+
+        // Assert
+        _engine.Status.JoinReady.Should().Be(expected);
+    }
 }

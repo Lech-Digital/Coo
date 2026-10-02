@@ -39,8 +39,12 @@ public sealed partial class BabyProfileViewModel(IHouseholdStore households, Upd
 
     public async Task LoadAsync()
     {
-        var household = (await households.ListHouseholdsAsync(CancellationToken.None)).First(h => !h.IsDeleted);
-        _baby = (await households.ListBabiesAsync(household.Id, CancellationToken.None))[0];
+        // A household with no baby yet (a new one became active) has nothing to edit; Save then does nothing.
+        var household = (await households.ListHouseholdsAsync(CancellationToken.None)).FirstOrDefault(h => !h.IsDeleted);
+        var babies = household is null ? [] : await households.ListBabiesAsync(household.Id, CancellationToken.None);
+        _baby = babies.Count > 0 ? babies[0] : null;
+        if (_baby is null)
+            return;
         Name = _baby.Name;
         Nicknames = string.Join(", ", _baby.Nicknames);
         IsBorn = _baby.IsBorn;

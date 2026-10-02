@@ -101,4 +101,20 @@ public sealed class ConsentGateTests
         // Assert
         await _state.Received(1).SetConsentAsync(User, ConsentState.Unknown, Arg.Any<CancellationToken>());
     }
+    [Fact]
+    public async Task CheckAsync_TheServerAnswersForAnotherAccount_DoesNotCacheIt()
+    {
+        // Arrange: the account changed while /api/me was in flight (final review M1).
+        _state.GetConsentAsync(User, Arg.Any<CancellationToken>()).Returns(ConsentState.Unknown);
+        var other = new AccountProfile(new UserId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c2")), "Ola", "ola@example.com");
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(
+            new AccountOverview(other, null, null, [], new ConsentInfo(CareDataConsent.CurrentWording, DateTimeOffset.UnixEpoch)));
+
+        // Act
+        var state = await Gate().CheckAsync(User, CancellationToken.None);
+
+        // Assert
+        state.Should().Be(ConsentState.Unknown);
+        await _state.DidNotReceiveWithAnyArgs().SetConsentAsync(default, default, default);
+    }
 }

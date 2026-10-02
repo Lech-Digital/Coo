@@ -39,6 +39,9 @@ public interface ISyncStore
     /// <summary>The household's cursor. With none yet, a household this phone already holds records of starts with head 0 (ruling 20).</summary>
     Task<SyncCursor> GetCursorAsync(HouseholdId household, CancellationToken cancellationToken);
 
+    /// <summary>A pull of the household has completed: it has a cursor and is not part-way through a bootstrap.</summary>
+    Task<bool> HasPulledAsync(HouseholdId household, CancellationToken cancellationToken);
+
     /// <summary>In one transaction: each record (unless a newer local change is pending, <see cref="PullRule"/>), and the new cursor.</summary>
     Task ApplyPageAsync(HouseholdId household, PulledPage page, CancellationToken cancellationToken);
 
@@ -50,12 +53,16 @@ public interface ISyncStore
 /// <summary>Moving records between households on this phone (Spec 011 §4), each in one SQLite transaction.</summary>
 public interface IHouseholdMoves
 {
-    /// <summary>The household the UI shows; names the first live one as active when none is named yet.</summary>
+    /// <summary>
+    /// The household the UI shows; names the first live one as active when none is named yet. A named household without
+    /// settings is read past (the first live one is returned) but never replaced.
+    /// </summary>
     Task<HouseholdId> ActiveHouseholdAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// <c>created</c>: every record moves to the account's empty household, which becomes active. A household that has ever
-    /// synced is never moved: nothing moves, the target becomes active, and the result is false.
+    /// synced is never moved: nothing moves, the target becomes active, and the result is false. A target becoming active
+    /// without settings gets a copy of the source's (with an outbox row), never its babies.
     /// </summary>
     Task<bool> MoveAllAsync(HouseholdId source, HouseholdId target, UserId user, CancellationToken cancellationToken);
 
@@ -65,14 +72,14 @@ public interface IHouseholdMoves
     /// </summary>
     Task<bool> HasEverSyncedAsync(HouseholdId household, CancellationToken cancellationToken);
 
-    /// <summary>Names the household active and changes nothing else.</summary>
+    /// <summary>Names the household active. Without settings of its own, it gets a copy of the shown household's (with an outbox row).</summary>
     Task ActivateAsync(HouseholdId household, CancellationToken cancellationToken);
 
     Task<LocalSummary> SummaryAsync(HouseholdId household, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Bring my entries over. The account's household becomes active. A source that has ever synced is never moved: nothing
-    /// moves and the result is false.
+    /// Bring my entries over. The account's household becomes active. Its settings win; without them on the phone, the
+    /// source's become its settings. A source that has ever synced is never moved: nothing moves and the result is false.
     /// </summary>
     Task<bool> BringOverAsync(BringOverPlan plan, UserId user, CancellationToken cancellationToken);
 

@@ -7,9 +7,10 @@ namespace Coo.Mobile.Sync;
 /// <summary>
 /// Opens the consent sheet when a cycle finds no consent (Spec 011 §3: "right after a successful sign-in, in place, and
 /// whenever a cycle would start for an account without consent"), at most once per app run and sign-in; and the
-/// bring-over sheet once when join-pending (§4). Settings opens either at any time. One sheet at a time: a sheet that
-/// could not open because another was showing opens when that one closes. No sheet opens while Coo is in the background
-/// (<see cref="App.IsForeground"/>); one held back then opens on resume. Everything runs on the main thread.
+/// bring-over sheet once when join-pending, with consent given and the family's log pulled (§4). Settings opens either
+/// when its line offers it. One sheet at a time: a sheet that could not open because another was showing opens when that
+/// one closes. No sheet opens while Coo is in the background (<see cref="App.IsForeground"/>); one held back then opens on
+/// resume. Everything runs on the main thread.
 /// </summary>
 internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceProvider services)
 {
@@ -66,15 +67,13 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
 
     private async Task PromptAsync()
     {
-        switch (engine.Status.Last)
-        {
-            case CycleOutcome.ConsentNeeded when !_consentShown:
-                _consentShown = await ShowAsync(() => services.GetRequiredService<ConsentPage>());
-                break;
-            case CycleOutcome.JoinPending when !_bringOverShown:
-                _bringOverShown = await ShowAsync(() => services.GetRequiredService<BringOverPage>());
-                break;
-        }
+        var status = engine.Status;
+        if (status.Last == CycleOutcome.ConsentNeeded && !_consentShown)
+            _consentShown = await ShowAsync(() => services.GetRequiredService<ConsentPage>());
+
+        // Only once consent is given and the family's log has been pulled (final review C1): there is something to choose.
+        else if (status.JoinReady && account.State is JoinPending && !_bringOverShown)
+            _bringOverShown = await ShowAsync(() => services.GetRequiredService<BringOverPage>());
     }
 
     /// <returns>Whether the sheet opened; false in the background, while another sheet is showing, or with no window yet.</returns>
@@ -98,7 +97,9 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
         }
         catch
         {
-            _sheet = null;
+            // Only its own sheet: a newer one that opened meanwhile stays tracked.
+            if (ReferenceEquals(_sheet, page))
+                _sheet = null;
             throw;
         }
         finally

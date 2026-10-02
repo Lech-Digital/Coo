@@ -16,10 +16,18 @@ public sealed class BringEntriesOverTests : IDisposable
     private readonly Account _account;
     private readonly IHouseholdMoves _moves = Substitute.For<IHouseholdMoves>();
     private readonly ISyncControl _sync = Substitute.For<ISyncControl>();
+    private readonly ISyncStore _store = Substitute.For<ISyncStore>();
+    private readonly ISyncState _state = Substitute.For<ISyncState>();
+    private readonly ConsentGate _consent;
 
     public BringEntriesOverTests()
     {
         _account = new Account(_sessions);
+        _consent = new ConsentGate(_state, Substitute.For<IAccountApi>(), Substitute.For<IConsentApi>());
+
+        // Consent given and the family's household pulled: bring-over may be offered (final review C1 b).
+        _state.GetConsentAsync(User, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
+        _store.HasPulledAsync(Household, Arg.Any<CancellationToken>()).Returns(true);
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
         _moves.SummaryAsync(Provisional, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new(LocalBaby, "Maja")]));
         _moves.SummaryAsync(Household, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new(FamilyBaby, "Maja")]));
@@ -27,7 +35,7 @@ public sealed class BringEntriesOverTests : IDisposable
 
     public void Dispose() => _account.Dispose();
 
-    private BringEntriesOver UseCase() => new(_sessions, _moves, _account, _sync);
+    private BringEntriesOver UseCase() => new(_sessions, _moves, _store, _consent, _account, _sync);
 
     private Task JoinPendingAsync() => _account.SignedInAsync(
         new StoredSession("access", DateTimeOffset.UnixEpoch, "refresh", Profile, Household, JoinPending: true), CancellationToken.None);
@@ -200,7 +208,7 @@ public sealed class BringEntriesOverTests : IDisposable
         failing.FailWrites = true;
 
         // Act
-        var done = await new BringEntriesOver(failing, _moves, account, _sync).ExecuteAsync(new Dictionary<BabyId, BabyId?> { [LocalBaby] = FamilyBaby }, CancellationToken.None);
+        var done = await new BringEntriesOver(failing, _moves, _store, _consent, account, _sync).ExecuteAsync(new Dictionary<BabyId, BabyId?> { [LocalBaby] = FamilyBaby }, CancellationToken.None);
 
         // Assert
         done.Should().Be(BringOverResult.MovedButNotCompleted);
@@ -240,7 +248,7 @@ public sealed class BringEntriesOverTests : IDisposable
         await JoinPendingAsync();
         _moves.HasEverSyncedAsync(Provisional, Arg.Any<CancellationToken>()).Returns(true);
         var useCase = new BringEntriesOver(
-            new SigningOutSessions(_sessions, () => _account.SignedOutAsync(sessionExpired: false, CancellationToken.None)), _moves, _account, _sync);
+            new SigningOutSessions(_sessions, () => _account.SignedOutAsync(sessionExpired: false, CancellationToken.None)), _moves, _store, _consent, _account, _sync);
 
         // Act
         var choice = await useCase.PrepareAsync(CancellationToken.None);
@@ -250,5 +258,43 @@ public sealed class BringEntriesOverTests : IDisposable
         await _moves.DidNotReceiveWithAnyArgs().BringOverAsync(default!, default, default);
         _account.State.Should().Be(new SignedOut(false));
         _sync.DidNotReceive().RequestSync();
+    }
+    [Theory]
+    [InlineData(ConsentState.Unknown, true)]
+    [InlineData(ConsentState.Declined, true)]
+    [InlineData(ConsentState.Given, false)]
+    public async Task PrepareAsync_NoConsentOrTheFamilyNotPulled_OffersNothingAndChangesNothing(ConsentState consent, bool pulled)
+    {
+        // Arrange: "Not now" pulled nothing, or the family's bootstrap has not finished; the household even looks synced.
+        await JoinPendingAsync();
+        _state.GetConsentAsync(User, Arg.Any<CancellationToken>()).Returns(consent);
+        _store.HasPulledAsync(Household, Arg.Any<CancellationToken>()).Returns(pulled);
+        _moves.HasEverSyncedAsync(Provisional, Arg.Any<CancellationToken>()).Returns(true);
+
+        // Act
+        var choice = await UseCase().PrepareAsync(CancellationToken.None);
+
+        // Assert
+        choice.Should().BeNull();
+        await _moves.DidNotReceiveWithAnyArgs().ActivateAsync(default, default);
+        _account.State.Should().BeOfType<JoinPending>();
+    }
+
+    [Fact]
+    public async Task PrepareAsync_NoEntriesOnThisPhone_CompletesTheJoinWithoutOffering()
+    {
+        // Arrange (final review M7)
+        await JoinPendingAsync();
+        _moves.SummaryAsync(Provisional, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, [new(LocalBaby, "Maja")]));
+
+        // Act
+        var choice = await UseCase().PrepareAsync(CancellationToken.None);
+
+        // Assert
+        choice.Should().BeNull();
+        await _moves.Received(1).ActivateAsync(Household, Arg.Any<CancellationToken>());
+        await _moves.DidNotReceiveWithAnyArgs().BringOverAsync(default!, default, default);
+        _account.State.Should().Be(new SignedIn(Profile));
+        _sync.Received(1).RequestSync();
     }
 }

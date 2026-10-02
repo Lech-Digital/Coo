@@ -89,4 +89,5 @@ public enum CycleOutcome
 /// <param name="DataChanged">Local data changed (pulled records, a move): pages refresh and the duplicate check reruns.</param>
 /// <param name="Error">The failure's type or refusal, for the debug screen; never shown to the person.</param>
 /// <param name="Household">For <see cref="CycleOutcome.Removed"/>: the household the person was removed from.</param>
-public sealed record CycleReport(CycleOutcome Outcome, bool DataChanged = false, string? Error = null, HouseholdId? Household = null);
+/// <param name="RunAgain">Another cycle should run at once (a lifted soft-lock), not at the next tick.</param>
+public sealed record CycleReport(CycleOutcome Outcome, bool DataChanged = false, string? Error = null, HouseholdId? Household = null, bool RunAgain = false);

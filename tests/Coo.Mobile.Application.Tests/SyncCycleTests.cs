@@ -326,6 +326,21 @@ public sealed class SyncCycleTests : IDisposable
     }
 
     [Fact]
+    public async Task RunAsync_SoftLockedButActiveAgain_AsksForTheNextCycleAtOnce()
+    {
+        // Arrange (final review M5)
+        await SignInAsync();
+        _state.IsSoftLockedAsync(Household, Arg.Any<CancellationToken>()).Returns(true);
+        _api.GetMembershipAsync(Household, Arg.Any<CancellationToken>()).Returns(MembershipStatus.Active);
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.RunAgain.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task RunAsync_ServerSaysConsentRequired_ForgetsTheCachedConsent()
     {
         // Arrange: a new wording on the server (Spec 011 §3).

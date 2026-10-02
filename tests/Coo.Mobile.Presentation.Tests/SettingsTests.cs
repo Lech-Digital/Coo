@@ -151,6 +151,24 @@ public sealed class SettingsTests
     }
 
     [Fact]
+    public async Task LoadAsync_TheActiveHouseholdHasNoBaby_LoadsNothingAndSaveDoesNothing()
+    {
+        // Arrange: a refused move made a new, empty household active (final review I1).
+        _households.ListBabiesAsync(Household, Arg.Any<CancellationToken>()).Returns([]);
+        var model = new BabyProfileViewModel(_households, new UpdateBabyProfile(_households, _clock, _time), _time);
+        var saved = false;
+        model.Saved += (_, _) => saved = true;
+
+        // Act
+        await model.LoadAsync();
+        await model.SaveCommand.ExecuteAsync(null);
+
+        // Assert
+        saved.Should().BeFalse();
+        await _households.DidNotReceiveWithAnyArgs().SaveBabyAsync(default!, default);
+    }
+
+    [Fact]
     public async Task SaveAsync_TwiceInARow_SucceedsBothTimes()
     {
         // Arrange

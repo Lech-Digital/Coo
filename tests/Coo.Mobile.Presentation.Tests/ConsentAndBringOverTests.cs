@@ -26,6 +26,7 @@ public sealed class ConsentAndBringOverTests : IDisposable
     private readonly IExternalLauncher _launcher = Substitute.For<IExternalLauncher>();
     private readonly IAboutInfo _about = Substitute.For<IAboutInfo>();
     private readonly IHouseholdMoves _moves = Substitute.For<IHouseholdMoves>();
+    private readonly ISyncStore _store = Substitute.For<ISyncStore>();
 
     public ConsentAndBringOverTests()
     {
@@ -35,6 +36,8 @@ public sealed class ConsentAndBringOverTests : IDisposable
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Mine);
         _moves.SummaryAsync(Mine, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
         _moves.SummaryAsync(Family, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new LocalBaby(FamilyMaja, "Maja")]));
+        _state.GetConsentAsync(Profile.UserId, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
+        _store.HasPulledAsync(Family, Arg.Any<CancellationToken>()).Returns(true);
     }
 
     public void Dispose() => Strings.Use(LanguagePreference.System, null);
@@ -45,7 +48,8 @@ public sealed class ConsentAndBringOverTests : IDisposable
         return new ConsentViewModel(new RecordConsent(_sessions, gate, _sync), new DeclineConsent(_sessions, gate, _sync), _launcher, _about);
     }
 
-    private BringOverViewModel BringOver(Account account) => new(new BringEntriesOver(_sessions, _moves, account, _sync));
+    private BringOverViewModel BringOver(Account account) => new(new BringEntriesOver(
+        _sessions, _moves, _store, new ConsentGate(_state, Substitute.For<IAccountApi>(), _consentApi), account, _sync));
 
     [Fact]
     public void Texts_English_AreTheSpecsWording()

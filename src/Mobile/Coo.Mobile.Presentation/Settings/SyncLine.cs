@@ -33,8 +33,11 @@ public static class SyncLine
                 return new SyncLineView(Strings.Get("Account.SessionExpired"), SyncLineAction.None);
             case SignedOut:
                 return new SyncLineView(Strings.Get("Account.SignInHint"), SyncLineAction.None);
+            // Consent first; the choice only once the family's log is on the phone to choose against (final review C1).
+            case JoinPending when status.Last is CycleOutcome.ConsentNeeded or CycleOutcome.ConsentDeclined:
+                return new SyncLineView(Strings.Get("Sync.Off"), SyncLineAction.TurnOnSharing);
             case JoinPending:
-                return new SyncLineView(Strings.Get("Account.JoinPending"), SyncLineAction.ChooseWhatToDo);
+                return new SyncLineView(Strings.Get("Account.JoinPending"), status.JoinReady ? SyncLineAction.ChooseWhatToDo : SyncLineAction.None);
         }
 
         return status.Last switch
