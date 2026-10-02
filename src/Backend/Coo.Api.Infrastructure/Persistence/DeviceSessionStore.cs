@@ -13,7 +13,7 @@ internal sealed class DeviceSessionStore(NpgsqlDataSource dataSource) : IDeviceS
 {
     private const string SelectColumns = "SELECT id, user_id, device_id, device_name, created_at, last_used_at, revoked_at";
 
-    private const string FindSql = SelectColumns + ", refresh_hash = @hash FROM device_sessions "
+    private const string FindSql = SelectColumns + ", refresh_hash = @hash, refresh_hash FROM device_sessions "
         + "WHERE refresh_hash = @hash OR previous_refresh_hash = @hash LIMIT 1;";
 
     private const string ListSql = SelectColumns + " FROM device_sessions WHERE user_id = @user ORDER BY created_at;";
@@ -48,7 +48,7 @@ internal sealed class DeviceSessionStore(NpgsqlDataSource dataSource) : IDeviceS
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         if (!await reader.ReadAsync(cancellationToken))
             return null;
-        return new RefreshLookup(Read(reader), reader.GetBoolean(7) ? RefreshMatch.Current : RefreshMatch.Previous);
+        return new RefreshLookup(Read(reader), reader.GetBoolean(7) ? RefreshMatch.Current : RefreshMatch.Previous, reader.GetString(8));
     }
 
     public async Task<bool> RotateAsync(DeviceSessionId id, string expectedHash, string newHash, DateTimeOffset now, CancellationToken cancellationToken)

@@ -9,6 +9,9 @@ public sealed class SessionTests
     private static readonly DeviceId Phone = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1"));
     private static readonly HouseholdId Household = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a1"));
 
+    private static readonly string NextToken = new('n', 43);
+    private static readonly string OtherNextToken = new('m', 43);
+
     private readonly AuthKit _kit = new();
 
     [Fact]
@@ -122,5 +125,116 @@ public sealed class SessionTests
         // Assert
         deleted.Should().Be(1);
         _kit.Nonces.Rows.Keys.Should().Equal(AuthSecrets.Hash(fresh));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_CurrentTokenWithAProposal_RotatesToTheProposedToken()
+    {
+        // Arrange
+        var signedIn = await _kit.SignInAsync("google-1", Phone, Household);
+
+        // Act
+        var result = await _kit.Refresh().ExecuteAsync(signedIn.Session.RefreshToken, NextToken, CancellationToken.None);
+
+        // Assert
+        result.Value.RefreshToken.Should().Be(NextToken);
+        _kit.Sessions.Of(signedIn.Session.Id).RefreshHash.Should().Be(AuthSecrets.Hash(NextToken));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_SamePairRetriedAfterALostResponse_IssuesAccessAndChangesNothing()
+    {
+        // Arrange: the server rotated T1 to T2, the response was lost, the phone sends T1 + T2 again.
+        var signedIn = await _kit.SignInAsync("google-1", Phone, Household);
+        await _kit.Refresh().ExecuteAsync(signedIn.Session.RefreshToken, NextToken, CancellationToken.None);
+        var before = _kit.Sessions.Of(signedIn.Session.Id);
+        _kit.Time.Advance(TimeSpan.FromSeconds(30));
+
+        // Act
+        var retried = await _kit.Refresh().ExecuteAsync(signedIn.Session.RefreshToken, NextToken, CancellationToken.None);
+
+        // Assert
+        retried.IsSuccess.Should().BeTrue();
+        retried.Value.RefreshToken.Should().Be(NextToken);
+        retried.Value.AccessToken.ExpiresAt.Should().Be(_kit.Time.GetUtcNow() + TimeSpan.FromMinutes(15));
+        _kit.Sessions.Of(signedIn.Session.Id).Should().Be(before, "the retry changes nothing");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_PreviousTokenWithAnotherProposal_RevokesTheSession()
+    {
+        // Arrange: someone holding T1 cannot know T2.
+        var signedIn = await _kit.SignInAsync("google-1", Phone, Household);
+        await _kit.Refresh().ExecuteAsync(signedIn.Session.RefreshToken, NextToken, CancellationToken.None);
+
+        // Act
+        var stolen = await _kit.Refresh().ExecuteAsync(signedIn.Session.RefreshToken, OtherNextToken, CancellationToken.None);
+
+        // Assert
+        stolen.Error!.Code.Should().Be(AuthErrors.RefreshInvalid);
+        _kit.Sessions.Of(signedIn.Session.Id).Session.IsRevoked.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_PreviousTokenWithoutAProposal_StillRevokes()
+    {
+        // Arrange: a 0.10.0 phone, or a thief that sends no proposal.
+        var signedIn = await _kit.SignInAsync("google-1", Phone, Household);
+        await _kit.Refresh().ExecuteAsync(signedIn.Session.RefreshToken, NextToken, CancellationToken.None);
+
+        // Act
+        var reused = await _kit.Refresh().ExecuteAsync(signedIn.Session.RefreshToken, CancellationToken.None);
+
+        // Assert
+        reused.Error!.Code.Should().Be(AuthErrors.RefreshInvalid);
+        _kit.Sessions.Of(signedIn.Session.Id).Session.IsRevoked.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("short")]
+    [InlineData("")]
+    public async Task ExecuteAsync_ProposalTooShort_IsRefusedAndChangesNothing(string proposal)
+    {
+        // Arrange
+        var signedIn = await _kit.SignInAsync("google-1", Phone, Household);
+        var before = _kit.Sessions.Of(signedIn.Session.Id);
+
+        // Act
+        var result = await _kit.Refresh().ExecuteAsync(signedIn.Session.RefreshToken, proposal, CancellationToken.None);
+
+        // Assert
+        result.Error!.Code.Should().Be(AuthErrors.RefreshInvalid);
+        _kit.Sessions.Of(signedIn.Session.Id).Should().Be(before);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ProposalEqualToThePresentedToken_IsRefused()
+    {
+        // Arrange
+        var signedIn = await _kit.SignInAsync("google-1", Phone, Household);
+
+        // Act
+        var result = await _kit.Refresh().ExecuteAsync(signedIn.Session.RefreshToken, signedIn.Session.RefreshToken, CancellationToken.None);
+
+        // Assert
+        result.Error!.Code.Should().Be(AuthErrors.RefreshInvalid);
+        _kit.Sessions.Of(signedIn.Session.Id).Session.IsRevoked.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_TwoIdenticalRequestsRacing_BothSucceed()
+    {
+        // Arrange: the phone's retry arrives while the first request is still rotating. The fake's rotation is
+        // the store's compare-and-swap; the second request finds T1 current, loses the swap, and must see the retry.
+        var signedIn = await _kit.SignInAsync("google-1", Phone, Household);
+        _kit.Sessions.BeforeRotate = () => _kit.Sessions.RotateDirectly(signedIn.Session.Id, AuthSecrets.Hash(signedIn.Session.RefreshToken), AuthSecrets.Hash(NextToken));
+
+        // Act
+        var second = await _kit.Refresh().ExecuteAsync(signedIn.Session.RefreshToken, NextToken, CancellationToken.None);
+
+        // Assert
+        second.IsSuccess.Should().BeTrue();
+        second.Value.RefreshToken.Should().Be(NextToken);
+        _kit.Sessions.Of(signedIn.Session.Id).Session.IsRevoked.Should().BeFalse();
     }
 }

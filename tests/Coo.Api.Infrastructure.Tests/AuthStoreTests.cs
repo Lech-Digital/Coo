@@ -87,6 +87,24 @@ public sealed class AuthStoreTests(PostgresServer server)
     }
 
     [Fact]
+    public async Task FindByRefreshHashAsync_PreviousHash_ReportsTheCurrentHash()
+    {
+        // Arrange
+        await using var db = await ServerDatabase.CreateAsync(server);
+        await CreateAccountAsync(db, User, "sub-1", ServerDatabase.Household);
+        var session = Session(User, Phone);
+        await db.Sessions.CreateAsync(session, "h1", CancellationToken.None);
+        await db.Sessions.RotateAsync(session.Id, "h1", "h2", T0.AddMinutes(20), CancellationToken.None);
+
+        // Act
+        var previous = await db.Sessions.FindByRefreshHashAsync("h1", CancellationToken.None);
+
+        // Assert
+        previous!.Match.Should().Be(RefreshMatch.Previous);
+        previous.CurrentHash.Should().Be("h2");
+    }
+
+    [Fact]
     public async Task RotateAsync_StaleExpectedHash_ChangesNothing()
     {
         // Arrange: two refreshes raced; the first one won.

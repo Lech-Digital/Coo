@@ -51,7 +51,8 @@ public enum RefreshMatch
     Previous,
 }
 
-public sealed record RefreshLookup(DeviceSession Session, RefreshMatch Match);
+/// <summary>The session a refresh token belongs to, whether it is its current or previous one, and its current hash.</summary>
+public sealed record RefreshLookup(DeviceSession Session, RefreshMatch Match, string CurrentHash);
 
 /// <summary><c>device_sessions</c> (ADR 0003 §4): refresh tokens are stored only as hashes.</summary>
 public interface IDeviceSessionStore

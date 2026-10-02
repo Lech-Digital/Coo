@@ -62,23 +62,35 @@ internal sealed class FakeSessions : IDeviceSessionStore
         return Task.CompletedTask;
     }
 
+    /// <summary>Runs once inside the next <see cref="RotateAsync"/>, before its compare-and-swap: a concurrent request winning.</summary>
+    public Action? BeforeRotate { get; set; }
+
     public Task<RefreshLookup?> FindByRefreshHashAsync(string refreshHash, CancellationToken cancellationToken)
     {
         var current = Rows.FirstOrDefault(r => r.RefreshHash == refreshHash);
         if (current is not null)
-            return Task.FromResult<RefreshLookup?>(new RefreshLookup(current.Session, RefreshMatch.Current));
+            return Task.FromResult<RefreshLookup?>(new RefreshLookup(current.Session, RefreshMatch.Current, current.RefreshHash));
         var previous = Rows.FirstOrDefault(r => r.PreviousRefreshHash == refreshHash);
-        return Task.FromResult(previous is null ? null : new RefreshLookup(previous.Session, RefreshMatch.Previous));
+        return Task.FromResult(previous is null ? null : new RefreshLookup(previous.Session, RefreshMatch.Previous, previous.RefreshHash));
     }
 
     public Task<bool> RotateAsync(DeviceSessionId id, string expectedHash, string newHash, DateTimeOffset now, CancellationToken cancellationToken)
     {
+        var hook = BeforeRotate;
+        BeforeRotate = null;
+        hook?.Invoke();
         var index = Rows.FindIndex(r => r.Session.Id == id && r.RefreshHash == expectedHash && !r.Session.IsRevoked);
         if (index < 0)
             return Task.FromResult(false);
         var row = Rows[index];
         Rows[index] = new Row(row.Session with { LastUsedAt = now }, newHash, expectedHash);
         return Task.FromResult(true);
+    }
+
+    public void RotateDirectly(DeviceSessionId id, string expectedHash, string newHash)
+    {
+        var index = Rows.FindIndex(r => r.Session.Id == id && r.RefreshHash == expectedHash);
+        Rows[index] = new Row(Rows[index].Session, newHash, expectedHash);
     }
 
     public Task RevokeAsync(DeviceSessionId id, DateTimeOffset now, CancellationToken cancellationToken)

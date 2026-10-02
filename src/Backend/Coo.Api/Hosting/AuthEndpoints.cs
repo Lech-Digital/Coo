@@ -59,7 +59,7 @@ internal static class AuthEndpoints
 
         auth.MapPost("/refresh", async Task<IResult> (RefreshRequest request, RefreshSession refresh, CancellationToken cancellationToken) =>
         {
-            var result = await refresh.ExecuteAsync(request.RefreshToken ?? "", cancellationToken);
+            var result = await refresh.ExecuteAsync(request.RefreshToken ?? "", request.NextRefreshToken, cancellationToken);
             return result.IsFailure
                 ? Refused(result.Error!.Code, StatusCodes.Status401Unauthorized)
                 : Results.Ok(new TokensResponse(result.Value.AccessToken.Value, result.Value.AccessToken.ExpiresAt, result.Value.RefreshToken));

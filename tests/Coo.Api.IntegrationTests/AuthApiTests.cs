@@ -193,6 +193,26 @@ public sealed class AuthApiTests(AuthApi api) : IClassFixture<AuthApi>
     }
 
     [Fact]
+    public async Task Refresh_SamePairSentTwice_SucceedsBothTimesAndKeepsTheSession()
+    {
+        // Arrange
+        using var client = api.Factory.CreateClient();
+        var session = await Calls.SignInAsync(client, "retry-1", Calls.Id(9101), Calls.Id(9102));
+        var next = new string('t', 43);
+        var first = await client.PostAsJsonAsync(Calls.Refresh, new RefreshRequest(session.RefreshToken, next));
+
+        // Act
+        var retried = await client.PostAsJsonAsync(Calls.Refresh, new RefreshRequest(session.RefreshToken, next));
+
+        // Assert
+        first.StatusCode.Should().Be(HttpStatusCode.OK);
+        retried.StatusCode.Should().Be(HttpStatusCode.OK);
+        var tokens = await retried.Content.ReadFromJsonAsync<TokensResponse>();
+        tokens!.RefreshToken.Should().Be(next);
+        (await Calls.SendAsync(client, HttpMethod.Get, Calls.Me, tokens.AccessToken)).StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
     public async Task Refresh_ReusedToken_RevokesTheSession()
     {
         // Arrange
