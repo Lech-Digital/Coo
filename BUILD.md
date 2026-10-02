@@ -35,11 +35,14 @@ Restore, then build a Debug APK:
 ```sh
 dotnet restore src/Mobile/Coo.Mobile/Coo.Mobile.csproj
 dotnet build src/Mobile/Coo.Mobile/Coo.Mobile.csproj -c Debug -f net10.0-android --no-restore \
-  -p:UseDefaultPublishRuntimeIdentifier=false \
+  -p:UseDefaultPublishRuntimeIdentifier=false -p:EmbedAssembliesIntoApk=true \
   -p:AndroidSdkDirectory=$HOME/android-sdk -p:JavaSdkDirectory=$JAVA_HOME
 ```
 
 The output is `src/Mobile/Coo.Mobile/bin/Debug/net10.0-android/com.lechdigital.coo-Signed.apk`.
+`EmbedAssembliesIntoApk` puts the assemblies inside the APK. Without it a Debug build relies on Fast Deployment,
+which only `dotnet build -t:Install` provides: installed with `adb install`, the app aborts at launch with
+"No assemblies found … Assuming this is part of Fast Deployment" (found on the Pixel 10, 2026-10-02).
 
 Install it on a phone with USB debugging enabled:
 
