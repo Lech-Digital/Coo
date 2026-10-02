@@ -54,6 +54,48 @@ public sealed class AuthClientTests
         (await act.Should().ThrowAsync<AuthRejectedException>()).Which.Code.Should().Be(code);
     }
 
+    [Theory]
+    [InlineData("text/html", "utf-8", "<html><body>Sign in to the Wi-Fi</body></html>")]
+    [InlineData("text/html", "no-such-charset", "<html><body>Sign in to the Wi-Fi</body></html>")]
+    [InlineData("application/json", "utf-8", "")]
+    public async Task GetNonceAsync_OkWithAnUnreadableBody_ThrowsUnavailable(string mediaType, string charset, string body)
+    {
+        // Arrange: a captive portal answering 200 with its own page; no exception but "try later" may come out.
+        var client = Client(_ => Raw(HttpStatusCode.OK, mediaType, charset, body));
+
+        // Act
+        Func<Task> act = async () => await client.GetNonceAsync(CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowExactlyAsync<AuthUnavailableException>();
+    }
+
+    [Fact]
+    public async Task RefreshAsync_OkWithAPortalPage_ThrowsUnavailable()
+    {
+        // Arrange
+        var client = Client(_ => Raw(HttpStatusCode.OK, "text/html", "utf-8", "<html>Sign in to the Wi-Fi</html>"));
+
+        // Act
+        Func<Task> act = async () => await client.RefreshAsync("refresh-1", CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowExactlyAsync<AuthUnavailableException>();
+    }
+
+    [Fact]
+    public async Task RefreshAsync_RefusalWithAnUnreadableBody_ThrowsRejectedWithTheStatusAsCode()
+    {
+        // Arrange: a portal's 403 whose charset cannot even be decoded.
+        var client = Client(_ => Raw(HttpStatusCode.Forbidden, "text/html", "no-such-charset", "<html>Blocked</html>"));
+
+        // Act
+        Func<Task> act = async () => await client.RefreshAsync("refresh-1", CancellationToken.None);
+
+        // Assert
+        (await act.Should().ThrowExactlyAsync<AuthRejectedException>()).Which.Code.Should().Be("http-403");
+    }
+
     [Fact]
     public async Task GetNonceAsync_NoNetwork_ThrowsUnavailable()
     {
@@ -98,6 +140,13 @@ public sealed class AuthClientTests
 
     private static AuthClient Client(Func<HttpRequestMessage, Task<HttpResponseMessage>> server) =>
         new(new HttpClient(new FakeServer(server)) { BaseAddress = new Uri("https://api.test/") });
+
+    private static Task<HttpResponseMessage> Raw(HttpStatusCode status, string mediaType, string charset, string body)
+    {
+        var content = new ByteArrayContent(Encoding.UTF8.GetBytes(body));
+        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mediaType) { CharSet = charset };
+        return Task.FromResult(new HttpResponseMessage(status) { Content = content });
+    }
 
     private static Task<HttpResponseMessage> Json(HttpStatusCode status, string body) =>
         Task.FromResult(new HttpResponseMessage(status) { Content = new StringContent(body, Encoding.UTF8, "application/json") });

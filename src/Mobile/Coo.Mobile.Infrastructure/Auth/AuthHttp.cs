@@ -48,8 +48,9 @@ internal static class AuthHttp
             return await response.Content.ReadFromJsonAsync(type, cancellationToken)
                 ?? throw new AuthUnavailableException("The server sent an empty answer.");
         }
-        catch (JsonException e)
+        catch (Exception e) when (IsUnreadable(e))
         {
+            // A captive portal's 200 page, a charset that cannot be decoded, a body cut off: not an answer from the API.
             throw new AuthUnavailableException("The server sent an unreadable answer.", e);
         }
     }
@@ -62,11 +63,15 @@ internal static class AuthHttp
             if (!string.IsNullOrEmpty(error?.Code))
                 return error.Code;
         }
-        catch (JsonException)
+        catch (Exception e) when (IsUnreadable(e))
         {
             // No code in the body (the bearer handler's bare 401): the status stands in for it.
         }
 
         return string.Create(CultureInfo.InvariantCulture, $"http-{status}");
     }
+
+    /// <summary>What reading a body can throw when it is not the JSON the API sends.</summary>
+    private static bool IsUnreadable(Exception e) =>
+        e is JsonException or NotSupportedException or InvalidOperationException or HttpRequestException or IOException;
 }
