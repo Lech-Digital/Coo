@@ -9,6 +9,8 @@
 
     <!-- Runtime -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.12" />
+    <!-- Tests only: the concrete container for the phone's composition test. -->
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.12" />
     <!-- Matches the installed maui-android workload (10.0.0); see BUILD.md. -->
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <!-- Phone storage: plain SQLite, no ORM (Spec 004 §13). The bundle ships its own SQLite with JSON built in. -->

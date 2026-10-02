@@ -9,8 +9,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- The shared framework carries the concrete DI container the composition test builds; no package is added. -->
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <!-- The concrete container the composition test builds. -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>
 
   <ItemGroup>

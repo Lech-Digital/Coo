@@ -22,7 +22,17 @@ internal sealed class SyncClient(HttpClient http) : ISyncApi, IConsentApi
         HouseholdId household, DeviceId device, IReadOnlyList<OutgoingChange> changes, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(changes);
-        var body = new PushRequest(household.Value, device.Value, SchemaVersions.Current, [.. changes.Select(ToDto)]);
+        PushRequest body;
+        try
+        {
+            body = new PushRequest(household.Value, device.Value, SchemaVersions.Current, [.. changes.Select(ToDto)]);
+        }
+        catch (JsonException e)
+        {
+            // Details this phone stored that are not JSON: nothing can be sent now, and nothing was decided.
+            throw new SyncUnavailableException("A local change could not be put on the wire.", e);
+        }
+
         using var request = new HttpRequestMessage(HttpMethod.Post, PushUri) { Content = JsonContent.Create(body, SyncJsonContext.Default.PushRequest) };
         using var response = await SyncHttp.SendAsync(http, request, household, cancellationToken);
         var answer = await SyncHttp.ReadAsync(response, SyncJsonContext.Default.PushResponse, cancellationToken);
@@ -31,9 +41,9 @@ internal sealed class SyncClient(HttpClient http) : ISyncApi, IConsentApi
 
     public async Task<PulledPage> PullAsync(HouseholdId household, long cursor, long? bootstrapHead, CancellationToken cancellationToken)
     {
+        var head = bootstrapHead is { } value ? string.Create(CultureInfo.InvariantCulture, $"&bootstrapHead={value}") : "";
         var uri = new Uri(
-            string.Create(CultureInfo.InvariantCulture,
-                $"api/sync/pull?household={household.Value:D}&cursor={cursor}&schemaVersion={SchemaVersions.Current}{(bootstrapHead is { } head ? $"&bootstrapHead={head}" : "")}"),
+            string.Create(CultureInfo.InvariantCulture, $"api/sync/pull?household={household.Value:D}&cursor={cursor}&schemaVersion={SchemaVersions.Current}{head}"),
             UriKind.Relative);
         using var request = new HttpRequestMessage(HttpMethod.Get, uri);
         using var response = await SyncHttp.SendAsync(http, request, household, cancellationToken);
@@ -97,12 +107,12 @@ internal sealed class SyncClient(HttpClient http) : ISyncApi, IConsentApi
 
     private static PulledRecord? FromDto(SyncRecordDto record)
     {
-        if (record.Version is null)
+        if (record.Version is null || record.Version.DeviceId == Guid.Empty)
             return null;
         var version = new HlcStamp(record.Version.WallClockMs, record.Version.Counter, new DeviceId(record.Version.DeviceId));
         RecordPayload? payload = record.EntityType switch
         {
-            SyncEntityTypes.CareEntry when record.CareEntry is { } c => new CareEntryPayload(
+            SyncEntityTypes.CareEntry when record.CareEntry is { Details.ValueKind: not JsonValueKind.Undefined } c => new CareEntryPayload(
                 c.Kind, c.SubjectBabyId, c.SubjectPerson, c.IsSession, c.StartAt, c.EndAt, c.LoggedBy, c.Source, c.SourcePromptVersion, c.Note,
                 c.Details.GetRawText()),
             SyncEntityTypes.BabyProfile when record.BabyProfile is { } b => new BabyProfilePayload(b.Name, b.Nicknames ?? [], b.BirthDate, b.DueDate),

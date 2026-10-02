@@ -254,6 +254,129 @@ public sealed class SyncClientTests
         sent.Should().Be("""{"purpose":"care-data","wording":"care-data-v1","appVersion":"0.11.0","language":"pl"}""");
     }
 
+    [Fact]
+    public async Task PullAsync_EmptyDeviceOrNoDetails_DropsTheRecord()
+    {
+        // Arrange
+        var client = Client(_ => Json(HttpStatusCode.OK,
+            $$"""
+            {"records":[
+              {"entityType":"CareEntry","entityId":"{{Entry}}","version":{"wallClockMs":5,"counter":1,"deviceId":"00000000-0000-0000-0000-000000000000"},"isDeleted":false,"seq":1,
+               "careEntry":{"kind":"diaper","isSession":false,"startAt":"2026-10-01T09:00:00+02:00","loggedBy":"x","source":"manual","details":{"v":1} } },
+              {"entityType":"CareEntry","entityId":"{{Entry}}","version":{"wallClockMs":5,"counter":1,"deviceId":"{{Phone}}"},"isDeleted":false,"seq":2,
+               "careEntry":{"kind":"diaper","isSession":false,"startAt":"2026-10-01T09:00:00+02:00","loggedBy":"x","source":"manual" } }
+            ],"cursor":2,"hasMore":false,"bootstrapHead":null}
+            """));
+
+        // Act
+        var page = await client.PullAsync(Household, 0, null, CancellationToken.None);
+
+        // Assert
+        page.Records.Should().BeEmpty();
+        page.Cursor.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task PullAsync_TombstoneWithItsPayload_IsKept()
+    {
+        // Arrange
+        var client = Client(_ => Json(HttpStatusCode.OK,
+            $$"""
+            {"records":[
+              {"entityType":"DuplicateDismissal","entityId":"{{Entry}}","version":{"wallClockMs":5,"counter":1,"deviceId":"{{Phone}}"},"isDeleted":true,"seq":1,
+               "duplicateDismissal":{"entryA":"{{Entry}}","entryB":"{{Change}}" } }
+            ],"cursor":1,"hasMore":false,"bootstrapHead":null}
+            """));
+
+        // Act
+        var page = await client.PullAsync(Household, 0, null, CancellationToken.None);
+
+        // Assert
+        page.Records.Should().ContainSingle().Which.IsDeleted.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task PushAsync_InvalidDetailsJson_IsUnavailableNotARawJsonException()
+    {
+        // Arrange
+        var client = Client(_ => Json(HttpStatusCode.OK, """{"results":[]}"""));
+
+        // Act
+        Func<Task> act = async () => await client.PushAsync(Household, Phone, [Upsert("{not json")], CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowExactlyAsync<SyncUnavailableException>();
+    }
+
+    [Fact]
+    public async Task PullAsync_UnauthorizedAfterRefresh_IsUnavailable()
+    {
+        // Arrange
+        var client = Client(_ => Raw(HttpStatusCode.Unauthorized, "application/json", "{}"));
+
+        // Act
+        Func<Task> act = async () => await client.PullAsync(Household, 0, null, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowExactlyAsync<SyncUnavailableException>();
+    }
+
+    [Fact]
+    public async Task PullAsync_HttpClientTimeout_IsUnavailable()
+    {
+        // Arrange: the caller's token is not cancelled, so this is the client's own timeout.
+        var client = Client(_ => throw new TaskCanceledException("timeout", new TimeoutException()));
+
+        // Act
+        Func<Task> act = async () => await client.PullAsync(Household, 0, null, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowExactlyAsync<SyncUnavailableException>();
+    }
+
+    [Fact]
+    public async Task PullAsync_CallerCancelled_PropagatesCancellation()
+    {
+        // Arrange
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+        var client = Client(_ => throw new TaskCanceledException("cancelled"));
+
+        // Act
+        Func<Task> act = async () => await client.PullAsync(Household, 0, null, cts.Token);
+
+        // Assert
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [Fact]
+    public async Task PushAsync_SyncMalformed_IsMalformed()
+    {
+        // Arrange
+        var client = Client(_ => Raw(HttpStatusCode.BadRequest, "application/json", """{"code":"sync.malformed"}"""));
+
+        // Act
+        Func<Task> act = async () => await client.PushAsync(Household, Phone, [Upsert()], CancellationToken.None);
+
+        // Assert
+        (await act.Should().ThrowExactlyAsync<SyncRefusedException>()).Which.Refusal.Should().Be(SyncRefusal.Malformed);
+    }
+
+    [Theory]
+    [InlineData("""{"results":[{"changeId":""")]
+    [InlineData("not json at all")]
+    public async Task PushAsync_OkWithBrokenJson_IsUnavailable(string body)
+    {
+        // Arrange
+        var client = Client(_ => Raw(HttpStatusCode.OK, "application/json", body));
+
+        // Act
+        Func<Task> act = async () => await client.PushAsync(Household, Phone, [Upsert()], CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowExactlyAsync<SyncUnavailableException>();
+    }
+
     private static SyncClient Client(Func<HttpRequestMessage, Task<HttpResponseMessage>> server) =>
         new(new HttpClient(new FakeServer(server)) { BaseAddress = new Uri("https://api.test/") });
 

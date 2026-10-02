@@ -33,6 +33,7 @@ public sealed class CompositionTests : IDisposable
         services.AddSingleton<ISecretStore>(new MemorySecrets());
         services.AddMobileApplication();
         services.AddMobileInfrastructure(Path.Combine(_folder, "coo.db"), "0.11.0", new Uri("https://api.test/"));
+        // ValidateOnBuild stays off: the host registers more services (pages, view models) than this test builds.
         using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = false, ValidateScopes = true });
 
         // Act
