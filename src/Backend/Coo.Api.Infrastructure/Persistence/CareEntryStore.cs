@@ -51,12 +51,12 @@ internal sealed partial class CareEntryStore(
                 : throw new HouseholdNotFoundException($"Household {entry.HouseholdId.Value} does not exist on the server.");
         }
 
-        // 4. The row. An existing ID in another household is refused, never moved.
-        await using (var upsert = new NpgsqlCommand(UpsertSql, connection, transaction))
+        // 4. The row. An existing ID in another household is refused, never moved; a newer stored version is kept.
+        await using (var upsert = new NpgsqlCommand(CareEntryWriter.UpsertSql, connection, transaction))
         {
-            AddParameters(upsert, entry, details, seq);
+            CareEntryWriter.AddParameters(upsert, entry, details, seq);
             if (await upsert.ExecuteNonQueryAsync(cancellationToken) != 1)
-                throw new InvalidOperationException($"Entry {entry.Id.Value} belongs to another household.");
+                throw new InvalidOperationException($"Entry {entry.Id.Value} belongs to another household, or a newer version is stored.");
         }
 
         await transaction.CommitAsync(cancellationToken);
@@ -91,56 +91,4 @@ internal sealed partial class CareEntryStore(
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Unreadable care entry {EntryId} (kind {Kind}): {Reason}")]
     private static partial void LogUnreadable(ILogger logger, Guid entryId, string kind, string reason);
-
-    private const string UpsertSql =
-        """
-        INSERT INTO care_entries (
-            id, household_id, kind, subject_baby_id, subject_person, is_session, start_at, start_offset_min,
-            end_at, end_offset_min, logged_by, source, source_prompt_version, note, details,
-            version_wall_ms, version_counter, version_device, is_deleted, seq)
-        VALUES (
-            @id, @household_id, @kind, @subject_baby_id, @subject_person, @is_session, @start_at, @start_offset_min,
-            @end_at, @end_offset_min, @logged_by, @source, @source_prompt_version, @note, @details,
-            @version_wall_ms, @version_counter, @version_device, @is_deleted, @seq)
-        ON CONFLICT (id) DO UPDATE SET
-            is_session = excluded.is_session, start_at = excluded.start_at, start_offset_min = excluded.start_offset_min,
-            end_at = excluded.end_at, end_offset_min = excluded.end_offset_min, note = excluded.note,
-            details = excluded.details, version_wall_ms = excluded.version_wall_ms, version_counter = excluded.version_counter,
-            version_device = excluded.version_device, is_deleted = excluded.is_deleted, seq = excluded.seq
-        WHERE care_entries.household_id = excluded.household_id;
-        """;
-
-    private static void AddParameters(NpgsqlCommand command, CareEntry entry, string details, long seq)
-    {
-        var (start, end) = entry.Timing switch
-        {
-            PointTiming point => (point.At, (DateTimeOffset?)null),
-            SessionTiming session => (session.Range.Start, session.Range.End),
-            _ => throw new ArgumentOutOfRangeException(nameof(entry), entry.Timing.GetType().Name, "Unknown timing."),
-        };
-        var (startUtc, startOffset) = ServerColumns.Instant(start);
-        var endParts = end is { } e ? ServerColumns.Instant(e) : ((DateTime, short)?)null;
-        var p = command.Parameters;
-
-        p.AddWithValue("id", entry.Id.Value);
-        p.AddWithValue("household_id", entry.HouseholdId.Value);
-        p.AddWithValue("kind", entry.KindCode.Value);
-        p.AddWithValue("subject_baby_id", NpgsqlDbType.Uuid, entry.Subject is BabySubject baby ? baby.BabyId.Value : DBNull.Value);
-        p.AddWithValue("subject_person", NpgsqlDbType.Text, entry.Subject is CaregiverSubject caregiver ? ServerColumns.Person(caregiver.Person) : DBNull.Value);
-        p.AddWithValue("is_session", entry.Timing is SessionTiming);
-        p.AddWithValue("start_at", NpgsqlDbType.TimestampTz, startUtc);
-        p.AddWithValue("start_offset_min", startOffset);
-        p.AddWithValue("end_at", NpgsqlDbType.TimestampTz, endParts is { } ep ? ep.Item1 : DBNull.Value);
-        p.AddWithValue("end_offset_min", NpgsqlDbType.Smallint, endParts is { } eo ? eo.Item2 : DBNull.Value);
-        p.AddWithValue("logged_by", ServerColumns.Person(entry.LoggedBy));
-        p.AddWithValue("source", ServerColumns.Source(entry.Source));
-        p.AddWithValue("source_prompt_version", NpgsqlDbType.Text, (object?)entry.Source.PromptVersion ?? DBNull.Value);
-        p.AddWithValue("note", NpgsqlDbType.Text, (object?)entry.Note?.Text ?? DBNull.Value);
-        p.AddWithValue("details", NpgsqlDbType.Jsonb, details);
-        p.AddWithValue("version_wall_ms", entry.Version.WallClockMs);
-        p.AddWithValue("version_counter", entry.Version.Counter);
-        p.AddWithValue("version_device", entry.Version.DeviceId.Value);
-        p.AddWithValue("is_deleted", entry.IsDeleted);
-        p.AddWithValue("seq", seq);
-    }
 }
