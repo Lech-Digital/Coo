@@ -54,10 +54,13 @@ public sealed class LogPage : ContentPage
         _theme.PaletteChanged += OnPaletteChanged;
         _language.Changed += OnLanguageChanged;
 
-        // Loading takes a few milliseconds, so load first and draw once, in the language now in effect. A refresh with
-        // nothing new raises no change, and then nothing is redrawn.
+        // The first visit draws at once from the data loaded at start-up, before the page's first frame: drawing after
+        // the refresh showed one blank frame (recorded on the Pixel 10). A refresh with nothing new raises no change,
+        // and then nothing is redrawn.
+        if (_body.Content is null)
+            Render();
         await _model.RefreshAsync();
-        if (_body.Content is null || _renderedLanguage != Strings.Language)
+        if (_renderedLanguage != Strings.Language)
             QueueRender();
     }
 

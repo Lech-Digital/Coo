@@ -20,7 +20,6 @@ public sealed class EditPage : ContentPage
         _model = model;
         BindingContext = model;
         Shell.SetNavBarIsVisible(this, false);
-        SafeAreaEdges = new SafeAreaEdges(SafeAreaRegions.Container, SafeAreaRegions.Container, SafeAreaRegions.Container, SafeAreaRegions.SoftInput);
         model.Closed += async (_, _) => await Navigation.PopAsync();
         Content = new ScrollView { Content = _body };
     }

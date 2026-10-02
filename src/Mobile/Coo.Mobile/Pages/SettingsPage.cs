@@ -47,9 +47,12 @@ public sealed class SettingsPage : ContentPage
         _model.PropertyChanged += OnModelChanged;
         _language.Changed += OnLanguageChanged;
 
-        // Load first (a few milliseconds), then draw once, in the language now in effect.
+        // The first visit draws at once from the data loaded at start-up, before the page's first frame: drawing after
+        // the refresh showed one blank frame (recorded on the Pixel 10).
+        if (_body.Content is null)
+            Render();
         await _model.RefreshAsync();
-        if (_body.Content is null || _renderedLanguage != Strings.Language)
+        if (_renderedLanguage != Strings.Language)
             QueueRender();
     }
 

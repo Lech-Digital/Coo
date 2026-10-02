@@ -14,7 +14,6 @@ public sealed class BabyPage : ContentPage
         _model = model;
         BindingContext = model;
         Shell.SetNavBarIsVisible(this, false);
-        SafeAreaEdges = new SafeAreaEdges(SafeAreaRegions.Container, SafeAreaRegions.Container, SafeAreaRegions.Container, SafeAreaRegions.SoftInput);
         model.Saved += async (_, _) => await Navigation.PopAsync();
     }
 
