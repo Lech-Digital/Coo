@@ -20,10 +20,11 @@ internal sealed partial class AuthNonceCleanupJob(PurgeAuthNonces purge, TimePro
                     var deleted = await purge.ExecuteAsync(stoppingToken);
                     LogPurged(logger, deleted);
                 }
-                catch (Exception e) when (e is not OperationCanceledException)
+                catch (Exception e) when (!stoppingToken.IsCancellationRequested)
                 {
-                    // One failed clean-up must not stop the next one, or the API.
-                    LogFailed(logger, e);
+                    // One failed clean-up must not stop the next one, or the API: a cancellation nobody asked for (a
+                    // command timeout) included, which escaping here would stop the host. The type only; no messages.
+                    LogFailed(logger, e.GetType().Name);
                 }
 
                 await Task.Delay(Interval, time, stoppingToken);
@@ -38,6 +39,6 @@ internal sealed partial class AuthNonceCleanupJob(PurgeAuthNonces purge, TimePro
     [LoggerMessage(Level = LogLevel.Information, Message = "Auth nonces: {Count} old rows deleted")]
     private static partial void LogPurged(ILogger logger, int count);
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "Auth nonce clean-up failed")]
-    private static partial void LogFailed(ILogger logger, Exception exception);
+    [LoggerMessage(Level = LogLevel.Error, Message = "Auth nonce clean-up failed: {ExceptionType}")]
+    private static partial void LogFailed(ILogger logger, string exceptionType);
 }
