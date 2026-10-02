@@ -217,6 +217,60 @@ public sealed class AccountViewModelTests : IDisposable
         model.Toast.Should().Be("Your account wasn't deleted. Check your connection and try again.");
     }
 
+    [Fact]
+    public async Task SignInCommand_FailsTwice_NotifiesToastEachTime()
+    {
+        // Arrange
+        using var model = Model();
+        _api.GetNonceAsync(Arg.Any<CancellationToken>()).ThrowsAsync(new AuthUnavailableException("offline"));
+        var notifications = 0;
+        model.PropertyChanged += (_, e) => notifications += e.PropertyName == nameof(AccountViewModel.Toast) && model.Toast.Length > 0 ? 1 : 0;
+
+        // Act
+        await model.SignInCommand.ExecuteAsync(null);
+        await model.SignInCommand.ExecuteAsync(null);
+
+        // Assert
+        notifications.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task SignInCommand_SucceedsAfterFailure_ClearsTheOldToast()
+    {
+        // Arrange
+        using var model = Model();
+        _api.GetNonceAsync(Arg.Any<CancellationToken>()).Returns(
+            _ => Task.FromException<string>(new AuthUnavailableException("offline")), _ => Task.FromResult("nonce-1"));
+        _api.SignInWithGoogleAsync(Arg.Any<GoogleSignIn>(), Arg.Any<CancellationToken>())
+            .Returns(new SignInGrant(new SessionTokens("a", Expires, "r"), Profile, Household, SignInOutcome.Adopted));
+        await model.SignInCommand.ExecuteAsync(null);
+
+        // Act
+        await model.SignInCommand.ExecuteAsync(null);
+
+        // Assert
+        model.Toast.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task DeleteAccountCommand_TappedTwiceWhileRunning_CallsTheServerOnce()
+    {
+        // Arrange
+        await _account.SignedInAsync(new StoredSession("a", Expires, "r", Profile, Household, JoinPending: false), CancellationToken.None);
+        var gate = new TaskCompletionSource();
+        _accountApi.DeleteAccountAsync(Arg.Any<CancellationToken>()).Returns(_ => gate.Task);
+        using var model = Model();
+
+        // Act
+        var first = model.DeleteAccountCommand.ExecuteAsync(null);
+        var second = model.DeleteAccountCommand.ExecuteAsync(null);
+        gate.SetResult();
+        await Task.WhenAll(first, second);
+
+        // Assert
+        await _accountApi.Received(1).DeleteAccountAsync(Arg.Any<CancellationToken>());
+    }
+
     private AccountViewModel Model() => new(
         _account,
         new SignIn(_api, _google, _households, _device, _deviceName, _account),

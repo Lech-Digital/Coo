@@ -102,6 +102,7 @@ public sealed partial class AccountViewModel : ObservableObject, IDisposable
         if (IsBusy)
             return;
         IsBusy = true;
+        Toast = "";
         try
         {
             if (await _signIn.ExecuteAsync(CancellationToken.None) == SignInResult.Failed)
@@ -119,8 +120,19 @@ public sealed partial class AccountViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private async Task DeleteAccountAsync()
     {
-        if (!await _deleteAccount.ExecuteAsync(CancellationToken.None))
-            Toast = Strings.Get("Account.DeleteFailed");
+        if (IsBusy)
+            return;
+        IsBusy = true;
+        Toast = "";
+        try
+        {
+            if (!await _deleteAccount.ExecuteAsync(CancellationToken.None))
+                Toast = Strings.Get("Account.DeleteFailed");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     private void OnAccountChanged(object? sender, EventArgs e) => State = _account.State;
