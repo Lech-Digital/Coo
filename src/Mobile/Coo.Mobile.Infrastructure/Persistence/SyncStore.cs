@@ -49,30 +49,43 @@ internal sealed class SyncStore(LocalDatabase database) : ISyncStore
     public async Task<IReadOnlyList<OutgoingChange>> NextBatchAsync(HouseholdId household, int max, CancellationToken cancellationToken)
     {
         await using var connection = await database.OpenAsync(cancellationToken);
-        var groups = new List<(string Type, string Id, long LastSeq)>();
-        await using (var command = connection.Command(
-            $"""
-            SELECT o.entity_type, o.entity_id, max(o.seq) FROM outbox o WHERE {InHousehold}
-            GROUP BY o.entity_type, o.entity_id ORDER BY min(o.seq) LIMIT $max;
-            """,
-            null, ("$h", Columns.Id(household.Value)), ("$max", max)))
-        await using (var reader = await command.ExecuteReaderAsync(cancellationToken))
+        while (true)
         {
-            while (await reader.ReadAsync(cancellationToken))
-                groups.Add((reader.GetString(0), reader.GetString(1), reader.GetInt64(2)));
-        }
+            var groups = new List<(string Type, string Id, long LastSeq)>();
+            await using (var command = connection.Command(
+                $"""
+                SELECT o.entity_type, o.entity_id, max(o.seq) FROM outbox o WHERE {InHousehold}
+                GROUP BY o.entity_type, o.entity_id ORDER BY min(o.seq) LIMIT $max;
+                """,
+                null, ("$h", Columns.Id(household.Value)), ("$max", max)))
+            await using (var reader = await command.ExecuteReaderAsync(cancellationToken))
+            {
+                while (await reader.ReadAsync(cancellationToken))
+                    groups.Add((reader.GetString(0), reader.GetString(1), reader.GetInt64(2)));
+            }
 
-        var changes = new List<OutgoingChange>(groups.Count);
-        foreach (var (type, id, lastSeq) in groups)
-        {
-            var changeId = (string)(await connection.ScalarAsync("SELECT change_id FROM outbox WHERE seq = $seq;", cancellationToken, null, ("$seq", lastSeq)))!;
-            if (await ReadStateAsync(connection, type, id, cancellationToken) is not { } state)
-                continue;
-            changes.Add(new OutgoingChange(
-                Guid.Parse(changeId), type, Guid.Parse(id), state.IsDeleted, state.Version, lastSeq, state.IsDeleted ? null : state.Payload));
-        }
+            var changes = new List<OutgoingChange>(groups.Count);
+            var dropped = false;
+            foreach (var (type, id, lastSeq) in groups)
+            {
+                var changeId = (string)(await connection.ScalarAsync("SELECT change_id FROM outbox WHERE seq = $seq;", cancellationToken, null, ("$seq", lastSeq)))!;
+                if (await ReadStateAsync(connection, type, id, cancellationToken) is not { } state)
+                {
+                    // A record whose stored state cannot be read can never be sent; its rows must not hold a batch slot forever.
+                    await connection.ExecuteAsync(
+                        "DELETE FROM outbox WHERE entity_type = $type AND entity_id = $id AND seq <= $last;",
+                        cancellationToken, null, ("$type", type), ("$id", id), ("$last", lastSeq));
+                    dropped = true;
+                    continue;
+                }
 
-        return changes;
+                changes.Add(new OutgoingChange(
+                    Guid.Parse(changeId), type, Guid.Parse(id), state.IsDeleted, state.Version, lastSeq, state.IsDeleted ? null : state.Payload));
+            }
+
+            if (!dropped || groups.Count < max)
+                return changes;
+        }
     }
 
     public async Task ApplyResultsAsync(
@@ -121,7 +134,8 @@ internal sealed class SyncStore(LocalDatabase database) : ISyncStore
         await using (var command = connection.Command("SELECT last_seq, bootstrap_head FROM sync_cursors WHERE household_id = $h;", null, h))
         await using (var reader = await command.ExecuteReaderAsync(cancellationToken))
         {
-            if (await reader.ReadAsync(cancellationToken))
+            // (0, null) is what an empty first pull stores: it still has to meet the holds-records rule below.
+            if (await reader.ReadAsync(cancellationToken) && !(reader.GetInt64(0) == 0 && reader.IsDBNull(1)))
                 return new SyncCursor(reader.GetInt64(0), reader.IsDBNull(1) ? null : reader.GetInt64(1));
         }
 
@@ -142,9 +156,16 @@ internal sealed class SyncStore(LocalDatabase database) : ISyncStore
         await using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync(cancellationToken);
         foreach (var record in page.Records)
         {
+            if (await BelongsToAnotherHouseholdAsync(connection, transaction, household, record, cancellationToken))
+                continue;
             if (PullRule.KeepsLocal(await PendingVersionAsync(connection, transaction, record.EntityType, record.EntityId, cancellationToken), record.Version))
                 continue;
             await UpsertAsync(connection, transaction, household, record, cancellationToken);
+
+            // The pulled state wins: this record's pending rows are older than it, and a refused local change no longer exists.
+            var key = new[] { ("$type", (object?)record.EntityType), ("$id", Columns.Id(record.EntityId)) };
+            await connection.ExecuteAsync("DELETE FROM outbox WHERE entity_type = $type AND entity_id = $id;", cancellationToken, transaction, key);
+            await connection.ExecuteAsync("DELETE FROM sync_rejections WHERE entity_type = $type AND entity_id = $id;", cancellationToken, transaction, key);
         }
 
         await connection.ExecuteAsync(
@@ -247,6 +268,25 @@ internal sealed class SyncStore(LocalDatabase database) : ISyncStore
             default:
                 return null;
         }
+    }
+
+    /// <summary>A local row with this ID that belongs to another household is never touched by a pull.</summary>
+    private static async Task<bool> BelongsToAnotherHouseholdAsync(
+        SqliteConnection connection, SqliteTransaction transaction, HouseholdId household, PulledRecord record, CancellationToken cancellationToken)
+    {
+        var table = record.EntityType switch
+        {
+            SyncEntityTypes.CareEntry => "care_entries",
+            SyncEntityTypes.BabyProfile => "baby_profiles",
+            SyncEntityTypes.DuplicateDismissal => "duplicate_dismissals",
+            _ => null,
+        };
+        if (table is null)
+            return false;
+        var other = await connection.ScalarAsync(
+            $"SELECT EXISTS (SELECT 1 FROM {table} WHERE id = $id AND household_id <> $h);", cancellationToken, transaction,
+            ("$id", Columns.Id(record.EntityId)), ("$h", Columns.Id(household.Value)));
+        return Convert.ToInt64(other, CultureInfo.InvariantCulture) == 1;
     }
 
     /// <summary>The local version when the record has an outbox row: that is a pending change (ADR 0002 §6).</summary>

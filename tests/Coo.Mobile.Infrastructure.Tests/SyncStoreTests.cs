@@ -337,4 +337,141 @@ public sealed class SyncStoreTests
         // Assert
         counts.Should().Be(new SyncCounts(0, 2, 0));
     }
+
+    private static async Task InsertPendingEntryAsync(TestDatabase db, Guid id, string household, long wall, string note, string versionDevice, bool deleted = false)
+    {
+        await using var connection = await db.OpenAsync();
+        await connection.ExecuteAsync(
+            $"""
+            INSERT INTO care_entries (id, household_id, kind, subject_baby_id, is_session, start_utc_ms, start_offset_min, logged_by, source,
+                note, details, version_wall_ms, version_counter, version_device, is_deleted)
+            VALUES ('{id}', '{household}', 'diaper', '{TestDatabase.Baby.Value}', 0, 1000, 0, 'this-device', 'manual',
+                '{note}', '{WetDetails}', {wall}, 0, '{versionDevice}', {(deleted ? 1 : 0)});
+            INSERT INTO outbox (change_id, entity_type, entity_id, operation, version_wall_ms, version_counter, version_device)
+            VALUES ('{(await db.NewIdAsync()).Value}', 'CareEntry', '{id}', '{(deleted ? "delete" : "upsert")}', {wall}, 0, '{Remote.Value}');
+            """, CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task GetCursorAsync_EmptyFirstPullThenALocalEntry_StillAsksForEveryTombstone()
+    {
+        // Arrange: the empty first pull stored (0, null); the entry was logged and pushed afterwards.
+        await using var db = await TestDatabase.CreateAsync();
+        var store = Store(db);
+        await store.ApplyPageAsync(TestDatabase.Household, new PulledPage([], 0, false, 0), CancellationToken.None);
+        await db.DiaperAsync(db.Time.GetLocalNow());
+
+        // Act
+        var cursor = await store.GetCursorAsync(TestDatabase.Household, CancellationToken.None);
+
+        // Assert
+        cursor.Should().Be(new SyncCursor(0, 0));
+    }
+
+    [Fact]
+    public async Task ApplyPageAsync_PulledRecordWinsOverAPendingOne_DropsItsOutboxRowsAndRejection()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var id = (await db.NewIdAsync()).Value;
+        await InsertPendingEntryAsync(db, id, TestDatabase.Household.Value.ToString(), 5, "mine", Remote.Value.ToString());
+        await using (var connection = await db.OpenAsync())
+            await connection.ExecuteAsync(
+                $"INSERT INTO sync_rejections (entity_type, entity_id, household_id, reason, rejected_utc_ms) VALUES ('CareEntry', '{id}', '{TestDatabase.Household.Value}', 'x', 1);",
+                CancellationToken.None);
+
+        // Act
+        await Store(db).ApplyPageAsync(TestDatabase.Household, new PulledPage([PulledDiaper(id, 10)], 1, false, null), CancellationToken.None);
+
+        // Assert
+        (await CountAsync(db, "SELECT count(*) FROM outbox;")).Should().Be(0);
+        (await CountAsync(db, "SELECT count(*) FROM sync_rejections;")).Should().Be(0);
+    }
+
+    [Fact]
+    public async Task ApplyPageAsync_PulledRecordLosesToAPendingOne_KeepsItsOutboxRows()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var id = (await db.NewIdAsync()).Value;
+        await InsertPendingEntryAsync(db, id, TestDatabase.Household.Value.ToString(), 20, "mine", Remote.Value.ToString());
+
+        // Act
+        await Store(db).ApplyPageAsync(TestDatabase.Household, new PulledPage([PulledDiaper(id, 10)], 1, false, null), CancellationToken.None);
+
+        // Assert
+        (await CountAsync(db, "SELECT count(*) FROM outbox;")).Should().Be(1);
+    }
+
+    [Theory]
+    [InlineData(20, 10, 1)]
+    [InlineData(5, 10, 0)]
+    public async Task ApplyPageAsync_PendingLocalDelete_IsKeptOnlyWhenNewer(long localWall, long remoteWall, long expectedDeleted)
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var id = (await db.NewIdAsync()).Value;
+        await InsertPendingEntryAsync(db, id, TestDatabase.Household.Value.ToString(), localWall, "mine", Remote.Value.ToString(), deleted: true);
+
+        // Act
+        await Store(db).ApplyPageAsync(TestDatabase.Household, new PulledPage([PulledDiaper(id, remoteWall)], 1, false, null), CancellationToken.None);
+
+        // Assert
+        (await CountAsync(db, $"SELECT is_deleted FROM care_entries WHERE id = '{id}';")).Should().Be(expectedDeleted);
+    }
+
+    [Fact]
+    public async Task NextBatchAsync_AnUnreadableGroupBeforeAGoodOne_IsDroppedAndTheBatchStillFills()
+    {
+        // Arrange: a stored version that cannot be parsed can never be sent.
+        await using var db = await TestDatabase.CreateAsync();
+        await InsertPendingEntryAsync(db, (await db.NewIdAsync()).Value, TestDatabase.Household.Value.ToString(), 5, "bad", "not-a-device");
+        await db.DiaperAsync(db.Time.GetLocalNow());
+
+        // Act
+        var batch = await Store(db).NextBatchAsync(TestDatabase.Household, 1, CancellationToken.None);
+
+        // Assert
+        batch.Should().ContainSingle();
+        (await CountAsync(db, "SELECT count(*) FROM outbox;")).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ApplyPageAsync_IdOfARecordInAnotherHousehold_LeavesThatRecordAlone()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var id = (await db.NewIdAsync()).Value;
+        await InsertPendingEntryAsync(db, id, Other.Value.ToString(), 5, "other", Remote.Value.ToString());
+
+        // Act
+        await Store(db).ApplyPageAsync(TestDatabase.Household, new PulledPage([PulledDiaper(id, 10)], 1, false, null), CancellationToken.None);
+
+        // Assert
+        (await (await db.OpenAsync()).ScalarAsync($"SELECT household_id FROM care_entries WHERE id = '{id}';", CancellationToken.None)).Should().Be(Other.Value.ToString());
+        (await CountAsync(db, "SELECT count(*) FROM outbox;")).Should().Be(1);
+    }
+
+    [Theory]
+    [InlineData(PushOutcome.Applied)]
+    [InlineData(PushOutcome.Superseded)]
+    public async Task ApplyResultsAsync_AppliedOrSuperseded_RemovesTheRowsAndClearsAnEarlierRejection(PushOutcome outcome)
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var entry = await db.DiaperAsync(db.Time.GetLocalNow());
+        var store = Store(db);
+        var batch = await store.NextBatchAsync(TestDatabase.Household, 200, CancellationToken.None);
+        await store.ApplyResultsAsync(TestDatabase.Household, batch, [new PushResult(batch[0].ChangeId, PushOutcome.Rejected, "x")], db.Time.GetUtcNow(), CancellationToken.None);
+        entry.SetNote(Note.From("fixed").Value, await db.Device.NextAsync(CancellationToken.None));
+        await db.Store.SaveAsync(entry, CancellationToken.None);
+        var again = await store.NextBatchAsync(TestDatabase.Household, 200, CancellationToken.None);
+
+        // Act
+        await store.ApplyResultsAsync(TestDatabase.Household, again, [new PushResult(again[0].ChangeId, outcome, null)], db.Time.GetUtcNow(), CancellationToken.None);
+
+        // Assert
+        (await CountAsync(db, "SELECT count(*) FROM outbox;")).Should().Be(0);
+        (await store.ListRejectionsAsync(TestDatabase.Household, CancellationToken.None)).Should().BeEmpty();
+    }
 }
