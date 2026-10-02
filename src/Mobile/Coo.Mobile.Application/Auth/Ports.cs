@@ -5,12 +5,13 @@ namespace Coo.Mobile.Application.Auth;
 public sealed record AccountProfile(UserId UserId, string Name, string Email);
 
 /// <summary>
-/// What the phone keeps after signing in (Spec 010 §3.3): both tokens, who is signed in, the account's household, and
-/// whether this phone's entries are still to join it at the first sync (Spec 010 §3.2, Q1).
+/// What the phone keeps after signing in (Spec 010 §3.3): both tokens, who is signed in, the account's household, whether
+/// this phone's entries are still to join it, and the refresh token this phone proposed and has not seen accepted yet
+/// (Spec 011 §8.2): a retry sends the same one.
 /// </summary>
 public sealed record StoredSession(
     string AccessToken, DateTimeOffset AccessTokenExpiresAt, string RefreshToken, AccountProfile Profile, HouseholdId AccountHousehold,
-    bool JoinPending);
+    bool JoinPending, string? PendingRefreshToken = null);
 
 /// <summary>The session on this phone. Unreadable means none: the person signs in again; it never crashes.</summary>
 public interface ISessionStore
@@ -67,12 +68,17 @@ public interface IAuthApi
 
     Task<SignInGrant> SignInWithGoogleAsync(GoogleSignIn request, CancellationToken cancellationToken);
 
-    Task<SessionTokens> RefreshAsync(string refreshToken, CancellationToken cancellationToken);
+    /// <summary>Refreshes with <paramref name="refreshToken"/>, proposing <paramref name="nextRefreshToken"/> as the next one.</summary>
+    Task<SessionTokens> RefreshAsync(string refreshToken, string nextRefreshToken, CancellationToken cancellationToken);
 }
 
 public sealed record DeviceSessionInfo(string Name, DateTimeOffset LastUsedAt, bool IsThisDevice);
 
-public sealed record AccountOverview(AccountProfile Profile, HouseholdId? Household, string? Role, IReadOnlyList<DeviceSessionInfo> Devices);
+/// <summary>The account's consent to a wording (Spec 011 §3), as <c>/api/me</c> reports it.</summary>
+public sealed record ConsentInfo(string Wording, DateTimeOffset GivenAt);
+
+public sealed record AccountOverview(
+    AccountProfile Profile, HouseholdId? Household, string? Role, IReadOnlyList<DeviceSessionInfo> Devices, ConsentInfo? Consent = null);
 
 /// <summary>Calls made with the access token, refreshed as needed by the infrastructure.</summary>
 public interface IAccountApi

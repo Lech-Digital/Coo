@@ -13,7 +13,7 @@ internal sealed class SessionStore(ISecretStore secrets) : ISessionStore
 {
     public const string Key = "coo.session";
     private const char Separator = '\u001f';
-    private const string Version = "1";
+    private const string Version = "2";
     private const long LatestUnixMs = 253_402_300_799_999;
 
     public async Task<StoredSession?> GetAsync(CancellationToken cancellationToken)
@@ -40,19 +40,23 @@ internal sealed class SessionStore(ISecretStore secrets) : ISessionStore
         Clean(session.Profile.Name),
         Clean(session.Profile.Email),
         session.AccountHousehold.Value.ToString("D", CultureInfo.InvariantCulture),
-        session.JoinPending ? "1" : "0");
+        session.JoinPending ? "1" : "0",
+        session.PendingRefreshToken ?? "");
 
+    /// <summary>Version 1 (0.10.0) has nine fields and no pending token; version 2 has ten.</summary>
     internal static StoredSession? Parse(string text)
     {
         var f = text.Split(Separator);
-        if (f.Length != 9 || f[0] != Version || f[1].Length == 0 || f[3].Length == 0 || f[8] is not ("0" or "1")
+        var known = (f[0] == "1" && f.Length == 9) || (f[0] == "2" && f.Length == 10);
+        if (!known || f[1].Length == 0 || f[3].Length == 0 || f[8] is not ("0" or "1")
             || !long.TryParse(f[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var expires) || expires is < 0 or > LatestUnixMs
             || !Guid.TryParseExact(f[4], "D", out var user) || user == Guid.Empty
             || !Guid.TryParseExact(f[7], "D", out var household) || household == Guid.Empty)
             return null;
+        var pending = f.Length == 10 && f[9].Length > 0 ? f[9] : null;
         return new StoredSession(
             f[1], DateTimeOffset.FromUnixTimeMilliseconds(expires), f[3], new AccountProfile(new UserId(user), f[5], f[6]),
-            new HouseholdId(household), f[8] == "1");
+            new HouseholdId(household), f[8] == "1", pending);
     }
 
     private static string Clean(string value) => value.Replace(Separator, ' ');

@@ -29,7 +29,11 @@ public sealed class AuthenticatingHandlerTests : IDisposable
         _refresher = new TokenRefresher(_sessions, _api, _account, _time);
     }
 
-    public void Dispose() => _refresher.Dispose();
+    public void Dispose()
+    {
+        _refresher.Dispose();
+        _account.Dispose();
+    }
 
     [Fact]
     public async Task SendAsync_ValidToken_SendsItAsBearerWithoutRefreshing()
@@ -49,7 +53,7 @@ public sealed class AuthenticatingHandlerTests : IDisposable
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         sentWith.Should().Be("Bearer old");
-        await _api.DidNotReceiveWithAnyArgs().RefreshAsync(default!, default);
+        await _api.DidNotReceiveWithAnyArgs().RefreshAsync(default!, default!, default);
     }
 
     [Fact]
@@ -59,7 +63,7 @@ public sealed class AuthenticatingHandlerTests : IDisposable
         await _account.SignedInAsync(Session, CancellationToken.None);
         var refused = 0;
         var allRefused = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        _api.RefreshAsync("refresh-1", Arg.Any<CancellationToken>()).Returns(async _ =>
+        _api.RefreshAsync("refresh-1", Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(async _ =>
         {
             await allRefused.Task;
             return new SessionTokens("new", Now.AddMinutes(15), "refresh-2");
@@ -78,7 +82,7 @@ public sealed class AuthenticatingHandlerTests : IDisposable
 
         // Assert
         responses.Should().OnlyContain(r => r.StatusCode == HttpStatusCode.OK);
-        await _api.Received(1).RefreshAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
+        await _api.Received(1).RefreshAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
         (await _sessions.GetAsync(CancellationToken.None))!.RefreshToken.Should().Be("refresh-2");
     }
 
@@ -87,7 +91,7 @@ public sealed class AuthenticatingHandlerTests : IDisposable
     {
         // Arrange: 30 seconds left, less than the one-minute margin.
         await _account.SignedInAsync(Session with { AccessTokenExpiresAt = Now.AddSeconds(30) }, CancellationToken.None);
-        _api.RefreshAsync("refresh-1", Arg.Any<CancellationToken>()).Returns(new SessionTokens("new", Now.AddMinutes(15), "refresh-2"));
+        _api.RefreshAsync("refresh-1", Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(new SessionTokens("new", Now.AddMinutes(15), "refresh-2"));
         var tokens = new List<string?>();
         using var client = Client(r =>
         {
@@ -107,7 +111,7 @@ public sealed class AuthenticatingHandlerTests : IDisposable
     {
         // Arrange
         await _account.SignedInAsync(Session, CancellationToken.None);
-        _api.RefreshAsync("refresh-1", Arg.Any<CancellationToken>()).ThrowsAsync(new AuthUnavailableException("offline"));
+        _api.RefreshAsync("refresh-1", Arg.Any<string>(), Arg.Any<CancellationToken>()).ThrowsAsync(new AuthUnavailableException("offline"));
         using var client = Client(_ => Status(HttpStatusCode.Unauthorized));
 
         // Act
@@ -115,7 +119,7 @@ public sealed class AuthenticatingHandlerTests : IDisposable
 
         // Assert
         await act.Should().ThrowAsync<AuthUnavailableException>();
-        (await _sessions.GetAsync(CancellationToken.None)).Should().Be(Session);
+        (await StoredApartFromTheProposalAsync()).Should().Be(Session);
         _account.State.Should().Be(new SignedIn(Session.Profile));
     }
 
@@ -125,7 +129,7 @@ public sealed class AuthenticatingHandlerTests : IDisposable
         // Arrange: every caller is waiting before the refresh fails, so none of them starts a second one.
         await _account.SignedInAsync(Session, CancellationToken.None);
         var answer = new TaskCompletionSource<SessionTokens>(TaskCreationOptions.RunContinuationsAsynchronously);
-        _api.RefreshAsync("refresh-1", Arg.Any<CancellationToken>()).Returns(answer.Task);
+        _api.RefreshAsync("refresh-1", Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(answer.Task);
         var waiting = Enumerable.Range(0, 5).Select(_ => Record(() => _refresher.RefreshAsync("old", CancellationToken.None))).ToList();
 
         // Act
@@ -134,8 +138,8 @@ public sealed class AuthenticatingHandlerTests : IDisposable
 
         // Assert
         outcomes.Should().OnlyContain(e => e is AuthUnavailableException);
-        await _api.Received(1).RefreshAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
-        (await _sessions.GetAsync(CancellationToken.None)).Should().Be(Session);
+        await _api.Received(1).RefreshAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+        (await StoredApartFromTheProposalAsync()).Should().Be(Session);
     }
 
     [Fact]
@@ -143,7 +147,7 @@ public sealed class AuthenticatingHandlerTests : IDisposable
     {
         // Arrange: a failure is not remembered; the next call is a new attempt.
         await _account.SignedInAsync(Session, CancellationToken.None);
-        _api.RefreshAsync("refresh-1", Arg.Any<CancellationToken>()).Returns(
+        _api.RefreshAsync("refresh-1", Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(
             _ => throw new AuthUnavailableException("offline"),
             _ => Task.FromResult(new SessionTokens("new", Now.AddMinutes(15), "refresh-2")));
         Func<Task> first = async () => await _refresher.RefreshAsync("old", CancellationToken.None);
@@ -154,7 +158,7 @@ public sealed class AuthenticatingHandlerTests : IDisposable
 
         // Assert
         token.Should().Be("new");
-        await _api.Received(2).RefreshAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
+        await _api.Received(2).RefreshAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -162,7 +166,7 @@ public sealed class AuthenticatingHandlerTests : IDisposable
     {
         // Arrange: the session was revoked on the server. Only the tokens go; local data is not this code's to touch.
         await _account.SignedInAsync(Session, CancellationToken.None);
-        _api.RefreshAsync("refresh-1", Arg.Any<CancellationToken>()).ThrowsAsync(new AuthRejectedException("auth.refresh-invalid"));
+        _api.RefreshAsync("refresh-1", Arg.Any<string>(), Arg.Any<CancellationToken>()).ThrowsAsync(new AuthRejectedException("auth.refresh-invalid"));
         using var client = Client(_ => Status(HttpStatusCode.Unauthorized));
 
         // Act
@@ -183,14 +187,14 @@ public sealed class AuthenticatingHandlerTests : IDisposable
     {
         // Arrange: a captive portal or a misrouted proxy during a deploy; only auth.refresh-invalid ends a session.
         await _account.SignedInAsync(Session, CancellationToken.None);
-        _api.RefreshAsync("refresh-1", Arg.Any<CancellationToken>()).ThrowsAsync(new AuthRejectedException(code));
+        _api.RefreshAsync("refresh-1", Arg.Any<string>(), Arg.Any<CancellationToken>()).ThrowsAsync(new AuthRejectedException(code));
 
         // Act
         Func<Task> act = async () => await _refresher.RefreshAsync("old", CancellationToken.None);
 
         // Assert
         await act.Should().ThrowAsync<AuthUnavailableException>();
-        (await _sessions.GetAsync(CancellationToken.None)).Should().Be(Session);
+        (await StoredApartFromTheProposalAsync()).Should().Be(Session);
         _account.State.Should().Be(new SignedIn(Session.Profile));
     }
 
@@ -215,7 +219,7 @@ public sealed class AuthenticatingHandlerTests : IDisposable
 
         // Assert
         await act.Should().ThrowAsync<AuthUnavailableException>();
-        (await _sessions.GetAsync(CancellationToken.None)).Should().Be(Session);
+        (await StoredApartFromTheProposalAsync()).Should().Be(Session);
         _account.State.Should().Be(new SignedIn(Session.Profile));
     }
 
@@ -224,7 +228,7 @@ public sealed class AuthenticatingHandlerTests : IDisposable
     {
         // Arrange: DELETE /api/account { "confirm": true } with a token that just expired.
         await _account.SignedInAsync(Session, CancellationToken.None);
-        _api.RefreshAsync("refresh-1", Arg.Any<CancellationToken>()).Returns(new SessionTokens("new", Now.AddMinutes(15), "refresh-2"));
+        _api.RefreshAsync("refresh-1", Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(new SessionTokens("new", Now.AddMinutes(15), "refresh-2"));
         var bodies = new List<string>();
         using var client = Client(async r =>
         {
@@ -258,6 +262,90 @@ public sealed class AuthenticatingHandlerTests : IDisposable
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         server.Calls.Should().Be(0);
     }
+
+    [Fact]
+    public async Task RefreshAsync_FirstAttemptUnavailable_SendsTheSameProposalAgain()
+    {
+        // Arrange: the response to the first refresh is lost; the retry must carry the same pair (Spec 011 §8.2).
+        await _account.SignedInAsync(Session, CancellationToken.None);
+        var proposals = new List<string>();
+        _api.RefreshAsync("refresh-1", Arg.Do<string>(proposals.Add), Arg.Any<CancellationToken>())
+            .Returns(_ => throw new AuthUnavailableException("lost"), _ => Task.FromResult(new SessionTokens("new", Now.AddMinutes(15), proposals[^1])));
+
+        // Act
+        var first = await Record(() => _refresher.RefreshAsync("old", CancellationToken.None));
+        var token = await _refresher.RefreshAsync("old", CancellationToken.None);
+
+        // Assert
+        first.Should().BeOfType<AuthUnavailableException>();
+        token.Should().Be("new");
+        proposals.Should().HaveCount(2);
+        proposals[1].Should().Be(proposals[0]);
+        proposals[0].Should().HaveLength(43);
+        (await _sessions.GetAsync(CancellationToken.None))!.Should().Match<StoredSession>(s => s.RefreshToken == proposals[0] && s.PendingRefreshToken == null);
+    }
+
+    [Fact]
+    public async Task RefreshAsync_SignedOutWhileTheRefreshIsInFlight_StaysSignedOut()
+    {
+        // Arrange
+        await _account.SignedInAsync(Session, CancellationToken.None);
+        var answer = new TaskCompletionSource<SessionTokens>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _api.RefreshAsync("refresh-1", Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(answer.Task);
+        var refresh = _refresher.RefreshAsync("old", CancellationToken.None);
+        await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+
+        // Act
+        answer.SetResult(new SessionTokens("new", Now.AddMinutes(15), "refresh-2"));
+        var token = await refresh;
+
+        // Assert
+        token.Should().BeNull();
+        (await _sessions.GetAsync(CancellationToken.None)).Should().BeNull();
+        _account.State.Should().Be(new SignedOut(SessionExpired: false));
+    }
+
+    [Fact]
+    public async Task RefreshAsync_RefusedAfterADeliberateSignOut_DoesNotSayExpired()
+    {
+        // Arrange
+        await _account.SignedInAsync(Session, CancellationToken.None);
+        var answer = new TaskCompletionSource<SessionTokens>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _api.RefreshAsync("refresh-1", Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(answer.Task);
+        var refresh = _refresher.RefreshAsync("old", CancellationToken.None);
+        await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+
+        // Act
+        answer.SetException(new AuthRejectedException("auth.refresh-invalid"));
+        var token = await refresh;
+
+        // Assert
+        token.Should().BeNull();
+        _account.State.Should().Be(new SignedOut(SessionExpired: false));
+    }
+
+    [Fact]
+    public async Task RefreshAsync_SignedInAgainWhileInFlight_KeepsTheNewSession()
+    {
+        // Arrange
+        await _account.SignedInAsync(Session, CancellationToken.None);
+        var answer = new TaskCompletionSource<SessionTokens>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _api.RefreshAsync("refresh-1", Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(answer.Task);
+        var refresh = _refresher.RefreshAsync("old", CancellationToken.None);
+        var again = Session with { AccessToken = "access-9", RefreshToken = "refresh-9" };
+        await _account.SignedInAsync(again, CancellationToken.None);
+
+        // Act
+        answer.SetResult(new SessionTokens("new", Now.AddMinutes(15), "refresh-2"));
+        await refresh;
+
+        // Assert
+        (await _sessions.GetAsync(CancellationToken.None)).Should().Be(again);
+    }
+
+    /// <summary>The stored session without its proposed next refresh token, which a failed refresh keeps for the retry (Spec 011 §8.2).</summary>
+    private async Task<StoredSession?> StoredApartFromTheProposalAsync() =>
+        await _sessions.GetAsync(CancellationToken.None) is { } stored ? stored with { PendingRefreshToken = null } : null;
 
     private HttpClient Client(Func<HttpRequestMessage, Task<HttpResponseMessage>> server) =>
         new(new AuthenticatingHandler(_refresher) { InnerHandler = new FakeServer(server) }) { BaseAddress = new Uri("https://api.test/") };

@@ -20,7 +20,7 @@ public sealed class AuthClientTests
         var client = Client(_ => Json(status, """{"code":"auth.rate-limited"}"""));
 
         // Act
-        Func<Task> act = async () => await client.RefreshAsync("refresh-1", CancellationToken.None);
+        Func<Task> act = async () => await client.RefreshAsync("refresh-1", new string('n', 43), CancellationToken.None);
 
         // Assert
         await act.Should().ThrowAsync<AuthUnavailableException>();
@@ -33,7 +33,7 @@ public sealed class AuthClientTests
         var client = Client(_ => Json(HttpStatusCode.Unauthorized, """{"code":"auth.refresh-invalid"}"""));
 
         // Act
-        Func<Task> act = async () => await client.RefreshAsync("refresh-1", CancellationToken.None);
+        Func<Task> act = async () => await client.RefreshAsync("refresh-1", new string('n', 43), CancellationToken.None);
 
         // Assert
         (await act.Should().ThrowAsync<AuthRejectedException>()).Which.Code.Should().Be("auth.refresh-invalid");
@@ -48,7 +48,7 @@ public sealed class AuthClientTests
         var client = Client(_ => Task.FromResult(new HttpResponseMessage(status)));
 
         // Act
-        Func<Task> act = async () => await client.RefreshAsync("refresh-1", CancellationToken.None);
+        Func<Task> act = async () => await client.RefreshAsync("refresh-1", new string('n', 43), CancellationToken.None);
 
         // Assert
         (await act.Should().ThrowAsync<AuthRejectedException>()).Which.Code.Should().Be(code);
@@ -77,7 +77,7 @@ public sealed class AuthClientTests
         var client = Client(_ => Raw(HttpStatusCode.OK, "text/html", "utf-8", "<html>Sign in to the Wi-Fi</html>"));
 
         // Act
-        Func<Task> act = async () => await client.RefreshAsync("refresh-1", CancellationToken.None);
+        Func<Task> act = async () => await client.RefreshAsync("refresh-1", new string('n', 43), CancellationToken.None);
 
         // Assert
         await act.Should().ThrowExactlyAsync<AuthUnavailableException>();
@@ -90,7 +90,7 @@ public sealed class AuthClientTests
         var client = Client(_ => Raw(HttpStatusCode.Forbidden, "text/html", "no-such-charset", "<html>Blocked</html>"));
 
         // Act
-        Func<Task> act = async () => await client.RefreshAsync("refresh-1", CancellationToken.None);
+        Func<Task> act = async () => await client.RefreshAsync("refresh-1", new string('n', 43), CancellationToken.None);
 
         // Assert
         (await act.Should().ThrowExactlyAsync<AuthRejectedException>()).Which.Code.Should().Be("http-403");
@@ -136,6 +136,24 @@ public sealed class AuthClientTests
         grant.Household.Should().Be(new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a9")));
         grant.Profile.Should().Be(new AccountProfile(new UserId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c1")), "Andrzej", "andrzej@example.com"));
         grant.Tokens.Should().Be(new SessionTokens("a", new DateTimeOffset(2026, 10, 2, 12, 15, 0, TimeSpan.Zero), "r"));
+    }
+
+    [Fact]
+    public async Task RefreshAsync_Proposal_TravelsInTheBody()
+    {
+        // Arrange
+        string? body = null;
+        var client = Client(async r =>
+        {
+            body = await r.Content!.ReadAsStringAsync();
+            return await Json(HttpStatusCode.OK, """{"accessToken":"a","accessTokenExpiresAt":"2026-10-02T12:15:00Z","refreshToken":"nnn"}""");
+        });
+
+        // Act
+        await client.RefreshAsync("refresh-1", "nnn", CancellationToken.None);
+
+        // Assert
+        body.Should().Contain("\"refreshToken\":\"refresh-1\"").And.Contain("\"nextRefreshToken\":\"nnn\"");
     }
 
     private static AuthClient Client(Func<HttpRequestMessage, Task<HttpResponseMessage>> server) =>

@@ -74,4 +74,33 @@ public sealed class SessionStoreTests
         // Assert
         _secrets.Values.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Parse_VersionOneSession_ReadsWithoutAPendingToken()
+    {
+        // Arrange: what 0.10.0 stored (Review Focus 1).
+        var text = "1\u001faccess-1\u001f1790000000000\u001frefresh-1\u001f7a1c0000-0000-7000-8000-0000000000c1\u001fAndrzej"
+            + "\u001fandrzej@example.com\u001f7a1c0000-0000-7000-8000-0000000000a1\u001f0";
+
+        // Act
+        var session = SessionStore.Parse(text);
+
+        // Assert
+        session!.RefreshToken.Should().Be("refresh-1");
+        session.PendingRefreshToken.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task SaveAsyncThenGetAsync_PendingToken_RoundTrips()
+    {
+        // Arrange
+        var store = new SessionStore(_secrets);
+        var pending = Session with { PendingRefreshToken = new string('p', 43) };
+
+        // Act
+        await store.SaveAsync(pending, CancellationToken.None);
+
+        // Assert
+        (await store.GetAsync(CancellationToken.None)).Should().Be(pending);
+    }
 }

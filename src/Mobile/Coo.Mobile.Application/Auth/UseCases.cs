@@ -30,10 +30,13 @@ public sealed class SignIn(
             var grant = await api.SignInWithGoogleAsync(
                 new GoogleSignIn(idToken, deviceName.Name, await device.GetAsync(cancellationToken), household), cancellationToken);
 
-            // No local record is re-keyed in any outcome (Spec 010 §3.2): "created" and "joined" are resolved by sync (11).
+            // No local record is re-keyed in any outcome (Spec 010 §3.2): `created` and `joined` are resolved by sync (Spec 011 §4).
+            // `existing` with another household: this phone left while join-pending and must still be asked (ruling 9).
+            var joinPending = grant.Outcome == SignInOutcome.Joined
+                || (grant.Outcome == SignInOutcome.Existing && grant.Household != household);
             await account.SignedInAsync(
                 new StoredSession(grant.Tokens.AccessToken, grant.Tokens.AccessTokenExpiresAt, grant.Tokens.RefreshToken, grant.Profile,
-                    grant.Household, JoinPending: grant.Outcome == SignInOutcome.Joined),
+                    grant.Household, JoinPending: joinPending),
                 cancellationToken);
             return SignInResult.SignedIn;
         }
@@ -104,6 +107,6 @@ public sealed class RefreshAccount(IAccountApi api, ISessionStore sessions, Acco
 
         var session = await sessions.GetAsync(cancellationToken);
         if (session is not null && session.Profile != me.Profile)
-            await account.SignedInAsync(session with { Profile = me.Profile }, cancellationToken);
+            await account.UpdateProfileAsync(me.Profile, cancellationToken);
     }
 }

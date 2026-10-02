@@ -46,7 +46,11 @@ public sealed class AccountViewModelTests : IDisposable
         _google.GetIdTokenAsync("nonce-1", Arg.Any<CancellationToken>()).Returns("id-token");
     }
 
-    public void Dispose() => Strings.Use(LanguagePreference.System, null);
+    public void Dispose()
+    {
+        Strings.Use(LanguagePreference.System, null);
+        _account.Dispose();
+    }
 
     [Fact]
     public void Constructor_SignedOut_OffersSignInWithTheHint()

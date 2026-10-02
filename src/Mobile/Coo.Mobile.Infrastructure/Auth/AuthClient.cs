@@ -33,11 +33,11 @@ internal sealed class AuthClient(HttpClient http) : IAuthApi
             Outcome(s.Outcome));
     }
 
-    public async Task<SessionTokens> RefreshAsync(string refreshToken, CancellationToken cancellationToken)
+    public async Task<SessionTokens> RefreshAsync(string refreshToken, string nextRefreshToken, CancellationToken cancellationToken)
     {
         using var message = new HttpRequestMessage(HttpMethod.Post, RefreshUri)
         {
-            Content = JsonContent.Create(new RefreshRequest(refreshToken), AuthJsonContext.Default.RefreshRequest),
+            Content = JsonContent.Create(new RefreshRequest(refreshToken, nextRefreshToken), AuthJsonContext.Default.RefreshRequest),
         };
         using var response = await AuthHttp.SendAsync(http, message, cancellationToken);
         var t = await AuthHttp.ReadAsync(response, AuthJsonContext.Default.TokensResponse, cancellationToken);

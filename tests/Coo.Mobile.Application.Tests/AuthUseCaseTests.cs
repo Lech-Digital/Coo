@@ -30,7 +30,7 @@ internal sealed class MemorySessions : ISessionStore
 }
 
 /// <summary>Spec 010 §2, §3.2 (what each outcome does on the phone) and §3.3. Only the outbound ports are substitutes.</summary>
-public sealed class AuthUseCaseTests
+public sealed class AuthUseCaseTests : IDisposable
 {
     private static readonly DeviceId Device = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1"));
     private static readonly HouseholdId Local = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a1"));
@@ -58,6 +58,8 @@ public sealed class AuthUseCaseTests
         _api.GetNonceAsync(Arg.Any<CancellationToken>()).Returns("nonce-1");
         _google.GetIdTokenAsync("nonce-1", Arg.Any<CancellationToken>()).Returns("id-token");
     }
+
+    public void Dispose() => _account.Dispose();
 
     [Theory]
     [InlineData(SignInOutcome.Adopted)]
@@ -107,6 +109,19 @@ public sealed class AuthUseCaseTests
         result.Should().Be(SignInResult.SignedIn);
         _account.State.Should().Be(new JoinPending(Profile, AccountsHousehold));
         await _households.DidNotReceiveWithAnyArgs().SaveSettingsAsync(default!, default);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ExistingWithAnotherHousehold_IsJoinPending()
+    {
+        // Arrange: this phone signed out while join-pending and signs in again; it must still be asked (ruling 9).
+        Grants(SignInOutcome.Existing, AccountsHousehold);
+
+        // Act
+        await SignIn().ExecuteAsync(CancellationToken.None);
+
+        // Assert
+        _account.State.Should().Be(new JoinPending(Profile, AccountsHousehold));
     }
 
     [Fact]

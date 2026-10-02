@@ -1,3 +1,5 @@
+using System.Buffers.Text;
+using System.Security.Cryptography;
 using Coo.Mobile.Application.Auth;
 
 namespace Coo.Mobile.Infrastructure.Auth;
@@ -7,7 +9,9 @@ namespace Coo.Mobile.Infrastructure.Auth;
 /// its outcome, a failure included, instead of starting their own: ten requests refused while the server answers 429
 /// make one attempt, not ten. A network failure, 408, 429, 5xx or any refusal other than <c>auth.refresh-invalid</c>
 /// (a captive portal's 403, a proxy's 404) propagates as <see cref="AuthUnavailableException"/> and keeps the session;
-/// only <c>auth.refresh-invalid</c> signs out as expired, keeping every local record.
+/// only <c>auth.refresh-invalid</c> signs out as expired, keeping every local record. A refresh started before a sign-out
+/// or sign-in writes back only if the account's generation has not moved (Spec 011 §8.1); it proposes the next refresh
+/// token and keeps proposing the same one until an answer arrives (§8.2).
 /// </summary>
 internal sealed class TokenRefresher(ISessionStore sessions, IAuthApi api, Account account, TimeProvider time) : IDisposable
 {
@@ -93,20 +97,30 @@ internal sealed class TokenRefresher(ISessionStore sessions, IAuthApi api, Accou
         await _gate.WaitAsync(cancellationToken);
         try
         {
+            var generation = account.Generation;
             var session = await sessions.GetAsync(cancellationToken);
             if (session is null)
                 return null;
             if (session.AccessToken != staleAccessToken)
                 return session.AccessToken;
 
+            // The proposal is stored before it is sent, so a lost response is retried with the same pair.
+            var next = session.PendingRefreshToken;
+            if (next is null)
+            {
+                next = Base64Url.EncodeToString(RandomNumberGenerator.GetBytes(32));
+                if (!await account.TrySetPendingRefreshTokenAsync(generation, next, cancellationToken))
+                    return null;
+            }
+
             SessionTokens tokens;
             try
             {
-                tokens = await api.RefreshAsync(session.RefreshToken, cancellationToken);
+                tokens = await api.RefreshAsync(session.RefreshToken, next, cancellationToken);
             }
             catch (AuthRejectedException e) when (e.Code == RefreshInvalid)
             {
-                await account.SignedOutAsync(sessionExpired: true, cancellationToken);
+                await account.TryExpireAsync(generation, cancellationToken);
                 return null;
             }
             catch (AuthRejectedException e)
@@ -115,10 +129,7 @@ internal sealed class TokenRefresher(ISessionStore sessions, IAuthApi api, Accou
                 throw new AuthUnavailableException("The refresh was refused with " + e.Code + ".", e);
             }
 
-            await sessions.SaveAsync(
-                session with { AccessToken = tokens.AccessToken, AccessTokenExpiresAt = tokens.AccessTokenExpiresAt, RefreshToken = tokens.RefreshToken },
-                cancellationToken);
-            return tokens.AccessToken;
+            return await account.TryReplaceTokensAsync(generation, tokens, cancellationToken) ? tokens.AccessToken : null;
         }
         finally
         {
