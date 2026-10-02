@@ -36,7 +36,7 @@
 
   <ItemGroup>
     <!-- Placeholder artwork until the brand work; colours are Washi UX Ground and Accent. -->
-    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#F1EDE5" />
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#F2B892" />
     <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#F1EDE5" BaseSize="128,128" />
     <!-- Figtree only (design system §3). eng/verify-apk-fonts.sh checks they reach the APK. -->
     <MauiFont Include="Resources\Fonts\*.ttf" />
