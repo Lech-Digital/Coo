@@ -102,7 +102,8 @@ public sealed class BringEntriesOverTests : IDisposable
 
         // Assert
         choice.Should().BeNull();
-        await _moves.Received(1).BringOverAsync(Arg.Is<BringOverPlan>(p => p.To == Household && p.Babies.Count == 0), User, Arg.Any<CancellationToken>());
+        await _moves.Received(1).ActivateAsync(Household, Arg.Any<CancellationToken>());
+        await _moves.DidNotReceiveWithAnyArgs().BringOverAsync(default!, default, default);
         _account.State.Should().Be(new SignedIn(Profile));
         _sync.Received(1).RequestSync();
     }
@@ -186,6 +187,40 @@ public sealed class BringEntriesOverTests : IDisposable
 
         // Assert
         done.Should().BeFalse();
+        _sync.DidNotReceive().RequestSync();
+    }
+
+    /// <summary>Hands out the session it read, then signs the account out: the sign-out lands while the use case awaits the store.</summary>
+    private sealed class SigningOutSessions(MemorySessions inner, Func<Task> signOut) : ISessionStore
+    {
+        public async Task<StoredSession?> GetAsync(CancellationToken cancellationToken)
+        {
+            var session = await inner.GetAsync(cancellationToken);
+            await signOut();
+            return session;
+        }
+
+        public Task SaveAsync(StoredSession session, CancellationToken cancellationToken) => inner.SaveAsync(session, cancellationToken);
+
+        public Task ClearAsync(CancellationToken cancellationToken) => inner.ClearAsync(cancellationToken);
+    }
+
+    [Fact]
+    public async Task PrepareAsync_SignedOutWhileReadingTheSession_ActivatesNothingAndDoesNotCompleteTheJoin()
+    {
+        // Arrange
+        await JoinPendingAsync();
+        _moves.HasEverSyncedAsync(Provisional, Arg.Any<CancellationToken>()).Returns(true);
+        var useCase = new BringEntriesOver(
+            new SigningOutSessions(_sessions, () => _account.SignedOutAsync(sessionExpired: false, CancellationToken.None)), _moves, _account, _sync);
+
+        // Act
+        var choice = await useCase.PrepareAsync(CancellationToken.None);
+
+        // Assert
+        choice.Should().BeNull();
+        await _moves.DidNotReceiveWithAnyArgs().BringOverAsync(default!, default, default);
+        _account.State.Should().Be(new SignedOut(false));
         _sync.DidNotReceive().RequestSync();
     }
 }

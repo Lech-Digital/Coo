@@ -65,6 +65,9 @@ public interface IHouseholdMoves
     /// </summary>
     Task<bool> HasEverSyncedAsync(HouseholdId household, CancellationToken cancellationToken);
 
+    /// <summary>Names the household active and changes nothing else.</summary>
+    Task ActivateAsync(HouseholdId household, CancellationToken cancellationToken);
+
     Task<LocalSummary> SummaryAsync(HouseholdId household, CancellationToken cancellationToken);
 
     /// <summary>

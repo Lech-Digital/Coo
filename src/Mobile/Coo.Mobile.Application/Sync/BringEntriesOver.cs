@@ -14,9 +14,9 @@ public sealed class BringEntriesOver(ISessionStore sessions, IHouseholdMoves mov
     /// <summary>What the sheet shows; null when this phone is not join-pending.</summary>
     public async Task<BringOverChoice?> PrepareAsync(CancellationToken cancellationToken)
     {
+        var generation = account.Generation;
         if (await sessions.GetAsync(cancellationToken) is not { JoinPending: true } session)
             return null;
-        var generation = account.Generation;
         var local = await moves.ActiveHouseholdAsync(cancellationToken);
         if (local == session.AccountHousehold)
             return null;
@@ -24,7 +24,7 @@ public sealed class BringEntriesOver(ISessionStore sessions, IHouseholdMoves mov
         // A household that has synced is never offered (Spec 011 §4): the account's household simply becomes active.
         if (await moves.HasEverSyncedAsync(local, cancellationToken))
         {
-            await CompleteWithoutMoveAsync(local, session, generation, cancellationToken);
+            await CompleteWithoutMoveAsync(session, generation, cancellationToken);
             return null;
         }
 
@@ -58,12 +58,12 @@ public sealed class BringEntriesOver(ISessionStore sessions, IHouseholdMoves mov
         return true;
     }
 
-    /// <summary>The move refuses a synced source and only makes the account's household active; then the join completes.</summary>
-    private async Task CompleteWithoutMoveAsync(HouseholdId local, StoredSession session, long generation, CancellationToken cancellationToken)
+    /// <summary>Nothing moves: the account's household only becomes active, then the join completes.</summary>
+    private async Task CompleteWithoutMoveAsync(StoredSession session, long generation, CancellationToken cancellationToken)
     {
         if (account.Generation != generation)
             return;
-        await moves.BringOverAsync(new BringOverPlan(local, session.AccountHousehold, new Dictionary<BabyId, BabyId?>()), session.Profile.UserId, cancellationToken);
+        await moves.ActivateAsync(session.AccountHousehold, cancellationToken);
         if (await account.TryCompleteJoinAsync(generation, cancellationToken))
             sync.RequestSync();
     }

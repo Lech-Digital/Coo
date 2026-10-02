@@ -61,6 +61,12 @@ internal sealed class HouseholdMoves(LocalDatabase database) : IHouseholdMoves
         return true;
     }
 
+    public async Task ActivateAsync(HouseholdId household, CancellationToken cancellationToken)
+    {
+        await using var connection = await database.OpenAsync(cancellationToken);
+        await SetActiveAsync(connection, null, Columns.Id(household.Value), cancellationToken);
+    }
+
     public async Task<bool> HasEverSyncedAsync(HouseholdId household, CancellationToken cancellationToken)
     {
         await using var connection = await database.OpenAsync(cancellationToken);
