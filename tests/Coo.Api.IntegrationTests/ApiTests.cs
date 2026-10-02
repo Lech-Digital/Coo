@@ -44,7 +44,7 @@ public sealed class ApiTests : IAsyncLifetime
         var body = await response.Content.ReadFromJsonAsync<JsonElement>();
         body.GetProperty("status").GetString().Should().Be("ok");
         body.GetProperty("database").GetString().Should().Be("ok");
-        body.GetProperty("version").GetString().Should().StartWith("0.10.0");
+        body.GetProperty("version").GetString().Should().StartWith("0.11.0");
         (await KindVersionsAsync()).Should().BePositive("start-up migrates and registers the kinds before serving");
     }
 

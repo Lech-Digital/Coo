@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading.RateLimiting;
 using Coo.Api.Application.Auth;
 using Coo.Contracts.Auth;
+using Coo.Contracts.Sync;
 using Coo.Domain.Common;
 using Coo.Domain.Households;
 using Microsoft.AspNetCore.Mvc;
@@ -80,7 +81,8 @@ internal static class AuthEndpoints
             return Results.Ok(new MeResponse(
                 User(me.User),
                 me.Membership is null ? null : new MembershipDto(me.Membership.HouseholdId.Value, RoleName(me.Membership.Role)),
-                [.. me.Devices.Select(d => new DeviceSessionDto(d.Id.Value, d.DeviceName, d.LastUsedAt, d.Id == current))]));
+                [.. me.Devices.Select(d => new DeviceSessionDto(d.Id.Value, d.DeviceName, d.LastUsedAt, d.Id == current))],
+                me.Consent is null ? null : new ConsentDto(me.Consent.Wording, me.Consent.GivenAt)));
         }).RequireAuthorization();
 
         app.MapDelete("/api/account", async Task<IResult> (
@@ -92,10 +94,13 @@ internal static class AuthEndpoints
         }).RequireAuthorization();
     }
 
-    private static IResult Refused(string code, int status) => Results.Json(new ErrorResponse(code), statusCode: status);
+    internal static IResult Refused(string code, int status) => Results.Json(new ErrorResponse(code), statusCode: status);
 
-    /// <summary>The body as <typeparamref name="T"/> (web JSON options), or null when it is missing, not JSON, or does not parse.</summary>
-    private static async Task<T?> TryReadJsonAsync<T>(HttpRequest http, CancellationToken cancellationToken) where T : class
+    /// <summary>
+    /// The body as <typeparamref name="T"/> (web JSON options), or null when it is missing, not JSON, does not parse, or
+    /// names a charset that cannot be read.
+    /// </summary>
+    internal static async Task<T?> TryReadJsonAsync<T>(HttpRequest http, CancellationToken cancellationToken) where T : class
     {
         if (!http.HasJsonContentType())
             return null;
@@ -103,8 +108,9 @@ internal static class AuthEndpoints
         {
             return await http.ReadFromJsonAsync<T>(cancellationToken);
         }
-        catch (JsonException)
+        catch (Exception e) when (e is JsonException or InvalidOperationException)
         {
+            // InvalidOperationException: an unknown charset in the content type.
             return null;
         }
     }
@@ -112,7 +118,7 @@ internal static class AuthEndpoints
     private static UserDto User(UserAccount user) => new(user.Id.Value, user.Email, user.DisplayName);
 
     // The bearer handler has validated the token and its session (JwtBearerSetup), so both claims are present.
-    private static UserId UserOf(ClaimsPrincipal principal) =>
+    internal static UserId UserOf(ClaimsPrincipal principal) =>
         new(Guid.Parse(principal.FindFirst(AccessTokenClaims.User)!.Value, CultureInfo.InvariantCulture));
 
     private static DeviceSessionId SessionOf(ClaimsPrincipal principal) =>

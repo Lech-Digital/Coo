@@ -195,6 +195,8 @@ internal sealed class AuthKit
 
     public FakeTokens Tokens { get; } = new();
 
+    public FakeConsents Consents { get; } = new();
+
     public IssueNonce IssueNonce() => new(Nonces, Time);
 
     public SignInWithGoogle SignIn() => new(Google, Nonces, Accounts, Sessions, Tokens, Time);
@@ -205,7 +207,7 @@ internal sealed class AuthKit
 
     public PurgeAuthNonces Purge() => new(Nonces, Time);
 
-    public GetMe GetMe() => new(Accounts, Sessions);
+    public GetMe GetMe() => new(Accounts, Sessions, Consents);
 
     public DeleteAccount DeleteAccount() => new(Accounts);
 

@@ -1,12 +1,17 @@
+using Coo.Api.Application.Sync;
+using Coo.Contracts.Sync;
 using Coo.Domain.Common;
 using Coo.Domain.Households;
 
 namespace Coo.Api.Application.Auth;
 
-public sealed record AccountOverview(UserAccount User, Membership? Membership, IReadOnlyList<DeviceSession> Devices);
+public sealed record AccountOverview(UserAccount User, Membership? Membership, IReadOnlyList<DeviceSession> Devices, ConsentRecord? Consent = null);
 
-/// <summary><c>GET /api/me</c>: the user, their household and role, and their active device sessions.</summary>
-public sealed class GetMe(IAccountStore accounts, IDeviceSessionStore sessions)
+/// <summary>
+/// <c>GET /api/me</c>: the user, their household and role, their active device sessions, and their consent to the
+/// current wording (Spec 011 §3), so the account's second phone does not ask again.
+/// </summary>
+public sealed class GetMe(IAccountStore accounts, IDeviceSessionStore sessions, IConsentStore consents)
 {
     public async Task<AccountOverview?> ExecuteAsync(UserId user, CancellationToken cancellationToken)
     {
@@ -18,7 +23,8 @@ public sealed class GetMe(IAccountStore accounts, IDeviceSessionStore sessions)
             .Where(s => !s.IsRevoked)
             .OrderByDescending(s => s.LastUsedAt)
             .ToList();
-        return new AccountOverview(account, membership, devices);
+        var consent = await consents.FindAsync(user, CareDataConsent.Purpose, CareDataConsent.CurrentWording, cancellationToken);
+        return new AccountOverview(account, membership, devices, consent);
     }
 }
 

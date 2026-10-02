@@ -1,4 +1,6 @@
 using Coo.Api.Application.Auth;
+using Coo.Api.Application.Sync;
+using Coo.Contracts.Sync;
 using Coo.Domain.Common;
 using Coo.Domain.Households;
 
@@ -92,5 +94,22 @@ public sealed class AccountTests
         // Assert
         _kit.Accounts.Deleted!.Value.Plan.HouseholdsToDelete.Should().BeEmpty();
         _kit.Accounts.Deleted.Value.Plan.OwnershipTransfers.Should().Equal(new OwnershipTransfer(Household, partner));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_UserWithCurrentConsent_ReportsIt()
+    {
+        // Arrange
+        var kit = new AuthKit();
+        var signedIn = await kit.SignInAsync("sub-1", new DeviceId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1")),
+            new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a1")));
+        await kit.Consents.RecordAsync(new ConsentRecord(signedIn.User.Id, CareDataConsent.Purpose, CareDataConsent.CurrentWording,
+            AuthKit.Start, "0.11.0", "en"), CancellationToken.None);
+
+        // Act
+        var me = await kit.GetMe().ExecuteAsync(signedIn.User.Id, CancellationToken.None);
+
+        // Assert
+        me!.Consent!.Wording.Should().Be(CareDataConsent.CurrentWording);
     }
 }

@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using Coo.Api.Application.Auth;
 using Coo.Api.Application.CareLog;
 using Coo.Api.Application.Health;
+using Coo.Api.Application.Sync;
 using Coo.Api.Hosting;
 using Coo.Api.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -38,10 +39,19 @@ builder.Services.AddScoped<SignInWithGoogle>();
 builder.Services.AddScoped<GetMe>();
 builder.Services.AddScoped<DeleteAccount>();
 builder.Services.AddSingleton<VerifyIntegrity>();
+
+// Sync (Spec 011 §7). The stores are singletons over the data source, so the use cases are too.
+builder.Services.AddSingleton<SyncAccess>();
+builder.Services.AddSingleton<PushChanges>();
+builder.Services.AddSingleton<PullChanges>();
+builder.Services.AddSingleton<RecordConsent>();
+builder.Services.AddSingleton<GetMembershipStatus>();
+builder.Services.AddSingleton<PurgeSyncHistory>();
 if (!verifyOnly)
 {
     builder.Services.AddHostedService<IntegrityScanJob>();
     builder.Services.AddHostedService<AuthNonceCleanupJob>();
+    builder.Services.AddHostedService<SyncHistoryCleanupJob>();
 }
 
 var app = builder.Build();
@@ -68,7 +78,7 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// "0.10.0+<commit>": the deploy script compares the commit with the one it shipped (Spec 008 §5).
+// "0.11.0+<commit>": the deploy script compares the commit with the one it shipped (Spec 008 §5).
 var version = typeof(Program).Assembly
     .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown";
 
@@ -78,6 +88,7 @@ app.MapGet("/health", async (IDatabaseProbe database, CancellationToken cancella
         : Results.Json(new { status = "unavailable", version, database = "unreachable" }, statusCode: StatusCodes.Status503ServiceUnavailable));
 
 app.MapAuthEndpoints();
+app.MapSyncEndpoints();
 
 await app.RunAsync();
 return 0;
