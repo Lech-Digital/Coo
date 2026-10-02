@@ -44,6 +44,26 @@ public partial class App : Microsoft.Maui.Controls.Application
         var theme = _services.GetRequiredService<ThemeController>();
         window.Created += (_, _) => _services.GetRequiredService<ThemeHost>().Apply(theme.Current);
         window.Resumed += (_, _) => _services.GetRequiredService<ThemeController>().Refresh();
+
+        // Sync triggers (Spec 011 §6.3): resume, and one last cycle on the way to the background (Android may cut it; safe).
+        window.Resumed += (_, _) => Lifecycle(e => e.Resumed());
+        window.Stopped += (_, _) => Lifecycle(e => e.Backgrounded());
         return window;
+    }
+
+    /// <summary>Only once sync has started (<see cref="StartupPage"/>): a resume during the migrations must not start a cycle.</summary>
+    private void Lifecycle(Action<Coo.Mobile.Application.Sync.SyncEngine> action)
+    {
+        if (!StartupPage.SyncStarted)
+            return;
+        try
+        {
+            action(_services.GetRequiredService<Coo.Mobile.Application.Sync.SyncEngine>());
+        }
+#pragma warning disable CA1031 // A window event handler: a failure here must not end the app; the 30-second pull goes on.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+        }
     }
 }

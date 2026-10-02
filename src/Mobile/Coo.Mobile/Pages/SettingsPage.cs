@@ -50,6 +50,9 @@ public sealed class SettingsPage : ContentPage
         _model.PropertyChanged += OnModelChanged;
         _language.Changed += OnLanguageChanged;
         _account.PropertyChanged += OnAccountChanged;
+        _account.ConsentRequested += OnConsentRequested;
+        _account.BringOverRequested += OnBringOverRequested;
+        _undo.DataChanged += OnDataChanged;
 
         // The first visit draws at once from the data loaded at start-up, before the page's first frame: drawing after
         // the refresh showed one blank frame (recorded on the Pixel 10).
@@ -79,7 +82,31 @@ public sealed class SettingsPage : ContentPage
         _model.PropertyChanged -= OnModelChanged;
         _language.Changed -= OnLanguageChanged;
         _account.PropertyChanged -= OnAccountChanged;
+        _account.ConsentRequested -= OnConsentRequested;
+        _account.BringOverRequested -= OnBringOverRequested;
+        _undo.DataChanged -= OnDataChanged;
     }
+
+    // A pull can change the baby's profile or the family settings (units, what you log) under this page.
+    private void OnDataChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
+    {
+#pragma warning disable CA1031 // Fire-and-forget: the page keeps what it showed; the next visit refreshes it.
+        try
+        {
+            await _model.RefreshAsync();
+        }
+        catch (Exception)
+        {
+        }
+#pragma warning restore CA1031
+    });
+
+    // "Turn on sharing" and "Choose what to do with them" (Spec 011 §2–§4): the sheets open as modal pages.
+    private void OnConsentRequested(object? sender, EventArgs e) =>
+        Dispatcher.Dispatch(async () => await RunTappedAsync(() => _services.GetRequiredService<Sync.SyncPrompter>().ShowConsentAsync()));
+
+    private void OnBringOverRequested(object? sender, EventArgs e) =>
+        Dispatcher.Dispatch(async () => await RunTappedAsync(() => _services.GetRequiredService<Sync.SyncPrompter>().ShowBringOverAsync()));
 
     private void OnModelChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
@@ -230,6 +257,15 @@ public sealed class SettingsPage : ContentPage
         yield return new Card(new VerticalStackLayout { Spacing = 2, Children = { Ui.Text(_account.Name, "BodyStrong"), Ui.Text(_account.Email, "Meta", "Ink2") } });
         if (_account.StatusLine.Length > 0)
             yield return Ui.Text(_account.StatusLine, "Meta", "Ink2");
+        if (_account.LineActionText.Length > 0)
+        {
+            yield return Row(Ui.Text(_account.LineActionText, "Body"), () =>
+            {
+                _account.LineActionCommand.Execute(null);
+                return Task.CompletedTask;
+            });
+        }
+
         yield return Row(Ui.Text(Strings.Get("Account.SignOut"), "Body"), ConfirmSignOutAsync);
         yield return Row(Ui.Text(Strings.Get("Account.Delete"), "Body"), ConfirmDeleteAsync);
     }

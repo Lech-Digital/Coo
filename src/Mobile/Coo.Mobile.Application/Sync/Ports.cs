@@ -95,6 +95,14 @@ public interface ISyncState
     Task SetSoftLockAsync(HouseholdId household, bool locked, CancellationToken cancellationToken);
 }
 
+/// <summary>Connectivity regained (Spec 011 §6.3): a cycle at once, and the backoff resets.</summary>
+public interface IConnectivityWatcher
+{
+    event EventHandler? Regained;
+
+    void Start();
+}
+
 /// <summary>What the UI may ask of sync: a cycle soon, or one now that it can wait for.</summary>
 public interface ISyncControl
 {

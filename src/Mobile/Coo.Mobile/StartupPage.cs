@@ -72,6 +72,7 @@ public sealed class StartupPage : ContentPage
         if ((await households.ListBabiesAsync(household.Id, CancellationToken.None)).Count > 0)
         {
             Window.Page = _services.GetRequiredService<AppShell>();
+            StartSync();
             await PrewarmTabsAsync();
             return;
         }
@@ -80,8 +81,72 @@ public sealed class StartupPage : ContentPage
         var window = Window;
         var setup = _services.GetRequiredService<Pages.SetupPage>();
         ((Coo.Mobile.Presentation.Setup.SetupViewModel)setup.BindingContext).Completed +=
-            (_, _) => MainThread.BeginInvokeOnMainThread(() => window.Page = _services.GetRequiredService<AppShell>());
+            (_, _) => MainThread.BeginInvokeOnMainThread(() =>
+            {
+                window.Page = _services.GetRequiredService<AppShell>();
+
+                // After the shell is up, in the same main-thread turn: a sheet the first cycle opens goes over Today.
+                StartSync();
+            });
         window.Page = setup;
+    }
+
+    /// <summary>Set once sync has started; the window's lifecycle triggers wait for it. Once per process, like the singletons it wires.</summary>
+    internal static bool SyncStarted { get; private set; }
+
+    /// <summary>Sync starts once a real page shows (Spec 011 §6.3): the engine, connectivity, the prompts, page refreshes.</summary>
+    private void StartSync()
+    {
+        if (SyncStarted)
+            return;
+        SyncStarted = true;
+        try
+        {
+            var engine = _services.GetRequiredService<Coo.Mobile.Application.Sync.SyncEngine>();
+            var undo = _services.GetRequiredService<Coo.Mobile.Presentation.Today.UndoService>();
+
+            // Pulled records or a household move (raised on the engine's thread): the pages show what is now stored.
+            engine.DataChanged += (_, _) => MainThread.BeginInvokeOnMainThread(() =>
+            {
+                try
+                {
+                    undo.ExternalChange();
+                }
+#pragma warning disable CA1031 // A page's refresh failing must not end the app; the next change refreshes it.
+                catch (Exception)
+#pragma warning restore CA1031
+                {
+                }
+            });
+            _services.GetRequiredService<Sync.SyncPrompter>().Attach();
+            var connectivity = _services.GetRequiredService<Coo.Mobile.Application.Sync.IConnectivityWatcher>();
+            connectivity.Regained += (_, _) =>
+            {
+                // Raised on an Android binder thread; the callback catches too, but this handler stands on its own.
+                try
+                {
+                    engine.ConnectivityRegained();
+                }
+#pragma warning disable CA1031 // A missed signal is covered by the 30-second pull.
+                catch (Exception)
+#pragma warning restore CA1031
+                {
+                }
+            };
+            connectivity.Start();
+            engine.Start();
+#if DEBUG
+            // Ruling F5: the sheets resolve too (they are otherwise first built when a cycle asks for them).
+            _ = _services.GetRequiredService<Pages.ConsentPage>();
+            _ = _services.GetRequiredService<Pages.BringOverPage>();
+#endif
+        }
+#pragma warning disable CA1031 // Logging never depends on sync (ADR 0002): a failure here leaves the app as it was.
+        catch (Exception e)
+#pragma warning restore CA1031
+        {
+            global::Android.Util.Log.Warn("Coo", $"Sync did not start: {e}");
+        }
     }
 
     /// <summary>

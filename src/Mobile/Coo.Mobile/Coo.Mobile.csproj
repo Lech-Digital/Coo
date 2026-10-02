@@ -12,8 +12,8 @@
 
     <ApplicationTitle>Coo</ApplicationTitle>
     <ApplicationId>com.lechdigital.coo</ApplicationId>
-    <ApplicationDisplayVersion>0.10.0</ApplicationDisplayVersion>
-    <ApplicationVersion>13</ApplicationVersion>
+    <ApplicationDisplayVersion>0.11.0</ApplicationDisplayVersion>
+    <ApplicationVersion>14</ApplicationVersion>
     <!-- The informational version is 0.10.0+<commit> (SourceLink), shown in About like the API's /health. -->
     <Version>$(ApplicationDisplayVersion)</Version>
 

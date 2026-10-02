@@ -49,6 +49,9 @@ public static class MauiProgram
         builder.Services.AddTransient<SettingsPage>();
         builder.Services.AddTransient<BabyPage>();
         builder.Services.AddTransient<LicencesPage>();
+        builder.Services.AddTransient<ConsentPage>();
+        builder.Services.AddTransient<BringOverPage>();
+        builder.Services.AddSingleton<Sync.SyncPrompter>();
         builder.Services.AddSingleton<Coo.Mobile.Presentation.Settings.IAboutInfo, Settings.MauiAboutInfo>();
         builder.Services.AddSingleton<Coo.Mobile.Presentation.Settings.IExternalLauncher, Settings.MauiExternalLauncher>();
         builder.Services.AddTransient<AppShell>();

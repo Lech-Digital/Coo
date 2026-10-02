@@ -1,6 +1,7 @@
 using Android.App;
 using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.Preferences;
+using Coo.Mobile.Application.Sync;
 using Coo.Mobile.Platform.Auth;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,6 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IClockFormat, AndroidClockFormat>();
         services.AddSingleton<IDeviceName, AndroidDeviceName>();
         services.AddSingleton<ISignInProvider>(new CredentialManagerSignInProvider(currentActivity, googleWebClientId));
+        services.AddSingleton<IConnectivityWatcher>(_ => new Sync.AndroidConnectivity(() => global::Android.App.Application.Context));
         return services;
     }
 }
