@@ -54,7 +54,8 @@ Replaces `RibbonView` in place, between the header and the totals.
 **Tapping the band** opens a sheet on the Log page (the existing `Sheet`, Spec 006 §2).
 
 - **6 hours fill the screen width** (4× the band). The day scrolls sideways; it opens scrolled so the tapped time is
-  in view, a third of the way in from the left, clamped to the day's start and end.
+  in the middle, 3 hours either side (a tap at 06:00 opens 03:00 – 09:00). Near the day's ends it stops at
+  midnight: a tap at 01:00 opens 00:00 – 06:00, a tap at 23:00 opens 18:00 – 24:00 (owner, 2026-10-02).
 - **The title** names what is in view and follows the scroll: "Today, 12:30 – 18:30", "Wed 30 Sep, 03:00 – 09:00".
 - **Every hour** has a hairline and a label (`13:00`, or `1 PM` with Android's 12-hour setting).
 - **Labels on the items**, in the item's colour family:

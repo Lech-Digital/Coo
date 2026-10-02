@@ -19,6 +19,8 @@ public sealed class LogPage : ContentPage
     private bool _renderQueued;
     private string? _renderedLanguage;
     private RibbonView? _ribbon;
+    private readonly Sheet _sheet = new();
+    private readonly DayDetailView _detail = new();
 
     public LogPage(LogViewModel model, ThemeController theme, UndoService undo, LanguageController language, IServiceProvider services)
     {
@@ -31,6 +33,15 @@ public sealed class LogPage : ContentPage
         var root = new Grid();
         root.Add(new ScrollView { Content = _body });
         root.Add(new UndoToastView(undo));
+        root.Add(_sheet);
+
+        // The page owns this sheet and closes it itself; closing never goes through a view model (Spec 009b §3).
+        _sheet.Closed += async (_, _) => await _sheet.HideAsync();
+        _detail.EntryTapped += async (_, id) =>
+        {
+            await _sheet.HideAsync();
+            OpenEntry(id);
+        };
         Content = root;
     }
 
@@ -74,8 +85,31 @@ public sealed class LogPage : ContentPage
             QueueRender();
     }
 
-    private void ShowRibbon() =>
-        _ribbon?.Show(_model.ChartItems, _model.QuietBands, _model.Hours, _model.NowAt, WashiPalette.For(_theme.Current));
+    private void ShowRibbon()
+    {
+        var palette = WashiPalette.For(_theme.Current);
+        _ribbon?.Show(_model.ChartItems, _model.QuietBands, _model.Hours, _model.NowAt, palette);
+        if (_sheet.IsVisible)
+            _detail.Update(_model.ChartItems, _model.Hours, _model.NowAt, palette);
+    }
+
+    private async void OpenDetail(double at)
+    {
+        _detail.Show(_model.ChartItems, _model.Hours, _model.NowAt, WashiPalette.For(_theme.Current), _model.RangeTitle, at);
+        await _sheet.ShowAsync(_detail);
+    }
+
+    /// <summary>Back closes the zoomed day before it leaves the page.</summary>
+    protected override bool OnBackButtonPressed()
+    {
+        if (_sheet.IsVisible)
+        {
+            _ = _sheet.HideAsync();
+            return true;
+        }
+
+        return base.OnBackButtonPressed();
+    }
 
     // The ribbon is drawn with the palette's colours, not resources.
     private void OnPaletteChanged(object? sender, PaletteKind e) => QueueRender();
@@ -126,6 +160,7 @@ public sealed class LogPage : ContentPage
 
         _ribbon = new RibbonView();
         ShowRibbon();
+        _ribbon.Tapped += (_, at) => OpenDetail(at);
         SemanticProperties.SetDescription(_ribbon, _model.ChartSummary);
         SemanticProperties.SetHint(_ribbon, Strings.Get("Chart.Hint"));
 
@@ -163,5 +198,8 @@ public sealed class LogPage : ContentPage
             Spacing = 16,
             Children = { header, _ribbon, legend, totals, timeline },
         };
+
+        if (_sheet.IsVisible)
+            _detail.Update(_model.ChartItems, _model.Hours, _model.NowAt, WashiPalette.For(_theme.Current));
     }
 }
