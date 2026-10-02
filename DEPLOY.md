@@ -61,6 +61,24 @@ Refresh tokens are not signed, so they survive any rotation.
 `HttpRequestException` means the container cannot reach `www.googleapis.com` (fail closed, ADR 0003 §5); an
 `InvalidJwtException` naming the audience means the client ID in `.env` is not the one the app was built with.
 
+
+## Sync (Spec 011)
+
+No new settings. The `Sync` migration runs at start-up like the others: it adds `baby_profiles`, `household_settings`,
+`duplicate_dismissals`, `applied_changes`, `sync_conflicts`, `consents` and `memberships.revoked_at`.
+
+- Every `/api/sync/*` request checks the caller's membership of the household and their consent to the current wording
+  (`care-data-v1`). A `403` with `sync.consent-required` means the person has not agreed yet; it is not an outage.
+- `SyncHistoryCleanupJob` deletes `applied_changes` and `sync_conflicts` rows older than 30 days, daily, 20 minutes after
+  start-up. It logs `Sync history: N old rows deleted`, or `Sync history clean-up failed: <type>`.
+- Consents are evidence (GDPR Art. 7(1)): never delete `consents` rows by hand; account deletion removes them.
+
+Check after a deploy (read-only):
+
+    ssh coldstart-prod "docker exec coo-postgres psql -U coo -d coo -tAc \"SELECT count(*) FROM information_schema.tables WHERE table_name IN ('applied_changes','consents','baby_profiles')\""
+
+Expected: `3`.
+
 ## First deployment: the Caddy block (once)
 
 On the very first deploy, `deploy-prod.sh` ends with `DEPLOY FAILED`: its health check goes through Caddy, which has
