@@ -9,6 +9,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- The shared framework carries the concrete DI container the composition test builds; no package is added. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="migrations-manifest.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

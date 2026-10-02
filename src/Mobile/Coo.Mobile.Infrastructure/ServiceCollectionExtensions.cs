@@ -5,6 +5,7 @@ using Coo.Mobile.Application.Preferences;
 using Coo.Mobile.Application.Sync;
 using Coo.Mobile.Infrastructure.Auth;
 using Coo.Mobile.Infrastructure.Persistence;
+using Coo.Mobile.Infrastructure.Sync;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Coo.Mobile.Infrastructure;
@@ -50,12 +51,19 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IAuthApi>(_ => new AuthClient(new HttpClient { BaseAddress = apiBaseAddress, Timeout = HttpTimeout }));
         services.AddSingleton(sp => new TokenRefresher(
             sp.GetRequiredService<ISessionStore>(), sp.GetRequiredService<IAuthApi>(), sp.GetRequiredService<Account>(), sp.GetRequiredService<TimeProvider>()));
-        services.AddSingleton<IAccountApi>(sp => new AccountClient(
-            new HttpClient(new AuthenticatingHandler(sp.GetRequiredService<TokenRefresher>()) { InnerHandler = new HttpClientHandler() })
+        HttpClient Authenticated(IServiceProvider sp) =>
+            new(new AuthenticatingHandler(sp.GetRequiredService<TokenRefresher>()) { InnerHandler = new HttpClientHandler() })
             {
                 BaseAddress = apiBaseAddress,
                 Timeout = HttpTimeout,
-            }));
+            };
+
+        services.AddSingleton<IAccountApi>(sp => new AccountClient(Authenticated(sp)));
+
+        // Sync (Spec 011 §7.1): the same refreshing handler.
+        services.AddSingleton(sp => new SyncClient(Authenticated(sp)));
+        services.AddSingleton<ISyncApi>(sp => sp.GetRequiredService<SyncClient>());
+        services.AddSingleton<IConsentApi>(sp => sp.GetRequiredService<SyncClient>());
         return services;
     }
 }

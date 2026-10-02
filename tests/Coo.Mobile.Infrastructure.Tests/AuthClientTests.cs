@@ -156,6 +156,41 @@ public sealed class AuthClientTests
         body.Should().Contain("\"refreshToken\":\"refresh-1\"").And.Contain("\"nextRefreshToken\":\"nnn\"");
     }
 
+    [Fact]
+    public async Task GetMeAsync_WithConsent_MapsTheWordingAndTime()
+    {
+        // Arrange
+        var client = Account(_ => Json(HttpStatusCode.OK, MeBody("""{"wording":"care-data-v1","givenAt":"2026-10-02T12:00:00+00:00"}""")));
+
+        // Act
+        var overview = await client.GetMeAsync(CancellationToken.None);
+
+        // Assert
+        overview.Consent.Should().Be(new ConsentInfo("care-data-v1", new DateTimeOffset(2026, 10, 2, 12, 0, 0, TimeSpan.Zero)));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("null")]
+    public async Task GetMeAsync_WithoutConsent_HasNone(string? consent)
+    {
+        // Arrange: a 0.10.0 server sends no field at all.
+        var client = Account(_ => Json(HttpStatusCode.OK, MeBody(consent)));
+
+        // Act
+        var overview = await client.GetMeAsync(CancellationToken.None);
+
+        // Assert
+        overview.Consent.Should().BeNull();
+    }
+
+    private static string MeBody(string? consent) =>
+        """{"user":{"id":"7a1c0000-0000-7000-8000-0000000000c1","email":"a@b.c","displayName":"A"},"household":null,"devices":[]""" +
+        (consent is null ? "" : ",\"consent\":" + consent) + "}";
+
+    private static AccountClient Account(Func<HttpRequestMessage, Task<HttpResponseMessage>> server) =>
+        new(new HttpClient(new FakeServer(server)) { BaseAddress = new Uri("https://api.test/") });
+
     private static AuthClient Client(Func<HttpRequestMessage, Task<HttpResponseMessage>> server) =>
         new(new HttpClient(new FakeServer(server)) { BaseAddress = new Uri("https://api.test/") });
 

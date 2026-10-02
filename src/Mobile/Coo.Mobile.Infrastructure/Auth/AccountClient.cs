@@ -27,7 +27,8 @@ internal sealed class AccountClient(HttpClient http) : IAccountApi
             new AccountProfile(new UserId(me.User.Id), me.User.DisplayName, me.User.Email),
             me.Household is null ? null : new HouseholdId(me.Household.HouseholdId),
             me.Household?.Role,
-            [.. me.Devices.Select(d => new DeviceSessionInfo(d.DeviceName, d.LastUsedAt, d.IsCurrent))]);
+            [.. me.Devices.Select(d => new DeviceSessionInfo(d.DeviceName, d.LastUsedAt, d.IsCurrent))],
+            me.Consent is null ? null : new ConsentInfo(me.Consent.Wording, me.Consent.GivenAt));
     }
 
     public async Task DeleteAccountAsync(CancellationToken cancellationToken)
