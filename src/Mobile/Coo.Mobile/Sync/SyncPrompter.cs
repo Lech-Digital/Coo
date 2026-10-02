@@ -8,14 +8,15 @@ namespace Coo.Mobile.Sync;
 /// Opens the consent sheet when a cycle finds no consent (Spec 011 §3: "right after a successful sign-in, in place, and
 /// whenever a cycle would start for an account without consent"), at most once per app run and sign-in; and the
 /// bring-over sheet once when join-pending (§4). Settings opens either at any time. One sheet at a time: a sheet that
-/// could not open because another was showing opens when that one closes. Everything runs on the main thread.
+/// could not open because another was showing opens when that one closes. No sheet opens while Coo is in the background
+/// (<see cref="App.IsForeground"/>); one held back then opens on resume. Everything runs on the main thread.
 /// </summary>
 internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceProvider services)
 {
     private bool _attached;
     private bool _consentShown;
     private bool _bringOverShown;
-    private bool _pushing;
+    private Page? _pushing;
     private Page? _sheet;
 
     public void Attach()
@@ -26,6 +27,15 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
         engine.StatusChanged += OnStatusChanged;
         account.Changed += OnAccountChanged;
     }
+
+    /// <summary>The window came back (main thread): a sheet held back while in the background gets its turn.</summary>
+    public void Resumed() => OnMainThread(PromptAsync);
+
+    /// <summary>
+    /// The window stopped (main thread). A push still in flight must never block the sheets for the rest of the run: it is
+    /// forgotten here, and the modal stack tells whether it landed.
+    /// </summary>
+    public void Backgrounded() => _pushing = null;
 
     public Task ShowConsentAsync() => ShowAsync(() => services.GetRequiredService<ConsentPage>());
 
@@ -67,17 +77,17 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
         }
     }
 
-    /// <returns>Whether the sheet opened; false while another sheet is showing or no window is up yet.</returns>
+    /// <returns>Whether the sheet opened; false in the background, while another sheet is showing, or with no window yet.</returns>
     private async Task<bool> ShowAsync(Func<Page> create)
     {
-        if (_pushing || Microsoft.Maui.Controls.Application.Current?.Windows is not { Count: > 0 } windows || windows[0].Page is not { } root)
+        if (!App.IsForeground || _pushing is not null || Microsoft.Maui.Controls.Application.Current?.Windows is not { Count: > 0 } windows || windows[0].Page is not { } root)
             return false;
         if (_sheet is not null && root.Navigation.ModalStack.Contains(_sheet))
             return false;
 
         var page = create();
         _sheet = page;
-        _pushing = true;
+        _pushing = page;
 
         // When it closes, whatever was held back while it showed (bring-over after consent) gets its turn.
         page.Disappearing += (_, _) => OnMainThread(PromptAsync);
@@ -93,7 +103,9 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
         }
         finally
         {
-            _pushing = false;
+            // Only its own push: one forgotten in the background must not clear a newer one.
+            if (ReferenceEquals(_pushing, page))
+                _pushing = null;
         }
     }
 }

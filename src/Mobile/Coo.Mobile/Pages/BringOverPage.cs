@@ -39,7 +39,8 @@ public sealed class BringOverPage : ContentPage
             _account.Changed += OnAccountChanged;
             if (_account.State is SignedOut)
             {
-                await CloseAsync();
+                // Dispatched, as ConsentPage does: popping a modal from inside its own appearing is not safe.
+                Dispatcher.Dispatch(async () => await CloseAsync());
                 return;
             }
 

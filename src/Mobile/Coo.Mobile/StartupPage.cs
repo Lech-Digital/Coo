@@ -98,7 +98,13 @@ public sealed class StartupPage : ContentPage
     private void StartSync()
     {
         if (SyncStarted)
+        {
+            // A recreated activity (the process lived on): wired already, but its old window's Stopped put the engine in
+            // the background and the new window gets no Resumed. This page is the foreground again.
+            ResumeSync();
             return;
+        }
+
         SyncStarted = true;
         try
         {
@@ -135,17 +141,42 @@ public sealed class StartupPage : ContentPage
             };
             connectivity.Start();
             engine.Start();
-#if DEBUG
-            // Ruling F5: the sheets resolve too (they are otherwise first built when a cycle asks for them).
-            _ = _services.GetRequiredService<Pages.ConsentPage>();
-            _ = _services.GetRequiredService<Pages.BringOverPage>();
-#endif
         }
 #pragma warning disable CA1031 // Logging never depends on sync (ADR 0002): a failure here leaves the app as it was.
         catch (Exception e)
 #pragma warning restore CA1031
         {
             global::Android.Util.Log.Warn("Coo", $"Sync did not start: {e}");
+        }
+
+#if DEBUG
+        // Ruling F5: the sheets resolve too (they are otherwise first built when a cycle asks for them).
+        try
+        {
+            _ = _services.GetRequiredService<Pages.ConsentPage>();
+            _ = _services.GetRequiredService<Pages.BringOverPage>();
+        }
+#pragma warning disable CA1031 // A debug-only check: report it, never end the app.
+        catch (Exception e)
+#pragma warning restore CA1031
+        {
+            global::Android.Util.Log.Warn("Coo", $"Sync sheet did not resolve: {e}");
+        }
+#endif
+    }
+
+    private void ResumeSync()
+    {
+        try
+        {
+            _services.GetRequiredService<Coo.Mobile.Application.Sync.SyncEngine>().Resumed();
+            _services.GetRequiredService<Sync.SyncPrompter>().Resumed();
+        }
+#pragma warning disable CA1031 // Logging never depends on sync (ADR 0002); the next resume tries again.
+        catch (Exception e)
+#pragma warning restore CA1031
+        {
+            global::Android.Util.Log.Warn("Coo", $"Sync did not resume: {e}");
         }
     }
 

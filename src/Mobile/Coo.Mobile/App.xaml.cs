@@ -45,20 +45,45 @@ public partial class App : Microsoft.Maui.Controls.Application
         window.Created += (_, _) => _services.GetRequiredService<ThemeHost>().Apply(theme.Current);
         window.Resumed += (_, _) => _services.GetRequiredService<ThemeController>().Refresh();
 
-        // Sync triggers (Spec 011 §6.3): resume, and one last cycle on the way to the background (Android may cut it; safe).
-        window.Resumed += (_, _) => Lifecycle(e => e.Resumed());
-        window.Stopped += (_, _) => Lifecycle(e => e.Backgrounded());
+        // Sync triggers (Spec 011 §6.3). Resume: a cycle at once, the 30-second pull again, and any sheet held back while in
+        // the background. Background: the 30-second pull stops and one more cycle is asked for, after any backoff (Android
+        // may cut it; that is safe).
+        IsForeground = true;
+        window.Resumed += (_, _) =>
+        {
+            IsForeground = true;
+            Lifecycle((engine, prompter) =>
+            {
+                engine.Resumed();
+                prompter.Resumed();
+            });
+        };
+        window.Stopped += (_, _) =>
+        {
+            IsForeground = false;
+            Lifecycle((engine, prompter) =>
+            {
+                engine.Backgrounded();
+                prompter.Backgrounded();
+            });
+        };
         return window;
     }
 
+    /// <summary>
+    /// Whether a Coo window is on screen: set when a window is created (a recreated activity gets no Resumed) and on
+    /// Resumed, cleared on Stopped. The prompter opens no sheet by itself while it is false.
+    /// </summary>
+    internal static bool IsForeground { get; private set; } = true;
+
     /// <summary>Only once sync has started (<see cref="StartupPage"/>): a resume during the migrations must not start a cycle.</summary>
-    private void Lifecycle(Action<Coo.Mobile.Application.Sync.SyncEngine> action)
+    private void Lifecycle(Action<Coo.Mobile.Application.Sync.SyncEngine, Sync.SyncPrompter> action)
     {
         if (!StartupPage.SyncStarted)
             return;
         try
         {
-            action(_services.GetRequiredService<Coo.Mobile.Application.Sync.SyncEngine>());
+            action(_services.GetRequiredService<Coo.Mobile.Application.Sync.SyncEngine>(), _services.GetRequiredService<Sync.SyncPrompter>());
         }
 #pragma warning disable CA1031 // A window event handler: a failure here must not end the app; the 30-second pull goes on.
         catch (Exception)
