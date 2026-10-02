@@ -64,7 +64,10 @@ public sealed partial class LogViewModel(IHouseholdStore households, GetDay getD
         var baby = babies[0];
 
         var zone = TimeZoneInfo.FindSystemTimeZoneById(household.TimeZoneId);
+        // To the minute: a running sleep or feed ends at now, so a return to Log within the minute changes nothing and the
+        // page does not redraw (reviewer's finding, after the owner's Pixel 10 finding).
         var now = time.GetLocalNow();
+        now = now.AddTicks(-(now.Ticks % TimeSpan.TicksPerMinute));
         var day = await getDay.ExecuteAsync(household.Id, baby.Id, Date, zone, now, CancellationToken.None);
         var formats = new Formats(clock.Is24Hour, household.VolumeUnit);
         var today = DateOnly.FromDateTime(now.DateTime);

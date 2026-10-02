@@ -146,8 +146,9 @@ public static class DayChart
     }
 
     /// <summary>
-    /// The item under a tap in the zoomed day (Spec 009b §3): the nearest within the tolerance; where several are as near,
-    /// the shortest, so a feed during a sleep opens the feed. Awake stretches are not entries and are never hit.
+    /// The item under a tap in the zoomed day (Spec 009b §3): a feed, diaper or pump within the tolerance first, the
+    /// nearest, then the shortest; a sleep only when none is near, so a bottle or a pump during a nap opens itself
+    /// (reviewer's finding). Awake stretches are not entries and are never hit.
     /// </summary>
     public static ChartItem? HitTest(IReadOnlyList<ChartItem> items, double at, double tolerance)
     {
@@ -156,7 +157,8 @@ public static class DayChart
             .Where(i => i.EntryId is not null)
             .Select(i => (Item: i, Distance: at < i.From ? i.From - at : at > i.To ? at - i.To : 0))
             .Where(c => c.Distance <= tolerance)
-            .OrderBy(c => c.Distance)
+            .OrderBy(c => c.Item.Shape == ChartShape.Sleep)
+            .ThenBy(c => c.Distance)
             .ThenBy(c => c.Item.To - c.Item.From)
             .Select(c => c.Item)
             .FirstOrDefault();

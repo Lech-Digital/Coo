@@ -47,7 +47,7 @@ public sealed class DayDetailView : ContentView
         Fit();
     }
 
-    /// <summary>New data or colours while open: redraw where the parent already is.</summary>
+    /// <summary>New data, colours or language while open: redraw where the parent already is, title included.</summary>
     public void Update(IReadOnlyList<ChartItem> items, IReadOnlyList<HourTick> hours, double? now, Palette palette)
     {
         _drawable.Items = items;
@@ -56,7 +56,7 @@ public sealed class DayDetailView : ContentView
         _drawable.Palette = palette;
         _bar.Palette = palette;
         _canvas.Invalidate();
-        _position.Invalidate();
+        ShowRange();
     }
 
     private double CanvasWidth => _scroll.Width * 24 / HoursPerScreen;

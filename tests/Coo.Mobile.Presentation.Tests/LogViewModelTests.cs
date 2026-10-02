@@ -108,6 +108,28 @@ public sealed class LogViewModelTests
     }
 
     [Fact]
+    public async Task RefreshAsync_SleepRunningTwentySecondsLater_RaisesNothing()
+    {
+        // Arrange: reviewer's finding — a running sleep ended at the exact now, so every return to Log redrew it.
+        var sleep = Coo.Domain.CareLog.CareEntry.Create(
+            new EntryId(Guid.CreateVersion7(Now)), Household, Coo.Domain.CareLog.EntrySubject.Baby(Baby), new Coo.Domain.CareLog.Kinds.Sleep.SleepDetails(),
+            Coo.Domain.CareLog.EntryTiming.Session(Coo.Domain.CareLog.TimeRange.Open(Now.AddMinutes(-30))), Coo.Domain.CareLog.PersonRef.ThisDevicesPerson,
+            Coo.Domain.CareLog.EntrySource.Timer, new HlcStamp(2, 0, Device), Now).Value;
+        var time = new MovableTime(Now.AddSeconds(5));
+        var model = Model(time, [new LiveEntry(sleep)]);
+        await model.RefreshAsync();
+        var changed = new List<string?>();
+        model.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+        time.Now = Now.AddSeconds(25);
+
+        // Act
+        await model.RefreshAsync();
+
+        // Assert
+        changed.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task RangeTitle_AfterRefresh_NamesToday()
     {
         // Arrange
@@ -121,7 +143,7 @@ public sealed class LogViewModelTests
         title.Should().Contain("12:30").And.Contain("18:30");
     }
 
-    private static LogViewModel Model(TimeProvider? timeProvider = null)
+    private static LogViewModel Model(TimeProvider? timeProvider = null, IReadOnlyList<StoredEntry>? entries = null)
     {
         var households = Substitute.For<IHouseholdStore>();
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
@@ -129,7 +151,7 @@ public sealed class LogViewModelTests
         households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([settings]);
         households.ListBabiesAsync(Household, Arg.Any<CancellationToken>()).Returns([baby]);
         var store = Substitute.For<ICareLogStore>();
-        store.ListAsync(default, default, default, default).ReturnsForAnyArgs(Array.Empty<StoredEntry>());
+        store.ListAsync(default, default, default, default).ReturnsForAnyArgs(entries ?? Array.Empty<StoredEntry>());
         var clock = Substitute.For<IClockFormat>();
         clock.Is24Hour.Returns(true);
         var time = timeProvider ?? new MovableTime(Now);

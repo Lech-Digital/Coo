@@ -382,6 +382,48 @@ public sealed class DayChartTests : IDisposable
     }
 
     [Fact]
+    public void HitTest_BottleInsideSleep_PicksTheBottle()
+    {
+        // Arrange: reviewer's finding — a bottle is a point; the finger lands a few dp from it, inside the sleep.
+        var sleep = new ChartItem(ChartShape.Sleep, "sleep", 21 / 24.0, 1, new EntryId(Guid.CreateVersion7(Now)), "3 h 0 m");
+        var bottle = new ChartItem(ChartShape.Feed, "feeding", 23 / 24.0, 23 / 24.0, new EntryId(Guid.CreateVersion7(Now)), "23:00 120 ml");
+
+        // Act
+        var hit = DayChart.HitTest([sleep, bottle], (23 / 24.0) + 0.001, 0.003);
+
+        // Assert
+        hit.Should().Be(bottle);
+    }
+
+    [Fact]
+    public void HitTest_PumpDuringANap_PicksThePump()
+    {
+        // Arrange
+        var nap = new ChartItem(ChartShape.Sleep, "sleep", 13 / 24.0, 15 / 24.0, new EntryId(Guid.CreateVersion7(Now)), "2 h 0 m");
+        var pump = new ChartItem(ChartShape.Pump, "pump", 14 / 24.0, 14 / 24.0, new EntryId(Guid.CreateVersion7(Now)), "14:00");
+
+        // Act
+        var hit = DayChart.HitTest([nap, pump], (14 / 24.0) - 0.002, 0.003);
+
+        // Assert
+        hit.Should().Be(pump);
+    }
+
+    [Fact]
+    public void HitTest_InsideSleepWithNothingNear_PicksTheSleep()
+    {
+        // Arrange
+        var nap = new ChartItem(ChartShape.Sleep, "sleep", 13 / 24.0, 15 / 24.0, new EntryId(Guid.CreateVersion7(Now)), "2 h 0 m");
+        var pump = new ChartItem(ChartShape.Pump, "pump", 14 / 24.0, 14 / 24.0, new EntryId(Guid.CreateVersion7(Now)), "14:00");
+
+        // Act
+        var hit = DayChart.HitTest([nap, pump], 13.2 / 24, 0.003);
+
+        // Assert
+        hit.Should().Be(nap);
+    }
+
+    [Fact]
     public void HitTest_NearAPoint_FindsItWithinTheTolerance()
     {
         // Arrange
