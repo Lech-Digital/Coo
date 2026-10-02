@@ -17,7 +17,15 @@ internal sealed class MauiSecretStore : ISecretStore
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            SecureStorage.Default.Remove(key);
+            try
+            {
+                SecureStorage.Default.Remove(key);
+            }
+            catch (Exception)
+            {
+                // The Keystore is beyond reading and removing: still "signed out", never a crash.
+            }
+
             return null;
         }
     }
