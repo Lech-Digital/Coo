@@ -2,7 +2,12 @@
 
 Date: 2026-09-29
 
-Status: Accepted
+Status: Accepted — amended 2026-10-02 (see below)
+
+> **Amendment, 2026-10-02 (owner): the sleep predictor is free.** Coo charges only for AI-assisted logging (ADR 0004,
+> amended). §7's split is superseded: every household gets the age-typical range, the personal prediction with its
+> explanation, and the nap-window reminder.
+
 
 ## Context
 

@@ -2,7 +2,12 @@
 
 Date: 2026-09-29
 
-Status: Accepted
+Status: Accepted — amended 2026-10-02 (see below)
+
+> **Amendment, 2026-10-02 (owner): logging from the watch is free.** Coo charges only for AI-assisted logging (ADR
+> 0004, amended). §4's Premium gating is superseded: the watch shows its logging surfaces to every household. The rule
+> that an entry from the watch is never dropped stays.
+
 
 ## Context
 

@@ -24,7 +24,7 @@ two.
 | 11 | **Sync** | 011 | Push and pull, HLC, tombstones, the SignalR doorbell, `membership-revoked`. **Test:** two phones, offline edits, both converge, and nothing is lost. **Before the first upload, the app asks for explicit consent to store the care log on the server** (GDPR Art. 9(2)(a); the privacy policy at lechdigital.nl/projects/coo/privacy promises it). | — |
 | 11b | **Members and invitations** | 011b | Invite by link, join with your own Google account as a Parent, bring your entries over or keep them separate, remove a member (ADR 0003 §6–§7). **Test:** the owner and his girlfriend, each with their own account, log the same baby and see each other's entries. | — |
 | 11c | **Washi forms** | 011c | The edit and Settings pages in the Washi style of Today and Log: Washi fields instead of Android's underlined boxes, the entry's kind colour and badge, grouped cards. Shown as mockups first. **Test:** side by side with Today and Log, day and night. | — |
-| 12 | **Billing and entitlements** | 012 | Play Billing, the trial, RTDN, the reconciler, `FeatureGate`. **Test:** Play license testers. | — |
+| 12 | **Billing and entitlements** | 012 | Play Billing, RTDN, the reconciler, `FeatureGate`. **Premium is AI-assisted logging only;** everything else in Coo is free (owner, 2026-10-02; ADR 0004 amended). **Test:** Play license testers. | — |
 | 13 | **Reminders and notifications** | 013 | The local reminders from ADR 0007, and WorkManager sync. | — |
 | 14 | **Sleep predictor** | 014 | ADR 0008, with the backtest harness gating it. | — |
 | 15 | **AI logging** | 015 | Voice and text to proposals, the confirmation card, pending notes, evals. | — |
@@ -33,7 +33,7 @@ two.
 | 18 | **Release** | 018 | Signing, the Play listing in seven languages, the privacy policy, closed testing. | — |
 
 Increments 1–7 and 9 need no server and no accounts. By the end of increment 7, the app is a usable
-**single-phone baby log**. Everything after that adds the family, Premium and the smart features.
+**single-phone baby log**. Everything after that adds the family and the smart features. Only AI-assisted logging will be paid, because it costs Coo per use (owner, 2026-10-02).
 
 ## Owner setup tasks that take calendar time
 
