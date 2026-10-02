@@ -50,6 +50,10 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
     private long _wakes;
     private long _stoppedAtWake = -1;
 
+    // Moves with every account change, before its status update: a cycle that outlived the account it started under
+    // reports nothing (its Removal or sync time belongs to that account).
+    private long _accountEpoch;
+
     public SyncEngine(
         SyncCycle cycle, ISyncStore store, IHouseholdMoves moves, ISessionStore sessions, Account account, ConsentGate consent,
         LocalWrites writes, TimeProvider time, SyncOptions? options = null)
@@ -155,6 +159,7 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
         if (Interlocked.Read(ref _stoppedAtWake) == wake)
             return true;
 
+        var epoch = Interlocked.Read(ref _accountEpoch);
         Update(s => s with { IsRunning = true });
         CycleReport report;
         try
@@ -170,17 +175,34 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
 
         var pending = await PendingAsync(cancellationToken);
         var now = _time.GetLocalNow();
-        Update(s => s with
+        var signedOut = report.Outcome == CycleOutcome.NotSignedIn;
+        var outlived = false;
+        Update(s =>
         {
-            Last = report.Outcome,
-            LastSyncedAt = report.Outcome == CycleOutcome.Synced ? now : s.LastSyncedAt,
-            Pending = pending ?? s.Pending,
-            IsRunning = false,
-            LastError = report.Error,
-            Removal = report.Outcome == CycleOutcome.Removed ? report.Household : s.Removal,
+            // Checked under the status lock: an account change either lands before this (and the result is dropped) or
+            // after it (and its own update replaces the result).
+            if (Interlocked.Read(ref _accountEpoch) != epoch)
+            {
+                outlived = true;
+                return s with { IsRunning = false };
+            }
+
+            return s with
+            {
+                Last = report.Outcome,
+                LastSyncedAt = report.Outcome == CycleOutcome.Synced ? now : signedOut ? null : s.LastSyncedAt,
+                Pending = pending ?? s.Pending,
+                IsRunning = false,
+                LastError = report.Error,
+                Removal = report.Outcome == CycleOutcome.Removed ? report.Household : signedOut ? null : s.Removal,
+            };
         });
         if (report.DataChanged)
             Raise(DataChanged);
+
+        // The account change requested its own cycle; this one must not back off or stop and swallow it.
+        if (outlived)
+            return true;
 
         if (report is { Outcome: CycleOutcome.Failed, Error: SyncCycle.HouseholdMismatchError or SyncCycle.NoProgressError })
         {
@@ -230,12 +252,13 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
     {
         var now = _account.State;
         var before = Interlocked.Exchange(ref _lastAccount, now);
+        Interlocked.Increment(ref _accountEpoch);
         Wake();
         if (now is SignedOut)
         {
             Update(_ => SyncStatus.Initial with { Last = CycleOutcome.NotSignedIn });
 
-            // A cycle still in flight may report after this; the next one says "not signed in" again, without any IO.
+            // A cycle still in flight drops its result (the epoch moved); this one, signed out and without IO, settles it.
             _scheduler.Request(SyncTrigger.Manual);
             return;
         }

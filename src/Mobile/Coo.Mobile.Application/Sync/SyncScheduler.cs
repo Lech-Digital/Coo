@@ -36,8 +36,15 @@ public sealed class SyncScheduler : IDisposable
     private ITimer? _debounce;
     private ITimer? _backoff;
     private ITimer? _periodic;
+
+    // Each timer's identity, passed as its state: a callback a real timer had already queued before it was replaced or
+    // disposed compares unequal and does nothing.
+    private object? _debounceTag;
+    private object? _backoffTag;
+    private object? _periodicTag;
     private bool _running;
     private bool _again;
+    private bool _againAtOnce;
     private bool _waitingForBackoff;
     private bool _foreground;
     private bool _disposed;
@@ -71,7 +78,8 @@ public sealed class SyncScheduler : IDisposable
             if (trigger == SyncTrigger.LocalWrite)
             {
                 _debounce?.Dispose();
-                _debounce = _time.CreateTimer(_ => Fire(resetBackoff: false), null, Debounce, Timeout.InfiniteTimeSpan);
+                _debounceTag = new object();
+                _debounce = _time.CreateTimer(tag => Fire(tag, () => _debounceTag), _debounceTag, Debounce, Timeout.InfiniteTimeSpan);
                 return;
             }
 
@@ -91,7 +99,10 @@ public sealed class SyncScheduler : IDisposable
                 return;
             _foreground = foreground;
             _periodic?.Dispose();
-            _periodic = foreground ? _time.CreateTimer(_ => Fire(resetBackoff: false), null, ForegroundInterval, ForegroundInterval) : null;
+            _periodicTag = foreground ? new object() : null;
+            _periodic = foreground
+                ? _time.CreateTimer(tag => Fire(tag, () => _periodicTag), _periodicTag, ForegroundInterval, ForegroundInterval)
+                : null;
             if (!foreground)
                 start = Arm(resetBackoff: false);
         }
@@ -114,6 +125,7 @@ public sealed class SyncScheduler : IDisposable
             return _idle.Task;
     }
 
+    /// <summary>Stops the timers and completes <see cref="WhenIdleAsync"/> at once, even while a cycle is still unwinding.</summary>
     public void Dispose()
     {
         lock (_gate)
@@ -138,17 +150,23 @@ public sealed class SyncScheduler : IDisposable
         return idle;
     }
 
-    // A timer callback: nothing may escape it.
-    private void Fire(bool resetBackoff)
+    // A timer callback: nothing may escape it. A stale one (its timer replaced or disposed since) does nothing.
+    private void Fire(object? tag, Func<object?> current, bool endsBackoff = false)
     {
         try
         {
             bool start;
             lock (_gate)
             {
-                if (_disposed)
+                if (_disposed || tag is null || !ReferenceEquals(tag, current()))
                     return;
-                start = Arm(resetBackoff);
+                if (endsBackoff)
+                {
+                    _waitingForBackoff = false;
+                    _backoffTag = null;
+                }
+
+                start = Arm(resetBackoff: false);
             }
 
             if (start)
@@ -170,6 +188,7 @@ public sealed class SyncScheduler : IDisposable
             _waitingForBackoff = false;
             _backoff?.Dispose();
             _backoff = null;
+            _backoffTag = null;
         }
 
         if (_waitingForBackoff)
@@ -177,6 +196,9 @@ public sealed class SyncScheduler : IDisposable
         if (_running)
         {
             _again = true;
+
+            // Sync now or connectivity during a cycle: the next cycle runs at once even if this one fails.
+            _againAtOnce |= resetBackoff;
             return false;
         }
 
@@ -214,15 +236,21 @@ public sealed class SyncScheduler : IDisposable
                 else
                 {
                     _failures++;
-                    _again = false;
-                    ArmBackoff();
+                    if (!_againAtOnce)
+                    {
+                        _again = false;
+                        ArmBackoff();
+                    }
                 }
 
-                if (succeeded && _again && !_disposed)
+                if (_again && !_disposed)
                 {
                     _again = false;
+                    _againAtOnce = false;
                     continue;
                 }
+
+                _againAtOnce = false;
 
                 _running = false;
                 _idle.TrySetResult();
@@ -256,13 +284,7 @@ public sealed class SyncScheduler : IDisposable
         var delay = TimeSpan.FromTicks((long)(Math.Min(MaxBackoff.Ticks, doubled) * Jitter()));
         _waitingForBackoff = true;
         _backoff?.Dispose();
-        _backoff = _time.CreateTimer(
-            _ =>
-            {
-                lock (_gate)
-                    _waitingForBackoff = false;
-                Fire(resetBackoff: false);
-            },
-            null, delay, Timeout.InfiniteTimeSpan);
+        _backoffTag = new object();
+        _backoff = _time.CreateTimer(tag => Fire(tag, () => _backoffTag, endsBackoff: true), _backoffTag, delay, Timeout.InfiniteTimeSpan);
     }
 }

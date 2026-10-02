@@ -14,7 +14,13 @@ public sealed class SyncSchedulerTests : IDisposable
     private int _maxRunning;
     private Func<bool> _outcome = () => true;
 
-    public SyncSchedulerTests() => _scheduler = new SyncScheduler(CycleAsync, _time, jitter: () => 1.0);
+    public SyncSchedulerTests()
+    {
+        _timers = new RecordingTime(_time);
+        _scheduler = new SyncScheduler(CycleAsync, _timers, jitter: () => 1.0);
+    }
+
+    private readonly RecordingTime _timers;
 
     public void Dispose() => _scheduler.Dispose();
 
@@ -242,5 +248,80 @@ public sealed class SyncSchedulerTests : IDisposable
         // Assert (the timeouts only bound a broken build; a full backoff is the fallback)
         failures.Should().Be(1);
         _runs.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task RunNowAsync_DuringACycleThatFails_RunsTheRequestedCycleWithoutWaitingForTheBackoff()
+    {
+        // Arrange: ruling 12, Sync now runs at once, even when it lands during a failing cycle.
+        _gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _outcome = () => Volatile.Read(ref _runs) > 1;
+        _scheduler.Request(SyncTrigger.Start);
+
+        // Act
+        var now = _scheduler.RunNowAsync(CancellationToken.None);
+        _gate.SetResult();
+        await now.WaitAsync(TimeSpan.FromSeconds(10));
+
+        // Assert (no time passed: no backoff was waited for)
+        _runs.Should().Be(2);
+        _scheduler.Failures.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task Request_StaleBackoffTimerFiresAfterANewerBackoff_IsIgnored()
+    {
+        // Arrange: two failures, the second with its own backoff; the first backoff's callback was already queued.
+        _outcome = () => false;
+        _scheduler.Request(SyncTrigger.Start);
+        await _scheduler.WhenIdleAsync();
+        var first = _timers.Created[^1];
+        _scheduler.Request(SyncTrigger.Manual);
+        await _scheduler.WhenIdleAsync();
+
+        // Act
+        first.Callback(first.State);
+        await _scheduler.WhenIdleAsync();
+
+        // Assert
+        _runs.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task SetForeground_StalePeriodicTimerFiresAfterGoingToTheBackground_IsIgnored()
+    {
+        // Arrange
+        _scheduler.SetForeground(true);
+        var periodic = _timers.Created[^1];
+        _scheduler.SetForeground(false);
+        await _scheduler.WhenIdleAsync();
+
+        // Act
+        periodic.Callback(periodic.State);
+        await _scheduler.WhenIdleAsync();
+
+        // Assert: only the last cycle on the way to the background.
+        _runs.Should().Be(1);
+    }
+
+    /// <summary>The fake clock, keeping each timer's callback so a test can play one that a real timer had already queued.</summary>
+    private sealed class RecordingTime(FakeTimeProvider inner) : TimeProvider
+    {
+        public List<(TimerCallback Callback, object? State)> Created { get; } = [];
+
+        public override TimeZoneInfo LocalTimeZone => inner.LocalTimeZone;
+
+        public override long TimestampFrequency => inner.TimestampFrequency;
+
+        public override DateTimeOffset GetUtcNow() => inner.GetUtcNow();
+
+        public override long GetTimestamp() => inner.GetTimestamp();
+
+        public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
+        {
+            lock (Created)
+                Created.Add((callback, state));
+            return inner.CreateTimer(callback, state, dueTime, period);
+        }
     }
 }

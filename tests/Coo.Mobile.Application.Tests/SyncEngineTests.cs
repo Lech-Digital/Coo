@@ -157,8 +157,12 @@ public sealed class SyncEngineTests : IDisposable
     public async Task JoinCompleted_BringOverDone_TellsThePagesToRefresh()
     {
         // Arrange (subscribed first: the engine's own first cycle may complete the join at once)
-        var raised = 0;
-        _engine.DataChanged += (_, _) => Interlocked.Increment(ref raised);
+        var raised = new List<object?>();
+        _engine.DataChanged += (sender, _) =>
+        {
+            lock (raised)
+                raised.Add(sender);
+        };
         await _account.SignedInAsync(
             new StoredSession("access", Now.AddMinutes(15), "refresh", Profile, Household, JoinPending: true), CancellationToken.None);
 
@@ -166,8 +170,10 @@ public sealed class SyncEngineTests : IDisposable
         await _account.TryCompleteJoinAsync(_account.Generation, CancellationToken.None);
         await _engine.SyncNowAsync(CancellationToken.None);
 
-        // Assert
-        raised.Should().BeGreaterThan(0);
+        // Assert: once, for the join-pending to signed-in move (the pulls were empty, so no cycle reported a change).
+        _account.State.Should().BeOfType<SignedIn>();
+        lock (raised)
+            raised.Should().ContainSingle().Which.Should().BeSameAs(_engine);
     }
 
     [Fact]
@@ -189,6 +195,7 @@ public sealed class SyncEngineTests : IDisposable
     {
         // Arrange: a store error propagates out of the cycle; the engine must turn it into a failed cycle.
         await SignInAsync();
+        await _engine.WhenIdleAsync();
         _store.NextBatchAsync(Household, Arg.Any<int>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromException<IReadOnlyList<OutgoingChange>>(new InvalidOperationException("disk")));
         await _engine.SyncNowAsync(CancellationToken.None);
@@ -219,21 +226,22 @@ public sealed class SyncEngineTests : IDisposable
         await SignInAsync();
         await _engine.SyncNowAsync(CancellationToken.None);
         _store.CountsAsync(Household, Arg.Any<CancellationToken>()).Returns(new SyncCounts(0, 3, 0));
-        var seen = new List<int>();
+        var batches = _store.ReceivedCalls().Count(c => c.GetMethodInfo().Name == nameof(ISyncStore.NextBatchAsync));
+        var pendingSeen = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         _engine.StatusChanged += (_, _) => throw new InvalidOperationException("a broken view model");
         _engine.StatusChanged += (_, _) =>
         {
-            lock (seen)
-                seen.Add(_engine.Status.Pending);
+            if (_engine.Status.Pending == 3)
+                pendingSeen.TrySetResult();
         };
 
-        // Act: the local write's fire-and-forget pending refresh, then a whole cycle, each with a throwing handler.
+        // Act: a local write, with no cycle yet (the debounce has not passed): only the fire-and-forget pending refresh runs.
         _writes.Notify();
-        await _engine.SyncNowAsync(CancellationToken.None);
 
-        // Assert
-        lock (seen)
-            seen.Should().Contain(3);
+        // Assert (the timeout only bounds a broken build)
+        await pendingSeen.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        _store.ReceivedCalls().Count(c => c.GetMethodInfo().Name == nameof(ISyncStore.NextBatchAsync)).Should().Be(batches);
+        await _engine.SyncNowAsync(CancellationToken.None);
         _engine.Status.Last.Should().Be(CycleOutcome.Synced);
         _engine.Status.IsRunning.Should().BeFalse();
     }
@@ -317,5 +325,62 @@ public sealed class SyncEngineTests : IDisposable
         status.LastError.Should().Be("no-progress");
         pushesWhileStopped.Should().Be(0);
         await _api.ReceivedWithAnyArgs().PushAsync(default, default, default!, default);
+    }
+
+    [Fact]
+    public async Task SignedOut_DuringARemovedCycle_TheLateResultDoesNotReachTheStatus()
+    {
+        // Arrange: the cycle has its Removed answer and is reading the pending count when the person signs out.
+        await SignInAsync();
+        await _engine.WhenIdleAsync();
+        _state.IsSoftLockedAsync(Household, Arg.Any<CancellationToken>()).Returns(true);
+        _api.GetMembershipAsync(Household, Arg.Any<CancellationToken>()).Returns(MembershipStatus.Revoked);
+        var (entered, release) = HoldTheNextCount();
+        var sync = _engine.SyncNowAsync(CancellationToken.None);
+        await entered.WaitAsync(TimeSpan.FromSeconds(10));
+
+        // Act
+        await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+        release.SetResult(new SyncCounts(0, 0, 0));
+        await sync;
+        await _engine.WhenIdleAsync();
+
+        // Assert: nothing of the old account's removal is left for the next one to acknowledge.
+        _engine.Status.Should().Be(SyncStatus.Initial with { Last = CycleOutcome.NotSignedIn });
+        await _engine.AcknowledgeRemovalAsync(CancellationToken.None);
+        await _moves.DidNotReceiveWithAnyArgs().DeleteHouseholdAsync(default, default);
+    }
+
+    [Fact]
+    public async Task SignedOut_DuringASyncedCycle_TheOldAccountsSyncTimeIsNotShown()
+    {
+        // Arrange
+        await SignInAsync();
+        await _engine.WhenIdleAsync();
+        _time.Advance(TimeSpan.FromMinutes(1));
+        var (entered, release) = HoldTheNextCount();
+        var sync = _engine.SyncNowAsync(CancellationToken.None);
+        await entered.WaitAsync(TimeSpan.FromSeconds(10));
+
+        // Act
+        await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+        release.SetResult(new SyncCounts(0, 0, 0));
+        await sync;
+        await _engine.WhenIdleAsync();
+
+        // Assert
+        _engine.Status.Should().Be(SyncStatus.Initial with { Last = CycleOutcome.NotSignedIn });
+    }
+
+    private (Task Entered, TaskCompletionSource<SyncCounts> Release) HoldTheNextCount()
+    {
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource<SyncCounts>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _store.CountsAsync(Household, Arg.Any<CancellationToken>()).Returns(_ =>
+        {
+            entered.TrySetResult();
+            return release.Task;
+        });
+        return (entered.Task, release);
     }
 }
