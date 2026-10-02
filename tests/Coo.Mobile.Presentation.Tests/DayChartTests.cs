@@ -354,6 +354,37 @@ public sealed class DayChartTests : IDisposable
         title.Should().Be("Wed 30 Sep, 03:00 – 09:00");
     }
 
+    [Theory]
+    [InlineData(14 + (52 / 60.0), 15)]
+    [InlineData(15 + (20 / 60.0), 15)]
+    [InlineData(0.2, 0)]
+    [InlineData(23.8, 24)]
+    public void NearestHour_TapAnywhere_SnapsToTheNearestWholeHour(double tappedHour, int expectedHour)
+    {
+        // Arrange: the owner — the zoomed day always opens on whole hours.
+        var day = DayMath.Day(Date, Amsterdam);
+        var hours = DayChart.Hours(day, Amsterdam, Ml);
+
+        // Act
+        var at = DayChart.NearestHour(hours, tappedHour / 24);
+
+        // Assert
+        at.Should().BeApproximately(expectedHour / 24.0, 1e-9);
+    }
+
+    [Fact]
+    public void NearestHour_NoHours_KeepsTheTap()
+    {
+        // Arrange
+        IReadOnlyList<HourTick> hours = [];
+
+        // Act
+        var at = DayChart.NearestHour(hours, 0.4);
+
+        // Assert
+        at.Should().Be(0.4);
+    }
+
     [Fact]
     public void HitTest_NoItems_ReturnsNull()
     {

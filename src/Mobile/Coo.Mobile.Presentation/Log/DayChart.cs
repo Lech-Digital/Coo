@@ -185,6 +185,13 @@ public static class DayChart
         return string.Join("; ", parts);
     }
 
+    /// <summary>Where the zoomed day centres a tap: the nearest whole hour (owner, 2026-10-02), the tap itself if there are no hours.</summary>
+    public static double NearestHour(IReadOnlyList<HourTick> hours, double at)
+    {
+        ArgumentNullException.ThrowIfNull(hours);
+        return hours.Count == 0 ? at : hours.MinBy(h => Math.Abs(h.At - at))!.At;
+    }
+
     internal static TimeSpan Span(LocalDay day, double from, double to) =>
         TimeSpan.FromTicks((long)Math.Round((to - from) * day.Length.Ticks));
 }

@@ -41,7 +41,7 @@ public sealed class DayDetailView : ContentView
     public void Show(IReadOnlyList<ChartItem> items, IReadOnlyList<HourTick> hours, double? now, Palette palette, Func<double, double, string> rangeTitle, double openAt)
     {
         _rangeTitle = rangeTitle;
-        _openAt = openAt;
+        _openAt = DayChart.NearestHour(hours, openAt);
         _scrollPending = true;
         Update(items, hours, now, palette);
         Fit();
