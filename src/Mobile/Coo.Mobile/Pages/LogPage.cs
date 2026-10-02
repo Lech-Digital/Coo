@@ -69,8 +69,12 @@ public sealed class LogPage : ContentPage
         // The first visit draws at once from the data loaded at start-up, before the page's first frame: drawing after
         // the refresh showed one blank frame (recorded on the Pixel 10). A refresh with nothing new raises no change,
         // and then nothing is redrawn.
+        // The band's colours are drawn, not resources: a palette change while Log was off screen (the moon on Today) left
+        // it in the old colours (found on the Pixel 10). Redrawing the band alone is cheap.
         if (_body.Content is null)
             Render();
+        else
+            ShowRibbon();
         await _model.RefreshAsync();
         if (_renderedLanguage != Strings.Language)
             QueueRender();
