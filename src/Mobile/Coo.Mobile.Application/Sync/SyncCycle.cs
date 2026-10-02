@@ -19,6 +19,8 @@ public sealed class SyncCycle(
 
     public const string HouseholdMismatchError = "household-mismatch";
 
+    public const string NoProgressError = "no-progress";
+
     public async Task<CycleReport> RunAsync(CancellationToken cancellationToken)
     {
         var generation = account.Generation;
@@ -96,7 +98,7 @@ public sealed class SyncCycle(
 
                 // Every change of the last batch was answered, so the store must have moved on; if not, stop rather than loop.
                 if (batch[0].ChangeId == previousFirst)
-                    return new CycleReport(CycleOutcome.Failed, changed, "no-progress");
+                    return new CycleReport(CycleOutcome.Failed, changed, NoProgressError);
                 previousFirst = batch[0].ChangeId;
 
                 var results = await api.PushAsync(household, deviceId, batch, cancellationToken);

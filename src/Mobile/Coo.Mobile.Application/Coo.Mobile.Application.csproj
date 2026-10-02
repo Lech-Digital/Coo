@@ -9,6 +9,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Coo.Mobile.Application.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="../../Shared/Coo.Domain/Coo.Domain.csproj" />
     <ProjectReference Include="../../Shared/Coo.Contracts/Coo.Contracts.csproj" />
     <ProjectReference Include="../../Shared/Coo.Codecs/Coo.Codecs.csproj" />

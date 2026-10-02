@@ -36,6 +36,13 @@ public static class ServiceCollectionExtensions
 
         // Sync (Spec 011).
         services.AddSingleton<LocalWrites>();
+        services.AddTransient<ConsentGate>();
+        services.AddTransient<SyncCycle>();
+        services.AddSingleton<SyncEngine>();
+        services.AddSingleton<ISyncStatus>(sp => sp.GetRequiredService<SyncEngine>());
+        services.AddSingleton<ISyncControl>(sp => sp.GetRequiredService<SyncEngine>());
+        services.AddTransient<RecordConsent>();
+        services.AddTransient<DeclineConsent>();
         return services;
     }
 }
