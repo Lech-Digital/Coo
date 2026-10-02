@@ -16,9 +16,18 @@ public sealed class BringEntriesOver(ISessionStore sessions, IHouseholdMoves mov
     {
         if (await sessions.GetAsync(cancellationToken) is not { JoinPending: true } session)
             return null;
+        var generation = account.Generation;
         var local = await moves.ActiveHouseholdAsync(cancellationToken);
         if (local == session.AccountHousehold)
             return null;
+
+        // A household that has synced is never offered (Spec 011 §4): the account's household simply becomes active.
+        if (await moves.HasEverSyncedAsync(local, cancellationToken))
+        {
+            await CompleteWithoutMoveAsync(local, session, generation, cancellationToken);
+            return null;
+        }
+
         var family = await moves.SummaryAsync(session.AccountHousehold, cancellationToken);
         return new BringOverChoice(await moves.SummaryAsync(local, cancellationToken), family.Babies);
     }
@@ -37,6 +46,8 @@ public sealed class BringEntriesOver(ISessionStore sessions, IHouseholdMoves mov
             var babies = (await moves.SummaryAsync(local, cancellationToken)).Babies.ToDictionary(
                 b => b.Id,
                 b => mapping.TryGetValue(b.Id, out var target) && target is { } t && family.Contains(t) ? t : (BabyId?)null);
+            if (account.Generation != generation)
+                return false;
             await moves.BringOverAsync(new BringOverPlan(local, session.AccountHousehold, babies), session.Profile.UserId, cancellationToken);
         }
 
@@ -45,5 +56,15 @@ public sealed class BringEntriesOver(ISessionStore sessions, IHouseholdMoves mov
             return false;
         sync.RequestSync();
         return true;
+    }
+
+    /// <summary>The move refuses a synced source and only makes the account's household active; then the join completes.</summary>
+    private async Task CompleteWithoutMoveAsync(HouseholdId local, StoredSession session, long generation, CancellationToken cancellationToken)
+    {
+        if (account.Generation != generation)
+            return;
+        await moves.BringOverAsync(new BringOverPlan(local, session.AccountHousehold, new Dictionary<BabyId, BabyId?>()), session.Profile.UserId, cancellationToken);
+        if (await account.TryCompleteJoinAsync(generation, cancellationToken))
+            sync.RequestSync();
     }
 }

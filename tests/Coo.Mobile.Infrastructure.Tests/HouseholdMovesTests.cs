@@ -51,7 +51,7 @@ public sealed class HouseholdMovesTests
     {
         var text = new StringBuilder();
         await using var connection = await db.OpenAsync();
-        foreach (var table in new[] { "care_entries", "baby_profiles", "household_settings", "duplicate_dismissals", "outbox", "app_state", "sync_cursors" })
+        foreach (var table in new[] { "care_entries", "baby_profiles", "household_settings", "duplicate_dismissals", "outbox", "app_state", "sync_cursors", "sync_rejections" })
         {
             await using var command = connection.Command($"SELECT * FROM {table} ORDER BY rowid;");
             await using var reader = await command.ExecuteReaderAsync();
@@ -324,5 +324,157 @@ public sealed class HouseholdMovesTests
         (await db.ScalarAsync("SELECT count(*) FROM sync_rejections;")).Should().Be(0);
         (await db.ScalarAsync($"SELECT count(*) FROM sync_cursors WHERE household_id = '{Account.Value}';")).Should().Be(1);
         (await db.ScalarAsync($"SELECT count(*) FROM sync_cursors WHERE household_id = '{TestDatabase.Household.Value}';")).Should().Be(0);
+    }
+
+    [Fact]
+    public async Task BringOverAsync_SourceHasACursorRow_MovesNothingAndActivatesTheTarget()
+    {
+        // Arrange
+        var (db, entry) = await PhoneAsync();
+        await using var cleanup = db;
+        await PullFamilyAsync(db);
+        await db.ExecuteAsync($"INSERT INTO sync_cursors (household_id, last_seq, bootstrap_head) VALUES ('{TestDatabase.Household.Value}', 3, NULL);");
+        var plan = new BringOverPlan(TestDatabase.Household, Account, new Dictionary<BabyId, BabyId?> { [TestDatabase.Baby] = FamilyBaby });
+
+        // Act
+        var done = await new HouseholdMoves(db.Database).BringOverAsync(plan, User, CancellationToken.None);
+
+        // Assert
+        done.Should().BeFalse();
+        (await db.ScalarAsync($"SELECT count(*) FROM care_entries WHERE id = '{entry.Id.Value}' AND household_id = '{TestDatabase.Household.Value}';")).Should().Be(1);
+        (await db.ScalarAsync($"SELECT count(*) FROM household_settings WHERE household_id = '{TestDatabase.Household.Value}';")).Should().Be(1);
+        (await db.ScalarAsync($"SELECT count(*) FROM app_state WHERE key = 'active_household' AND value = '{Account.Value}';")).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task BringOverAsync_SourceHoldsAPulledRecord_MovesNothing()
+    {
+        // Arrange: a record with no outbox row and no rejection came from the server.
+        var (db, entry) = await PhoneAsync();
+        await using var cleanup = db;
+        await PullFamilyAsync(db);
+        await db.ExecuteAsync($"DELETE FROM outbox WHERE entity_type = 'CareEntry' AND entity_id = '{entry.Id.Value}';");
+        var plan = new BringOverPlan(TestDatabase.Household, Account, new Dictionary<BabyId, BabyId?> { [TestDatabase.Baby] = null });
+
+        // Act
+        var done = await new HouseholdMoves(db.Database).BringOverAsync(plan, User, CancellationToken.None);
+
+        // Assert
+        done.Should().BeFalse();
+        (await db.ScalarAsync($"SELECT count(*) FROM baby_profiles WHERE id = '{TestDatabase.Baby.Value}' AND household_id = '{TestDatabase.Household.Value}';")).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task MoveAllAsync_SourceHasSynced_MovesNothingAndActivatesTheTarget()
+    {
+        // Arrange
+        var (db, _) = await PhoneAsync();
+        await using var cleanup = db;
+        await db.ExecuteAsync($"INSERT INTO sync_cursors (household_id, last_seq, bootstrap_head) VALUES ('{TestDatabase.Household.Value}', 3, NULL);");
+
+        // Act
+        var done = await new HouseholdMoves(db.Database).MoveAllAsync(TestDatabase.Household, Account, User, CancellationToken.None);
+
+        // Assert
+        done.Should().BeFalse();
+        (await db.ScalarAsync($"SELECT count(*) FROM care_entries WHERE household_id = '{TestDatabase.Household.Value}';")).Should().Be(1);
+        (await db.ScalarAsync($"SELECT count(*) FROM app_state WHERE key = 'active_household' AND value = '{Account.Value}';")).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task HasEverSyncedAsync_RejectedRecordsAndPendingOnes_AreNotSynced()
+    {
+        // Arrange: PhoneAsync's records all wait in the outbox; a rejected one has no outbox row.
+        var (db, entry) = await PhoneAsync();
+        await using var cleanup = db;
+        var moves = new HouseholdMoves(db.Database);
+        var pending = await moves.HasEverSyncedAsync(TestDatabase.Household, CancellationToken.None);
+        await db.ExecuteAsync("DELETE FROM outbox;");
+        await db.ExecuteAsync(
+            $"""
+            INSERT INTO sync_rejections (entity_type, entity_id, household_id, reason, rejected_utc_ms) VALUES
+            ('CareEntry', '{entry.Id.Value}', '{TestDatabase.Household.Value}', 'x', 1),
+            ('BabyProfile', '{TestDatabase.Baby.Value}', '{TestDatabase.Household.Value}', 'x', 1);
+            """);
+        var dismissal = await db.ScalarAsync("SELECT count(*) FROM duplicate_dismissals;");
+        await db.ExecuteAsync("DELETE FROM duplicate_dismissals;");
+
+        // Act
+        var rejected = await moves.HasEverSyncedAsync(TestDatabase.Household, CancellationToken.None);
+
+        // Assert
+        dismissal.Should().Be(1);
+        pending.Should().BeFalse();
+        rejected.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task BringOverAsync_ABabyTheMappingDoesNotName_MovesWithTheRest()
+    {
+        // Arrange
+        var (db, _) = await PhoneAsync();
+        await using var cleanup = db;
+        await PullFamilyAsync(db);
+        var plan = new BringOverPlan(TestDatabase.Household, Account, new Dictionary<BabyId, BabyId?>());
+
+        // Act
+        await new HouseholdMoves(db.Database).BringOverAsync(plan, User, CancellationToken.None);
+
+        // Assert
+        (await db.ScalarAsync($"SELECT count(*) FROM baby_profiles WHERE id = '{TestDatabase.Baby.Value}' AND household_id = '{Account.Value}';")).Should().Be(1);
+        (await db.ScalarAsync($"SELECT count(*) FROM baby_profiles WHERE household_id = '{TestDatabase.Household.Value}';")).Should().Be(0);
+    }
+
+    [Fact]
+    public async Task BringOverAsync_AddAsNew_EntriesKeepTheirBaby()
+    {
+        // Arrange
+        var (db, entry) = await PhoneAsync();
+        await using var cleanup = db;
+        await PullFamilyAsync(db);
+        var plan = new BringOverPlan(TestDatabase.Household, Account, new Dictionary<BabyId, BabyId?> { [TestDatabase.Baby] = null });
+
+        // Act
+        await new HouseholdMoves(db.Database).BringOverAsync(plan, User, CancellationToken.None);
+
+        // Assert
+        (await db.ScalarAsync($"SELECT count(*) FROM care_entries WHERE id = '{entry.Id.Value}' AND subject_baby_id = '{TestDatabase.Baby.Value}';")).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task FreshBootstrapAsync_ARejectionExists_RefusesAndKeepsEverything()
+    {
+        // Arrange
+        var (db, entry) = await PhoneAsync();
+        await using var cleanup = db;
+        await db.ExecuteAsync("DELETE FROM outbox;");
+        await db.ExecuteAsync(
+            $"INSERT INTO sync_rejections (entity_type, entity_id, household_id, reason, rejected_utc_ms) VALUES ('CareEntry', '{entry.Id.Value}', '{TestDatabase.Household.Value}', 'x', 1);");
+        var before = await SnapshotAsync(db);
+
+        // Act
+        var done = await new HouseholdMoves(db.Database).FreshBootstrapAsync(TestDatabase.Household, CancellationToken.None);
+
+        // Assert
+        done.Should().BeFalse();
+        (await SnapshotAsync(db)).Should().Be(before);
+    }
+
+    [Fact]
+    public async Task DeleteHouseholdAsync_TheOtherHouseholdsOutbox_Survives()
+    {
+        // Arrange
+        var (db, _) = await PhoneAsync();
+        await using var cleanup = db;
+        await PullFamilyAsync(db);
+        await db.ExecuteAsync(
+            $"INSERT INTO outbox (change_id, entity_type, entity_id, operation, version_wall_ms, version_counter, version_device) VALUES ('{Guid.CreateVersion7(db.Time.GetUtcNow())}', 'BabyProfile', '{FamilyBaby.Value}', 'upsert', 1, 0, '{TestDatabase.Baby.Value}');");
+
+        // Act
+        await new HouseholdMoves(db.Database).DeleteHouseholdAsync(TestDatabase.Household, CancellationToken.None);
+
+        // Assert
+        (await db.ScalarAsync($"SELECT count(*) FROM outbox WHERE entity_id = '{FamilyBaby.Value}';")).Should().Be(1);
+        (await db.ScalarAsync($"SELECT count(*) FROM household_settings WHERE household_id = '{Account.Value}';")).Should().Be(1);
     }
 }

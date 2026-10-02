@@ -89,4 +89,103 @@ public sealed class BringEntriesOverTests : IDisposable
         done.Should().BeFalse();
         await _moves.DidNotReceiveWithAnyArgs().BringOverAsync(default!, default, default);
     }
+
+    [Fact]
+    public async Task PrepareAsync_ActiveHouseholdHasSynced_OffersNothingAndTheAccountsHouseholdBecomesActive()
+    {
+        // Arrange
+        await JoinPendingAsync();
+        _moves.HasEverSyncedAsync(Provisional, Arg.Any<CancellationToken>()).Returns(true);
+
+        // Act
+        var choice = await UseCase().PrepareAsync(CancellationToken.None);
+
+        // Assert
+        choice.Should().BeNull();
+        await _moves.Received(1).BringOverAsync(Arg.Is<BringOverPlan>(p => p.To == Household && p.Babies.Count == 0), User, Arg.Any<CancellationToken>());
+        _account.State.Should().Be(new SignedIn(Profile));
+        _sync.Received(1).RequestSync();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_TheMoveRefusesASyncedSource_StillCompletesTheJoin()
+    {
+        // Arrange
+        await JoinPendingAsync();
+        _moves.BringOverAsync(default!, default, default).ReturnsForAnyArgs(false);
+
+        // Act
+        var done = await UseCase().ExecuteAsync(new Dictionary<BabyId, BabyId?> { [LocalBaby] = FamilyBaby }, CancellationToken.None);
+
+        // Assert
+        done.Should().BeTrue();
+        _account.State.Should().Be(new SignedIn(Profile));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_SignedOutBeforeTheMove_MovesNothing()
+    {
+        // Arrange
+        await JoinPendingAsync();
+        _moves.SummaryAsync(Provisional, Arg.Any<CancellationToken>()).Returns(async _ =>
+        {
+            await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+            return new LocalSummary(42, [new(LocalBaby, "Maja")]);
+        });
+
+        // Act
+        var done = await UseCase().ExecuteAsync(new Dictionary<BabyId, BabyId?> { [LocalBaby] = FamilyBaby }, CancellationToken.None);
+
+        // Assert
+        done.Should().BeFalse();
+        await _moves.DidNotReceiveWithAnyArgs().BringOverAsync(default!, default, default);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_AlreadyInTheAccountsHousehold_OnlyCompletesTheJoin()
+    {
+        // Arrange
+        await JoinPendingAsync();
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Household);
+
+        // Act
+        var done = await UseCase().ExecuteAsync(new Dictionary<BabyId, BabyId?>(), CancellationToken.None);
+
+        // Assert
+        done.Should().BeTrue();
+        await _moves.DidNotReceiveWithAnyArgs().BringOverAsync(default!, default, default);
+        _account.State.Should().Be(new SignedIn(Profile));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ALocalBabyAbsentFromTheMapping_IsAddedAsNew()
+    {
+        // Arrange
+        await JoinPendingAsync();
+
+        // Act
+        await UseCase().ExecuteAsync(new Dictionary<BabyId, BabyId?>(), CancellationToken.None);
+
+        // Assert
+        await _moves.Received(1).BringOverAsync(Arg.Is<BringOverPlan>(p => p.Babies.ContainsKey(LocalBaby) && p.Babies[LocalBaby] == null), User, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_SignedOutDuringTheMove_ReportsFalseAndRequestsNoSync()
+    {
+        // Arrange
+        await JoinPendingAsync();
+        _moves.BringOverAsync(default!, default, default).ReturnsForAnyArgs(async _ =>
+        {
+            await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+            return true;
+        });
+
+        // Act
+        var done = await UseCase().ExecuteAsync(new Dictionary<BabyId, BabyId?> { [LocalBaby] = FamilyBaby }, CancellationToken.None);
+
+        // Assert
+        done.Should().BeFalse();
+        _sync.DidNotReceive().RequestSync();
+    }
 }

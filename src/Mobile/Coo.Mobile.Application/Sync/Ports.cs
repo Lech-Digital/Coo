@@ -53,15 +53,27 @@ public interface IHouseholdMoves
     /// <summary>The household the UI shows; names the first live one as active when none is named yet.</summary>
     Task<HouseholdId> ActiveHouseholdAsync(CancellationToken cancellationToken);
 
-    /// <summary><c>created</c>: every record moves to the account's empty household, which becomes active.</summary>
-    Task MoveAllAsync(HouseholdId source, HouseholdId target, UserId user, CancellationToken cancellationToken);
+    /// <summary>
+    /// <c>created</c>: every record moves to the account's empty household, which becomes active. A household that has ever
+    /// synced is never moved: nothing moves, the target becomes active, and the result is false.
+    /// </summary>
+    Task<bool> MoveAllAsync(HouseholdId source, HouseholdId target, UserId user, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// True when the household has a cursor, or holds a record with neither a pending outbox row nor a rejection: it was on a
+    /// server once, so it is never moved (Spec 011 §4).
+    /// </summary>
+    Task<bool> HasEverSyncedAsync(HouseholdId household, CancellationToken cancellationToken);
 
     Task<LocalSummary> SummaryAsync(HouseholdId household, CancellationToken cancellationToken);
 
-    /// <summary>Bring my entries over. The account's household becomes active.</summary>
-    Task BringOverAsync(BringOverPlan plan, UserId user, CancellationToken cancellationToken);
+    /// <summary>
+    /// Bring my entries over. The account's household becomes active. A source that has ever synced is never moved: nothing
+    /// moves and the result is false.
+    /// </summary>
+    Task<bool> BringOverAsync(BringOverPlan plan, UserId user, CancellationToken cancellationToken);
 
-    /// <summary>Only with an empty outbox: clears the household's records (not its settings) and its cursor. False otherwise.</summary>
+    /// <summary>Only with an empty outbox and no rejection: clears the household's records (not its settings) and its cursor. False otherwise.</summary>
     Task<bool> FreshBootstrapAsync(HouseholdId household, CancellationToken cancellationToken);
 
     /// <summary>After a confirmed removal (ADR 0002 §10): every record, outbox row, rejection and cursor of the household.</summary>

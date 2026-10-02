@@ -37,6 +37,7 @@ public sealed class SyncCycleTests : IDisposable
         _account = new Account(_sessions);
         _state.GetConsentAsync(User, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Household);
+        _moves.MoveAllAsync(default, default, default, default).ReturnsForAnyArgs(true);
         _device.GetAsync(Arg.Any<CancellationToken>()).Returns(Phone);
         _store.NextBatchAsync(Household, Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns([]);
         _store.GetCursorAsync(Household, Arg.Any<CancellationToken>()).Returns(new SyncCursor(0, null));
@@ -117,6 +118,24 @@ public sealed class SyncCycleTests : IDisposable
         await _api.Received(1).PullAsync(Household, 0, null, Arg.Any<CancellationToken>());
         await _store.DidNotReceiveWithAnyArgs().PrepareForPushAsync(default, default, default);
         await _api.DidNotReceiveWithAnyArgs().PushAsync(default, default, default!, default);
+    }
+
+    [Fact]
+    public async Task RunAsync_CreatedWithASyncedSource_ClearsTheMarkerAndSyncsTheAccountsHousehold()
+    {
+        // Arrange: the move refuses a household that has synced; it only makes the account's household active.
+        await SignInAsync(moveFrom: Provisional);
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
+        _moves.MoveAllAsync(Provisional, Household, User, Arg.Any<CancellationToken>()).Returns(false);
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.Outcome.Should().Be(CycleOutcome.Synced);
+        _sessions.Stored!.PendingMoveFrom.Should().BeNull();
+        await _store.Received(1).PrepareForPushAsync(Household, User, Arg.Any<CancellationToken>());
+        await _api.Received(1).PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]

@@ -71,6 +71,7 @@ public sealed class SyncCycle(
                 if (Moved(generation))
                     return new CycleReport(CycleOutcome.Interrupted);
 
+                // A household that ever synced is never moved: the marker is dropped and the account's household shows instead.
                 await moves.MoveAllAsync(local, household, user, cancellationToken);
                 changed = true;
                 await account.TryClearPendingMoveAsync(generation, cancellationToken);

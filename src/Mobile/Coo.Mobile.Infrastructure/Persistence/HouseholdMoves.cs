@@ -33,13 +33,20 @@ internal sealed class HouseholdMoves(LocalDatabase database) : IHouseholdMoves
         return new HouseholdId(Guid.Parse(first));
     }
 
-    public async Task MoveAllAsync(HouseholdId from, HouseholdId to, UserId user, CancellationToken cancellationToken)
+    public async Task<bool> MoveAllAsync(HouseholdId from, HouseholdId to, UserId user, CancellationToken cancellationToken)
     {
         if (from == to)
-            return;
+            return true;
         await using var connection = await database.OpenAsync(cancellationToken);
         await using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync(cancellationToken);
         var (f, t) = (Columns.Id(from.Value), Columns.Id(to.Value));
+        if (await EverSyncedAsync(connection, transaction, f, cancellationToken))
+        {
+            await SetActiveAsync(connection, transaction, t, cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+            return false;
+        }
+
         foreach (var table in new[] { "care_entries", "baby_profiles", "duplicate_dismissals" })
             await connection.ExecuteAsync($"UPDATE {table} SET household_id = $to WHERE household_id = $from;", cancellationToken, transaction, ("$to", t), ("$from", f));
 
@@ -51,6 +58,33 @@ internal sealed class HouseholdMoves(LocalDatabase database) : IHouseholdMoves
         await SyncStore.RewriteThisDeviceAsync(connection, transaction, to, user, cancellationToken);
         await SetActiveAsync(connection, transaction, t, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> HasEverSyncedAsync(HouseholdId household, CancellationToken cancellationToken)
+    {
+        await using var connection = await database.OpenAsync(cancellationToken);
+        return await EverSyncedAsync(connection, null, Columns.Id(household.Value), cancellationToken);
+    }
+
+    /// <summary>Spec 011 §4: a cursor, or a record that is neither waiting in the outbox nor rejected, means it was on a server.</summary>
+    private static async Task<bool> EverSyncedAsync(SqliteConnection connection, SqliteTransaction? transaction, string household, CancellationToken cancellationToken)
+    {
+        var result = await connection.ScalarAsync(
+            """
+            SELECT EXISTS (SELECT 1 FROM sync_cursors WHERE household_id = $h)
+                OR EXISTS (SELECT 1 FROM care_entries r WHERE r.household_id = $h
+                    AND NOT EXISTS (SELECT 1 FROM outbox o WHERE o.entity_type = 'CareEntry' AND o.entity_id = r.id)
+                    AND NOT EXISTS (SELECT 1 FROM sync_rejections j WHERE j.entity_type = 'CareEntry' AND j.entity_id = r.id))
+                OR EXISTS (SELECT 1 FROM baby_profiles r WHERE r.household_id = $h
+                    AND NOT EXISTS (SELECT 1 FROM outbox o WHERE o.entity_type = 'BabyProfile' AND o.entity_id = r.id)
+                    AND NOT EXISTS (SELECT 1 FROM sync_rejections j WHERE j.entity_type = 'BabyProfile' AND j.entity_id = r.id))
+                OR EXISTS (SELECT 1 FROM duplicate_dismissals r WHERE r.household_id = $h
+                    AND NOT EXISTS (SELECT 1 FROM outbox o WHERE o.entity_type = 'DuplicateDismissal' AND o.entity_id = r.id)
+                    AND NOT EXISTS (SELECT 1 FROM sync_rejections j WHERE j.entity_type = 'DuplicateDismissal' AND j.entity_id = r.id));
+            """,
+            cancellationToken, transaction, ("$h", household));
+        return Convert.ToInt64(result, CultureInfo.InvariantCulture) == 1;
     }
 
     public async Task<LocalSummary> SummaryAsync(HouseholdId household, CancellationToken cancellationToken)
@@ -73,12 +107,18 @@ internal sealed class HouseholdMoves(LocalDatabase database) : IHouseholdMoves
         return new LocalSummary(count, babies);
     }
 
-    public async Task BringOverAsync(BringOverPlan plan, UserId user, CancellationToken cancellationToken)
+    public async Task<bool> BringOverAsync(BringOverPlan plan, UserId user, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(plan);
         await using var connection = await database.OpenAsync(cancellationToken);
         await using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync(cancellationToken);
         var (f, t) = (Columns.Id(plan.From.Value), Columns.Id(plan.To.Value));
+        if (await EverSyncedAsync(connection, transaction, f, cancellationToken))
+        {
+            await SetActiveAsync(connection, transaction, t, cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+            return false;
+        }
 
         foreach (var (local, target) in plan.Babies)
         {
@@ -91,15 +131,17 @@ internal sealed class HouseholdMoves(LocalDatabase database) : IHouseholdMoves
                     cancellationToken, transaction, ("$target", Columns.Id(mapped.Value)), ("$from", f), ("$local", l));
                 await connection.ExecuteAsync("DELETE FROM outbox WHERE entity_type = 'BabyProfile' AND entity_id = $local;", cancellationToken, transaction, ("$local", l));
                 await connection.ExecuteAsync("DELETE FROM sync_rejections WHERE entity_type = 'BabyProfile' AND entity_id = $local;", cancellationToken, transaction, ("$local", l));
-                await connection.ExecuteAsync("DELETE FROM baby_profiles WHERE id = $local;", cancellationToken, transaction, ("$local", l));
+                await connection.ExecuteAsync("DELETE FROM baby_profiles WHERE id = $local AND household_id = $from;", cancellationToken, transaction, ("$local", l), ("$from", f));
             }
             else
             {
                 // Add as a new baby: the profile moves with its outbox row.
-                await connection.ExecuteAsync("UPDATE baby_profiles SET household_id = $to WHERE id = $local;", cancellationToken, transaction, ("$to", t), ("$local", l));
+                await connection.ExecuteAsync("UPDATE baby_profiles SET household_id = $to WHERE id = $local AND household_id = $from;", cancellationToken, transaction, ("$to", t), ("$local", l), ("$from", f));
             }
         }
 
+        // A baby the plan does not name is added as new, never left behind.
+        await connection.ExecuteAsync("UPDATE baby_profiles SET household_id = $to WHERE household_id = $from;", cancellationToken, transaction, ("$to", t), ("$from", f));
         await connection.ExecuteAsync("UPDATE care_entries SET household_id = $to WHERE household_id = $from;", cancellationToken, transaction, ("$to", t), ("$from", f));
         await connection.ExecuteAsync("UPDATE duplicate_dismissals SET household_id = $to WHERE household_id = $from;", cancellationToken, transaction, ("$to", t), ("$from", f));
 
@@ -112,6 +154,7 @@ internal sealed class HouseholdMoves(LocalDatabase database) : IHouseholdMoves
         await SyncStore.RewriteThisDeviceAsync(connection, transaction, plan.To, user, cancellationToken);
         await SetActiveAsync(connection, transaction, t, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
+        return true;
     }
 
     public async Task<bool> FreshBootstrapAsync(HouseholdId household, CancellationToken cancellationToken)
@@ -122,7 +165,12 @@ internal sealed class HouseholdMoves(LocalDatabase database) : IHouseholdMoves
         var pending = Convert.ToInt64(
             await connection.ScalarAsync($"SELECT count(*) FROM outbox o WHERE {SyncStore.InHousehold};", cancellationToken, transaction, h),
             CultureInfo.InvariantCulture);
-        if (pending > 0)
+        var rejected = Convert.ToInt64(
+            await connection.ScalarAsync("SELECT count(*) FROM sync_rejections WHERE household_id = $h;", cancellationToken, transaction, h),
+            CultureInfo.InvariantCulture);
+
+        // A rejected record is not on the server: clearing it would lose it.
+        if (pending > 0 || rejected > 0)
             return false;
 
         foreach (var table in new[] { "care_entries", "baby_profiles", "duplicate_dismissals", "sync_rejections" })
