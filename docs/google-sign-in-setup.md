@@ -7,17 +7,19 @@ OAuth clients.
 You need to do this once. It takes about 20 minutes. New clients can take a few minutes, sometimes a few hours,
 before Google accepts them.
 
-**Use your own Google account** (adzius.lech@gmail.com), not a work account. Coo has nothing to do with any employer
-(see the handover's ground rules).
+**Use the Lech Digital organisation**, the publisher on Coo's Play developer profile, with the account you use for
+it. Never an employer's organisation: Coo has nothing to do with any employer (see the handover's ground rules).
+Keeping the project in the publisher's organisation helps at release, when Google checks Coo's brand against
+`lechdigital.nl` (owner's decision, 2026-10-02).
 
 ---
 
 ## 1. Create the project
 
-1. Open the [Google Cloud console](https://console.cloud.google.com/) signed in as adzius.lech@gmail.com.
+1. Open the [Google Cloud console](https://console.cloud.google.com/) signed in with your Lech Digital account.
 2. In the project picker at the top, choose **New project**.
    - Project name: `Coo`
-   - Organisation / location: **No organisation**
+   - Organisation / location: **Lech Digital** (check the name: it must not be an employer's organisation)
 3. Press **Create**, then select the new project in the picker. Check the picker says **Coo** before every step
    below.
 
@@ -29,9 +31,11 @@ No API needs to be enabled. Sign in with Google works without one.
    screen**. If it offers **Get started**, press it.
 2. **App information**
    - App name: `Coo`
-   - User support email: adzius.lech@gmail.com
-3. **Audience:** choose **External**.
-4. **Contact information:** adzius.lech@gmail.com.
+   - User support email: an address of yours that users may see, e.g. andrzej@lechdigital.nl (Coo's feedback
+     address, Spec 009)
+3. **Audience:** choose **External**, even though the project is in an organisation. **Internal** would allow only
+   accounts inside Lech Digital, so your girlfriend's Gmail account could not sign in.
+4. **Contact information:** your Lech Digital address.
 5. Accept the policy, then **Create**.
 6. Open **Audience** in the left menu:
    - Publishing status stays **Testing**. Only test users can sign in, which is what we want until the release.
