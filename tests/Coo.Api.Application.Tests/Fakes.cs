@@ -80,8 +80,8 @@ internal sealed class FakeSessions : IDeviceSessionStore
         BeforeRotate = null;
         hook?.Invoke();
         var index = Rows.FindIndex(r => r.Session.Id == id && r.RefreshHash == expectedHash && !r.Session.IsRevoked);
-        if (index < 0)
-            return Task.FromResult(false);
+        if (index < 0 || Rows.Any(r => r.RefreshHash == newHash))
+            return Task.FromResult(false); // The store's refresh hash is unique: a collision is a lost swap.
         var row = Rows[index];
         Rows[index] = new Row(row.Session with { LastUsedAt = now }, newHash, expectedHash);
         return Task.FromResult(true);

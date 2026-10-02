@@ -9,6 +9,8 @@ public sealed class SessionTests
     private static readonly DeviceId Phone = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1"));
     private static readonly HouseholdId Household = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a1"));
 
+    private static readonly DeviceId OtherPhone = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d2"));
+    private static readonly HouseholdId OtherHousehold = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a2"));
     private static readonly string NextToken = new('n', 43);
     private static readonly string OtherNextToken = new('m', 43);
 
@@ -212,13 +214,78 @@ public sealed class SessionTests
     {
         // Arrange
         var signedIn = await _kit.SignInAsync("google-1", Phone, Household);
+        var before = _kit.Sessions.Of(signedIn.Session.Id);
 
         // Act
         var result = await _kit.Refresh().ExecuteAsync(signedIn.Session.RefreshToken, signedIn.Session.RefreshToken, CancellationToken.None);
 
         // Assert
         result.Error!.Code.Should().Be(AuthErrors.RefreshInvalid);
+        _kit.Sessions.Of(signedIn.Session.Id).Should().Be(before);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ProposalAtTheMaximumLength_RotatesToIt()
+    {
+        // Arrange
+        var signedIn = await _kit.SignInAsync("google-1", Phone, Household);
+        var longest = new string('n', RefreshSession.NextTokenMaxLength);
+
+        // Act
+        var result = await _kit.Refresh().ExecuteAsync(signedIn.Session.RefreshToken, longest, CancellationToken.None);
+
+        // Assert
+        result.Value.RefreshToken.Should().Be(longest);
+        _kit.Sessions.Of(signedIn.Session.Id).RefreshHash.Should().Be(AuthSecrets.Hash(longest));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ProposalOverTheMaximumLength_IsRefusedAndChangesNothing()
+    {
+        // Arrange
+        var signedIn = await _kit.SignInAsync("google-1", Phone, Household);
+        var before = _kit.Sessions.Of(signedIn.Session.Id);
+
+        // Act
+        var result = await _kit.Refresh().ExecuteAsync(
+            signedIn.Session.RefreshToken, new string('n', RefreshSession.NextTokenMaxLength + 1), CancellationToken.None);
+
+        // Assert
+        result.Error!.Code.Should().Be(AuthErrors.RefreshInvalid);
+        _kit.Sessions.Of(signedIn.Session.Id).Should().Be(before);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ProposalAnotherSessionHolds_IsRefusedAndChangesNothing()
+    {
+        // Arrange: the store's unique refresh hash refuses the swap; the phone must hear refresh-invalid, not an error.
+        var signedIn = await _kit.SignInAsync("google-1", Phone, Household);
+        var other = await _kit.SignInAsync("google-2", OtherPhone, OtherHousehold);
+        var before = _kit.Sessions.Of(signedIn.Session.Id);
+
+        // Act
+        var result = await _kit.Refresh().ExecuteAsync(signedIn.Session.RefreshToken, other.Session.RefreshToken, CancellationToken.None);
+
+        // Assert
+        result.Error!.Code.Should().Be(AuthErrors.RefreshInvalid);
+        _kit.Sessions.Of(signedIn.Session.Id).Should().Be(before);
+        _kit.Sessions.Of(other.Session.Id).Session.IsRevoked.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_LostTheSwapToAnotherProposal_IsRefusedWithoutRevoking()
+    {
+        // Arrange: a concurrent request with T1 rotated to a different next token; this one is not its retry.
+        var signedIn = await _kit.SignInAsync("google-1", Phone, Household);
+        _kit.Sessions.BeforeRotate = () => _kit.Sessions.RotateDirectly(signedIn.Session.Id, AuthSecrets.Hash(signedIn.Session.RefreshToken), AuthSecrets.Hash(OtherNextToken));
+
+        // Act
+        var second = await _kit.Refresh().ExecuteAsync(signedIn.Session.RefreshToken, NextToken, CancellationToken.None);
+
+        // Assert
+        second.Error!.Code.Should().Be(AuthErrors.RefreshInvalid);
         _kit.Sessions.Of(signedIn.Session.Id).Session.IsRevoked.Should().BeFalse();
+        _kit.Sessions.Of(signedIn.Session.Id).RefreshHash.Should().Be(AuthSecrets.Hash(OtherNextToken));
     }
 
     [Fact]

@@ -14,6 +14,7 @@ public sealed class AuthStoreTests(PostgresServer server)
     private static readonly UserId Partner = new(Guid.Parse("7a1c0000-0000-7000-8000-00000000c0c2"));
     private static readonly HouseholdId PartnersHousehold = new(Guid.Parse("7a1c0000-0000-7000-8000-00000000c0a2"));
     private static readonly DeviceId Phone = new(Guid.Parse("7a1c0000-0000-7000-8000-00000000c0d2"));
+    private static readonly DeviceId OtherPhone = new(Guid.Parse("7a1c0000-0000-7000-8000-00000000c0d3"));
     private static readonly DateTimeOffset T0 = new(2026, 10, 2, 12, 0, 0, TimeSpan.Zero);
 
     [Fact]
@@ -84,6 +85,50 @@ public sealed class AuthStoreTests(PostgresServer server)
         previous!.Match.Should().Be(RefreshMatch.Previous);
         previous.Session.Id.Should().Be(session.Id);
         (await db.Sessions.FindByRefreshHashAsync("h0", CancellationToken.None)).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task RotateAsync_ToAHashAnotherSessionHolds_ReturnsFalseAndChangesNothing()
+    {
+        // Arrange: proposals are client-chosen, so the new hash can collide with the unique refresh_hash index.
+        await using var db = await ServerDatabase.CreateAsync(server);
+        await CreateAccountAsync(db, User, "sub-1", ServerDatabase.Household);
+        var mine = Session(User, Phone);
+        var theirs = Session(User, OtherPhone, db.NewId());
+        await db.Sessions.CreateAsync(mine, "h1", CancellationToken.None);
+        await db.Sessions.CreateAsync(theirs, "h9", CancellationToken.None);
+
+        // Act
+        var rotated = await db.Sessions.RotateAsync(mine.Id, "h1", "h9", T0.AddMinutes(20), CancellationToken.None);
+
+        // Assert
+        rotated.Should().BeFalse();
+        var still = await db.Sessions.FindByRefreshHashAsync("h1", CancellationToken.None);
+        still!.Match.Should().Be(RefreshMatch.Current);
+        still.Session.Should().Be(mine);
+        (await db.Sessions.FindByRefreshHashAsync("h9", CancellationToken.None))!.Session.Id.Should().Be(theirs.Id);
+    }
+
+    [Fact]
+    public async Task FindByRefreshHashAsync_OnesPreviousIsAnothersCurrent_ReturnsTheCurrentOne()
+    {
+        // Arrange: A rotates h1 -> h2 (h1 is A's previous), then B rotates hb -> h1 (h1 is B's current).
+        await using var db = await ServerDatabase.CreateAsync(server);
+        await CreateAccountAsync(db, User, "sub-1", ServerDatabase.Household);
+        var b = Session(User, OtherPhone, db.NewId());
+        var a = Session(User, Phone);
+        await db.Sessions.CreateAsync(b, "hb", CancellationToken.None);
+        await db.Sessions.CreateAsync(a, "h1", CancellationToken.None);
+        await db.Sessions.RotateAsync(a.Id, "h1", "h2", T0.AddMinutes(20), CancellationToken.None);
+        await db.Sessions.RotateAsync(b.Id, "hb", "h1", T0.AddMinutes(21), CancellationToken.None);
+
+        // Act
+        var found = await db.Sessions.FindByRefreshHashAsync("h1", CancellationToken.None);
+
+        // Assert
+        found!.Session.Id.Should().Be(b.Id);
+        found.Match.Should().Be(RefreshMatch.Current);
+        found.CurrentHash.Should().Be("h1");
     }
 
     [Fact]

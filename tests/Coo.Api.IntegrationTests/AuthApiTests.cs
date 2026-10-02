@@ -213,6 +213,24 @@ public sealed class AuthApiTests(AuthApi api) : IClassFixture<AuthApi>
     }
 
     [Fact]
+    public async Task Refresh_ProposalAnotherSessionHolds_IsRefusedAndKeepsTheSession()
+    {
+        // Arrange: a proposal equal to another session's current token collides with the unique refresh hash.
+        using var client = api.Factory.CreateClient();
+        var mine = await Calls.SignInAsync(client, "collide-1", Calls.Id(9201), Calls.Id(9202));
+        var theirs = await Calls.SignInAsync(client, "collide-2", Calls.Id(9203), Calls.Id(9204));
+
+        // Act
+        var refused = await client.PostAsJsonAsync(Calls.Refresh, new RefreshRequest(mine.RefreshToken, theirs.RefreshToken));
+
+        // Assert
+        refused.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        (await Calls.CodeAsync(refused)).Should().Be(AuthErrors.RefreshInvalid);
+        (await client.PostAsJsonAsync(Calls.Refresh, new RefreshRequest(mine.RefreshToken))).StatusCode
+            .Should().Be(HttpStatusCode.OK, "nothing changed, so the phone's token still works");
+    }
+
+    [Fact]
     public async Task Refresh_ReusedToken_RevokesTheSession()
     {
         // Arrange

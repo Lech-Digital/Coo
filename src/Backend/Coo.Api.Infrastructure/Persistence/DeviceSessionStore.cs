@@ -13,8 +13,10 @@ internal sealed class DeviceSessionStore(NpgsqlDataSource dataSource) : IDeviceS
 {
     private const string SelectColumns = "SELECT id, user_id, device_id, device_name, created_at, last_used_at, revoked_at";
 
+    // Proposed tokens are client-chosen, so one row's previous hash can equal another row's current one: the current
+    // match wins, or the wrong session would be taken for a reused token and revoked.
     private const string FindSql = SelectColumns + ", refresh_hash = @hash, refresh_hash FROM device_sessions "
-        + "WHERE refresh_hash = @hash OR previous_refresh_hash = @hash LIMIT 1;";
+        + "WHERE refresh_hash = @hash OR previous_refresh_hash = @hash ORDER BY (refresh_hash = @hash) DESC LIMIT 1;";
 
     private const string ListSql = SelectColumns + " FROM device_sessions WHERE user_id = @user ORDER BY created_at;";
 
@@ -60,7 +62,15 @@ internal sealed class DeviceSessionStore(NpgsqlDataSource dataSource) : IDeviceS
         command.Parameters.AddWithValue("now", now.UtcDateTime);
         command.Parameters.AddWithValue("id", id.Value);
         command.Parameters.AddWithValue("expected", expectedHash);
-        return await command.ExecuteNonQueryAsync(cancellationToken) == 1;
+        try
+        {
+            return await command.ExecuteNonQueryAsync(cancellationToken) == 1;
+        }
+        catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.UniqueViolation)
+        {
+            // The proposed next token's hash is another session's current one: the swap did not happen.
+            return false;
+        }
     }
 
     public async Task RevokeAsync(DeviceSessionId id, DateTimeOffset now, CancellationToken cancellationToken)
