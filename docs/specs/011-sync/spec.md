@@ -65,10 +65,10 @@ Without consent the engine neither pushes nor pulls (Q8).
 > **Share your log with your family?**
 >
 > To share, Coo keeps your baby's care log (feeds, diapers, sleep and pumping, with their times, amounts and notes),
-> your baby's profile and your household settings on Coo's server in Germany. This is health information about your
+> your baby's profile and your family settings on Coo's server in Germany. This is health information about your
 > child, so we only store it with your permission.
 >
-> Everyone in your household can see it and add to it. You can withdraw your permission at any time by deleting your
+> Everyone in your family can see it and add to it. You can withdraw your permission at any time by deleting your
 > account in Settings. The log on this phone always stays here.
 >
 > [Privacy policy]

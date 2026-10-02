@@ -69,8 +69,8 @@
   <data name="Chart.SummaryPumps" xml:space="preserve"><value>Extracciones {0}</value></data>
   <data name="Chart.SummarySleep" xml:space="preserve"><value>Sueño {0}</value></data>
   <data name="Consent.Agree" xml:space="preserve"><value>Aceptar y compartir</value></data>
-  <data name="Consent.Body" xml:space="preserve"><value>Para compartir, Coo guarda el registro de cuidados de tu bebé (tomas, pañales, sueño y extracciones, con sus horas, cantidades y notas), el perfil de tu bebé y los ajustes de tu hogar en el servidor de Coo en Alemania. Son datos de salud de tu hijo, por eso solo los guardamos con tu permiso.</value></data>
-  <data name="Consent.Body2" xml:space="preserve"><value>Todas las personas de tu hogar pueden verlo y añadir registros. Puedes retirar tu permiso en cualquier momento eliminando tu cuenta en Ajustes. El registro de este teléfono siempre se queda aquí.</value></data>
+  <data name="Consent.Body" xml:space="preserve"><value>Para compartir, Coo guarda el registro de cuidados de tu bebé (tomas, pañales, sueño y extracciones, con sus horas, cantidades y notas), el perfil de tu bebé y los ajustes de tu familia en el servidor de Coo en Alemania. Son datos de salud de tu hijo, por eso solo los guardamos con tu permiso.</value></data>
+  <data name="Consent.Body2" xml:space="preserve"><value>Todas las personas de tu familia pueden verlo y añadir registros. Puedes retirar tu permiso en cualquier momento eliminando tu cuenta en Ajustes. El registro de este teléfono siempre se queda aquí.</value></data>
   <data name="Consent.Failed" xml:space="preserve"><value>No se ha podido activar la opción de compartir. Comprueba la conexión y vuelve a intentarlo.</value></data>
   <data name="Consent.NotNow" xml:space="preserve"><value>Ahora no</value></data>
   <data name="Consent.Privacy" xml:space="preserve"><value>Política de privacidad</value></data>
@@ -219,10 +219,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.R" xml:space="preserve"><value>D</value></data>
   <data name="Side.Right" xml:space="preserve"><value>derecho</value></data>
   <data name="Sync.Off" xml:space="preserve"><value>Compartir está desactivado. Tu registro solo está en este teléfono.</value></data>
+  <data name="Sync.Paused" xml:space="preserve"><value>Compartir está en pausa. Tus registros están a salvo en este teléfono.</value></data>
   <data name="Sync.Sharing.one" xml:space="preserve"><value>Compartiendo {0} cambio…</value></data>
   <data name="Sync.Sharing.other" xml:space="preserve"><value>Compartiendo {0} cambios…</value></data>
-  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Se ha detenido el uso compartido: el registro de este teléfono pertenece a otra familia. Tus registros están a salvo en este teléfono.</value></data>
-  <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Se ha detenido el uso compartido: el servidor no acepta cambios por ahora. Coo volverá a intentarlo cuando abras la app de nuevo.</value></data>
+  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Se ha detenido el uso compartido: los registros de este teléfono aún no forman parte de tu familia. Cierra sesión y vuelve a iniciarla para elegir qué hacer con ellos.</value></data>
+  <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Se ha detenido el uso compartido. Tus cambios están a salvo en este teléfono. Coo volverá a intentarlo cuando abras la app de nuevo.</value></data>
   <data name="Sync.TurnOn" xml:space="preserve"><value>Activar compartir</value></data>
   <data name="Sync.UpToDate" xml:space="preserve"><value>Al día · {0}</value></data>
   <data name="Sync.UpdateApp" xml:space="preserve"><value>Actualiza Coo para seguir compartiendo. Tus cambios están a salvo en este teléfono.</value></data>

@@ -69,8 +69,8 @@
   <data name="Chart.SummaryPumps" xml:space="preserve"><value>Abpumpen {0}</value></data>
   <data name="Chart.SummarySleep" xml:space="preserve"><value>Schlaf {0}</value></data>
   <data name="Consent.Agree" xml:space="preserve"><value>Zustimmen und teilen</value></data>
-  <data name="Consent.Body" xml:space="preserve"><value>Zum Teilen speichert Coo die Einträge deines Babys (Mahlzeiten, Windeln, Schlaf und Abpumpen, mit Zeiten, Mengen und Notizen), das Profil deines Babys und die Einstellungen deines Haushalts auf dem Server von Coo in Deutschland. Das sind Gesundheitsdaten über dein Kind, deshalb speichern wir sie nur mit deiner Erlaubnis.</value></data>
-  <data name="Consent.Body2" xml:space="preserve"><value>Alle in deinem Haushalt können sie sehen und ergänzen. Du kannst deine Erlaubnis jederzeit widerrufen, indem du dein Konto in den Einstellungen löschst. Die Einträge auf diesem Handy bleiben immer hier.</value></data>
+  <data name="Consent.Body" xml:space="preserve"><value>Zum Teilen speichert Coo die Einträge deines Babys (Mahlzeiten, Windeln, Schlaf und Abpumpen, mit Zeiten, Mengen und Notizen), das Profil deines Babys und die Einstellungen deiner Familie auf dem Server von Coo in Deutschland. Das sind Gesundheitsdaten über dein Kind, deshalb speichern wir sie nur mit deiner Erlaubnis.</value></data>
+  <data name="Consent.Body2" xml:space="preserve"><value>Alle in deiner Familie können sie sehen und ergänzen. Du kannst deine Erlaubnis jederzeit widerrufen, indem du dein Konto in den Einstellungen löschst. Die Einträge auf diesem Handy bleiben immer hier.</value></data>
   <data name="Consent.Failed" xml:space="preserve"><value>Teilen konnte nicht eingeschaltet werden. Prüfe deine Verbindung und versuche es noch einmal.</value></data>
   <data name="Consent.NotNow" xml:space="preserve"><value>Jetzt nicht</value></data>
   <data name="Consent.Privacy" xml:space="preserve"><value>Datenschutzerklärung</value></data>
@@ -219,10 +219,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.R" xml:space="preserve"><value>R</value></data>
   <data name="Side.Right" xml:space="preserve"><value>rechts</value></data>
   <data name="Sync.Off" xml:space="preserve"><value>Teilen ist aus. Deine Einträge sind nur auf diesem Handy.</value></data>
+  <data name="Sync.Paused" xml:space="preserve"><value>Teilen ist pausiert. Deine Einträge sind auf diesem Handy sicher.</value></data>
   <data name="Sync.Sharing.one" xml:space="preserve"><value>{0} Änderung wird geteilt…</value></data>
   <data name="Sync.Sharing.other" xml:space="preserve"><value>{0} Änderungen werden geteilt…</value></data>
-  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Teilen wurde angehalten: Der Verlauf auf diesem Handy gehört zu einer anderen Familie. Deine Einträge sind auf diesem Handy sicher.</value></data>
-  <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Teilen wurde angehalten: Der Server nimmt gerade keine Änderungen an. Coo versucht es erneut, wenn du die App wieder öffnest.</value></data>
+  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Teilen wurde angehalten: Die Einträge auf diesem Handy gehören noch nicht zu deiner Familie. Melde dich ab und wieder an, um zu entscheiden, was damit passiert.</value></data>
+  <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Teilen wurde angehalten. Deine Änderungen sind auf diesem Handy sicher. Coo versucht es erneut, wenn du die App wieder öffnest.</value></data>
   <data name="Sync.TurnOn" xml:space="preserve"><value>Teilen einschalten</value></data>
   <data name="Sync.UpToDate" xml:space="preserve"><value>Aktuell · {0}</value></data>
   <data name="Sync.UpdateApp" xml:space="preserve"><value>Aktualisiere Coo, um weiter zu teilen. Deine Änderungen sind auf diesem Handy sicher.</value></data>

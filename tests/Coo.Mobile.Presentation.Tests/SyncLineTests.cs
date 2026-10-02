@@ -129,8 +129,8 @@ public sealed class SyncLineTests : IDisposable
     }
 
     [Theory]
-    [InlineData(SyncCycle.HouseholdMismatchError, "Sharing stopped: this phone's log belongs to another family. Your entries are safe on this phone.")]
-    [InlineData(SyncCycle.NoProgressError, "Sharing stopped: the server isn't accepting changes right now. Coo will try again when you reopen the app.")]
+    [InlineData(SyncCycle.HouseholdMismatchError, "Sharing stopped: the entries on this phone aren't part of your family yet. Sign out and sign in again to choose what to do with them.")]
+    [InlineData(SyncCycle.NoProgressError, "Sharing stopped. Your changes are safe on this phone. Coo will try again when you reopen the app.")]
     public void For_StoppedForGood_SaysSoNotThatItWaitsForAConnection(string error, string expected)
     {
         // Act
@@ -158,5 +158,28 @@ public sealed class SyncLineTests : IDisposable
 
         // Assert
         line.Text.Should().StartWith("Up to date");
+    }
+
+    [Theory]
+    [InlineData(CycleOutcome.SoftLocked)]
+    [InlineData(CycleOutcome.Removed)]
+    public void For_SoftLockedOrRemoved_SaysSharingIsPausedNotWaitingForAConnection(CycleOutcome outcome)
+    {
+        // Act
+        var line = SyncLine.For(Signed, Status(outcome, 2), is24Hour: true);
+
+        // Assert
+        line.Should().Be(new SyncLineView("Sharing is paused. Your entries are safe on this phone.", SyncLineAction.None));
+    }
+
+    [Fact]
+    public void For_SyncedIn12HourFormat_ShowsTheTwelveHourTime()
+    {
+        // Act
+        var line = SyncLine.For(Signed, Status(CycleOutcome.Synced, at: At), is24Hour: false);
+
+        // Assert
+        line.Text.Should().Be($"Up to date · {new Formats(false, VolumeUnit.Millilitres).Time(At)}");
+        line.Text.Should().NotBe($"Up to date · {new Formats(true, VolumeUnit.Millilitres).Time(At)}");
     }
 }

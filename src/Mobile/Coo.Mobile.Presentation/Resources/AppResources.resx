@@ -69,8 +69,8 @@
   <data name="Chart.SummaryPumps" xml:space="preserve"><value>Pumping {0}</value></data>
   <data name="Chart.SummarySleep" xml:space="preserve"><value>Sleep {0}</value></data>
   <data name="Consent.Agree" xml:space="preserve"><value>Agree and share</value></data>
-  <data name="Consent.Body" xml:space="preserve"><value>To share, Coo keeps your baby's care log (feeds, diapers, sleep and pumping, with their times, amounts and notes), your baby's profile and your household settings on Coo's server in Germany. This is health information about your child, so we only store it with your permission.</value></data>
-  <data name="Consent.Body2" xml:space="preserve"><value>Everyone in your household can see it and add to it. You can withdraw your permission at any time by deleting your account in Settings. The log on this phone always stays here.</value></data>
+  <data name="Consent.Body" xml:space="preserve"><value>To share, Coo keeps your baby's care log (feeds, diapers, sleep and pumping, with their times, amounts and notes), your baby's profile and your family settings on Coo's server in Germany. This is health information about your child, so we only store it with your permission.</value></data>
+  <data name="Consent.Body2" xml:space="preserve"><value>Everyone in your family can see it and add to it. You can withdraw your permission at any time by deleting your account in Settings. The log on this phone always stays here.</value></data>
   <data name="Consent.Failed" xml:space="preserve"><value>Sharing couldn't be turned on. Check your connection and try again.</value></data>
   <data name="Consent.NotNow" xml:space="preserve"><value>Not now</value></data>
   <data name="Consent.Privacy" xml:space="preserve"><value>Privacy policy</value></data>
@@ -219,10 +219,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.R" xml:space="preserve"><value>R</value></data>
   <data name="Side.Right" xml:space="preserve"><value>right</value></data>
   <data name="Sync.Off" xml:space="preserve"><value>Sharing is off. Your log is only on this phone.</value></data>
+  <data name="Sync.Paused" xml:space="preserve"><value>Sharing is paused. Your entries are safe on this phone.</value></data>
   <data name="Sync.Sharing.one" xml:space="preserve"><value>Sharing {0} change…</value></data>
   <data name="Sync.Sharing.other" xml:space="preserve"><value>Sharing {0} changes…</value></data>
-  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Sharing stopped: this phone's log belongs to another family. Your entries are safe on this phone.</value></data>
-  <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Sharing stopped: the server isn't accepting changes right now. Coo will try again when you reopen the app.</value></data>
+  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Sharing stopped: the entries on this phone aren't part of your family yet. Sign out and sign in again to choose what to do with them.</value></data>
+  <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Sharing stopped. Your changes are safe on this phone. Coo will try again when you reopen the app.</value></data>
   <data name="Sync.TurnOn" xml:space="preserve"><value>Turn on sharing</value></data>
   <data name="Sync.UpToDate" xml:space="preserve"><value>Up to date · {0}</value></data>
   <data name="Sync.UpdateApp" xml:space="preserve"><value>Update Coo to keep sharing. Your changes are safe on this phone.</value></data>

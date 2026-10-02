@@ -110,6 +110,27 @@ public sealed partial class LocalizationTests
     }
 
     [Fact]
+    public void Plural_WithAnExtraArgument_FillsBothPlaceholders()
+    {
+        // Arrange
+        var previous = CultureInfo.CurrentUICulture;
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("pl");
+
+        try
+        {
+            // Act
+            var few = Strings.Plural("BringOver.Entries", 3, "Maja");
+
+            // Assert
+            few.Should().Be("Na tym telefonie są 3 wpisy dla: Maja.");
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previous;
+        }
+    }
+
+    [Fact]
     public void Culture_UnsupportedLanguage_FallsBackToEnglish()
     {
         // Arrange

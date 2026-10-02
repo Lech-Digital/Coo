@@ -74,8 +74,8 @@
   <data name="Chart.SummaryPumps" xml:space="preserve"><value>Odciąganie {0}</value></data>
   <data name="Chart.SummarySleep" xml:space="preserve"><value>Sen {0}</value></data>
   <data name="Consent.Agree" xml:space="preserve"><value>Zgadzam się i udostępniam</value></data>
-  <data name="Consent.Body" xml:space="preserve"><value>Aby udostępniać, Coo przechowuje dziennik opieki nad dzieckiem (karmienia, pieluchy, sen i odciąganie, z godzinami, ilościami i notatkami), profil dziecka i ustawienia domowe na serwerze Coo w Niemczech. To informacje o zdrowiu Twojego dziecka, dlatego przechowujemy je tylko za Twoją zgodą.</value></data>
-  <data name="Consent.Body2" xml:space="preserve"><value>Wszyscy domownicy mogą go oglądać i dodawać wpisy. Zgodę możesz wycofać w każdej chwili, usuwając konto w Ustawieniach. Dziennik na tym telefonie zawsze tu zostaje.</value></data>
+  <data name="Consent.Body" xml:space="preserve"><value>Aby udostępniać, Coo przechowuje dziennik opieki nad dzieckiem (karmienia, pieluchy, sen i odciąganie, z godzinami, ilościami i notatkami), profil dziecka i ustawienia rodziny na serwerze Coo w Niemczech. To informacje o zdrowiu Twojego dziecka, dlatego przechowujemy je tylko za Twoją zgodą.</value></data>
+  <data name="Consent.Body2" xml:space="preserve"><value>Wszyscy członkowie rodziny mogą go oglądać i dodawać wpisy. Zgodę możesz wycofać w każdej chwili, usuwając konto w Ustawieniach. Dziennik na tym telefonie zawsze tu zostaje.</value></data>
   <data name="Consent.Failed" xml:space="preserve"><value>Nie udało się włączyć udostępniania. Sprawdź połączenie i spróbuj ponownie.</value></data>
   <data name="Consent.NotNow" xml:space="preserve"><value>Nie teraz</value></data>
   <data name="Consent.Privacy" xml:space="preserve"><value>Polityka prywatności</value></data>
@@ -227,18 +227,19 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.R" xml:space="preserve"><value>P</value></data>
   <data name="Side.Right" xml:space="preserve"><value>prawa</value></data>
   <data name="Sync.Off" xml:space="preserve"><value>Udostępnianie jest wyłączone. Twój dziennik jest tylko na tym telefonie.</value></data>
+  <data name="Sync.Paused" xml:space="preserve"><value>Udostępnianie jest wstrzymane. Twoje wpisy są bezpieczne na tym telefonie.</value></data>
   <data name="Sync.Sharing.few" xml:space="preserve"><value>Udostępnianie {0} zmian…</value></data>
   <data name="Sync.Sharing.many" xml:space="preserve"><value>Udostępnianie {0} zmian…</value></data>
   <data name="Sync.Sharing.one" xml:space="preserve"><value>Udostępnianie {0} zmiany…</value></data>
-  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Udostępnianie wstrzymane: dziennik na tym telefonie należy do innej rodziny. Twoje wpisy są bezpieczne na tym telefonie.</value></data>
-  <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Udostępnianie wstrzymane: serwer w tej chwili nie przyjmuje zmian. Coo spróbuje ponownie po ponownym otwarciu aplikacji.</value></data>
+  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Udostępnianie wstrzymane: wpisy z tego telefonu nie są jeszcze częścią Twojej rodziny. Wyloguj się i zaloguj ponownie, aby zdecydować, co z nimi zrobić.</value></data>
+  <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Udostępnianie wstrzymane. Twoje zmiany są bezpieczne na tym telefonie. Coo spróbuje ponownie po ponownym otwarciu aplikacji.</value></data>
   <data name="Sync.TurnOn" xml:space="preserve"><value>Włącz udostępnianie</value></data>
-  <data name="Sync.UpToDate" xml:space="preserve"><value>Aktualne · {0}</value></data>
+  <data name="Sync.UpToDate" xml:space="preserve"><value>Zsynchronizowano · {0}</value></data>
   <data name="Sync.UpdateApp" xml:space="preserve"><value>Zaktualizuj Coo, aby dalej udostępniać. Twoje zmiany są bezpieczne na tym telefonie.</value></data>
-  <data name="Sync.Waiting.few" xml:space="preserve"><value>Czekam na połączenie. {0} zmiany są bezpieczne na tym telefonie.</value></data>
-  <data name="Sync.Waiting.many" xml:space="preserve"><value>Czekam na połączenie. {0} zmian jest bezpiecznych na tym telefonie.</value></data>
-  <data name="Sync.Waiting.one" xml:space="preserve"><value>Czekam na połączenie. {0} zmiana jest bezpieczna na tym telefonie.</value></data>
-  <data name="Sync.WaitingNoChanges" xml:space="preserve"><value>Czekam na połączenie.</value></data>
+  <data name="Sync.Waiting.few" xml:space="preserve"><value>Oczekiwanie na połączenie. {0} zmiany są bezpieczne na tym telefonie.</value></data>
+  <data name="Sync.Waiting.many" xml:space="preserve"><value>Oczekiwanie na połączenie. {0} zmian jest bezpiecznych na tym telefonie.</value></data>
+  <data name="Sync.Waiting.one" xml:space="preserve"><value>Oczekiwanie na połączenie. {0} zmiana jest bezpieczna na tym telefonie.</value></data>
+  <data name="Sync.WaitingNoChanges" xml:space="preserve"><value>Oczekiwanie na połączenie.</value></data>
   <data name="Tab.Log" xml:space="preserve"><value>Dziennik</value></data>
   <data name="Tab.Settings" xml:space="preserve"><value>Ustawienia</value></data>
   <data name="Tab.Today" xml:space="preserve"><value>Dziś</value></data>

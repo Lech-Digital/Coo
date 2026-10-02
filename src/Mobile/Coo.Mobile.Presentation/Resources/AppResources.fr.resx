@@ -69,8 +69,8 @@
   <data name="Chart.SummaryPumps" xml:space="preserve"><value>Tirages {0}</value></data>
   <data name="Chart.SummarySleep" xml:space="preserve"><value>Sommeil {0}</value></data>
   <data name="Consent.Agree" xml:space="preserve"><value>Accepter et partager</value></data>
-  <data name="Consent.Body" xml:space="preserve"><value>Pour le partage, Coo conserve le journal de soins de votre bébé (repas, couches, sommeil et tire-lait, avec leurs heures, quantités et notes), le profil de votre bébé et les réglages de votre foyer sur le serveur de Coo en Allemagne. Ce sont des données de santé concernant votre enfant : nous ne les conservons qu’avec votre autorisation.</value></data>
-  <data name="Consent.Body2" xml:space="preserve"><value>Toutes les personnes de votre foyer peuvent le voir et y ajouter des entrées. Vous pouvez retirer votre autorisation à tout moment en supprimant votre compte dans Réglages. Le journal de ce téléphone reste toujours ici.</value></data>
+  <data name="Consent.Body" xml:space="preserve"><value>Pour le partage, Coo conserve le journal de soins de votre bébé (repas, couches, sommeil et tire-lait, avec leurs heures, quantités et notes), le profil de votre bébé et les réglages de votre famille sur le serveur de Coo en Allemagne. Ce sont des données de santé concernant votre enfant : nous ne les conservons qu’avec votre autorisation.</value></data>
+  <data name="Consent.Body2" xml:space="preserve"><value>Toutes les personnes de votre famille peuvent le voir et y ajouter des entrées. Vous pouvez retirer votre autorisation à tout moment en supprimant votre compte dans Réglages. Le journal de ce téléphone reste toujours ici.</value></data>
   <data name="Consent.Failed" xml:space="preserve"><value>Le partage n’a pas pu être activé. Vérifiez votre connexion et réessayez.</value></data>
   <data name="Consent.NotNow" xml:space="preserve"><value>Plus tard</value></data>
   <data name="Consent.Privacy" xml:space="preserve"><value>Politique de confidentialité</value></data>
@@ -219,10 +219,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.R" xml:space="preserve"><value>D</value></data>
   <data name="Side.Right" xml:space="preserve"><value>droit</value></data>
   <data name="Sync.Off" xml:space="preserve"><value>Le partage est désactivé. Votre journal est uniquement sur ce téléphone.</value></data>
+  <data name="Sync.Paused" xml:space="preserve"><value>Le partage est en pause. Vos entrées sont en sécurité sur ce téléphone.</value></data>
   <data name="Sync.Sharing.one" xml:space="preserve"><value>Partage de {0} modification…</value></data>
   <data name="Sync.Sharing.other" xml:space="preserve"><value>Partage de {0} modifications…</value></data>
-  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Le partage est arrêté : le journal de ce téléphone appartient à une autre famille. Vos entrées sont en sécurité sur ce téléphone.</value></data>
-  <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Le partage est arrêté : le serveur n’accepte pas les modifications pour le moment. Coo réessaiera à la prochaine ouverture de l’app.</value></data>
+  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Le partage est arrêté : les entrées de ce téléphone ne font pas encore partie de votre famille. Déconnectez-vous puis reconnectez-vous pour choisir quoi en faire.</value></data>
+  <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Le partage est arrêté. Vos modifications sont en sécurité sur ce téléphone. Coo réessaiera à la prochaine ouverture de l’app.</value></data>
   <data name="Sync.TurnOn" xml:space="preserve"><value>Activer le partage</value></data>
   <data name="Sync.UpToDate" xml:space="preserve"><value>À jour · {0}</value></data>
   <data name="Sync.UpdateApp" xml:space="preserve"><value>Mettez Coo à jour pour continuer à partager. Vos modifications sont en sécurité sur ce téléphone.</value></data>

@@ -44,7 +44,8 @@ public static class SyncLine
             _ when status.IsRunning && status.Pending > 0 => Sharing(status.Pending),
             CycleOutcome.Failed when status.LastError == SyncCycle.HouseholdMismatchError => new SyncLineView(Strings.Get("Sync.StoppedMismatch"), SyncLineAction.None),
             CycleOutcome.Failed when status.LastError == SyncCycle.NoProgressError => new SyncLineView(Strings.Get("Sync.StoppedNoProgress"), SyncLineAction.None),
-            CycleOutcome.Failed or CycleOutcome.SoftLocked or CycleOutcome.Removed => new SyncLineView(
+            CycleOutcome.SoftLocked or CycleOutcome.Removed => new SyncLineView(Strings.Get("Sync.Paused"), SyncLineAction.None),
+            CycleOutcome.Failed => new SyncLineView(
                 status.Pending > 0 ? Strings.Plural("Sync.Waiting", status.Pending) : Strings.Get("Sync.WaitingNoChanges"), SyncLineAction.None),
             _ when status.Pending > 0 => Sharing(status.Pending),
             _ when status.LastSyncedAt is { } at => new SyncLineView(
