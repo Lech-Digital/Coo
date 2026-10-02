@@ -361,9 +361,17 @@ internal static class SectionViews
 #if DEBUG_SCREEN
         if (action is null)
             return;
-        // A long press on the wordmark opens the debug screen in debug builds (Spec 006 Q5). MAUI has no long-press
-        // gesture, so three quick taps stand in for it.
-        view.GestureRecognizers.Add(new TapGestureRecognizer { NumberOfTapsRequired = 3, Command = new Command(action) });
+        // Three quick taps open the debug screen in debug builds (Spec 006 Q5), counted from single taps: on Android MAUI
+        // never reports a third tap to NumberOfTapsRequired = 3 (Spec 010a §5, the Pixel 10).
+        var burst = new TapBurst(TimeProvider.System);
+        view.GestureRecognizers.Add(new TapGestureRecognizer
+        {
+            Command = new Command(() =>
+            {
+                if (burst.Tap())
+                    action();
+            }),
+        });
 #endif
     }
 }

@@ -5,6 +5,7 @@ using Coo.Domain.CareLog.Kinds.Pump;
 using Coo.Domain.CareLog.Kinds.Sleep;
 using Coo.Domain.Common;
 using Coo.Domain.Households;
+using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
 
@@ -24,20 +25,26 @@ public sealed class DebugPage : ContentPage
     private readonly IHouseholdStore _households;
     private readonly IVersionClock _clock;
     private readonly IStorageDiagnostics _diagnostics;
+    private readonly IAccountApi _accountApi;
+    private readonly ISessionStore _sessions;
+    private readonly Account _account;
     private readonly TimeProvider _time;
 
     private readonly Label _status = new() { FontSize = 13 };
     private readonly Label _counters = new() { FontSize = 13 };
+    private readonly Label _accountLine = new() { FontSize = 13 };
+    private string? _keptToken;
     private readonly VerticalStackLayout _list = new() { Spacing = 6 };
     private HouseholdId _household;
     private BabyId _baby;
 
     public DebugPage(
         LogEntry log, ReviseEntry revise, DeleteEntry delete, GetEntries entries, ICareLogStore store,
-        IHouseholdStore households, IVersionClock clock, IStorageDiagnostics diagnostics, TimeProvider time, IServiceProvider services)
+        IHouseholdStore households, IVersionClock clock, IStorageDiagnostics diagnostics, IAccountApi accountApi,
+        ISessionStore sessions, Account account, TimeProvider time, IServiceProvider services)
     {
-        (_log, _revise, _delete, _entries, _store, _households, _clock, _diagnostics, _time) =
-            (log, revise, delete, entries, store, households, clock, diagnostics, time);
+        (_log, _revise, _delete, _entries, _store, _households, _clock, _diagnostics, _accountApi, _sessions, _account, _time) =
+            (log, revise, delete, entries, store, households, clock, diagnostics, accountApi, sessions, account, time);
 
         Title = "Coo debug";
         BackgroundColor = Colors.White;
@@ -72,6 +79,11 @@ public sealed class DebugPage : ContentPage
                             Report(Result.Success);
                         })),
                     Row(Button("Style gallery", () => Navigation.PushModalAsync(services.GetRequiredService<GalleryPage>()))),
+                    new Label { Text = "Account (Spec 010 §8)", FontSize = 17, Margin = new Thickness(0, 12, 0, 0) },
+                    _accountLine,
+                    Row(Button("Account (/api/me)", ShowServerAccountAsync),
+                        Button("Keep token", KeepTokenAsync),
+                        Button("Old token → /api/me", TryOldTokenAsync)),
                     new Label { Text = "Last 20 entries", FontSize = 17, Margin = new Thickness(0, 12, 0, 0) },
                     _list,
                 },
@@ -166,6 +178,7 @@ public sealed class DebugPage : ContentPage
 
     private async Task RefreshAsync()
     {
+        _accountLine.Text = $"{_account.State} · this phone's household {_household}";
         // Read the entries first: reading classifies new rows, so the counters below are current.
         var recent = await RecentAsync();
         var counts = await _store.CountsAsync(_household, CancellationToken.None);
@@ -179,6 +192,52 @@ public sealed class DebugPage : ContentPage
             _list.Children.Add(Row(
                 new Label { Text = Describe(stored), FontSize = 13, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Fill },
                 Button("Delete", async () => Report(await _delete.ExecuteAsync(id, CancellationToken.None)))));
+        }
+    }
+
+    /// <summary>Deliverables 2 and 3: the server's view of this account.</summary>
+    private async Task ShowServerAccountAsync()
+    {
+        try
+        {
+            var me = await _accountApi.GetMeAsync(CancellationToken.None);
+            var devices = string.Join("\n", me.Devices.Select(d =>
+                $"· {d.Name}, last used {d.LastUsedAt.ToLocalTime():yyyy-MM-dd HH:mm}{(d.IsThisDevice ? " (this phone)" : "")}"));
+            _status.Text = $"{me.Profile.Email}\nhousehold {me.Household} as {me.Role}\nthis phone's household {_household}\n{devices}";
+        }
+        catch (Exception e) when (e is AuthUnavailableException or AuthRejectedException)
+        {
+            _status.Text = $"/api/me: {e.GetType().Name} {e.Message}";
+        }
+    }
+
+    /// <summary>Deliverable 6, part 1: remember the current access token before signing out.</summary>
+    private async Task KeepTokenAsync()
+    {
+        _keptToken = (await _sessions.GetAsync(CancellationToken.None))?.AccessToken;
+        _status.Text = _keptToken is null ? "Signed out: there is no token." : "Token kept. Sign out in Settings, then try it.";
+    }
+
+    /// <summary>Deliverable 6, part 2: the kept token after sign-out must get 401.</summary>
+    private async Task TryOldTokenAsync()
+    {
+        if (_keptToken is null)
+        {
+            _status.Text = "Keep a token first.";
+            return;
+        }
+
+        using var http = new HttpClient { BaseAddress = BuildConstants.ApiBaseAddress };
+        using var request = new HttpRequestMessage(HttpMethod.Get, new Uri("api/me", UriKind.Relative));
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _keptToken);
+        try
+        {
+            using var response = await http.SendAsync(request);
+            _status.Text = $"Old token → {(int)response.StatusCode} {response.StatusCode}";
+        }
+        catch (HttpRequestException e)
+        {
+            _status.Text = "Old token: " + e.Message;
         }
     }
 
