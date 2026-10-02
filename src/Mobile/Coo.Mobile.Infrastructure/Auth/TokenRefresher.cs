@@ -104,7 +104,8 @@ internal sealed class TokenRefresher(ISessionStore sessions, IAuthApi api, Accou
             if (session.AccessToken != staleAccessToken)
                 return session.AccessToken;
 
-            // The proposal is stored before it is sent, so a lost response is retried with the same pair.
+            // The proposal is stored before it is sent, so a lost response is retried with the same pair. An existing proposal
+            // is sent without re-checking the generation: sending writes nothing here, and the write-back below is guarded.
             var next = session.PendingRefreshToken;
             if (next is null)
             {

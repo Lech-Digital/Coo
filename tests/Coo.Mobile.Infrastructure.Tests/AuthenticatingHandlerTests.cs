@@ -286,6 +286,28 @@ public sealed class AuthenticatingHandlerTests : IDisposable
     }
 
     [Fact]
+    public async Task RefreshAsync_Proposal_IsStoredBeforeItIsSent()
+    {
+        // Arrange: what the store holds at the moment the server is asked (Spec 011 §8.2: a lost response is retried with the same pair).
+        await _account.SignedInAsync(Session, CancellationToken.None);
+        string? sent = null;
+        string? storedWhenSent = null;
+        _api.RefreshAsync("refresh-1", Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(async call =>
+        {
+            sent = call.ArgAt<string>(1);
+            storedWhenSent = (await _sessions.GetAsync(CancellationToken.None))!.PendingRefreshToken;
+            return new SessionTokens("new", Now.AddMinutes(15), sent);
+        });
+
+        // Act
+        await _refresher.RefreshAsync("old", CancellationToken.None);
+
+        // Assert
+        sent.Should().HaveLength(43);
+        storedWhenSent.Should().Be(sent);
+    }
+
+    [Fact]
     public async Task RefreshAsync_SignedOutWhileTheRefreshIsInFlight_StaysSignedOut()
     {
         // Arrange
@@ -300,6 +322,7 @@ public sealed class AuthenticatingHandlerTests : IDisposable
         var token = await refresh;
 
         // Assert
+        await _api.Received(1).RefreshAsync("refresh-1", Arg.Any<string>(), Arg.Any<CancellationToken>());
         token.Should().BeNull();
         (await _sessions.GetAsync(CancellationToken.None)).Should().BeNull();
         _account.State.Should().Be(new SignedOut(SessionExpired: false));
@@ -320,6 +343,7 @@ public sealed class AuthenticatingHandlerTests : IDisposable
         var token = await refresh;
 
         // Assert
+        await _api.Received(1).RefreshAsync("refresh-1", Arg.Any<string>(), Arg.Any<CancellationToken>());
         token.Should().BeNull();
         _account.State.Should().Be(new SignedOut(SessionExpired: false));
     }
@@ -340,6 +364,7 @@ public sealed class AuthenticatingHandlerTests : IDisposable
         await refresh;
 
         // Assert
+        await _api.Received(1).RefreshAsync("refresh-1", Arg.Any<string>(), Arg.Any<CancellationToken>());
         (await _sessions.GetAsync(CancellationToken.None)).Should().Be(again);
     }
 

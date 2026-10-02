@@ -76,6 +76,7 @@ public sealed class AccountGenerationTests : IDisposable
         await _account.SignedInAsync(Session, CancellationToken.None);
         var generation = _account.Generation;
         await _account.TrySetPendingRefreshTokenAsync(generation, "pending", CancellationToken.None);
+        _sessions.Stored!.PendingRefreshToken.Should().Be("pending");
 
         // Act
         var replaced = await _account.TryReplaceTokensAsync(generation, Fresh, CancellationToken.None);
@@ -145,5 +146,131 @@ public sealed class AccountGenerationTests : IDisposable
         completed.Should().BeTrue();
         _account.State.Should().Be(new SignedIn(Profile));
         _sessions.Stored!.JoinPending.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task TrySetPendingRefreshTokenAsync_AfterSigningInAgain_LeavesTheNewSession()
+    {
+        // Arrange
+        await _account.SignedInAsync(Session, CancellationToken.None);
+        var generation = _account.Generation;
+        var again = Session with { AccessToken = "access-9", RefreshToken = "refresh-9" };
+        await _account.SignedInAsync(again, CancellationToken.None);
+
+        // Act
+        var set = await _account.TrySetPendingRefreshTokenAsync(generation, "pending", CancellationToken.None);
+
+        // Assert
+        set.Should().BeFalse();
+        _sessions.Stored.Should().Be(again);
+    }
+
+    [Fact]
+    public async Task TryCompleteJoinAsync_AfterSigningInAgain_LeavesTheNewSession()
+    {
+        // Arrange
+        await _account.SignedInAsync(Session with { JoinPending = true }, CancellationToken.None);
+        var generation = _account.Generation;
+        var again = Session with { AccessToken = "access-9", RefreshToken = "refresh-9", JoinPending = true };
+        await _account.SignedInAsync(again, CancellationToken.None);
+
+        // Act
+        var completed = await _account.TryCompleteJoinAsync(generation, CancellationToken.None);
+
+        // Assert
+        completed.Should().BeFalse();
+        _sessions.Stored.Should().Be(again);
+        _account.State.Should().Be(new JoinPending(Profile, Household));
+    }
+
+    [Fact]
+    public async Task TryCompleteJoinAsync_SignedOutRightAfterTheJoinIsSaved_StaysSignedOut()
+    {
+        // Arrange: any read of the store after the join is saved is held until the sign-out has finished.
+        var sessions = new HoldingSessions();
+        using var account = new Account(sessions);
+        await account.SignedInAsync(Session with { JoinPending = true }, CancellationToken.None);
+        sessions.HoldReadsAfterTheNextSave();
+        var join = account.TryCompleteJoinAsync(account.Generation, CancellationToken.None);
+
+        // Act
+        await account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+        sessions.Release();
+        await join;
+
+        // Assert
+        account.State.Should().Be(new SignedOut(SessionExpired: false));
+        sessions.Stored.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task TryCompleteJoinAsync_ExpiredRightAfterTheJoinIsSaved_SaysTheSessionExpired()
+    {
+        // Arrange
+        var sessions = new HoldingSessions();
+        using var account = new Account(sessions);
+        await account.SignedInAsync(Session with { JoinPending = true }, CancellationToken.None);
+        var generation = account.Generation;
+        sessions.HoldReadsAfterTheNextSave();
+        var join = account.TryCompleteJoinAsync(generation, CancellationToken.None);
+
+        // Act
+        await account.TryExpireAsync(generation, CancellationToken.None);
+        sessions.Release();
+        await join;
+
+        // Assert
+        account.State.Should().Be(new SignedOut(SessionExpired: true));
+        sessions.Stored.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task UpdateProfileAsync_AnotherAccountsProfile_ChangesNothing()
+    {
+        // Arrange: a slow Settings refresh for the account signed in before; another account is signed in now.
+        await _account.SignedInAsync(Session, CancellationToken.None);
+        var previousAccount = new AccountProfile(new UserId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c2")), "Ola", "ola@example.com");
+
+        // Act
+        await _account.UpdateProfileAsync(previousAccount, CancellationToken.None);
+
+        // Assert
+        _sessions.Stored.Should().Be(Session);
+        _account.State.Should().Be(new SignedIn(Profile));
+    }
+
+    /// <summary>A session store whose reads after an armed save wait for <see cref="Release"/>, returning what was stored when they were made.</summary>
+    private sealed class HoldingSessions : ISessionStore
+    {
+        private readonly TaskCompletionSource _released = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private bool _armed;
+        private bool _holding;
+
+        public StoredSession? Stored { get; private set; }
+
+        public void HoldReadsAfterTheNextSave() => _armed = true;
+
+        public void Release() => _released.TrySetResult();
+
+        public async Task<StoredSession?> GetAsync(CancellationToken cancellationToken)
+        {
+            var value = Stored;
+            if (_holding)
+                await _released.Task;
+            return value;
+        }
+
+        public Task SaveAsync(StoredSession session, CancellationToken cancellationToken)
+        {
+            Stored = session;
+            _holding |= _armed;
+            return Task.CompletedTask;
+        }
+
+        public Task ClearAsync(CancellationToken cancellationToken)
+        {
+            Stored = null;
+            return Task.CompletedTask;
+        }
     }
 }
