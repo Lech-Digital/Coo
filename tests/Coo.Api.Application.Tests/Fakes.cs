@@ -187,6 +187,16 @@ internal sealed class AuthKit
 
     public SignInWithGoogle SignIn() => new(Google, Nonces, Accounts, Sessions, Tokens, Time);
 
+    public RefreshSession Refresh() => new(Sessions, Tokens, Time);
+
+    public SignOutSession SignOut() => new(Sessions, Time);
+
+    public PurgeAuthNonces Purge() => new(Nonces, Time);
+
+    public GetMe GetMe() => new(Accounts, Sessions);
+
+    public DeleteAccount DeleteAccount() => new(Accounts);
+
     /// <summary>A nonce from the server, a Google token carrying it, then <c>/api/auth/google</c>.</summary>
     public async Task<SignInResult> SignInAsync(string subject, DeviceId device, HouseholdId household)
     {
