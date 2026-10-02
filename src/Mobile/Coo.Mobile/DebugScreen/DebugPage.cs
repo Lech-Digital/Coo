@@ -227,7 +227,7 @@ public sealed class DebugPage : ContentPage
             return;
         }
 
-        using var http = new HttpClient { BaseAddress = BuildConstants.ApiBaseAddress };
+        using var http = new HttpClient { BaseAddress = BuildConstants.ApiBaseAddress, Timeout = TimeSpan.FromSeconds(10) };
         using var request = new HttpRequestMessage(HttpMethod.Get, new Uri("api/me", UriKind.Relative));
         request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _keptToken);
         try
@@ -263,10 +263,21 @@ public sealed class DebugPage : ContentPage
         _ => "",
     };
 
-    private static Button Button(string text, Func<Task> action)
+    private Button Button(string text, Func<Task> action)
     {
         var button = new Button { Text = text, FontSize = 13, Padding = new Thickness(8, 4) };
-        button.Clicked += async (_, _) => await action();
+        // Clicked is async void: nothing may escape, so a failure lands in the status line instead of crashing the app.
+        button.Clicked += async (_, _) =>
+        {
+            try
+            {
+                await action();
+            }
+            catch (Exception e)
+            {
+                _status.Text = $"{text}: {e.GetType().Name} {e.Message}";
+            }
+        };
         return button;
     }
 

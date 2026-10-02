@@ -59,4 +59,40 @@ public sealed class TapBurstTests
         fourth.Should().BeFalse();
         fifth.Should().BeFalse();
     }
+
+    [Fact]
+    public void Tap_ThirdExactlyAtTheWindowEdge_Fires()
+    {
+        // Arrange
+        var burst = new TapBurst(_time);
+
+        // Act
+        burst.Tap();
+        _time.Advance(TimeSpan.FromSeconds(1));
+        burst.Tap();
+        _time.Advance(TimeSpan.FromSeconds(1));
+        var third = burst.Tap();
+
+        // Assert
+        third.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Tap_StaleTapDropsOut_NextTwoThenFire()
+    {
+        // Arrange
+        var burst = new TapBurst(_time);
+        burst.Tap();
+        _time.Advance(TimeSpan.FromMilliseconds(2500));
+
+        // Act
+        var second = burst.Tap();
+        _time.Advance(TimeSpan.FromMilliseconds(100));
+        var third = burst.Tap();
+        _time.Advance(TimeSpan.FromMilliseconds(100));
+        var fourth = burst.Tap();
+
+        // Assert
+        new[] { second, third, fourth }.Should().Equal(false, false, true);
+    }
 }
