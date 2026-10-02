@@ -38,6 +38,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Settings.SettingsViewModel>();
         services.AddSingleton<Settings.AccountViewModel>();
         services.AddTransient<Settings.BabyProfileViewModel>();
+        services.AddTransient<Settings.ConsentViewModel>();
+        services.AddTransient<Settings.BringOverViewModel>();
         services.AddTransient<EditViewModel>();
         services.AddTransient<AttentionViewModel>();
         return services;
