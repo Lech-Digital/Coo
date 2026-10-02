@@ -18,6 +18,7 @@ public sealed class LogPage : ContentPage
     private readonly LanguageController _language;
     private bool _renderQueued;
     private string? _renderedLanguage;
+    private RibbonView? _ribbon;
 
     public LogPage(LogViewModel model, ThemeController theme, UndoService undo, LanguageController language, IServiceProvider services)
     {
@@ -64,7 +65,17 @@ public sealed class LogPage : ContentPage
             QueueRender();
     }
 
-    private void OnChanged(object? sender, PropertyChangedEventArgs e) => QueueRender();
+    // "Now" moves every minute: it redraws the band, not the page.
+    private void OnChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(LogViewModel.NowAt))
+            Dispatcher.Dispatch(ShowRibbon);
+        else
+            QueueRender();
+    }
+
+    private void ShowRibbon() =>
+        _ribbon?.Show(_model.ChartItems, _model.QuietBands, _model.Hours, _model.NowAt, WashiPalette.For(_theme.Current));
 
     // The ribbon is drawn with the palette's colours, not resources.
     private void OnPaletteChanged(object? sender, PaletteKind e) => QueueRender();
@@ -113,8 +124,10 @@ public sealed class LogPage : ContentPage
         header.Add(Nav(IconGeometry.ChevronLeft, _model.PreviousCommand, true), 1);
         header.Add(Nav(IconGeometry.ChevronRight, _model.NextCommand, _model.CanGoNext), 2);
 
-        var ribbon = new RibbonView();
-        ribbon.Show(_model.Ribbon, WashiPalette.For(_theme.Current));
+        _ribbon = new RibbonView();
+        ShowRibbon();
+        SemanticProperties.SetDescription(_ribbon, _model.ChartSummary);
+        SemanticProperties.SetHint(_ribbon, Strings.Get("Chart.Hint"));
 
         var legend = new HorizontalStackLayout { Spacing = 14 };
         // The legend names the kinds that have totals, so hidden kinds leave both (Spec 009 §3.2).
@@ -148,7 +161,7 @@ public sealed class LogPage : ContentPage
         {
             Padding = new Thickness(24, 40, 24, 24),
             Spacing = 16,
-            Children = { header, ribbon, legend, totals, timeline },
+            Children = { header, _ribbon, legend, totals, timeline },
         };
     }
 }
