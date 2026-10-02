@@ -4,13 +4,12 @@ Date: 2026-09-29
 
 Status: Accepted — amended 2026-10-02 (see below)
 
-> **Amendment, 2026-10-02 (owner): Coo is free except AI.** "The only part that will ever be paid is the one I pay
-> for: the AI tokens." Premium covers **AI-assisted logging only** (ADR 0005), because every use costs Coo per
-> token. Everything else is free for every household: sharing and sync, the sleep predictor (ADR 0008, including the
-> personal prediction and its reminder), the paediatrician report, and logging from the watch (ADR 0009). The
-> billing machinery below (Play subscription per household, derived entitlement, RTDN, the reconciler) still holds;
-> its lists of Premium features (§9: "PDF reports", "the sleep predictor", "wearable quick-logging") are superseded.
-> The products, prices and whether a trial still makes sense are decided in Spec 012.
+> **Amendment, 2026-10-02 (owner): what Premium covers.** Premium is **the sleep prediction** (ADR 0008), **AI-assisted
+> logging** (ADR 0005), and two new AI features: **a written summary of the night** and **a weekly summary**. **Free
+> for every household, forever:** all logging, sharing and sync, **the paediatrician report** and **logging from the
+> watch** (ADR 0009). The commercial model below stands: a 7-day trial of Premium, then monthly, yearly or lifetime,
+> or the free tier forever. §9's feature lists are superseded where they differ ("PDF reports" and "wearable
+> quick-logging" are free; the summaries are new server-side Premium features). Spec 012 settles the details.
 
 
 ## Context

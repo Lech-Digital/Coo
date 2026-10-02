@@ -4,9 +4,10 @@ Date: 2026-09-29
 
 Status: Accepted — amended 2026-10-02 (see below)
 
-> **Amendment, 2026-10-02 (owner): the sleep predictor is free.** Coo charges only for AI-assisted logging (ADR 0004,
-> amended). §7's split is superseded: every household gets the age-typical range, the personal prediction with its
-> explanation, and the nap-window reminder.
+> **Amendment, 2026-10-02 (owner): the predictor stays Premium, and may use AI.** The split of §7 stands (age-typical
+> guidance free, the personal prediction and its reminder Premium). The owner may want an LLM to help the prediction
+> or its explanation; that is an open question for the predictor's spec (Increment 14), which must keep the backtest
+> gate of §5 and the privacy rules of ADR 0005 if it does.
 
 
 ## Context
