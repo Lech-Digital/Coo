@@ -1,6 +1,7 @@
 using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
+using Coo.Mobile.Application.Sync;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Coo.Mobile.Application;
@@ -32,6 +33,9 @@ public static class ServiceCollectionExtensions
         services.AddTransient<SignOut>();
         services.AddTransient<DeleteAccount>();
         services.AddTransient<RefreshAccount>();
+
+        // Sync (Spec 011).
+        services.AddSingleton<LocalWrites>();
         return services;
     }
 }

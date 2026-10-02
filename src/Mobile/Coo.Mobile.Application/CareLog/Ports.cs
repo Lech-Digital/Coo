@@ -26,6 +26,9 @@ public interface ICareLogStore
 public interface IVersionClock
 {
     Task<HlcStamp> NextAsync(CancellationToken cancellationToken);
+
+    /// <summary>Advances past a stamp pulled from the server, so the next local stamp is higher (ADR 0002 §4).</summary>
+    Task ObserveAsync(HlcStamp remote, CancellationToken cancellationToken);
 }
 
 /// <summary>This install's identity, created once on first launch.</summary>

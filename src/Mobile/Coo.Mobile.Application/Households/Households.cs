@@ -7,6 +7,10 @@ namespace Coo.Mobile.Application.Households;
 /// <summary>Households, their settings and their babies on this phone (Spec 004 §2).</summary>
 public interface IHouseholdStore
 {
+    /// <summary>
+    /// The active household (<c>app_state.active_household</c>, set by sync) first, then by ID: callers that show one
+    /// household take the first live one (Spec 011 ruling 7).
+    /// </summary>
     Task<IReadOnlyList<HouseholdSettings>> ListHouseholdsAsync(CancellationToken cancellationToken);
 
     /// <summary>Saves the settings and appends their outbox row, in one transaction.</summary>

@@ -1,23 +1,22 @@
+using Coo.Contracts.Sync;
 using Coo.Domain.Common.Versioning;
 using Microsoft.Data.Sqlite;
 
 namespace Coo.Mobile.Infrastructure.Persistence;
 
 /// <summary>
-/// The synced entity types (ADR 0010 §1, Spec 007 §7): the one closed list, in code. Migration 0003 removed the
-/// database CHECK that repeated it, so a new type is one line here, not an outbox table rebuild.
+/// The synced entity types (ADR 0010 §1, Spec 007 §7), taken from the wire contract's one list
+/// (<see cref="SyncEntityTypes"/>). Migration 0003 removed the database CHECK that repeated it, so a new type is one
+/// line in the contract, not an outbox table rebuild.
 /// </summary>
 internal static class SyncedEntityType
 {
-    public const string CareEntry = "CareEntry";
-    public const string BabyProfile = "BabyProfile";
-    public const string HouseholdSettings = "HouseholdSettings";
-    public const string DuplicateDismissal = "DuplicateDismissal";
+    public const string CareEntry = SyncEntityTypes.CareEntry;
+    public const string BabyProfile = SyncEntityTypes.BabyProfile;
+    public const string HouseholdSettings = SyncEntityTypes.HouseholdSettings;
+    public const string DuplicateDismissal = SyncEntityTypes.DuplicateDismissal;
 
-    public static IReadOnlySet<string> All { get; } = new HashSet<string>(StringComparer.Ordinal)
-    {
-        CareEntry, BabyProfile, HouseholdSettings, DuplicateDismissal,
-    };
+    public static IReadOnlySet<string> All => SyncEntityTypes.All;
 }
 
 /// <summary>

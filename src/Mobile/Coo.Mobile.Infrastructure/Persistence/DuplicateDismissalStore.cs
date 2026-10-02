@@ -1,12 +1,13 @@
 using Coo.Domain.CareLog.Duplicates;
 using Coo.Domain.Common;
 using Coo.Mobile.Application.CareLog;
+using Coo.Mobile.Application.Sync;
 using Microsoft.Data.Sqlite;
 
 namespace Coo.Mobile.Infrastructure.Persistence;
 
 /// <summary>"Keep both" decisions in SQLite (Spec 007 §7). Each save appends its outbox row in the same transaction.</summary>
-internal sealed class DuplicateDismissalStore(LocalDatabase database, TimeProvider time) : IDuplicateDismissalStore
+internal sealed class DuplicateDismissalStore(LocalDatabase database, TimeProvider time, LocalWrites writes) : IDuplicateDismissalStore
 {
     public async Task SaveAsync(DuplicateDismissal dismissal, CancellationToken cancellationToken)
     {
@@ -32,6 +33,7 @@ internal sealed class DuplicateDismissalStore(LocalDatabase database, TimeProvid
             ]);
         await Outbox.AppendAsync(connection, transaction, SyncedEntityType.DuplicateDismissal, dismissal.Id.Value, dismissal.IsDeleted, dismissal.Version, time, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
+        writes.Notify();
     }
 
     public async Task<IReadOnlySet<EntryPair>> ListAsync(HouseholdId household, CancellationToken cancellationToken)

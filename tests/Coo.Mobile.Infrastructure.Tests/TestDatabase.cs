@@ -1,6 +1,7 @@
 using Coo.Domain.CareLog;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.Common;
+using Coo.Mobile.Application.Sync;
 using Coo.Mobile.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
 
@@ -16,8 +17,8 @@ internal sealed class TestDatabase : IAsyncDisposable
         Directory.CreateDirectory(_folder);
         Database = new LocalDatabase(Path.Combine(_folder, "coo.db"));
         Device = new DeviceState(Database, Time);
-        Store = new CareLogStore(Database, Time);
-        Households = new HouseholdStore(Database, Time);
+        Store = new CareLogStore(Database, Time, Writes);
+        Households = new HouseholdStore(Database, Time, Writes);
     }
 
     public static readonly HouseholdId Household = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a1"));
@@ -27,6 +28,8 @@ internal sealed class TestDatabase : IAsyncDisposable
     public ManualTimeProvider Time { get; } = new(new DateTimeOffset(2026, 10, 1, 12, 0, 0, TimeSpan.FromHours(2)));
 
     public LocalDatabase Database { get; }
+
+    public LocalWrites Writes { get; } = new();
 
     public DeviceState Device { get; }
 

@@ -4,12 +4,13 @@ using Coo.Domain.CareLog;
 using Coo.Domain.Common;
 using Coo.Domain.Households;
 using Coo.Mobile.Application.Households;
+using Coo.Mobile.Application.Sync;
 using Microsoft.Data.Sqlite;
 
 namespace Coo.Mobile.Infrastructure.Persistence;
 
 /// <summary>Households and babies in SQLite. Every write appends its outbox row in the same transaction.</summary>
-internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time) : IHouseholdStore
+internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time, LocalWrites writes) : IHouseholdStore
 {
     public async Task<IReadOnlyList<HouseholdSettings>> ListHouseholdsAsync(CancellationToken cancellationToken)
     {
@@ -17,7 +18,8 @@ internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time) 
         await using var command = connection.Command(
             """
             SELECT household_id, volume_unit, time_zone_id, hidden_kinds, version_wall_ms, version_counter, version_device, is_deleted
-            FROM household_settings ORDER BY household_id;
+            FROM household_settings
+            ORDER BY coalesce(household_id = (SELECT value FROM app_state WHERE key = 'active_household'), 0) DESC, household_id;
             """);
         await using var r = await command.ExecuteReaderAsync(cancellationToken);
         var list = new List<HouseholdSettings>();
@@ -61,6 +63,7 @@ internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time) 
             ]);
         await Outbox.AppendAsync(connection, transaction, SyncedEntityType.HouseholdSettings, settings.Id.Value, settings.IsDeleted, settings.Version, time, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
+        writes.Notify();
     }
 
     public async Task<IReadOnlyList<BabyProfile>> ListBabiesAsync(HouseholdId household, CancellationToken cancellationToken)
@@ -118,6 +121,7 @@ internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time) 
             ]);
         await Outbox.AppendAsync(connection, transaction, SyncedEntityType.BabyProfile, baby.Id.Value, baby.IsDeleted, baby.Version, time, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
+        writes.Notify();
     }
 }
 

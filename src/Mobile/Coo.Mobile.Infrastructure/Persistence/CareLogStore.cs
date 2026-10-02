@@ -3,6 +3,7 @@ using Coo.Domain.CareLog;
 using Coo.Domain.Common;
 using Coo.Domain.Common.Versioning;
 using Coo.Mobile.Application.CareLog;
+using Coo.Mobile.Application.Sync;
 using Microsoft.Data.Sqlite;
 
 namespace Coo.Mobile.Infrastructure.Persistence;
@@ -11,7 +12,7 @@ namespace Coo.Mobile.Infrastructure.Persistence;
 /// The care log in SQLite (Spec 004 §5, §6). Writes: previous details, codec write gate, row and outbox, all in one
 /// transaction. Reads: through the read guard, so one bad row never blanks the timeline.
 /// </summary>
-internal sealed class CareLogStore(LocalDatabase database, TimeProvider time) : ICareLogStore
+internal sealed class CareLogStore(LocalDatabase database, TimeProvider time, LocalWrites writes) : ICareLogStore
 {
     private const string EntityType = SyncedEntityType.CareEntry;
 
@@ -34,6 +35,7 @@ internal sealed class CareLogStore(LocalDatabase database, TimeProvider time) : 
         await Outbox.AppendAsync(connection, transaction, EntityType, entry.Id.Value, entry.IsDeleted, entry.Version, time, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
+        writes.Notify();
     }
 
     public async Task<StoredEntry?> FindAsync(EntryId id, CancellationToken cancellationToken)
@@ -86,6 +88,7 @@ internal sealed class CareLogStore(LocalDatabase database, TimeProvider time) : 
 
         await Outbox.AppendAsync(connection, transaction, EntityType, id.Value, isDelete: true, version, time, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
+        writes.Notify();
         return true;
     }
 

@@ -237,6 +237,8 @@ public sealed class ExpectedBabyMigrationTests
         {
             await connection.ExecuteAsync(
                 """
+                DROP TABLE sync_rejections;
+                DROP TABLE sync_cursors;
                 DROP TABLE duplicate_dismissals;
                 DROP TABLE baby_profiles;
                 CREATE TABLE baby_profiles (id TEXT NOT NULL PRIMARY KEY, household_id TEXT NOT NULL, name TEXT NOT NULL,
@@ -306,6 +308,8 @@ public sealed class DismissalAndOutboxTests
         {
             await connection.ExecuteAsync(
                 """
+                DROP TABLE sync_rejections;
+                DROP TABLE sync_cursors;
                 DROP TABLE duplicate_dismissals;
                 CREATE TABLE outbox_old AS SELECT * FROM outbox;
                 DROP TABLE outbox;
@@ -339,7 +343,7 @@ public sealed class DismissalAndOutboxTests
         await using var db = await TestDatabase.CreateAsync();
         var a = new Coo.Domain.Common.EntryId(Guid.Parse("00000000-0000-7000-8000-00000000000a"));
         var b = new Coo.Domain.Common.EntryId(Guid.Parse("00000000-0000-7000-8000-00000000000b"));
-        var store = new DuplicateDismissalStore(db.Database, db.Time);
+        var store = new DuplicateDismissalStore(db.Database, db.Time, db.Writes);
         var dismissal = Coo.Domain.CareLog.Duplicates.DuplicateDismissal.Create(
             new Coo.Domain.Common.DismissalId(Guid.Parse("00000000-0000-7000-8000-0000000000dd")), TestDatabase.Household,
             new Coo.Domain.CareLog.Duplicates.EntryPair(b, a), await db.Device.NextAsync(CancellationToken.None));

@@ -37,6 +37,24 @@ internal sealed class DeviceState(LocalDatabase database, TimeProvider time) : I
         }
     }
 
+    public async Task ObserveAsync(HlcStamp remote, CancellationToken cancellationToken)
+    {
+        await _gate.WaitAsync(cancellationToken);
+        try
+        {
+            var clock = await LoadAsync(cancellationToken);
+            var stamp = clock.Observe(remote, time.GetUtcNow().ToUnixTimeMilliseconds());
+            await using var connection = await database.OpenAsync(cancellationToken);
+            await connection.ExecuteAsync(
+                "UPDATE device_state SET hlc_wall_ms = $wall, hlc_counter = $counter WHERE id = 1;",
+                cancellationToken, null, ("$wall", stamp.WallClockMs), ("$counter", stamp.Counter));
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
     public void Dispose() => _gate.Dispose();
 
     /// <summary>Creates the device identity on first launch. Called once by startup.</summary>
