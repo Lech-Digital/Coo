@@ -7,20 +7,21 @@ OAuth clients.
 You need to do this once. It takes about 20 minutes. New clients can take a few minutes, sometimes a few hours,
 before Google accepts them.
 
-**Use the Lech Digital organisation**, the publisher on Coo's Play developer profile, with the account you use for
-it. Never an employer's organisation: Coo has nothing to do with any employer (see the handover's ground rules).
-Keeping the project in the publisher's organisation helps at release, when Google checks Coo's brand against
-`lechdigital.nl` (owner's decision, 2026-10-02).
+**Use the Google account behind Lech Digital's Play developer profile.** Never an employer's account or
+organisation: Coo has nothing to do with any employer (see the handover's ground rules).
 
 ---
 
 ## 1. Create the project
 
-1. Open the [Google Cloud console](https://console.cloud.google.com/) signed in with your Lech Digital account.
+1. Open the [Google Cloud console](https://console.cloud.google.com/) signed in with that account.
 2. In the project picker at the top, choose **New project**.
-   - Project name: `Coo`
-   - Organisation / location: **Lech Digital** (check the name: it must not be an employer's organisation)
-3. Press **Create**, then select the new project in the picker. Check the picker says **Coo** before every step
+   - Project name: `Coo App` (Google needs 4 to 30 characters). Google suggests a project ID such as
+     `coo-app-123456`; keep it.
+   - Organisation / location: **No organisation**. A Google Cloud organisation exists only when a domain has Google
+     Workspace or Cloud Identity; the organisation on the Play developer profile is a Play Console setting and does
+     not create one. Sign-in needs no organisation, and the project can be moved into one later (owner, 2026-10-02).
+3. Press **Create**, then select the new project in the picker. Check the picker says **Coo App** before every step
    below.
 
 No API needs to be enabled. Sign in with Google works without one.
@@ -33,9 +34,9 @@ No API needs to be enabled. Sign in with Google works without one.
    - App name: `Coo`
    - User support email: an address of yours that users may see, e.g. andrzej@lechdigital.nl (Coo's feedback
      address, Spec 009)
-3. **Audience:** choose **External**, even though the project is in an organisation. **Internal** would allow only
-   accounts inside Lech Digital, so your girlfriend's Gmail account could not sign in.
-4. **Contact information:** your Lech Digital address.
+3. **Audience:** choose **External**. **Internal** (offered only to organisations) would allow only
+   accounts inside an organisation, so your girlfriend's Gmail account could not sign in.
+4. **Contact information:** your own address.
 5. Accept the policy, then **Create**.
 6. Open **Audience** in the left menu:
    - Publishing status stays **Testing**. Only test users can sign in, which is what we want until the release.
@@ -95,7 +96,7 @@ Client IDs are not secrets: they are built into the app, and this repository is 
 secret, a password or a key file here.**
 
 ```text
-Google Cloud project ID:         <paste, e.g. coo-123456>
+Google Cloud project ID:         <paste, e.g. coo-app-123456>
 Web client ID (Coo server):      <paste>.apps.googleusercontent.com
 Android client ID (debug):       <paste>.apps.googleusercontent.com
 Test users added:                <yes / no — the addresses themselves need not be written here>
