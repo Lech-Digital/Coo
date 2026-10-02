@@ -93,6 +93,109 @@ public sealed class TokenTests
     }
 
     [Fact]
+    public async Task Validate_HandBuiltTokenWithOurValues_IsAccepted()
+    {
+        // Arrange: the control for the refusals below; each changes one thing from this token.
+        var token = HandBuilt(Descriptor());
+
+        // Act
+        var result = await ValidateAsync(token, AccessTokenValidation.Parameters(Ring("k1", ("k1", KeyOne)), _time));
+
+        // Assert
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Validate_UnsignedAlgNoneToken_IsRefused()
+    {
+        // Arrange
+        var payload = $$"""{"iss":"{{JwtTokenIssuer.Issuer}}","aud":"{{JwtTokenIssuer.Audience}}","sub":"x","exp":{{_time.GetUtcNow().AddMinutes(15).ToUnixTimeSeconds()}}}""";
+        var token = new JsonWebTokenHandler().CreateToken(payload);
+        new JsonWebToken(token).Alg.Should().Be(SecurityAlgorithms.None);
+
+        // Act
+        var result = await ValidateAsync(token, AccessTokenValidation.Parameters(Ring("k1", ("k1", KeyOne)), _time));
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Validate_SignedWithOurKeyButNoKid_IsRefused()
+    {
+        // Arrange: the right secret, but no kid header to name it (TryAllIssuerSigningKeys is off).
+        var descriptor = Descriptor();
+        descriptor.SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(KeyOne), SecurityAlgorithms.HmacSha256);
+        var token = HandBuilt(descriptor);
+        new JsonWebToken(token).Kid.Should().BeNullOrEmpty();
+
+        // Act
+        var result = await ValidateAsync(token, AccessTokenValidation.Parameters(Ring("k1", ("k1", KeyOne)), _time));
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Validate_WrongIssuer_IsRefused()
+    {
+        // Arrange
+        var descriptor = Descriptor();
+        descriptor.Issuer = "someone-else";
+
+        // Act
+        var result = await ValidateAsync(HandBuilt(descriptor), AccessTokenValidation.Parameters(Ring("k1", ("k1", KeyOne)), _time));
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Exception.Should().BeOfType<SecurityTokenInvalidIssuerException>();
+    }
+
+    [Fact]
+    public async Task Validate_WrongAudience_IsRefused()
+    {
+        // Arrange
+        var descriptor = Descriptor();
+        descriptor.Audience = "another-app";
+
+        // Act
+        var result = await ValidateAsync(HandBuilt(descriptor), AccessTokenValidation.Parameters(Ring("k1", ("k1", KeyOne)), _time));
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Exception.Should().BeOfType<SecurityTokenInvalidAudienceException>();
+    }
+
+    [Fact]
+    public async Task Validate_NotBeforeBeyondTheSkew_IsRefused()
+    {
+        // Arrange: valid from 31 seconds from now, one second past the 30-second skew.
+        var descriptor = Descriptor();
+        descriptor.NotBefore = _time.GetUtcNow().AddSeconds(31).UtcDateTime;
+
+        // Act
+        var result = await ValidateAsync(HandBuilt(descriptor), AccessTokenValidation.Parameters(Ring("k1", ("k1", KeyOne)), _time));
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Exception.Should().BeAssignableTo<SecurityTokenInvalidLifetimeException>();
+    }
+
+    [Fact]
+    public async Task Validate_NotBeforeWithinTheSkew_IsAccepted()
+    {
+        // Arrange: a server clock up to 30 seconds ahead of ours.
+        var descriptor = Descriptor();
+        descriptor.NotBefore = _time.GetUtcNow().AddSeconds(29).UtcDateTime;
+
+        // Act
+        var result = await ValidateAsync(HandBuilt(descriptor), AccessTokenValidation.Parameters(Ring("k1", ("k1", KeyOne)), _time));
+
+        // Assert
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task OnTokenValidated_ActiveSession_IsAccepted()
     {
         // Arrange
@@ -304,6 +407,25 @@ public sealed class TokenTests
             Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, JwtBearerDefaults.AuthenticationScheme)),
         };
     }
+
+    /// <summary>A token as our issuer makes it (k1, HS256, our issuer and audience, 15 minutes from now), for a test to change.</summary>
+    private SecurityTokenDescriptor Descriptor() => new()
+    {
+        Issuer = JwtTokenIssuer.Issuer,
+        Audience = JwtTokenIssuer.Audience,
+        IssuedAt = _time.GetUtcNow().UtcDateTime,
+        NotBefore = _time.GetUtcNow().UtcDateTime,
+        Expires = _time.GetUtcNow().AddMinutes(15).UtcDateTime,
+        Claims = new Dictionary<string, object>(StringComparer.Ordinal)
+        {
+            [AccessTokenClaims.User] = User.Value.ToString("D", CultureInfo.InvariantCulture),
+            [AccessTokenClaims.Session] = Session.Value.ToString("D", CultureInfo.InvariantCulture),
+        },
+        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(KeyOne) { KeyId = "k1" }, SecurityAlgorithms.HmacSha256),
+    };
+
+    private static string HandBuilt(SecurityTokenDescriptor descriptor) =>
+        new JsonWebTokenHandler { SetDefaultTimesOnTokenCreation = false }.CreateToken(descriptor);
 
     private static SigningKeyRing Ring(string active, params (string Id, byte[] Key)[] keys) =>
         new(active, keys.ToDictionary(k => k.Id, k => k.Key, StringComparer.Ordinal));
