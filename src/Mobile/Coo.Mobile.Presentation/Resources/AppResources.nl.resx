@@ -5,6 +5,19 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Account.Delete" xml:space="preserve"><value>Account verwijderen</value></data>
+  <data name="Account.DeleteConfirm" xml:space="preserve"><value>Hiermee verwijder je je Coo-account en, omdat jij de enige ouder bent, het gedeelde logboek van je gezin voor {0}. De items op deze telefoon blijven hier.</value></data>
+  <data name="Account.DeleteConfirmNoBaby" xml:space="preserve"><value>Hiermee verwijder je je Coo-account en, omdat jij de enige ouder bent, het gedeelde logboek van je gezin. De items op deze telefoon blijven hier.</value></data>
+  <data name="Account.DeleteFailed" xml:space="preserve"><value>Je account is niet verwijderd. Controleer je verbinding en probeer het opnieuw.</value></data>
+  <data name="Account.JoinPending" xml:space="preserve"><value>Ingelogd. Je items op deze telefoon komen bij het logboek van je gezin zodra delen beschikbaar is.</value></data>
+  <data name="Account.SessionExpired" xml:space="preserve"><value>Log opnieuw in om te blijven delen.</value></data>
+  <data name="Account.SignIn" xml:space="preserve"><value>Inloggen met Google</value></data>
+  <data name="Account.SignInFailed" xml:space="preserve"><value>Inloggen is niet gelukt. Controleer je verbinding en probeer het opnieuw.</value></data>
+  <data name="Account.SignInHint" xml:space="preserve"><value>Bewaar je logboek veilig en deel het met familie.</value></data>
+  <data name="Account.SignOut" xml:space="preserve"><value>Uitloggen</value></data>
+  <data name="Account.SignOutConfirm" xml:space="preserve"><value>Uitloggen op deze telefoon? Je logboek blijft op deze telefoon.</value></data>
+  <data name="Account.Title" xml:space="preserve"><value>Account</value></data>
+  <data name="Action.Cancel" xml:space="preserve"><value>Annuleren</value></data>
   <data name="Action.LogBottle" xml:space="preserve"><value>Fles loggen</value></data>
   <data name="Action.Save" xml:space="preserve"><value>Opslaan</value></data>
   <data name="Action.Skip" xml:space="preserve"><value>Overslaan</value></data>

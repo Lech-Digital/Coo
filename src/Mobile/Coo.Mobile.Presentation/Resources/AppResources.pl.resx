@@ -5,6 +5,19 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Account.Delete" xml:space="preserve"><value>Usuń konto</value></data>
+  <data name="Account.DeleteConfirm" xml:space="preserve"><value>To usunie Twoje konto Coo oraz, ponieważ jesteś jedynym rodzicem, wspólny dziennik Twojej rodziny: {0}. Wpisy na tym telefonie zostaną tutaj.</value></data>
+  <data name="Account.DeleteConfirmNoBaby" xml:space="preserve"><value>To usunie Twoje konto Coo oraz, ponieważ jesteś jedynym rodzicem, wspólny dziennik Twojej rodziny. Wpisy na tym telefonie zostaną tutaj.</value></data>
+  <data name="Account.DeleteFailed" xml:space="preserve"><value>Konto nie zostało usunięte. Sprawdź połączenie i spróbuj ponownie.</value></data>
+  <data name="Account.JoinPending" xml:space="preserve"><value>Zalogowano. Wpisy z tego telefonu dołączą do dziennika rodziny, gdy pojawi się udostępnianie.</value></data>
+  <data name="Account.SessionExpired" xml:space="preserve"><value>Zaloguj się ponownie, aby dalej udostępniać.</value></data>
+  <data name="Account.SignIn" xml:space="preserve"><value>Zaloguj się przez Google</value></data>
+  <data name="Account.SignInFailed" xml:space="preserve"><value>Nie udało się zalogować. Sprawdź połączenie i spróbuj ponownie.</value></data>
+  <data name="Account.SignInHint" xml:space="preserve"><value>Zabezpiecz swój dziennik i udostępnij go rodzinie.</value></data>
+  <data name="Account.SignOut" xml:space="preserve"><value>Wyloguj się</value></data>
+  <data name="Account.SignOutConfirm" xml:space="preserve"><value>Wylogować się na tym telefonie? Twój dziennik zostanie na tym telefonie.</value></data>
+  <data name="Account.Title" xml:space="preserve"><value>Konto</value></data>
+  <data name="Action.Cancel" xml:space="preserve"><value>Anuluj</value></data>
   <data name="Action.LogBottle" xml:space="preserve"><value>Zapisz butelkę</value></data>
   <data name="Action.Save" xml:space="preserve"><value>Zapisz</value></data>
   <data name="Action.Skip" xml:space="preserve"><value>Pomiń</value></data>

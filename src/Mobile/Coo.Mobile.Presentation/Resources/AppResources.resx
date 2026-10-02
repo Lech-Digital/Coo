@@ -5,6 +5,19 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Account.Delete" xml:space="preserve"><value>Delete account</value></data>
+  <data name="Account.DeleteConfirm" xml:space="preserve"><value>This deletes your Coo account and, because you are the only parent, your family's shared log for {0}. The entries on this phone stay here.</value></data>
+  <data name="Account.DeleteConfirmNoBaby" xml:space="preserve"><value>This deletes your Coo account and, because you are the only parent, your family's shared log. The entries on this phone stay here.</value></data>
+  <data name="Account.DeleteFailed" xml:space="preserve"><value>Your account wasn't deleted. Check your connection and try again.</value></data>
+  <data name="Account.JoinPending" xml:space="preserve"><value>Signed in. Your entries on this phone join your family's log when sharing arrives.</value></data>
+  <data name="Account.SessionExpired" xml:space="preserve"><value>Sign in again to keep sharing.</value></data>
+  <data name="Account.SignIn" xml:space="preserve"><value>Sign in with Google</value></data>
+  <data name="Account.SignInFailed" xml:space="preserve"><value>Sign-in didn't work. Check your connection and try again.</value></data>
+  <data name="Account.SignInHint" xml:space="preserve"><value>Keep your log safe and share it with family.</value></data>
+  <data name="Account.SignOut" xml:space="preserve"><value>Sign out</value></data>
+  <data name="Account.SignOutConfirm" xml:space="preserve"><value>Sign out on this phone? Your log stays on this phone.</value></data>
+  <data name="Account.Title" xml:space="preserve"><value>Account</value></data>
+  <data name="Action.Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Action.LogBottle" xml:space="preserve"><value>Log bottle</value></data>
   <data name="Action.Save" xml:space="preserve"><value>Save</value></data>
   <data name="Action.Skip" xml:space="preserve"><value>Skip</value></data>

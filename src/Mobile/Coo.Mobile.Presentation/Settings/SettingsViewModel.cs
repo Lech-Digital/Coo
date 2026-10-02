@@ -22,7 +22,7 @@ public sealed partial class SettingsViewModel(
     LanguageController language, IAboutInfo about, IExternalLauncher launcher, TimeProvider time) : ObservableObject, IDisposable
 {
     public const string FeedbackAddress = "andrzej@lechdigital.nl";
-    public static readonly Uri PrivacyUrl = new("https://coo.lechdigital.nl/privacy");
+    public static readonly Uri PrivacyUrl = new("https://lechdigital.nl/projects/coo/privacy");
 
     private static readonly (string Code, string NameKey)[] KindNames =
         [("feeding", "Kind.Feed"), ("diaper", "Kind.Diaper"), ("sleep", "Kind.Sleep"), ("pump", "Kind.Pump")];

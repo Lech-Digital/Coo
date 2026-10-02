@@ -91,6 +91,19 @@ public sealed class SettingsTests
     }
 
     [Fact]
+    public async Task OpenPrivacyCommand_Tapped_OpensCoosPageOnLechDigital()
+    {
+        // Arrange: Spec 010 Q4; coo.lechdigital.nl has no DNS.
+        var model = Model();
+
+        // Act
+        await model.OpenPrivacyCommand.ExecuteAsync(null);
+
+        // Assert
+        await _launcher.Received(1).OpenBrowserAsync(new Uri("https://lechdigital.nl/projects/coo/privacy"));
+    }
+
+    [Fact]
     public async Task RefreshAsync_Version_ShowsVersionAndShortCommit()
     {
         // Arrange

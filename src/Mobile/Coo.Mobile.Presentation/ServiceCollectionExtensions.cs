@@ -36,6 +36,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<SetupViewModel>();
         services.AddSingleton<LogViewModel>();
         services.AddSingleton<Settings.SettingsViewModel>();
+        services.AddSingleton<Settings.AccountViewModel>();
         services.AddTransient<Settings.BabyProfileViewModel>();
         services.AddTransient<EditViewModel>();
         services.AddTransient<AttentionViewModel>();

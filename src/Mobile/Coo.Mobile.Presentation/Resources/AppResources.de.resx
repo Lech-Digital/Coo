@@ -5,6 +5,19 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Account.Delete" xml:space="preserve"><value>Konto löschen</value></data>
+  <data name="Account.DeleteConfirm" xml:space="preserve"><value>Damit werden dein Coo-Konto und, weil du der einzige Elternteil bist, die gemeinsamen Einträge deiner Familie für {0} gelöscht. Die Einträge auf diesem Handy bleiben hier.</value></data>
+  <data name="Account.DeleteConfirmNoBaby" xml:space="preserve"><value>Damit werden dein Coo-Konto und, weil du der einzige Elternteil bist, die gemeinsamen Einträge deiner Familie gelöscht. Die Einträge auf diesem Handy bleiben hier.</value></data>
+  <data name="Account.DeleteFailed" xml:space="preserve"><value>Dein Konto wurde nicht gelöscht. Prüfe deine Verbindung und versuche es noch einmal.</value></data>
+  <data name="Account.JoinPending" xml:space="preserve"><value>Angemeldet. Deine Einträge auf diesem Handy kommen zu denen deiner Familie, sobald Teilen verfügbar ist.</value></data>
+  <data name="Account.SessionExpired" xml:space="preserve"><value>Melde dich erneut an, um weiter zu teilen.</value></data>
+  <data name="Account.SignIn" xml:space="preserve"><value>Mit Google anmelden</value></data>
+  <data name="Account.SignInFailed" xml:space="preserve"><value>Die Anmeldung hat nicht geklappt. Prüfe deine Verbindung und versuche es noch einmal.</value></data>
+  <data name="Account.SignInHint" xml:space="preserve"><value>Sichere deine Einträge und teile sie mit der Familie.</value></data>
+  <data name="Account.SignOut" xml:space="preserve"><value>Abmelden</value></data>
+  <data name="Account.SignOutConfirm" xml:space="preserve"><value>Auf diesem Handy abmelden? Deine Einträge bleiben auf diesem Handy.</value></data>
+  <data name="Account.Title" xml:space="preserve"><value>Konto</value></data>
+  <data name="Action.Cancel" xml:space="preserve"><value>Abbrechen</value></data>
   <data name="Action.LogBottle" xml:space="preserve"><value>Fläschchen eintragen</value></data>
   <data name="Action.Save" xml:space="preserve"><value>Speichern</value></data>
   <data name="Action.Skip" xml:space="preserve"><value>Überspringen</value></data>

@@ -5,6 +5,19 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Account.Delete" xml:space="preserve"><value>Supprimer le compte</value></data>
+  <data name="Account.DeleteConfirm" xml:space="preserve"><value>Cela supprime votre compte Coo et, comme vous êtes le seul parent, le journal partagé de votre famille pour {0}. Les entrées de ce téléphone restent ici.</value></data>
+  <data name="Account.DeleteConfirmNoBaby" xml:space="preserve"><value>Cela supprime votre compte Coo et, comme vous êtes le seul parent, le journal partagé de votre famille. Les entrées de ce téléphone restent ici.</value></data>
+  <data name="Account.DeleteFailed" xml:space="preserve"><value>Votre compte n'a pas été supprimé. Vérifiez votre connexion et réessayez.</value></data>
+  <data name="Account.JoinPending" xml:space="preserve"><value>Connecté. Les entrées de ce téléphone rejoindront le journal de votre famille dès que le partage sera disponible.</value></data>
+  <data name="Account.SessionExpired" xml:space="preserve"><value>Reconnectez-vous pour continuer à partager.</value></data>
+  <data name="Account.SignIn" xml:space="preserve"><value>Se connecter avec Google</value></data>
+  <data name="Account.SignInFailed" xml:space="preserve"><value>La connexion a échoué. Vérifiez votre connexion et réessayez.</value></data>
+  <data name="Account.SignInHint" xml:space="preserve"><value>Gardez votre journal en sécurité et partagez-le avec la famille.</value></data>
+  <data name="Account.SignOut" xml:space="preserve"><value>Se déconnecter</value></data>
+  <data name="Account.SignOutConfirm" xml:space="preserve"><value>Se déconnecter sur ce téléphone ? Votre journal reste sur ce téléphone.</value></data>
+  <data name="Account.Title" xml:space="preserve"><value>Compte</value></data>
+  <data name="Action.Cancel" xml:space="preserve"><value>Annuler</value></data>
   <data name="Action.LogBottle" xml:space="preserve"><value>Noter le biberon</value></data>
   <data name="Action.Save" xml:space="preserve"><value>Enregistrer</value></data>
   <data name="Action.Skip" xml:space="preserve"><value>Passer</value></data>
