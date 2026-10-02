@@ -125,4 +125,133 @@ internal sealed class MembershipRecord
     public required string Role { get; init; }
 
     public required DateTime JoinedAt { get; init; }
+
+    /// <summary>Set when the member is removed (Increment 11b); read by the membership check (Spec 011 §6.5).</summary>
+    public DateTime? RevokedAt { get; init; }
+}
+
+/// <summary><c>baby_profiles</c> (Spec 011 §7.2): a synced record; <c>seq</c> from the household's counter.</summary>
+internal sealed class BabyProfileRecord
+{
+    public required Guid Id { get; init; }
+
+    public required Guid HouseholdId { get; init; }
+
+    public required string Name { get; init; }
+
+    public required List<string> Nicknames { get; init; }
+
+    public DateOnly? BirthDate { get; init; }
+
+    public DateOnly? DueDate { get; init; }
+
+    public required long VersionWallMs { get; init; }
+
+    public required int VersionCounter { get; init; }
+
+    public required Guid VersionDevice { get; init; }
+
+    public required bool IsDeleted { get; init; }
+
+    public required long Seq { get; init; }
+}
+
+/// <summary><c>household_settings</c>: one per household, keyed by it (Spec 001 §5.3).</summary>
+internal sealed class HouseholdSettingsRecord
+{
+    public required Guid HouseholdId { get; init; }
+
+    public required string VolumeUnit { get; init; }
+
+    public required string TimeZoneId { get; init; }
+
+    public required List<string> HiddenKinds { get; init; }
+
+    public required long VersionWallMs { get; init; }
+
+    public required int VersionCounter { get; init; }
+
+    public required Guid VersionDevice { get; init; }
+
+    public required bool IsDeleted { get; init; }
+
+    public required long Seq { get; init; }
+}
+
+/// <summary><c>duplicate_dismissals</c>: "keep both" decisions (Q6), the pair in canonical order.</summary>
+internal sealed class DuplicateDismissalRecord
+{
+    public required Guid Id { get; init; }
+
+    public required Guid HouseholdId { get; init; }
+
+    public required Guid EntryA { get; init; }
+
+    public required Guid EntryB { get; init; }
+
+    public required long VersionWallMs { get; init; }
+
+    public required int VersionCounter { get; init; }
+
+    public required Guid VersionDevice { get; init; }
+
+    public required bool IsDeleted { get; init; }
+
+    public required long Seq { get; init; }
+}
+
+/// <summary><c>applied_changes</c>: the result of every decided change ID, for 30 days (ADR 0002 §5).</summary>
+internal sealed class AppliedChangeRecord
+{
+    public required Guid ChangeId { get; init; }
+
+    public required string Result { get; init; }
+
+    public string? Reason { get; init; }
+
+    public required DateTime AppliedAt { get; init; }
+}
+
+/// <summary><c>sync_conflicts</c>: both version stamps of a losing write (ruling 4), for 30 days.</summary>
+internal sealed class SyncConflictRecord
+{
+    public long Id { get; init; }
+
+    public required Guid HouseholdId { get; init; }
+
+    public required Guid ChangeId { get; init; }
+
+    public required string EntityType { get; init; }
+
+    public required Guid EntityId { get; init; }
+
+    public required long WinnerWallMs { get; init; }
+
+    public required int WinnerCounter { get; init; }
+
+    public required Guid WinnerDevice { get; init; }
+
+    public required long LoserWallMs { get; init; }
+
+    public required int LoserCounter { get; init; }
+
+    public required Guid LoserDevice { get; init; }
+
+    public required DateTime RecordedAt { get; init; }
+}
+
+/// <summary><c>consents</c> (Spec 011 §3, Q1): per account, with the wording version, provable (GDPR Art. 7(1)).</summary>
+internal sealed class UserConsentRecord
+{
+    public required Guid UserId { get; init; }
+
+    public required string Purpose { get; init; }
+
+    public required string Wording { get; init; }
+
+    public required DateTime GivenAt { get; init; }
+
+    public string? AppVersion { get; init; }
+
+    public string? Language { get; init; }
 }

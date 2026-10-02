@@ -28,8 +28,9 @@ public sealed class SchemaGuardTests(PostgresServer server)
 
         // Assert
         ((string)tables!).Split(',').Should().BeEquivalentTo(
-            "AspNetUserClaims", "AspNetUserLogins", "AspNetUserTokens", "AspNetUsers", "auth_nonces", "care_entries",
-            "device_sessions", "entry_kind_versions", "households", "memberships");
+            "AspNetUserClaims", "AspNetUserLogins", "AspNetUserTokens", "AspNetUsers", "applied_changes", "auth_nonces",
+            "baby_profiles", "care_entries", "consents", "device_sessions", "duplicate_dismissals", "entry_kind_versions",
+            "household_settings", "households", "memberships", "sync_conflicts");
         ((string)kinds!).Split(',').Should().Contain(["diaper:1", "feeding:1", "pump:1", "sleep:1"]);
     }
 

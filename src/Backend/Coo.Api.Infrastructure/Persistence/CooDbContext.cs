@@ -22,6 +22,18 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
 
     public DbSet<MembershipRecord> Memberships => Set<MembershipRecord>();
 
+    public DbSet<BabyProfileRecord> BabyProfiles => Set<BabyProfileRecord>();
+
+    public DbSet<HouseholdSettingsRecord> HouseholdSettings => Set<HouseholdSettingsRecord>();
+
+    public DbSet<DuplicateDismissalRecord> DuplicateDismissals => Set<DuplicateDismissalRecord>();
+
+    public DbSet<AppliedChangeRecord> AppliedChanges => Set<AppliedChangeRecord>();
+
+    public DbSet<SyncConflictRecord> SyncConflicts => Set<SyncConflictRecord>();
+
+    public DbSet<UserConsentRecord> Consents => Set<UserConsentRecord>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -158,5 +170,120 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
             // Exactly one Owner per household (ADR 0003 §6).
             e.HasIndex(m => m.HouseholdId).IsUnique().HasFilter("role = 'owner'").HasDatabaseName("ix_memberships_one_owner");
         });
+
+        modelBuilder.Entity<MembershipRecord>(e => e.Property(m => m.RevokedAt).HasColumnName("revoked_at").HasColumnType("timestamptz"));
+
+        modelBuilder.Entity<BabyProfileRecord>(e =>
+        {
+            e.ToTable("baby_profiles", t =>
+            {
+                t.HasCheckConstraint("ck_baby_profiles_date", "birth_date IS NOT NULL OR due_date IS NOT NULL");
+                t.HasCheckConstraint("ck_baby_profiles_seq", "seq >= 1");
+            });
+            e.HasKey(b => b.Id);
+            e.Property(b => b.Id).HasColumnName("id").ValueGeneratedNever();
+            e.Property(b => b.HouseholdId).HasColumnName("household_id");
+            e.Property(b => b.Name).HasColumnName("name").HasMaxLength(40);
+            e.Property(b => b.Nicknames).HasColumnName("nicknames");
+            e.Property(b => b.BirthDate).HasColumnName("birth_date");
+            e.Property(b => b.DueDate).HasColumnName("due_date");
+            SyncColumns(e);
+            e.HasOne<HouseholdRecord>().WithMany().HasForeignKey(b => b.HouseholdId)
+                .HasConstraintName("fk_baby_profiles_households").OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(b => new { b.HouseholdId, b.Seq }).IsUnique().HasDatabaseName("ix_baby_profiles_household_seq");
+        });
+
+        modelBuilder.Entity<HouseholdSettingsRecord>(e =>
+        {
+            e.ToTable("household_settings", t =>
+            {
+                t.HasCheckConstraint("ck_household_settings_unit", "volume_unit IN ('ml', 'oz')");
+                t.HasCheckConstraint("ck_household_settings_seq", "seq >= 1");
+            });
+            e.HasKey(s => s.HouseholdId);
+            e.Property(s => s.HouseholdId).HasColumnName("household_id").ValueGeneratedNever();
+            e.Property(s => s.VolumeUnit).HasColumnName("volume_unit");
+            e.Property(s => s.TimeZoneId).HasColumnName("time_zone_id");
+            e.Property(s => s.HiddenKinds).HasColumnName("hidden_kinds");
+            SyncColumns(e);
+            e.HasOne<HouseholdRecord>().WithMany().HasForeignKey(s => s.HouseholdId)
+                .HasConstraintName("fk_household_settings_households").OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(s => new { s.HouseholdId, s.Seq }).IsUnique().HasDatabaseName("ix_household_settings_household_seq");
+        });
+
+        modelBuilder.Entity<DuplicateDismissalRecord>(e =>
+        {
+            e.ToTable("duplicate_dismissals", t =>
+            {
+                t.HasCheckConstraint("ck_duplicate_dismissals_pair", "entry_a <> entry_b");
+                t.HasCheckConstraint("ck_duplicate_dismissals_seq", "seq >= 1");
+            });
+            e.HasKey(d => d.Id);
+            e.Property(d => d.Id).HasColumnName("id").ValueGeneratedNever();
+            e.Property(d => d.HouseholdId).HasColumnName("household_id");
+            e.Property(d => d.EntryA).HasColumnName("entry_a");
+            e.Property(d => d.EntryB).HasColumnName("entry_b");
+            SyncColumns(e);
+            e.HasOne<HouseholdRecord>().WithMany().HasForeignKey(d => d.HouseholdId)
+                .HasConstraintName("fk_duplicate_dismissals_households").OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(d => new { d.HouseholdId, d.Seq }).IsUnique().HasDatabaseName("ix_duplicate_dismissals_household_seq");
+        });
+
+        modelBuilder.Entity<AppliedChangeRecord>(e =>
+        {
+            e.ToTable("applied_changes", t => t.HasCheckConstraint("ck_applied_changes_result", "result IN ('applied', 'superseded', 'rejected')"));
+            e.HasKey(a => a.ChangeId);
+            e.Property(a => a.ChangeId).HasColumnName("change_id").ValueGeneratedNever();
+            e.Property(a => a.Result).HasColumnName("result");
+            e.Property(a => a.Reason).HasColumnName("reason");
+            e.Property(a => a.AppliedAt).HasColumnName("applied_at").HasColumnType("timestamptz");
+            e.HasIndex(a => a.AppliedAt).HasDatabaseName("ix_applied_changes_applied_at");
+        });
+
+        modelBuilder.Entity<SyncConflictRecord>(e =>
+        {
+            e.ToTable("sync_conflicts");
+            e.HasKey(c => c.Id);
+            e.Property(c => c.Id).HasColumnName("id").UseIdentityByDefaultColumn();
+            e.Property(c => c.HouseholdId).HasColumnName("household_id");
+            e.Property(c => c.ChangeId).HasColumnName("change_id");
+            e.Property(c => c.EntityType).HasColumnName("entity_type");
+            e.Property(c => c.EntityId).HasColumnName("entity_id");
+            e.Property(c => c.WinnerWallMs).HasColumnName("winner_wall_ms");
+            e.Property(c => c.WinnerCounter).HasColumnName("winner_counter");
+            e.Property(c => c.WinnerDevice).HasColumnName("winner_device");
+            e.Property(c => c.LoserWallMs).HasColumnName("loser_wall_ms");
+            e.Property(c => c.LoserCounter).HasColumnName("loser_counter");
+            e.Property(c => c.LoserDevice).HasColumnName("loser_device");
+            e.Property(c => c.RecordedAt).HasColumnName("recorded_at").HasColumnType("timestamptz");
+            e.HasOne<HouseholdRecord>().WithMany().HasForeignKey(c => c.HouseholdId)
+                .HasConstraintName("fk_sync_conflicts_households").OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(c => c.RecordedAt).HasDatabaseName("ix_sync_conflicts_recorded_at");
+        });
+
+        modelBuilder.Entity<UserConsentRecord>(e =>
+        {
+            e.ToTable("consents");
+            e.HasKey(c => new { c.UserId, c.Purpose, c.Wording });
+            e.Property(c => c.UserId).HasColumnName("user_id");
+            e.Property(c => c.Purpose).HasColumnName("purpose");
+            e.Property(c => c.Wording).HasColumnName("wording");
+            e.Property(c => c.GivenAt).HasColumnName("given_at").HasColumnType("timestamptz");
+            e.Property(c => c.AppVersion).HasColumnName("app_version").HasMaxLength(40);
+            e.Property(c => c.Language).HasColumnName("language").HasMaxLength(16);
+            e.HasOne<CooUser>().WithMany().HasForeignKey(c => c.UserId)
+                .HasConstraintName("fk_consents_users").OnDelete(DeleteBehavior.Cascade);
+        });
+    }
+
+    /// <summary>The ADR 0002 sync columns every synced table carries.</summary>
+    private static void SyncColumns<T>(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T> e)
+        where T : class
+    {
+        e.Property<long>("VersionWallMs").HasColumnName("version_wall_ms");
+        e.Property<int>("VersionCounter").HasColumnName("version_counter");
+        e.Property<Guid>("VersionDevice").HasColumnName("version_device");
+        e.Property<bool>("IsDeleted").HasColumnName("is_deleted");
+        e.Property<long>("Seq").HasColumnName("seq");
     }
 }

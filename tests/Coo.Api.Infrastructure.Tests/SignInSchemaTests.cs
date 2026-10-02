@@ -29,6 +29,7 @@ public sealed class SignInSchemaTests(PostgresServer server)
             "device_sessions.refresh_hash", "device_sessions.previous_refresh_hash", "device_sessions.created_at",
             "device_sessions.last_used_at", "device_sessions.revoked_at",
             "memberships.household_id", "memberships.user_id", "memberships.role", "memberships.joined_at",
+            "memberships.revoked_at", // added by Increment 11's Sync migration
             "households.created_by");
     }
 
