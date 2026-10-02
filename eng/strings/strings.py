@@ -202,6 +202,12 @@ S = {
 'Duration.HoursMinutes': ('{0} h {1} m', '{0} Std. {1} Min.', '{0} h {1} min', '{0} h {1} min', '{0} h {1} min', '{0} godz. {1} min', '{0} u {1} min'),
 'Duration.Minutes': ('{0} m', '{0} Min.', '{0} min', '{0} min', '{0} min', '{0} min', '{0} min'),
 'Chart.Awake': ('awake {0}', 'wach {0}', 'éveil {0}', 'vigilia {0}', 'veglia {0}', 'czuwanie {0}', 'wakker {0}'),
+'Chart.Range': ('{0}, {1} – {2}', '{0}, {1} – {2}', '{0}, {1} – {2}', '{0}, {1} – {2}', '{0}, {1} – {2}', '{0}, {1} – {2}', '{0}, {1} – {2}'),
+'Chart.SummarySleep': ('Sleep {0}', 'Schlaf {0}', 'Sommeil {0}', 'Sueño {0}', 'Sonno {0}', 'Sen {0}', 'Slaap {0}'),
+'Chart.SummaryFeeds': ('Feeds {0}', 'Mahlzeiten {0}', 'Repas {0}', 'Tomas {0}', 'Pasti {0}', 'Karmienia {0}', 'Voedingen {0}'),
+'Chart.SummaryDiapers': ('Diapers {0}', 'Windeln {0}', 'Couches {0}', 'Pañales {0}', 'Pannolini {0}', 'Pieluszki {0}', 'Luiers {0}'),
+'Chart.SummaryPumps': ('Pumping {0}', 'Abpumpen {0}', 'Tirages {0}', 'Extracciones {0}', 'Tiralatte {0}', 'Odciąganie {0}', 'Kolven {0}'),
+'Chart.Hint': ('Double-tap for the day in detail', 'Doppeltippen für den Tag im Detail', 'Touchez deux fois pour le détail de la journée', 'Toca dos veces para ver el día en detalle', 'Tocca due volte per il dettaglio della giornata', 'Stuknij dwukrotnie, aby zobaczyć szczegóły dnia', 'Dubbeltik voor de dag in detail'),
 'Age.Corrected': ('{0} (corrected)', '{0} (korrigiert)', '{0} (corrigé)', '{0} (corregida)', '{0} (corretta)', '{0} (korygowany)', '{0} (gecorrigeerd)'),
 }
 

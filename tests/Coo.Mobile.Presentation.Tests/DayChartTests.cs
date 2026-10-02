@@ -253,6 +253,176 @@ public sealed class DayChartTests : IDisposable
         text.Should().Be("14:10");
     }
 
+    [Fact]
+    public void QuietBands_Overnight_AreTwoBandsAtTheDaysEnds()
+    {
+        // Arrange
+        var day = DayMath.Day(Date, Amsterdam);
+
+        // Act
+        var bands = DayChart.QuietBands(QuietHours.Default, day, Amsterdam);
+
+        // Assert
+        bands.Should().HaveCount(2);
+        bands[0].Should().Be(new ChartBand(0, 7.0 / 24));
+        bands[1].From.Should().BeApproximately(22.0 / 24, 1e-9);
+        bands[1].To.Should().Be(1);
+    }
+
+    [Fact]
+    public void QuietBands_WithinTheDay_IsOneBand()
+    {
+        // Arrange
+        var day = DayMath.Day(Date, Amsterdam);
+
+        // Act
+        var bands = DayChart.QuietBands(new QuietHours(new TimeOnly(13, 0), new TimeOnly(15, 0)), day, Amsterdam);
+
+        // Assert
+        bands.Should().ContainSingle();
+        bands[0].From.Should().BeApproximately(13.0 / 24, 1e-9);
+        bands[0].To.Should().BeApproximately(15.0 / 24, 1e-9);
+    }
+
+    [Fact]
+    public void QuietBands_StartEqualsEnd_IsNone()
+    {
+        // Arrange
+        var day = DayMath.Day(Date, Amsterdam);
+
+        // Act
+        var bands = DayChart.QuietBands(new QuietHours(new TimeOnly(22, 0), new TimeOnly(22, 0)), day, Amsterdam);
+
+        // Assert
+        bands.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Hours_OrdinaryDay_Has25TicksFrom00To24()
+    {
+        // Arrange
+        var day = DayMath.Day(Date, Amsterdam);
+
+        // Act
+        var hours = DayChart.Hours(day, Amsterdam, Ml);
+
+        // Assert
+        hours.Should().HaveCount(25);
+        hours[0].Should().Be(new HourTick(0, 0, "00:00"));
+        hours[13].Label.Should().Be("13:00");
+        hours[^1].Hour.Should().Be(24);
+        hours[^1].At.Should().Be(1);
+    }
+
+    [Fact]
+    public void Hours_AutumnClockChange_Has26TicksWithTwoTwos()
+    {
+        // Arrange: on 25 October 2026 Amsterdam goes from 03:00 back to 02:00.
+        var day = DayMath.Day(new DateOnly(2026, 10, 25), Amsterdam);
+
+        // Act
+        var hours = DayChart.Hours(day, Amsterdam, Ml);
+
+        // Assert
+        hours.Should().HaveCount(26);
+        hours.Select(h => h.Hour).Take(5).Should().Equal(0, 1, 2, 2, 3);
+    }
+
+    [Fact]
+    public void RangeTitle_Today_NamesTodayAndRoundsToFiveMinutes()
+    {
+        // Arrange
+        var day = DayMath.Day(Date, Amsterdam);
+
+        // Act
+        var title = DayChart.RangeTitle(day, isToday: true, (12 * 60 + 31) / 1440.0, (18 * 60 + 29) / 1440.0, Ml, Amsterdam);
+
+        // Assert
+        title.Should().Be("Today, 12:30 – 18:30");
+    }
+
+    [Fact]
+    public void RangeTitle_PastDay_NamesTheDate()
+    {
+        // Arrange
+        var day = DayMath.Day(new DateOnly(2026, 9, 30), Amsterdam);
+
+        // Act
+        var title = DayChart.RangeTitle(day, isToday: false, 3 / 24.0, 9 / 24.0, Ml, Amsterdam);
+
+        // Assert
+        title.Should().Be("Wed 30 Sep, 03:00 – 09:00");
+    }
+
+    [Fact]
+    public void HitTest_NoItems_ReturnsNull()
+    {
+        // Arrange
+        IReadOnlyList<ChartItem> items = [];
+
+        // Act
+        var hit = DayChart.HitTest(items, 0.5, 0.01);
+
+        // Assert
+        hit.Should().BeNull();
+    }
+
+    [Fact]
+    public void HitTest_FeedInsideSleep_PicksTheFeed()
+    {
+        // Arrange: a dream feed at 23:00 inside a sleep from 21:00 to 24:00.
+        var sleep = new ChartItem(ChartShape.Sleep, "sleep", 21 / 24.0, 1, new EntryId(Guid.CreateVersion7(Now)), "3 h 0 m");
+        var feed = new ChartItem(ChartShape.Feed, "feeding", 23 / 24.0, 23.25 / 24, new EntryId(Guid.CreateVersion7(Now)), "23:00 R 15 m");
+
+        // Act
+        var hit = DayChart.HitTest([sleep, feed], 23.1 / 24, 0.002);
+
+        // Assert
+        hit.Should().Be(feed);
+    }
+
+    [Fact]
+    public void HitTest_NearAPoint_FindsItWithinTheTolerance()
+    {
+        // Arrange
+        var diaper = new ChartItem(ChartShape.Diaper, "diaper", 0.5, 0.5, new EntryId(Guid.CreateVersion7(Now)), "Wet");
+
+        // Act
+        var near = DayChart.HitTest([diaper], 0.505, 0.008);
+        var far = DayChart.HitTest([diaper], 0.52, 0.008);
+
+        // Assert
+        near.Should().Be(diaper);
+        far.Should().BeNull();
+    }
+
+    [Fact]
+    public void HitTest_AwakeStretch_IsNeverHit()
+    {
+        // Arrange
+        var awake = new ChartItem(ChartShape.Awake, "sleep", 0.4, 0.5, null, "awake 2 h 24 m");
+
+        // Act
+        var hit = DayChart.HitTest([awake], 0.45, 0.01);
+
+        // Assert
+        hit.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Summary_VisibleKinds_ListsSleepAndCounts()
+    {
+        // Arrange
+        var day = await Day(Sleep(At(9, 0), At(10, 30)), Diaper(At(11, 0), DiaperContents.Wet), Pump(At(21, 0), At(21, 20), 90));
+        var items = DayChart.Build(day, Ml, Amsterdam, kind => kind != "pump");
+
+        // Act
+        var summary = DayChart.Summary(items, day.Day, kind => kind != "pump");
+
+        // Assert
+        summary.Should().Be("Sleep 1 h 30 m; Feeds 0; Diapers 1");
+    }
+
     private static Formats Ml => new(true, VolumeUnit.Millilitres);
 
     private static DateTimeOffset At(int hour, int minute) => new(2026, 10, 1, hour, minute, 0, Cest);

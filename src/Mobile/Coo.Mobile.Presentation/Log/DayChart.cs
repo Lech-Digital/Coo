@@ -5,6 +5,7 @@ using Coo.Domain.CareLog.Kinds.Pump;
 using Coo.Domain.CareLog.Kinds.Sleep;
 using Coo.Domain.Common;
 using Coo.Mobile.Application.CareLog;
+using Coo.Mobile.Application.Preferences;
 using Coo.Mobile.Presentation.Formatting;
 using Coo.Mobile.Presentation.Localization;
 
@@ -21,6 +22,12 @@ public enum ChartShape
 
 /// <summary>One thing on the day chart, as fractions of the day, with its label for the zoomed day (Spec 009b §3).</summary>
 public sealed record ChartItem(ChartShape Shape, string KindCode, double From, double To, EntryId? EntryId, string Label);
+
+/// <summary>A stretch of the day, as fractions: a quiet-hours wash.</summary>
+public sealed record ChartBand(double From, double To);
+
+/// <summary>An hour boundary: where it falls, the local hour (24 for the day's end), and its label ("13:00", "1:00 PM").</summary>
+public sealed record HourTick(double At, int Hour, string Label);
 
 /// <summary>The day chart's content (Spec 009b), pure: the band and the zoomed day draw what this returns.</summary>
 public static class DayChart
@@ -85,6 +92,95 @@ public static class DayChart
         if (feed.RightDuration > TimeSpan.Zero)
             parts.Add($"{Formats.Side(BreastSide.Right, shortForm: true)} {Formats.Duration(feed.RightDuration)}");
         return string.Join(" · ", parts);
+    }
+
+    /// <summary>Quiet hours as washes behind the band (Spec 009b §2): one band, two across midnight, none when start equals end.</summary>
+    public static IReadOnlyList<ChartBand> QuietBands(QuietHours quiet, LocalDay day, TimeZoneInfo zone)
+    {
+        ArgumentNullException.ThrowIfNull(quiet);
+        ArgumentNullException.ThrowIfNull(day);
+        ArgumentNullException.ThrowIfNull(zone);
+        if (quiet.Start == quiet.End)
+            return [];
+
+        double At(TimeOnly time)
+        {
+            var local = day.Date.ToDateTime(time);
+            return day.Fraction(new DateTimeOffset(local, zone.GetUtcOffset(local)));
+        }
+
+        return quiet.Start < quiet.End
+            ? [new ChartBand(At(quiet.Start), At(quiet.End))]
+            : [new ChartBand(0, At(quiet.End)), new ChartBand(At(quiet.Start), 1)];
+    }
+
+    /// <summary>Every hour boundary of the day, in the household zone: 25 on most days, 24 or 26 at the clock changes.</summary>
+    public static IReadOnlyList<HourTick> Hours(LocalDay day, TimeZoneInfo zone, Formats formats)
+    {
+        ArgumentNullException.ThrowIfNull(day);
+        ArgumentNullException.ThrowIfNull(formats);
+        var ticks = new List<HourTick>();
+        for (var instant = day.Start; instant <= day.End; instant = instant.AddHours(1))
+        {
+            var hour = instant == day.End ? 24 : TimeZoneInfo.ConvertTime(instant, zone).Hour;
+            ticks.Add(new HourTick(day.Fraction(instant), hour, formats.Time(instant, zone)));
+        }
+
+        return ticks;
+    }
+
+    /// <summary>The zoomed day's title (Spec 009b §3): "Today, 12:30 – 18:30", "Wed 30 Sep, 03:00 – 09:00".</summary>
+    public static string RangeTitle(LocalDay day, bool isToday, double from, double to, Formats formats, TimeZoneInfo zone)
+    {
+        ArgumentNullException.ThrowIfNull(day);
+        ArgumentNullException.ThrowIfNull(formats);
+        DateTimeOffset At(double fraction)
+        {
+            var instant = day.Start + Span(day, 0, fraction);
+            var fiveMinutes = TimeSpan.FromMinutes(5).Ticks;
+            return new DateTimeOffset((instant.UtcTicks + fiveMinutes / 2) / fiveMinutes * fiveMinutes, TimeSpan.Zero);
+        }
+
+        var name = isToday ? Strings.Get("Section.Today") : day.Date.ToString("ddd d MMM", Strings.Culture);
+        return Strings.Format("Chart.Range", name, formats.Time(At(from), zone), formats.Time(At(to), zone));
+    }
+
+    /// <summary>
+    /// The item under a tap in the zoomed day (Spec 009b §3): the nearest within the tolerance; where several are as near,
+    /// the shortest, so a feed during a sleep opens the feed. Awake stretches are not entries and are never hit.
+    /// </summary>
+    public static ChartItem? HitTest(IReadOnlyList<ChartItem> items, double at, double tolerance)
+    {
+        ArgumentNullException.ThrowIfNull(items);
+        return items
+            .Where(i => i.EntryId is not null)
+            .Select(i => (Item: i, Distance: at < i.From ? i.From - at : at > i.To ? at - i.To : 0))
+            .Where(c => c.Distance <= tolerance)
+            .OrderBy(c => c.Distance)
+            .ThenBy(c => c.Item.To - c.Item.From)
+            .Select(c => c.Item)
+            .FirstOrDefault();
+    }
+
+    /// <summary>What a screen reader says for the band (Spec 009b §2): "Sleep 14 h 5 m; Feeds 7; Diapers 7; Pumping 2".</summary>
+    public static string Summary(IReadOnlyList<ChartItem> items, LocalDay day, Func<string, bool> isShown)
+    {
+        ArgumentNullException.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(isShown);
+        var parts = new List<string>();
+        if (isShown("sleep"))
+        {
+            var sleep = items.Where(i => i.Shape == ChartShape.Sleep).Aggregate(TimeSpan.Zero, (sum, i) => sum + Span(day, i.From, i.To));
+            parts.Add(Strings.Format("Chart.SummarySleep", Formats.Duration(sleep)));
+        }
+
+        if (isShown("feeding"))
+            parts.Add(Strings.Format("Chart.SummaryFeeds", items.Count(i => i.Shape == ChartShape.Feed)));
+        if (isShown("diaper"))
+            parts.Add(Strings.Format("Chart.SummaryDiapers", items.Count(i => i.Shape == ChartShape.Diaper)));
+        if (isShown("pump"))
+            parts.Add(Strings.Format("Chart.SummaryPumps", items.Count(i => i.Shape == ChartShape.Pump)));
+        return string.Join("; ", parts);
     }
 
     internal static TimeSpan Span(LocalDay day, double from, double to) =>

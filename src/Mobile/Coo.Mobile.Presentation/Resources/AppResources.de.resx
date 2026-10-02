@@ -36,6 +36,12 @@
   <data name="Baby.NicknamesHint" xml:space="preserve"><value>Bis zu 5, mit Kommas getrennt</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Willkommen, {0}</value></data>
   <data name="Chart.Awake" xml:space="preserve"><value>wach {0}</value></data>
+  <data name="Chart.Hint" xml:space="preserve"><value>Doppeltippen für den Tag im Detail</value></data>
+  <data name="Chart.Range" xml:space="preserve"><value>{0}, {1} – {2}</value></data>
+  <data name="Chart.SummaryDiapers" xml:space="preserve"><value>Windeln {0}</value></data>
+  <data name="Chart.SummaryFeeds" xml:space="preserve"><value>Mahlzeiten {0}</value></data>
+  <data name="Chart.SummaryPumps" xml:space="preserve"><value>Abpumpen {0}</value></data>
+  <data name="Chart.SummarySleep" xml:space="preserve"><value>Schlaf {0}</value></data>
   <data name="Diaper.Dirty" xml:space="preserve"><value>Voll</value></data>
   <data name="Diaper.Mixed" xml:space="preserve"><value>Beides</value></data>
   <data name="Diaper.Wet" xml:space="preserve"><value>Nass</value></data>

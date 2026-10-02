@@ -36,6 +36,12 @@
   <data name="Baby.NicknamesHint" xml:space="preserve"><value>Maximaal 5, gescheiden door komma’s</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Welkom, {0}</value></data>
   <data name="Chart.Awake" xml:space="preserve"><value>wakker {0}</value></data>
+  <data name="Chart.Hint" xml:space="preserve"><value>Dubbeltik voor de dag in detail</value></data>
+  <data name="Chart.Range" xml:space="preserve"><value>{0}, {1} – {2}</value></data>
+  <data name="Chart.SummaryDiapers" xml:space="preserve"><value>Luiers {0}</value></data>
+  <data name="Chart.SummaryFeeds" xml:space="preserve"><value>Voedingen {0}</value></data>
+  <data name="Chart.SummaryPumps" xml:space="preserve"><value>Kolven {0}</value></data>
+  <data name="Chart.SummarySleep" xml:space="preserve"><value>Slaap {0}</value></data>
   <data name="Diaper.Dirty" xml:space="preserve"><value>Vies</value></data>
   <data name="Diaper.Mixed" xml:space="preserve"><value>Beide</value></data>
   <data name="Diaper.Wet" xml:space="preserve"><value>Nat</value></data>
