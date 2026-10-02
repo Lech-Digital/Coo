@@ -31,7 +31,7 @@ two.
 | 15b | **Night and weekly summaries** | 015b | Premium, AI: a written summary of the night, and a weekly summary, with ADR 0005's privacy rules. Designed in its own spec (owner, 2026-10-02). | — |
 | 16 | **Reports (PDF)** | 016 | The pediatrician report, designed first. | — |
 | 17 | **Wear OS companion** | 017 | ADR 0009. | — |
-| 18 | **Release** | 018 | Signing, the Play listing in seven languages, the privacy policy, closed testing. | — |
+| 18 | **Release** | 018 | Signing, the Play listing in seven languages, the privacy policy, closed testing. Store assets per `store-assets/PLAN.md` (demo build, screenshots, feature graphic, listing in seven languages). | — |
 
 Increments 1–7 and 9 need no server and no accounts. By the end of increment 7, the app is a usable
 **single-phone baby log**. Everything after that adds the family and the smart features. Premium covers the sleep prediction and the AI features; everything else stays free (owner, 2026-10-02).
