@@ -21,6 +21,7 @@ public sealed class SettingsPage : ContentPage
     private readonly UndoService _undo;
     private readonly ContentView _body = new();
     private readonly LanguageController _language;
+    private bool _confirming;
     private bool _rendering;
     private bool _renderQueued;
     private string? _renderedLanguage;
@@ -59,7 +60,17 @@ public sealed class SettingsPage : ContentPage
             QueueRender();
 
         // The latest name and email, without holding up the page; offline nothing changes (Spec 010 deliverable 5).
-        Dispatcher.Dispatch(async () => await _account.RefreshAsync());
+        Dispatcher.Dispatch(async () =>
+        {
+            try
+            {
+                await _account.RefreshAsync();
+            }
+            catch (Exception)
+            {
+                // Offline or failed: nothing changes, and a background refresh never takes the app down.
+            }
+        });
     }
 
     protected override void OnDisappearing()
@@ -225,16 +236,37 @@ public sealed class SettingsPage : ContentPage
 
     private async Task ConfirmSignOutAsync()
     {
-        var prompt = _account.SignOutPrompt;
-        if (await DisplayAlertAsync(prompt.Title, prompt.Message, prompt.Accept, prompt.Cancel))
-            await _account.SignOutCommand.ExecuteAsync(null);
+        // One dialog at a time: a second tap while the first is being prepared or shown does nothing.
+        if (_confirming)
+            return;
+        _confirming = true;
+        try
+        {
+            var prompt = _account.SignOutPrompt;
+            if (await DisplayAlertAsync(prompt.Title, prompt.Message, prompt.Accept, prompt.Cancel))
+                await _account.SignOutCommand.ExecuteAsync(null);
+        }
+        finally
+        {
+            _confirming = false;
+        }
     }
 
     private async Task ConfirmDeleteAsync()
     {
-        var prompt = await _account.DeletePromptAsync();
-        if (await DisplayAlertAsync(prompt.Title, prompt.Message, prompt.Accept, prompt.Cancel))
-            await _account.DeleteAccountCommand.ExecuteAsync(null);
+        if (_confirming)
+            return;
+        _confirming = true;
+        try
+        {
+            var prompt = await _account.DeletePromptAsync();
+            if (await DisplayAlertAsync(prompt.Title, prompt.Message, prompt.Accept, prompt.Cancel))
+                await _account.DeleteAccountCommand.ExecuteAsync(null);
+        }
+        finally
+        {
+            _confirming = false;
+        }
     }
 
     private async Task ChooseLanguageAsync()
