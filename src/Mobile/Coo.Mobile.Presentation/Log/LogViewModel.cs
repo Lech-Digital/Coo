@@ -6,6 +6,7 @@ using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Preferences;
 using Coo.Mobile.Presentation.Formatting;
 using Coo.Mobile.Presentation.Localization;
+using Coo.Mobile.Presentation.Theme;
 using Coo.Mobile.Presentation.Today;
 
 namespace Coo.Mobile.Presentation.Log;
@@ -13,7 +14,7 @@ namespace Coo.Mobile.Presentation.Log;
 public sealed record TotalItem(string KindCode, string Number, string Unit);
 
 /// <summary>The Log screen (Spec 006 §7): one local day, with ribbon, totals and timeline.</summary>
-public sealed partial class LogViewModel(IHouseholdStore households, GetDay getDay, IClockFormat clock, UndoService undo, TimeProvider time) : ObservableObject
+public sealed partial class LogViewModel(IHouseholdStore households, GetDay getDay, IClockFormat clock, UndoService undo, ThemeController theme, TimeProvider time) : ObservableObject
 {
     [ObservableProperty]
     private DateOnly _date = DateOnly.FromDateTime(time.GetLocalNow().DateTime);
@@ -22,7 +23,26 @@ public sealed partial class LogViewModel(IHouseholdStore households, GetDay getD
     private string _title = "";
 
     [ObservableProperty]
-    private IReadOnlyList<RibbonMark> _ribbon = [];
+    private IReadOnlyList<ChartItem> _chartItems = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<ChartBand> _quietBands = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<HourTick> _hours = [];
+
+    /// <summary>Where now falls on today's chart, rounded to the minute so a quick return to Log changes nothing; null on other days.</summary>
+    [ObservableProperty]
+    private double? _nowAt;
+
+    [ObservableProperty]
+    private string _chartSummary = "";
+
+    private (LocalDay Day, bool IsToday, Formats Formats, TimeZoneInfo Zone)? _shown;
+
+    /// <summary>The zoomed day's title for the part in view (Spec 009b §3).</summary>
+    public string RangeTitle(double from, double to) =>
+        _shown is { } s ? DayChart.RangeTitle(s.Day, s.IsToday, from, to, s.Formats, s.Zone) : "";
 
     [ObservableProperty]
     private IReadOnlyList<TotalItem> _totals = [];
@@ -51,7 +71,15 @@ public sealed partial class LogViewModel(IHouseholdStore households, GetDay getD
 
         Title = Date == today ? Strings.Get("Section.Today") : Date.ToString("dddd d MMMM", Strings.Culture);
         CanGoNext = Date < today;
-        Ribbon = Same(Ribbon, day.Ribbon);
+        bool IsShown(string kind) => KindVisibility.IsShown(household, kind);
+        var isToday = Date == today;
+        _shown = (day.Day, isToday, formats, zone);
+        var items = DayChart.Build(day, formats, zone, IsShown);
+        ChartItems = Same(ChartItems, items);
+        QuietBands = Same(QuietBands, DayChart.QuietBands(theme.Settings.QuietHours, day.Day, zone));
+        Hours = Same(Hours, DayChart.Hours(day.Day, zone, formats));
+        NowAt = isToday ? Math.Round(day.Day.Fraction(now) * day.Day.Length.TotalMinutes) / day.Day.Length.TotalMinutes : null;
+        ChartSummary = DayChart.Summary(items, day.Day, IsShown);
         var pumped = household.VolumeUnit == VolumeUnit.Ounces
             ? (Math.Round(day.Totals.PumpedMl / Coo.Domain.CareLog.Volume.MillilitresPerUsFluidOunce, 1).ToString("0.#", Strings.Culture), Strings.Get("Totals.PumpedOz"))
             : (Math.Round(day.Totals.PumpedMl).ToString("0", Strings.Culture), Strings.Get("Totals.PumpedMl"));

@@ -48,7 +48,80 @@ public sealed class LogViewModelTests
         changed.Should().Contain([nameof(LogViewModel.Totals), nameof(LogViewModel.Title)]);
     }
 
-    private static LogViewModel Model()
+    [Fact]
+    public async Task RefreshAsync_Today_PutsNowAt14()
+    {
+        // Arrange
+        var model = Model();
+
+        // Act
+        await model.RefreshAsync();
+
+        // Assert
+        model.NowAt.Should().BeApproximately(14.0 / 24, 1e-9);
+    }
+
+    [Fact]
+    public async Task RefreshAsync_PastDay_HasNoNow()
+    {
+        // Arrange
+        var model = Model();
+        await model.RefreshAsync();
+
+        // Act
+        await model.PreviousCommand.ExecuteAsync(null);
+
+        // Assert
+        model.NowAt.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task RefreshAsync_DefaultQuietHours_ShadesBothEndsOfTheDay()
+    {
+        // Arrange
+        var model = Model();
+
+        // Act
+        await model.RefreshAsync();
+
+        // Assert
+        model.QuietBands.Should().HaveCount(2);
+        model.Hours.Should().HaveCount(25);
+    }
+
+    [Fact]
+    public async Task RefreshAsync_TwentySecondsLater_RaisesNothing()
+    {
+        // Arrange: the owner's Pixel 10 finding — a return to Log must not redraw it.
+        var time = new MovableTime(Now);
+        var model = Model(time);
+        await model.RefreshAsync();
+        var changed = new List<string?>();
+        model.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+        time.Now = Now.AddSeconds(20);
+
+        // Act
+        await model.RefreshAsync();
+
+        // Assert
+        changed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task RangeTitle_AfterRefresh_NamesToday()
+    {
+        // Arrange
+        var model = Model();
+        await model.RefreshAsync();
+
+        // Act
+        var title = model.RangeTitle(12.5 / 24, 18.5 / 24);
+
+        // Assert
+        title.Should().Contain("12:30").And.Contain("18:30");
+    }
+
+    private static LogViewModel Model(TimeProvider? timeProvider = null)
     {
         var households = Substitute.For<IHouseholdStore>();
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
@@ -59,15 +132,19 @@ public sealed class LogViewModelTests
         store.ListAsync(default, default, default, default).ReturnsForAnyArgs(Array.Empty<StoredEntry>());
         var clock = Substitute.For<IClockFormat>();
         clock.Is24Hour.Returns(true);
-        var time = new FixedTime(Now);
+        var time = timeProvider ?? new MovableTime(Now);
         var versions = Substitute.For<IVersionClock>();
         var undo = new UndoService(new DeleteEntry(store, versions), new ReviseEntry(store, versions, time), store, time);
-        return new LogViewModel(households, new GetDay(store), clock, undo, time);
+        var theme = new Coo.Mobile.Presentation.Theme.ThemeController(
+            Substitute.For<IDevicePreferences>(), Substitute.For<Coo.Mobile.Presentation.Theme.IOsAppearance>(), time);
+        return new LogViewModel(households, new GetDay(store), clock, undo, theme, time);
     }
 
-    private sealed class FixedTime(DateTimeOffset now) : TimeProvider
+    private sealed class MovableTime(DateTimeOffset now) : TimeProvider
     {
-        public override DateTimeOffset GetUtcNow() => now.ToUniversalTime();
+        public DateTimeOffset Now { get; set; } = now;
+
+        public override DateTimeOffset GetUtcNow() => Now.ToUniversalTime();
 
         public override TimeZoneInfo LocalTimeZone { get; } = TimeZoneInfo.CreateCustomTimeZone("plus2", now.Offset, "plus2", "plus2");
     }
