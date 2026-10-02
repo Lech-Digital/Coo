@@ -48,15 +48,16 @@ public sealed class BringEntriesOver(ISessionStore sessions, IHouseholdMoves mov
             return null;
         }
 
-        // No entries to bring (final review M7): the family's log simply shows.
+        // No entries to bring (final review M7): the family's log simply shows. Not when this phone's baby is the only baby
+        // there is: then the sheet brings the baby over, so nobody types the baby in again.
         var mine = await moves.SummaryAsync(local, cancellationToken);
-        if (mine.EntryCount == 0)
+        var family = await moves.SummaryAsync(session.AccountHousehold, cancellationToken);
+        if (mine.EntryCount == 0 && (mine.Babies.Count == 0 || family.Babies.Count > 0))
         {
             await CompleteWithoutMoveAsync(session, generation, cancellationToken);
             return null;
         }
 
-        var family = await moves.SummaryAsync(session.AccountHousehold, cancellationToken);
         return new BringOverChoice(mine, family.Babies);
     }
 

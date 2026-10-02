@@ -123,8 +123,9 @@ public sealed class StartupPage : ContentPage
                 || (await households.ListBabiesAsync(household.Id, CancellationToken.None)).Count > 0)
                 return;
 
-            // Checked again after the reads: another change may have opened setup meanwhile.
-            if (window.Page is AppShell)
+            // Checked again after the reads: another change may have opened setup meanwhile. Not while Coo is off screen or a
+            // sheet is open (replacing the root page would drop it): the next change or the next launch checks again.
+            if (window.Page is AppShell && App.IsForeground && window.Page.Navigation.ModalStack.Count == 0)
                 ShowSetup(window, startSync: false);
         }
 #pragma warning disable CA1031 // Fire-and-forget on the main thread: the next change or launch checks again.

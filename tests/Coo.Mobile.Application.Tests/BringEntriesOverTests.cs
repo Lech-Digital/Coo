@@ -297,4 +297,21 @@ public sealed class BringEntriesOverTests : IDisposable
         _account.State.Should().Be(new SignedIn(Profile));
         _sync.Received(1).RequestSync();
     }
+
+    [Fact]
+    public async Task PrepareAsync_NoEntriesButTheFamilyHasNoBaby_StillOffersBringingTheBabyOver()
+    {
+        // Arrange
+        await JoinPendingAsync();
+        _moves.SummaryAsync(Provisional, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, [new(LocalBaby, "Maja")]));
+        _moves.SummaryAsync(Household, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, []));
+
+        // Act
+        var choice = await UseCase().PrepareAsync(CancellationToken.None);
+
+        // Assert
+        choice.Should().NotBeNull();
+        choice!.Local.Babies.Should().ContainSingle().Which.Id.Should().Be(LocalBaby);
+        await _moves.DidNotReceiveWithAnyArgs().ActivateAsync(default, default);
+    }
 }
