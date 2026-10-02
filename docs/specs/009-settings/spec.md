@@ -97,6 +97,7 @@ makes Today and Log follow each change.
 - **Privacy policy:** opens **https://coo.lechdigital.nl/privacy** in the browser (Q3). The page is written in
   Increment 18; until then the link does not resolve, which is accepted for internal builds. The DNS record for
   `coo.lechdigital.nl` is already in the owner's setup list.
+  (Moved to https://lechdigital.nl/projects/coo/privacy by Spec 010, Q4.)
 
 ### 3.7 Night ↔ day from Today (Q9)
 

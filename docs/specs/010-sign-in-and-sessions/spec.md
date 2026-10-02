@@ -219,3 +219,76 @@ The outbox keeps filling as before. Nothing is sent until Increment 11.
 | Q4 | Website addresses | **Answered: Coo's page on lechdigital.nl,** a flagship project on the home page, with the privacy policy at `https://lechdigital.nl/projects/coo/privacy` (as PurePrep's) and the deletion page beside it. Spec 009's privacy link (`coo.lechdigital.nl/privacy`, a host with no DNS) moves there in this increment. |
 | Q5 | Token lifetimes | **Answered (as recommended):** **As ADR 0003:** 15 minutes for the access token, 180 days sliding for the refresh token. |
 | Q6 | Spike first | **Answered (as recommended):** **Yes, Spec 010a,** as ADR 0003 requires. If Credential Manager fails in a trimmed build, this spec still holds: only the adapter behind `ISignInProvider` changes. |
+
+## 10. Built and verified (2026-10-02, Pixel 10)
+
+Trimmed Release build with the debug screen (0 IL warnings), signed with the debug key; production at `0.10.0+8c4b21a`.
+
+| # | Deliverable | Result |
+|---|---|---|
+| 1 | Sign in | **PASS.** The sheet, adzius.lech@gmail.com: the section shows the name and email, Sign out and Delete account. |
+| 2 | The household is taken over | **PASS** (checked in the server's database): the household ID is the phone's, the membership is owner, the session "Pixel 10" is active, the user is `google:<sub>`. The debug screen opens with three taps on "coo". |
+| 3 | A second phone, same account | **OPEN.** No second phone on the day. Covered by the API tests (the `joined` outcome). To be run with the emulator as the second phone in Increment 11. |
+| 4 | Sessions refresh | **PASS.** After 20 minutes away: still signed in, no sheet; the session's `last_used_at` moved 16:24 → 16:46 (a silent refresh). |
+| 5 | Offline | **PASS.** Airplane mode: a diaper was logged; Settings still shows the account, no error. |
+| 6 | Sign out | **PASS** (server-side proof). Signed-out state, log unchanged; `device_sessions.revoked_at` set. The old token is refused per request (`Me_AfterSignOut_RefusesTheOldAccessToken`); it could not be tried on the device (see §10.6). |
+| 7 | Delete account | **PASS.** Signing in again was `existing` (the same session row reused). The confirmation names the baby; after it: signed out, log unchanged, the server's users, logins, sessions, memberships and households all 0. |
+| 8 | The web page | **PASS.** The delete-account page is live (301 to the trailing-slash address). |
+| 9 | Deployed | **PASS.** `/health` shows `0.10.0+8c4b21a`, database ok; `.env` holds both `AUTH_*` names, mode 600. |
+| 10 | CI green | See the commit that closes this increment. |
+
+### 10.1 The plan's rulings on what this spec leaves open
+
+- **`existing` versus `joined`:** the same phone is recognised when the request's household ID is the account's household, or this device ID has had a session for this user before (even a revoked one). Anything else is `joined`.
+- **A malformed sign-in request** (empty device or household ID, empty token) is refused like a bad token: `401` `auth.google-token-invalid`. No new error code.
+- **Signing keys:** `Auth:SigningKeys:<kid>` (one or two, base64, at least 32 bytes) plus an optional `Auth:ActiveSigningKeyId`, required only with two keys. Outside Production, missing settings fall back to a random per-process key and no client ID (every sign-in is refused); Production refuses to start.
+- **The bearer validation checks the device session on every request.** Membership is not a claim (ADR 0003 §4).
+- **`households.created_by`** is nullable with `ON DELETE SET NULL`: older households have no creator, and one that survives its creator keeps its row.
+- **The deletion confirmation without a baby name** is used when the phone is join-pending or has no baby.
+- **`401` without a token** carries no body (the bearer handler's default).
+- **Both settings go into the server's `.env`,** though the client ID is not a secret.
+
+### 10.2 The controller's rulings
+
+- The owner authorised production deploys on 2026-10-02, superseding the plan's "never deploys"; the controller deployed (twice: `f1c7301`, `8c4b21a`). Cost if wrong: none.
+- The controller drove the phone and picked adzius.lech@gmail.com, on the owner's standing words. Cost if wrong: none.
+- `AspNetUsers` keeps Identity's default columns, `PasswordHash` always null (ADR 0003 §3). Cost if wrong: unused columns.
+- A concurrent first sign-in's loser rolls back and fails (500); the phone's retry signs in. Cost if wrong: one "try again" in a near-impossible race.
+- Identity's allowed user-name characters gain `:` for `google:<sub>`. Cost if wrong: none.
+- The token refresher shares one in-flight refresh among callers with the same stale token, including its failure (not remembered; the next call retries). Cost if wrong: a caller joining a failing refresh sees that failure instead of trying once more.
+- `SignOutPrompt` stays an instance property, with a justified CA1822 suppression. Cost if wrong: one attribute.
+- `TimeProvider.System` in the debug-only `SectionViews.cs` (host project). Cost if wrong: none.
+- The refresh-during-sign-out race and a lost refresh response reading as theft are deferred to Increment 11. Cost if wrong: a rare spurious sign-out until then.
+- The `Account.JoinPending` copy ("…when sharing arrives") changes when Increment 11 ships sharing (release-ready copy).
+- Task 9 carry resolved read-only: the API's Docker network (172.18.0.0/16) is inside the trusted forwarded-header ranges, and Caddy replaces the client's `X-Forwarded-For`, so the rate limit is per real address.
+
+### 10.3 Deviations from §6
+
+- Identity's EF types (`CooUser`, the new records) live in `Coo.Api.Infrastructure/Persistence`, because the architecture test allows EF only there; the token issuer, bearer setup and Google verifier are in `Identity`.
+- The session store is split: the codec (`SessionStore`) is in `Coo.Mobile.Infrastructure/Auth`, tested, behind an `ISecretStore` port; the host implements it with MAUI `SecureStorage` (`MauiSecretStore`).
+
+### 10.4 Findings and fixes during review
+
+- **Settings and Account view model (task review):** the toast was never cleared, so a repeat failure did not notify; delete had no busy guard (a double tap sent two DELETEs). Both fixed.
+- **Credential Manager adapter (task review):** callbacks could throw on the main thread, synchronous throws were not wrapped as `SignInUnavailableException`, and `MauiSecretStore.Remove` could throw inside a catch. Fixed with catch-alls and wrapping.
+- **Settings page (task review):** a fire-and-forget refresh without a catch could crash the app; the plan's stacked confirmations could show a false delete-failed toast. Both fixed (catch-alls; one dialog at a time).
+- **Debug page (task review):** the Button helpers could throw out of an async-void handler (a timeout, a secret-store error). Caught.
+- **Final review, fix wave (`225ca3b`..`8c4b21a`, five commits):**
+  - A refusal that is not a `401` (408, a proxy 404 during a deploy) no longer signs the phone out.
+  - The access-token refusals are pinned against hand-built tokens (alg none, no kid, wrong issuer, wrong audience, `nbf` beyond the skew).
+  - The nonce clean-up job logs a stray cancellation by type and waits for the next day instead of stopping the API.
+  - An unreadable body (a captive portal's 200 page, an undecodable charset, a cut-off body) is "unavailable", never another exception.
+  - A secret store refusing a write in a Settings row tap shows the generic toast instead of crashing (no automated test: MAUI host).
+- Fix wave re-review: 5 of 5 addressed, no new Critical or Important findings.
+
+### 10.5 Verified on the device
+
+TapBurst (three taps) opens the debug screen on Android; the Credential Manager adapter returns the token with our nonce in the trimmed build; the signed-out state and the deletion text match §2.
+
+### 10.6 Known limits, carried to Increment 11
+
+- **A refresh in flight during sign-out** can re-save the session or set `SessionExpired` spuriously (a session-generation check, or a grace window, is Increment 11's).
+- **A lost refresh response reads as theft:** only one previous generation is kept, so a retry after a lost answer revokes the session and signs the phone out.
+- **The `Account.JoinPending` copy** names sharing "when it arrives"; it must change when sharing ships.
+- **The debug page's kept token is lost** when it is reopened after signing out in Settings (the page is transient), so "Old token" cannot be tried on the device; the page gets new buttons in Increment 11.
+- **Minors worth naming:** sign-out waits up to 20 s for the server revoke with no busy state; retrying a delete whose answer was lost shows a mixed message; an account committed and then a session creation failing makes the retry report `existing`, not `adopted`; the 60-character device name can cut a surrogate pair; the 23505 catch is not filtered by constraint name; malformed `/refresh` and `DELETE /api/account` bodies answer a bare 400; no `Retry-After` on 429; ownership promotion ignores its row count (check it when members exist, 11b); `DeleteAccount`'s plan is read before its transaction (re-check under concurrent joins, 11b); a few branches (existing user without membership, profile update, nonce at exactly 5:00) have no test.

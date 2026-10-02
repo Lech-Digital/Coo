@@ -135,6 +135,16 @@ fonts.
 - **`uiautomator dump` fails while a view ticks every second,** so the tap helper finds nothing on Today with a timer
   running. Tap by coordinates there.
 
+## MAUI lessons from Increment 10
+
+- **`TapGestureRecognizer.NumberOfTapsRequired = 3` never fires on Android:** MAUI reports only single and double
+  taps there. Count single taps (`TapBurst`).
+- **The Credential Manager bindings are pinned** to 1.5.0 / 1.5.0 / 1.1.0.8 (Spec 010a §5); newer ones fail restore
+  with MAUI 10.0.0.
+- **A Debug APK installed with `adb install` needs `-p:EmbedAssembliesIntoApk=true`** (see "The Android app" above).
+- **.NET for Android signs Debug builds with `~/Library/Application Support/Xamarin/Mono for Android/debug.keystore`,**
+  not `~/.android/debug.keystore`. Register that key's SHA-1 with the Google Android client.
+
 ## The backend (Increment 8)
 
 - **Deploying:** `DEPLOY.md`. Its tests and the deploy interlock need **Docker Desktop** running
