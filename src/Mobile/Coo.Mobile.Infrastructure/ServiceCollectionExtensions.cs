@@ -1,6 +1,8 @@
+using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Preferences;
+using Coo.Mobile.Infrastructure.Auth;
 using Coo.Mobile.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,13 +11,17 @@ namespace Coo.Mobile.Infrastructure;
 /// <summary>The one public entry point of this project (ADR 0001 §2).</summary>
 public static class ServiceCollectionExtensions
 {
+    private static readonly TimeSpan HttpTimeout = TimeSpan.FromSeconds(20);
+
     /// <param name="databasePath">The SQLite file, inside the app's private data folder.</param>
     /// <param name="appVersion">The running app version: the integrity scan runs once per version (Spec 004 §7).</param>
-    public static IServiceCollection AddMobileInfrastructure(this IServiceCollection services, string databasePath, string appVersion)
+    /// <param name="apiBaseAddress">The API, ending in a slash: <c>https://api.coo.lechdigital.nl/</c> (Spec 010 §6).</param>
+    public static IServiceCollection AddMobileInfrastructure(this IServiceCollection services, string databasePath, string appVersion, Uri apiBaseAddress)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentException.ThrowIfNullOrWhiteSpace(databasePath);
         ArgumentException.ThrowIfNullOrWhiteSpace(appVersion);
+        ArgumentNullException.ThrowIfNull(apiBaseAddress);
 
         services.AddSingleton(new LocalDatabase(databasePath));
         services.AddSingleton<DeviceState>();
@@ -32,6 +38,18 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(sp => new DataMigrationRunner([], sp.GetRequiredService<TimeProvider>()));
         services.AddSingleton<IAppStartup>(sp => new AppStartup(
             sp.GetRequiredService<LocalDatabase>(), sp.GetRequiredService<DataMigrationRunner>(), sp.GetRequiredService<DeviceState>(), appVersion));
+
+        // Sign-in and sessions (Spec 010 §6). The host registers ISecretStore (SecureStorage).
+        services.AddSingleton<ISessionStore, SessionStore>();
+        services.AddSingleton<IAuthApi>(_ => new AuthClient(new HttpClient { BaseAddress = apiBaseAddress, Timeout = HttpTimeout }));
+        services.AddSingleton(sp => new TokenRefresher(
+            sp.GetRequiredService<ISessionStore>(), sp.GetRequiredService<IAuthApi>(), sp.GetRequiredService<Account>(), sp.GetRequiredService<TimeProvider>()));
+        services.AddSingleton<IAccountApi>(sp => new AccountClient(
+            new HttpClient(new AuthenticatingHandler(sp.GetRequiredService<TokenRefresher>()) { InnerHandler = new HttpClientHandler() })
+            {
+                BaseAddress = apiBaseAddress,
+                Timeout = HttpTimeout,
+            }));
         return services;
     }
 }
