@@ -265,9 +265,9 @@ public sealed class ConsentAndBringOverTests : IDisposable
     }
 
     [Fact]
-    public async Task ConfirmCommand_TheMoveIsRefused_SaysNothingChangedAndStaysOpen()
+    public async Task ConfirmCommand_SignedOutBeforeTheMove_SaysNothingChangedAndCloses()
     {
-        // Arrange: signed out meanwhile, so ExecuteAsync answers false.
+        // Arrange: the session is gone, so nothing moved and nothing is left to ask.
         _sessions.GetAsync(Arg.Any<CancellationToken>()).Returns(
             new StoredSession("a", DateTimeOffset.UnixEpoch, "r", Profile, Family, JoinPending: true),
             (StoredSession?)null);
@@ -281,8 +281,73 @@ public sealed class ConsentAndBringOverTests : IDisposable
         await model.ConfirmCommand.ExecuteAsync(null);
 
         // Assert
+        closed.Should().Be(1);
+        model.Toast.Should().Be("That didn't work. Nothing was changed.");
+    }
+
+    [Fact]
+    public async Task ConfirmCommand_NothingChangedButStillPending_SaysSoAndStaysOpen()
+    {
+        // Arrange: the account's generation moved before the move, yet the stored session is still join-pending.
+        using var account = new Account(_sessions);
+        var model = BringOver(account);
+        await model.LoadAsync();
+        _moves.SummaryAsync(Mine, Arg.Any<CancellationToken>()).Returns(async _ =>
+        {
+            await account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+            return new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]);
+        });
+        var closed = 0;
+        model.Closed += (_, _) => closed++;
+
+        // Act
+        await model.ConfirmCommand.ExecuteAsync(null);
+
+        // Assert
         closed.Should().Be(0);
         model.Toast.Should().Be("That didn't work. Nothing was changed.");
+        await _moves.DidNotReceiveWithAnyArgs().BringOverAsync(default!, default, default);
+    }
+
+    [Fact]
+    public async Task ConfirmCommand_MovedButTheJoinWasNotCompleted_ClosesWithoutAToast()
+    {
+        // Arrange: the sign-out lands during the move, so the join cannot complete afterwards.
+        using var account = new Account(_sessions);
+        var model = BringOver(account);
+        await model.LoadAsync();
+        _moves.BringOverAsync(default!, default, default).ReturnsForAnyArgs(async _ =>
+        {
+            await account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+            return true;
+        });
+        var closed = 0;
+        model.Closed += (_, _) => closed++;
+
+        // Act
+        await model.ConfirmCommand.ExecuteAsync(null);
+
+        // Assert
+        closed.Should().Be(1);
+        model.Toast.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task NotNowCommand_WhileAgreeIsInFlight_IsIgnored()
+    {
+        // Arrange
+        var release = new TaskCompletionSource();
+        _consentApi.RecordAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(_ => release.Task);
+        var model = Consent();
+        var agreeing = model.AgreeCommand.ExecuteAsync(null);
+
+        // Act
+        await model.NotNowCommand.ExecuteAsync(null);
+        release.SetResult();
+        await agreeing;
+
+        // Assert
+        await _state.DidNotReceive().SetConsentAsync(Profile.UserId, ConsentState.Declined, Arg.Any<CancellationToken>());
     }
 
     [Fact]

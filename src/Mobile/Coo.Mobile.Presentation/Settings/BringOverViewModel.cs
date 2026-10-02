@@ -111,10 +111,19 @@ public sealed partial class BringOverViewModel(BringEntriesOver bringOver) : Obs
         try
         {
             var mapping = Mappings.ToDictionary(m => m.Local.Id, m => m.Options[Math.Clamp(m.Selected, 0, m.Options.Count - 1)].Target);
-            if (await bringOver.ExecuteAsync(mapping, CancellationToken.None))
-                Closed?.Invoke(this, EventArgs.Empty);
-            else
-                Toast = Strings.Get("BringOver.Failed");
+            switch (await bringOver.ExecuteAsync(mapping, CancellationToken.None))
+            {
+                case BringOverResult.Done:
+                case BringOverResult.MovedButNotCompleted: // The move stands; the next sign-in finds the phone already moved. Claim nothing.
+                    Closed?.Invoke(this, EventArgs.Empty);
+                    break;
+                default:
+                    Toast = Strings.Get("BringOver.Failed");
+                    // Signed out meanwhile: there is nothing left to ask. Prepare is null exactly when nothing is pending.
+                    if (await bringOver.PrepareAsync(CancellationToken.None) is null)
+                        Closed?.Invoke(this, EventArgs.Empty);
+                    break;
+            }
         }
 #pragma warning disable CA1031 // The transaction rolled back (Spec 011 §4): say so; never crash the sheet.
         catch (Exception)

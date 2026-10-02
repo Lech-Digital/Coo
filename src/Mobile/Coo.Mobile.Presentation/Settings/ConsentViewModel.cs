@@ -61,6 +61,9 @@ public sealed partial class ConsentViewModel(RecordConsent record, DeclineConsen
     [RelayCommand]
     private async Task NotNowAsync()
     {
+        if (IsBusy)
+            return;
+        IsBusy = true;
         try
         {
             await decline.ExecuteAsync(CancellationToken.None);
@@ -69,6 +72,10 @@ public sealed partial class ConsentViewModel(RecordConsent record, DeclineConsen
         catch (Exception)
 #pragma warning restore CA1031
         {
+        }
+        finally
+        {
+            IsBusy = false;
         }
 
         Closed?.Invoke(this, EventArgs.Empty);

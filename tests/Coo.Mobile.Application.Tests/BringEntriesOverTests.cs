@@ -56,7 +56,7 @@ public sealed class BringEntriesOverTests : IDisposable
         var done = await UseCase().ExecuteAsync(new Dictionary<BabyId, BabyId?> { [LocalBaby] = FamilyBaby }, CancellationToken.None);
 
         // Assert
-        done.Should().BeTrue();
+        done.Should().Be(BringOverResult.Done);
         await _moves.Received(1).BringOverAsync(
             Arg.Is<BringOverPlan>(p => p.From == Provisional && p.To == Household && p.Babies[LocalBaby] == FamilyBaby), User, Arg.Any<CancellationToken>());
         _account.State.Should().Be(new SignedIn(Profile));
@@ -86,7 +86,7 @@ public sealed class BringEntriesOverTests : IDisposable
         var done = await UseCase().ExecuteAsync(new Dictionary<BabyId, BabyId?>(), CancellationToken.None);
 
         // Assert
-        done.Should().BeFalse();
+        done.Should().Be(BringOverResult.NothingChanged);
         await _moves.DidNotReceiveWithAnyArgs().BringOverAsync(default!, default, default);
     }
 
@@ -119,7 +119,7 @@ public sealed class BringEntriesOverTests : IDisposable
         var done = await UseCase().ExecuteAsync(new Dictionary<BabyId, BabyId?> { [LocalBaby] = FamilyBaby }, CancellationToken.None);
 
         // Assert
-        done.Should().BeTrue();
+        done.Should().Be(BringOverResult.Done);
         _account.State.Should().Be(new SignedIn(Profile));
     }
 
@@ -138,7 +138,7 @@ public sealed class BringEntriesOverTests : IDisposable
         var done = await UseCase().ExecuteAsync(new Dictionary<BabyId, BabyId?> { [LocalBaby] = FamilyBaby }, CancellationToken.None);
 
         // Assert
-        done.Should().BeFalse();
+        done.Should().Be(BringOverResult.NothingChanged);
         await _moves.DidNotReceiveWithAnyArgs().BringOverAsync(default!, default, default);
     }
 
@@ -153,7 +153,7 @@ public sealed class BringEntriesOverTests : IDisposable
         var done = await UseCase().ExecuteAsync(new Dictionary<BabyId, BabyId?>(), CancellationToken.None);
 
         // Assert
-        done.Should().BeTrue();
+        done.Should().Be(BringOverResult.Done);
         await _moves.DidNotReceiveWithAnyArgs().BringOverAsync(default!, default, default);
         _account.State.Should().Be(new SignedIn(Profile));
     }
@@ -172,7 +172,7 @@ public sealed class BringEntriesOverTests : IDisposable
     }
 
     [Fact]
-    public async Task ExecuteAsync_SignedOutDuringTheMove_ReportsFalseAndRequestsNoSync()
+    public async Task ExecuteAsync_SignedOutDuringTheMove_ReportsMovedButNotCompletedAndRequestsNoSync()
     {
         // Arrange
         await JoinPendingAsync();
@@ -186,8 +186,36 @@ public sealed class BringEntriesOverTests : IDisposable
         var done = await UseCase().ExecuteAsync(new Dictionary<BabyId, BabyId?> { [LocalBaby] = FamilyBaby }, CancellationToken.None);
 
         // Assert
-        done.Should().BeFalse();
+        done.Should().Be(BringOverResult.MovedButNotCompleted);
         _sync.DidNotReceive().RequestSync();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_TheJoinSaveFailsAfterTheMove_ReportsMovedButNotCompleted()
+    {
+        // Arrange
+        var failing = new FailingCompleteSessions(_sessions);
+        using var account = new Account(failing);
+        await account.SignedInAsync(new StoredSession("access", DateTimeOffset.UnixEpoch, "refresh", Profile, Household, JoinPending: true), CancellationToken.None);
+        failing.FailWrites = true;
+
+        // Act
+        var done = await new BringEntriesOver(failing, _moves, account, _sync).ExecuteAsync(new Dictionary<BabyId, BabyId?> { [LocalBaby] = FamilyBaby }, CancellationToken.None);
+
+        // Assert
+        done.Should().Be(BringOverResult.MovedButNotCompleted);
+    }
+
+    private sealed class FailingCompleteSessions(MemorySessions inner) : ISessionStore
+    {
+        public bool FailWrites { get; set; }
+
+        public Task<StoredSession?> GetAsync(CancellationToken cancellationToken) => inner.GetAsync(cancellationToken);
+
+        public Task SaveAsync(StoredSession session, CancellationToken cancellationToken) =>
+            FailWrites ? Task.FromException(new IOException("disk full")) : inner.SaveAsync(session, cancellationToken);
+
+        public Task ClearAsync(CancellationToken cancellationToken) => inner.ClearAsync(cancellationToken);
     }
 
     /// <summary>Hands out the session it read, then signs the account out: the sign-out lands while the use case awaits the store.</summary>
