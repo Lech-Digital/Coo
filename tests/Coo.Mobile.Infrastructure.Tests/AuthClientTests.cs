@@ -10,6 +10,7 @@ namespace Coo.Mobile.Infrastructure.Tests;
 public sealed class AuthClientTests
 {
     [Theory]
+    [InlineData(HttpStatusCode.RequestTimeout)]
     [InlineData(HttpStatusCode.TooManyRequests)]
     [InlineData(HttpStatusCode.InternalServerError)]
     [InlineData(HttpStatusCode.ServiceUnavailable)]

@@ -5,12 +5,16 @@ namespace Coo.Mobile.Infrastructure.Auth;
 /// <summary>
 /// One refresh at a time (Spec 010 §3.3). Callers that saw the same expired token join the refresh in flight and share
 /// its outcome, a failure included, instead of starting their own: ten requests refused while the server answers 429
-/// make one attempt, not ten. A network failure, 429 or 5xx propagates as <see cref="AuthUnavailableException"/> and
-/// keeps the session; a refused refresh signs out as expired and keeps every local record.
+/// make one attempt, not ten. A network failure, 408, 429, 5xx or any refusal other than <c>auth.refresh-invalid</c>
+/// (a captive portal's 403, a proxy's 404) propagates as <see cref="AuthUnavailableException"/> and keeps the session;
+/// only <c>auth.refresh-invalid</c> signs out as expired, keeping every local record.
 /// </summary>
 internal sealed class TokenRefresher(ISessionStore sessions, IAuthApi api, Account account, TimeProvider time) : IDisposable
 {
     public static readonly TimeSpan Margin = TimeSpan.FromMinutes(1);
+
+    /// <summary>The only refusal /api/auth/refresh sends (Spec 010 §4.1); any other is not the server ending the session.</summary>
+    private const string RefreshInvalid = "auth.refresh-invalid";
 
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly CancellationTokenSource _lifetime = new();
@@ -100,10 +104,15 @@ internal sealed class TokenRefresher(ISessionStore sessions, IAuthApi api, Accou
             {
                 tokens = await api.RefreshAsync(session.RefreshToken, cancellationToken);
             }
-            catch (AuthRejectedException)
+            catch (AuthRejectedException e) when (e.Code == RefreshInvalid)
             {
                 await account.SignedOutAsync(sessionExpired: true, cancellationToken);
                 return null;
+            }
+            catch (AuthRejectedException e)
+            {
+                // A captive portal's 403, a proxy's 404 during a deploy: not the server refusing this session.
+                throw new AuthUnavailableException("The refresh was refused with " + e.Code + ".", e);
             }
 
             await sessions.SaveAsync(

@@ -8,8 +8,8 @@ using Coo.Mobile.Application.Auth;
 namespace Coo.Mobile.Infrastructure.Auth;
 
 /// <summary>
-/// How an answer becomes a result (Spec 010 §3.3). A refusal (4xx other than 429) throws <see cref="AuthRejectedException"/>
-/// with the server's code; no network, a timeout, 429 and 5xx throw <see cref="AuthUnavailableException"/>: try later.
+/// How an answer becomes a result (Spec 010 §3.3). A refusal (4xx other than 408 and 429) throws <see cref="AuthRejectedException"/>
+/// with the server's code; no network, a timeout, 408, 429 and 5xx throw <see cref="AuthUnavailableException"/>: try later.
 /// </summary>
 internal static class AuthHttp
 {
@@ -35,7 +35,7 @@ internal static class AuthHttp
         using (response)
         {
             var status = (int)response.StatusCode;
-            if (response.StatusCode == HttpStatusCode.TooManyRequests || status >= 500)
+            if (response.StatusCode is HttpStatusCode.RequestTimeout or HttpStatusCode.TooManyRequests || status >= 500)
                 throw new AuthUnavailableException(string.Create(CultureInfo.InvariantCulture, $"The server answered {status}."));
             throw new AuthRejectedException(await CodeAsync(response, status, cancellationToken));
         }

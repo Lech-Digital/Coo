@@ -174,6 +174,51 @@ public sealed class AuthenticatingHandlerTests : IDisposable
         (await _sessions.GetAsync(CancellationToken.None)).Should().BeNull();
     }
 
+    [Theory]
+    [InlineData("http-403")]
+    [InlineData("http-404")]
+    [InlineData("http-407")]
+    [InlineData("auth.google-token-invalid")]
+    public async Task RefreshAsync_RefusedWithAnotherCode_KeepsTheSessionAndThrowsUnavailable(string code)
+    {
+        // Arrange: a captive portal or a misrouted proxy during a deploy; only auth.refresh-invalid ends a session.
+        await _account.SignedInAsync(Session, CancellationToken.None);
+        _api.RefreshAsync("refresh-1", Arg.Any<CancellationToken>()).ThrowsAsync(new AuthRejectedException(code));
+
+        // Act
+        Func<Task> act = async () => await _refresher.RefreshAsync("old", CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<AuthUnavailableException>();
+        (await _sessions.GetAsync(CancellationToken.None)).Should().Be(Session);
+        _account.State.Should().Be(new SignedIn(Session.Profile));
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.Forbidden)]
+    [InlineData(HttpStatusCode.RequestTimeout)]
+    public async Task SendAsync_RefreshAnsweredForbiddenOrTimeout_KeepsTheSessionAndThrowsUnavailable(HttpStatusCode status)
+    {
+        // Arrange: the real client in front of the refresh, the server's /refresh answering a portal's 403 or a 408.
+        using var authHttp = new HttpClient(new FakeServer(_ => Task.FromResult(new HttpResponseMessage(status)
+        {
+            Content = new StringContent("<html>Sign in to the Wi-Fi</html>", System.Text.Encoding.UTF8, "text/html"),
+        })))
+        { BaseAddress = new Uri("https://api.test/") };
+        using var refresher = new TokenRefresher(_sessions, new AuthClient(authHttp), _account, _time);
+        await _account.SignedInAsync(Session, CancellationToken.None);
+        using var client = new HttpClient(new AuthenticatingHandler(refresher) { InnerHandler = new FakeServer(_ => Status(HttpStatusCode.Unauthorized)) })
+        { BaseAddress = new Uri("https://api.test/") };
+
+        // Act
+        Func<Task> act = async () => await client.GetAsync(Me);
+
+        // Assert
+        await act.Should().ThrowAsync<AuthUnavailableException>();
+        (await _sessions.GetAsync(CancellationToken.None)).Should().Be(Session);
+        _account.State.Should().Be(new SignedIn(Session.Profile));
+    }
+
     [Fact]
     public async Task SendAsync_401OnARequestWithABody_RetriesWithTheSameBody()
     {
