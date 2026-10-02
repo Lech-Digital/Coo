@@ -35,6 +35,7 @@
   <data name="Baby.Nicknames" xml:space="preserve"><value>Otros nombres que usáis</value></data>
   <data name="Baby.NicknamesHint" xml:space="preserve"><value>Hasta 5, separados por comas</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Bienvenido, {0}</value></data>
+  <data name="Chart.Awake" xml:space="preserve"><value>vigilia {0}</value></data>
   <data name="Diaper.Dirty" xml:space="preserve"><value>Sucio</value></data>
   <data name="Diaper.Mixed" xml:space="preserve"><value>Ambos</value></data>
   <data name="Diaper.Wet" xml:space="preserve"><value>Mojado</value></data>

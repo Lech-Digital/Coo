@@ -201,6 +201,7 @@ S = {
 
 'Duration.HoursMinutes': ('{0} h {1} m', '{0} Std. {1} Min.', '{0} h {1} min', '{0} h {1} min', '{0} h {1} min', '{0} godz. {1} min', '{0} u {1} min'),
 'Duration.Minutes': ('{0} m', '{0} Min.', '{0} min', '{0} min', '{0} min', '{0} min', '{0} min'),
+'Chart.Awake': ('awake {0}', 'wach {0}', 'éveil {0}', 'vigilia {0}', 'veglia {0}', 'czuwanie {0}', 'wakker {0}'),
 'Age.Corrected': ('{0} (corrected)', '{0} (korrigiert)', '{0} (corrigé)', '{0} (corregida)', '{0} (corretta)', '{0} (korygowany)', '{0} (gecorrigeerd)'),
 }
 

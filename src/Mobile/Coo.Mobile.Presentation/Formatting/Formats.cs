@@ -19,6 +19,10 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
     public string Time(DateTimeOffset instant) =>
         instant.ToLocalTime().ToString(is24Hour ? "HH:mm" : "h:mm tt", Strings.Culture);
 
+    /// <summary>"14:05" or "2:05 PM" in the given zone: the chart uses the household's, so it reads the same on every phone.</summary>
+    public string Time(DateTimeOffset instant, TimeZoneInfo zone) =>
+        TimeZoneInfo.ConvertTime(instant, zone).ToString(is24Hour ? "HH:mm" : "h:mm tt", Strings.Culture);
+
     /// <summary>"1 h 20 m", or "45 m".</summary>
     public static string Duration(TimeSpan span)
     {
