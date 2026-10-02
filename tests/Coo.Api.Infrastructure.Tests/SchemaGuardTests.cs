@@ -27,7 +27,9 @@ public sealed class SchemaGuardTests(PostgresServer server)
         var kinds = await db.ScalarAsync("SELECT string_agg(kind || ':' || version, ',' ORDER BY kind, version) FROM entry_kind_versions;");
 
         // Assert
-        tables.Should().Be("care_entries,entry_kind_versions,households");
+        ((string)tables!).Split(',').Should().BeEquivalentTo(
+            "AspNetUserClaims", "AspNetUserLogins", "AspNetUserTokens", "AspNetUsers", "auth_nonces", "care_entries",
+            "device_sessions", "entry_kind_versions", "households", "memberships");
         ((string)kinds!).Split(',').Should().Contain(["diaper:1", "feeding:1", "pump:1", "sleep:1"]);
     }
 

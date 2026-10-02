@@ -1,12 +1,14 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Coo.Api.Infrastructure.Persistence;
 
 /// <summary>
-/// The schema, in one place (Spec 008 §4). Migrations are generated from it; <c>EnsureCreated</c> is never used.
-/// Names are spelled out, snake_case, so the SQL in this folder and in the tests reads like the database.
+/// The schema, in one place (Spec 008 §4, Spec 010 §4.2). Migrations are generated from it; <c>EnsureCreated</c> is
+/// never used. Identity's tables keep Identity's names (<c>AspNetUsers</c>, …); ours are snake_case, spelled out, so
+/// the SQL in this folder and in the tests reads like the database.
 /// </summary>
-internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : DbContext(options)
+internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : IdentityUserContext<CooUser, Guid>(options)
 {
     public DbSet<KindVersionRecord> KindVersions => Set<KindVersionRecord>();
 
@@ -14,8 +16,16 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : DbC
 
     public DbSet<CareEntryRecord> CareEntries => Set<CareEntryRecord>();
 
+    public DbSet<AuthNonceRecord> AuthNonces => Set<AuthNonceRecord>();
+
+    public DbSet<DeviceSessionRecord> DeviceSessions => Set<DeviceSessionRecord>();
+
+    public DbSet<MembershipRecord> Memberships => Set<MembershipRecord>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<KindVersionRecord>(e =>
         {
             e.ToTable("entry_kind_versions", t => t.HasCheckConstraint("ck_entry_kind_versions_version", "version >= 1"));
@@ -31,6 +41,11 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : DbC
             e.Property(h => h.Id).HasColumnName("id").ValueGeneratedNever();
             e.Property(h => h.NextSeq).HasColumnName("next_seq").HasDefaultValue(1L);
             e.Property(h => h.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz");
+            e.Property(h => h.CreatedBy).HasColumnName("created_by");
+            e.HasOne<CooUser>().WithMany()
+                .HasForeignKey(h => h.CreatedBy)
+                .HasConstraintName("fk_households_created_by")
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<CareEntryRecord>(e =>
@@ -83,6 +98,65 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : DbC
             // Sync pulls by (household, seq); the timeline and the duplicate check by baby and time (ADR 0010 §2).
             e.HasIndex(c => new { c.HouseholdId, c.Seq }).IsUnique().HasDatabaseName("ix_care_entries_household_seq");
             e.HasIndex(c => new { c.HouseholdId, c.SubjectBabyId, c.StartAt }).HasDatabaseName("ix_care_entries_household_baby_start");
+        });
+
+        modelBuilder.Entity<CooUser>(e => e.Property(u => u.DisplayName).HasMaxLength(200));
+
+        modelBuilder.Entity<AuthNonceRecord>(e =>
+        {
+            e.ToTable("auth_nonces");
+            e.HasKey(n => n.NonceHash);
+            e.Property(n => n.NonceHash).HasColumnName("nonce_hash");
+            e.Property(n => n.IssuedAt).HasColumnName("issued_at").HasColumnType("timestamptz");
+            e.Property(n => n.ConsumedAt).HasColumnName("consumed_at").HasColumnType("timestamptz");
+            e.HasIndex(n => n.IssuedAt).HasDatabaseName("ix_auth_nonces_issued_at");
+        });
+
+        modelBuilder.Entity<DeviceSessionRecord>(e =>
+        {
+            e.ToTable("device_sessions", t => t.HasCheckConstraint(
+                "ck_device_sessions_hashes_differ", "previous_refresh_hash IS NULL OR previous_refresh_hash <> refresh_hash"));
+            e.HasKey(s => s.Id);
+            e.Property(s => s.Id).HasColumnName("id").ValueGeneratedNever();
+            e.Property(s => s.UserId).HasColumnName("user_id");
+            e.Property(s => s.DeviceId).HasColumnName("device_id");
+            e.Property(s => s.DeviceName).HasColumnName("device_name").HasMaxLength(60);
+            e.Property(s => s.RefreshHash).HasColumnName("refresh_hash");
+            e.Property(s => s.PreviousRefreshHash).HasColumnName("previous_refresh_hash");
+            e.Property(s => s.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz");
+            e.Property(s => s.LastUsedAt).HasColumnName("last_used_at").HasColumnType("timestamptz");
+            e.Property(s => s.RevokedAt).HasColumnName("revoked_at").HasColumnType("timestamptz");
+            e.HasOne<CooUser>().WithMany()
+                .HasForeignKey(s => s.UserId)
+                .HasConstraintName("fk_device_sessions_users")
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // One session per phone per user; signing in again on the phone replaces it (Spec 010 §4.2).
+            e.HasIndex(s => new { s.UserId, s.DeviceId }).IsUnique().HasDatabaseName("ix_device_sessions_user_device");
+            e.HasIndex(s => s.RefreshHash).IsUnique().HasDatabaseName("ix_device_sessions_refresh_hash");
+            e.HasIndex(s => s.PreviousRefreshHash).HasDatabaseName("ix_device_sessions_previous_refresh_hash");
+        });
+
+        modelBuilder.Entity<MembershipRecord>(e =>
+        {
+            e.ToTable("memberships", t => t.HasCheckConstraint("ck_memberships_role", "role IN ('owner', 'parent', 'caregiver')"));
+            e.HasKey(m => new { m.HouseholdId, m.UserId });
+            e.Property(m => m.HouseholdId).HasColumnName("household_id");
+            e.Property(m => m.UserId).HasColumnName("user_id");
+            e.Property(m => m.Role).HasColumnName("role");
+            e.Property(m => m.JoinedAt).HasColumnName("joined_at").HasColumnType("timestamptz");
+            e.HasOne<HouseholdRecord>().WithMany()
+                .HasForeignKey(m => m.HouseholdId)
+                .HasConstraintName("fk_memberships_households")
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CooUser>().WithMany()
+                .HasForeignKey(m => m.UserId)
+                .HasConstraintName("fk_memberships_users")
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(m => m.UserId).HasDatabaseName("ix_memberships_user");
+
+            // Exactly one Owner per household (ADR 0003 §6).
+            e.HasIndex(m => m.HouseholdId).IsUnique().HasFilter("role = 'owner'").HasDatabaseName("ix_memberships_one_owner");
         });
     }
 }

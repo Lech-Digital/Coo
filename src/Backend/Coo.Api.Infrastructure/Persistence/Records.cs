@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Identity;
+
 namespace Coo.Api.Infrastructure.Persistence;
 
-// The EF Core shapes of the three tables (Spec 008 §4). They are storage only: no behaviour, never seen outside
+// The EF Core shapes of the tables (Spec 008 §4). They are storage only: no behaviour, never seen outside
 // this folder. Domain objects are mapped to them by CareEntryStore, through the codecs.
 
 /// <summary><c>entry_kind_versions</c>: every (kind, details version) the codecs can read (G3).</summary>
@@ -19,6 +21,9 @@ internal sealed class HouseholdRecord
     public long NextSeq { get; init; } = 1;
 
     public required DateTime CreatedAt { get; init; }
+
+    /// <summary>The Owner who created it (Spec 010 §4.2). Null for households created before sign-in existed.</summary>
+    public Guid? CreatedBy { get; init; }
 }
 
 /// <summary><c>care_entries</c>: the core as columns, the details as <c>jsonb</c> (ADR 0010 §2).</summary>
@@ -66,4 +71,58 @@ internal sealed class CareEntryRecord
     public required bool IsDeleted { get; init; }
 
     public required long Seq { get; init; }
+}
+
+/// <summary>
+/// <c>AspNetUsers</c> (ADR 0003 §3): ASP.NET Core Identity's user, with <c>Guid</c> keys and never a password. Only
+/// what Spec 010 §4.2 allows is kept: the email (Identity's column), the display name, and the Google <c>sub</c> as the
+/// login in <c>AspNetUserLogins</c>.
+/// </summary>
+internal sealed class CooUser : IdentityUser<Guid>
+{
+    public string DisplayName { get; set; } = "";
+}
+
+/// <summary><c>auth_nonces</c>: single-use sign-in nonces, by SHA-256 (Spec 010 §4.2).</summary>
+internal sealed class AuthNonceRecord
+{
+    public required string NonceHash { get; init; }
+
+    public required DateTime IssuedAt { get; init; }
+
+    public DateTime? ConsumedAt { get; init; }
+}
+
+/// <summary><c>device_sessions</c>: one per phone per user; the current and the previous refresh token, by hash.</summary>
+internal sealed class DeviceSessionRecord
+{
+    public required Guid Id { get; init; }
+
+    public required Guid UserId { get; init; }
+
+    public required Guid DeviceId { get; init; }
+
+    public required string DeviceName { get; init; }
+
+    public required string RefreshHash { get; init; }
+
+    public string? PreviousRefreshHash { get; init; }
+
+    public required DateTime CreatedAt { get; init; }
+
+    public required DateTime LastUsedAt { get; init; }
+
+    public DateTime? RevokedAt { get; init; }
+}
+
+/// <summary><c>memberships</c>: a user's role in a household (ADR 0003 §6). The role is <c>owner</c>, <c>parent</c> or <c>caregiver</c>.</summary>
+internal sealed class MembershipRecord
+{
+    public required Guid HouseholdId { get; init; }
+
+    public required Guid UserId { get; init; }
+
+    public required string Role { get; init; }
+
+    public required DateTime JoinedAt { get; init; }
 }

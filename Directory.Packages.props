@@ -21,6 +21,8 @@
     <!-- Pinned so the whole backend runs one EF Core patch (Npgsql alone would bring 10.0.4). -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.12" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.12" />
+    <!-- Users without passwords (ADR 0003 §3, Spec 010 §4.2). Same patch as EF Core and Mvc.Testing. -->
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.12" />
 
     <!-- Tests -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />

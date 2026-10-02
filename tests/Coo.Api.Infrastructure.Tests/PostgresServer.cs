@@ -3,6 +3,8 @@ using Coo.Api.Infrastructure.Persistence;
 using Coo.Domain.Common;
 using Coo.Domain.Common.Versioning;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
 using Npgsql;
@@ -95,6 +97,14 @@ internal sealed class ServerDatabase : IAsyncDisposable
         await using var context = await contexts.CreateDbContextAsync();
         await context.Database.MigrateAsync();
         await DatabaseStartup.RegisterKindsAsync(context, CancellationToken.None);
+    }
+
+    /// <summary>Migrates up to, and including, <paramref name="migration"/> only: production as it was before a change.</summary>
+    public async Task MigrateToAsync(string migration)
+    {
+        var contexts = _services.GetRequiredService<IDbContextFactory<CooDbContext>>();
+        await using var context = await contexts.CreateDbContextAsync();
+        await context.Database.GetService<IMigrator>().MigrateAsync(migration);
     }
 
     public HlcStamp NextStamp() => new(++_wall, 0, Device);

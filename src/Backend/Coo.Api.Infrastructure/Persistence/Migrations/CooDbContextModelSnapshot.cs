@@ -22,6 +22,28 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.AuthNonceRecord", b =>
+                {
+                    b.Property<string>("NonceHash")
+                        .HasColumnType("text")
+                        .HasColumnName("nonce_hash");
+
+                    b.Property<DateTime?>("ConsumedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("consumed_at");
+
+                    b.Property<DateTime>("IssuedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("issued_at");
+
+                    b.HasKey("NonceHash");
+
+                    b.HasIndex("IssuedAt")
+                        .HasDatabaseName("ix_auth_nonces_issued_at");
+
+                    b.ToTable("auth_nonces", (string)null);
+                });
+
             modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.CareEntryRecord", b =>
                 {
                     b.Property<Guid>("Id")
@@ -141,6 +163,136 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.CooUser", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.DeviceSessionRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("device_id");
+
+                    b.Property<string>("DeviceName")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("device_name");
+
+                    b.Property<DateTime>("LastUsedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("last_used_at");
+
+                    b.Property<string>("PreviousRefreshHash")
+                        .HasColumnType("text")
+                        .HasColumnName("previous_refresh_hash");
+
+                    b.Property<string>("RefreshHash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("refresh_hash");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("revoked_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PreviousRefreshHash")
+                        .HasDatabaseName("ix_device_sessions_previous_refresh_hash");
+
+                    b.HasIndex("RefreshHash")
+                        .IsUnique()
+                        .HasDatabaseName("ix_device_sessions_refresh_hash");
+
+                    b.HasIndex("UserId", "DeviceId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_device_sessions_user_device");
+
+                    b.ToTable("device_sessions", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_device_sessions_hashes_differ", "previous_refresh_hash IS NULL OR previous_refresh_hash <> refresh_hash");
+                        });
+                });
+
             modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.HouseholdRecord", b =>
                 {
                     b.Property<Guid>("Id")
@@ -151,6 +303,10 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamptz")
                         .HasColumnName("created_at");
 
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
                     b.Property<long>("NextSeq")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
@@ -158,6 +314,8 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
                         .HasColumnName("next_seq");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
 
                     b.ToTable("households", null, t =>
                         {
@@ -183,6 +341,105 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.MembershipRecord", b =>
+                {
+                    b.Property<Guid>("HouseholdId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("household_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("joined_at");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("role");
+
+                    b.HasKey("HouseholdId", "UserId");
+
+                    b.HasIndex("HouseholdId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_memberships_one_owner")
+                        .HasFilter("role = 'owner'");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_memberships_user");
+
+                    b.ToTable("memberships", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_memberships_role", "role IN ('owner', 'parent', 'caregiver')");
+                        });
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
+
             modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.CareEntryRecord", b =>
                 {
                     b.HasOne("Coo.Api.Infrastructure.Persistence.HouseholdRecord", null)
@@ -198,6 +455,69 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_care_entries_entry_kind_versions");
+                });
+
+            modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.DeviceSessionRecord", b =>
+                {
+                    b.HasOne("Coo.Api.Infrastructure.Persistence.CooUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_device_sessions_users");
+                });
+
+            modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.HouseholdRecord", b =>
+                {
+                    b.HasOne("Coo.Api.Infrastructure.Persistence.CooUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_households_created_by");
+                });
+
+            modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.MembershipRecord", b =>
+                {
+                    b.HasOne("Coo.Api.Infrastructure.Persistence.HouseholdRecord", null)
+                        .WithMany()
+                        .HasForeignKey("HouseholdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_memberships_households");
+
+                    b.HasOne("Coo.Api.Infrastructure.Persistence.CooUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_memberships_users");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.HasOne("Coo.Api.Infrastructure.Persistence.CooUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.HasOne("Coo.Api.Infrastructure.Persistence.CooUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.HasOne("Coo.Api.Infrastructure.Persistence.CooUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
