@@ -5,11 +5,12 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Account.ChooseWhatToDo" xml:space="preserve"><value>Choose what to do with them</value></data>
   <data name="Account.Delete" xml:space="preserve"><value>Delete account</value></data>
   <data name="Account.DeleteConfirm" xml:space="preserve"><value>This deletes your Coo account and, because you are the only parent, your family's shared log for {0}. The entries on this phone stay here.</value></data>
   <data name="Account.DeleteConfirmNoBaby" xml:space="preserve"><value>This deletes your Coo account and, because you are the only parent, your family's shared log. The entries on this phone stay here.</value></data>
   <data name="Account.DeleteFailed" xml:space="preserve"><value>Your account wasn't deleted. Check your connection and try again.</value></data>
-  <data name="Account.JoinPending" xml:space="preserve"><value>Signed in. Your entries on this phone join your family's log when sharing arrives.</value></data>
+  <data name="Account.JoinPending" xml:space="preserve"><value>Signed in. The entries on this phone aren't in your family's log yet.</value></data>
   <data name="Account.SessionExpired" xml:space="preserve"><value>Sign in again to keep sharing.</value></data>
   <data name="Account.SignIn" xml:space="preserve"><value>Sign in with Google</value></data>
   <data name="Account.SignInFailed" xml:space="preserve"><value>Sign-in didn't work. Check your connection and try again.</value></data>
@@ -39,6 +40,8 @@
   <data name="Attention.KeepBoth" xml:space="preserve"><value>Keep both</value></data>
   <data name="Attention.KeepThis" xml:space="preserve"><value>Keep this one</value></data>
   <data name="Attention.Newer" xml:space="preserve"><value>From a newer version</value></data>
+  <data name="Attention.Rejected" xml:space="preserve"><value>Not accepted by the server</value></data>
+  <data name="Attention.ShowMore" xml:space="preserve"><value>Show more</value></data>
   <data name="Attention.Title" xml:space="preserve"><value>Needs attention</value></data>
   <data name="Attention.Unreadable" xml:space="preserve"><value>Could not be read</value></data>
   <data name="Awake.Hint" xml:space="preserve"><value>For a dream feed or a sleepy change, choose Still asleep.</value></data>
@@ -48,6 +51,16 @@
   <data name="Baby.Nicknames" xml:space="preserve"><value>Other names you call them</value></data>
   <data name="Baby.NicknamesHint" xml:space="preserve"><value>Up to 5, separated by commas</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Welcome, {0}</value></data>
+  <data name="BringOver.AddNew" xml:space="preserve"><value>Add as a new baby</value></data>
+  <data name="BringOver.Bring" xml:space="preserve"><value>Bring my entries over</value></data>
+  <data name="BringOver.Confirm" xml:space="preserve"><value>Bring them over</value></data>
+  <data name="BringOver.Entries.one" xml:space="preserve"><value>This phone has {0} entry for {1}.</value></data>
+  <data name="BringOver.Entries.other" xml:space="preserve"><value>This phone has {0} entries for {1}.</value></data>
+  <data name="BringOver.Failed" xml:space="preserve"><value>That didn't work. Nothing was changed.</value></data>
+  <data name="BringOver.Family" xml:space="preserve"><value>Your family's log has: {0}.</value></data>
+  <data name="BringOver.FamilyEmpty" xml:space="preserve"><value>Your family's log has no baby yet.</value></data>
+  <data name="BringOver.Keep" xml:space="preserve"><value>Keep them separate</value></data>
+  <data name="BringOver.Which" xml:space="preserve"><value>{0} on this phone is</value></data>
   <data name="Chart.Awake" xml:space="preserve"><value>awake {0}</value></data>
   <data name="Chart.Hint" xml:space="preserve"><value>Double-tap for the day in detail</value></data>
   <data name="Chart.Range" xml:space="preserve"><value>{0}, {1} – {2}</value></data>
@@ -55,6 +68,13 @@
   <data name="Chart.SummaryFeeds" xml:space="preserve"><value>Feeds {0}</value></data>
   <data name="Chart.SummaryPumps" xml:space="preserve"><value>Pumping {0}</value></data>
   <data name="Chart.SummarySleep" xml:space="preserve"><value>Sleep {0}</value></data>
+  <data name="Consent.Agree" xml:space="preserve"><value>Agree and share</value></data>
+  <data name="Consent.Body" xml:space="preserve"><value>To share, Coo keeps your baby's care log (feeds, diapers, sleep and pumping, with their times, amounts and notes), your baby's profile and your household settings on Coo's server in Germany. This is health information about your child, so we only store it with your permission.</value></data>
+  <data name="Consent.Body2" xml:space="preserve"><value>Everyone in your household can see it and add to it. You can withdraw your permission at any time by deleting your account in Settings. The log on this phone always stays here.</value></data>
+  <data name="Consent.Failed" xml:space="preserve"><value>Sharing couldn't be turned on. Check your connection and try again.</value></data>
+  <data name="Consent.NotNow" xml:space="preserve"><value>Not now</value></data>
+  <data name="Consent.Privacy" xml:space="preserve"><value>Privacy policy</value></data>
+  <data name="Consent.Title" xml:space="preserve"><value>Share your log with your family?</value></data>
   <data name="Diaper.Dirty" xml:space="preserve"><value>Dirty</value></data>
   <data name="Diaper.Mixed" xml:space="preserve"><value>Mixed</value></data>
   <data name="Diaper.Wet" xml:space="preserve"><value>Wet</value></data>
@@ -115,6 +135,12 @@
   <data name="Error.pump.too-long" xml:space="preserve"><value>Pumping can be at most 4 hours. Check the times.</value></data>
   <data name="Error.settings.all-kinds-hidden" xml:space="preserve"><value>Keep at least one type visible.</value></data>
   <data name="Error.sleep.too-long" xml:space="preserve"><value>A sleep can be at most 24 hours. Check the times.</value></data>
+  <data name="Error.sync.change-malformed" xml:space="preserve"><value>The server couldn't read this change.</value></data>
+  <data name="Error.sync.household-mismatch" xml:space="preserve"><value>This entry already belongs to another family's log.</value></data>
+  <data name="Error.sync.person-unresolved" xml:space="preserve"><value>Who logged this isn't known yet. Edit the entry to send it again.</value></data>
+  <data name="Error.sync.role-forbidden" xml:space="preserve"><value>Your role in this family can't change this.</value></data>
+  <data name="Error.sync.schema-unsupported" xml:space="preserve"><value>This change needs a newer version of Coo. Update the app.</value></data>
+  <data name="Error.sync.stamp-in-future" xml:space="preserve"><value>This phone's clock is ahead. Check the date and time, then edit the entry.</value></data>
   <data name="Error.time.end-not-after-start" xml:space="preserve"><value>The end must be after the start.</value></data>
   <data name="Error.time.too-far-in-future" xml:space="preserve"><value>That time is too far in the future.</value></data>
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Enter an amount above 0 and up to 1,000 ml.</value></data>
@@ -192,6 +218,17 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.Left" xml:space="preserve"><value>left</value></data>
   <data name="Side.R" xml:space="preserve"><value>R</value></data>
   <data name="Side.Right" xml:space="preserve"><value>right</value></data>
+  <data name="Sync.Off" xml:space="preserve"><value>Sharing is off. Your log is only on this phone.</value></data>
+  <data name="Sync.Sharing.one" xml:space="preserve"><value>Sharing {0} change…</value></data>
+  <data name="Sync.Sharing.other" xml:space="preserve"><value>Sharing {0} changes…</value></data>
+  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Sharing stopped: this phone's log belongs to another family. Your entries are safe on this phone.</value></data>
+  <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Sharing stopped: the server isn't accepting changes right now. Coo will try again when you reopen the app.</value></data>
+  <data name="Sync.TurnOn" xml:space="preserve"><value>Turn on sharing</value></data>
+  <data name="Sync.UpToDate" xml:space="preserve"><value>Up to date · {0}</value></data>
+  <data name="Sync.UpdateApp" xml:space="preserve"><value>Update Coo to keep sharing. Your changes are safe on this phone.</value></data>
+  <data name="Sync.Waiting.one" xml:space="preserve"><value>Waiting for a connection. {0} change is safe on this phone.</value></data>
+  <data name="Sync.Waiting.other" xml:space="preserve"><value>Waiting for a connection. {0} changes are safe on this phone.</value></data>
+  <data name="Sync.WaitingNoChanges" xml:space="preserve"><value>Waiting for a connection.</value></data>
   <data name="Tab.Log" xml:space="preserve"><value>Log</value></data>
   <data name="Tab.Settings" xml:space="preserve"><value>Settings</value></data>
   <data name="Tab.Today" xml:space="preserve"><value>Today</value></data>

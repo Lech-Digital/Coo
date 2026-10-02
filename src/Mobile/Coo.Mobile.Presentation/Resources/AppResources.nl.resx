@@ -5,11 +5,12 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Account.ChooseWhatToDo" xml:space="preserve"><value>Kies wat je ermee doet</value></data>
   <data name="Account.Delete" xml:space="preserve"><value>Account verwijderen</value></data>
   <data name="Account.DeleteConfirm" xml:space="preserve"><value>Hiermee verwijder je je Coo-account en, omdat jij de enige ouder bent, het gedeelde logboek van je gezin voor {0}. De items op deze telefoon blijven hier.</value></data>
   <data name="Account.DeleteConfirmNoBaby" xml:space="preserve"><value>Hiermee verwijder je je Coo-account en, omdat jij de enige ouder bent, het gedeelde logboek van je gezin. De items op deze telefoon blijven hier.</value></data>
   <data name="Account.DeleteFailed" xml:space="preserve"><value>Je account is niet verwijderd. Controleer je verbinding en probeer het opnieuw.</value></data>
-  <data name="Account.JoinPending" xml:space="preserve"><value>Ingelogd. Je items op deze telefoon komen bij het logboek van je gezin zodra delen beschikbaar is.</value></data>
+  <data name="Account.JoinPending" xml:space="preserve"><value>Ingelogd. De items op deze telefoon staan nog niet in het logboek van je gezin.</value></data>
   <data name="Account.SessionExpired" xml:space="preserve"><value>Log opnieuw in om te blijven delen.</value></data>
   <data name="Account.SignIn" xml:space="preserve"><value>Inloggen met Google</value></data>
   <data name="Account.SignInFailed" xml:space="preserve"><value>Inloggen is niet gelukt. Controleer je verbinding en probeer het opnieuw.</value></data>
@@ -39,6 +40,8 @@
   <data name="Attention.KeepBoth" xml:space="preserve"><value>Beide houden</value></data>
   <data name="Attention.KeepThis" xml:space="preserve"><value>Deze houden</value></data>
   <data name="Attention.Newer" xml:space="preserve"><value>Uit een nieuwere versie</value></data>
+  <data name="Attention.Rejected" xml:space="preserve"><value>Niet geaccepteerd door de server</value></data>
+  <data name="Attention.ShowMore" xml:space="preserve"><value>Meer tonen</value></data>
   <data name="Attention.Title" xml:space="preserve"><value>Vraagt aandacht</value></data>
   <data name="Attention.Unreadable" xml:space="preserve"><value>Kon niet worden gelezen</value></data>
   <data name="Awake.Hint" xml:space="preserve"><value>Bij een droomvoeding of een slaperige verschoning kies je ‘Slaapt nog’.</value></data>
@@ -48,6 +51,16 @@
   <data name="Baby.Nicknames" xml:space="preserve"><value>Andere namen die jullie gebruiken</value></data>
   <data name="Baby.NicknamesHint" xml:space="preserve"><value>Maximaal 5, gescheiden door komma’s</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Welkom, {0}</value></data>
+  <data name="BringOver.AddNew" xml:space="preserve"><value>Toevoegen als nieuwe baby</value></data>
+  <data name="BringOver.Bring" xml:space="preserve"><value>Mijn items overzetten</value></data>
+  <data name="BringOver.Confirm" xml:space="preserve"><value>Overzetten</value></data>
+  <data name="BringOver.Entries.one" xml:space="preserve"><value>Deze telefoon heeft {0} item voor {1}.</value></data>
+  <data name="BringOver.Entries.other" xml:space="preserve"><value>Deze telefoon heeft {0} items voor {1}.</value></data>
+  <data name="BringOver.Failed" xml:space="preserve"><value>Dat is niet gelukt. Er is niets veranderd.</value></data>
+  <data name="BringOver.Family" xml:space="preserve"><value>Het logboek van je gezin heeft: {0}.</value></data>
+  <data name="BringOver.FamilyEmpty" xml:space="preserve"><value>Het logboek van je gezin heeft nog geen baby.</value></data>
+  <data name="BringOver.Keep" xml:space="preserve"><value>Apart houden</value></data>
+  <data name="BringOver.Which" xml:space="preserve"><value>{0} op deze telefoon is</value></data>
   <data name="Chart.Awake" xml:space="preserve"><value>wakker {0}</value></data>
   <data name="Chart.Hint" xml:space="preserve"><value>Dubbeltik voor de dag in detail</value></data>
   <data name="Chart.Range" xml:space="preserve"><value>{0}, {1} – {2}</value></data>
@@ -55,6 +68,13 @@
   <data name="Chart.SummaryFeeds" xml:space="preserve"><value>Voedingen {0}</value></data>
   <data name="Chart.SummaryPumps" xml:space="preserve"><value>Kolven {0}</value></data>
   <data name="Chart.SummarySleep" xml:space="preserve"><value>Slaap {0}</value></data>
+  <data name="Consent.Agree" xml:space="preserve"><value>Akkoord en delen</value></data>
+  <data name="Consent.Body" xml:space="preserve"><value>Om te delen bewaart Coo het verzorgingslogboek van je baby (voedingen, luiers, slaap en kolven, met tijden, hoeveelheden en notities), het profiel van je baby en de instellingen van je huishouden op de server van Coo in Duitsland. Dit is gezondheidsinformatie over je kind, dus we bewaren het alleen met je toestemming.</value></data>
+  <data name="Consent.Body2" xml:space="preserve"><value>Iedereen in je huishouden kan het zien en aanvullen. Je kunt je toestemming altijd intrekken door je account te verwijderen in Instellingen. Het logboek op deze telefoon blijft altijd hier.</value></data>
+  <data name="Consent.Failed" xml:space="preserve"><value>Delen kon niet worden ingeschakeld. Controleer je verbinding en probeer het opnieuw.</value></data>
+  <data name="Consent.NotNow" xml:space="preserve"><value>Niet nu</value></data>
+  <data name="Consent.Privacy" xml:space="preserve"><value>Privacybeleid</value></data>
+  <data name="Consent.Title" xml:space="preserve"><value>Je logboek delen met je gezin?</value></data>
   <data name="Diaper.Dirty" xml:space="preserve"><value>Vies</value></data>
   <data name="Diaper.Mixed" xml:space="preserve"><value>Beide</value></data>
   <data name="Diaper.Wet" xml:space="preserve"><value>Nat</value></data>
@@ -115,6 +135,12 @@
   <data name="Error.pump.too-long" xml:space="preserve"><value>Kolven duurt hoogstens 4 uur. Controleer de tijden.</value></data>
   <data name="Error.settings.all-kinds-hidden" xml:space="preserve"><value>Laat ten minste één soort zichtbaar.</value></data>
   <data name="Error.sleep.too-long" xml:space="preserve"><value>Een slaap duurt hoogstens 24 uur. Controleer de tijden.</value></data>
+  <data name="Error.sync.change-malformed" xml:space="preserve"><value>De server kon deze wijziging niet lezen.</value></data>
+  <data name="Error.sync.household-mismatch" xml:space="preserve"><value>Dit item hoort al bij het logboek van een ander gezin.</value></data>
+  <data name="Error.sync.person-unresolved" xml:space="preserve"><value>Nog niet bekend wie dit heeft gelogd. Bewerk het item om het opnieuw te versturen.</value></data>
+  <data name="Error.sync.role-forbidden" xml:space="preserve"><value>Je rol in dit gezin staat deze wijziging niet toe.</value></data>
+  <data name="Error.sync.schema-unsupported" xml:space="preserve"><value>Voor deze wijziging is een nieuwere versie van Coo nodig. Werk de app bij.</value></data>
+  <data name="Error.sync.stamp-in-future" xml:space="preserve"><value>De klok van deze telefoon loopt voor. Controleer de datum en tijd en bewerk dan het item.</value></data>
   <data name="Error.time.end-not-after-start" xml:space="preserve"><value>Het einde moet na het begin liggen.</value></data>
   <data name="Error.time.too-far-in-future" xml:space="preserve"><value>Die tijd ligt te ver in de toekomst.</value></data>
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Vul een hoeveelheid in boven 0 en tot 1.000 ml.</value></data>
@@ -192,6 +218,17 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.Left" xml:space="preserve"><value>links</value></data>
   <data name="Side.R" xml:space="preserve"><value>R</value></data>
   <data name="Side.Right" xml:space="preserve"><value>rechts</value></data>
+  <data name="Sync.Off" xml:space="preserve"><value>Delen staat uit. Je logboek staat alleen op deze telefoon.</value></data>
+  <data name="Sync.Sharing.one" xml:space="preserve"><value>{0} wijziging wordt gedeeld…</value></data>
+  <data name="Sync.Sharing.other" xml:space="preserve"><value>{0} wijzigingen worden gedeeld…</value></data>
+  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Delen is gestopt: het logboek op deze telefoon hoort bij een ander gezin. Je items zijn veilig op deze telefoon.</value></data>
+  <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Delen is gestopt: de server accepteert nu geen wijzigingen. Coo probeert het opnieuw zodra je de app weer opent.</value></data>
+  <data name="Sync.TurnOn" xml:space="preserve"><value>Delen inschakelen</value></data>
+  <data name="Sync.UpToDate" xml:space="preserve"><value>Bijgewerkt · {0}</value></data>
+  <data name="Sync.UpdateApp" xml:space="preserve"><value>Werk Coo bij om te blijven delen. Je wijzigingen zijn veilig op deze telefoon.</value></data>
+  <data name="Sync.Waiting.one" xml:space="preserve"><value>Wachten op verbinding. {0} wijziging is veilig op deze telefoon.</value></data>
+  <data name="Sync.Waiting.other" xml:space="preserve"><value>Wachten op verbinding. {0} wijzigingen zijn veilig op deze telefoon.</value></data>
+  <data name="Sync.WaitingNoChanges" xml:space="preserve"><value>Wachten op verbinding.</value></data>
   <data name="Tab.Log" xml:space="preserve"><value>Logboek</value></data>
   <data name="Tab.Settings" xml:space="preserve"><value>Instellingen</value></data>
   <data name="Tab.Today" xml:space="preserve"><value>Vandaag</value></data>

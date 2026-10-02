@@ -2,6 +2,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.Households;
+using Coo.Mobile.Application.Preferences;
+using Coo.Mobile.Application.Sync;
 using Coo.Mobile.Presentation.Localization;
 
 namespace Coo.Mobile.Presentation.Settings;
@@ -21,9 +23,11 @@ public sealed partial class AccountViewModel : ObservableObject, IDisposable
     private readonly DeleteAccount _deleteAccount;
     private readonly RefreshAccount _refresh;
     private readonly IHouseholdStore _households;
+    private readonly ISyncStatus _sync;
+    private readonly IClockFormat _clock;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsSignedIn), nameof(Name), nameof(Email), nameof(StatusLine))]
+    [NotifyPropertyChangedFor(nameof(IsSignedIn), nameof(Name), nameof(Email), nameof(StatusLine), nameof(LineAction), nameof(LineActionText))]
     private AccountState _state = new SignedOut(SessionExpired: false);
 
     [ObservableProperty]
@@ -33,7 +37,8 @@ public sealed partial class AccountViewModel : ObservableObject, IDisposable
     private string _toast = "";
 
     public AccountViewModel(
-        Account account, SignIn signIn, SignOut signOut, DeleteAccount deleteAccount, RefreshAccount refresh, IHouseholdStore households)
+        Account account, SignIn signIn, SignOut signOut, DeleteAccount deleteAccount, RefreshAccount refresh, IHouseholdStore households,
+        ISyncStatus sync, IClockFormat clock)
     {
         _account = account;
         _signIn = signIn;
@@ -41,7 +46,10 @@ public sealed partial class AccountViewModel : ObservableObject, IDisposable
         _deleteAccount = deleteAccount;
         _refresh = refresh;
         _households = households;
+        _sync = sync;
+        _clock = clock;
         _account.Changed += OnAccountChanged;
+        _sync.StatusChanged += OnSyncChanged;
         State = account.State;
     }
 
@@ -51,14 +59,50 @@ public sealed partial class AccountViewModel : ObservableObject, IDisposable
 
     public string Email => Profile?.Email ?? "";
 
-    /// <summary>The line under "Sign in with Google", or under the account.</summary>
-    public string StatusLine => State switch
+    /// <summary>The line under "Sign in with Google", or the sync line under the account (Spec 011 §2).</summary>
+    public string StatusLine => Line.Text;
+
+    public SyncLineAction LineAction => Line.Action;
+
+    /// <summary>The button under the line: "Turn on sharing" or "Choose what to do with them"; empty for none.</summary>
+    public string LineActionText => LineAction switch
     {
-        SignedOut { SessionExpired: true } => Strings.Get("Account.SessionExpired"),
-        SignedOut => Strings.Get("Account.SignInHint"),
-        JoinPending => Strings.Get("Account.JoinPending"),
+        SyncLineAction.TurnOnSharing => Strings.Get("Sync.TurnOn"),
+        SyncLineAction.ChooseWhatToDo => Strings.Get("Account.ChooseWhatToDo"),
         _ => "",
     };
+
+    /// <summary>The page opens the consent sheet (Spec 011 §3).</summary>
+    public event EventHandler? ConsentRequested;
+
+    /// <summary>The page opens the bring-over sheet (Spec 011 §4).</summary>
+    public event EventHandler? BringOverRequested;
+
+    private SyncLineView Line => SyncLine.For(State, _sync.Status, _clock.Is24Hour);
+
+    /// <summary>Written by hand rather than with <c>[RelayCommand]</c>: the generated name would clash with <see cref="LineAction"/>.</summary>
+    public IRelayCommand LineActionCommand => _lineActionCommand ??= new RelayCommand(() =>
+    {
+        switch (LineAction)
+        {
+            case SyncLineAction.TurnOnSharing:
+                ConsentRequested?.Invoke(this, EventArgs.Empty);
+                break;
+            case SyncLineAction.ChooseWhatToDo:
+                BringOverRequested?.Invoke(this, EventArgs.Empty);
+                break;
+        }
+    });
+
+    private IRelayCommand? _lineActionCommand;
+
+    // Raised from the engine's background thread; the page dispatches (SettingsPage.OnAccountChanged).
+    private void OnSyncChanged(object? sender, EventArgs e)
+    {
+        OnPropertyChanged(nameof(StatusLine));
+        OnPropertyChanged(nameof(LineAction));
+        OnPropertyChanged(nameof(LineActionText));
+    }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "The page binds to it on the instance.")]
     public ConfirmPrompt SignOutPrompt =>
@@ -71,7 +115,11 @@ public sealed partial class AccountViewModel : ObservableObject, IDisposable
         _ => null,
     };
 
-    public void Dispose() => _account.Changed -= OnAccountChanged;
+    public void Dispose()
+    {
+        _account.Changed -= OnAccountChanged;
+        _sync.StatusChanged -= OnSyncChanged;
+    }
 
     /// <summary>Settings opened: the latest name and email from the server. Offline, nothing changes.</summary>
     public Task RefreshAsync() => _refresh.ExecuteAsync(CancellationToken.None);

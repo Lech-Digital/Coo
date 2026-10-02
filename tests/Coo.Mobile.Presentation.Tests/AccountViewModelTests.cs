@@ -5,6 +5,7 @@ using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Preferences;
+using Coo.Mobile.Application.Sync;
 using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Settings;
 using NSubstitute;
@@ -29,11 +30,14 @@ public sealed class AccountViewModelTests : IDisposable
     private readonly IDeviceIdentity _device = Substitute.For<IDeviceIdentity>();
     private readonly IDeviceName _deviceName = Substitute.For<IDeviceName>();
     private readonly MemorySessions _sessions = new();
+    private readonly ISyncStatus _sync = Substitute.For<ISyncStatus>();
+    private readonly IClockFormat _clock = Substitute.For<IClockFormat>();
     private readonly Account _account;
 
     public AccountViewModelTests()
     {
         Strings.Use(new LanguagePreference("en"), null);
+        _sync.Status.Returns(SyncStatus.Initial);
         _account = new Account(_sessions);
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
         var baby = BabyProfile.Create(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), Household, "Maja", [],
@@ -117,7 +121,7 @@ public sealed class AccountViewModelTests : IDisposable
     }
 
     [Fact]
-    public async Task State_JoinPending_SaysTheEntriesJoinLater()
+    public async Task State_JoinPending_SaysTheEntriesAreNotInTheFamilysLogYet()
     {
         // Arrange
         using var model = Model();
@@ -127,7 +131,7 @@ public sealed class AccountViewModelTests : IDisposable
 
         // Assert
         model.IsSignedIn.Should().BeTrue();
-        model.StatusLine.Should().Be("Signed in. Your entries on this phone join your family's log when sharing arrives.");
+        model.StatusLine.Should().Be("Signed in. The entries on this phone aren't in your family's log yet.");
     }
 
     [Fact]
@@ -275,13 +279,82 @@ public sealed class AccountViewModelTests : IDisposable
         await _accountApi.Received(1).DeleteAccountAsync(Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task LineActionCommand_SharingOff_AsksForTheConsentSheet()
+    {
+        // Arrange
+        await _account.SignedInAsync(new StoredSession("a", Expires, "r", Profile, Household, JoinPending: false), CancellationToken.None);
+        _sync.Status.Returns(SyncStatus.Initial with { Last = CycleOutcome.ConsentDeclined });
+        using var model = Model();
+        var asked = 0;
+        model.ConsentRequested += (_, _) => asked++;
+
+        // Act
+        model.LineActionCommand.Execute(null);
+
+        // Assert
+        model.LineActionText.Should().Be("Turn on sharing");
+        asked.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task StatusChanged_FromTheEngine_RaisesTheLineProperties()
+    {
+        // Arrange
+        await _account.SignedInAsync(new StoredSession("a", Expires, "r", Profile, Household, JoinPending: false), CancellationToken.None);
+        using var model = Model();
+        var changed = new List<string?>();
+        model.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+        _sync.Status.Returns(SyncStatus.Initial with { Last = CycleOutcome.Failed, Pending = 2 });
+
+        // Act
+        _sync.StatusChanged += Raise.Event();
+
+        // Assert
+        changed.Should().Contain(nameof(AccountViewModel.StatusLine));
+        model.StatusLine.Should().Be("Waiting for a connection. 2 changes are safe on this phone.");
+    }
+
+    [Fact]
+    public async Task LineActionCommand_JoinPending_AsksForTheBringOverSheet()
+    {
+        // Arrange
+        await _account.SignedInAsync(new StoredSession("a", Expires, "r", Profile, AccountsHousehold, JoinPending: true), CancellationToken.None);
+        using var model = Model();
+        var asked = 0;
+        model.BringOverRequested += (_, _) => asked++;
+
+        // Act
+        model.LineActionCommand.Execute(null);
+
+        // Assert
+        model.LineActionText.Should().Be("Choose what to do with them");
+        asked.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task StatusLine_SyncStoppedForGood_IsNotTheWaitingLine()
+    {
+        // Arrange
+        await _account.SignedInAsync(new StoredSession("a", Expires, "r", Profile, Household, JoinPending: false), CancellationToken.None);
+        _sync.Status.Returns(SyncStatus.Initial with { Last = CycleOutcome.Failed, LastError = SyncCycle.NoProgressError });
+
+        // Act
+        using var model = Model();
+
+        // Assert
+        model.StatusLine.Should().StartWith("Sharing stopped");
+    }
+
     private AccountViewModel Model() => new(
         _account,
         new SignIn(_api, _google, _households, _device, _deviceName, _account),
         new SignOut(_accountApi, _account),
         new DeleteAccount(_accountApi, _account),
         new RefreshAccount(_accountApi, _sessions, _account),
-        _households);
+        _households,
+        _sync,
+        _clock);
 
     private sealed class MemorySessions : ISessionStore
     {

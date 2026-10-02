@@ -41,9 +41,12 @@ public static class Strings
 
     public static string Format(string key, params object[] args) => string.Format(Culture, Get(key), args);
 
-    /// <summary>A plural string: <c>Plural("Due.InWeeks", 3)</c> reads <c>Due.InWeeks.other</c> in English.</summary>
-    public static string Plural(string key, long n) =>
-        string.Format(Culture, Get($"{key}.{PluralRules.Select(Language, n)}"), n);
+    /// <summary>
+    /// A plural string: <c>Plural("Due.InWeeks", 3)</c> reads <c>Due.InWeeks.other</c> in English. <c>{0}</c> is
+    /// <paramref name="n"/>, <c>{1}</c>… are <paramref name="more"/>.
+    /// </summary>
+    public static string Plural(string key, long n, params object[] more) =>
+        string.Format(Culture, Get($"{key}.{PluralRules.Select(Language, n)}"), [n, .. more]);
 
     /// <summary>The localized message for a Domain or Application error code, or a generic one.</summary>
     public static string Error(string? code)

@@ -5,11 +5,12 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Account.ChooseWhatToDo" xml:space="preserve"><value>Elegir qué hacer con ellos</value></data>
   <data name="Account.Delete" xml:space="preserve"><value>Eliminar cuenta</value></data>
   <data name="Account.DeleteConfirm" xml:space="preserve"><value>Esto elimina tu cuenta de Coo y, como eres el único progenitor, el registro compartido de tu familia de {0}. Los registros de este teléfono se quedan aquí.</value></data>
   <data name="Account.DeleteConfirmNoBaby" xml:space="preserve"><value>Esto elimina tu cuenta de Coo y, como eres el único progenitor, el registro compartido de tu familia. Los registros de este teléfono se quedan aquí.</value></data>
   <data name="Account.DeleteFailed" xml:space="preserve"><value>Tu cuenta no se ha eliminado. Comprueba la conexión y vuelve a intentarlo.</value></data>
-  <data name="Account.JoinPending" xml:space="preserve"><value>Sesión iniciada. Tus registros de este teléfono se unirán al registro de tu familia cuando llegue la opción de compartir.</value></data>
+  <data name="Account.JoinPending" xml:space="preserve"><value>Sesión iniciada. Los registros de este teléfono aún no están en el registro de tu familia.</value></data>
   <data name="Account.SessionExpired" xml:space="preserve"><value>Vuelve a iniciar sesión para seguir compartiendo.</value></data>
   <data name="Account.SignIn" xml:space="preserve"><value>Iniciar sesión con Google</value></data>
   <data name="Account.SignInFailed" xml:space="preserve"><value>No se ha podido iniciar sesión. Comprueba la conexión y vuelve a intentarlo.</value></data>
@@ -39,6 +40,8 @@
   <data name="Attention.KeepBoth" xml:space="preserve"><value>Conservar ambos</value></data>
   <data name="Attention.KeepThis" xml:space="preserve"><value>Conservar esta</value></data>
   <data name="Attention.Newer" xml:space="preserve"><value>De una versión más nueva</value></data>
+  <data name="Attention.Rejected" xml:space="preserve"><value>No aceptado por el servidor</value></data>
+  <data name="Attention.ShowMore" xml:space="preserve"><value>Mostrar más</value></data>
   <data name="Attention.Title" xml:space="preserve"><value>Necesita atención</value></data>
   <data name="Attention.Unreadable" xml:space="preserve"><value>No se ha podido leer</value></data>
   <data name="Awake.Hint" xml:space="preserve"><value>Para una toma dormida o un cambio medio dormido, elige «Sigue dormido».</value></data>
@@ -48,6 +51,16 @@
   <data name="Baby.Nicknames" xml:space="preserve"><value>Otros nombres que usáis</value></data>
   <data name="Baby.NicknamesHint" xml:space="preserve"><value>Hasta 5, separados por comas</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Bienvenido, {0}</value></data>
+  <data name="BringOver.AddNew" xml:space="preserve"><value>Añadir como bebé nuevo</value></data>
+  <data name="BringOver.Bring" xml:space="preserve"><value>Traer mis registros</value></data>
+  <data name="BringOver.Confirm" xml:space="preserve"><value>Traerlos</value></data>
+  <data name="BringOver.Entries.one" xml:space="preserve"><value>Este teléfono tiene {0} registro de {1}.</value></data>
+  <data name="BringOver.Entries.other" xml:space="preserve"><value>Este teléfono tiene {0} registros de {1}.</value></data>
+  <data name="BringOver.Failed" xml:space="preserve"><value>No ha funcionado. No se ha cambiado nada.</value></data>
+  <data name="BringOver.Family" xml:space="preserve"><value>El registro de tu familia tiene: {0}.</value></data>
+  <data name="BringOver.FamilyEmpty" xml:space="preserve"><value>El registro de tu familia aún no tiene ningún bebé.</value></data>
+  <data name="BringOver.Keep" xml:space="preserve"><value>Mantenerlos separados</value></data>
+  <data name="BringOver.Which" xml:space="preserve"><value>{0} en este teléfono es</value></data>
   <data name="Chart.Awake" xml:space="preserve"><value>vigilia {0}</value></data>
   <data name="Chart.Hint" xml:space="preserve"><value>Toca dos veces para ver el día en detalle</value></data>
   <data name="Chart.Range" xml:space="preserve"><value>{0}, {1} – {2}</value></data>
@@ -55,6 +68,13 @@
   <data name="Chart.SummaryFeeds" xml:space="preserve"><value>Tomas {0}</value></data>
   <data name="Chart.SummaryPumps" xml:space="preserve"><value>Extracciones {0}</value></data>
   <data name="Chart.SummarySleep" xml:space="preserve"><value>Sueño {0}</value></data>
+  <data name="Consent.Agree" xml:space="preserve"><value>Aceptar y compartir</value></data>
+  <data name="Consent.Body" xml:space="preserve"><value>Para compartir, Coo guarda el registro de cuidados de tu bebé (tomas, pañales, sueño y extracciones, con sus horas, cantidades y notas), el perfil de tu bebé y los ajustes de tu hogar en el servidor de Coo en Alemania. Son datos de salud de tu hijo, por eso solo los guardamos con tu permiso.</value></data>
+  <data name="Consent.Body2" xml:space="preserve"><value>Todas las personas de tu hogar pueden verlo y añadir registros. Puedes retirar tu permiso en cualquier momento eliminando tu cuenta en Ajustes. El registro de este teléfono siempre se queda aquí.</value></data>
+  <data name="Consent.Failed" xml:space="preserve"><value>No se ha podido activar la opción de compartir. Comprueba la conexión y vuelve a intentarlo.</value></data>
+  <data name="Consent.NotNow" xml:space="preserve"><value>Ahora no</value></data>
+  <data name="Consent.Privacy" xml:space="preserve"><value>Política de privacidad</value></data>
+  <data name="Consent.Title" xml:space="preserve"><value>¿Compartir tu registro con tu familia?</value></data>
   <data name="Diaper.Dirty" xml:space="preserve"><value>Sucio</value></data>
   <data name="Diaper.Mixed" xml:space="preserve"><value>Ambos</value></data>
   <data name="Diaper.Wet" xml:space="preserve"><value>Mojado</value></data>
@@ -115,6 +135,12 @@
   <data name="Error.pump.too-long" xml:space="preserve"><value>La extracción dura como máximo 4 horas. Revisa las horas.</value></data>
   <data name="Error.settings.all-kinds-hidden" xml:space="preserve"><value>Deja al menos un tipo visible.</value></data>
   <data name="Error.sleep.too-long" xml:space="preserve"><value>Un sueño dura como máximo 24 horas. Revisa las horas.</value></data>
+  <data name="Error.sync.change-malformed" xml:space="preserve"><value>El servidor no ha podido leer este cambio.</value></data>
+  <data name="Error.sync.household-mismatch" xml:space="preserve"><value>Este registro ya pertenece al registro de otra familia.</value></data>
+  <data name="Error.sync.person-unresolved" xml:space="preserve"><value>Aún no se sabe quién hizo este registro. Edítalo para enviarlo de nuevo.</value></data>
+  <data name="Error.sync.role-forbidden" xml:space="preserve"><value>Tu rol en esta familia no permite este cambio.</value></data>
+  <data name="Error.sync.schema-unsupported" xml:space="preserve"><value>Este cambio necesita una versión más reciente de Coo. Actualiza la app.</value></data>
+  <data name="Error.sync.stamp-in-future" xml:space="preserve"><value>El reloj de este teléfono va adelantado. Revisa la fecha y la hora y luego edita el registro.</value></data>
   <data name="Error.time.end-not-after-start" xml:space="preserve"><value>El final debe ser posterior al inicio.</value></data>
   <data name="Error.time.too-far-in-future" xml:space="preserve"><value>Esa hora está demasiado en el futuro.</value></data>
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Escribe una cantidad mayor que 0 y hasta 1.000 ml.</value></data>
@@ -192,6 +218,17 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.Left" xml:space="preserve"><value>izquierdo</value></data>
   <data name="Side.R" xml:space="preserve"><value>D</value></data>
   <data name="Side.Right" xml:space="preserve"><value>derecho</value></data>
+  <data name="Sync.Off" xml:space="preserve"><value>Compartir está desactivado. Tu registro solo está en este teléfono.</value></data>
+  <data name="Sync.Sharing.one" xml:space="preserve"><value>Compartiendo {0} cambio…</value></data>
+  <data name="Sync.Sharing.other" xml:space="preserve"><value>Compartiendo {0} cambios…</value></data>
+  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Se ha detenido el uso compartido: el registro de este teléfono pertenece a otra familia. Tus registros están a salvo en este teléfono.</value></data>
+  <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Se ha detenido el uso compartido: el servidor no acepta cambios por ahora. Coo volverá a intentarlo cuando abras la app de nuevo.</value></data>
+  <data name="Sync.TurnOn" xml:space="preserve"><value>Activar compartir</value></data>
+  <data name="Sync.UpToDate" xml:space="preserve"><value>Al día · {0}</value></data>
+  <data name="Sync.UpdateApp" xml:space="preserve"><value>Actualiza Coo para seguir compartiendo. Tus cambios están a salvo en este teléfono.</value></data>
+  <data name="Sync.Waiting.one" xml:space="preserve"><value>Esperando conexión. {0} cambio está a salvo en este teléfono.</value></data>
+  <data name="Sync.Waiting.other" xml:space="preserve"><value>Esperando conexión. {0} cambios están a salvo en este teléfono.</value></data>
+  <data name="Sync.WaitingNoChanges" xml:space="preserve"><value>Esperando conexión.</value></data>
   <data name="Tab.Log" xml:space="preserve"><value>Registro</value></data>
   <data name="Tab.Settings" xml:space="preserve"><value>Ajustes</value></data>
   <data name="Tab.Today" xml:space="preserve"><value>Hoy</value></data>
