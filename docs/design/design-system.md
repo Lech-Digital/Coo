@@ -174,7 +174,7 @@ spec.
 | **Log tile** | A 96 dp square in the event `Tint`. It holds the icon, the name, and a "last at" line (for example "12:40 · L"). A tap logs or opens the quick form; a long press opens details. |
 | **Voice bar** | A full-width pill in `VoiceBg`: mic icon, "Tell Coo", and a rotating example hint. |
 | **Timeline row** | Time (tabular), event badge (34 dp, `Tint` with an `Ink` icon), title in `BodyStrong`, and who logged it in `Meta`. Hairline separators. |
-| **Day ribbon** | A 24-hour bar. Sleep is drawn as `SleepTint` blocks outlined in `SleepMark`; other events are 4 dp ticks in their `Mark`, on staggered lanes. It has hour labels and a legend. |
+| **Day ribbon** | A 24-hour rhythm band (Spec 009b). Sleep fills the band in `SleepMark`; feeds are `FeedMark` pills of their real length above it; diapers are `DiaperMark` dots and pumps `PumpMark` squares below it. Quiet hours are a `SleepTint` wash, today has an `Accent` "now" line, and labels mark every 3 hours. A tap opens the zoomed day: 6 hours per screen around the tap, swiped, with every item labelled. |
 | **Totals** | Four `Tint` cells, each with a number and a unit, in the event `Ink`. |
 | **Night timer** | `Label` eyebrow with an event dot, `Timer` digits, and the start time. Below it, two 64 dp actions: `Stop` (the only accent) and a secondary action. |
 | **Night quick row** | 68 dp buttons on dark event tints, with no borders. |

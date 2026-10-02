@@ -204,6 +204,7 @@ The quiet-hours line ("family alerts paused until 07:00") arrives with notificat
 - **The day ribbon:** 24 hours. Sleeps are `SleepTint` blocks outlined in `SleepMark`. Feeds,
   diapers and pumps are 4 dp ticks in their `Mark`, on staggered lanes. It has hour labels (00, 06,
   12, 18, 24) and a legend.
+  Replaced by the rhythm band and the zoomed day in Spec 009b.
 - **Totals:** feeds, diapers, sleep time (the part of each sleep inside that day) and millilitres
   pumped.
 - **The timeline:** that day's entries, newest first.
