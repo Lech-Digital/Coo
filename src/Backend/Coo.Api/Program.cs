@@ -1,6 +1,7 @@
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
+using Coo.Api.Application.Auth;
 using Coo.Api.Application.CareLog;
 using Coo.Api.Application.Health;
 using Coo.Api.Hosting;
@@ -26,9 +27,22 @@ var auth = StartupChecks.SelectAuth(
 builder.Services.AddApiIdentity(auth.GoogleWebClientId, auth.ActiveKeyId, auth.SigningKeys);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 builder.Services.AddAuthorization();
+builder.Services.AddAuthRateLimiting(builder.Configuration.GetValue("Auth:PermitsPerMinute", AuthEndpoints.DefaultPermitsPerMinute));
+builder.Services.AddSingleton<IssueNonce>();
+builder.Services.AddSingleton<RefreshSession>();
+builder.Services.AddSingleton<SignOutSession>();
+builder.Services.AddSingleton<PurgeAuthNonces>();
+
+// Scoped: they use IAccountStore, which shares the request's database context with Identity.
+builder.Services.AddScoped<SignInWithGoogle>();
+builder.Services.AddScoped<GetMe>();
+builder.Services.AddScoped<DeleteAccount>();
 builder.Services.AddSingleton<VerifyIntegrity>();
 if (!verifyOnly)
+{
     builder.Services.AddHostedService<IntegrityScanJob>();
+    builder.Services.AddHostedService<AuthNonceCleanupJob>();
+}
 
 var app = builder.Build();
 
@@ -48,6 +62,9 @@ forwarded.KnownProxies.Clear();
 forwarded.KnownIPNetworks.Add(new System.Net.IPNetwork(IPAddress.Parse("10.0.0.0"), 8));
 forwarded.KnownIPNetworks.Add(new System.Net.IPNetwork(IPAddress.Parse("172.16.0.0"), 12));
 app.UseForwardedHeaders(forwarded);
+
+// Before authentication: the limiter partitions on the forwarded client address (Spec 010 §4.1).
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -59,6 +76,8 @@ app.MapGet("/health", async (IDatabaseProbe database, CancellationToken cancella
     await database.IsReachableAsync(cancellationToken)
         ? Results.Ok(new { status = "ok", version, database = "ok" })
         : Results.Json(new { status = "unavailable", version, database = "unreachable" }, statusCode: StatusCodes.Status503ServiceUnavailable));
+
+app.MapAuthEndpoints();
 
 await app.RunAsync();
 return 0;
