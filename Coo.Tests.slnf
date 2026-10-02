@@ -11,6 +11,7 @@
       "src/Shared/Coo.Codecs/Coo.Codecs.csproj",
       "src/Shared/Coo.Contracts/Coo.Contracts.csproj",
       "src/Shared/Coo.Domain/Coo.Domain.csproj",
+      "tests/Coo.Api.Application.Tests/Coo.Api.Application.Tests.csproj",
       "tests/Coo.Api.Infrastructure.Tests/Coo.Api.Infrastructure.Tests.csproj",
       "tests/Coo.Api.IntegrationTests/Coo.Api.IntegrationTests.csproj",
       "tests/Coo.Architecture.Tests/Coo.Architecture.Tests.csproj",

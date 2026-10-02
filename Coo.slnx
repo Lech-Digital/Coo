@@ -18,6 +18,7 @@
     <Project Path="src/Shared/Coo.Domain/Coo.Domain.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Coo.Api.Application.Tests/Coo.Api.Application.Tests.csproj" />
     <Project Path="tests/Coo.Api.Infrastructure.Tests/Coo.Api.Infrastructure.Tests.csproj" />
     <Project Path="tests/Coo.Api.IntegrationTests/Coo.Api.IntegrationTests.csproj" />
     <Project Path="tests/Coo.Architecture.Tests/Coo.Architecture.Tests.csproj" />
