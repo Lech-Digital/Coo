@@ -97,6 +97,50 @@ public sealed class AuthUseCaseTests : IDisposable
     }
 
     [Fact]
+    public async Task ExecuteAsync_Created_RecordsTheMoveFromThisPhonesHousehold()
+    {
+        // Arrange: the marker the sync cycle needs before it moves anything (Spec 011 §4, review fix).
+        Grants(SignInOutcome.Created, AccountsHousehold);
+
+        // Act
+        await SignIn().ExecuteAsync(CancellationToken.None);
+
+        // Assert
+        _sessions.Stored!.PendingMoveFrom.Should().Be(Local);
+    }
+
+    [Theory]
+    [InlineData(SignInOutcome.Adopted, false)]
+    [InlineData(SignInOutcome.Existing, false)]
+    [InlineData(SignInOutcome.Existing, true)]
+    [InlineData(SignInOutcome.Joined, true)]
+    public async Task ExecuteAsync_OutcomeOtherThanCreated_RecordsNoMove(SignInOutcome outcome, bool otherHousehold)
+    {
+        // Arrange
+        Grants(outcome, otherHousehold ? AccountsHousehold : Local);
+
+        // Act
+        await SignIn().ExecuteAsync(CancellationToken.None);
+
+        // Assert
+        _sessions.Stored!.PendingMoveFrom.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_SignOutAfterCreated_ForgetsTheMove()
+    {
+        // Arrange
+        Grants(SignInOutcome.Created, AccountsHousehold);
+        await SignIn().ExecuteAsync(CancellationToken.None);
+
+        // Act
+        await new SignOut(_accountApi, _account).ExecuteAsync(CancellationToken.None);
+
+        // Assert: the marker lives in the session, so every sign-out path takes it with the session.
+        _sessions.Stored.Should().BeNull();
+    }
+
+    [Fact]
     public async Task ExecuteAsync_Joined_IsJoinPendingAndKeepsThePhonesEntries()
     {
         // Arrange: the same account on a second phone (Q1).

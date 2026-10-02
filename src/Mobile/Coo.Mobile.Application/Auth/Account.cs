@@ -81,6 +81,10 @@ public sealed class Account(ISessionStore sessions) : IDisposable
     public Task<bool> TryCompleteJoinAsync(long generation, CancellationToken cancellationToken) =>
         TryChangeAsync(generation, s => s with { JoinPending = false }, cancellationToken);
 
+    /// <summary>The <c>created</c> move committed (Spec 011 §4), or had already: the marker goes; nothing else changes.</summary>
+    public Task<bool> TryClearPendingMoveAsync(long generation, CancellationToken cancellationToken) =>
+        TryChangeAsync(generation, s => s with { PendingMoveFrom = null }, cancellationToken);
+
     /// <summary>The server ended the session (only <c>auth.refresh-invalid</c>); after a deliberate sign-out it does nothing.</summary>
     public async Task<bool> TryExpireAsync(long generation, CancellationToken cancellationToken)
     {

@@ -7,11 +7,13 @@ public sealed record AccountProfile(UserId UserId, string Name, string Email);
 /// <summary>
 /// What the phone keeps after signing in (Spec 010 §3.3): both tokens, who is signed in, the account's household, whether
 /// this phone's entries are still to join it, and the refresh token this phone proposed and has not seen accepted yet
-/// (Spec 011 §8.2): a retry sends the same one.
+/// (Spec 011 §8.2): a retry sends the same one. <see cref="PendingMoveFrom"/> is the <c>created</c> marker (Spec 011 §4):
+/// the household whose records the first sync moves into <see cref="AccountHousehold"/>. It lives in the session, so it is
+/// written with the sign-in and goes with every sign-out.
 /// </summary>
 public sealed record StoredSession(
     string AccessToken, DateTimeOffset AccessTokenExpiresAt, string RefreshToken, AccountProfile Profile, HouseholdId AccountHousehold,
-    bool JoinPending, string? PendingRefreshToken = null);
+    bool JoinPending, string? PendingRefreshToken = null, HouseholdId? PendingMoveFrom = null);
 
 /// <summary>The session on this phone. Unreadable means none: the person signs in again; it never crashes.</summary>
 public interface ISessionStore

@@ -103,4 +103,49 @@ public sealed class SessionStoreTests
         // Assert
         (await store.GetAsync(CancellationToken.None)).Should().Be(pending);
     }
+
+    [Fact]
+    public async Task SaveAsyncThenGetAsync_PendingMove_RoundTrips()
+    {
+        // Arrange: the `created` marker (Spec 011 §4) travels with the session.
+        var store = new SessionStore(_secrets);
+        var moving = Session with { PendingMoveFrom = new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a2")) };
+
+        // Act
+        await store.SaveAsync(moving, CancellationToken.None);
+
+        // Assert
+        (await store.GetAsync(CancellationToken.None)).Should().Be(moving);
+    }
+
+    [Fact]
+    public void Parse_VersionTwoSession_ReadsWithoutAPendingMove()
+    {
+        // Arrange: what Task 9's build stored.
+        var text = "2\u001faccess-1\u001f1790000000000\u001frefresh-1\u001f7a1c0000-0000-7000-8000-0000000000c1\u001fAndrzej"
+            + "\u001fandrzej@example.com\u001f7a1c0000-0000-7000-8000-0000000000a1\u001f0\u001fpending";
+
+        // Act
+        var session = SessionStore.Parse(text);
+
+        // Assert
+        session!.PendingRefreshToken.Should().Be("pending");
+        session.PendingMoveFrom.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("not-a-guid")]
+    [InlineData("00000000-0000-0000-0000-000000000000")]
+    public void Parse_VersionThreeWithAnUnreadableMove_ReturnsNull(string move)
+    {
+        // Arrange
+        var text = "3\u001faccess-1\u001f1790000000000\u001frefresh-1\u001f7a1c0000-0000-7000-8000-0000000000c1\u001fAndrzej"
+            + "\u001fandrzej@example.com\u001f7a1c0000-0000-7000-8000-0000000000a1\u001f0\u001f\u001f" + move;
+
+        // Act
+        var session = SessionStore.Parse(text);
+
+        // Assert
+        session.Should().BeNull();
+    }
 }

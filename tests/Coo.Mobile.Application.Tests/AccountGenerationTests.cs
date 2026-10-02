@@ -273,4 +273,36 @@ public sealed class AccountGenerationTests : IDisposable
             return Task.CompletedTask;
         }
     }
+
+    [Fact]
+    public async Task TryClearPendingMoveAsync_SameGeneration_ClearsOnlyTheMarker()
+    {
+        // Arrange
+        var other = new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a2"));
+        await _account.SignedInAsync(Session with { PendingMoveFrom = other }, CancellationToken.None);
+
+        // Act
+        var cleared = await _account.TryClearPendingMoveAsync(_account.Generation, CancellationToken.None);
+
+        // Assert
+        cleared.Should().BeTrue();
+        _sessions.Stored.Should().Be(Session);
+    }
+
+    [Fact]
+    public async Task TryClearPendingMoveAsync_AfterSigningInAgain_KeepsTheNewSessionsMarker()
+    {
+        // Arrange
+        var other = new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a2"));
+        await _account.SignedInAsync(Session with { PendingMoveFrom = other }, CancellationToken.None);
+        var generation = _account.Generation;
+        await _account.SignedInAsync(Session with { PendingMoveFrom = other, AccessToken = "access-9" }, CancellationToken.None);
+
+        // Act
+        var cleared = await _account.TryClearPendingMoveAsync(generation, CancellationToken.None);
+
+        // Assert
+        cleared.Should().BeFalse();
+        _sessions.Stored!.PendingMoveFrom.Should().Be(other);
+    }
 }

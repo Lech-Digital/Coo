@@ -48,8 +48,8 @@ public sealed class SyncCycleTests : IDisposable
     private SyncCycle Cycle() => new(
         _account, _sessions, new ConsentGate(_state, _accounts, _consentApi), _store, _moves, _state, _api, _clock, _device, _time);
 
-    private Task SignInAsync(bool joinPending = false) => _account.SignedInAsync(
-        new StoredSession("access", Now.AddMinutes(15), "refresh", Profile, Household, joinPending), CancellationToken.None);
+    private Task SignInAsync(bool joinPending = false, HouseholdId? moveFrom = null) => _account.SignedInAsync(
+        new StoredSession("access", Now.AddMinutes(15), "refresh", Profile, Household, joinPending, PendingMoveFrom: moveFrom), CancellationToken.None);
 
     internal static OutgoingChange Change(int n) => new(
         Guid.Parse("7a1c0000-0000-7000-8000-" + n.ToString("D12", System.Globalization.CultureInfo.InvariantCulture)), SyncEntityTypes.CareEntry,
@@ -122,8 +122,9 @@ public sealed class SyncCycleTests : IDisposable
     [Fact]
     public async Task RunAsync_Created_MovesEverythingBeforeTheFirstPush()
     {
-        // Arrange: the account's household is new and empty; this phone still shows its provisional one (ruling 9).
-        await SignInAsync();
+        // Arrange: the account's household is new and empty; this phone still shows its provisional one, and the
+        // `created` sign-in left the marker naming exactly that move (ruling 9, review fix).
+        await SignInAsync(moveFrom: Provisional);
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
 
         // Act
@@ -132,6 +133,7 @@ public sealed class SyncCycleTests : IDisposable
         // Assert
         report.Outcome.Should().Be(CycleOutcome.Synced);
         report.DataChanged.Should().BeTrue();
+        _sessions.Stored!.PendingMoveFrom.Should().BeNull();
         Received.InOrder(() =>
         {
             _moves.MoveAllAsync(Provisional, Household, User, Arg.Any<CancellationToken>());
@@ -483,5 +485,198 @@ public sealed class SyncCycleTests : IDisposable
         report.Outcome.Should().Be(CycleOutcome.SoftLocked);
         await _store.DidNotReceiveWithAnyArgs().ApplyResultsAsync(default, default!, default!, default, default);
         await _moves.DidNotReceiveWithAnyArgs().DeleteHouseholdAsync(default, default);
+    }
+
+    [Fact]
+    public async Task RunAsync_ActiveDiffersWithoutAMoveMarker_MovesNothingAndFails()
+    {
+        // Arrange: no `created` sign-in named this move; "active is not the account's" alone never moves records.
+        await SignInAsync();
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.Outcome.Should().Be(CycleOutcome.Failed);
+        report.Error.Should().Be(SyncCycle.HouseholdMismatchError);
+        await _moves.DidNotReceiveWithAnyArgs().MoveAllAsync(default, default, default, default);
+        await _store.DidNotReceiveWithAnyArgs().PrepareForPushAsync(default, default, default);
+        await _api.DidNotReceiveWithAnyArgs().PushAsync(default, default, default!, default);
+    }
+
+    [Fact]
+    public async Task RunAsync_MoveMarkerNamesAnotherHousehold_MovesNothingAndFails()
+    {
+        // Arrange
+        var other = new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a3"));
+        await SignInAsync(moveFrom: other);
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.Outcome.Should().Be(CycleOutcome.Failed);
+        report.Error.Should().Be(SyncCycle.HouseholdMismatchError);
+        await _moves.DidNotReceiveWithAnyArgs().MoveAllAsync(default, default, default, default);
+        _sessions.Stored!.PendingMoveFrom.Should().Be(other);
+    }
+
+    [Fact]
+    public async Task RunAsync_MoveCommittedButTheMarkerStayed_ClearsItAndSyncs()
+    {
+        // Arrange: the app stopped between the move's transaction and clearing the marker.
+        await SignInAsync(moveFrom: Provisional);
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.Outcome.Should().Be(CycleOutcome.Synced);
+        _sessions.Stored!.PendingMoveFrom.Should().BeNull();
+        await _moves.DidNotReceiveWithAnyArgs().MoveAllAsync(default, default, default, default);
+    }
+
+    [Fact]
+    public async Task RunAsync_SignedOutWhileCheckingConsent_MovesNothing()
+    {
+        // Arrange: the sign-out lands while /api/me is asked (Spec 011 §8.1).
+        await SignInAsync(moveFrom: Provisional);
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
+        _state.GetConsentAsync(User, Arg.Any<CancellationToken>()).Returns(ConsentState.Unknown);
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(async _ =>
+        {
+            await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+            return new AccountOverview(Profile, Household, "owner", [], new ConsentInfo(CareDataConsent.CurrentWording, DateTimeOffset.UnixEpoch));
+        });
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.Outcome.Should().Be(CycleOutcome.Interrupted);
+        await _moves.DidNotReceiveWithAnyArgs().MoveAllAsync(default, default, default, default);
+        await _api.DidNotReceiveWithAnyArgs().PushAsync(default, default, default!, default);
+    }
+
+    [Fact]
+    public async Task RunAsync_SignedOutWhileReadingTheActiveHousehold_MovesNothing()
+    {
+        // Arrange
+        await SignInAsync(moveFrom: Provisional);
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(async _ =>
+        {
+            await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+            return Provisional;
+        });
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.Outcome.Should().Be(CycleOutcome.Interrupted);
+        await _moves.DidNotReceiveWithAnyArgs().MoveAllAsync(default, default, default, default);
+        await _state.DidNotReceiveWithAnyArgs().IsSoftLockedAsync(default, default);
+    }
+
+    [Fact]
+    public async Task RunAsync_PulledPage_ObservesItsStampsBeforeApplyingIt()
+    {
+        // Arrange: a crash after the page's commit must not leave the clock behind a stored stamp (silent edit loss).
+        await SignInAsync();
+        var stamp = new HlcStamp(20, 0, Phone);
+        var page = new PulledPage(
+            [new PulledRecord(SyncEntityTypes.DuplicateDismissal, Guid.Parse("7a1c0000-0000-7000-9000-000000000001"), stamp, false,
+                new DismissalPayload(Guid.Parse("7a1c0000-0000-7000-9000-000000000002"), Guid.Parse("7a1c0000-0000-7000-9000-000000000003")))],
+            1, false, 1);
+        _api.PullAsync(Household, 0, null, Arg.Any<CancellationToken>()).Returns(page);
+
+        // Act
+        await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        Received.InOrder(() =>
+        {
+            _clock.ObserveAsync(stamp, Arg.Any<CancellationToken>());
+            _store.ApplyPageAsync(Household, page, Arg.Any<CancellationToken>());
+        });
+    }
+
+    [Fact]
+    public async Task RunAsync_SoftLockedWhileJoinPending_OnlyAsksAboutTheMembership()
+    {
+        // Arrange
+        await SignInAsync(joinPending: true);
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
+        _state.IsSoftLockedAsync(Household, Arg.Any<CancellationToken>()).Returns(true);
+        _api.GetMembershipAsync(Household, Arg.Any<CancellationToken>()).Returns(MembershipStatus.Unknown);
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.Outcome.Should().Be(CycleOutcome.SoftLocked);
+        await _api.DidNotReceiveWithAnyArgs().PullAsync(default, default, default, default);
+    }
+
+    [Fact]
+    public async Task RunAsync_StoreHandsTheSameBatchAgain_StopsAndFails()
+    {
+        // Arrange: every change answered, yet the store offers the same first change again; pushing on would loop forever.
+        await SignInAsync();
+        var batch = Enumerable.Range(1, SyncCycle.PushBatchSize).Select(Change).ToArray();
+        _store.NextBatchAsync(Household, SyncCycle.PushBatchSize, Arg.Any<CancellationToken>()).Returns(batch);
+        _api.PushAsync(Household, Phone, batch, Arg.Any<CancellationToken>())
+            .Returns((IReadOnlyList<PushResult>)[.. batch.Select(c => new PushResult(c.ChangeId, PushOutcome.Applied, null))]);
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.Outcome.Should().Be(CycleOutcome.Failed);
+        await _api.Received(1).PushAsync(Household, Phone, Arg.Any<IReadOnlyList<OutgoingChange>>(), Arg.Any<CancellationToken>());
+        await _api.DidNotReceiveWithAnyArgs().PullAsync(default, default, default, default);
+    }
+
+    [Fact]
+    public async Task RunAsync_SignedOutBeforeTheRevokedAnswer_WritesNoSoftLock()
+    {
+        // Arrange
+        await SignInAsync();
+        _api.PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>()).Returns<Task<PulledPage>>(async _ =>
+        {
+            await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+            throw new SyncRefusedException(SyncRefusal.MembershipRevoked, Household);
+        });
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.Outcome.Should().Be(CycleOutcome.Interrupted);
+        await _state.DidNotReceiveWithAnyArgs().SetSoftLockAsync(default, default, default);
+    }
+
+    [Theory]
+    [InlineData(MembershipStatus.Active)]
+    [InlineData(MembershipStatus.Revoked)]
+    public async Task RunAsync_SignedOutWhileAskingTheMembership_WritesNothingAndReportsNoRemoval(MembershipStatus status)
+    {
+        // Arrange
+        await SignInAsync();
+        _state.IsSoftLockedAsync(Household, Arg.Any<CancellationToken>()).Returns(true);
+        _api.GetMembershipAsync(Household, Arg.Any<CancellationToken>()).Returns(async _ =>
+        {
+            await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+            return status;
+        });
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.Outcome.Should().Be(CycleOutcome.Interrupted);
+        await _state.DidNotReceiveWithAnyArgs().SetSoftLockAsync(default, default, default);
     }
 }

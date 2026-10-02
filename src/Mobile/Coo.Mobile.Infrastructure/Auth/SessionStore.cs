@@ -13,7 +13,7 @@ internal sealed class SessionStore(ISecretStore secrets) : ISessionStore
 {
     public const string Key = "coo.session";
     private const char Separator = '\u001f';
-    private const string Version = "2";
+    private const string Version = "3";
     private const long LatestUnixMs = 253_402_300_799_999;
 
     public async Task<StoredSession?> GetAsync(CancellationToken cancellationToken)
@@ -41,22 +41,34 @@ internal sealed class SessionStore(ISecretStore secrets) : ISessionStore
         Clean(session.Profile.Email),
         session.AccountHousehold.Value.ToString("D", CultureInfo.InvariantCulture),
         session.JoinPending ? "1" : "0",
-        session.PendingRefreshToken ?? "");
+        session.PendingRefreshToken ?? "",
+        session.PendingMoveFrom is { } move ? move.Value.ToString("D", CultureInfo.InvariantCulture) : "");
 
-    /// <summary>Version 1 (0.10.0) has nine fields and no pending token; version 2 has ten.</summary>
+    /// <summary>
+    /// Version 1 (0.10.0) has nine fields and no pending token; version 2 has ten; version 3 adds the <c>created</c>
+    /// marker (Spec 011 §4) as an eleventh, empty when no move is pending.
+    /// </summary>
     internal static StoredSession? Parse(string text)
     {
         var f = text.Split(Separator);
-        var known = (f[0] == "1" && f.Length == 9) || (f[0] == "2" && f.Length == 10);
+        var known = (f[0] == "1" && f.Length == 9) || (f[0] == "2" && f.Length == 10) || (f[0] == "3" && f.Length == 11);
         if (!known || f[1].Length == 0 || f[3].Length == 0 || f[8] is not ("0" or "1")
             || !long.TryParse(f[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var expires) || expires is < 0 or > LatestUnixMs
             || !Guid.TryParseExact(f[4], "D", out var user) || user == Guid.Empty
             || !Guid.TryParseExact(f[7], "D", out var household) || household == Guid.Empty)
             return null;
-        var pending = f.Length == 10 && f[9].Length > 0 ? f[9] : null;
+        var pending = f.Length >= 10 && f[9].Length > 0 ? f[9] : null;
+        HouseholdId? move = null;
+        if (f.Length == 11 && f[10].Length > 0)
+        {
+            if (!Guid.TryParseExact(f[10], "D", out var from) || from == Guid.Empty)
+                return null;
+            move = new HouseholdId(from);
+        }
+
         return new StoredSession(
             f[1], DateTimeOffset.FromUnixTimeMilliseconds(expires), f[3], new AccountProfile(new UserId(user), f[5], f[6]),
-            new HouseholdId(household), f[8] == "1", pending);
+            new HouseholdId(household), f[8] == "1", pending, move);
     }
 
     private static string Clean(string value) => value.Replace(Separator, ' ');

@@ -1,3 +1,4 @@
+using Coo.Domain.Common;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
 
@@ -32,11 +33,13 @@ public sealed class SignIn(
 
             // No local record is re-keyed in any outcome (Spec 010 §3.2): `created` and `joined` are resolved by sync (Spec 011 §4).
             // `existing` with another household: this phone left while join-pending and must still be asked (ruling 9).
+            // `created`: the marker names this phone's household, the only one the first sync may move into the account's.
             var joinPending = grant.Outcome == SignInOutcome.Joined
                 || (grant.Outcome == SignInOutcome.Existing && grant.Household != household);
+            HouseholdId? moveFrom = grant.Outcome == SignInOutcome.Created && grant.Household != household ? household : null;
             await account.SignedInAsync(
                 new StoredSession(grant.Tokens.AccessToken, grant.Tokens.AccessTokenExpiresAt, grant.Tokens.RefreshToken, grant.Profile,
-                    grant.Household, JoinPending: joinPending),
+                    grant.Household, JoinPending: joinPending, PendingMoveFrom: moveFrom),
                 cancellationToken);
             return SignInResult.SignedIn;
         }
