@@ -206,13 +206,9 @@ internal sealed class HouseholdMoves(LocalDatabase database, TimeProvider time) 
         foreach (var table in new[] { "care_entries", "baby_profiles", "duplicate_dismissals", "sync_rejections" })
             await connection.ExecuteAsync($"DELETE FROM {table} WHERE household_id = $h;", cancellationToken, transaction, h);
 
-        // A cursor of 0 with no head: the phone is empty now, so the server may skip tombstones (ruling 20).
-        await connection.ExecuteAsync(
-            """
-            INSERT INTO sync_cursors (household_id, last_seq, bootstrap_head) VALUES ($h, 0, NULL)
-            ON CONFLICT (household_id) DO UPDATE SET last_seq = 0, bootstrap_head = NULL;
-            """,
-            cancellationToken, transaction, h);
+        // No cursor: the phone is empty now, so it pulls from 0 with no head and the server may skip tombstones (ruling 20).
+        // No row, rather than (0, no head), so the household does not count as pulled until the log is back.
+        await connection.ExecuteAsync("DELETE FROM sync_cursors WHERE household_id = $h;", cancellationToken, transaction, h);
         await transaction.CommitAsync(cancellationToken);
         return true;
     }

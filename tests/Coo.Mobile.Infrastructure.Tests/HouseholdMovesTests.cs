@@ -226,6 +226,7 @@ public sealed class HouseholdMovesTests
         (await db.ScalarAsync("SELECT (SELECT count(*) FROM care_entries) + (SELECT count(*) FROM baby_profiles) + (SELECT count(*) FROM duplicate_dismissals);")).Should().Be(0);
         (await db.ScalarAsync("SELECT count(*) FROM household_settings;")).Should().Be(1);
         (await new SyncStore(db.Database).GetCursorAsync(TestDatabase.Household, CancellationToken.None)).Should().Be(new SyncCursor(0, null));
+        (await new SyncStore(db.Database).HasPulledAsync(TestDatabase.Household, CancellationToken.None)).Should().BeFalse("the log is on its way back");
     }
 
     [Fact]

@@ -123,6 +123,14 @@ public sealed class StartupPage : ContentPage
                 || (await households.ListBabiesAsync(household.Id, CancellationToken.None)).Count > 0)
                 return;
 
+            // The account's household before its first full pull (just signed in, or after a Fresh bootstrap's wipe): the
+            // baby is on its way, so setup would only create a second one (found on the emulator, Task 23). The pull's own
+            // DataChanged checks again.
+            if (await _services.GetRequiredService<Coo.Mobile.Application.Auth.ISessionStore>().GetAsync(CancellationToken.None) is { } session
+                && session.AccountHousehold == household.Id
+                && !await _services.GetRequiredService<Coo.Mobile.Application.Sync.ISyncStore>().HasPulledAsync(household.Id, CancellationToken.None))
+                return;
+
             // Checked again after the reads: another change may have opened setup meanwhile. Not while Coo is off screen or a
             // sheet is open (replacing the root page would drop it): the next change or the next launch checks again.
             if (window.Page is AppShell && App.IsForeground && window.Page.Navigation.ModalStack.Count == 0)
