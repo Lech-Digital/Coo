@@ -41,6 +41,9 @@ privacy policy promises.
   | Last cycle failed (offline, server down) | "Waiting for a connection. 3 changes are safe on this phone." |
   | Consent declined | "Sharing is off. Your log is only on this phone." and **Turn on sharing** |
   | Session refused (Spec 010 §3.3) | "Sign in again to keep sharing." (exists) |
+  | Household soft-locked or removed (§6.5) | "Sharing is paused. Your entries are safe on this phone." |
+  | Stopped for good: the phone's entries are not in the account's family (`household-mismatch`) | "Sharing stopped: the entries on this phone aren't part of your family yet. Sign out and sign in again to choose what to do with them." |
+  | Stopped for good: a pull that cannot move the cursor, or a push that cannot make progress (`no-progress`) | "Sharing stopped. Your changes are safe on this phone. Coo will try again when you reopen the app." |
   | `client-too-old` (ADR 0002 §11) | "Update Coo to keep sharing. Your changes are safe on this phone." |
 
 - **Offline**, logging is unchanged; changes wait in the outbox.
@@ -179,7 +182,7 @@ request also checks an **active membership** of its household, per request.
 `403 sync.consent-required` (the sheet); `403` membership-revoked problem (§6.5); `403 sync.not-a-member` (back off,
 change nothing); `426 client-too-old` (the update line; the outbox stays). **Rejected reasons:** the domain rule's
 code, `sync.schema-unsupported`, `sync.stamp-in-future`, `sync.household-mismatch`, `sync.person-unresolved`,
-`sync.role-forbidden`.
+`sync.role-forbidden`, `sync.change-malformed` (a change with an unknown entity type, a missing payload, an unparsable person or source, or an edit that changes the stored entry's kind).
 
 ### 7.2 Data (one EF migration)
 
@@ -280,3 +283,152 @@ screen gains the cursor, outbox and rejection counts, the last cycle's result, *
 | Q6 | Sync `DuplicateDismissal`? | **Yes** (ADR 0010 §1); otherwise "Keep both" returns on the other phone. |
 | Q7 | Build `membership-revoked` now? | **Yes,** engine, endpoint and tests; tried on a phone in 11b. |
 | Q8 | Pull before consent? | **No:** no sync at all without consent. Simple to explain; for one account the server holds nothing yet. |
+
+## 13. Built and verified (2026-10-03 · Pixel 10 and an Android 16 emulator)
+
+Trimmed Release build with the debug screen (0 IL warnings), signed with the debug key, on the Pixel 10 and on the emulator `coo-second` (Pixel 9 profile, Android 16, Google Play), both signed in as adzius.lech@gmail.com. Production at `0.11.0+4ca8b7f`; later commits change the phone only.
+
+| # | Deliverable | Result |
+|---|---|---|
+| 1 | Consent | **PASS.** Pixel: Turn on sharing, Not now: "Sharing is off. Your log is only on this phone." and Turn on sharing. Again, Agree: "Up to date · 23:10" within seconds. Production: `care_entries` 20, `consents` 1, `baby_profiles` 1, `household_settings` 1. |
+| 2 | Convergence | **PASS.** A Mixed diaper on the Pixel reached the emulator; a bottle on the emulator reached the Pixel. A timed round, Wet on the emulator to the Pixel, took 23 s. |
+| 3 | Offline edits | **PASS.** Both phones offline: the emulator edited a bottle to 100 ml and deleted the Mixed diaper; the Pixel, later, edited the bottle to 150 ml. Online: 150 ml on both, the Mixed diaper gone on both. |
+| 4 | Same event twice | **PASS.** Wet on the Pixel at 13:17 and on the emulator at 13:18: "Probably the same" on both. Keep both on the Pixel cleared the pair there and, after the next pull, on the emulator (7 to 6 entries). |
+| 5 | Second phone's entries | **PASS.** The emulator signed in with no consent sheet (the account had consented); the bring-over sheet said "This phone has 2 entries for Maja. Your family's log has: Maja." Bring my entries over, Maja to Maja, Bring them over: the emulator showed the family's log, and its 2 diapers (23:07 the day before) reached the Pixel within about 30 s. This also closes Spec 010 deliverable 3. |
+| 6 | Fresh phone | **FINDING, then PASS.** Fresh bootstrap opened the first-launch setup before the pull had returned (the baby was wiped; a duplicate baby was possible). Fixed in `a9f6469`: the wipe deletes the cursor row, and setup routing skips the account's household until its first full pull (test red, then green). Re-run: no setup, the log came back, the counts matched the Pixel, the deleted diaper stayed absent. |
+| 7 | Honest status | **PASS.** Pixel offline, two diapers: "Waiting for a connection. 2 changes are safe on this phone." Online: "Up to date · 13:05" after 9 s, including the Wi-Fi reconnect. |
+| 8 | Sessions under sync | **PASS.** After more than 20 minutes (the emulator signed in at 13:06, checked at 13:27) both phones were still signed in; `/api/me` answered as owner, with the devices Pixel 10 (13:27) and the emulator (13:20). |
+| 9 | Deployed | **PASS.** `/health` shows `0.11.0+4ca8b7f`, database ok (the server is unchanged since that deploy); the privacy policy live check passes. |
+| 10 | CI green | See the commit that closes this increment. |
+
+Also: the Release build was installed on the owner's girlfriend's Samsung (SM-A256B, Android 16). It launches to setup without a crash. She uses her own account, so her phone is a separate family until Increment 11b brings invitations. The two-phone walk used only the Pixel and the emulator.
+
+### 13.1 The plan's rulings on what this spec leaves open
+
+1. **Deletes carry no payload** (ADR 0002 §3). A delete for a record the server has never stored is `applied` and stores nothing; the server keeps a stored record's columns and flips `is_deleted`.
+2. **Per-change shape problems** (unknown entity type, upsert without its payload, a dismissal pairing an entry with itself, an unparsable person or source) are `rejected` with `sync.change-malformed`; only an unreadable request, or one naming no household or device, is `400 sync.malformed`.
+3. **Role rule (ADR 0003 §6):** `BabyProfile` and `HouseholdSettings` changes (deletes too) need `CanManageBaby`; `CareEntry` and `DuplicateDismissal` need any active membership.
+4. **`sync_conflicts`** stores both version stamps, the change ID and the record's identity, not payloads. It is purged with `applied_changes` after 30 days.
+5. **The server issues no HLC stamps;** it only rejects stamps more than 24 h ahead.
+6. **Stored details on the server** are the codec's encoding with the received document's unknown top-level properties merged back; the phone stores pulled details exactly as received.
+7. **The active household:** `app_state.active_household` names the household the UI shows; `ListHouseholdsAsync` returns it first.
+8. **Join-pending:** a cycle is the account household's pull only, never a push, so the bring-over sheet can name the family's babies.
+9. **`created`** is handled by the cycle before its first push. (Refined by the controller's ruling in 13.2 under Task 11: an explicit marker instead of an inferred mismatch.) A sign-in answered `existing` whose household differs from this phone's is stored as join-pending.
+10. **Consent states:** `Unknown` / `Given` / `Declined`, cached per account in `app_state`. "Not now" is remembered until the next sign-in; the sheet opens by itself once per app run while `Unknown`, and from Turn on sharing any time. `POST /api/consents` carries `appVersion` and `language`.
+11. **The sync line:** "Sharing n changes…" only when n > 0; a failed cycle with nothing pending reads "Waiting for a connection."; before the first cycle with nothing pending the line is empty.
+12. **Backoff:** Start, Resume, connectivity regained and Sync now reset it and run at once; the periodic tick, local writes and going to the background wait for it.
+13. **`membership-revoked` (Q7):** the engine soft-locks, confirms through `/membership`, and deletes the household only when `SyncEngine.AcknowledgeRemovalAsync` is called. The removal sheet and hiding the household's UI ship with 11b.
+14. **"Not accepted by the server"** lists rejected care entries (Edit, Delete), 50 at a time with Show more; rejected profile, settings or dismissal changes are kept and counted on the debug screen.
+15. **Consent and bring-over are modal pages,** so they can open over whichever page is showing.
+16. **A pull page that says `hasMore` without moving the cursor** fails the cycle.
+17. **The daily purge is its own `SyncHistoryCleanupJob`,** beside the nonce job.
+18. **`nextRefreshToken`** must be 43–128 characters and differ from the presented token, else `auth.refresh-invalid` with nothing changed. `Account.UpdateProfileAsync` does not move the generation.
+19. **Schema versions:** `SchemaVersions.Current = Oldest = 1`; below `Oldest` is `426 client-too-old`; a change above `Current` is `rejected sync.schema-unsupported`. The N−1 seam is `SchemaUpgrade.ToCurrent`.
+20. **The bootstrap skip needs an empty phone.** A phone that holds any entry, baby or dismissal of the household pulls from cursor 0 with `bootstrapHead=0`, which skips nothing; only an empty phone lets the server choose the head. No server change. ADR 0002 §6 is amended accordingly.
+
+### 13.2 The controller's rulings
+
+Each ruling gives its cost if wrong.
+
+**Pre-flight**
+- The version-guarded `ON CONFLICT DO UPDATE` makes a new entity's apply atomic (the incoming HLC must be greater than the stored one); a test with two different change IDs creating the same record proves it. Cost if wrong: none.
+- A catch-all around the engine's `RefreshPendingAsync`, and around `BringOverPage.OnAppearing` and its back button. Cost if wrong: none.
+- A synchronous wait in a test's event handler only if no async pattern fits. Cost if wrong: none.
+- Intermediate commits (Tasks 12–14) where the host cannot resolve `SyncEngine` are acceptable; the host is first built and run in Task 19. Cost if wrong: a broken host build between those commits.
+
+**Task 1.** The duplicate person/source parsing in `SyncText` is temporary; Task 5 replaced `ServerColumns`' copies. Cost if wrong: duplicate code.
+
+**Task 3.** The server checks only the proposed refresh token's length (43–128) and that it differs from the presented one; the phone generates it with `RandomNumberGenerator`. Cost if wrong: a weak phone generator would weaken the session. A holder of the live token may propose the session's older previous token. Cost if wrong: none practical.
+
+**Task 5.** `CareEntryStore.SaveAsync` refuses a lower or equal version instead of overwriting (last writer wins). Cost if wrong: an Increment 8 path expecting overwrite would see `Superseded`. A brief test bug (stamping `newer` before the write) was fixed with the assertions kept. Cost if wrong: none.
+
+**Task 6.** A denied membership maps `MembershipRevoked` explicitly and throws on an unknown denial; the catch-all would have answered "revoked", which makes phones delete data. Cost if wrong: an unexpected denial becomes a 500. `TryReadJsonAsync` also catches `InvalidOperationException` (an unknown charset gives `400 sync.malformed`). Cost if wrong: none.
+
+**Task 8.** The controller did Task 8 (the `DEPLOY.md` text and the deploy) itself under the owner's authorisation. Cost if wrong: an unreviewed docs paragraph.
+
+**Task 10.** `LocalWrites.Notify` runs each handler inside a catch-all, so a failing trigger never fails a committed write. Cost if wrong: a swallowed handler bug.
+
+**Task 11.** `IHouseholdMoves.MoveAllAsync` parameters are `source` and `target` (CA1716). Cost if wrong: none. The cycle moves only on an explicit persisted `created` marker written at sign-in; any other household mismatch stops the cycle with no move and no push. Cost if wrong: a real `created` phone without the marker (for example upgraded mid-flow) would show a sync failure; acceptable, no such installs exist. Pulled stamps are observed before the page is applied. Cost if wrong: none. The marker lives in the session (`StoredSession.PendingMoveFrom`, SessionStore v3) and is cleared by every sign-out and right after the move commits. Cost if wrong: none practical.
+
+**Task 12.** `household-mismatch` and `no-progress` stop cycles with no backoff until Start, Resume, Sync now, `RequestSync` or an account change. Cost if wrong: a transient no-progress waits for the next wake. `WhenIdleAsync` is internal, visible to the test project only. Cost if wrong: none. Any account change mid-cycle discards that cycle's result. Cost if wrong: one status update lost.
+
+**Task 13.** A pulled record that wins clears its `sync_rejections` row. Cost if wrong: a rejection disappears from the list when the server's version arrives. `ApplyPageAsync` skips unknown entity types but still advances the cursor. Cost if wrong: records of a future type are not re-pulled when the app learns it (needs a cursor reset in that release). A pulled record whose ID exists locally in another household is skipped. Cost if wrong: that record never appears on this phone (a UUIDv7 collision only).
+
+**Task 14.** A household that ever synced is never moved: no bring-over offer, and a `created` move is refused (the marker is cleared, the account household used); the old household stays on the phone. Cost if wrong: a person signing into a second account on the same phone does not get the first account's log copied into it, which is the privacy-correct outcome.
+
+**Task 15.** A pulled record with an empty device ID or missing details is dropped like a payload-less one; a local change that cannot be mapped to the wire fails the push as `SyncUnavailable`. Cost if wrong: a corrupt local change blocks pushes until fixed (never seen from app writes). No re-review of the polish round. Cost if wrong: a polish defect would surface at the final review.
+
+**Task 16.** Soft-locked and removed households show "Sharing is paused. Your entries are safe on this phone." (the brief said "waiting for a connection"; the server answered, so "waiting" is false). Cost if wrong: a copy change. Owner decision: the consent text says "family", not "household", in all seven languages; the version ID stays `care-data-v1` (unreleased, test consents only).
+
+**Task 17.** `BringEntriesOver.ExecuteAsync` returns `Done`, `NothingChanged` or `MovedButNotCompleted`; "nothing was changed" is claimed only for `NothingChanged`. Cost if wrong: one enum and its call sites.
+
+**Task 18.** A rejection whose entry is quarantined or read-only is not listed in the rejected group (it shows in its own group, counted once). Cost if wrong: the server's reason is not shown for that rare entry. No separate re-review of the fix round. Cost if wrong: caught at the final review.
+
+**Task 19.** `SyncPrompter` pushes no automatic sheet while the app is in the background; it re-checks on resume. Cost if wrong: a sheet appears on the next resume.
+
+**Task 20.** Fresh bootstrap waits for the engine to be idle before wiping; a race with a cycle that starts in between is accepted for a debug action. Cost if wrong: one debug bootstrap needs repeating.
+
+**Final review**
+- A slow create landing after its delete is answered `applied` with nothing stored: accepted (see 13.4). Cost if wrong: a deleted entry reappears on other phones in that rare case.
+- Server findings left standing: `logged_by` is not cross-checked, cross-record references are unchecked, no rate limits, a settings tombstone is allowed, transient rejections are stored 30 days, and `household-mismatch` is an existence oracle. ADR 0002 §9 excludes cross-record checks, the caller is an authenticated member of their own household, and UUIDv7s are unguessable. Cost if wrong: a hostile family member can mislabel or corrupt only their own family's log.
+- Invariant: the active account household exists on the phone with a settings row, after every move or activation. Settings are re-keyed (bring-over into a settings-less family) or copied with an outbox row (refused move, activation); bring-over is offered only with consent given and after the family's first full pull; `ActiveHouseholdAsync` never persists a fallback. Cost if wrong: a new family starts with the old family's units, time zone and hidden kinds.
+- A join-pending phone with no local entries simply joins, with no bring-over sheet, unless it has a baby the family lacks (the shortcut applies only when the phone has no baby or the family already has one). Cost if wrong: none.
+- `HasSettingsAsync` counts a tombstoned settings row. Cost if wrong: the invariant breaks for a family whose settings were tombstoned (only an owner's sync can tombstone settings; no UI does).
+- Phone: the pre-existing async-void paths in `StartupPage` (`EnsureProvisionalHousehold`, `PrewarmTabsAsync`) are out of this increment's scope and carry on.
+- A write for a household that does not exist throws `HouseholdNotFoundException` (500). Unreachable, since membership implies the household. Cost if wrong: one 500 instead of applied-nothing-stored.
+
+### 13.3 Findings and fixes
+
+Per-task review findings that changed behaviour:
+
+- **Task 3.** A client-chosen refresh proposal could hit `ix_device_sessions_refresh_hash` and give an unhandled 500 and a retry trap; the previous-token lookup had no `ORDER BY` and could pick another session's. Now a 23505 on rotate is a lost swap or refresh-invalid, and the lookup puts the current token first.
+- **Task 5 (pre-flight F1).** The upsert for a new entity was not atomic and a lower version could overwrite a higher one; fixed with the version guard and a race test.
+- **Task 9.** `TryCompleteJoinAsync` set state outside the gate (a sign-out race could leave `SignedIn` with an empty store), and `UpdateProfileAsync` could write account A's profile onto B's session. State now moves with the store under one lock, and the profile writes only to the same account.
+- **Task 11.** No generation check before `MoveAllAsync`; `created` was inferred and could move entries across accounts; pulled stamps were observed after applying the page. Fixed with generation checks, the explicit marker and observing first; also a soft-lock check before join-pending, a push progress guard, and no soft-lock writes after the generation moved.
+- **Task 12.** An in-flight cycle at sign-out leaked Removal and `LastSyncedAt` into the status. Any account change now discards the cycle's result.
+- **Task 13.** A `(0, null)` cursor skipped the head-0 rule and could lose a tombstone. Fixed.
+- **Task 14.** A synced household could be brought over or moved by `created`, and there was no generation check before bring-over. Fixed (see the Task 14 ruling).
+- **Task 16.** Soft-locked and removed households read as "waiting for a connection". Now "Sharing is paused".
+- **Task 17.** A "nothing was changed" toast followed a committed move. Fixed with the `BringOverResult` enum.
+- **Task 18.** No catch-all on the Attention page's refresh paths; `DeleteRejected` untested. Fixed.
+- **Task 19.** The periodic pull was lost after the activity was recreated (a static `SyncStarted` skipped Resumed). Fixed.
+
+Final review, server: no Critical or Important. The fix wave (`f21a406`) took the seq lock before the row lock (including `CareEntryStore.SaveAsync`), a store guard so a care entry is written only into its own household, 401 tests for push and consents, and an edit that changes the stored kind now rejected as `sync.change-malformed`. Production was redeployed as `0.11.0+4ca8b7f`.
+
+Final review, phone, fixed in `4ca8b7f` and `2c7cded`:
+
+- **C1 (Critical).** Bringing entries over deleted the phone's only settings row when the family's settings were not on the phone. Bring-over now keeps the family's settings (re-key into a settings-less family) and is offered only with consent and after the family's first full pull.
+- **I1 (Important).** A refused move activated a household without settings. A household made active always has settings now (copied with an outbox row).
+- **I2 (Important).** `StartupPage` called `engine.Resumed()` and `Start()` without checking the app was in the foreground. Both are guarded now.
+- Minors M1–M5, M7, M9 and a polish string were fixed. The re-review found all addressed and three new minors: two were fixed in `2c7cded` (the M7 shortcut, and setup routing that never replaces the page while Coo is off screen or a sheet is open); the third is listed in 13.4.
+
+Device finding (deliverable 6): the Fresh bootstrap opened first-launch setup before the pull (see the table); fixed in `a9f6469`.
+
+Two further fixes outside the reviews: a flaky `SyncEngineTests.FreshBootstrapAsync_OutboxNotEmpty` (the sign-in's own cycle pulled after `ClearReceivedCalls`) now waits for idle (`2cfe254`); Polish stopped-for-good lines were reworded so they differ from "paused" (carried from Task 16).
+
+### 13.4 Known limits carried forward
+
+- **Accepted server window:** a slow create can land after its delete. It needs a server apply slower than the phone's HTTP timeout. The server answers `applied` with nothing stored, and the deleting phone keeps its tombstone. If it happens, a deleted entry reappears on other phones.
+- **Owner question, a shared phone:** when A signs back in on a phone B used, B's unsynced entries are offered into A's family ("this phone's entries", per §4). The owner may revisit this.
+- **Carry to 11b:**
+  - An HTTP-level test that a non-owner role is refused for `BabyProfile` and `HouseholdSettings` pushes (only use-case tests pin it until invitations exist).
+  - Removing the only household leaves `ActiveHouseholdAsync` throwing until restart.
+  - `NotAMember`, `Malformed` and undecided failed cycles still read "Waiting for a connection" (§6.5 table); permanent refusals need a true line.
+  - Removed shows "paused"; the removal sheet should take over for Removed, and a soft-locked household should be hidden (ruling 13).
+- **Carry to 11c or later:** the pre-existing `StartupPage` async-void paths.
+- **Minor, deferred (server):** batch-limit check runs after the answerable scan, so an oversized batch with a bad change reads as malformed; `PushRequest.DeviceId` is validated but unused; `GetMe` consent null or older-wording untested; no HTTP `bootstrapHead` round-trip test; the cleanup job test polls on a real 20 ms delay; untested paths in the Task 1, 2 and 5 reviews (LWW counter and device tie-break, tombstone and subject-parse rejects, pull cursor above 0 without `bootstrapHead`, an all-skipped bootstrap page); `IX_sync_conflicts_household_id` naming; a stored-marker mismatch gives a permanent `household-mismatch` until sign-out; the progress guard compares the first change ID only; the `ConsentRequired` catch is not generation-guarded (benign).
+- **Minor, deferred (phone):**
+  - The account line keeps the old 12/24 h format until the next status change.
+  - Phone `ObserveAsync` has no upper bound on pulled stamps (the server enforces 24 h).
+  - An unparseable local offset falls back to UTC on push.
+  - `SyncHttp` duplicates `AuthHttp`'s transport catch.
+  - Two local babies may map onto one family baby.
+  - A rejected entry that is edited keeps its old reason until the next push result.
+  - `GetAttention` does one `FindAsync` per rejection; Show more may jump the scroll.
+  - `Consent.Failed` says "check your connection" when the session is gone.
+  - The settings page refreshes concurrently on the singleton view model.
+  - `SyncStarted` is set before the try, so a partial start failure is not retried in process.
+  - The debug screen's Sync now and Fresh bootstrap use `CancellationToken.None`, and its refusal text omits join-pending.
+  - A stale pending count can land after a cycle's update (self-heals); a dropped cycle flickers `IsRunning`; `SyncTrigger.Background` is unused.
+  - B sees A's log until B's first consented cycle (the `created` move runs only after consent); entries logged while join-pending (an A to B to A window) land in B's household; a removed household stays named in `app_state`.
+  - A Dispose during an in-flight refresh throws `ObjectDisposedException` at shutdown only.

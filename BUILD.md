@@ -135,6 +135,38 @@ fonts.
 - **`uiautomator dump` fails while a view ticks every second,** so the tap helper finds nothing on Today with a timer
   running. Tap by coordinates there.
 
+## The second phone: an emulator with Google Play
+
+The Android emulator is the second phone for sync tests (Spec 011 §11). AVD `coo-second`: Pixel 9 profile,
+Android 16 (API 36), Google Play image, arm64.
+
+```sh
+export JAVA_HOME=$HOME/Library/Java/JavaVirtualMachines/jdk-17.0.20+8/Contents/Home
+SDK=$HOME/android-sdk
+yes | $SDK/cmdline-tools/latest/bin/sdkmanager --sdk_root=$SDK --licenses >/dev/null
+$SDK/cmdline-tools/latest/bin/sdkmanager --sdk_root=$SDK "emulator" "system-images;android-36;google_apis_playstore;arm64-v8a"
+echo no | $SDK/cmdline-tools/latest/bin/avdmanager create avd -n coo-second \
+  -k "system-images;android-36;google_apis_playstore;arm64-v8a" -d pixel_9
+$SDK/emulator/emulator -avd coo-second -netdelay none -netspeed full -no-snapshot-save >/tmp/coo-emulator.log 2>&1 &
+$SDK/platform-tools/adb wait-for-device
+until [ "$($SDK/platform-tools/adb -e shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; do sleep 2; done
+```
+
+With both phones attached, `adb devices` lists the Pixel's serial and `emulator-5554`. Address one with
+`adb -s emulator-5554 …` or `adb -s <serial> …` (plain `adb` refuses to guess).
+
+The owner signs the Google account in once, in the emulator window: Settings → Passwords, passkeys & accounts → Add
+account → Google (adzius.lech@gmail.com), then opens the Play Store once and accepts its terms. The agent must not
+handle the password or 2-step verification. Check with `adb -s emulator-5554 shell dumpsys account | grep -c com.google`
+(1 or more). After that the emulator's Credential Manager sheet offers the account like the Pixel's.
+
+The same debug-signed APK works on both phones, because the debug key's SHA-1 is registered with the Android OAuth
+client:
+
+```sh
+~/android-sdk/platform-tools/adb -s emulator-5554 install -r src/Mobile/Coo.Mobile/bin/Debug/net10.0-android/com.lechdigital.coo-Signed.apk
+```
+
 ## MAUI lessons from Increment 10
 
 - **`TapGestureRecognizer.NumberOfTapsRequired = 3` never fires on Android:** MAUI reports only single and double
@@ -144,6 +176,19 @@ fonts.
 - **A Debug APK installed with `adb install` needs `-p:EmbedAssembliesIntoApk=true`** (see "The Android app" above).
 - **.NET for Android signs Debug builds with `~/Library/Application Support/Xamarin/Mono for Android/debug.keystore`,**
   not `~/.android/debug.keystore`. Register that key's SHA-1 with the Google Android client.
+
+## MAUI lessons from Increment 11
+
+- **The Pixel 10 reports a USB-C PD charger as AC,** so "Stay awake" with USB only does not apply. Use
+  `adb shell svc power stayon true` and restore with `adb shell settings put global stay_on_while_plugged_in 0`.
+- **`adb shell cmd connectivity airplane-mode enable|disable`** works on the Pixel 10 and on the emulator; use it for
+  offline tests.
+- **`adb install -r` does not relaunch the app,** and `monkey` can fail silently on Android 16. Launch with
+  `adb shell am start -n com.lechdigital.coo/<activity>`; resolve the activity with
+  `adb shell cmd package resolve-activity --brief com.lechdigital.coo`.
+- **The modal consent and bring-over pages are visible to uiautomator** (unlike the Increment 5 note above), so `uiautomator dump` works and taps by bounds
+  hit them.
+- **The debug screen opens with three taps on the "coo" wordmark** (day) **or the title** (night).
 
 ## The backend (Increment 8)
 

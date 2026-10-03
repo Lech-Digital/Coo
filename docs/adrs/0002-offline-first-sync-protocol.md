@@ -6,6 +6,8 @@ Status: Accepted
 
 Amended by: ADR 0010 §3 (the synced entity types are `CareEntry`, `BabyProfile`, `HouseholdSettings` and `DuplicateDismissal`)
 
+Amended by: Spec 011 ruling 20 (a phone that already holds records pulls from cursor 0 with `bootstrapHead=0`; §6's skip applies only to an empty phone)
+
 ## Context
 
 Coo is used by several caregivers of one baby: typically two parents and a nanny. Each of them
