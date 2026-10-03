@@ -299,7 +299,7 @@ Trimmed Release build with the debug screen (0 IL warnings), signed with the deb
 | 7 | Honest status | **PASS.** Pixel offline, two diapers: "Waiting for a connection. 2 changes are safe on this phone." Online: "Up to date · 13:05" after 9 s, including the Wi-Fi reconnect. |
 | 8 | Sessions under sync | **PASS.** After more than 20 minutes (the emulator signed in at 13:06, checked at 13:27) both phones were still signed in; `/api/me` answered as owner, with the devices Pixel 10 (13:27) and the emulator (13:20). |
 | 9 | Deployed | **PASS.** `/health` shows `0.11.0+4ca8b7f`, database ok (the server is unchanged since that deploy); the privacy policy live check passes. |
-| 10 | CI green | See the commit that closes this increment. |
+| 10 | CI green | **PASS.** Pushed as `5850a7c`: GitHub Actions "Build, format and test" green (restore, format, build, test, API image build). |
 
 Also: the Release build was installed on the owner's girlfriend's Samsung (SM-A256B, Android 16). It launches to setup without a crash. She uses her own account, so her phone is a separate family until Increment 11b brings invitations. The two-phone walk used only the Pixel and the emulator.
 
