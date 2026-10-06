@@ -447,4 +447,26 @@ public sealed class InvitationUseCaseTests
         accepted.Error!.Code.Should().Be(HouseholdErrors.InvitationInvalid);
         _kit.Store.Members.Should().NotContain(m => m.User == Partner);
     }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ExecuteAsync_AcceptWithoutConsentAnExpiredOrUsedCode_IsInvalidNotConsentRequired(bool expired)
+    {
+        // Arrange: §5.2, no existence oracle for a code that is no longer usable.
+        var code = await InviteAsync();
+        if (expired)
+            _kit.Time.Advance(TimeSpan.FromHours(72));
+        else
+        {
+            await _kit.GiveConsentAsync(Nanny);
+            await _kit.Accept().ExecuteAsync(Nanny, code, CancellationToken.None);
+        }
+
+        // Act
+        var accepted = await _kit.Accept().ExecuteAsync(Partner, code, CancellationToken.None);
+
+        // Assert
+        accepted.Error!.Code.Should().Be(HouseholdErrors.InvitationInvalid);
+    }
 }

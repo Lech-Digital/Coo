@@ -104,7 +104,11 @@ public sealed class CreateHousehold(IHouseholdMembershipStore store, TimeProvide
     public Task<Result> ExecuteAsync(UserId user, HouseholdId household, CancellationToken cancellationToken) =>
         store.RunLockedAsync([], async tx =>
         {
-            if ((await tx.ActiveMembershipsOfUserAsync(user, cancellationToken)).Count > 0)
+            var active = await tx.ActiveMembershipsOfUserAsync(user, cancellationToken);
+            // A retry after a lost answer: this family already exists with them as its only active membership.
+            if (active is [{ Role: Role.Owner } only] && only.HouseholdId == household)
+                return Result.Success;
+            if (active.Count > 0)
                 return Result.Failure(HouseholdErrors.AlreadyHasFamily);
             return await tx.TryCreateHouseholdAsync(household, user, time.GetUtcNow(), cancellationToken)
                 ? Result.Success

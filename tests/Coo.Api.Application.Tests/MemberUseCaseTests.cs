@@ -301,4 +301,19 @@ public sealed class MemberUseCaseTests
         result.Error!.Code.Should().Be(HouseholdErrors.AlreadyHasFamily);
         _kit.Store.Households.Should().NotContain(Other);
     }
+
+    [Fact]
+    public async Task ExecuteAsync_CreateRetriedAfterALostAnswer_Succeeds()
+    {
+        // Arrange: §8.4, the first answer was lost; the family exists with them as its only Owner.
+        await _kit.Remove().ExecuteAsync(Owner, Family, Partner, CancellationToken.None);
+        await _kit.CreateHousehold().ExecuteAsync(Partner, Other, CancellationToken.None);
+
+        // Act
+        var again = await _kit.CreateHousehold().ExecuteAsync(Partner, Other, CancellationToken.None);
+
+        // Assert
+        again.IsSuccess.Should().BeTrue();
+        _kit.Store.Members.Count(m => m.Household == Other).Should().Be(1);
+    }
 }
