@@ -172,6 +172,7 @@
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Podaj ilość powyżej 0 i do 1000 ml.</value></data>
   <data name="Expecting.Eyebrow" xml:space="preserve"><value>Czekamy</value></data>
   <data name="Family.ActionFailed" xml:space="preserve"><value>Nie udało się. Sprawdź połączenie i spróbuj ponownie.</value></data>
+  <data name="Family.BringHere" xml:space="preserve"><value>Przenieś jej wpisy tutaj</value></data>
   <data name="Family.BringOver" xml:space="preserve"><value>Przenieś wpisy</value></data>
   <data name="Family.Delete" xml:space="preserve"><value>Usuń tę rodzinę</value></data>
   <data name="Family.DeleteConfirm.few" xml:space="preserve"><value>Usunąć tę rodzinę? Jej dziennik ({1}, {0} wpisy) zostanie usunięty z serwera Coo i z tego telefonu. Tego nie można cofnąć.</value></data>
@@ -199,6 +200,11 @@
   <data name="Family.RefreshFailed" xml:space="preserve"><value>Nie udało się odświeżyć. Sprawdź połączenie.</value></data>
   <data name="Family.Remove" xml:space="preserve"><value>Usuń</value></data>
   <data name="Family.RemoveConfirm" xml:space="preserve"><value>Usunąć osobę {0} z rodziny? Jej telefony przestaną udostępniać dziennik tej rodziny i zostanie on z nich usunięty. Dodane przez nią wpisy zostaną.</value></data>
+  <data name="Family.RemoveFromPhone" xml:space="preserve"><value>Usuń z tego telefonu</value></data>
+  <data name="Family.RemoveFromPhoneGone" xml:space="preserve"><value>Usunąć z tego telefonu dziennik ({0})? Nie jest udostępniony, więc zniknie.</value></data>
+  <data name="Family.RemoveFromPhoneGoneNoBaby" xml:space="preserve"><value>Usunąć z tego telefonu dziennik tej rodziny? Nie jest udostępniony, więc zniknie.</value></data>
+  <data name="Family.RemoveFromPhoneKept" xml:space="preserve"><value>Usunąć z tego telefonu dziennik ({0})? Zostaje na koncie, z którego był udostępniony.</value></data>
+  <data name="Family.RemoveFromPhoneKeptNoBaby" xml:space="preserve"><value>Usunąć z tego telefonu dziennik tej rodziny? Zostaje na koncie, z którego był udostępniony.</value></data>
   <data name="Family.RoleCaregiver" xml:space="preserve"><value>Opiekun</value></data>
   <data name="Family.RoleOwner" xml:space="preserve"><value>Rodzic · twórca rodziny</value></data>
   <data name="Family.RoleParent" xml:space="preserve"><value>Rodzic</value></data>

@@ -10,7 +10,8 @@ namespace Coo.Mobile.Pages;
 /// <summary>
 /// Settings → Family → Bring entries over (spec §6.3 "Later"): the shown family into another account family, chosen when
 /// there are several; a never-synced source moves, a synced one copies; a family of another account is never offered.
-/// A modal page opened from a tap in Settings; it closes only itself.
+/// A modal page opened from a tap in Settings; it closes only itself. From the family switcher (walk fix F2) it brings a family
+/// that is not shown into the shown one (<see cref="Into"/>), under the same rules.
 /// </summary>
 public sealed class FamilyBringOverPage : ContentPage
 {
@@ -26,6 +27,7 @@ public sealed class FamilyBringOverPage : ContentPage
     private bool _closePending;
     private Coo.Domain.Common.HouseholdId? _source;
     private Coo.Domain.Common.HouseholdId? _target;
+    private (Coo.Domain.Common.HouseholdId Source, Coo.Domain.Common.HouseholdId Target)? _preset;
 
     public FamilyBringOverPage(FamilyBringOverViewModel model, Families families, BringFamilyEntriesOver bring, ISyncControl sync, UndoService undo, SheetNavigator sheets)
     {
@@ -33,6 +35,15 @@ public sealed class FamilyBringOverPage : ContentPage
         SetDynamicResource(BackgroundColorProperty, "Ground");
         Shell.SetNavBarIsVisible(this, false);
         Content = new ScrollView { Content = _body };
+    }
+
+    /// <summary>The family switcher's "Bring its entries here": <paramref name="source"/> into <paramref name="target"/>, the shown family.</summary>
+    public static FamilyBringOverPage Into(IServiceProvider services, Coo.Domain.Common.HouseholdId source, Coo.Domain.Common.HouseholdId target)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        var page = services.GetRequiredService<FamilyBringOverPage>();
+        page._preset = (source, target);
+        return page;
     }
 
     protected override async void OnAppearing()
@@ -65,26 +76,18 @@ public sealed class FamilyBringOverPage : ContentPage
             }
 
             _started = true;
-            if (await _families.ShownAsync(CancellationToken.None) is not { MayBeBroughtOver: true } source)
+            if (await PickAsync() is not ({ } source, { } target))
             {
                 await CloseAsync();
                 return;
             }
 
-            var targets = await _families.BringOverTargetsAsync(source.Id, CancellationToken.None);
-            var target = targets.Count == 1 ? targets[0] : await ChooseAsync(targets);
-            if (target is null)
-            {
-                await CloseAsync();
-                return;
-            }
-
-            (_source, _target) = (source.Id, target.Id);
-            var choice = await _bring.PrepareAsync(source.Id, target.Id, CancellationToken.None);
-            _model.Start(BringOverRequest.ForSettings(source.Id, choice, target, async (mapping, ct) =>
+            (_source, _target) = (source, target.Id);
+            var choice = await _bring.PrepareAsync(source, target.Id, CancellationToken.None);
+            _model.Start(BringOverRequest.ForSettings(source, choice, target, async (mapping, ct) =>
             {
                 // BringFamilyEntriesOver runs its move or copy in the exclusive section itself (final review C1).
-                var outcome = await _bring.ExecuteAsync(source.Id, target.Id, mapping, ct);
+                var outcome = await _bring.ExecuteAsync(source, target.Id, mapping, ct);
                 _sync.NotifyDataChanged();
                 _sync.RequestSync();
                 return outcome;
@@ -130,13 +133,41 @@ public sealed class FamilyBringOverPage : ContentPage
         return true;
     }
 
-    /// <summary>Whether the flow still fits the phone: the source is shown and may be brought over, and the target is still offered.</summary>
+    /// <summary>
+    /// The source and the target: from Settings the shown family into the one account family offered (or the one chosen); from
+    /// the switcher the family it named into the shown family, if §6.3 still allows it. Nothing when the flow does not fit.
+    /// </summary>
+    private async Task<(Coo.Domain.Common.HouseholdId? Source, FamilyOnPhone? Target)> PickAsync()
+    {
+        if (_preset is { } preset)
+        {
+            var list = await _families.ListAsync(CancellationToken.None);
+            if (list.FirstOrDefault(f => f.Id == preset.Source) is not { MayBeBroughtOver: true }
+                || list.FirstOrDefault(f => f.Id == preset.Target) is not { IsShown: true }
+                || (await _families.BringOverTargetsAsync(preset.Source, CancellationToken.None)).FirstOrDefault(f => f.Id == preset.Target) is not { } into)
+                return (null, null);
+            return (preset.Source, into);
+        }
+
+        if (await _families.ShownAsync(CancellationToken.None) is not { MayBeBroughtOver: true } source)
+            return (null, null);
+        var targets = await _families.BringOverTargetsAsync(source.Id, CancellationToken.None);
+        var target = targets.Count == 1 ? targets[0] : await ChooseAsync(targets);
+        return target is null ? (null, null) : (source.Id, target);
+    }
+
+    /// <summary>
+    /// Whether the flow still fits the phone: the source may be brought over and the target is still offered; from Settings the
+    /// source is still the shown family, from the switcher the target is.
+    /// </summary>
     private async Task<bool> StillValidAsync()
     {
         // Not started yet (an action sheet open, say): nothing to check.
         if (_source is not { } source || _target is not { } target)
             return true;
-        if (await _families.ShownAsync(CancellationToken.None) is not { MayBeBroughtOver: true } shown || shown.Id != source)
+        var list = await _families.ListAsync(CancellationToken.None);
+        var shownId = list.FirstOrDefault(f => f.IsShown)?.Id;
+        if (list.FirstOrDefault(f => f.Id == source) is not { MayBeBroughtOver: true } || shownId != (_preset is null ? source : target))
             return false;
         return (await _families.BringOverTargetsAsync(source, CancellationToken.None)).Any(f => f.Id == target);
     }

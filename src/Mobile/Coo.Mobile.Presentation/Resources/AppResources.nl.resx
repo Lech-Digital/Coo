@@ -164,6 +164,7 @@
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Vul een hoeveelheid in boven 0 en tot 1.000 ml.</value></data>
   <data name="Expecting.Eyebrow" xml:space="preserve"><value>In verwachting</value></data>
   <data name="Family.ActionFailed" xml:space="preserve"><value>Dat is niet gelukt. Controleer je verbinding en probeer het opnieuw.</value></data>
+  <data name="Family.BringHere" xml:space="preserve"><value>Items hierheen overzetten</value></data>
   <data name="Family.BringOver" xml:space="preserve"><value>Items overzetten</value></data>
   <data name="Family.Delete" xml:space="preserve"><value>Dit gezin verwijderen</value></data>
   <data name="Family.DeleteConfirm.one" xml:space="preserve"><value>Dit gezin verwijderen? Het logboek van {1}, {0} item, wordt van de server van Coo en van deze telefoon verwijderd. Dit kan niet ongedaan worden gemaakt.</value></data>
@@ -188,6 +189,11 @@
   <data name="Family.RefreshFailed" xml:space="preserve"><value>Vernieuwen is niet gelukt. Controleer je verbinding.</value></data>
   <data name="Family.Remove" xml:space="preserve"><value>Verwijderen</value></data>
   <data name="Family.RemoveConfirm" xml:space="preserve"><value>{0} uit het gezin verwijderen? Hun telefoons delen het logboek van dit gezin dan niet meer en het wordt ervan verwijderd. Items die ze hebben toegevoegd blijven.</value></data>
+  <data name="Family.RemoveFromPhone" xml:space="preserve"><value>Van deze telefoon verwijderen</value></data>
+  <data name="Family.RemoveFromPhoneGone" xml:space="preserve"><value>Het logboek van {0} van deze telefoon verwijderen? Het is niet gedeeld, dus het is dan weg.</value></data>
+  <data name="Family.RemoveFromPhoneGoneNoBaby" xml:space="preserve"><value>Het logboek van dit gezin van deze telefoon verwijderen? Het is niet gedeeld, dus het is dan weg.</value></data>
+  <data name="Family.RemoveFromPhoneKept" xml:space="preserve"><value>Het logboek van {0} van deze telefoon verwijderen? Het blijft bij het account waarmee het gedeeld is.</value></data>
+  <data name="Family.RemoveFromPhoneKeptNoBaby" xml:space="preserve"><value>Het logboek van dit gezin van deze telefoon verwijderen? Het blijft bij het account waarmee het gedeeld is.</value></data>
   <data name="Family.RoleCaregiver" xml:space="preserve"><value>Verzorger</value></data>
   <data name="Family.RoleOwner" xml:space="preserve"><value>Ouder · heeft het gezin aangemaakt</value></data>
   <data name="Family.RoleParent" xml:space="preserve"><value>Ouder</value></data>

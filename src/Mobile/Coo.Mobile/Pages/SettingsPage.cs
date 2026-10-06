@@ -384,7 +384,10 @@ public sealed class SettingsPage : ContentPage
         }
     }
 
-    /// <summary>The switcher (§7.3): "Show which family?", every family but soft-locked ones.</summary>
+    /// <summary>
+    /// The switcher (§7.3): "Show which family?", every family but soft-locked ones, as Coo's own sheet (walk fix F2). Its row
+    /// actions open the bring-over into the shown family, or the Family page for a leave or a delete.
+    /// </summary>
     private async Task ChooseFamilyAsync()
     {
         if (_confirming)
@@ -392,14 +395,27 @@ public sealed class SettingsPage : ContentPage
         _confirming = true;
         try
         {
-            var choices = _family.Choices;
-            var index = await ActionSheetChoices.ChooseIndexAsync(this, Strings.Get("Family.Switch"), Strings.Get("Action.Cancel"), [.. choices.Select(c => c.Label)]);
-            if (index >= 0 && index < choices.Count)
-                await _family.SwitchCommand.ExecuteAsync(choices[index]);
+            await _services.GetRequiredService<Presentation.Sheets.SheetNavigator>().PushAsync(stack =>
+                stack.OfType<FamilySwitcherPage>().Any() ? null : FamilySwitcherPage.Open(_services, _family, FamilyActionAsync));
         }
         finally
         {
             _confirming = false;
+        }
+    }
+
+    /// <summary>A switcher row's action, once the sheet has closed: Remove from this phone stays in the sheet.</summary>
+    private async Task FamilyActionAsync(FamilyRow row, FamilyRowAction action)
+    {
+        switch (action)
+        {
+            case FamilyRowAction.BringHere when _family.ShownId is { } shown:
+                await OpenOnceAsync(() => _services.GetRequiredService<Presentation.Sheets.SheetNavigator>().PushAsync(_ =>
+                    FamilyBringOverPage.Into(_services, row.Id, shown)));
+                break;
+            case FamilyRowAction.Leave or FamilyRowAction.Delete:
+                await OpenOnceAsync(() => Navigation.PushAsync(FamilyPage.Open(_services, row.Id)));
+                break;
         }
     }
 

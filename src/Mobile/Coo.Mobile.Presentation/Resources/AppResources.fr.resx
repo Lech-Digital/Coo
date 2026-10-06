@@ -164,6 +164,7 @@
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Saisissez une quantité supérieure à 0 et jusqu’à 1 000 ml.</value></data>
   <data name="Expecting.Eyebrow" xml:space="preserve"><value>Bientôt</value></data>
   <data name="Family.ActionFailed" xml:space="preserve"><value>Cela n'a pas fonctionné. Vérifiez votre connexion et réessayez.</value></data>
+  <data name="Family.BringHere" xml:space="preserve"><value>Transférer ses entrées ici</value></data>
   <data name="Family.BringOver" xml:space="preserve"><value>Transférer des entrées</value></data>
   <data name="Family.Delete" xml:space="preserve"><value>Supprimer cette famille</value></data>
   <data name="Family.DeleteConfirm.one" xml:space="preserve"><value>Supprimer cette famille ? Son journal de {1}, {0} entrée, sera supprimé du serveur de Coo et de ce téléphone. C'est irréversible.</value></data>
@@ -188,6 +189,11 @@
   <data name="Family.RefreshFailed" xml:space="preserve"><value>Impossible d'actualiser. Vérifiez votre connexion.</value></data>
   <data name="Family.Remove" xml:space="preserve"><value>Retirer</value></data>
   <data name="Family.RemoveConfirm" xml:space="preserve"><value>Retirer {0} de la famille ? Ses téléphones ne partageront plus le journal de cette famille, qui en sera supprimé. Les entrées ajoutées par cette personne restent.</value></data>
+  <data name="Family.RemoveFromPhone" xml:space="preserve"><value>Retirer de ce téléphone</value></data>
+  <data name="Family.RemoveFromPhoneGone" xml:space="preserve"><value>Retirer le journal de {0} de ce téléphone ? Il n’est pas partagé et sera donc perdu.</value></data>
+  <data name="Family.RemoveFromPhoneGoneNoBaby" xml:space="preserve"><value>Retirer le journal de cette famille de ce téléphone ? Il n’est pas partagé et sera donc perdu.</value></data>
+  <data name="Family.RemoveFromPhoneKept" xml:space="preserve"><value>Retirer le journal de {0} de ce téléphone ? Il reste lié au compte qui l’a partagé.</value></data>
+  <data name="Family.RemoveFromPhoneKeptNoBaby" xml:space="preserve"><value>Retirer le journal de cette famille de ce téléphone ? Il reste lié au compte qui l’a partagé.</value></data>
   <data name="Family.RoleCaregiver" xml:space="preserve"><value>Personne de garde</value></data>
   <data name="Family.RoleOwner" xml:space="preserve"><value>Parent · a créé la famille</value></data>
   <data name="Family.RoleParent" xml:space="preserve"><value>Parent</value></data>

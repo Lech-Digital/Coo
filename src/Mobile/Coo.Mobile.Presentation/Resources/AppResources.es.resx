@@ -164,6 +164,7 @@
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Escribe una cantidad mayor que 0 y hasta 1.000 ml.</value></data>
   <data name="Expecting.Eyebrow" xml:space="preserve"><value>Ya queda poco</value></data>
   <data name="Family.ActionFailed" xml:space="preserve"><value>No ha funcionado. Comprueba la conexión y vuelve a intentarlo.</value></data>
+  <data name="Family.BringHere" xml:space="preserve"><value>Traer sus registros aquí</value></data>
   <data name="Family.BringOver" xml:space="preserve"><value>Traer registros</value></data>
   <data name="Family.Delete" xml:space="preserve"><value>Eliminar esta familia</value></data>
   <data name="Family.DeleteConfirm.one" xml:space="preserve"><value>¿Eliminar esta familia? Se eliminará {0} registro de {1} del servidor de Coo y de este teléfono. No se puede deshacer.</value></data>
@@ -188,6 +189,11 @@
   <data name="Family.RefreshFailed" xml:space="preserve"><value>No se ha podido actualizar. Comprueba la conexión.</value></data>
   <data name="Family.Remove" xml:space="preserve"><value>Quitar</value></data>
   <data name="Family.RemoveConfirm" xml:space="preserve"><value>¿Quitar a {0} de la familia? Sus teléfonos dejarán de compartir el registro de esta familia y se eliminará de ellos. Los registros que añadió se quedan.</value></data>
+  <data name="Family.RemoveFromPhone" xml:space="preserve"><value>Quitar de este teléfono</value></data>
+  <data name="Family.RemoveFromPhoneGone" xml:space="preserve"><value>¿Quitar el registro de {0} de este teléfono? No está compartido, así que se perderá.</value></data>
+  <data name="Family.RemoveFromPhoneGoneNoBaby" xml:space="preserve"><value>¿Quitar el registro de esta familia de este teléfono? No está compartido, así que se perderá.</value></data>
+  <data name="Family.RemoveFromPhoneKept" xml:space="preserve"><value>¿Quitar el registro de {0} de este teléfono? Se conserva en la cuenta desde la que se compartió.</value></data>
+  <data name="Family.RemoveFromPhoneKeptNoBaby" xml:space="preserve"><value>¿Quitar el registro de esta familia de este teléfono? Se conserva en la cuenta desde la que se compartió.</value></data>
   <data name="Family.RoleCaregiver" xml:space="preserve"><value>Persona cuidadora</value></data>
   <data name="Family.RoleOwner" xml:space="preserve"><value>Progenitor · creó la familia</value></data>
   <data name="Family.RoleParent" xml:space="preserve"><value>Progenitor</value></data>

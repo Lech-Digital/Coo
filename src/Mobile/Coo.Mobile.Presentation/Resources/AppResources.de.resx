@@ -164,6 +164,7 @@
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Gib eine Menge über 0 und bis 1.000 ml ein.</value></data>
   <data name="Expecting.Eyebrow" xml:space="preserve"><value>Bald ist es so weit</value></data>
   <data name="Family.ActionFailed" xml:space="preserve"><value>Das hat nicht geklappt. Prüfe deine Verbindung und versuche es noch einmal.</value></data>
+  <data name="Family.BringHere" xml:space="preserve"><value>Einträge hierher übernehmen</value></data>
   <data name="Family.BringOver" xml:space="preserve"><value>Einträge übernehmen</value></data>
   <data name="Family.Delete" xml:space="preserve"><value>Diese Familie löschen</value></data>
   <data name="Family.DeleteConfirm.one" xml:space="preserve"><value>Diese Familie löschen? Ihr Verlauf für {1} mit {0} Eintrag wird vom Server von Coo und von diesem Handy gelöscht. Das lässt sich nicht rückgängig machen.</value></data>
@@ -188,6 +189,11 @@
   <data name="Family.RefreshFailed" xml:space="preserve"><value>Aktualisieren hat nicht geklappt. Prüfe deine Verbindung.</value></data>
   <data name="Family.Remove" xml:space="preserve"><value>Entfernen</value></data>
   <data name="Family.RemoveConfirm" xml:space="preserve"><value>Möchtest du {0} aus der Familie entfernen? Die Handys dieser Person teilen die Einträge dieser Familie dann nicht mehr, und sie werden dort entfernt. Einträge dieser Person bleiben.</value></data>
+  <data name="Family.RemoveFromPhone" xml:space="preserve"><value>Von diesem Handy entfernen</value></data>
+  <data name="Family.RemoveFromPhoneGone" xml:space="preserve"><value>Die Einträge von {0} von diesem Handy entfernen? Sie sind nicht geteilt und daher dann weg.</value></data>
+  <data name="Family.RemoveFromPhoneGoneNoBaby" xml:space="preserve"><value>Die Einträge dieser Familie von diesem Handy entfernen? Sie sind nicht geteilt und daher dann weg.</value></data>
+  <data name="Family.RemoveFromPhoneKept" xml:space="preserve"><value>Die Einträge von {0} von diesem Handy entfernen? Sie bleiben bei dem Konto, über das sie geteilt wurden.</value></data>
+  <data name="Family.RemoveFromPhoneKeptNoBaby" xml:space="preserve"><value>Die Einträge dieser Familie von diesem Handy entfernen? Sie bleiben bei dem Konto, über das sie geteilt wurden.</value></data>
   <data name="Family.RoleCaregiver" xml:space="preserve"><value>Betreuungsperson</value></data>
   <data name="Family.RoleOwner" xml:space="preserve"><value>Elternteil · hat die Familie angelegt</value></data>
   <data name="Family.RoleParent" xml:space="preserve"><value>Elternteil</value></data>

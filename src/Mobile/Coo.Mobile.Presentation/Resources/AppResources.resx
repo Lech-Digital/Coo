@@ -164,6 +164,7 @@
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Enter an amount above 0 and up to 1,000 ml.</value></data>
   <data name="Expecting.Eyebrow" xml:space="preserve"><value>Expecting</value></data>
   <data name="Family.ActionFailed" xml:space="preserve"><value>That didn't work. Check your connection and try again.</value></data>
+  <data name="Family.BringHere" xml:space="preserve"><value>Bring its entries here</value></data>
   <data name="Family.BringOver" xml:space="preserve"><value>Bring entries over</value></data>
   <data name="Family.Delete" xml:space="preserve"><value>Delete this family</value></data>
   <data name="Family.DeleteConfirm.one" xml:space="preserve"><value>Delete this family? Its log of {1}, {0} entry, is deleted from Coo's server and this phone. This can't be undone.</value></data>
@@ -188,6 +189,11 @@
   <data name="Family.RefreshFailed" xml:space="preserve"><value>Couldn't refresh. Check your connection.</value></data>
   <data name="Family.Remove" xml:space="preserve"><value>Remove</value></data>
   <data name="Family.RemoveConfirm" xml:space="preserve"><value>Remove {0} from the family? Their phones stop sharing this family's log, and it is removed from them. Entries they added stay.</value></data>
+  <data name="Family.RemoveFromPhone" xml:space="preserve"><value>Remove from this phone</value></data>
+  <data name="Family.RemoveFromPhoneGone" xml:space="preserve"><value>Remove {0}'s log from this phone? It isn't shared, so it will be gone.</value></data>
+  <data name="Family.RemoveFromPhoneGoneNoBaby" xml:space="preserve"><value>Remove this family's log from this phone? It isn't shared, so it will be gone.</value></data>
+  <data name="Family.RemoveFromPhoneKept" xml:space="preserve"><value>Remove {0}'s log from this phone? It stays with the account it was shared from.</value></data>
+  <data name="Family.RemoveFromPhoneKeptNoBaby" xml:space="preserve"><value>Remove this family's log from this phone? It stays with the account it was shared from.</value></data>
   <data name="Family.RoleCaregiver" xml:space="preserve"><value>Caregiver</value></data>
   <data name="Family.RoleOwner" xml:space="preserve"><value>Parent · created the family</value></data>
   <data name="Family.RoleParent" xml:space="preserve"><value>Parent</value></data>
