@@ -75,12 +75,14 @@ public static class DayChart
 
     /// <summary>
     /// A feed in parts as its parts (Spec 011d §5): each a bar of its real length, the gaps empty, so the chart shows the
-    /// pauses. The feed is labelled once, at its first part; a tap on any part opens it.
+    /// pauses. The feed is labelled once, at its first part; a tap on any part opens it. A feed is charted on its start
+    /// day only, and a part past the day's end is cut there, as a bar across midnight always was: a part that starts
+    /// after midnight is clamped to the edge.
     /// </summary>
     private static IEnumerable<ChartItem> Parts(ChartItem feed, BreastFeed parted, LocalDay day)
     {
         var first = true;
-        foreach (var part in FeedParts.Of(parted).Where(p => p[0].Start < day.End))
+        foreach (var part in FeedParts.Of(parted))
         {
             yield return feed with
             {

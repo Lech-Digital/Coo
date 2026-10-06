@@ -516,6 +516,33 @@ public sealed class DayChartTests : IDisposable
     }
 
     [Fact]
+    public async Task Build_AFeedWithAPartAfterMidnight_ClampsThatPartToTheDaysEnd()
+    {
+        // Arrange: left 23:40–23:50, then right 00:05–00:15 the next day. Feeds are charted on their start day only, and a
+        // bar is cut at the day's end, as a feed across midnight always was: the late part stays, clamped to the edge.
+        var segments = new[]
+        {
+            new BreastSegment(BreastSide.Left, At(23, 40), At(23, 50)),
+            new BreastSegment(BreastSide.Right, At(0, 5).AddDays(1), At(0, 15).AddDays(1)),
+        };
+        var feed = CareEntry.Create(new EntryId(Guid.CreateVersion7(Now)), Household, EntrySubject.Baby(Baby),
+            BreastFeed.Create(segments, isCompleted: true).Value, null, PersonRef.ThisDevicesPerson, EntrySource.Timer,
+            new HlcStamp(++_wall, 0, Device), At(0, 20).AddDays(1)).Value;
+        var day = await Day(feed);
+
+        // Act
+        var items = DayChart.Build(day, Ml, Amsterdam, _ => true);
+
+        // Assert
+        items.Should().HaveCount(2).And.OnlyContain(i => i.Shape == ChartShape.Feed && i.EntryId == feed.Id);
+        items[0].From.Should().BeApproximately(day.Day.Fraction(At(23, 40)), 1e-9);
+        items[0].To.Should().BeApproximately(day.Day.Fraction(At(23, 50)), 1e-9);
+        items[0].Label.Should().StartWith("23:40");
+        (items[1].From, items[1].To).Should().Be((1.0, 1.0));
+        items[1].Label.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task Build_ASideSwitchWithoutAPause_IsOneBar()
     {
         // Arrange
