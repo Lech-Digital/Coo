@@ -36,7 +36,7 @@ public enum SheetClose
 public sealed class SheetNavigator(IModalPages pages)
 {
     private Task _tail = Task.CompletedTask;
-    private TaskCompletionSource _released = NewRelease();
+    private TaskCompletionSource? _running;
 
     /// <summary>The window's modal pages now, bottom first.</summary>
     public IReadOnlyList<object> Pages => pages.Pages;
@@ -71,32 +71,28 @@ public sealed class SheetNavigator(IModalPages pages)
     });
 
     /// <summary>
-    /// Coo left the screen: a step still waiting for an animation Android may never finish no longer holds back the next one;
-    /// the stack itself tells what landed.
+    /// Coo left the screen: the step running now, which may wait for an animation Android never finishes, no longer holds back
+    /// the next one; the stack itself tells what landed. Only that step is let go: the steps queued behind it still run one after
+    /// another (review I1), so two join sheets never decide at once.
     /// </summary>
-    public void Reset()
-    {
-        _released.TrySetResult();
-        _released = NewRelease();
-        _tail = Task.CompletedTask;
-    }
-
-    private static TaskCompletionSource NewRelease() => new(TaskCreationOptions.RunContinuationsAsynchronously);
+    public void Reset() => _running?.TrySetResult();
 
     private async Task<T> RunAsync<T>(Func<Task<T>> step)
     {
         var before = _tail;
-        var released = _released.Task;
         var done = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         _tail = done.Task;
         try
         {
-            await Task.WhenAny(before, released);
+            await before;
+            _running = done;
             return await step();
         }
         finally
         {
             done.TrySetResult();
+            if (ReferenceEquals(_running, done))
+                _running = null;
         }
     }
 }

@@ -161,6 +161,41 @@ public sealed class SheetNavigatorTests
     }
 
     [Fact]
+    public async Task Reset_TwoStepsQueuedBehindAStuckOne_TheSecondStillWaitsForTheFirst()
+    {
+        // Arrange: a push never finishes; a link and the code sheet's handoff each queue a join sheet behind it (review I1).
+        _stack.HoldNextStep();
+        _ = _navigator.PushAsync(_ => new object());
+        var secondStep = _stack.HoldNextStep();
+        var firstStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var firstJoin = _navigator.PushAsync(_ =>
+        {
+            firstStarted.TrySetResult();
+            return new object();
+        });
+        var secondDecided = false;
+        var secondJoin = _navigator.PushAsync(_ =>
+        {
+            secondDecided = true;
+            return null;
+        });
+
+        // Act
+        _navigator.Reset();
+        await firstStarted.Task;
+        for (var i = 0; i < 20 && !secondDecided; i++)
+            await Task.Run(() => { });
+        var decidedBeforeTheFirstFinished = secondDecided;
+        secondStep.TrySetResult();
+        await firstJoin;
+        await secondJoin;
+
+        // Assert
+        decidedBeforeTheFirstFinished.Should().BeFalse("only the stuck step is let go; the queue keeps its order");
+        secondDecided.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task PushAsync_ThePushThrows_TheNextStepStillRuns()
     {
         // Arrange
@@ -198,8 +233,8 @@ public sealed class SheetNavigatorTests
     /// <summary>The window's modal stack: the next step can be held (an animation running) or made to fail (the platform refused it).</summary>
     private sealed class FakeModalPages : IModalPages
     {
-        private readonly TaskCompletionSource _held = new(TaskCreationOptions.RunContinuationsAsynchronously);
-        private bool _holdNext;
+        private readonly Queue<TaskCompletionSource> _holds = new();
+        private readonly List<TaskCompletionSource> _all = [];
         private bool _failNext;
 
         public List<object> Pages { get; } = [];
@@ -208,9 +243,20 @@ public sealed class SheetNavigatorTests
 
         IReadOnlyList<object> IModalPages.Pages => Pages;
 
-        public void HoldNextStep() => _holdNext = true;
+        /// <summary>The next step not yet held waits for this gate (steps are held in the order they run).</summary>
+        public TaskCompletionSource HoldNextStep()
+        {
+            var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            _holds.Enqueue(gate);
+            _all.Add(gate);
+            return gate;
+        }
 
-        public void ReleaseStep() => _held.TrySetResult();
+        public void ReleaseStep()
+        {
+            foreach (var gate in _all)
+                gate.TrySetResult();
+        }
 
         public void FailNextStep() => _failNext = true;
 
@@ -239,10 +285,8 @@ public sealed class SheetNavigatorTests
 
         private async Task HoldAsync()
         {
-            if (!_holdNext)
-                return;
-            _holdNext = false;
-            await _held.Task;
+            if (_holds.TryDequeue(out var gate))
+                await gate.Task;
         }
     }
 }
