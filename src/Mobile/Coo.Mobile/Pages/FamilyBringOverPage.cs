@@ -22,6 +22,8 @@ public sealed class FamilyBringOverPage : ContentPage
     private bool _attached;
     private bool _started;
     private bool _closePending;
+    private Coo.Domain.Common.HouseholdId? _source;
+    private Coo.Domain.Common.HouseholdId? _target;
 
     public FamilyBringOverPage(FamilyBringOverViewModel model, Families families, BringFamilyEntriesOver bring, ISyncControl sync, UndoService undo)
     {
@@ -48,6 +50,14 @@ public sealed class FamilyBringOverPage : ContentPage
 
             if (_started)
             {
+                // Back from a sheet: the shown family or the target may have changed meanwhile (a switch, a removal). Only
+                // before anything was brought over; the old-family question after a copy stands on its own.
+                if (!_model.IsBusy && _model.Step != BringOverStep.OldFamily && !await StillValidAsync())
+                {
+                    await CloseAsync();
+                    return;
+                }
+
                 SafeRender();
                 return;
             }
@@ -67,6 +77,7 @@ public sealed class FamilyBringOverPage : ContentPage
                 return;
             }
 
+            (_source, _target) = (source.Id, target.Id);
             var choice = await _bring.PrepareAsync(source.Id, target.Id, CancellationToken.None);
             var name = target.Membership?.OwnerName ?? "";
             _model.Start(new BringOverRequest(
@@ -115,10 +126,23 @@ public sealed class FamilyBringOverPage : ContentPage
         });
     }
 
+    /// <summary>Back cancels, but not while a copy or a leave runs: its outcome closes the page.</summary>
     protected override bool OnBackButtonPressed()
     {
-        Dispatcher.Dispatch(async () => await CloseAsync());
+        if (!_model.IsBusy)
+            Dispatcher.Dispatch(async () => await CloseAsync());
         return true;
+    }
+
+    /// <summary>Whether the flow still fits the phone: the source is shown and may be brought over, and the target is still offered.</summary>
+    private async Task<bool> StillValidAsync()
+    {
+        // Not started yet (an action sheet open, say): nothing to check.
+        if (_source is not { } source || _target is not { } target)
+            return true;
+        if (await _families.ShownAsync(CancellationToken.None) is not { MayBeBroughtOver: true } shown || shown.Id != source)
+            return false;
+        return (await _families.BringOverTargetsAsync(source, CancellationToken.None)).Any(f => f.Id == target);
     }
 
     private void Attach()
@@ -160,10 +184,8 @@ public sealed class FamilyBringOverPage : ContentPage
     {
         if (targets.Count == 0)
             return null;
-        var labels = targets.Select(FamilyLabels.Choice).ToList();
-        var chosen = await DisplayActionSheetAsync(Strings.Get("BringOver.ChooseTarget"), Strings.Get("Action.Cancel"), null, [.. labels]);
-        var index = labels.IndexOf(chosen ?? "");
-        return index >= 0 ? targets[index] : null;
+        var index = await ActionSheetChoices.ChooseIndexAsync(this, Strings.Get("BringOver.ChooseTarget"), Strings.Get("Action.Cancel"), [.. targets.Select(FamilyLabels.Choice)]);
+        return index >= 0 && index < targets.Count ? targets[index] : null;
     }
 
     private void SafeRender()

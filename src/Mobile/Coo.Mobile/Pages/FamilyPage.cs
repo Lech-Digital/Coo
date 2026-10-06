@@ -18,6 +18,7 @@ public sealed class FamilyPage : ContentPage
     private HouseholdId _household;
     private bool _attached;
     private bool _confirming;
+    private bool _renderQueued;
 
     public FamilyPage(FamilyPageViewModel model, UndoService undo)
     {
@@ -114,13 +115,26 @@ public sealed class FamilyPage : ContentPage
                 return;
             }
 
-            SafeRender();
+            QueueRender();
         }
         catch (Exception)
         {
         }
 #pragma warning restore CA1031
     });
+
+    /// <summary>A load sets half a dozen properties; they become one redraw, not six (like Settings).</summary>
+    private void QueueRender()
+    {
+        if (_renderQueued)
+            return;
+        _renderQueued = true;
+        Dispatcher.Dispatch(() =>
+        {
+            _renderQueued = false;
+            SafeRender();
+        });
+    }
 
     // The family is gone from this phone (left, deleted): back to Settings.
     private void OnClosed(object? sender, EventArgs e) => Dispatcher.Dispatch(async () => await PopAsync());

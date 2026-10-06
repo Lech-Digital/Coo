@@ -67,7 +67,18 @@ internal sealed class LiveView : ContentView, IDisposable
         // A section may change off the main thread (the paused banner follows the engine's status, Spec 011b §8.2).
         if (Dispatcher.IsDispatchRequired)
         {
-            Dispatcher.Dispatch(() => OnSourceChanged(sender, e));
+            Dispatcher.Dispatch(() =>
+            {
+#pragma warning disable CA1031 // A dispatched hop: nothing may escape; the view keeps what it showed.
+                try
+                {
+                    OnSourceChanged(sender, e);
+                }
+                catch (Exception)
+                {
+                }
+#pragma warning restore CA1031
+            });
             return;
         }
 

@@ -158,15 +158,23 @@ public sealed class SettingsPage : ContentPage
     // The family list can change from a background refresh; through the dispatcher like the account.
     private void OnFamilyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) => Dispatcher.Dispatch(() =>
     {
-        if (e.PropertyName == nameof(FamilySectionViewModel.Toast))
+#pragma warning disable CA1031 // A dispatched handler: nothing may escape; the rows keep what they showed.
+        try
         {
-            if (!string.IsNullOrEmpty(_family.Toast))
-                _undo.Say(_family.Toast);
-            _family.Toast = "";
-            return;
-        }
+            if (e.PropertyName == nameof(FamilySectionViewModel.Toast))
+            {
+                if (!string.IsNullOrEmpty(_family.Toast))
+                    _undo.Say(_family.Toast);
+                _family.Toast = "";
+                return;
+            }
 
-        QueueRender();
+            QueueRender();
+        }
+        catch (Exception)
+        {
+        }
+#pragma warning restore CA1031
     });
 
     private void OnLanguageChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
@@ -214,7 +222,16 @@ public sealed class SettingsPage : ContentPage
         Dispatcher.Dispatch(() =>
         {
             _renderQueued = false;
-            Render();
+#pragma warning disable CA1031 // A dispatched redraw: nothing may escape; the page keeps what it showed.
+            try
+            {
+                Render();
+            }
+            catch (Exception)
+            {
+                _rendering = false;
+            }
+#pragma warning restore CA1031
         });
     }
 
@@ -376,9 +393,9 @@ public sealed class SettingsPage : ContentPage
         try
         {
             var choices = _family.Choices;
-            var chosen = await DisplayActionSheetAsync(Strings.Get("Family.Switch"), Strings.Get("Action.Cancel"), null, [.. choices.Select(c => c.Label)]);
-            if (choices.FirstOrDefault(c => c.Label == chosen) is { } choice)
-                await _family.SwitchCommand.ExecuteAsync(choice);
+            var index = await ActionSheetChoices.ChooseIndexAsync(this, Strings.Get("Family.Switch"), Strings.Get("Action.Cancel"), [.. choices.Select(c => c.Label)]);
+            if (index >= 0 && index < choices.Count)
+                await _family.SwitchCommand.ExecuteAsync(choices[index]);
         }
         finally
         {
