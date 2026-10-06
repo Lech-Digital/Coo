@@ -47,10 +47,13 @@ public sealed partial class PausedSection : ObservableObject, IHomeSection, IDis
         if (_checkedFor == shown)
             return;
         _checkedFor = shown;
-        await RefreshAsync();
+        if (!await CheckAsync())
+            _checkedFor = null; // a failed check is tried again by the next Update
     }
 
-    public async Task RefreshAsync()
+    public async Task RefreshAsync() => await CheckAsync();
+
+    private async Task<bool> CheckAsync()
     {
         try
         {
@@ -64,11 +67,14 @@ public sealed partial class PausedSection : ObservableObject, IHomeSection, IDis
             {
                 _one.Release();
             }
+
+            return true;
         }
 #pragma warning disable CA1031 // Fire-and-forget: the banner keeps what it showed; the next status change checks again.
         catch (Exception)
 #pragma warning restore CA1031
         {
+            return false;
         }
     }
 }

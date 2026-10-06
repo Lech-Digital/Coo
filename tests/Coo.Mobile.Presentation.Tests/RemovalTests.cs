@@ -8,9 +8,11 @@ using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Preferences;
 using Coo.Mobile.Application.Sync;
+using Coo.Mobile.Presentation.Formatting;
 using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Settings;
 using Coo.Mobile.Presentation.Setup;
+using Coo.Mobile.Presentation.Theme;
 using Coo.Mobile.Presentation.Today;
 using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
@@ -383,6 +385,81 @@ public sealed class RemovalTests : IDisposable
         // Assert
         again.Should().Be(0, "Today ticks every second");
         _households.ReceivedCalls().Should().NotBeEmpty("another family shown is checked");
+    }
+
+    [Fact]
+    public async Task RefreshForAsync_TheFirstCheckFails_TheNextUpdateChecksAgain()
+    {
+        // Arrange
+        _state.IsSoftLockedAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
+        _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromException<IReadOnlyList<HouseholdSettings>>(new InvalidOperationException("store")), Task.FromResult<IReadOnlyList<HouseholdSettings>>([Settings(Joined)]));
+        var section = new PausedSection(Families(), _status);
+        await section.RefreshForAsync(Joined);
+
+        // Act
+        await section.RefreshForAsync(Joined);
+
+        // Assert
+        section.Text.Should().Be("Sharing with this family is paused. Your entries are safe on this phone.");
+    }
+
+    [Fact]
+    public async Task Update_AFamilyIsShown_ChecksAndSetsTheText()
+    {
+        // Arrange
+        _state.IsSoftLockedAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
+        var section = new PausedSection(Families(), _status);
+        var shown = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        section.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(PausedSection.Text))
+                shown.TrySetResult();
+        };
+        var baby = BabyProfile.Create(Maja, Joined, "Maja", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Phone), new DateOnly(2026, 10, 1)).Value;
+
+        // Act
+        section.Update(new HomeSnapshot(Settings(Joined), baby, null, Now, PaletteKind.Day, new Formats(true, VolumeUnit.Millilitres)));
+        await shown.Task.WaitAsync(TimeSpan.FromSeconds(10));
+
+        // Assert
+        section.Text.Should().Be("Sharing with this family is paused. Your entries are safe on this phone.");
+    }
+
+    [Fact]
+    public async Task OkCommand_AHandlerOfClosedThrows_DoesNotToastAFailureAfterTheAcknowledge()
+    {
+        // Arrange
+        var model = Removal();
+        model.Closed += (_, _) => throw new InvalidOperationException("page gone");
+        await model.LoadAsync();
+
+        // Act
+        await model.OkCommand.ExecuteAsync(null);
+
+        // Assert
+        await _sync.Received(1).AcknowledgeRemovalAsync(Arg.Any<CancellationToken>());
+        model.Toast.Should().BeEmpty();
+        model.IsBusy.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ShareCommand_TappedTwiceWhileSharing_SharesOnce()
+    {
+        // Arrange
+        _records.ListUnsharedEntriesAsync(Joined, Arg.Any<CancellationToken>()).Returns([Bottle(1, Now, null)]);
+        var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _launcher.ShareTextAsync(default!, default!).ReturnsForAnyArgs(gate.Task);
+        var model = Removal();
+        await model.LoadAsync();
+
+        // Act
+        var first = model.ShareCommand.ExecuteAsync(null);
+        await model.ShareCommand.ExecuteAsync(null).WaitAsync(TimeSpan.FromSeconds(10));
+        gate.SetResult();
+        await first;
+
+        // Assert
+        await _launcher.ReceivedWithAnyArgs(1).ShareTextAsync(default!, default!);
     }
 
     [Fact]

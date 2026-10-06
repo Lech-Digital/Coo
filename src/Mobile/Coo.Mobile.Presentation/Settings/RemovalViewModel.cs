@@ -34,6 +34,9 @@ public sealed partial class RemovalViewModel(
     [ObservableProperty]
     private string _toast = "";
 
+    // 1 while the share sheet is being opened: a second tap does nothing.
+    private int _sharing;
+
     public event EventHandler? Closed;
 
     public static string Title => Strings.Get("Removal.Title");
@@ -80,7 +83,7 @@ public sealed partial class RemovalViewModel(
     [RelayCommand]
     private async Task ShareAsync()
     {
-        if (Lines.Count == 0)
+        if (Lines.Count == 0 || Interlocked.CompareExchange(ref _sharing, 1, 0) != 0)
             return;
         try
         {
@@ -92,6 +95,10 @@ public sealed partial class RemovalViewModel(
         {
             Toast = Strings.Get("Family.ActionFailed");
         }
+        finally
+        {
+            Interlocked.Exchange(ref _sharing, 0);
+        }
     }
 
     [RelayCommand]
@@ -100,10 +107,11 @@ public sealed partial class RemovalViewModel(
         if (IsBusy)
             return;
         IsBusy = true;
+        var acknowledged = false;
         try
         {
             await sync.AcknowledgeRemovalAsync(CancellationToken.None);
-            Closed?.Invoke(this, EventArgs.Empty);
+            acknowledged = true;
         }
 #pragma warning disable CA1031 // Nothing was deleted (one transaction): say so; OK can be tapped again.
         catch (Exception)
@@ -114,6 +122,20 @@ public sealed partial class RemovalViewModel(
         finally
         {
             IsBusy = false;
+        }
+
+        if (!acknowledged)
+            return;
+
+        // After the acknowledgment: a page that fails while closing must not say the removal failed.
+        try
+        {
+            Closed?.Invoke(this, EventArgs.Empty);
+        }
+#pragma warning disable CA1031 // The family is already gone from the phone; nothing more to tell the person.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
         }
     }
 }
