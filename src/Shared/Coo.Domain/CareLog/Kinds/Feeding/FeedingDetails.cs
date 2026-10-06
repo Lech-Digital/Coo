@@ -27,6 +27,8 @@ public static class FeedingErrors
 public static class FeedingThresholds
 {
     public static readonly TimeSpan BreastMaxSpan = TimeSpan.FromHours(6);
+    /// <summary>Segments closer than this belong to one part of a feed (Spec 011d §2).</summary>
+    public static readonly TimeSpan PartGap = TimeSpan.FromSeconds(60);
     public const int SideMinutesMin = 1;
     public const int SideMinutesMax = 240;
     public const decimal BottleTotalMaxMl = 1000m;

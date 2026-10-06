@@ -46,6 +46,13 @@ public sealed record BreastFeed : FeedingDetails
     /// <summary>The first start to the last known instant: the last end, or the start of an open segment.</summary>
     public TimeSpan Span => (Segments[^1].End ?? Segments[^1].Start) - FirstStart;
 
+    /// <summary>
+    /// How many parts the feed came in: runs of segments in which each starts at most
+    /// <see cref="FeedingThresholds.PartGap"/> after the previous ended. A side switch is not a new part.
+    /// </summary>
+    public int Parts => 1 + Segments.Zip(Segments.Skip(1), (previous, next) => next.Start - (previous.End ?? next.Start))
+        .Count(gap => gap > FeedingThresholds.PartGap);
+
     /// <summary>Starts the timer on one side.</summary>
     public static BreastFeed Start(BreastSide side, DateTimeOffset at) =>
         new([new BreastSegment(side, at, null)], isCompleted: false);
