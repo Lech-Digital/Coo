@@ -1,6 +1,8 @@
 using Coo.Api.Application.Auth;
+using Coo.Api.Application.Sync;
 using Coo.Contracts.Auth;
 using Coo.Contracts.Households;
+using Coo.Contracts.Sync;
 using Coo.Domain.Common;
 using Coo.Domain.Households;
 
@@ -57,4 +59,93 @@ public sealed class WithdrawInvitation(IHouseholdMembershipStore store, TimeProv
             await tx.SaveInvitationAsync(invitation, cancellationToken);
             return Result.Success;
         }, cancellationToken);
+}
+
+public sealed record InvitationPreview(
+    HouseholdId Household, string InviterName, IReadOnlyList<string> BabyNames, Role Role, DateTimeOffset ExpiresAt, bool AlreadyMember);
+
+/// <summary>
+/// <c>POST /api/invitations/preview</c> (spec §5.1 step 2). One answer, <c>invitation.invalid</c>, for unknown, expired,
+/// used, withdrawn and malformed codes. A code this caller already used, while still a member, previews as already-member.
+/// </summary>
+public sealed class PreviewInvitation(IInvitationStore invitations, IMembershipStore memberships, TimeProvider time)
+{
+    public async Task<Result<InvitationPreview>> ExecuteAsync(UserId user, string? code, CancellationToken cancellationToken)
+    {
+        var parsed = InvitationCode.Parse(code);
+        if (parsed.IsFailure || await invitations.FindByHashAsync(AuthSecrets.Hash(parsed.Value.Value), cancellationToken) is not { } found)
+            return Result<InvitationPreview>.Failure(HouseholdErrors.InvitationInvalid);
+
+        var invitation = found.Invitation;
+        var me = await memberships.FindAsync(invitation.HouseholdId, user, cancellationToken);
+        var active = me.Membership is not null && !me.IsRevoked;
+        if (!invitation.IsUsable(time.GetUtcNow()) && !(active && invitation.WasAcceptedBy(user)))
+            return Result<InvitationPreview>.Failure(HouseholdErrors.InvitationInvalid);
+
+        var babies = await invitations.ListBabyNamesAsync(invitation.HouseholdId, cancellationToken);
+        return new InvitationPreview(invitation.HouseholdId, found.InviterName, babies, invitation.Role, invitation.ExpiresAt, active);
+    }
+}
+
+public enum AcceptOutcome
+{
+    Joined,
+    Rejoined,
+    AlreadyMember,
+}
+
+public sealed record AcceptResult(HouseholdId Household, Role Role, AcceptOutcome Outcome);
+
+/// <summary>
+/// <c>POST /api/invitations/accept</c> (spec §10.4): find by hash, lock the family, re-read the invitation, then decide.
+/// No membership without consent (R4): <c>sync.consent-required</c> changes nothing.
+/// </summary>
+public sealed class AcceptInvitation(IInvitationStore invitations, IHouseholdMembershipStore store, IConsentStore consents, TimeProvider time)
+{
+    public async Task<Result<AcceptResult>> ExecuteAsync(UserId user, string? code, CancellationToken cancellationToken)
+    {
+        var parsed = InvitationCode.Parse(code);
+        if (parsed.IsFailure)
+            return Result<AcceptResult>.Failure(HouseholdErrors.InvitationInvalid);
+        var hash = AuthSecrets.Hash(parsed.Value.Value);
+        if (await invitations.FindByHashAsync(hash, cancellationToken) is not { } found)
+            return Result<AcceptResult>.Failure(HouseholdErrors.InvitationInvalid);
+        var household = found.Invitation.HouseholdId;
+        var consented = await consents.FindAsync(user, CareDataConsent.Purpose, CareDataConsent.CurrentWording, cancellationToken) is not null;
+
+        return await store.RunLockedAsync([household], async tx =>
+        {
+            if (!tx.IsLocked(household) || await tx.FindInvitationForUpdateAsync(hash, cancellationToken) is not { } invitation)
+                return Result<AcceptResult>.Failure(HouseholdErrors.InvitationInvalid);
+
+            var me = await tx.FindMembershipAsync(household, user, cancellationToken);
+            var active = me.Membership is not null && !me.IsRevoked;
+            if (active && invitation.WasAcceptedBy(user))
+                return Result<AcceptResult>.Ok(new AcceptResult(household, me.Membership!.Role, AcceptOutcome.Joined));
+
+            var now = time.GetUtcNow();
+            if (!invitation.IsUsable(now))
+                return Result<AcceptResult>.Failure(HouseholdErrors.InvitationInvalid);
+            if (!consented)
+                return Result<AcceptResult>.Failure(SyncErrors.ConsentRequired);
+            if (active)
+                return Result<AcceptResult>.Ok(new AcceptResult(household, me.Membership!.Role, AcceptOutcome.AlreadyMember));
+
+            AcceptOutcome outcome;
+            if (me.IsRevoked)
+            {
+                await tx.ReactivateMembershipAsync(household, user, invitation.Role, now, cancellationToken);
+                outcome = AcceptOutcome.Rejoined;
+            }
+            else
+            {
+                await tx.AddMembershipAsync(Membership.Create(household, user, invitation.Role, now), cancellationToken);
+                outcome = AcceptOutcome.Joined;
+            }
+
+            invitation.Accept(user, now);
+            await tx.SaveInvitationAsync(invitation, cancellationToken);
+            return Result<AcceptResult>.Ok(new AcceptResult(household, invitation.Role, outcome));
+        }, cancellationToken);
+    }
 }

@@ -153,4 +153,152 @@ public sealed class MemberUseCaseTests
         // Assert
         result.Error!.Code.Should().Be(HouseholdErrors.Forbidden);
     }
+
+    [Fact]
+    public async Task ExecuteAsync_ParentWithAnotherFamilyLeaves_EndsTheMembershipAndWithdrawsTheirInvitations()
+    {
+        // Arrange
+        _kit.Store.AddFamily(Other, Partner, Start.AddDays(-60), "Kasia");
+        await _kit.Create().ExecuteAsync(Partner, Family, "parent", CancellationToken.None);
+
+        // Act
+        var result = await _kit.Leave().ExecuteAsync(Partner, Family, confirm: false, CancellationToken.None);
+
+        // Assert
+        result.Value.Should().Be(LeaveOutcome.Left);
+        _kit.Store.Members.Single(m => m.User == Partner && m.Household == Family).RevokedAt.Should().Be(Start);
+        _kit.Store.Invitations.Single().Invitation.RevokedAt.Should().Be(Start);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_LeaveRetriedAfterLeaving_AnswersLeftAgain()
+    {
+        // Arrange: Review Focus 4, the first answer was lost.
+        _kit.Store.AddFamily(Other, Partner, Start.AddDays(-60), "Kasia");
+        await _kit.Leave().ExecuteAsync(Partner, Family, confirm: false, CancellationToken.None);
+
+        // Act
+        var again = await _kit.Leave().ExecuteAsync(Partner, Family, confirm: false, CancellationToken.None);
+
+        // Assert
+        again.Value.Should().Be(LeaveOutcome.Left);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ParentsOnlyFamily_IsLastFamily()
+    {
+        // Act
+        var result = await _kit.Leave().ExecuteAsync(Partner, Family, confirm: true, CancellationToken.None);
+
+        // Assert
+        result.Error!.Code.Should().Be(HouseholdErrors.LastFamily);
+        _kit.Store.Members.Single(m => m.User == Partner).RevokedAt.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_OwnerWithMembersLeaves_IsOwnerCannotLeave()
+    {
+        // Arrange
+        _kit.Store.AddFamily(Other, Owner, Start.AddDays(-90));
+
+        // Act
+        var result = await _kit.Leave().ExecuteAsync(Owner, Family, confirm: true, CancellationToken.None);
+
+        // Assert
+        result.Error!.Code.Should().Be(HouseholdErrors.OwnerCannotLeave);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_OwnerAloneWithoutConfirmOnAnEmptyFamily_DeletesIt()
+    {
+        // Arrange: §6.1's automatic leave of an emptied adopted family.
+        _kit.Store.AddFamily(Other, Nanny, Start.AddDays(-1), "Ola");
+        _kit.Store.AddFamily(new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a3")), Nanny, Start.AddDays(-9), "Ola");
+
+        // Act
+        var result = await _kit.Leave().ExecuteAsync(Nanny, Other, confirm: false, CancellationToken.None);
+
+        // Assert
+        result.Value.Should().Be(LeaveOutcome.Deleted);
+        _kit.Store.Households.Should().NotContain(Other);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_OwnerAloneWithoutConfirmOnAFamilyWithRecords_IsConfirmationRequired()
+    {
+        // Arrange: another phone of hers pushed into it (spec §6.1).
+        _kit.Store.AddFamily(Other, Nanny, Start.AddDays(-1), "Ola");
+        _kit.Store.AddFamily(new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a3")), Nanny, Start.AddDays(-9), "Ola");
+        _kit.Store.WithRecords.Add(Other);
+
+        // Act
+        var unconfirmed = await _kit.Leave().ExecuteAsync(Nanny, Other, confirm: false, CancellationToken.None);
+        var confirmed = await _kit.Leave().ExecuteAsync(Nanny, Other, confirm: true, CancellationToken.None);
+
+        // Assert
+        unconfirmed.Error!.Code.Should().Be(HouseholdErrors.ConfirmationRequired);
+        confirmed.Value.Should().Be(LeaveOutcome.Deleted);
+        _kit.Store.Households.Should().NotContain(Other);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_LeaveAFamilyThatIsGone_AnswersDeleted()
+    {
+        // Act: a retried delete whose first answer was lost (ruling 15).
+        var result = await _kit.Leave().ExecuteAsync(Partner, Other, confirm: true, CancellationToken.None);
+
+        // Assert
+        result.Value.Should().Be(LeaveOutcome.Deleted);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_LeaveAFamilyNeverJoined_IsForbidden()
+    {
+        // Arrange
+        _kit.Store.AddFamily(Other, Nanny, Start.AddDays(-1), "Ola");
+
+        // Act
+        var result = await _kit.Leave().ExecuteAsync(Partner, Other, confirm: true, CancellationToken.None);
+
+        // Assert
+        result.Error!.Code.Should().Be(HouseholdErrors.Forbidden);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_CreateForAUserWithNoActiveFamily_CreatesItWithThemAsOwner()
+    {
+        // Arrange: §8.4, removed from their only family.
+        await _kit.Remove().ExecuteAsync(Owner, Family, Partner, CancellationToken.None);
+
+        // Act
+        var result = await _kit.CreateHousehold().ExecuteAsync(Partner, Other, CancellationToken.None);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        _kit.Store.Members.Should().ContainSingle(m => m.Household == Other && m.User == Partner && m.Role == Role.Owner);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_CreateWithATakenId_IsIdTaken()
+    {
+        // Arrange
+        await _kit.Remove().ExecuteAsync(Owner, Family, Partner, CancellationToken.None);
+
+        // Act
+        var result = await _kit.CreateHousehold().ExecuteAsync(Partner, Family, CancellationToken.None);
+
+        // Assert
+        result.Error!.Code.Should().Be(HouseholdErrors.IdTaken);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_CreateWhileInAFamily_IsAlreadyHasFamily()
+    {
+        // Act
+        var result = await _kit.CreateHousehold().ExecuteAsync(Partner, Other, CancellationToken.None);
+
+        // Assert
+        result.Error!.Code.Should().Be(HouseholdErrors.AlreadyHasFamily);
+        _kit.Store.Households.Should().NotContain(Other);
+    }
 }

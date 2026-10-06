@@ -247,6 +247,14 @@ internal sealed class HouseholdKit
 
     public RemoveMember Remove() => new(Store, Time);
 
+    public LeaveHousehold Leave() => new(Store, Time);
+
+    public CreateHousehold CreateHousehold() => new(Store, Time);
+
+    public PreviewInvitation Preview() => new(Store, new MembershipsOver(Store), Time);
+
+    public AcceptInvitation Accept() => new(Store, Store, Consents, Time);
+
     public async Task GiveConsentAsync(UserId user) => await Consents.RecordAsync(
         new ConsentRecord(user, Contracts.Sync.CareDataConsent.Purpose, Contracts.Sync.CareDataConsent.CurrentWording, Start, "0.12.0", "en"),
         CancellationToken.None);

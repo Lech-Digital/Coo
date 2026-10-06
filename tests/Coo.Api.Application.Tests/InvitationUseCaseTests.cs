@@ -188,4 +188,263 @@ public sealed class InvitationUseCaseTests
         result.Error!.Code.Should().Be(HouseholdErrors.Forbidden);
         _kit.Store.Invitations.Single().Invitation.IsOpen.Should().BeTrue();
     }
+
+    private async Task<string> InviteAsync() =>
+        (await _kit.Create().ExecuteAsync(Owner, Family, "parent", CancellationToken.None)).Value.Code.Display;
+
+    [Fact]
+    public async Task ExecuteAsync_PreviewAValidCode_NamesTheInviterAndTheBabies()
+    {
+        // Arrange
+        _kit.Store.Babies[Family] = ["Maja"];
+        var code = await InviteAsync();
+
+        // Act
+        var preview = await _kit.Preview().ExecuteAsync(Partner, code.ToLowerInvariant(), CancellationToken.None);
+
+        // Assert
+        preview.Value.Should().BeEquivalentTo(new InvitationPreview(Family, "Andrzej", ["Maja"], Role.Parent, Start.AddHours(72), AlreadyMember: false));
+    }
+
+    [Theory]
+    [InlineData("ZZZZ-ZZZZ")]
+    [InlineData("not a code")]
+    [InlineData(null)]
+    public async Task ExecuteAsync_PreviewUnknownOrMalformed_IsInvalid(string? code)
+    {
+        // Act
+        var preview = await _kit.Preview().ExecuteAsync(Partner, code, CancellationToken.None);
+
+        // Assert
+        preview.Error!.Code.Should().Be(HouseholdErrors.InvitationInvalid);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_PreviewByAMember_SaysAlreadyMember()
+    {
+        // Arrange
+        var code = await InviteAsync();
+
+        // Act
+        var preview = await _kit.Preview().ExecuteAsync(Owner, code, CancellationToken.None);
+
+        // Assert
+        preview.Value.AlreadyMember.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_AcceptWithConsent_JoinsAsParentAndUsesTheCode()
+    {
+        // Arrange
+        var code = await InviteAsync();
+        await _kit.GiveConsentAsync(Partner);
+
+        // Act
+        var accepted = await _kit.Accept().ExecuteAsync(Partner, code, CancellationToken.None);
+
+        // Assert
+        accepted.Value.Should().Be(new AcceptResult(Family, Role.Parent, AcceptOutcome.Joined));
+        _kit.Store.Members.Should().ContainSingle(m => m.User == Partner && m.Household == Family && m.Role == Role.Parent && m.RevokedAt == null);
+        _kit.Store.Invitations.Single().Invitation.WasAcceptedBy(Partner).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_AcceptWithoutConsent_IsConsentRequiredAndChangesNothing()
+    {
+        // Arrange
+        var code = await InviteAsync();
+
+        // Act
+        var accepted = await _kit.Accept().ExecuteAsync(Partner, code, CancellationToken.None);
+
+        // Assert
+        accepted.Error!.Code.Should().Be(Contracts.Sync.SyncErrors.ConsentRequired);
+        _kit.Store.Members.Should().NotContain(m => m.User == Partner);
+        _kit.Store.Invitations.Single().Invitation.IsOpen.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_AcceptRetriedAfterALostAnswer_AnswersJoinedAgain()
+    {
+        // Arrange: spec §5.2, the same user re-presenting a code they used, still a member.
+        var code = await InviteAsync();
+        await _kit.GiveConsentAsync(Partner);
+        await _kit.Accept().ExecuteAsync(Partner, code, CancellationToken.None);
+        _kit.Time.Advance(TimeSpan.FromMinutes(1));
+
+        // Act
+        var again = await _kit.Accept().ExecuteAsync(Partner, code, CancellationToken.None);
+
+        // Assert
+        again.Value.Outcome.Should().Be(AcceptOutcome.Joined);
+        _kit.Store.Members.Count(m => m.User == Partner).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_AcceptACodeSomeoneElseUsed_IsInvalid()
+    {
+        // Arrange
+        var code = await InviteAsync();
+        await _kit.GiveConsentAsync(Partner);
+        await _kit.GiveConsentAsync(Nanny);
+        await _kit.Accept().ExecuteAsync(Partner, code, CancellationToken.None);
+
+        // Act
+        var second = await _kit.Accept().ExecuteAsync(Nanny, code, CancellationToken.None);
+
+        // Assert
+        second.Error!.Code.Should().Be(HouseholdErrors.InvitationInvalid);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_AcceptOwnUsedCodeAfterBeingRemoved_IsInvalid()
+    {
+        // Arrange
+        var code = await InviteAsync();
+        await _kit.GiveConsentAsync(Partner);
+        await _kit.Accept().ExecuteAsync(Partner, code, CancellationToken.None);
+        await _kit.Remove().ExecuteAsync(Owner, Family, Partner, CancellationToken.None);
+
+        // Act
+        var again = await _kit.Accept().ExecuteAsync(Partner, code, CancellationToken.None);
+
+        // Assert
+        again.Error!.Code.Should().Be(HouseholdErrors.InvitationInvalid);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_AcceptANewCodeAfterBeingRemoved_Rejoins()
+    {
+        // Arrange
+        await _kit.GiveConsentAsync(Partner);
+        await _kit.Accept().ExecuteAsync(Partner, await InviteAsync(), CancellationToken.None);
+        await _kit.Remove().ExecuteAsync(Owner, Family, Partner, CancellationToken.None);
+        _kit.Time.Advance(TimeSpan.FromHours(1));
+
+        // Act
+        var rejoined = await _kit.Accept().ExecuteAsync(Partner, await InviteAsync(), CancellationToken.None);
+
+        // Assert
+        rejoined.Value.Outcome.Should().Be(AcceptOutcome.Rejoined);
+        var row = _kit.Store.Members.Single(m => m.User == Partner);
+        row.RevokedAt.Should().BeNull();
+        row.JoinedAt.Should().Be(Start.AddHours(1));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_AcceptByAMember_IsAlreadyMemberAndLeavesTheCodeUnused()
+    {
+        // Arrange
+        var code = await InviteAsync();
+        await _kit.GiveConsentAsync(Owner);
+
+        // Act
+        var accepted = await _kit.Accept().ExecuteAsync(Owner, code, CancellationToken.None);
+
+        // Assert
+        accepted.Value.Outcome.Should().Be(AcceptOutcome.AlreadyMember);
+        _kit.Store.Invitations.Single().Invitation.IsOpen.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ExecuteAsync_AcceptExpiredOrWithdrawn_IsInvalid(bool expired)
+    {
+        // Arrange
+        var created = (await _kit.Create().ExecuteAsync(Owner, Family, "parent", CancellationToken.None)).Value;
+        await _kit.GiveConsentAsync(Partner);
+        if (expired)
+            _kit.Time.Advance(TimeSpan.FromHours(72));
+        else
+            await _kit.Withdraw().ExecuteAsync(Owner, Family, created.Id, CancellationToken.None);
+
+        // Act
+        var accepted = await _kit.Accept().ExecuteAsync(Partner, created.Code.Value, CancellationToken.None);
+
+        // Assert
+        accepted.Error!.Code.Should().Be(HouseholdErrors.InvitationInvalid);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_FamilyDeletedBeforeTheLock_IsInvalid()
+    {
+        // Arrange: the found invitation's family goes before the accept locks it (a concurrent account deletion).
+        var code = await InviteAsync();
+        await _kit.GiveConsentAsync(Partner);
+        _kit.Store.InsideNextTransaction = () => _kit.Store.Households.Remove(Family);
+
+        // Act
+        var accepted = await _kit.Accept().ExecuteAsync(Partner, code, CancellationToken.None);
+
+        // Assert
+        accepted.Error!.Code.Should().Be(HouseholdErrors.InvitationInvalid);
+    }
+
+    [Theory]
+    [InlineData("expired")]
+    [InlineData("withdrawn")]
+    [InlineData("used by another")]
+    [InlineData("used by the caller, since removed")]
+    public async Task ExecuteAsync_PreviewACodeThatIsNoLongerUsable_IsInvalid(string why)
+    {
+        // Arrange
+        var created = (await _kit.Create().ExecuteAsync(Owner, Family, "parent", CancellationToken.None)).Value;
+        await _kit.GiveConsentAsync(Partner);
+        await _kit.GiveConsentAsync(Nanny);
+        switch (why)
+        {
+            case "expired":
+                _kit.Time.Advance(TimeSpan.FromHours(72));
+                break;
+            case "withdrawn":
+                await _kit.Withdraw().ExecuteAsync(Owner, Family, created.Id, CancellationToken.None);
+                break;
+            case "used by another":
+                await _kit.Accept().ExecuteAsync(Nanny, created.Code.Value, CancellationToken.None);
+                break;
+            default:
+                await _kit.Accept().ExecuteAsync(Partner, created.Code.Value, CancellationToken.None);
+                await _kit.Remove().ExecuteAsync(Owner, Family, Partner, CancellationToken.None);
+                break;
+        }
+
+        // Act
+        var preview = await _kit.Preview().ExecuteAsync(Partner, created.Code.Value, CancellationToken.None);
+
+        // Assert
+        preview.Error!.Code.Should().Be(HouseholdErrors.InvitationInvalid);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_PreviewACodeTheCallerUsedWhileStillAMember_SaysAlreadyMember()
+    {
+        // Arrange
+        var code = await InviteAsync();
+        await _kit.GiveConsentAsync(Partner);
+        await _kit.Accept().ExecuteAsync(Partner, code, CancellationToken.None);
+
+        // Act
+        var preview = await _kit.Preview().ExecuteAsync(Partner, code, CancellationToken.None);
+
+        // Assert
+        preview.Value.AlreadyMember.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("ZZZZ-ZZZZ")]
+    [InlineData("not a code")]
+    [InlineData(null)]
+    public async Task ExecuteAsync_AcceptUnknownOrMalformed_IsInvalidAndChangesNothing(string? code)
+    {
+        // Arrange
+        await _kit.GiveConsentAsync(Partner);
+
+        // Act
+        var accepted = await _kit.Accept().ExecuteAsync(Partner, code, CancellationToken.None);
+
+        // Assert
+        accepted.Error!.Code.Should().Be(HouseholdErrors.InvitationInvalid);
+        _kit.Store.Members.Should().NotContain(m => m.User == Partner);
+    }
 }

@@ -48,3 +48,66 @@ public sealed class RemoveMember(IHouseholdMembershipStore store, TimeProvider t
             return Result.Success;
         }, cancellationToken);
 }
+
+public enum LeaveOutcome
+{
+    Left,
+    Deleted,
+}
+
+/// <summary>
+/// <c>POST /api/households/{id}/leave</c> (spec §8.3). Idempotent: a revoked membership answers <c>left</c> again, a family
+/// that no longer exists answers <c>deleted</c> (ruling 15). <c>confirm: false</c> deletes an Owner-only family only when
+/// it holds no record.
+/// </summary>
+public sealed class LeaveHousehold(IHouseholdMembershipStore store, TimeProvider time)
+{
+    public Task<Result<LeaveOutcome>> ExecuteAsync(UserId user, HouseholdId household, bool confirm, CancellationToken cancellationToken) =>
+        store.RunLockedAsync([household], async tx =>
+        {
+            if (!tx.IsLocked(household))
+                return Result<LeaveOutcome>.Ok(LeaveOutcome.Deleted);
+            var me = await tx.FindMembershipAsync(household, user, cancellationToken);
+            if (me.Membership is null)
+                return Result<LeaveOutcome>.Failure(HouseholdErrors.Forbidden);
+            if (me.IsRevoked)
+                return Result<LeaveOutcome>.Ok(LeaveOutcome.Left);
+
+            var members = await tx.ActiveMembersAsync(household, cancellationToken);
+            var hasOther = (await tx.ActiveMembershipsOfUserAsync(user, cancellationToken)).Any(m => m.HouseholdId != household);
+            switch (HouseholdLeaving.Decide(members, user, hasOther))
+            {
+                case LeaveDecision.RefusedOwnerWithMembers:
+                    return Result<LeaveOutcome>.Failure(HouseholdErrors.OwnerCannotLeave);
+                case LeaveDecision.RefusedLastFamily:
+                    return Result<LeaveOutcome>.Failure(HouseholdErrors.LastFamily);
+                case LeaveDecision.HouseholdDeleted:
+                    if (!confirm && await tx.HoldsAnyRecordAsync(household, cancellationToken))
+                        return Result<LeaveOutcome>.Failure(HouseholdErrors.ConfirmationRequired);
+                    await tx.DeleteHouseholdAsync(household, cancellationToken);
+                    return Result<LeaveOutcome>.Ok(LeaveOutcome.Deleted);
+                default:
+                    var now = time.GetUtcNow();
+                    await tx.RevokeMembershipAsync(household, user, now, cancellationToken);
+                    await tx.WithdrawOpenInvitationsByAsync(household, user, now, cancellationToken);
+                    return Result<LeaveOutcome>.Ok(LeaveOutcome.Left);
+            }
+        }, cancellationToken);
+}
+
+/// <summary>
+/// <c>POST /api/households</c> (spec §8.4): a user with no active family gets one with the phone's ID, as sign-in's
+/// adoption does. <c>id-taken</c> makes the phone re-key; <c>already-has-family</c> means they were invited back.
+/// </summary>
+public sealed class CreateHousehold(IHouseholdMembershipStore store, TimeProvider time)
+{
+    public Task<Result> ExecuteAsync(UserId user, HouseholdId household, CancellationToken cancellationToken) =>
+        store.RunLockedAsync([], async tx =>
+        {
+            if ((await tx.ActiveMembershipsOfUserAsync(user, cancellationToken)).Count > 0)
+                return Result.Failure(HouseholdErrors.AlreadyHasFamily);
+            return await tx.TryCreateHouseholdAsync(household, user, time.GetUtcNow(), cancellationToken)
+                ? Result.Success
+                : Result.Failure(HouseholdErrors.IdTaken);
+        }, cancellationToken);
+}
