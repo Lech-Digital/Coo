@@ -51,7 +51,12 @@ public static class MauiProgram
         builder.Services.AddTransient<LicencesPage>();
         builder.Services.AddTransient<ConsentPage>();
         builder.Services.AddTransient<BringOverPage>();
+        builder.Services.AddTransient<JoinPage>();
+        builder.Services.AddTransient<EnterCodePage>();
+        builder.Services.AddTransient<RemovalPage>();
         builder.Services.AddSingleton<Sync.SyncPrompter>();
+        builder.Services.AddSingleton<Joining.InvitationInbox>();
+        builder.Services.AddSingleton<Coo.Mobile.Presentation.Settings.IConsentPrompt, Joining.MauiConsentPrompt>();
         builder.Services.AddSingleton<Coo.Mobile.Presentation.Settings.IAboutInfo, Settings.MauiAboutInfo>();
         builder.Services.AddSingleton<Coo.Mobile.Presentation.Settings.IExternalLauncher, Settings.MauiExternalLauncher>();
         builder.Services.AddTransient<AppShell>();

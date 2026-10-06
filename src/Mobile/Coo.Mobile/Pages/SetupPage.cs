@@ -34,6 +34,10 @@ public sealed class SetupPage : ContentPage
         var go = new Button { Text = Strings.Get("Setup.Continue"), Command = model.ContinueCommand, Margin = new Thickness(0, 16, 0, 0) };
         go.SetDynamicResource(VisualElement.StyleProperty, "PrimaryButton");
 
+        // Spec 011b §4.4: "Have an invitation? Enter a code".
+        var code = Ui.Text(SetupViewModel.HaveInvitationText, "BodyStrong", "Accent").Tap(l => l.Margin = new Thickness(0, 8, 0, 0));
+        code.GestureRecognizers.Add(new TapGestureRecognizer { Command = model.EnterCodeCommand });
+
         void Sync()
         {
             yes.SetDynamicResource(VisualElement.StyleProperty, model.HasArrived ? "PrimaryButton" : "GhostButton");
@@ -66,6 +70,7 @@ public sealed class SetupPage : ContentPage
                     due,
                     error,
                     go,
+                    code,
                 },
             },
         };

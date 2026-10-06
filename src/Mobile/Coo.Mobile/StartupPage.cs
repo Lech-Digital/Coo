@@ -16,6 +16,7 @@ public sealed class StartupPage : ContentPage
     private readonly IServiceProvider _services;
     private readonly Label _status = new() { Text = "Starting…", HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
     private bool _started;
+    private Window? _setupWindow;
 
     public StartupPage(IAppStartup startup, EnsureProvisionalHousehold household, IServiceProvider services)
     {
@@ -66,26 +67,126 @@ public sealed class StartupPage : ContentPage
         theme.PaletteChanged += (_, kind) => MainThread.BeginInvokeOnMainThread(() => host.Apply(kind));
         await theme.StartAsync(CancellationToken.None);
 
+        // An invitation link that opened Coo (spec §4.1) becomes the pending invitation now that the database is open; a
+        // pending invitation or an unfinished join opens the flow over the first real page.
+        var inbox = _services.GetRequiredService<Joining.InvitationInbox>();
+        var (held, openJoin) = await JoinAtStartAsync(inbox);
+
         // The first real page (Spec 006 §3): setup when the household has no baby yet, Today otherwise.
+        // Keep the window: once another page replaces this one, this page's Window property is null.
+        var window = Window;
         var households = _services.GetRequiredService<IHouseholdStore>();
         var household = (await households.ListHouseholdsAsync(CancellationToken.None)).First(h => !h.IsDeleted);
         if ((await households.ListBabiesAsync(household.Id, CancellationToken.None)).Count > 0)
         {
-            Window.Page = _services.GetRequiredService<AppShell>();
+            window.Page = _services.GetRequiredService<AppShell>();
             StartSync();
+            inbox.MarkReady();
+            if (openJoin)
+                await OpenJoinAsync(held == Joining.HeldLink.Malformed);
             await PrewarmTabsAsync();
             return;
         }
 
-        // Keep the window: once setup replaces this page, this page's Window property is null.
-        ShowSetup(Window, startSync: true);
+        // Spec 011b §5.3: a brand-new phone opened by an invitation runs the join flow over the baby step; setup stays
+        // underneath for Not now.
+        ShowSetup(window, startSync: true);
+        inbox.MarkReady();
+        if (openJoin)
+            await OpenJoinAsync(held == Joining.HeldLink.Malformed);
+    }
+
+    /// <summary>The held link stored, and whether the join flow opens at start. A failure opens nothing: the next start tries again.</summary>
+    private async Task<(Joining.HeldLink Held, bool OpenJoin)> JoinAtStartAsync(Joining.InvitationInbox inbox)
+    {
+        try
+        {
+            var held = await inbox.StoreHeldAsync();
+            var stage = await _services.GetRequiredService<JoinFamily>().StageAsync(CancellationToken.None);
+            return (held, held == Joining.HeldLink.Malformed || stage != JoinStage.None);
+        }
+#pragma warning disable CA1031 // Start-up must reach a real page; the invitation, if stored, stays pending.
+        catch (Exception e)
+#pragma warning restore CA1031
+        {
+            global::Android.Util.Log.Warn("Coo", $"Invitation check at start failed: {e.GetType().Name}");
+            return (Joining.HeldLink.None, false);
+        }
+    }
+
+    /// <summary>
+    /// The join sheet over whatever shows. When it ends over the setup step with a baby in the shown family, Today opens
+    /// instead (spec §5.3); with Not now, setup simply continues. Main thread; catches everything.
+    /// </summary>
+    private async Task OpenJoinAsync(bool malformed)
+    {
+        try
+        {
+            var prompter = _services.GetRequiredService<Sync.SyncPrompter>();
+            prompter.JoinEnded -= OnJoinEnded;
+            prompter.JoinEnded += OnJoinEnded;
+            await prompter.ShowJoinAsync(malformed);
+        }
+#pragma warning disable CA1031 // The invitation stays pending; the flow opens again at the next start.
+        catch (Exception e)
+#pragma warning restore CA1031
+        {
+            global::Android.Util.Log.Warn("Coo", $"Join flow did not open: {e}");
+        }
+    }
+
+    // Raised on the main thread by the prompter; dispatched anyway, so the sheet has left the stack first.
+    private void OnJoinEnded(object? sender, EventArgs e) => MainThread.BeginInvokeOnMainThread(async () => await ShowShellIfBabyAsync());
+
+    /// <summary>The join ended over the setup step: with a baby in the shown family now, Today opens (spec §5.3). Catches everything.</summary>
+    private async Task ShowShellIfBabyAsync()
+    {
+        try
+        {
+            if (_setupWindow is not { Page: Pages.SetupPage } window)
+                return;
+            var households = _services.GetRequiredService<IHouseholdStore>();
+            if ((await households.ListHouseholdsAsync(CancellationToken.None)).FirstOrDefault(h => !h.IsDeleted) is not { } household
+                || (await households.ListBabiesAsync(household.Id, CancellationToken.None)).Count == 0
+                || window.Page is not Pages.SetupPage)
+                return;
+            window.Page = _services.GetRequiredService<AppShell>();
+            StartSync();
+        }
+#pragma warning disable CA1031 // A main-thread callback must not end the app; setup stays.
+        catch (Exception e)
+#pragma warning restore CA1031
+        {
+            global::Android.Util.Log.Warn("Coo", $"Today did not open after joining: {e}");
+        }
     }
 
     /// <summary>The first-launch baby step (Spec 006 §3); Today once the baby is saved.</summary>
     private void ShowSetup(Window window, bool startSync)
     {
         var setup = _services.GetRequiredService<Pages.SetupPage>();
-        ((Coo.Mobile.Presentation.Setup.SetupViewModel)setup.BindingContext).Completed +=
+        var model = (Coo.Mobile.Presentation.Setup.SetupViewModel)setup.BindingContext;
+        _setupWindow = window;
+
+        // Spec 011b §4.4, §5.3: "Have an invitation? Enter a code" opens the code sheet, then the join; a join that ends with a
+        // baby in the family replaces setup with Today. Subscribed once, whichever opens the join.
+        var prompter = _services.GetRequiredService<Sync.SyncPrompter>();
+        prompter.JoinEnded -= OnJoinEnded;
+        prompter.JoinEnded += OnJoinEnded;
+        model.EnterCodeRequested += (_, _) => MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            try
+            {
+                await prompter.ShowEnterCodeAsync();
+            }
+#pragma warning disable CA1031 // A main-thread callback: the setup step stays as it is.
+            catch (Exception e)
+#pragma warning restore CA1031
+            {
+                global::Android.Util.Log.Warn("Coo", $"Code sheet did not open: {e.GetType().Name}");
+            }
+        });
+        model.Completed +=
             (_, _) => MainThread.BeginInvokeOnMainThread(() =>
             {
                 try
@@ -214,6 +315,9 @@ public sealed class StartupPage : ContentPage
         {
             _ = _services.GetRequiredService<Pages.ConsentPage>();
             _ = _services.GetRequiredService<Pages.BringOverPage>();
+            _ = _services.GetRequiredService<Pages.JoinPage>();
+            _ = _services.GetRequiredService<Pages.EnterCodePage>();
+            _ = _services.GetRequiredService<Pages.RemovalPage>();
         }
 #pragma warning disable CA1031 // A debug-only check: report it, never end the app.
         catch (Exception e)

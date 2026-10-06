@@ -1,4 +1,5 @@
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
 using Android.Content.Res;
 using AndroidX.Core.View;
@@ -9,12 +10,17 @@ namespace Coo.Mobile;
 /// Locale and layout-direction changes are handled here rather than by recreating the activity: a recreation during a
 /// language change crashed MAUI's Shell teardown (ObjectDisposedException in ShellFragmentContainer.OnDestroy), found on
 /// a Pixel 10 when switching Coo's app language. A language change instead rebuilds the page tree, so every string
-/// switches at once (ADR 0006).
+/// switches at once (ADR 0006). Invitation links (Spec 011b §4.1) are an App Link on the API's host; the activity stays
+/// <c>SingleTop</c>, so a link while Coo runs arrives in <see cref="OnNewIntent"/>.
 /// </summary>
 [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTop,
     ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode
         | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density
         | ConfigChanges.Locale | ConfigChanges.LayoutDirection)]
+[IntentFilter(
+    new[] { Intent.ActionView },
+    Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },
+    DataScheme = "https", DataHost = "api.coo.lechdigital.nl", DataPathPrefix = "/i/", AutoVerify = true)]
 public class MainActivity : MauiAppCompatActivity
 {
     private string? _language;
@@ -37,6 +43,36 @@ public class MainActivity : MauiAppCompatActivity
 
         if (Window?.DecorView.FindViewById(Android.Resource.Id.Content) is { } content)
             ViewCompat.SetOnApplyWindowInsetsListener(content, new SystemBarsInsets());
+
+        // Only a fresh start: a recreated activity, or one reopened from Recents, carries the link it was first opened with.
+        if (savedInstanceState is null && (Intent?.Flags & ActivityFlags.LaunchedFromHistory) == 0)
+            Offer(Intent);
+    }
+
+    protected override void OnNewIntent(Intent? intent)
+    {
+        base.OnNewIntent(intent);
+        Offer(intent);
+    }
+
+    /// <summary>
+    /// An invitation link (spec §4.1) goes to the inbox; nothing here may escape into Android (Increment 10 lesson). The
+    /// link holds a code, so it is never logged.
+    /// </summary>
+    private static void Offer(Intent? intent)
+    {
+        try
+        {
+            if (intent?.Action != Intent.ActionView || intent.Data?.ToString() is not { } text || !Uri.TryCreate(text, UriKind.Absolute, out var link))
+                return;
+            IPlatformApplication.Current?.Services.GetRequiredService<Joining.InvitationInbox>().Offer(link);
+        }
+#pragma warning disable CA1031 // An Android callback: a link that cannot be read is simply not offered.
+        catch (Exception e)
+#pragma warning restore CA1031
+        {
+            global::Android.Util.Log.Warn("Coo", $"Invitation link not taken: {e.GetType().Name}");
+        }
     }
 
     /// <summary>
