@@ -64,7 +64,7 @@ public sealed class EnterCodePage : ContentPage
             {
                 Spacing = 16,
                 Padding = new Thickness(24, 48, 24, 32),
-                Children = { Ui.Text(EnterCodeViewModel.Title, "Title"), Ui.Text(EnterCodeViewModel.Hint, "Body"), field, error, go },
+                Children = { Ui.BackHeader(EnterCodeViewModel.Title, CloseAsync), Ui.Text(EnterCodeViewModel.Hint, "Body"), field, error, go },
             },
         };
     }

@@ -155,7 +155,7 @@ public sealed class FamilyPage : ContentPage
     private void Render()
     {
         var stack = new VerticalStackLayout { Spacing = 12, Padding = new Thickness(24, 32, 24, 96) };
-        stack.Add(Ui.Text(_model.Title, "Title"));
+        stack.Add(Ui.BackHeader(_model.Title, PopAsync));
         if (_model.RefreshFailed)
             stack.Add(Ui.Text(FamilyPageViewModel.RefreshFailedText, "Meta", "Ink2"));
 
