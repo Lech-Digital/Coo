@@ -1,6 +1,8 @@
 using Coo.Api.Application.Sync;
+using Coo.Codecs;
 using Coo.Contracts.Sync;
 using Coo.Domain.CareLog;
+using Coo.Domain.CareLog.Kinds.Feeding;
 using Coo.Domain.Common;
 using Coo.Domain.Common.Versioning;
 using Coo.Domain.Households;
@@ -116,6 +118,82 @@ public sealed class SyncValidationTests
         // Assert
         result.IsFailure.Should().BeTrue();
         result.Error!.Code.Should().NotBe(RejectionReasons.ChangeMalformed);
+    }
+
+    /// <summary>
+    /// The phone as it pushes a timer feed: the details hold the clock's instants as encoded (a phone clock has
+    /// sub-millisecond ticks), while the start and end come from the row's millisecond columns.
+    /// </summary>
+    private static CareEntryPayload PhoneTimerFeed(BreastFeed feed)
+    {
+        var details = EntryDetailsCodecs.For(feed).Encode(feed);
+        static DateTimeOffset Column(DateTimeOffset at) => DateTimeOffset.FromUnixTimeMilliseconds(at.ToUnixTimeMilliseconds()).ToOffset(at.Offset);
+        var end = feed.IsCompleted ? feed.Segments[^1].End : null;
+        return new CareEntryPayload("feeding", Baby, null, true, Column(feed.FirstStart), end is { } e ? Column(e) : null,
+            "user:7a1c0000-0000-7000-8000-0000000000c1", "timer", null, null, details);
+    }
+
+    private static readonly DateTimeOffset ClockStart = new DateTimeOffset(2026, 10, 2, 13, 22, 0, TimeSpan.FromHours(2)).AddTicks(1_234_567);
+
+    [Fact]
+    public void Validate_CompletedTimerFeedWithSubMillisecondClockTicks_IsAccepted()
+    {
+        // Arrange: started, switched and stopped on a real clock (ticks below the millisecond).
+        var feed = BreastFeed.Start(BreastSide.Left, ClockStart.AddMinutes(-40))
+            .SwitchSide(ClockStart.AddMinutes(-30).AddTicks(4_321)).Value
+            .Complete(ClockStart.AddMinutes(-20).AddTicks(9_876)).Value;
+
+        // Act
+        var result = ChangeValidator.Validate(Upsert(Id(1), PhoneTimerFeed(feed)), Household, Owner, SchemaVersions.Current, Now);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue(result.Error?.Code);
+    }
+
+    [Fact]
+    public void Validate_RunningTimerFeedWithSubMillisecondClockTicks_IsAccepted()
+    {
+        // Arrange: the first push of a feed whose timer still runs.
+        var feed = BreastFeed.Start(BreastSide.Right, ClockStart.AddMinutes(-5));
+
+        // Act
+        var result = ChangeValidator.Validate(Upsert(Id(1), PhoneTimerFeed(feed)), Household, Owner, SchemaVersions.Current, Now);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue(result.Error?.Code);
+    }
+
+    [Fact]
+    public void Validate_TimerFeedAsA0130PhoneSendsIt_IsAccepted()
+    {
+        // Arrange: the details as Coo 0.11.0 to 0.13.0 encoded them, with every tick of the phone clock; the start and
+        // end from the row's millisecond columns. Rejected entries sent again (Edit, Save) look like this too.
+        const string details =
+            """{"v":1,"method":"breast","completed":true,"segments":[{"side":"left","start":"2026-10-02T13:22:00.1234567+02:00","end":"2026-10-02T13:31:41.9876543+02:00"}]}""";
+        var payload = new CareEntryPayload("feeding", Baby, null, true,
+            new DateTimeOffset(2026, 10, 2, 13, 22, 0, 123, TimeSpan.FromHours(2)), new DateTimeOffset(2026, 10, 2, 13, 31, 41, 987, TimeSpan.FromHours(2)),
+            "user:7a1c0000-0000-7000-8000-0000000000c1", "timer", null, null, details);
+
+        // Act
+        var result = ChangeValidator.Validate(Upsert(Id(1), payload), Household, Owner, SchemaVersions.Current, Now);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue(result.Error?.Code);
+        result.Value.Should().BeOfType<CareEntryWrite>().Which.ReceivedDetails.Should().Be(details);
+    }
+
+    [Fact]
+    public void Validate_BreastFeedWhoseStartDiffersFromItsSegments_IsStillRejectedAsTimingShape()
+    {
+        // Arrange: a millisecond or more apart is a different timing, not a rounding.
+        var feed = BreastFeed.Start(BreastSide.Left, ClockStart.AddMinutes(-40)).Complete(ClockStart.AddMinutes(-20)).Value;
+        var payload = PhoneTimerFeed(feed) with { StartAt = ClockStart.AddMinutes(-41) };
+
+        // Act
+        var result = ChangeValidator.Validate(Upsert(Id(1), payload), Household, Owner, SchemaVersions.Current, Now);
+
+        // Assert
+        result.Error!.Code.Should().Be(EntryErrors.TimingShapeNotAllowed);
     }
 
     [Fact]

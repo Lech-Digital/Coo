@@ -8,12 +8,44 @@ public enum BreastSide
     Right,
 }
 
-/// <summary>One stretch at one breast. Open while the timer runs on that side.</summary>
-public sealed record BreastSegment(BreastSide Side, DateTimeOffset Start, DateTimeOffset? End)
+/// <summary>
+/// One stretch at one breast. Open while the timer runs on that side. Its instants are held to the millisecond,
+/// the precision every store and the wire keep for an entry's start and end: a phone clock's finer ticks would
+/// otherwise give the feed a timing its stored start and end can never match (Spec 001 §7.2, Spec 011 §6.4).
+/// </summary>
+public sealed record BreastSegment
 {
+    private readonly DateTimeOffset _start;
+    private readonly DateTimeOffset? _end;
+
+    public BreastSegment(BreastSide side, DateTimeOffset start, DateTimeOffset? end)
+    {
+        Side = side;
+        Start = start;
+        End = end;
+    }
+
+    public BreastSide Side { get; init; }
+
+    public DateTimeOffset Start
+    {
+        get => _start;
+        init => _start = ToMillisecond(value);
+    }
+
+    public DateTimeOffset? End
+    {
+        get => _end;
+        init => _end = value is { } end ? ToMillisecond(end) : null;
+    }
+
     public bool IsOpen => End is null;
 
     public TimeSpan ClosedDuration => End is { } end ? end - Start : TimeSpan.Zero;
+
+    public void Deconstruct(out BreastSide side, out DateTimeOffset start, out DateTimeOffset? end) => (side, start, end) = (Side, Start, End);
+
+    private static DateTimeOffset ToMillisecond(DateTimeOffset value) => value.AddTicks(-(value.Ticks % TimeSpan.TicksPerMillisecond));
 }
 
 /// <summary>

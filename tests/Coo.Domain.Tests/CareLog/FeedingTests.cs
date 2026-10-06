@@ -267,4 +267,40 @@ public sealed class FeedingTests
         // Assert
         warnings.Contains(PlausibilityCodes.BottleAmount).Should().Be(warns);
     }
+    [Fact]
+    public void BreastSegment_InstantsWithTicksBelowTheMillisecond_AreHeldToTheMillisecond()
+    {
+        // Arrange: a phone clock has ticks below the millisecond; every store and the wire keep milliseconds.
+        var start = T0.AddTicks(1_234_567);
+        var end = T0.AddMinutes(10).AddTicks(7_654);
+
+        // Act
+        var segment = new BreastSegment(BreastSide.Left, start, end);
+        var moved = segment with { Start = start.AddTicks(4_321) };
+
+        // Assert
+        segment.Start.Should().Be(T0.AddMilliseconds(123));
+        segment.Start.Offset.Should().Be(T0.Offset);
+        segment.End.Should().Be(T0.AddMinutes(10));
+        moved.Start.Should().Be(T0.AddMilliseconds(123));
+    }
+
+    [Fact]
+    public void Complete_TimerOnASubMillisecondClock_DerivesTheTimingTheStoredColumnsHold()
+    {
+        // Arrange
+        var start = T0.AddTicks(1_234_567);
+        var feed = BreastFeed.Start(BreastSide.Left, start).SwitchSide(start.AddMinutes(8).AddTicks(1)).Value;
+
+        // Act
+        var stop = start.AddMinutes(15).AddTicks(9_999);
+        var completed = feed.Complete(stop).Value;
+
+        // Assert
+        var range = ((SessionTiming)FeedingKind.Instance.DeriveTiming(completed)).Range;
+        range.Start.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(start.ToUnixTimeMilliseconds()));
+        range.End.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(stop.ToUnixTimeMilliseconds()));
+        completed.Segments.Should().OnlyContain(s => s.Start.Ticks % TimeSpan.TicksPerMillisecond == 0
+            && (s.End == null || s.End.Value.Ticks % TimeSpan.TicksPerMillisecond == 0));
+    }
 }

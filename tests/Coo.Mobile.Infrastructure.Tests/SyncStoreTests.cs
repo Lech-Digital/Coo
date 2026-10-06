@@ -1,5 +1,7 @@
+using Coo.Codecs;
 using Coo.Contracts.Sync;
 using Coo.Domain.CareLog;
+using Coo.Domain.CareLog.Kinds.Feeding;
 using Coo.Domain.Common;
 using Coo.Domain.Common.Versioning;
 using Coo.Domain.Households;
@@ -48,6 +50,28 @@ public sealed class SyncStoreTests
         change.Version.Should().Be(entry.Version);
         change.Payload.Should().BeOfType<CareEntryPayload>().Which.Note.Should().Be("two");
         change.LastOutboxSeq.Should().Be(3);
+    }
+
+    [Fact]
+    public async Task NextBatchAsync_TimerFeedOnASubMillisecondClock_SendsTheTimingItsDetailsGive()
+    {
+        // Arrange: a phone clock has ticks below the millisecond; the row's columns hold milliseconds.
+        await using var db = await TestDatabase.CreateAsync();
+        var start = db.Time.GetLocalNow().AddTicks(1_234_567);
+        var feed = BreastFeed.Start(BreastSide.Left, start).Complete(start.AddMinutes(12).AddTicks(7_654)).Value;
+        var entry = CareEntry.Create(
+            await db.NewIdAsync(), TestDatabase.Household, EntrySubject.Baby(TestDatabase.Baby), feed, null,
+            PersonRef.User(TestDatabase.Parent), EntrySource.Timer, await db.Device.NextAsync(CancellationToken.None), db.Time.GetUtcNow().AddHours(1)).Value;
+        await db.Store.SaveAsync(entry, CancellationToken.None);
+
+        // Act
+        var batch = await Store(db).NextBatchAsync(TestDatabase.Household, 200, CancellationToken.None);
+
+        // Assert: the server derives a breast feed's timing from its details and requires the pushed one to match.
+        var payload = batch.Should().ContainSingle().Subject.Payload.Should().BeOfType<CareEntryPayload>().Subject;
+        var details = EntryDetailsCodecs.For(entry.KindCode)!.Decode(payload.DetailsJson).Should().BeOfType<Decoded>().Subject.Details;
+        var derived = EntryKinds.Find(entry.KindCode)!.DeriveTiming(details);
+        derived.Should().Be(EntryTiming.Session(TimeRange.Create(payload.StartAt, payload.EndAt).Value));
     }
 
     [Fact]
