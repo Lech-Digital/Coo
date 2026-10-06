@@ -211,6 +211,87 @@ public sealed class CareLogStoreTests
     }
 
     [Fact]
+    public async Task WriteAll_SaveTombstoneAndRestore_WritesEachWithItsOutboxRow()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var (kept, gone, back) = (await db.DiaperAsync(T0), await db.DiaperAsync(T0.AddMinutes(1)), await db.DiaperAsync(T0.AddMinutes(2)));
+        await db.Store.DeleteAsync(back.Id, await Next(db), CancellationToken.None);
+        kept.SetNote(Note.From("merged").Value, await Next(db));
+        var writes = new CareLogWrites([kept], [new EntryVersion(gone.Id, await Next(db))], [new EntryVersion(back.Id, await Next(db))]);
+
+        // Act
+        var written = await db.Store.WriteAllAsync(writes, CancellationToken.None);
+
+        // Assert
+        written.Should().BeTrue();
+        var stored = await db.Store.ListAsync(TestDatabase.Household, T0.AddDays(-1), T0.AddDays(1), CancellationToken.None);
+        stored.Select(s => s.Id).Should().BeEquivalentTo([kept.Id, back.Id]);
+        ((LiveEntry)stored.Single(s => s.Id == kept.Id)).Entry.Note!.Text.Should().Be("merged");
+        ((LiveEntry)stored.Single(s => s.Id == back.Id)).Entry.Version.Should().Be(writes.Restores[0].Version);
+        (await db.ScalarAsync($"SELECT count(*) FROM outbox WHERE entity_id = '{kept.Id}' AND operation = 'upsert';")).Should().Be(2);
+        (await db.ScalarAsync($"SELECT count(*) FROM outbox WHERE entity_id = '{gone.Id}' AND operation = 'delete';")).Should().Be(1);
+        (await db.ScalarAsync($"SELECT count(*) FROM outbox WHERE entity_id = '{back.Id}' AND operation = 'upsert';")).Should().Be(2);
+    }
+
+    [Fact]
+    public async Task WriteAll_TombstoneOfAnEntryAlreadyDeleted_WritesNothing()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var (kept, gone) = (await db.DiaperAsync(T0), await db.DiaperAsync(T0.AddMinutes(1)));
+        await db.Store.DeleteAsync(gone.Id, await Next(db), CancellationToken.None);
+        var outboxBefore = await db.ScalarAsync("SELECT count(*) FROM outbox;");
+        kept.SetNote(Note.From("merged").Value, await Next(db));
+
+        // Act
+        var written = await db.Store.WriteAllAsync(new CareLogWrites([kept], [new EntryVersion(gone.Id, await Next(db))], []), CancellationToken.None);
+
+        // Assert
+        written.Should().BeFalse();
+        ((LiveEntry)(await db.Store.FindAsync(kept.Id, CancellationToken.None))!).Entry.Note.Should().BeNull("the save rolls back with the failed tombstone");
+        (await db.ScalarAsync("SELECT count(*) FROM outbox;")).Should().Be(outboxBefore);
+    }
+
+    [Fact]
+    public async Task WriteAll_RestoreOfAnEntryNotDeleted_WritesNothing()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var (gone, live) = (await db.DiaperAsync(T0), await db.DiaperAsync(T0.AddMinutes(1)));
+        var outboxBefore = await db.ScalarAsync("SELECT count(*) FROM outbox;");
+
+        // Act
+        var written = await db.Store.WriteAllAsync(
+            new CareLogWrites([], [new EntryVersion(gone.Id, await Next(db))], [new EntryVersion(live.Id, await Next(db))]), CancellationToken.None);
+
+        // Assert
+        written.Should().BeFalse();
+        (await db.ScalarAsync($"SELECT is_deleted FROM care_entries WHERE id = '{gone.Id}';")).Should().Be(0);
+        (await db.ScalarAsync("SELECT count(*) FROM outbox;")).Should().Be(outboxBefore);
+    }
+
+    [Fact]
+    public async Task WriteAll_WhenATombstoneFailsMidway_WritesNothing()
+    {
+        // Arrange: the tombstone's outbox insert fails after the save went in, as a crash between the writes would.
+        await using var db = await TestDatabase.CreateAsync();
+        var (kept, gone) = (await db.DiaperAsync(T0), await db.DiaperAsync(T0.AddMinutes(1)));
+        await db.ExecuteAsync(
+            "CREATE TRIGGER fail_delete BEFORE INSERT ON outbox WHEN NEW.operation = 'delete' BEGIN SELECT RAISE(ABORT, 'simulated crash'); END;");
+        kept.SetNote(Note.From("merged").Value, await Next(db));
+        var writes = new CareLogWrites([kept], [new EntryVersion(gone.Id, await Next(db))], []);
+
+        // Act
+        var act = () => db.Store.WriteAllAsync(writes, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<SqliteException>();
+        ((LiveEntry)(await db.Store.FindAsync(kept.Id, CancellationToken.None))!).Entry.Note.Should().BeNull();
+        (await db.ScalarAsync($"SELECT is_deleted FROM care_entries WHERE id = '{gone.Id}';")).Should().Be(0);
+    }
+
+    [Fact]
     public async Task IntegrityScan_SameAppVersion_RunsOnce()
     {
         // Arrange
@@ -312,6 +393,8 @@ public sealed class CareLogStoreTests
         await using var connection = await db.OpenAsync();
         return await connection.ScalarAsync($"SELECT details FROM care_entries WHERE id = '{id}';", CancellationToken.None);
     }
+
+    private static Task<HlcStamp> Next(TestDatabase db) => db.Device.NextAsync(CancellationToken.None);
 
     private static Volume Ml(decimal ml) => Volume.FromMillilitres(ml).Value;
 }

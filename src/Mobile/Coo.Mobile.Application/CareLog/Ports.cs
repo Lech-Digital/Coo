@@ -19,8 +19,21 @@ public interface ICareLogStore
     /// <returns>False when there is no such entry, or it is already deleted.</returns>
     Task<bool> DeleteAsync(EntryId id, HlcStamp version, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Several writes as one (Spec 011d §3): the saves, the tombstones and the restores, each with its outbox row, in one
+    /// transaction. A restore takes a tombstone back with a newer version, which wins over it everywhere (ADR 0002 §3).
+    /// </summary>
+    /// <returns>False, and nothing written, when a tombstone's entry is missing or already deleted, or a restored entry is not deleted.</returns>
+    Task<bool> WriteAllAsync(CareLogWrites changes, CancellationToken cancellationToken);
+
     Task<StoreCounts> CountsAsync(HouseholdId household, CancellationToken cancellationToken);
 }
+
+/// <summary>An entry and the version a tombstone or a restore of it carries.</summary>
+public readonly record struct EntryVersion(EntryId Id, HlcStamp Version);
+
+/// <summary>What <see cref="ICareLogStore.WriteAllAsync"/> writes, all or nothing.</summary>
+public sealed record CareLogWrites(IReadOnlyList<CareEntry> Saves, IReadOnlyList<EntryVersion> Deletes, IReadOnlyList<EntryVersion> Restores);
 
 /// <summary>Issues version stamps from the persisted hybrid logical clock.</summary>
 public interface IVersionClock
