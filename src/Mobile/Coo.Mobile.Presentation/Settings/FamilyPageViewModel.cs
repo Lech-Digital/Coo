@@ -58,13 +58,6 @@ public sealed partial class FamilyPageViewModel(
     [ObservableProperty]
     private string _toast = "";
 
-    /// <summary>
-    /// Set when the server answered <c>household.confirmation-required</c> to a delete: the page asks this and, if accepted,
-    /// runs <see cref="DeleteConfirmedCommand"/>. Null otherwise.
-    /// </summary>
-    [ObservableProperty]
-    private ConfirmPrompt? _reconfirm;
-
     /// <summary>The family is gone from this phone (left or deleted): the page pops.</summary>
     public event EventHandler? Closed;
 
@@ -92,7 +85,7 @@ public sealed partial class FamilyPageViewModel(
         var family = list.FirstOrDefault(f => f.Id == household);
         if (family is null)
         {
-            Closed?.Invoke(this, EventArgs.Empty);
+            RaiseClosed();
             return;
         }
 
@@ -169,41 +162,40 @@ public sealed partial class FamilyPageViewModel(
         return result.Action;
     });
 
-    /// <summary>A non-Owner leaves (§8.3): the person has just confirmed, so <c>confirm: true</c>.</summary>
+    /// <summary>Leave and Delete are one call (§8.3); the person has just confirmed, so <c>confirm: true</c>.</summary>
     [RelayCommand]
-    private Task LeaveAsync() => LeaveOrDeleteAsync(allowed: ShowsLeave, confirm: true);
+    private Task LeaveAsync() => LeaveOrDeleteAsync(ShowsLeave);
 
-    /// <summary>
-    /// The Owner alone deletes (§8.3): first with <c>confirm: false</c>, so an empty family goes at once and one that holds
-    /// records answers <c>household.confirmation-required</c>, which sets <see cref="Reconfirm"/>.
-    /// </summary>
     [RelayCommand]
-    private Task DeleteAsync() => LeaveOrDeleteAsync(allowed: ShowsDelete, confirm: false);
+    private Task DeleteAsync() => LeaveOrDeleteAsync(ShowsDelete);
 
-    /// <summary>The delete again, after the server asked and the person accepted <see cref="Reconfirm"/>.</summary>
-    [RelayCommand]
-    private Task DeleteConfirmedAsync() => LeaveOrDeleteAsync(allowed: ShowsDelete, confirm: true);
-
-    private async Task LeaveOrDeleteAsync(bool allowed, bool confirm)
+    private async Task LeaveOrDeleteAsync(bool allowed)
     {
         var left = false;
         await RunAsync(async () =>
         {
             if (!allowed)
                 return FamilyAction.Refused(HouseholdErrors.Forbidden);
-            var action = await leave.ExecuteAsync(_household, confirm, CancellationToken.None);
-            if (!confirm && action.Code == HouseholdErrors.ConfirmationRequired)
-            {
-                var again = await DeletePromptAsync();
-                Reconfirm = again with { Message = Strings.Error(HouseholdErrors.ConfirmationRequired) + "\n\n" + again.Message };
-                return FamilyAction.Done;
-            }
-
+            var action = await leave.ExecuteAsync(_household, confirm: true, CancellationToken.None);
             left = action.Succeeded;
             return action;
         }, reload: false);
         if (left)
+            RaiseClosed();
+    }
+
+    private void RaiseClosed()
+    {
+        try
+        {
             Closed?.Invoke(this, EventArgs.Empty);
+        }
+#pragma warning disable CA1031 // A page handler failing to pop must not crash the app.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+            Toast = Strings.Get("Family.ActionFailed");
+        }
     }
 
     private async Task<string> WithUnsharedAsync(string message)
@@ -218,7 +210,6 @@ public sealed partial class FamilyPageViewModel(
             return;
         IsBusy = true;
         Toast = "";
-        Reconfirm = null;
         try
         {
             var result = await action();

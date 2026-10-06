@@ -35,6 +35,7 @@ public sealed class FamilyPageTests : IDisposable
     private readonly IFamilyRecords _records = Substitute.For<IFamilyRecords>();
     private readonly IExternalLauncher _launcher = Substitute.For<IExternalLauncher>();
     private readonly IClockFormat _clock = Substitute.For<IClockFormat>();
+    private readonly ISyncState _state = Substitute.For<ISyncState>();
     private readonly ISyncControl _sync = Substitute.For<ISyncControl>();
     private readonly List<Families> _made = [];
 
@@ -74,7 +75,7 @@ public sealed class FamilyPageTests : IDisposable
         await _account.SignedInAsync(new StoredSession("a", Now, "r", new AccountProfile(Me, "Kasia", "k@example.com"), Home, JoinPending: false), CancellationToken.None);
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([
             new FamilyMembership(Home, Role.Owner, Now.AddDays(-30), "Kasia", 1), new FamilyMembership(Joined, myRole, Now.AddDays(1), "Andrzej", members)]);
-        var families = new Families(_account, _store, Substitute.For<IAccountApi>(), _api, _sessions, _households, _moves, Substitute.For<ISyncState>(), _records,
+        var families = new Families(_account, _store, Substitute.For<IAccountApi>(), _api, _sessions, _households, _moves, _state, _records,
             new ProvisionalSettings(Substitute.For<IVersionClock>(), Substitute.For<IDeviceLocale>(), new FakeTimeProvider(Now)));
         _made.Add(families);
         _clock.Is24Hour.Returns(true);
@@ -510,47 +511,112 @@ public sealed class FamilyPageTests : IDisposable
     }
 
     [Fact]
-    public async Task DeleteCommand_WhenTheServerWantsConfirmation_AsksAgainThenDeletesWithConfirm()
+    public async Task DeleteCommand_OwnerAlone_DeletesWithConfirmAndCloses()
     {
         // Arrange
         var page = await PageAsync(Role.Owner, 1);
         var closed = 0;
         page.Closed += (_, _) => closed++;
-        _api.LeaveAsync(Joined, false, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(HouseholdErrors.ConfirmationRequired));
         _api.LeaveAsync(Joined, true, Arg.Any<CancellationToken>()).Returns(LeaveOutcome.Deleted);
 
         // Act
         await page.DeleteCommand.ExecuteAsync(null);
-        var reask = page.Reconfirm;
-        var closedAfterFirst = closed;
-        await page.DeleteConfirmedCommand.ExecuteAsync(null);
 
         // Assert
-        reask.Should().NotBeNull();
-        reask!.Message.Should().StartWith("This family still has entries on Coo's server. Confirm to delete them.");
-        reask.Message.Should().Contain("Maja, 42 entries");
-        reask.Accept.Should().Be("Delete");
-        closedAfterFirst.Should().Be(0);
-        page.Toast.Should().BeEmpty();
-        page.Reconfirm.Should().BeNull();
+        await _api.Received(1).LeaveAsync(Joined, true, Arg.Any<CancellationToken>());
         closed.Should().Be(1);
     }
 
     [Fact]
-    public async Task DeleteCommand_OfAnEmptyFamily_DeletesWithoutAskingAgain()
+    public async Task DeleteCommand_ConfirmationRequiredRefusal_SaysSoAndStays()
     {
         // Arrange
         var page = await PageAsync(Role.Owner, 1);
         var closed = 0;
         page.Closed += (_, _) => closed++;
-        _api.LeaveAsync(Joined, false, Arg.Any<CancellationToken>()).Returns(LeaveOutcome.Deleted);
+        _api.LeaveAsync(Joined, true, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(HouseholdErrors.ConfirmationRequired));
 
         // Act
         await page.DeleteCommand.ExecuteAsync(null);
 
         // Assert
-        page.Reconfirm.Should().BeNull();
-        closed.Should().Be(1);
+        page.Toast.Should().Be("This family still has entries on Coo's server. Confirm to delete them.");
+        closed.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task LeaveCommand_WhenTheClosedHandlerThrows_DoesNotCrash()
+    {
+        // Arrange
+        var page = await PageAsync(Role.Parent, 2);
+        page.Closed += (_, _) => throw new InvalidOperationException("pop failed");
+        _api.LeaveAsync(Joined, true, Arg.Any<CancellationToken>()).Returns(LeaveOutcome.Left);
+
+        // Act
+        Func<Task> act = async () => await page.LeaveCommand.ExecuteAsync(null);
+
+        // Assert
+        await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task LoadAsync_CaregiverViewerWithAParentMember_OffersNoRemove()
+    {
+        // Arrange
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(new FamilyMembers(
+            [new FamilyMember(Andrzej, "Andrzej", "a@example.com", Role.Parent, Now, false), new FamilyMember(Me, "Kasia", "k@example.com", Role.Caregiver, Now.AddDays(1), true)], []));
+
+        // Act
+        var page = await PageAsync(Role.Caregiver, 2);
+
+        // Assert
+        page.Members.Should().OnlyContain(m => !m.CanRemove);
+    }
+
+    [Fact]
+    public async Task RemoveCommand_ParentViewerRemovingAnotherParent_ReachesTheServer()
+    {
+        // Arrange
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(new FamilyMembers(
+            [new FamilyMember(Andrzej, "Andrzej", "a@example.com", Role.Parent, Now, false), new FamilyMember(Me, "Kasia", "k@example.com", Role.Parent, Now.AddDays(1), true)], []));
+        var page = await PageAsync(Role.Parent, 2);
+
+        // Act
+        await page.RemoveCommand.ExecuteAsync(page.Members[0]);
+
+        // Assert
+        page.Members[0].CanRemove.Should().BeTrue();
+        await _api.Received(1).RemoveMemberAsync(Joined, Andrzej, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task InviteCommand_SoftLockedFamily_IsHiddenAndNeverSentToTheServer()
+    {
+        // Arrange
+        _state.IsSoftLockedAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
+        var page = await PageAsync(Role.Parent, 2);
+
+        // Act
+        await page.InviteCommand.ExecuteAsync(null);
+
+        // Assert
+        page.ShowsInvite.Should().BeFalse();
+        await _api.DidNotReceiveWithAnyArgs().CreateInvitationAsync(default, default);
+    }
+
+    [Fact]
+    public async Task LoadAsync_OwnerAloneWithNoOtherFamily_DoesNotOfferDelete()
+    {
+        // Arrange
+        var page = await PageAsync(Role.Owner, 1, load: false);
+        _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Joined, Role.Owner, Now.AddDays(1), "Kasia", 1)]);
+
+        // Act
+        await page.LoadAsync(Joined);
+
+        // Assert
+        page.ShowsDelete.Should().BeFalse();
+        page.ShowsLeave.Should().BeFalse();
     }
 
     [Fact]
