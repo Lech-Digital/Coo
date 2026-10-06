@@ -37,9 +37,14 @@
   <data name="Attention.Badge.other" xml:space="preserve"><value>{0} vragen aandacht</value></data>
   <data name="Attention.Duplicates" xml:space="preserve"><value>Waarschijnlijk dubbel</value></data>
   <data name="Attention.Empty" xml:space="preserve"><value>Niets vraagt aandacht.</value></data>
-  <data name="Attention.KeepBoth" xml:space="preserve"><value>Beide houden</value></data>
-  <data name="Attention.KeepThis" xml:space="preserve"><value>Deze houden</value></data>
+  <data name="Attention.FeedsClose" xml:space="preserve"><value>Voedingen kort na elkaar</value></data>
+  <data name="Attention.KeepAll" xml:space="preserve"><value>Alles houden</value></data>
+  <data name="Attention.KeepOnly" xml:space="preserve"><value>Alleen deze houden</value></data>
+  <data name="Attention.Merge" xml:space="preserve"><value>Samenvoegen tot één voeding</value></data>
+  <data name="Attention.Merged" xml:space="preserve"><value>Samengevoegd tot één voeding</value></data>
   <data name="Attention.Newer" xml:space="preserve"><value>Uit een nieuwere versie</value></data>
+  <data name="Attention.NoteTooLong" xml:space="preserve"><value>De notities zijn te lang om samen te voegen tot één.</value></data>
+  <data name="Attention.Overlap" xml:space="preserve"><value>Deze voedingen overlappen, dus ze kunnen niet worden samengevoegd.</value></data>
   <data name="Attention.Rejected" xml:space="preserve"><value>Niet geaccepteerd door de server</value></data>
   <data name="Attention.ShowMore" xml:space="preserve"><value>Meer tonen</value></data>
   <data name="Attention.Title" xml:space="preserve"><value>Vraagt aandacht</value></data>
@@ -103,6 +108,7 @@
   <data name="Edit.Minutes" xml:space="preserve"><value>{0} min</value></data>
   <data name="Edit.Newer" xml:space="preserve"><value>Dit item komt uit een nieuwere versie van Coo. Werk de app bij om het te zien.</value></data>
   <data name="Edit.Note" xml:space="preserve"><value>Notitie</value></data>
+  <data name="Edit.Part" xml:space="preserve"><value>Deel {0}</value></data>
   <data name="Edit.Start" xml:space="preserve"><value>Begin</value></data>
   <data name="Edit.StillRunning" xml:space="preserve"><value>Loopt nog</value></data>
   <data name="Edit.Time" xml:space="preserve"><value>Tijd</value></data>
@@ -114,6 +120,8 @@
   <data name="Entry.BreastSide" xml:space="preserve"><value>{0} {1}</value></data>
   <data name="Entry.Diaper" xml:space="preserve"><value>Luier · {0}</value></data>
   <data name="Entry.Nap" xml:space="preserve"><value>Dutje · {0}</value></data>
+  <data name="Entry.Parts.one" xml:space="preserve"><value>in {0} deel</value></data>
+  <data name="Entry.Parts.other" xml:space="preserve"><value>in {0} delen</value></data>
   <data name="Entry.Pump" xml:space="preserve"><value>Kolven · {0}</value></data>
   <data name="Entry.PumpNoAmount" xml:space="preserve"><value>Kolven</value></data>
   <data name="Entry.Quarantined" xml:space="preserve"><value>Kon niet worden gelezen</value></data>
@@ -339,7 +347,10 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Tile.Woke" xml:space="preserve"><value>wakker {0}</value></data>
   <data name="Timeline.Empty" xml:space="preserve"><value>Vandaag nog niets gelogd</value></data>
   <data name="Toast.Deleted" xml:space="preserve"><value>Verwijderd · {0}</value></data>
+  <data name="Toast.DeletedMany.one" xml:space="preserve"><value>Verwijderd · {0} item</value></data>
+  <data name="Toast.DeletedMany.other" xml:space="preserve"><value>Verwijderd · {0} items</value></data>
   <data name="Toast.Logged" xml:space="preserve"><value>Gelogd · {0}</value></data>
+  <data name="Toast.NothingUndone" xml:space="preserve"><value>Niets ongedaan gemaakt: het was al veranderd.</value></data>
   <data name="Toast.Saved" xml:space="preserve"><value>Opgeslagen · {0}</value></data>
   <data name="Toast.Undone" xml:space="preserve"><value>Ongedaan gemaakt</value></data>
   <data name="Today.Paused" xml:space="preserve"><value>Delen met dit gezin is gepauzeerd. Je items zijn veilig op deze telefoon.</value></data>

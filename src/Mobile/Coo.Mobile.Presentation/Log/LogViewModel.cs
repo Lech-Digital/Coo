@@ -97,7 +97,7 @@ public sealed partial class LogViewModel(
         ];
         Totals = Same(Totals, [.. totals.Where(t => KindVisibility.IsShown(household, t.KindCode))]);
         var who = await whoSource.ForAsync(household.Id);
-        Rows = Same(Rows, [.. day.Entries.Where(e => e.Id != undo.PendingDelete).Select(e => new TimelineItem(e.Id, formats.Time(e.Start), e.KindCode, formats.Title(e, now), who.For(e)))]);
+        Rows = Same(Rows, [.. day.Entries.Where(e => !undo.IsPendingDelete(e.Id)).Select(e => new TimelineItem(e.Id, formats.Time(e.Start), e.KindCode, formats.Title(e, now), who.For(e)))]);
     }
 
     [RelayCommand]

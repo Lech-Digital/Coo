@@ -41,9 +41,14 @@
   <data name="Attention.Badge.one" xml:space="preserve"><value>{0} do sprawdzenia</value></data>
   <data name="Attention.Duplicates" xml:space="preserve"><value>Prawdopodobnie to samo</value></data>
   <data name="Attention.Empty" xml:space="preserve"><value>Nie ma nic do sprawdzenia.</value></data>
-  <data name="Attention.KeepBoth" xml:space="preserve"><value>Zachowaj oba</value></data>
-  <data name="Attention.KeepThis" xml:space="preserve"><value>Zachowaj ten</value></data>
+  <data name="Attention.FeedsClose" xml:space="preserve"><value>Karmienia blisko siebie</value></data>
+  <data name="Attention.KeepAll" xml:space="preserve"><value>Zachowaj wszystkie</value></data>
+  <data name="Attention.KeepOnly" xml:space="preserve"><value>Zachowaj tylko ten</value></data>
+  <data name="Attention.Merge" xml:space="preserve"><value>Połącz w jedno karmienie</value></data>
+  <data name="Attention.Merged" xml:space="preserve"><value>Połączono w jedno karmienie</value></data>
   <data name="Attention.Newer" xml:space="preserve"><value>Z nowszej wersji</value></data>
+  <data name="Attention.NoteTooLong" xml:space="preserve"><value>Notatki są za długie, by połączyć je w jedną.</value></data>
+  <data name="Attention.Overlap" xml:space="preserve"><value>Te karmienia nakładają się na siebie, więc nie można ich połączyć.</value></data>
   <data name="Attention.Rejected" xml:space="preserve"><value>Nie przyjęte przez serwer</value></data>
   <data name="Attention.ShowMore" xml:space="preserve"><value>Pokaż więcej</value></data>
   <data name="Attention.Title" xml:space="preserve"><value>Do sprawdzenia</value></data>
@@ -111,6 +116,7 @@
   <data name="Edit.Minutes" xml:space="preserve"><value>{0} min</value></data>
   <data name="Edit.Newer" xml:space="preserve"><value>Ten wpis pochodzi z nowszej wersji Coo. Zaktualizuj aplikację, aby go zobaczyć.</value></data>
   <data name="Edit.Note" xml:space="preserve"><value>Notatka</value></data>
+  <data name="Edit.Part" xml:space="preserve"><value>Część {0}</value></data>
   <data name="Edit.Start" xml:space="preserve"><value>Początek</value></data>
   <data name="Edit.StillRunning" xml:space="preserve"><value>Nadal trwa</value></data>
   <data name="Edit.Time" xml:space="preserve"><value>Godzina</value></data>
@@ -122,6 +128,9 @@
   <data name="Entry.BreastSide" xml:space="preserve"><value>{0} {1}</value></data>
   <data name="Entry.Diaper" xml:space="preserve"><value>Pielucha · {0}</value></data>
   <data name="Entry.Nap" xml:space="preserve"><value>Drzemka · {0}</value></data>
+  <data name="Entry.Parts.few" xml:space="preserve"><value>w {0} częściach</value></data>
+  <data name="Entry.Parts.many" xml:space="preserve"><value>w {0} częściach</value></data>
+  <data name="Entry.Parts.one" xml:space="preserve"><value>w {0} części</value></data>
   <data name="Entry.Pump" xml:space="preserve"><value>Odciąganie · {0}</value></data>
   <data name="Entry.PumpNoAmount" xml:space="preserve"><value>Odciąganie</value></data>
   <data name="Entry.Quarantined" xml:space="preserve"><value>Nie udało się odczytać</value></data>
@@ -356,7 +365,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Tile.Woke" xml:space="preserve"><value>pobudka {0}</value></data>
   <data name="Timeline.Empty" xml:space="preserve"><value>Dziś jeszcze nic nie zapisano</value></data>
   <data name="Toast.Deleted" xml:space="preserve"><value>Usunięto · {0}</value></data>
+  <data name="Toast.DeletedMany.few" xml:space="preserve"><value>Usunięto · {0} wpisy</value></data>
+  <data name="Toast.DeletedMany.many" xml:space="preserve"><value>Usunięto · {0} wpisów</value></data>
+  <data name="Toast.DeletedMany.one" xml:space="preserve"><value>Usunięto · {0} wpis</value></data>
   <data name="Toast.Logged" xml:space="preserve"><value>Zapisano · {0}</value></data>
+  <data name="Toast.NothingUndone" xml:space="preserve"><value>Nic nie cofnięto: to już się zmieniło.</value></data>
   <data name="Toast.Saved" xml:space="preserve"><value>Zapisano · {0}</value></data>
   <data name="Toast.Undone" xml:space="preserve"><value>Cofnięto</value></data>
   <data name="Today.Paused" xml:space="preserve"><value>Udostępnianie tej rodzinie jest wstrzymane. Twoje wpisy są bezpieczne na tym telefonie.</value></data>

@@ -21,7 +21,7 @@ public sealed class AttentionPage : ContentPage
         _services = services;
         model.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName is nameof(AttentionViewModel.Duplicates) or nameof(AttentionViewModel.Rejected))
+            if (e.PropertyName is nameof(AttentionViewModel.FeedGroups) or nameof(AttentionViewModel.OtherGroups) or nameof(AttentionViewModel.Rejected))
                 Dispatcher.Dispatch(Render);
         };
         _undo = undo;
@@ -117,22 +117,13 @@ public sealed class AttentionPage : ContentPage
         if (_model.IsEmpty)
             stack.Add(Ui.Text(Strings.Get("Attention.Empty"), "Body", "Ink2"));
 
-        if (_model.Duplicates.Count > 0)
-            stack.Add(Ui.Text(Strings.Get("Attention.Duplicates"), "Section"));
-        foreach (var d in _model.Duplicates)
+        foreach (var (title, groups) in new[] { (Strings.Get("Attention.FeedsClose"), _model.FeedGroups), (Strings.Get("Attention.Duplicates"), _model.OtherGroups) })
         {
-            stack.Add(new Card(new VerticalStackLayout
-            {
-                Spacing = 10,
-                Children =
-                {
-                    Ui.Text(d.FirstText, "BodyStrong"),
-                    Small(Strings.Get("Attention.KeepThis"), d.KeepFirst),
-                    Ui.Text(d.SecondText, "BodyStrong"),
-                    Small(Strings.Get("Attention.KeepThis"), d.KeepSecond),
-                    Small(Strings.Get("Attention.KeepBoth"), d.KeepBoth, primary: true),
-                },
-            }));
+            if (groups.Count == 0)
+                continue;
+            stack.Add(Ui.Text(title, "Section"));
+            foreach (var group in groups)
+                stack.Add(GroupCard(group));
         }
 
         foreach (var (title, items) in new[] { (Strings.Get("Attention.Unreadable"), _model.Unreadable), (Strings.Get("Attention.Newer"), _model.Newer) })
@@ -178,6 +169,27 @@ public sealed class AttentionPage : ContentPage
         }
 
         _body.Content = stack;
+    }
+
+    /// <summary>
+    /// A group card (Spec 011d §4): each entry with "Keep only this one", then why the feeds cannot be merged (when
+    /// worth saying), "Merge into one feed" when they can, and "Keep all".
+    /// </summary>
+    private static Card GroupCard(GroupItem group)
+    {
+        var card = new VerticalStackLayout { Spacing = 10 };
+        foreach (var member in group.Members)
+        {
+            card.Add(Ui.Text(member.Text, "BodyStrong"));
+            card.Add(Small(Strings.Get("Attention.KeepOnly"), member.KeepOnly));
+        }
+
+        if (group.Why is { } why)
+            card.Add(Ui.Text(why, "Meta"));
+        if (group.Merge is { } merge)
+            card.Add(Small(Strings.Get("Attention.Merge"), merge, primary: true));
+        card.Add(Small(Strings.Get("Attention.KeepAll"), group.KeepAll, primary: group.Merge is null));
+        return new Card(card);
     }
 
     private static Button Small(string text, System.Windows.Input.ICommand command, bool primary = false, object? parameter = null)

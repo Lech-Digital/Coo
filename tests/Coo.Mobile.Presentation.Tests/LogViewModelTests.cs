@@ -143,7 +143,31 @@ public sealed class LogViewModelTests
         title.Should().Contain("12:30").And.Contain("18:30");
     }
 
-    private static LogViewModel Model(TimeProvider? timeProvider = null, IReadOnlyList<StoredEntry>? entries = null)
+    [Fact]
+    public async Task RefreshAsync_SeveralEntriesPendingDelete_HidesEachOfThem()
+    {
+        // Arrange: "Keep only this one" in a group of three leaves two entries waiting for their delete.
+        var (a, b, c) = (Diaper(Now.AddMinutes(-30)), Diaper(Now.AddMinutes(-20)), Diaper(Now.AddMinutes(-10)));
+        var model = Model(null, [new LiveEntry(a), new LiveEntry(b), new LiveEntry(c)], out var undo);
+        await undo.DeleteWithUndoAsync([a.Id, c.Id], "ignored for several");
+
+        // Act
+        await model.RefreshAsync();
+
+        // Assert
+        model.Rows.Select(r => r.Id).Should().Equal(b.Id);
+        undo.Dispose();
+    }
+
+    private static Coo.Domain.CareLog.CareEntry Diaper(DateTimeOffset at) =>
+        Coo.Domain.CareLog.CareEntry.Create(
+            new EntryId(Guid.CreateVersion7(at)), Household, Coo.Domain.CareLog.EntrySubject.Baby(Baby),
+            new Coo.Domain.CareLog.Kinds.Diaper.DiaperDetails(Coo.Domain.CareLog.Kinds.Diaper.DiaperContents.Wet), Coo.Domain.CareLog.EntryTiming.Point(at),
+            Coo.Domain.CareLog.PersonRef.ThisDevicesPerson, Coo.Domain.CareLog.EntrySource.Manual, new HlcStamp(2, 0, Device), Now).Value;
+
+    private static LogViewModel Model(TimeProvider? timeProvider = null, IReadOnlyList<StoredEntry>? entries = null) => Model(timeProvider, entries, out _);
+
+    private static LogViewModel Model(TimeProvider? timeProvider, IReadOnlyList<StoredEntry>? entries, out UndoService undo)
     {
         var households = Substitute.For<IHouseholdStore>();
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
@@ -156,7 +180,7 @@ public sealed class LogViewModelTests
         clock.Is24Hour.Returns(true);
         var time = timeProvider ?? new MovableTime(Now);
         var versions = Substitute.For<IVersionClock>();
-        var undo = new UndoService(new DeleteEntry(store, versions), new ReviseEntry(store, versions, time), new UndoFeedMerge(store, versions, time), store, time);
+        undo = new UndoService(new DeleteEntry(store, versions), new ReviseEntry(store, versions, time), new UndoFeedMerge(store, versions, time), store, time);
         var theme = new Coo.Mobile.Presentation.Theme.ThemeController(
             Substitute.For<IDevicePreferences>(), Substitute.For<Coo.Mobile.Presentation.Theme.IOsAppearance>(), time);
         return new LogViewModel(households, new GetDay(store), clock, undo, theme, time, new WhoLabelsSource(new MemorySessions(), Substitute.For<IFamilyStore>()));

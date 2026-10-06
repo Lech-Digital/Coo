@@ -37,9 +37,14 @@
   <data name="Attention.Badge.other" xml:space="preserve"><value>{0} need attention</value></data>
   <data name="Attention.Duplicates" xml:space="preserve"><value>Probably the same</value></data>
   <data name="Attention.Empty" xml:space="preserve"><value>Nothing needs attention.</value></data>
-  <data name="Attention.KeepBoth" xml:space="preserve"><value>Keep both</value></data>
-  <data name="Attention.KeepThis" xml:space="preserve"><value>Keep this one</value></data>
+  <data name="Attention.FeedsClose" xml:space="preserve"><value>Feeds close together</value></data>
+  <data name="Attention.KeepAll" xml:space="preserve"><value>Keep all</value></data>
+  <data name="Attention.KeepOnly" xml:space="preserve"><value>Keep only this one</value></data>
+  <data name="Attention.Merge" xml:space="preserve"><value>Merge into one feed</value></data>
+  <data name="Attention.Merged" xml:space="preserve"><value>Merged into one feed</value></data>
   <data name="Attention.Newer" xml:space="preserve"><value>From a newer version</value></data>
+  <data name="Attention.NoteTooLong" xml:space="preserve"><value>The notes are too long to join into one.</value></data>
+  <data name="Attention.Overlap" xml:space="preserve"><value>These feeds overlap, so they can't be merged.</value></data>
   <data name="Attention.Rejected" xml:space="preserve"><value>Not accepted by the server</value></data>
   <data name="Attention.ShowMore" xml:space="preserve"><value>Show more</value></data>
   <data name="Attention.Title" xml:space="preserve"><value>Needs attention</value></data>
@@ -103,6 +108,7 @@
   <data name="Edit.Minutes" xml:space="preserve"><value>{0} min</value></data>
   <data name="Edit.Newer" xml:space="preserve"><value>This entry is from a newer version of Coo. Update the app to see it.</value></data>
   <data name="Edit.Note" xml:space="preserve"><value>Note</value></data>
+  <data name="Edit.Part" xml:space="preserve"><value>Part {0}</value></data>
   <data name="Edit.Start" xml:space="preserve"><value>Start</value></data>
   <data name="Edit.StillRunning" xml:space="preserve"><value>Still running</value></data>
   <data name="Edit.Time" xml:space="preserve"><value>Time</value></data>
@@ -114,6 +120,8 @@
   <data name="Entry.BreastSide" xml:space="preserve"><value>{0} {1}</value></data>
   <data name="Entry.Diaper" xml:space="preserve"><value>Diaper · {0}</value></data>
   <data name="Entry.Nap" xml:space="preserve"><value>Nap · {0}</value></data>
+  <data name="Entry.Parts.one" xml:space="preserve"><value>in {0} part</value></data>
+  <data name="Entry.Parts.other" xml:space="preserve"><value>in {0} parts</value></data>
   <data name="Entry.Pump" xml:space="preserve"><value>Pumping · {0}</value></data>
   <data name="Entry.PumpNoAmount" xml:space="preserve"><value>Pumping</value></data>
   <data name="Entry.Quarantined" xml:space="preserve"><value>Could not be read</value></data>
@@ -339,7 +347,10 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Tile.Woke" xml:space="preserve"><value>woke {0}</value></data>
   <data name="Timeline.Empty" xml:space="preserve"><value>Nothing logged yet today</value></data>
   <data name="Toast.Deleted" xml:space="preserve"><value>Deleted · {0}</value></data>
+  <data name="Toast.DeletedMany.one" xml:space="preserve"><value>Deleted · {0} entry</value></data>
+  <data name="Toast.DeletedMany.other" xml:space="preserve"><value>Deleted · {0} entries</value></data>
   <data name="Toast.Logged" xml:space="preserve"><value>Logged · {0}</value></data>
+  <data name="Toast.NothingUndone" xml:space="preserve"><value>Nothing was undone: it had already changed.</value></data>
   <data name="Toast.Saved" xml:space="preserve"><value>Saved · {0}</value></data>
   <data name="Toast.Undone" xml:space="preserve"><value>Undone</value></data>
   <data name="Today.Paused" xml:space="preserve"><value>Sharing with this family is paused. Your entries are safe on this phone.</value></data>

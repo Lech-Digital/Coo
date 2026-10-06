@@ -86,7 +86,8 @@ internal static class AttentionGroups
         IReadOnlyList<CareEntry> live, IReadOnlySet<EntryPair> dismissed, Func<CareEntry, bool> isReadOnly, DateTimeOffset now)
     {
         var pairs = DuplicateDetector.Find(live, live, NoneDismissed, now).Select(p => p.Pair).ToHashSet();
-        var feeds = live.Where(e => !e.IsDeleted && e.Details is FeedingDetails).ToList();
+        // A feed still running is not "close" to the one before it yet: the parent is busy feeding (duplicates still count).
+        var feeds = live.Where(e => !e.IsDeleted && e.Details is FeedingDetails && !e.Timing.IsInProgress).ToList();
         for (var i = 0; i < feeds.Count; i++)
         {
             for (var j = i + 1; j < feeds.Count; j++)

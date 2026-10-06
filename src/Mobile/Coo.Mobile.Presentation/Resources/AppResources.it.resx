@@ -37,9 +37,14 @@
   <data name="Attention.Badge.other" xml:space="preserve"><value>{0} da controllare</value></data>
   <data name="Attention.Duplicates" xml:space="preserve"><value>Probabilmente doppio</value></data>
   <data name="Attention.Empty" xml:space="preserve"><value>Niente da controllare.</value></data>
-  <data name="Attention.KeepBoth" xml:space="preserve"><value>Tieni entrambi</value></data>
-  <data name="Attention.KeepThis" xml:space="preserve"><value>Tieni questa</value></data>
+  <data name="Attention.FeedsClose" xml:space="preserve"><value>Poppate ravvicinate</value></data>
+  <data name="Attention.KeepAll" xml:space="preserve"><value>Tienili tutti</value></data>
+  <data name="Attention.KeepOnly" xml:space="preserve"><value>Tieni solo questa</value></data>
+  <data name="Attention.Merge" xml:space="preserve"><value>Unisci in una sola poppata</value></data>
+  <data name="Attention.Merged" xml:space="preserve"><value>Unite in una sola poppata</value></data>
   <data name="Attention.Newer" xml:space="preserve"><value>Da una versione più recente</value></data>
+  <data name="Attention.NoteTooLong" xml:space="preserve"><value>Le note sono troppo lunghe per unirle in una sola.</value></data>
+  <data name="Attention.Overlap" xml:space="preserve"><value>Queste poppate si sovrappongono, quindi non si possono unire.</value></data>
   <data name="Attention.Rejected" xml:space="preserve"><value>Non accettato dal server</value></data>
   <data name="Attention.ShowMore" xml:space="preserve"><value>Mostra altro</value></data>
   <data name="Attention.Title" xml:space="preserve"><value>Da controllare</value></data>
@@ -103,6 +108,7 @@
   <data name="Edit.Minutes" xml:space="preserve"><value>{0} min</value></data>
   <data name="Edit.Newer" xml:space="preserve"><value>Questa voce viene da una versione più recente di Coo. Aggiorna l’app per vederla.</value></data>
   <data name="Edit.Note" xml:space="preserve"><value>Nota</value></data>
+  <data name="Edit.Part" xml:space="preserve"><value>Parte {0}</value></data>
   <data name="Edit.Start" xml:space="preserve"><value>Inizio</value></data>
   <data name="Edit.StillRunning" xml:space="preserve"><value>Ancora in corso</value></data>
   <data name="Edit.Time" xml:space="preserve"><value>Ora</value></data>
@@ -114,6 +120,8 @@
   <data name="Entry.BreastSide" xml:space="preserve"><value>{0} {1}</value></data>
   <data name="Entry.Diaper" xml:space="preserve"><value>Pannolino · {0}</value></data>
   <data name="Entry.Nap" xml:space="preserve"><value>Pisolino · {0}</value></data>
+  <data name="Entry.Parts.one" xml:space="preserve"><value>in {0} ripresa</value></data>
+  <data name="Entry.Parts.other" xml:space="preserve"><value>in {0} riprese</value></data>
   <data name="Entry.Pump" xml:space="preserve"><value>Tiralatte · {0}</value></data>
   <data name="Entry.PumpNoAmount" xml:space="preserve"><value>Tiralatte</value></data>
   <data name="Entry.Quarantined" xml:space="preserve"><value>Non leggibile</value></data>
@@ -339,7 +347,10 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Tile.Woke" xml:space="preserve"><value>sveglio {0}</value></data>
   <data name="Timeline.Empty" xml:space="preserve"><value>Ancora niente oggi</value></data>
   <data name="Toast.Deleted" xml:space="preserve"><value>Eliminato · {0}</value></data>
+  <data name="Toast.DeletedMany.one" xml:space="preserve"><value>Eliminato · {0} voce</value></data>
+  <data name="Toast.DeletedMany.other" xml:space="preserve"><value>Eliminato · {0} voci</value></data>
   <data name="Toast.Logged" xml:space="preserve"><value>Registrato · {0}</value></data>
+  <data name="Toast.NothingUndone" xml:space="preserve"><value>Non è stato annullato nulla: era già cambiato.</value></data>
   <data name="Toast.Saved" xml:space="preserve"><value>Salvato · {0}</value></data>
   <data name="Toast.Undone" xml:space="preserve"><value>Annullato</value></data>
   <data name="Today.Paused" xml:space="preserve"><value>La condivisione con questa famiglia è in pausa. Le tue voci sono al sicuro su questo telefono.</value></data>

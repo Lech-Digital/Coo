@@ -496,6 +496,66 @@ public sealed class DayChartTests : IDisposable
         summary.Should().Be("Sleep 1 h 30 m; Feeds 0; Diapers 1");
     }
 
+    [Fact]
+    public async Task Build_AFeedInThreeParts_DrawsEachPartAsItsOwnBarWithTheGapsEmpty()
+    {
+        // Arrange: left 14:00–14:10, a 3 minute pause, right 14:13–14:18, a 2 minute pause, left 14:20–14:24 (Spec 011d §5).
+        var feed = InParts((BreastSide.Left, At(14, 0), At(14, 10)), (BreastSide.Right, At(14, 13), At(14, 18)), (BreastSide.Left, At(14, 20), At(14, 24)));
+        var day = await Day(feed);
+
+        // Act
+        var items = DayChart.Build(day, Ml, Amsterdam, _ => true);
+
+        // Assert
+        items.Should().HaveCount(3).And.OnlyContain(i => i.Shape == ChartShape.Feed && i.EntryId == feed.Id);
+        items.Select(i => (i.From, i.To)).Should().Equal(
+            [(At(14, 0), At(14, 10)), (At(14, 13), At(14, 18)), (At(14, 20), At(14, 24))],
+            (bar, part) => Math.Abs(bar.From - day.Day.Fraction(part.Item1)) < 1e-9 && Math.Abs(bar.To - day.Day.Fraction(part.Item2)) < 1e-9);
+        items[0].Label.Should().Be("14:00 L 14 m · R 5 m · in 3 parts");
+        items.Skip(1).Should().OnlyContain(i => i.Label.Length == 0, "the feed is labelled once, at its first part");
+    }
+
+    [Fact]
+    public async Task Build_ASideSwitchWithoutAPause_IsOneBar()
+    {
+        // Arrange
+        var day = await Day(Breast(At(14, 10), (BreastSide.Left, 10), (BreastSide.Right, 5)));
+
+        // Act
+        var items = DayChart.Build(day, Ml, Amsterdam, _ => true);
+
+        // Assert
+        items.Should().ContainSingle().Which.To.Should().BeApproximately(day.Day.Fraction(At(14, 25)), 1e-9);
+    }
+
+    [Fact]
+    public async Task Summary_AFeedInParts_CountsAsOneFeed()
+    {
+        // Arrange
+        var day = await Day(InParts((BreastSide.Left, At(14, 0), At(14, 10)), (BreastSide.Right, At(14, 13), At(14, 18))));
+        var items = DayChart.Build(day, Ml, Amsterdam, _ => true);
+
+        // Act
+        var summary = DayChart.Summary(items, day.Day, kind => kind == "feeding");
+
+        // Assert
+        summary.Should().Be("Feeds 1");
+    }
+
+    [Fact]
+    public async Task HitTest_TheSecondPartOfAFeed_OpensThatFeed()
+    {
+        // Arrange
+        var feed = InParts((BreastSide.Left, At(14, 0), At(14, 10)), (BreastSide.Right, At(14, 30), At(14, 40)));
+        var items = DayChart.Build(await Day(feed), Ml, Amsterdam, _ => true);
+
+        // Act
+        var hit = DayChart.HitTest(items, (14 + 35 / 60.0) / 24, 0.001);
+
+        // Assert
+        hit!.EntryId.Should().Be(feed.Id);
+    }
+
     private static Formats Ml => new(true, VolumeUnit.Millilitres);
 
     private static DateTimeOffset At(int hour, int minute) => new(2026, 10, 1, hour, minute, 0, Cest);
@@ -513,6 +573,9 @@ public sealed class DayChartTests : IDisposable
 
     private CareEntry Breast(DateTimeOffset start, params (BreastSide Side, int Minutes)[] sides) =>
         Make(EntrySubject.Baby(Baby), BreastFeed.FromSideDurations(start, sides).Value, null);
+
+    private CareEntry InParts(params (BreastSide Side, DateTimeOffset Start, DateTimeOffset End)[] segments) =>
+        Make(EntrySubject.Baby(Baby), BreastFeed.Create(segments.Select(s => new BreastSegment(s.Side, s.Start, s.End)), isCompleted: true).Value, null);
 
     private CareEntry Bottle(DateTimeOffset at, int ml) =>
         Make(EntrySubject.Baby(Baby), BottleFeed.Of(Milk.Formula, Volume.FromMillilitres(ml).Value).Value, EntryTiming.Point(at));

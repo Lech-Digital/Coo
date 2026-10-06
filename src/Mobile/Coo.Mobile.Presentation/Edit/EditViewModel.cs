@@ -10,6 +10,7 @@ using Coo.Domain.Common;
 using Coo.Domain.Households;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
+using Coo.Mobile.Application.Preferences;
 using Coo.Mobile.Presentation.Formatting;
 using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Today;
@@ -21,7 +22,7 @@ namespace Coo.Mobile.Presentation.Edit;
 /// Domain's; errors and plausibility warnings are shown inline, in the user's language. Warnings never block Save.
 /// </summary>
 public sealed partial class EditViewModel(
-    ICareLogStore store, IHouseholdStore households, LogEntry log, ReviseEntry revise, UndoService undo, TimeProvider time)
+    ICareLogStore store, IHouseholdStore households, LogEntry log, ReviseEntry revise, UndoService undo, IClockFormat clock, TimeProvider time)
     : ObservableObject
 {
     private CareEntry? _original;
@@ -100,6 +101,15 @@ public sealed partial class EditViewModel(
 
     public EntryId? EntryId { get; private set; }
 
+    /// <summary>
+    /// A finished breast feed in two or more parts (Spec 011d §5). The form cannot edit single parts, so it lists them
+    /// read-only (<see cref="PartLines"/>); moving the start moves every segment, and the note edits as usual.
+    /// </summary>
+    public bool IsInParts => PartLines.Count > 0;
+
+    /// <summary>"Part 1 · 14:02–14:12 · left", one line per part; empty unless <see cref="IsInParts"/>.</summary>
+    public IReadOnlyList<string> PartLines { get; private set; } = [];
+
     public string UnitLabel => Strings.Get(_household?.VolumeUnit == VolumeUnit.Ounces ? "Unit.Oz" : "Unit.Ml");
 
     public DateTime Today => DateTime.SpecifyKind(time.GetLocalNow().Date, DateTimeKind.Unspecified);
@@ -128,6 +138,7 @@ public sealed partial class EditViewModel(
         await LoadContextAsync();
         EntryId = id;
         IsNew = false;
+        PartLines = [];
         var stored = await store.FindAsync(id, CancellationToken.None);
         switch (stored)
         {
@@ -168,7 +179,7 @@ public sealed partial class EditViewModel(
     private async Task NewAsyncCore(string kindCode)
     {
         await LoadContextAsync();
-        (IsNew, KindCode, EntryId, _original) = (true, kindCode, null, null);
+        (IsNew, KindCode, EntryId, _original, PartLines) = (true, kindCode, null, null, []);
         var at = time.GetLocalNow().AddMinutes(-15);
         SetStart(at);
         SetEnd(at.AddMinutes(kindCode == "sleep" ? 15 : 10));
@@ -306,6 +317,14 @@ public sealed partial class EditViewModel(
 
             case "feeding":
                 {
+                    if (!IsRunning && IsInParts && _original?.Details is BreastFeed parted)
+                    {
+                        // A feed in parts keeps every segment: moving the start shifts them all, never flattens them.
+                        var shift = start - Combine(Local(parted.FirstStart).Date, Local(parted.FirstStart).TimeOfDay);
+                        var moved = parted.WithSegments(parted.Segments.Select(s => s with { Start = s.Start + shift, End = s.End + shift }));
+                        return moved.IsSuccess ? Ok(moved.Value, null) : Fail(moved.Error!);
+                    }
+
                     if (IsRunning && _original?.Details is BreastFeed running)
                     {
                         // A running feed: only its start moves (Spec 007 §2).
@@ -395,6 +414,7 @@ public sealed partial class EditViewModel(
 
     private void Fill(CareEntry entry)
     {
+        PartLines = entry.Details is BreastFeed { IsCompleted: true, Parts: > 1 } parted ? Lines(parted) : [];
         KindCode = entry.KindCode.Value;
         IsRunning = entry.Timing.IsInProgress;
         Note = entry.Note?.Text ?? "";
@@ -472,7 +492,17 @@ public sealed partial class EditViewModel(
     private static string Minutes(TimeSpan d) =>
         d <= TimeSpan.Zero ? "" : Math.Max(1, (int)Math.Round(d.TotalMinutes)).ToString(Strings.Culture);
 
-    private Formats Formats() => new(true, _household?.VolumeUnit ?? VolumeUnit.Millilitres);
+    private Formats Formats() => new(clock.Is24Hour, _household?.VolumeUnit ?? VolumeUnit.Millilitres);
+
+    /// <summary>"Part 1 · 14:02–14:12 · left", "Part 2 · 14:20–14:31 · left, right": each part's times and sides, in order.</summary>
+    private List<string> Lines(BreastFeed feed)
+    {
+        var formats = Formats();
+        return [.. FeedParts.Of(feed).Select((part, i) => string.Join(" · ",
+            Strings.Format("Edit.Part", i + 1),
+            $"{formats.Time(part[0].Start, time.LocalTimeZone)}–{formats.Time(part[^1].End ?? part[^1].Start, time.LocalTimeZone)}",
+            string.Join(", ", part.Select(s => s.Side).Distinct().Select(side => Formatting.Formats.Side(side, shortForm: false)))))];
+    }
 
     private static string KindName(string code) => code switch
     {

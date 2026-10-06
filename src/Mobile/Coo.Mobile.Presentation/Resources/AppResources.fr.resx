@@ -37,9 +37,14 @@
   <data name="Attention.Badge.other" xml:space="preserve"><value>{0} à vérifier</value></data>
   <data name="Attention.Duplicates" xml:space="preserve"><value>Probablement en double</value></data>
   <data name="Attention.Empty" xml:space="preserve"><value>Rien à vérifier.</value></data>
-  <data name="Attention.KeepBoth" xml:space="preserve"><value>Garder les deux</value></data>
-  <data name="Attention.KeepThis" xml:space="preserve"><value>Garder celle-ci</value></data>
+  <data name="Attention.FeedsClose" xml:space="preserve"><value>Repas rapprochés</value></data>
+  <data name="Attention.KeepAll" xml:space="preserve"><value>Tout garder</value></data>
+  <data name="Attention.KeepOnly" xml:space="preserve"><value>Ne garder que celle-ci</value></data>
+  <data name="Attention.Merge" xml:space="preserve"><value>Fusionner en un seul repas</value></data>
+  <data name="Attention.Merged" xml:space="preserve"><value>Fusionné en un seul repas</value></data>
   <data name="Attention.Newer" xml:space="preserve"><value>D'une version plus récente</value></data>
+  <data name="Attention.NoteTooLong" xml:space="preserve"><value>Les notes sont trop longues pour être réunies en une seule.</value></data>
+  <data name="Attention.Overlap" xml:space="preserve"><value>Ces repas se chevauchent, ils ne peuvent donc pas être fusionnés.</value></data>
   <data name="Attention.Rejected" xml:space="preserve"><value>Refusé par le serveur</value></data>
   <data name="Attention.ShowMore" xml:space="preserve"><value>Afficher plus</value></data>
   <data name="Attention.Title" xml:space="preserve"><value>À vérifier</value></data>
@@ -103,6 +108,7 @@
   <data name="Edit.Minutes" xml:space="preserve"><value>{0} min</value></data>
   <data name="Edit.Newer" xml:space="preserve"><value>Cette entrée vient d’une version plus récente de Coo. Mettez l’app à jour pour la voir.</value></data>
   <data name="Edit.Note" xml:space="preserve"><value>Note</value></data>
+  <data name="Edit.Part" xml:space="preserve"><value>Partie {0}</value></data>
   <data name="Edit.Start" xml:space="preserve"><value>Début</value></data>
   <data name="Edit.StillRunning" xml:space="preserve"><value>Encore en cours</value></data>
   <data name="Edit.Time" xml:space="preserve"><value>Heure</value></data>
@@ -114,6 +120,8 @@
   <data name="Entry.BreastSide" xml:space="preserve"><value>{0} {1}</value></data>
   <data name="Entry.Diaper" xml:space="preserve"><value>Couche · {0}</value></data>
   <data name="Entry.Nap" xml:space="preserve"><value>Sieste · {0}</value></data>
+  <data name="Entry.Parts.one" xml:space="preserve"><value>en {0} fois</value></data>
+  <data name="Entry.Parts.other" xml:space="preserve"><value>en {0} fois</value></data>
   <data name="Entry.Pump" xml:space="preserve"><value>Tire-lait · {0}</value></data>
   <data name="Entry.PumpNoAmount" xml:space="preserve"><value>Tire-lait</value></data>
   <data name="Entry.Quarantined" xml:space="preserve"><value>Illisible</value></data>
@@ -339,7 +347,10 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Tile.Woke" xml:space="preserve"><value>réveil {0}</value></data>
   <data name="Timeline.Empty" xml:space="preserve"><value>Rien de noté aujourd'hui</value></data>
   <data name="Toast.Deleted" xml:space="preserve"><value>Supprimé · {0}</value></data>
+  <data name="Toast.DeletedMany.one" xml:space="preserve"><value>Supprimé · {0} entrée</value></data>
+  <data name="Toast.DeletedMany.other" xml:space="preserve"><value>Supprimé · {0} entrées</value></data>
   <data name="Toast.Logged" xml:space="preserve"><value>Noté · {0}</value></data>
+  <data name="Toast.NothingUndone" xml:space="preserve"><value>Rien n’a été annulé : cela avait déjà changé.</value></data>
   <data name="Toast.Saved" xml:space="preserve"><value>Enregistré · {0}</value></data>
   <data name="Toast.Undone" xml:space="preserve"><value>Annulé</value></data>
   <data name="Today.Paused" xml:space="preserve"><value>Le partage avec cette famille est en pause. Vos entrées sont en sécurité sur ce téléphone.</value></data>

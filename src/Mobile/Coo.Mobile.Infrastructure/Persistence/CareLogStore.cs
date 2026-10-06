@@ -14,7 +14,6 @@ namespace Coo.Mobile.Infrastructure.Persistence;
 /// </summary>
 internal sealed class CareLogStore(LocalDatabase database, TimeProvider time, LocalWrites writes) : ICareLogStore
 {
-
     private const string EntityType = SyncedEntityType.CareEntry;
 
     public async Task SaveAsync(CareEntry entry, CancellationToken cancellationToken)

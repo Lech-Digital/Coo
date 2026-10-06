@@ -145,8 +145,8 @@ public sealed partial class TodayViewModel : ObservableObject
             : null;
 
         // An entry waiting for its delete (Spec 007 §5) is already gone from what the parent sees.
-        if (_summary is not null && _undo.PendingDelete is { } pending)
-            _summary = _summary with { TodayEntries = [.. _summary.TodayEntries.Where(e => e.Id != pending)] };
+        if (_summary is not null)
+            _summary = _summary with { TodayEntries = [.. _summary.TodayEntries.Where(e => !_undo.IsPendingDelete(e.Id))] };
         _attentionCount = (await _attention.ExecuteAsync(_household.Id, _time.GetLocalNow(), CancellationToken.None)).Count;
         _who = await _whoSource.ForAsync(_household.Id);
         Relayout();

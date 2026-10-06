@@ -229,6 +229,44 @@ public sealed class MergeFeedsTests
         write.Restores.Select(r => r.Id).Should().Equal(b.Id);
     }
 
+    [Fact]
+    public async Task UndoAsync_TheMergedFeedChangedSince_LeavesItAndStillBringsTheOthersBack()
+    {
+        // Arrange: after the merge, a pull brings the other phone's note on the merged feed.
+        var a = Stored(Breast(T0, 10, note: "fussy"));
+        var b = Stored(Breast(T0.AddMinutes(13), 5));
+        var merged = (await Merge().ExecuteAsync([a.Id, b.Id], CancellationToken.None)).Merged!;
+        AsDeleted(b);
+        a.SetNote(Note.From("from the other phone").Value, new HlcStamp(++_wall, 0, Device));
+        var changed = a.Details;
+        _written.Clear();
+
+        // Act
+        var wrote = await Undo().ExecuteAsync(merged, CancellationToken.None);
+
+        // Assert
+        wrote.Should().BeTrue();
+        var write = _written.Should().ContainSingle().Which;
+        write.Saves.Should().BeEmpty("a newer change to the merged feed is kept, not reverted");
+        write.Restores.Select(r => r.Id).Should().Equal(b.Id);
+        a.Note!.Text.Should().Be("from the other phone");
+        a.Details.Should().Be(changed);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_AMerge_KeepsTheMergedVersionOnTheReceipt()
+    {
+        // Arrange
+        var a = Stored(Breast(T0, 10));
+        var b = Stored(Breast(T0.AddMinutes(13), 5));
+
+        // Act
+        var merged = (await Merge().ExecuteAsync([a.Id, b.Id], CancellationToken.None)).Merged!;
+
+        // Assert
+        merged.MergedVersion.Should().Be(_written.Single().Saves.Single().Version);
+    }
+
     private MergeFeeds Merge() => new(_store, _sync, _clock, _time);
 
     private UndoFeedMerge Undo() => new(_store, _clock, _time);

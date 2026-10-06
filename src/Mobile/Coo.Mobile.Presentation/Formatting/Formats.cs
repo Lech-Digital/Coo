@@ -60,7 +60,10 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
         ? Strings.Get("Milk.Both")
         : Strings.Get(components[0].Milk == Milk.Formula ? "Milk.Formula" : "Milk.Breast");
 
-    /// <summary>A timeline title: "Breast · left 10 m · right 5 m", "Bottle · Formula · 120 ml", "Diaper · Wet".</summary>
+    /// <summary>
+    /// A timeline title: "Breast · left 10 m · right 5 m", "Breast · left 12 m · right 8 m · in 3 parts",
+    /// "Bottle · Formula · 120 ml", "Diaper · Wet". A breast feed's length is its feeding time, never its span.
+    /// </summary>
     public string Title(StoredEntry stored, DateTimeOffset now) => stored switch
     {
         LiveEntry { Entry: var e } => Title(e, now),
@@ -74,6 +77,7 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
         return entry.Details switch
         {
             BreastFeed f when entry.Timing.IsInProgress => Strings.Format("Entry.Breast", Strings.Get("Entry.Running")),
+            BreastFeed { Parts: > 1 } f => Strings.Format("Entry.Breast", $"{BreastSummary(f)} · {Parts(f)}"),
             BreastFeed f => Strings.Format("Entry.Breast", BreastSummary(f)),
             BottleFeed b => Strings.Format("Entry.Bottle", MilkName(b.Components), Volume(b.Total)),
             DiaperDetails d => Strings.Format("Entry.Diaper", Contents(d.Contents)),
@@ -85,6 +89,13 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
             PumpDetails => Strings.Get("Entry.PumpNoAmount"),
             _ => entry.KindCode.Value,
         };
+    }
+
+    /// <summary>"in 3 parts" (Spec 011d §5), for a feed in two or more parts.</summary>
+    public static string Parts(BreastFeed feed)
+    {
+        ArgumentNullException.ThrowIfNull(feed);
+        return Strings.Plural("Entry.Parts", feed.Parts);
     }
 
     /// <summary>"left 10 m · right 5 m": each side used, with its time.</summary>

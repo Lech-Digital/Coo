@@ -71,7 +71,7 @@ public sealed class AttentionRejectedTests : IDisposable
         var clockFormat = Substitute.For<IClockFormat>();
         clockFormat.Is24Hour.Returns(true);
         _undo = new UndoService(new DeleteEntry(_store, _clock), new ReviseEntry(_store, _clock, _time), new UndoFeedMerge(_store, _clock, _time), _store, _time);
-        return new AttentionViewModel(_households, new GetAttention(_store, _dismissals, _sync), new DismissDuplicate(_dismissals, _clock, _time), _undo, clockFormat, _time);
+        return new AttentionViewModel(_households, new GetAttention(_store, _dismissals, _sync), new DismissDuplicate(_dismissals, _clock, _time), new MergeFeeds(_store, _sync, _clock, _time), _undo, clockFormat, _time);
     }
 
     [Fact]

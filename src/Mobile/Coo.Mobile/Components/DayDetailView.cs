@@ -172,7 +172,8 @@ public sealed class DayDetailView : ContentView
                     case ChartShape.Feed:
                         canvas.FillColor = C(Palette.FeedMark);
                         canvas.FillRoundedRectangle(x, Top - 18, Math.Max(7, w), 12, 6);
-                        var row = x >= above[0] + 4 ? 0 : x >= above[1] + 4 ? 1 : -1;
+                        // A feed in parts is labelled at its first part only (Spec 011d §5).
+                        var row = item.Label.Length == 0 ? -1 : x >= above[0] + 4 ? 0 : x >= above[1] + 4 ? 1 : -1;
                         if (row >= 0)
                         {
                             canvas.FontColor = C(Palette.FeedInk);

@@ -2,12 +2,17 @@ using Coo.Contracts.Sync;
 using Coo.Domain.CareLog;
 using Coo.Domain.CareLog.Kinds.Feeding;
 using Coo.Domain.Common;
+using Coo.Domain.Common.Versioning;
 using Coo.Mobile.Application.Sync;
 
 namespace Coo.Mobile.Application.CareLog;
 
-/// <summary>What a merge changed, so <see cref="UndoFeedMerge"/> can put it back (Spec 011d §3, "Undo").</summary>
-public sealed record FeedMergeReceipt(EntryId SurvivorId, EntryDetails PreviousDetails, Note? PreviousNote, IReadOnlyList<EntryId> DeletedIds);
+/// <summary>
+/// What a merge changed, so <see cref="UndoFeedMerge"/> can put it back (Spec 011d §3, "Undo"). <see cref="MergedVersion"/>
+/// is the merged feed's version right after the merge: a newer one means someone changed it since.
+/// </summary>
+public sealed record FeedMergeReceipt(
+    EntryId SurvivorId, EntryDetails PreviousDetails, Note? PreviousNote, IReadOnlyList<EntryId> DeletedIds, HlcStamp MergedVersion);
 
 /// <summary>A merge that happened (<see cref="Merged"/>), or the reason it did not (<see cref="Refusal"/>). Exactly one is set.</summary>
 public sealed record MergeFeedsResult(FeedMergeReceipt? Merged, FeedMergeRefusal? Refusal)
@@ -46,7 +51,7 @@ public sealed class MergeFeeds(ICareLogStore store, ISyncStore sync, IVersionClo
             return Refused(outcome.Refusal!.Value);
 
         var survivor = feeds.Single(f => f.Id == plan.SurvivorId);
-        var receipt = new FeedMergeReceipt(survivor.Id, survivor.Details, survivor.Note, plan.DeletedIds);
+        var (previousDetails, previousNote) = (survivor.Details, survivor.Note);
 
         var revised = survivor.Revise<FeedingDetails>(
             _ => Result<FeedingDetails>.Ok(plan.Details), await clock.NextAsync(cancellationToken), time.GetUtcNow());
@@ -61,7 +66,7 @@ public sealed class MergeFeeds(ICareLogStore store, ISyncStore sync, IVersionClo
 
         // A feed deleted meanwhile (the other phone's tombstone) fails the whole write, and nothing changes.
         return await store.WriteAllAsync(new CareLogWrites([survivor], deletes, []), cancellationToken)
-            ? new MergeFeedsResult(receipt, null)
+            ? new MergeFeedsResult(new FeedMergeReceipt(survivor.Id, previousDetails, previousNote, plan.DeletedIds, survivor.Version), null)
             : Refused(FeedMergeRefusal.ReadOnly);
     }
 
@@ -71,7 +76,7 @@ public sealed class MergeFeeds(ICareLogStore store, ISyncStore sync, IVersionClo
 /// <summary>
 /// Undoes a merge (Spec 011d §3): the earliest feed gets its previous details and note back and the deleted feeds come
 /// back, each with a new version, in one transaction. It syncs as ordinary changes. What changed meanwhile is left
-/// alone: a merged feed deleted since is not revised, and a feed already back is not restored again.
+/// alone: a merged feed deleted or changed since is not revised, and a feed already back is not restored again.
 /// </summary>
 public sealed class UndoFeedMerge(ICareLogStore store, IVersionClock clock, TimeProvider time)
 {
@@ -81,7 +86,9 @@ public sealed class UndoFeedMerge(ICareLogStore store, IVersionClock clock, Time
         ArgumentNullException.ThrowIfNull(merged);
 
         var saves = new List<CareEntry>(1);
-        if (await store.FindAsync(merged.SurvivorId, cancellationToken) is LiveEntry { Entry: { IsDeleted: false } survivor })
+        // A merged feed changed since the merge (the other phone's edit, pulled meanwhile) keeps that change.
+        if (await store.FindAsync(merged.SurvivorId, cancellationToken) is LiveEntry { Entry: { IsDeleted: false } survivor }
+            && survivor.Version == merged.MergedVersion)
         {
             var changed = false;
             if (!survivor.Details.Equals(merged.PreviousDetails))

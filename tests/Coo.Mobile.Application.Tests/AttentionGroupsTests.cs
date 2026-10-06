@@ -164,9 +164,24 @@ public sealed class AttentionGroupsTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_ARunningFeedCloseToAnother_IsAGroupThatCannotMerge()
+    public async Task ExecuteAsync_ARunningFeedCloseOnlyEndToStart_IsNoGroupWhileItRuns()
     {
-        // Arrange
+        // Arrange: a 20 minute feed, then the other side started as a new timer 5 minutes after it ended.
+        var running = Make(BreastFeed.Start(BreastSide.Right, Now.AddMinutes(-5)), null);
+        Store(Breast(Now.AddMinutes(-30), 20), running);
+
+        // Act
+        var attention = await Attention();
+
+        // Assert
+        attention.Groups.Should().BeEmpty("the parent is still feeding; the pair can be offered once the timer stops");
+        attention.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ARunningFeedThatDuplicatesAnother_IsAGroupThatCannotMerge()
+    {
+        // Arrange: starts within 15 minutes of the other: a duplicate pair, whatever the timer.
         var running = Make(BreastFeed.Start(BreastSide.Right, Now.AddMinutes(-5)), null);
         Store(Breast(Now.AddMinutes(-20), 10), running);
 

@@ -53,6 +53,7 @@ public static class DayChart
             {
                 SleepDetails => new(ChartShape.Sleep, mark.KindCode, mark.From, mark.To, mark.EntryId, Formats.Duration(Span(day.Day, mark.From, mark.To))),
                 BreastFeed when entry.Timing.IsInProgress => new(ChartShape.Feed, mark.KindCode, mark.From, mark.To, mark.EntryId, $"{time} {Strings.Get("Entry.Running")}"),
+                BreastFeed { Parts: > 1 } f => new(ChartShape.Feed, mark.KindCode, mark.From, mark.To, mark.EntryId, $"{time} {Sides(f)} · {Formats.Parts(f)}"),
                 BreastFeed f => new(ChartShape.Feed, mark.KindCode, mark.From, mark.To, mark.EntryId, $"{time} {Sides(f)}"),
                 BottleFeed b => new(ChartShape.Feed, mark.KindCode, mark.From, mark.To, mark.EntryId, $"{time} {formats.Volume(b.Total)}"),
                 DiaperDetails d => new(ChartShape.Diaper, mark.KindCode, mark.From, mark.To, mark.EntryId, Formats.Contents(d.Contents)),
@@ -60,12 +61,35 @@ public static class DayChart
                 PumpDetails => new(ChartShape.Pump, mark.KindCode, mark.From, mark.To, mark.EntryId, time),
                 _ => null,
             };
-            if (item is not null)
+            if (item is null)
+                continue;
+            if (entry.Details is BreastFeed { IsCompleted: true, Parts: > 1 } parted)
+                items.AddRange(Parts(item, parted, day.Day));
+            else
                 items.Add(item);
         }
 
         items.AddRange(AwakeStretches(items, day.Day));
         return [.. items.OrderBy(i => i.From).ThenBy(i => i.Shape)];
+    }
+
+    /// <summary>
+    /// A feed in parts as its parts (Spec 011d §5): each a bar of its real length, the gaps empty, so the chart shows the
+    /// pauses. The feed is labelled once, at its first part; a tap on any part opens it.
+    /// </summary>
+    private static IEnumerable<ChartItem> Parts(ChartItem feed, BreastFeed parted, LocalDay day)
+    {
+        var first = true;
+        foreach (var part in FeedParts.Of(parted).Where(p => p[0].Start < day.End))
+        {
+            yield return feed with
+            {
+                From = day.Fraction(part[0].Start),
+                To = day.Fraction(part[^1].End ?? part[^1].Start),
+                Label = first ? feed.Label : "",
+            };
+            first = false;
+        }
     }
 
     private static IEnumerable<ChartItem> AwakeStretches(List<ChartItem> items, LocalDay day)
@@ -177,7 +201,7 @@ public static class DayChart
         }
 
         if (isShown("feeding"))
-            parts.Add(Strings.Format("Chart.SummaryFeeds", items.Count(i => i.Shape == ChartShape.Feed)));
+            parts.Add(Strings.Format("Chart.SummaryFeeds", items.Where(i => i.Shape == ChartShape.Feed).Select(i => i.EntryId).Distinct().Count()));
         if (isShown("diaper"))
             parts.Add(Strings.Format("Chart.SummaryDiapers", items.Count(i => i.Shape == ChartShape.Diaper)));
         if (isShown("pump"))

@@ -88,6 +88,11 @@ public sealed class EditPage : ContentPage
                 if (_model.Milk == BottleMilk.Both)
                     form.Add(Field($"{Strings.Get("Milk.Formula")} ({_model.UnitLabel})", Number(nameof(EditViewModel.SecondAmount))));
                 break;
+            case "feeding" when _model.IsInParts:
+                // A feed in parts (Spec 011d §5): its parts read-only; the start above moves them all.
+                foreach (var line in _model.PartLines)
+                    form.Add(Ui.Text(line, "Body", "Ink2"));
+                break;
             case "feeding" when !_model.IsRunning:
                 form.Add(Field(Strings.Get("Edit.FirstSide"), Choices(new (string, Action, bool)[]
                 {
