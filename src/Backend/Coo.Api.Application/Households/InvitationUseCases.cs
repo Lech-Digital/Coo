@@ -16,18 +16,17 @@ public sealed class CreateInvitation(IHouseholdMembershipStore store, TimeProvid
 {
     public const int MaxOpenPerFamily = 5;
 
-    public Task<Result<CreatedInvitation>> ExecuteAsync(UserId user, HouseholdId household, string? role, CancellationToken cancellationToken)
-    {
-        if (role != AuthRoles.Parent)
-            return Task.FromResult(Result<CreatedInvitation>.Failure(HouseholdErrors.InvitationRoleUnsupported));
-
-        return store.RunLockedAsync([household], async tx =>
+    public Task<Result<CreatedInvitation>> ExecuteAsync(UserId user, HouseholdId household, string? role, CancellationToken cancellationToken) =>
+        store.RunLockedAsync([household], async tx =>
         {
             if (!tx.IsLocked(household))
                 return Result<CreatedInvitation>.Failure(HouseholdErrors.Forbidden);
             var me = await tx.FindMembershipAsync(household, user, cancellationToken);
             if (me.Membership is not { CanInvite: true } || me.IsRevoked)
                 return Result<CreatedInvitation>.Failure(HouseholdErrors.Forbidden);
+            // After the membership check: a non-member always gets 403, whatever role they ask for (spec §10.1).
+            if (role != AuthRoles.Parent)
+                return Result<CreatedInvitation>.Failure(HouseholdErrors.InvitationRoleUnsupported);
 
             var now = time.GetUtcNow();
             if (await tx.CountOpenInvitationsAsync(household, now, cancellationToken) >= MaxOpenPerFamily)
@@ -38,7 +37,6 @@ public sealed class CreateInvitation(IHouseholdMembershipStore store, TimeProvid
             await tx.AddInvitationAsync(invitation, AuthSecrets.Hash(code.Value), cancellationToken);
             return Result<CreatedInvitation>.Ok(new CreatedInvitation(invitation.Id, code, invitation.ExpiresAt));
         }, cancellationToken);
-    }
 }
 
 /// <summary><c>DELETE /api/households/{id}/invitations/{invitationId}</c>: already withdrawn, used, expired or unknown is a success.</summary>

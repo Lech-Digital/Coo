@@ -112,6 +112,7 @@ public sealed class InvitationUseCaseTests
         // Assert
         result.IsSuccess.Should().BeTrue();
         _kit.Store.Invitations.Single().Invitation.RevokedAt.Should().Be(Start);
+        _kit.Store.LockedSets.Last().Should().Equal(Family);
     }
 
     [Fact]
@@ -141,6 +142,47 @@ public sealed class InvitationUseCaseTests
 
         // Act
         var result = await _kit.Withdraw().ExecuteAsync(Nanny, Family, created.Id, CancellationToken.None);
+
+        // Assert
+        result.Error!.Code.Should().Be(HouseholdErrors.Forbidden);
+        _kit.Store.Invitations.Single().Invitation.IsOpen.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_NonMemberAsksForCaregiver_IsForbiddenNotRoleUnsupported()
+    {
+        // Act
+        var result = await _kit.Create().ExecuteAsync(Partner, Family, "caregiver", CancellationToken.None);
+
+        // Assert
+        result.Error!.Code.Should().Be(HouseholdErrors.Forbidden);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_RemovedMemberInvites_IsForbidden()
+    {
+        // Arrange
+        _kit.Store.AddMember(Family, Partner, Role.Parent, Start.AddDays(-1));
+        await _kit.Remove().ExecuteAsync(Owner, Family, Partner, CancellationToken.None);
+
+        // Act
+        var result = await _kit.Create().ExecuteAsync(Partner, Family, "parent", CancellationToken.None);
+
+        // Assert
+        result.Error!.Code.Should().Be(HouseholdErrors.Forbidden);
+        _kit.Store.Invitations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_RemovedMemberWithdraws_IsForbidden()
+    {
+        // Arrange
+        _kit.Store.AddMember(Family, Partner, Role.Parent, Start.AddDays(-1));
+        var created = (await _kit.Create().ExecuteAsync(Owner, Family, "parent", CancellationToken.None)).Value;
+        await _kit.Remove().ExecuteAsync(Owner, Family, Partner, CancellationToken.None);
+
+        // Act
+        var result = await _kit.Withdraw().ExecuteAsync(Partner, Family, created.Id, CancellationToken.None);
 
         // Assert
         result.Error!.Code.Should().Be(HouseholdErrors.Forbidden);

@@ -1,5 +1,6 @@
 using Coo.Api.Application.Households;
 using Coo.Contracts.Households;
+using Coo.Domain.Common;
 using Coo.Domain.Households;
 using static Coo.Api.Application.Tests.HouseholdKit;
 
@@ -75,6 +76,37 @@ public sealed class MemberUseCaseTests
         _kit.Store.Members.Single(m => m.User == Partner).RevokedAt.Should().Be(Start, "the row stays for membership-revoked");
         _kit.Store.Invitations.Single(r => r.Invitation.CreatedBy == Partner).Invitation.RevokedAt.Should().Be(Start);
         _kit.Store.Invitations.Single(r => r.Invitation.CreatedBy == Owner).Invitation.IsOpen.Should().BeTrue();
+        _kit.Store.LockedSets.Last().Should().Equal(Family);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ParentRemovesAnotherParent_RevokesThem()
+    {
+        // Arrange
+        var second = new UserId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c4"));
+        _kit.Store.AddMember(Family, second, Role.Parent, Start.AddDays(-1), "Ewa");
+
+        // Act
+        var result = await _kit.Remove().ExecuteAsync(Partner, Family, second, CancellationToken.None);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        _kit.Store.Members.Single(m => m.User == second).RevokedAt.Should().Be(Start);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_RemovedMemberRemoves_IsForbidden()
+    {
+        // Arrange: the target is removable (not the Owner), so only the remover's own revocation can refuse.
+        _kit.Store.AddMember(Family, Nanny, Role.Parent, Start.AddDays(-1), "Ola");
+        await _kit.Remove().ExecuteAsync(Owner, Family, Partner, CancellationToken.None);
+
+        // Act
+        var result = await _kit.Remove().ExecuteAsync(Partner, Family, Nanny, CancellationToken.None);
+
+        // Assert
+        result.Error!.Code.Should().Be(HouseholdErrors.Forbidden);
+        _kit.Store.Members.Single(m => m.User == Nanny).RevokedAt.Should().BeNull();
     }
 
     [Fact]
@@ -113,9 +145,10 @@ public sealed class MemberUseCaseTests
     {
         // Arrange
         _kit.Store.AddMember(Family, Nanny, Role.Caregiver, Start.AddDays(-1), "Ola");
+        var nobody = new UserId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c9"));
 
         // Act
-        var result = await _kit.Remove().ExecuteAsync(Nanny, Family, Owner, CancellationToken.None);
+        var result = await _kit.Remove().ExecuteAsync(Nanny, Family, nobody, CancellationToken.None);
 
         // Assert
         result.Error!.Code.Should().Be(HouseholdErrors.Forbidden);
