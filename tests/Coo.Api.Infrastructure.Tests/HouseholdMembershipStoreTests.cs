@@ -548,6 +548,14 @@ public sealed class HouseholdMembershipStoreTests(PostgresServer server)
             await tx.AddInvitationAsync(withdrawn, "withdrawn", CancellationToken.None);
             await tx.SaveInvitationAsync(withdrawn, CancellationToken.None);
             await tx.AddInvitationAsync(Invitation.Create(new InvitationId(db.NewId()), Family, Role.Parent, Owner, now), "fresh", CancellationToken.None);
+            var freshUsed = Invitation.Create(new InvitationId(db.NewId()), Family, Role.Parent, Owner, now.AddHours(-1));
+            freshUsed.Accept(Owner, now);
+            await tx.AddInvitationAsync(freshUsed, "fresh-used", CancellationToken.None);
+            await tx.SaveInvitationAsync(freshUsed, CancellationToken.None);
+            var freshWithdrawn = Invitation.Create(new InvitationId(db.NewId()), Family, Role.Parent, Owner, now.AddHours(-1));
+            freshWithdrawn.Withdraw(now);
+            await tx.AddInvitationAsync(freshWithdrawn, "fresh-withdrawn", CancellationToken.None);
+            await tx.SaveInvitationAsync(freshWithdrawn, CancellationToken.None);
             return 0;
         }, CancellationToken.None);
 
@@ -555,7 +563,8 @@ public sealed class HouseholdMembershipStoreTests(PostgresServer server)
         await new PurgeSyncHistory(db.Sync, db.Invitations, db.Time).ExecuteAsync(CancellationToken.None);
 
         // Assert
-        (await db.ScalarAsync("SELECT string_agg(code_hash, ',') FROM invitations;")).Should().Be("fresh");
+        (await db.ScalarAsync("SELECT string_agg(code_hash, ',' ORDER BY code_hash) FROM invitations;"))
+            .Should().Be("fresh,fresh-used,fresh-withdrawn");
     }
 
     /// <summary>Holds the lock it takes until <paramref name="release"/> completes; <see cref="Entered"/> says it holds it.</summary>

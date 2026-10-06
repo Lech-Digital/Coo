@@ -52,6 +52,9 @@ public sealed class DeleteAccount(IHouseholdMembershipStore store)
             var transfers = new List<(HouseholdId Household, UserId NewOwner)>();
             foreach (var membership in await tx.ActiveMembershipsOfUserAsync(user, cancellationToken))
             {
+                // A family gained after the read that chose the locks would be decided unlocked: refuse, the phone retries from fresh reads.
+                if (!tx.IsLocked(membership.HouseholdId))
+                    throw new InvalidOperationException($"{membership.HouseholdId} became an active family of {user} after the locks were taken.");
                 var members = await tx.ActiveMembersAsync(membership.HouseholdId, cancellationToken);
                 switch (HouseholdSuccession.WhenLeaving(members, user))
                 {

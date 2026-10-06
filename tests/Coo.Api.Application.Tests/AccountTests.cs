@@ -115,6 +115,41 @@ public sealed class AccountTests
     }
 
     [Fact]
+    public async Task ExecuteAsync_FamilyGainedBetweenTheReadAndTheLock_ThrowsAndChangesNothing()
+    {
+        // Arrange: Me joins a second family after the families to lock were read; deciding it unlocked would race an accept.
+        _kit.Households.AddFamily(Household, Me, AuthKit.Start);
+        _kit.Households.AddFamily(Other, Partner, AuthKit.Start);
+        _kit.Households.InsideNextTransaction = () => _kit.Households.AddMember(Other, Me, Role.Parent, AuthKit.Start.AddDays(1));
+
+        // Act
+        Func<Task> act = async () => await _kit.DeleteAccount().ExecuteAsync(Me, confirmed: true, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        _kit.Households.DeletedUsers.Should().BeEmpty();
+        _kit.Households.Households.Should().BeEquivalentTo([Household, Other]);
+        _kit.Households.Members.Should().HaveCount(3);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ActiveInTwoFamilies_LocksBothAscendingAndDecidesEach()
+    {
+        // Arrange: Owner of Household alone, Parent in Other beside its Owner.
+        _kit.Households.AddFamily(Other, Partner, AuthKit.Start);
+        _kit.Households.AddMember(Other, Me, Role.Parent, AuthKit.Start.AddDays(1));
+        _kit.Households.AddFamily(Household, Me, AuthKit.Start);
+
+        // Act
+        await _kit.DeleteAccount().ExecuteAsync(Me, confirmed: true, CancellationToken.None);
+
+        // Assert
+        _kit.Households.LockedSets.Should().ContainSingle().Which.Should().Equal(Household, Other);
+        _kit.Households.Households.Should().Equal(Other);
+        _kit.Households.Members.Should().ContainSingle().Which.Should().Match<FakeHouseholds.MemberRow>(m => m.User == Partner && m.Role == Role.Owner);
+    }
+
+    [Fact]
     public async Task ExecuteAsync_RemovedFromAFamilyBefore_OnlyActiveFamiliesAreDecided()
     {
         // Arrange: a revoked row does not make Me "a parent" of that family.
@@ -135,7 +170,7 @@ public sealed class AccountTests
     {
         // Arrange
         var signedIn = await _kit.SignInAsync("google-1", PhoneA, Household);
-        _kit.Accounts.Memberships.Add(Membership.Create(Other, signedIn.User.Id, Role.Parent, AuthKit.Start.AddDays(2)));
+        _kit.Accounts.Memberships.Insert(0, Membership.Create(Other, signedIn.User.Id, Role.Parent, AuthKit.Start.AddDays(2)));
 
         // Act
         var me = await _kit.GetMe().ExecuteAsync(signedIn.User.Id, CancellationToken.None);
