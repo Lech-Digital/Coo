@@ -32,6 +32,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IHomeSection, RunningSection>();
         services.AddSingleton<IHomeSection, LogTilesSection>();
         services.AddSingleton<IHomeSection, TimelineSection>();
+        services.AddSingleton<IHomeSection, PausedSection>();
         services.AddSingleton<TodayViewModel>();
         services.AddTransient<SetupViewModel>();
         services.AddSingleton<LogViewModel>();
@@ -45,6 +46,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<Settings.FamilyBringOverViewModel>();
         services.AddTransient<Settings.JoinViewModel>();
         services.AddTransient<Settings.EnterCodeViewModel>();
+        services.AddTransient<Settings.RemovalViewModel>();
         services.AddTransient<EditViewModel>();
         services.AddTransient<AttentionViewModel>();
         return services;

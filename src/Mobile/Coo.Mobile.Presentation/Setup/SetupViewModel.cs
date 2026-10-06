@@ -31,6 +31,14 @@ public sealed partial class SetupViewModel(IHouseholdStore households, SetUpBaby
     /// <summary>Raised when the baby is saved; the host then shows Today.</summary>
     public event EventHandler? Completed;
 
+    /// <summary>"Have an invitation? Enter a code" (Spec 011b §4.4): the host opens the code sheet, then the join flow.</summary>
+    public event EventHandler? EnterCodeRequested;
+
+    public static string HaveInvitationText => Strings.Get("Setup.HaveInvitation");
+
+    [RelayCommand]
+    private void EnterCode() => EnterCodeRequested?.Invoke(this, EventArgs.Empty);
+
     [RelayCommand]
     private async Task Continue()
     {

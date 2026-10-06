@@ -119,6 +119,9 @@ public interface ISyncControl
 
     /// <summary>Local data changed outside a cycle (a switch, a join, a leave): the pages show what is now stored.</summary>
     void NotifyDataChanged();
+
+    /// <summary>The person pressed OK on the removal sheet (Spec 011b §8.2): the removed family goes from the phone.</summary>
+    Task AcknowledgeRemovalAsync(CancellationToken cancellationToken);
 }
 
 public enum SyncRefusal
