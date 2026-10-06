@@ -133,3 +133,55 @@ On the Pixel (and the emulator in the same family when the invitation limit allo
 5. **Overlapping feeds are never merged.**
 6. **The earliest feed survives** (its id, its logger, its source); the others become tombstones, so sync needs nothing new.
 7. **Version 0.13.0 (versionCode 16)**, shipped together with the 11b walk fixes.
+
+## 10. Built and verified (2026-10-06 · Pixel 10 and an Android 16 emulator)
+
+**Version.** The app is **0.13.0 (versionCode 16)**, with the 11b walk fixes (Spec 011b §16.3). Production runs the API as **0.12.0+86bc605**. Device build: `86bc605`, a trimmed Release build, installed on the Pixel (as andrzej.lech.andrzej@gmail.com) and on the emulator `coo-second` (as adzius.lech@gmail.com), the same family.
+
+### 10.1 What was built
+
+- **Domain.** `FeedMerge`: groups chain across every close pair (a long feed with two shorter ones inside it is one group); breast feeds merge by concatenating their segments in order, bottles by summing per milk (1000 ml cap), notes are joined. A merge is refused for running, read-only (quarantined, rejected, deleted), mixed-kind, overlapping, too-long or too-much feeds, and when the joined notes pass 500 characters.
+- **Application.** One use case revises the earliest feed and deletes the rest in one transaction, with the outbox changes. Undo restores the deleted feeds by writing them again, live, with newer versions (Specs 001 §3.4, 007 §5 and this spec's §3 amended); it does not revert the survivor if that feed changed since the merge, and an undo that wrote nothing says so.
+- **Presentation.** Needs attention shows **Feeds close together** groups with **Merge into one feed**, **Keep only this one** (any number of other feeds, under one undo), **Keep all**, and a reason when merging is not offered. Titles read "Breast · left 12 m · right 8 m · in 3 parts" in all seven languages (plural forms). The day chart draws each part as its own bar, labelled once. The edit form keeps every part on save: a note-only save writes no details revision, and a start move shifts all parts; a form opened before the other phone merged the feed keeps its parts.
+
+### 10.2 The device demo
+
+| # | Deliverable (§8) | Result |
+|---|---|---|
+| 1 | Three timer breast feeds with pauses | Logged on the Pixel (23:22 left 3 m, 23:29 right 1 m, 23:32 left 1 m). **They were all "Not accepted by the server"** (§10.3). |
+| 2 | One group of three, Merge | **PASS after the fix.** Needs attention showed one group of 3. Merge gave "Breast · left 6 m · right 2 m · in 2 parts". It is 2 parts, not 3, because the Edit → Save that recovered the feeds rounded their times to the minute and left a 60 s gap between two of them; a gap over 60 s starts a part, and exactly 60 s is a side switch by rule (§9, ruling 2). The zoomed day chart showed 2 bars, labelled once. |
+| 3 | Undo | **PASS.** Bottles: two of 120 ml merged, Undo restored both. |
+| 4 | Merge again, the other phone | **PASS.** Merged again (240 ml); the emulator showed the same single feed. |
+| 5 | Overlapping feeds | **Tests only.** No overlapping pair was made on the devices; the Domain and Application tests cover that no merge is offered and the overlap line shows. |
+
+### 10.3 The timer-feed rejection (found by the demo)
+
+**Symptom.** Timer breast feeds appeared under "Not accepted by the server" with the generic "That could not be saved."; bottles and diapers from the same phone were accepted.
+
+**Root cause.** The breast timer reads the phone's clock, which has ticks below a millisecond. `BreastSegment` kept them, and the codec wrote them to the entry's details with all seven fractional digits. The phone stores and pushes the entry's start and end as milliseconds. The server derives a breast feed's timing from the details' segments and compares it with the pushed start and end; sub-millisecond ticks never match, so every timer feed was rejected with `entry.timing-shape-not-allowed`, which had no string. The tests missed it because every test clock used whole seconds or milliseconds.
+
+**It dated from 0.11.0** (sync, 2026-10-02): no timer breast feed had ever synced. Feeds entered in the form, and timer feeds saved again from the edit form, synced, because the form rounds the start to the minute.
+
+**Fix.**
+- `8374eb3`: `BreastSegment` holds its start and end to the millisecond (in the `init` accessors, so the constructor, `with`, the codec's decode and every timer step are covered). This fixes both sides: the server accepts timer feeds from phones still on 0.11 to 0.13 once it is deployed, and updated phones send clean details. Stored rows need no migration. The precision check stays strict: a start a millisecond or more off its segments is still rejected.
+- `86bc605`: `entry.timing-shape-not-allowed` has a string in seven languages: "The times on this entry don't fit together. Edit the entry to send it again."
+- API deployed as **0.12.0+86bc605**. 2140 tests green, `dotnet format` clean.
+
+**Recovery.** Nothing resends a rejected entry. Each of the three was recovered on the Pixel with Edit → Save, which writes a new version (and rounds the feed to whole minutes). Optional, not done: a one-time migration that puts rejected `entry.timing-shape-not-allowed` entries back into the outbox.
+
+### 10.4 Rulings (the agent's, beyond §9)
+
+- A note longer than 500 characters once joined refuses the merge (`NoteTooLong`), with the copy "The notes are too long to join into one."; refusing beats silently cutting notes.
+- A partly dismissed group still offers Merge for all its feeds; the parent sees every feed close together and decides. "Keep all" hides it.
+- The badge counts groups (one decision per group), not feeds.
+- A merge's undo restores the deleted feeds by replacement (a newer live version, last writer wins per ADR 0002 §3); there is no Domain undelete. Specs 001 §3.4, 007 §5 and 011d §3 are amended. It converges on the server and on phones.
+
+### 10.5 Deferred minors and known limits
+
+- No Today view-model test for a multiple pending delete (M-b).
+- The badge counts a group that is pending delete (M-c).
+- Undoing an edit says "Undone" even when nothing differed (M-d).
+- French wording ("Partie", "en N fois") goes to the native-speaker review with the other new strings (M-e).
+- "Keep all" is not atomic across a group's pairs.
+- The overlap case was not made on a device; tests only.
+- Rejected timer feeds from before the fix are not recovered by themselves (§10.3).

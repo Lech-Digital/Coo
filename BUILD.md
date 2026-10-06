@@ -190,6 +190,20 @@ client:
   hit them.
 - **The debug screen opens with three taps on the "coo" wordmark** (day) **or the title** (night).
 
+## MAUI lessons from Increments 11b and 11d
+
+- **The Android app builds only with `DOTNET_ROOT=$HOME/dotnet-maui` first on `PATH`.** The system `dotnet` has no
+  `maui-android` workload.
+- **`JAVA_HOME` is `~/Library/Java/JavaVirtualMachines/jdk-17.0.20+8/Contents/Home`.**
+- **`dotnet build -o` fails** ("OutDir must end with a trailing slash"). Build in place, or in a git worktree.
+- **Build device APKs from a git worktree** when other work is in progress in the tree, so the APK holds exactly one
+  commit.
+- **`uiautomator dump` fails** ("could not get idle state") **while Today's feed timer animates.** Tap by coordinates
+  taken from a screenshot.
+- **A Release build is not debuggable,** so `run-as` does not work and the phone's database cannot be pulled. Check
+  state on screen, on the debug screen or on the server.
+- **The invitation endpoints are rate-limited per hour** (Spec 011b §10.2). A repeat walk can hit "Too many tries".
+
 ## The backend (Increment 8)
 
 - **Deploying:** `DEPLOY.md`. Its tests and the deploy interlock need **Docker Desktop** running

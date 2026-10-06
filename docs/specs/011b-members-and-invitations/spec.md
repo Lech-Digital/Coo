@@ -704,3 +704,105 @@ path is walked above on the Pixel.
 | O2 | Deliverables 10 and 11 **remove her from your family and re-invite her**; her phone deletes your family's log in between and pulls it back in full. Is that acceptable on her real phone, or should removal be walked with the second account only? | **Her phone is handled by the owner later.** No deliverable needs her phone now; her steps are marked "later, owner" (§14). Removal is walked with the second account on the Pixel. |
 | O3 | **The shared phone (R13):** when A signs back in on a phone B used, B's unsynced entries are offered into A's family. Kept as is. Do you want it changed (for example, never offering entries logged under another account)? | **R13 stays as is.** |
 | O4 | **Version numbers stop matching increments:** 11b is 0.12.0, so Increment 12 (billing) would ship as 0.13.0. Acceptable, or would you rather 11b were 0.11.1 (versionCode 15)? | **0.12.0 (versionCode 15).** |
+
+## 16. Built and verified (2026-10-06 · Pixel 10 and an Android 16 emulator)
+
+**Versions.** The app shipped the increment as **0.12.0 (versionCode 15)**. The device walk found six things (§16.3); their fixes ship in **0.13.0 (versionCode 16)**, together with Increment 11d. Production runs the API as `0.12.0+4ec5f6e` after the final review's fixes (later redeployed with 11d's server change, see Spec 011d §10).
+
+**Devices (§14, the owner's answers to §15.3).** The emulator `coo-second` is **adzius.lech@gmail.com** and the Owner's family; the Pixel 10 is **andrzej.lech.andrzej@gmail.com**, the joiner. Trimmed Release build with the debug screen, signed with the debug key. Walk build: `ae88d8e` plus the back-arrow commit `f7b57ef`. Her Samsung is later, by the owner (O2).
+
+### 16.1 What was built
+
+- **Server.** Invitations (8-character codes, 72 h, used once, stored as a keyed hash; revocable by any Owner or Parent), preview and accept, member list, remove, leave, delete a family, `/i/{code}` fallback page and `/.well-known/assetlinks.json`, rate limits (§10.2), the `MembersAndInvitations` migration, roles on push, and the carries from Spec 010 §10.6 and Spec 011 §13.4. The privacy policy page was updated first (§13).
+- **Phone.** Settings → Family (members, open invitations, invite, withdraw, remove, leave, delete), "Have an invitation? Enter a code", the join flow with consent and the bring-over choice (move for a family that never synced, copy for one that has), several families on one phone with a switcher, every account family syncing in one cycle, the removal sheet and the paused banner, and a true sync line for refusals that retrying cannot fix.
+- **Final review (before the walk), three parts.** Fixed: a removed member could rejoin at once with an older open invitation; leave and the Settings bring-over could race a sync cycle; the bring-over could be offered while a join waited at its choice; two consent sheets could open at once; invitation codes are now hashed with a configured pepper (`INVITATIONS_CODE_PEPPER` in `/opt/coo/.env`; Production refuses to start without it, and open invitations were invalidated on that deploy).
+
+### 16.2 The device walk
+
+| # | Deliverable | Result |
+|---|---|---|
+| 1 | Deployed | **PASS.** `/health` showed `0.12.0+4ec5f6e`; `assetlinks.json` and the fallback page were live. |
+| 2 | App Link verified | **PASS** on both devices. |
+| 3 | The Pixel's first sign-in as the second account | **PASS.** Sign-out and sign-in, consent, family H2 and the baby step, switcher labels. |
+| 4 | Invite and withdraw | **PASS.** A withdrawn code gives "This invitation can't be used". |
+| 5 | The fallback page | **PASS.** |
+| 6 | Join, keep separate | **PASS.** The "keep separate" toast, and X shown as "Family of Andrzej". |
+| 7 | Each other's entries | **PASS.** Emulator to Pixel in about 10 s, Pixel to emulator in about 18 s. An offline-edit convergence was not walked again (it was walked in Spec 011 §13). |
+| 8 | Two families and the switcher | **PASS.** A diaper logged in H2 never reached the emulator. |
+| 9 | Members | **PASS.** Leave is offered only when another shared family exists, by design (`FamilyPageViewModel`). |
+| 10 | Enter a code | **PASS.** "You're already in this family."; the invitation stays open. |
+| 11 | Leave | **PASS.** |
+| 12 | Re-join, copy, delete the old family | **Walked by the owner by hand:** join, bring over, delete the old family; the entries reached the emulator. The agent's repeat hit the hourly invitation rate limit ("Too many tries"), which shows the limit works. |
+| 13 | Removal | **PASS.** The removal sheet about 8 s after the phone came online, the unshared entries in the share text, a new family and the baby step. |
+| 14 | Join with entries never synced (move) | **PASS on the phone side:** sign-in from the join sheet, no consent step, bring over, the entries on the emulator. The server-side `households` checks were **not run** (the production database read was denied). |
+| 15 | CI green | Not recorded in the ledger; check the repository's Actions. |
+
+### 16.3 Findings and fixes (0.13.0)
+
+The walk found one bug, one untrue line of copy and four requests from the owner. All were fixed after the walk and reviewed (spec and quality review, a fix round, a re-review); the full suite passed (2090 tests, twice), then the controller checked F1 to F3 on the Pixel.
+
+- **F1, the stuck join sheet (bug).** After entering a withdrawn code (the sheet said "invalid") and then opening a valid link while it was showing, the invalid-message sheet could not be closed by OK or Back, three windows were open, and taps did nothing. **Root cause:** the Shell routed modal navigation, so the modal stack's top was not the page that was visible. **Fix:** modal sheets go through one `SheetNavigator` that owns the stack; a new link replaces the message, OK closes it, and a reset releases every queued sheet (review I1). Checked on the Pixel: one dialog, OK closes it.
+- **F2, the switcher (owner).** "Show which family?" was Android's default action sheet with no way to manage a family. It is now a Coo-styled sheet, with **Bring entries over**, **Remove**, **Leave** and **Delete** for a family. Cosmetic, left as is: the sheet stretches to the bottom.
+- **F3, which invitation is which (owner).** Open invitations showed only a date. The Family page now shows the code and when it was made, on the phone that created it (the server keeps only the hash, Q4).
+- **F4, who logged an entry.** "Who" on the edit form was hard-coded "You". It now names the person who logged the entry.
+- **F5, the setup subtitle.** The first-launch step said "No account needed to start" to a signed-in person, which was untrue. It now reads for a signed-in person.
+- **Back arrows.** The Family page and the Enter a code page had no on-screen back; both have one (`f7b57ef`).
+
+Review notes: the switcher's name comparison no longer depends on the order the names are stored in (a fix by the controller, with a red-then-green test). Still to look at on a device: the switcher wrapping on narrow screens, and the debug gallery's Back.
+
+### 16.4 Rulings made on the owner's behalf
+
+Each ruling gives its cost if wrong in the ledger (`.superpowers/sdd/plan-011b-members-and-invitations/progress.md`); the plan's thirty numbered rulings are in `plan.md`.
+
+**Plan and pre-flight**
+- The household-mismatch stop is retired: a shown family that is not the account's is never pushed (the switcher covers that case).
+- Each pre-flight finding's proposed resolution is adopted, except F7 and F14 (existing precedent) and F24 (the refresh runs before every cycle, §7.1).
+- Ruling 30 (F16): the flat four-value `LeaveDecision`, and the names `HouseholdEndpoints`, `MemberUseCases`, `BringFamilyEntriesOver` and `IFamilyRecords.CopyAsync`, are accepted (refusal precedence is plan ruling 15).
+
+**Server**
+- Creating an invitation checks the caller's membership before the requested role (a non-member gets 403 `household.forbidden`).
+- A removed member's accept answers `invitation.invalid` when the invitation was created before the removal; a deliberate re-invite afterwards works (the owner is informed and may override).
+
+**Phone core**
+- `IFamilyRecords.CopyAsync` takes a reserved count of records; exceeding it throws inside the transaction and nothing is written (the caller retries).
+- An unparseable membership makes the memberships list null (the previous list is kept) rather than silently dropping a family.
+- After a §8.4 create, the new family syncs in the same cycle and no re-run is requested.
+- Departures accepted, each keeping a Spec 011 guarantee: a join-pending pull `membership-revoked` soft-locks the home; no server family is created mid-join; a created move happens only while the home is still the sign-in's family.
+- `SyncingHouseholdsAsync` leaves out a home the known list lacks, even while join-pending.
+- Each cycle also asks `/membership` for every ever-synced family missing from the known list: revoked becomes Removed, active refreshes the list, anything else is left alone.
+- The §8.4 server create runs only when the account has no active family, and only for the family `DeleteAndReplace` made.
+- No extra cycle request when the family list changes (it would loop); the 30 s tick covers it.
+- The family refresh at a wake runs before consent too (account and membership data, not care data).
+- One removal acknowledgment at a time, with a removal epoch the cycles check.
+- The joining marker is cleared when the choice is made, and kept when a bring-over fails before committing; after accept the marker is written before the pending invitation is cleared.
+- When the account moved after the server answered, remove skips the refresh and leave skips local writes, both reporting done.
+- One engine exclusive section (`ISyncControl.RunExclusiveAsync`) wraps leave and delete, the removal acknowledgment and both bring-overs, with a narrowed belt in `ApplyPageAsync`; whole-family actions may wait up to one network timeout for a cycle in flight.
+- A preview answering "already a member" retries accept with the same code.
+
+**Presentation and copy**
+- The removal sheet is neutral and true for a removal and for a leave on another phone ("You're no longer in this family").
+- Delete asks once: the prompt that lists the entries is the confirmation.
+- "Keep separate" from a family that cannot be pulled toasts "You've joined X's family." only.
+- The paused banner follows the shown family being the only one and soft-locked; a not-a-member family keeps its own sync-line text.
+- The consent prompt answers Given, Declined or NotAsked; only Declined clears the invitation.
+- The join sheet is not ready while a joining marker is stored, and the join-pending bring-over is skipped while a join is staged.
+- "Choose what to do" while an invitation is pending opens the join sheet.
+- A failed choice never offers Keep separate on a phone with no baby.
+- Duplicate action-sheet labels are made distinct with zero-width spaces (this became the switcher sheet in F2).
+
+**Process.** Small debug-only and polish rounds with a red test were not re-reviewed; the final review caught what they missed. Review and fix wave before the walk, so the walk verifies the final code.
+
+### 16.5 Known limits
+
+- **New strings to review.** The strings added by 11b and its fixes (including `BringOver.InFamilyOf`, `InYourFamily` and `InOtherFamily`) need a native-speaker review in the six other languages.
+- **Her phone** (the Samsung) is later, by the owner; it was not walked (§14).
+- **Not walked on a device:** deliverable 12 by the agent (the owner walked it), the server-side `households` checks after deliverable 14, and the paths listed at the end of §14 (covered by tests).
+- **Rate limits** are in memory and reset on restart; a repeat walk within the hour can hit "Too many tries".
+- **A push in flight when a member is removed** can land, within one request window.
+- **Two concurrent leaves** by one person can leave no family (recovered by §8.4); two concurrent creates can give two families (§7 allows it); leaving a family that no longer exists answers 200 `deleted` to anyone.
+- **After an Owner deletes their account,** the accepted invitation they created is removed with it, so a joiner's retried accept answers "invalid" instead of "joined".
+- **A shared phone:** a family synced under one account can trigger the removal sheet for another account that once left it (the phone cannot tell which account synced a family). R13 stays as is.
+- **Preview lacks the removal rule** that accept has (a removed member's preview shows the invitation, and accept then refuses).
+- **A consent sheet** that is dismissed by the system mid-close can leave the consent wait hanging; the family toast is lost while the consent sheet is open.
+- **Family labels** keep to the babies' names plus "Your family" / "Family of {Owner}" (Q10); no family names yet.
+- **The link page is English only** (R1) (departing from ADR 0006 §2); carried to Increment 18.
