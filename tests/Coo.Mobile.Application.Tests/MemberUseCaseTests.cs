@@ -182,6 +182,20 @@ public sealed class MemberUseCaseTests : IDisposable
     }
 
     [Fact]
+    public async Task ExecuteAsync_ACodeIsRememberedWhileTheListLoads_ForgetsNoCode()
+    {
+        // Arrange: review M8, a list asked for before an invitation was made must not drop that invitation's code.
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(new FamilyMembers([], []));
+        _codes.Remembered.Returns(4L, 5L);
+
+        // Act
+        await new LoadFamilyMembers(_api, _codes).ExecuteAsync(Joined, CancellationToken.None);
+
+        // Assert
+        await _codes.DidNotReceiveWithAnyArgs().KeepOnlyAsync(default, default!, default);
+    }
+
+    [Fact]
     public async Task ExecuteAsync_LoadOffline_ForgetsNoCode()
     {
         // Arrange: the last list may be out of date; only a fresh list tells an invitation is gone.

@@ -755,12 +755,15 @@ public sealed class FamilyPageTests : IDisposable
     {
         private readonly Dictionary<(HouseholdId, Guid), InvitationCode> _codes = [];
 
+        public long Remembered { get; private set; }
+
         public Task<IReadOnlyDictionary<Guid, InvitationCode>> ListAsync(HouseholdId household, CancellationToken cancellationToken) =>
             Task.FromResult<IReadOnlyDictionary<Guid, InvitationCode>>(_codes.Where(c => c.Key.Item1 == household).ToDictionary(c => c.Key.Item2, c => c.Value));
 
         public Task RememberAsync(HouseholdId household, Guid invitationId, InvitationCode code, CancellationToken cancellationToken)
         {
             _codes[(household, invitationId)] = code;
+            Remembered++;
             return Task.CompletedTask;
         }
 

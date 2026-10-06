@@ -11,7 +11,13 @@ namespace Coo.Mobile.Infrastructure.Persistence;
 /// </summary>
 internal sealed class InvitationCodeStore(LocalDatabase database) : IInvitationCodes
 {
-    internal static string Prefix(HouseholdId household) => $"invitation_code:{Columns.Id(household.Value)}:";
+    internal const string KeyPrefix = "invitation_code:";
+
+    private long _remembered;
+
+    public long Remembered => Interlocked.Read(ref _remembered);
+
+    internal static string Prefix(HouseholdId household) => $"{KeyPrefix}{Columns.Id(household.Value)}:";
 
     public async Task<IReadOnlyDictionary<Guid, InvitationCode>> ListAsync(HouseholdId household, CancellationToken cancellationToken)
     {
@@ -26,6 +32,7 @@ internal sealed class InvitationCodeStore(LocalDatabase database) : IInvitationC
         await connection.ExecuteAsync(
             "INSERT INTO app_state (key, value) VALUES ($k, $v) ON CONFLICT (key) DO UPDATE SET value = excluded.value;",
             cancellationToken, null, ("$k", Prefix(household) + Columns.Id(invitationId)), ("$v", code.Value));
+        Interlocked.Increment(ref _remembered);
     }
 
     public async Task KeepOnlyAsync(HouseholdId household, IReadOnlyCollection<Guid> open, CancellationToken cancellationToken)

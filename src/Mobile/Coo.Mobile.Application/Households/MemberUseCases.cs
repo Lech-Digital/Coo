@@ -37,6 +37,7 @@ public sealed class LoadFamilyMembers(IHouseholdApi api, IInvitationCodes codes)
 
     public async Task<MembersLoad> ExecuteAsync(HouseholdId household, CancellationToken cancellationToken)
     {
+        var rememberedBefore = codes.Remembered;
         MembersLoad load;
         try
         {
@@ -49,7 +50,9 @@ public sealed class LoadFamilyMembers(IHouseholdApi api, IInvitationCodes codes)
             load = new MembersLoad(_last.GetValueOrDefault(household), IsFresh: false);
         }
 
-        return load.Members is { } list ? load with { Codes = await CodesAsync(household, list, load.IsFresh, cancellationToken) } : load;
+        // Only a fresh list asked for after the last code was remembered tells which codes are gone (review M8).
+        var prune = load.IsFresh && codes.Remembered == rememberedBefore;
+        return load.Members is { } list ? load with { Codes = await CodesAsync(household, list, prune, cancellationToken) } : load;
     }
 
     private async Task<IReadOnlyDictionary<Guid, InvitationCode>> CodesAsync(

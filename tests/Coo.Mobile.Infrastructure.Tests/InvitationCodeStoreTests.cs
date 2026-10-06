@@ -60,4 +60,51 @@ public sealed class InvitationCodeStoreTests
         // Assert
         codes.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task ClearAsync_SignOut_ForgetsTheCodes()
+    {
+        // Arrange: review M8.
+        await using var db = await TestDatabase.CreateAsync();
+        var store = new InvitationCodeStore(db.Database);
+        await store.RememberAsync(Joined, First, Kahn, CancellationToken.None);
+
+        // Act
+        await new FamilyStore(db.Database).ClearAsync(CancellationToken.None);
+
+        // Assert
+        (await store.ListAsync(Joined, CancellationToken.None)).Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task DeleteHouseholdAsync_TheFamilyLeavesThePhone_ForgetsItsCodesOnly()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var store = new InvitationCodeStore(db.Database);
+        await store.RememberAsync(Joined, First, Kahn, CancellationToken.None);
+        await store.RememberAsync(Home, Second, Other, CancellationToken.None);
+
+        // Act
+        await new HouseholdMoves(db.Database, db.Time).DeleteHouseholdAsync(Joined, CancellationToken.None);
+
+        // Assert
+        (await store.ListAsync(Joined, CancellationToken.None)).Should().BeEmpty();
+        (await store.ListAsync(Home, CancellationToken.None)).Should().ContainKey(Second);
+    }
+
+    [Fact]
+    public async Task RememberAsync_Twice_CountsBoth()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var store = new InvitationCodeStore(db.Database);
+
+        // Act
+        await store.RememberAsync(Joined, First, Kahn, CancellationToken.None);
+        await store.RememberAsync(Joined, Second, Other, CancellationToken.None);
+
+        // Assert
+        store.Remembered.Should().Be(2);
+    }
 }

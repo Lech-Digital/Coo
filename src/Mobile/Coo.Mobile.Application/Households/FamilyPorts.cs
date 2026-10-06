@@ -27,7 +27,7 @@ public interface IFamilyStore
     /// <summary>In one transaction: the list is replaced and marked as this account's.</summary>
     Task ReplaceAsync(UserId user, IReadOnlyList<FamilyMembership> memberships, CancellationToken cancellationToken);
 
-    /// <summary>Sign-out (spec §7.1, ruling 27): the list and the joining marker go; a pending invitation stays.</summary>
+    /// <summary>Sign-out (spec §7.1, ruling 27): the list, the joining marker, member names and invitation codes go; a pending invitation stays.</summary>
     Task ClearAsync(CancellationToken cancellationToken);
 
     Task<PendingInvitation?> GetPendingInvitationAsync(CancellationToken cancellationToken);
@@ -54,6 +54,9 @@ public interface IFamilyStore
 /// </summary>
 public interface IInvitationCodes
 {
+    /// <summary>How many codes were remembered in this app run: a list asked for before one was made must not forget it (review M8).</summary>
+    long Remembered { get; }
+
     Task<IReadOnlyDictionary<Guid, InvitationCode>> ListAsync(HouseholdId household, CancellationToken cancellationToken);
 
     Task RememberAsync(HouseholdId household, Guid invitationId, InvitationCode code, CancellationToken cancellationToken);

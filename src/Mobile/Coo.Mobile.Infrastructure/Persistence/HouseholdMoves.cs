@@ -238,7 +238,8 @@ internal sealed class HouseholdMoves(LocalDatabase database, TimeProvider time) 
 
     /// <summary>
     /// Spec 011b §8.2: a family taken off the phone is no longer named anywhere: its soft-lock, the active key (when it is the
-    /// active one), the replacement key (when it names it), its copy markers in either direction, a joining marker that names it, and its membership row.
+    /// active one), the replacement key (when it names it), its copy markers in either direction, a joining marker that names it, its
+    /// invitation codes and member names (walk fixes review M8), and its membership row.
     /// </summary>
     internal static async Task ClearFamilyKeysAsync(SqliteConnection connection, SqliteTransaction transaction, string household, CancellationToken cancellationToken)
     {
@@ -247,7 +248,8 @@ internal sealed class HouseholdMoves(LocalDatabase database, TimeProvider time) 
             """
             DELETE FROM app_state WHERE key = 'softlock:' || $h OR (key = 'active_household' AND value = $h)
                 OR (key = 'replacement_household' AND value = $h)
-                OR key LIKE 'copied_from:' || $h || ':%' OR key LIKE 'copied_from:%:' || $h;
+                OR key LIKE 'copied_from:' || $h || ':%' OR key LIKE 'copied_from:%:' || $h
+                OR key LIKE 'invitation_code:' || $h || ':%' OR key LIKE 'member_name:' || $h || ':%';
             """,
             cancellationToken, transaction, h);
         var namesIt = await connection.ScalarAsync(

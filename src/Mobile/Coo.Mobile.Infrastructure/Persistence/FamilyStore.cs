@@ -70,7 +70,8 @@ internal sealed class FamilyStore(LocalDatabase database) : IFamilyStore
             "DELETE FROM app_state WHERE key IN ($u, $h, $s, $i);", cancellationToken, transaction,
             ("$u", FamiliesUserKey), ("$h", JoiningHouseholdKey), ("$s", JoiningSourceKey), ("$i", JoiningInviterKey));
         await connection.ExecuteAsync(
-            "DELETE FROM app_state WHERE substr(key, 1, length($p)) = $p;", cancellationToken, transaction, ("$p", MemberNamePrefix));
+            "DELETE FROM app_state WHERE substr(key, 1, length($p)) = $p OR substr(key, 1, length($c)) = $c;", cancellationToken, transaction,
+            ("$p", MemberNamePrefix), ("$c", InvitationCodeStore.KeyPrefix));
         await transaction.CommitAsync(cancellationToken);
     }
 
