@@ -53,7 +53,7 @@ Two or more feeds can be merged when all of these hold:
   others are deleted. A bottle drunk in sips is one bottle: no "parts" are shown for bottles (§9, ruling 4).
 
 **Undo.** A merge is one undoable action: Undo restores the earliest feed's previous details and note and brings the
-deleted feeds back (the existing undo mechanism of Spec 007). It syncs as ordinary changes (Spec 011): the other phones
+deleted feeds back. A merge cannot be deferred like Spec 007's delete, so its undo writes the deleted feeds again, live, with newer versions: replacement, as ADR 0002 §3 allows (a tombstone loses to a newer version); still no Domain undelete method (Spec 001 §3.4, Spec 007 §5 amended). It syncs as ordinary changes (Spec 011): the other phones
 see one feed.
 
 ## 4. Where it is offered: Needs attention

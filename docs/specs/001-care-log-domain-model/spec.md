@@ -107,7 +107,7 @@ Every synced record derives from `SyncedRecord`, which holds `Id`, `HouseholdId`
 
 - `Delete(version)` writes a tombstone. Deleting a record that is already deleted fails with
   `record.already-deleted`.
-- Any other mutator on a deleted record fails with `record.deleted`. There is no undelete method.
+- Any other mutator on a deleted record fails with `record.deleted`. There is no undelete method. (Spec 011d: the local undo of a merge writes the record again, live, with a newer version — replacement in the store, as sync already allows, never a Domain method.)
   A remote edit with a higher version beats a tombstone by *replacement* in sync (ADR 0002 §3),
   not through a method.
 - A mutator called with a stamp that is not greater than `Version` fails with

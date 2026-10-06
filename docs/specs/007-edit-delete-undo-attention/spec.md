@@ -74,7 +74,7 @@ empty, with the time set to now minus 15 minutes. **Save** creates the entry, wi
 
   | What happened | What Undo does | Why |
   |---|---|---|
-  | **Delete** | **The tombstone is not written until the 5 seconds pass.** Undo cancels it, and nothing was ever written. | Spec 001 has no undelete, by design: a tombstone is final. The watch already works this way (ADR 0009). |
+  | **Delete** | **The tombstone is not written until the 5 seconds pass.** Undo cancels it, and nothing was ever written. | Spec 001 has no undelete, by design: a tombstone is final. The watch already works this way (ADR 0009). (Amended by Spec 011d §3: the undo of a *merge*, which cannot be deferred, replaces its tombstones with newer live versions — replacement as ADR 0002 §3 allows, not a Domain undelete.) |
   | **A quick log** (diaper, bottle, a started timer) | Writes a tombstone for the new entry | The entry was already saved; it must be, because an entry is never held only in memory (ADR 0002) |
   | **An edit** | Writes the previous values back, as a new revision | Last-writer-wins needs a newer version, never an older one |
 
