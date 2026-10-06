@@ -2,8 +2,9 @@
 
 Date: 2026-10-06
 
-Status: Proposed (2026-10-06). The rulings in §15.1 are binding (the owner's decisions and the controller's rulings).
-The recommendations in §15.2 await the owner's review, or acceptance under his delegation.
+Status: Accepted (2026-10-06), by the controller under the owner's delegation. The rulings in §15.1 are binding (the
+owner's decisions and the controller's rulings); the recommendations in §15.2 are accepted as written; the owner's
+answers to §15.3 (2026-10-06) are recorded there and in §14.
 
 Depends on: ADR 0003 §6–§8 (roles, invitations, removal, the provisional household, account deletion; **amended by this
 spec**, §15.1 R1), ADR 0002 §10 (`membership-revoked`), ADR 0006 (localization), Spec 010 (sign-in, the reusable
@@ -596,31 +597,67 @@ Check afterwards that the policy says nothing about inviting as a future feature
 
 ## 14. Increment 11b — deliverables
 
-The devices: the owner's **Pixel 10** (his account, consent given), the emulator **`coo-second`** (his account, in his
-family), and his girlfriend's **Samsung Galaxy A25** (Android 16, her own account, on 0.11.0; perhaps with her own
-family). All builds are trimmed Release with the debug screen, signed with the debug key. **[her hands]** marks a step
-only she can do: signing in with her account, her consent, and accepting on her phone. Her phone's other steps can be
-done by the owner with her phone, with her permission.
+**The devices (the owner's answers to §15.3, 2026-10-06):**
 
-**Before deliverable 4**, note her phone's state on 0.11.0 (Settings: signed in or not; the debug screen: entries, cursor,
-outbox), then update it to 0.12.0 with `adb install -r` (her data stays). Her state decides which §6 path deliverable 5
-walks; the paths her phone does not walk are walked on `coo-second` with a second account (§15.3 O1).
+| Device | Account | Its part |
+|---|---|---|
+| The emulator **`coo-second`** | **adzius.lech@gmail.com** (as now) | The **Owner's family**: the inviter, the Owner on the Family page, the one who withdraws and removes |
+| The owner's **Pixel 10** | Signs out, then signs in as his second account, **andrzej.lech.andrzej@gmail.com** | **The joiner**: it walks every join, keep-separate, leave, remove and delete path; the removed member; the leaver |
+| His girlfriend's Samsung Galaxy A25 | Her own | **Later, owner** (O2): no deliverable needs her phone now. The owner updates it and walks her steps himself after 11b |
+
+All builds are trimmed Release with the debug screen, signed with the debug key. The agent drives both devices with
+`adb`; in Google's account sheet it picks **adzius.lech@gmail.com** on the emulator and
+**andrzej.lech.andrzej@gmail.com** on the Pixel. Phone data is test data.
+
+**What the Pixel holds before 11b, and its first sign-in as the second account.** The Pixel is signed in as
+adzius.lech@gmail.com with consent given, and holds that account's family (call it **X**: Maja, synced, with a cursor).
+What the spec says happens, step by step:
+
+1. **Sign out** (Settings → Account → Sign out): the tokens go; X's log, outbox and cursor stay on the phone (Spec 010
+   §2, ADR 0003 §4); the family list is cleared (§7.1). X stays the shown family.
+2. **Sign in as andrzej.lech.andrzej@gmail.com** (Settings → Sign in with Google). It is a new account, and the phone
+   offers the shown family's ID, X, which the server already has: the outcome is **`created`** (Spec 010 §3.2). The
+   server makes a new, empty family for the second account (call it **H2**), with the second account as its Owner; the
+   phone keeps the `created` marker (Spec 011 §4).
+3. **Consent:** the second account has none, so the consent sheet opens (Spec 011 §3). Until it is given nothing syncs
+   and X stays shown; the Family section says "This family's log is only on this phone." (X is not one of the second
+   account's families.)
+4. **Agree and share:** the first cycle meets the marker. X has synced, so it is **never moved** (Spec 011's Task 14
+   ruling, §6.2 here): the marker goes, H2 becomes the shown family with a copy of X's settings (pushed to H2), and
+   nothing of X is uploaded anywhere. Once H2's first pull completes with no baby, the first-launch baby step opens
+   (Spec 011, final review I1), with this increment's **Have an invitation? Enter a code** link.
+5. **X stays on the phone as a family of another account:** never synced (the second account is not a member of it),
+   never offered for bring-over (Spec 011's Task 14 ruling, §6.3), and listed in the switcher as **"Maja · On this phone
+   only"** (§7.3's label for a family on the phone that is not one of the signed-in account's families).
+
+**The walk** (each step names the deliverable it proves):
 
 | # | Deliverable | How you check it |
 |---|---|---|
 | 1 | Deployed | `/health` shows `0.12.0+<sha>`; `https://api.coo.lechdigital.nl/.well-known/assetlinks.json` lists the debug key's SHA-256; the policy and deletion page are live with §13's text |
-| 2 | App Link verified | On the Pixel and the Samsung, `adb shell pm get-app-links com.lechdigital.coo` shows `api.coo.lechdigital.nl: verified` |
-| 3 | Invite and withdraw | Pixel: Settings → Family → Invite a parent: the share sheet with link and code; the Family page lists it with its expiry. A second invitation, withdrawn: its code then gives "This invitation can't be used…" |
-| 4 | The fallback page | The link opened in a laptop browser: §4.3's page with the code, the Play link, no names; a malformed code: the page without a code |
-| 5 | She joins | Send her the link. She taps it: Coo opens. **[her hands]** sign in with her account, if not already; the invitation names Andrzej and Maja; **[her hands]** consent, if her account has none; **[her hands]** Join. Then, by her phone's state: no entries → his log at once; entries never synced → the sheet, Bring my entries over, Maja to Maja: they appear on the Pixel within 30 s, and her empty old family is gone from the server (`households` count); a synced family of her own → the sheet, Bring my entries over: the copies reach the Pixel, the old family is still on her phone until she chooses **Delete old family** or **Keep it** |
-| 6 | Each other's entries | A bottle on the Samsung appears on the Pixel and the emulator within 30 s; a diaper on the Pixel appears on the Samsung. An offline edit on each converges (Spec 011 deliverable 3, across accounts) |
-| 7 | Members | Pixel: Andrzej "Parent · created the family (you)", her "Parent", Remove beside her only. Samsung: Remove beside nobody (the Owner cannot be removed); no Delete or Leave for the Owner on the Pixel |
-| 8 | Enter a code | `coo-second`: Join a family → enter a fresh code: "You're already in this family." (same account); the invitation stays open |
-| 9 | Two families and the switcher | On whichever device kept two families (her phone after **Keep it** or **Keep them separate**, else `coo-second` with the second account): Showing → switch: Today and Log change; a diaper logged in each family reaches only that family's other phones |
-| 10 | Removal | Samsung offline, log one diaper; Pixel: remove her (confirmed); Samsung online: within 30 s the removal sheet, "1 entry you logged wasn't shared yet", Share them as text shows the line; OK: his family is gone from her phone (her other family shown, or the first-launch baby step if it was her only one). Never "Waiting for a connection" |
-| 11 | Re-join | A new invitation; **[her hands]** accept: `rejoined`; his log returns in full on her phone |
-| 12 | Leave | Where §8.3 allows (her old family after a copy, or the second account on `coo-second`): Leave or Delete, confirmed: gone from the phone and, for Delete, from the server |
-| 13 | CI green | GitHub Actions |
+| 2 | App Link verified | On the Pixel and the emulator, `adb shell pm get-app-links com.lechdigital.coo` shows `api.coo.lechdigital.nl: verified` |
+| 3 | The Pixel's first sign-in as the second account | Steps 1–5 above. Then the baby step for H2: baby **Maja**, two diapers. The debug screen lists two families: H2 (Owner) and X (not an account family); the switcher shows "Maja · Your family" and "Maja · On this phone only" |
+| 4 | Invite and withdraw | Emulator: Settings → Family → Invite a parent: the share sheet with link and code; the Family page lists it with its expiry. A second invitation, withdrawn: its code then gives "This invitation can't be used…" on the Pixel (Join a family → enter it) |
+| 5 | The fallback page | The link opened in a laptop browser: §4.3's page with the code, the Play link, no names; a malformed code: the page without a code |
+| 6 | Join, keep separate | Pixel, showing H2: open the first invitation's link (read from the emulator's share sheet, opened on the Pixel with `adb shell am start -a android.intent.action.VIEW -d <link>`): Coo opens; the invitation names Andrzej and Maja; Join (consent exists, so no consent step). H2 has synced and has entries: the sheet "This phone has 2 entries for Maja. Their family's log has: Maja." → **Keep them separate**: X is shown, the toast "Both families are on this phone…" |
+| 7 | Each other's entries | A bottle on the Pixel (in X) appears on the emulator within 30 s; a diaper on the emulator appears on the Pixel. An offline edit on each converges (Spec 011 deliverable 3, across accounts) |
+| 8 | Two families and the switcher | Pixel: Settings → Family → Showing: X and H2 (not the soft-locked, none here): switching changes Today and Log; a diaper logged in H2 never reaches the emulator, one logged in X does |
+| 9 | Members | Emulator: Andrzej "Parent · created the family (you)", the second account "Parent", Remove beside the second account only; no Leave or Delete for the Owner. Pixel: Remove beside nobody (the Owner cannot be removed), Leave this family shown |
+| 10 | Enter a code | Pixel: Join a family → a fresh code for X: "You're already in this family."; the invitation stays open on the emulator's Family page |
+| 11 | Leave | Pixel, showing X: Leave this family (confirmed): X is gone from the Pixel, H2 is shown; the emulator's Family page lists only Andrzej |
+| 12 | Re-join, copy, delete the old family | Emulator: a new invitation; Pixel (showing H2) accepts: `rejoined`; X returns in full. H2 has synced, so the sheet → **Bring my entries over** → Maja to Maja → the two copies reach the emulator within 30 s, H2 untouched → "Delete old family?" → **Delete old family**: H2 is gone from the Pixel and from the server (`households` count) |
+| 13 | Removal | Pixel offline (airplane mode), log one diaper in X; emulator: remove the second account (confirmed); Pixel online: within 30 s the removal sheet, "1 entry you logged wasn't shared yet", Share them as text shows the line. Turn airplane mode on again, then **OK**: X is gone, and as it was the Pixel's only family a new family is made and the first-launch baby step opens (§8.4). Never "Waiting for a connection" before the sheet |
+| 14 | Join with entries never synced (move) | Still offline, on the new family: baby Maja, two diapers; Settings → Sign out; airplane mode off. Emulator: a new invitation; Pixel taps it: "Sign in to join a family" → the second account (it has no active family, so its sign-in adopts this phone's family, Spec 010 §3.2) → Join: `rejoined` → the sheet → Bring my entries over, Maja to Maja: they appear on the emulator within 30 s, and the empty adopted family is gone from the server (its ID is not in `households`; the second account's only active membership is X) |
+| 15 | CI green | GitHub Actions |
+
+Paths no device walks are covered by tests (§12): a join with nothing to ask, a Caregiver's push, a Parent leaving a
+family whose Owner remains while she has entries unshared, and **Delete this family** from the Family page (the same
+`leave` call as step 12's Delete old family).
+
+**Later, owner** (O2): her phone. Before updating it, note its 0.11.0 state (Settings: signed in or not; the debug
+screen: entries, cursor, outbox), then `adb install -r` the 0.12.0 APK (her data stays) and walk §1's test with her:
+**[her hands]** sign in with her account, her consent, and Join. Her phone's state decides which §6 path it takes; every
+path is walked above on the Pixel.
 
 ## 15. Decisions
 
@@ -659,11 +696,11 @@ walks; the paths her phone does not walk are walked on `coo-second` with a secon
 | Q11 | Leaving your only family | **Not offered**; account deletion already covers "stop sharing everything", and this keeps a family on every signed-in account except after a removal (§8.4). |
 | Q12 | Rate-limit numbers | **10 per user and 30 per address per hour** for preview and accept; **20 creations per user per day**; **5 open invitations per family**. In memory; reset on restart. |
 
-### 15.3 For the owner
+### 15.3 For the owner (answered 2026-10-06)
 
-| # | Question |
-|---|---|
-| O1 | Deliverables 5, 9 and 12 have paths her phone may not walk (it depends on her 0.11.0 state). **May the controller use a second Google account of yours on `coo-second`** to walk the others (join with entries never synced, keep separate, leave, delete)? Without one, those paths are covered by tests only. |
-| O2 | Deliverables 10 and 11 **remove her from your family and re-invite her**; her phone deletes your family's log in between and pulls it back in full. Is that acceptable on her real phone, or should removal be walked with the second account only? |
-| O3 | **The shared phone (R13):** when A signs back in on a phone B used, B's unsynced entries are offered into A's family. Kept as is. Do you want it changed (for example, never offering entries logged under another account)? |
-| O4 | **Version numbers stop matching increments:** 11b is 0.12.0, so Increment 12 (billing) would ship as 0.13.0. Acceptable, or would you rather 11b were 0.11.1 (versionCode 15)? |
+| # | Question | The owner's answer |
+|---|---|---|
+| O1 | Deliverables 5, 9 and 12 have paths her phone may not walk (it depends on her 0.11.0 state). **May the controller use a second Google account of yours on `coo-second`** to walk the others (join with entries never synced, keep separate, leave, delete)? Without one, those paths are covered by tests only. | **Yes, recast:** the emulator `coo-second` stays **adzius.lech@gmail.com** and is the Owner's family. The **Pixel 10** signs out and signs in as his second account, **andrzej.lech.andrzej@gmail.com**: the Pixel is the joiner and walks every join, keep-separate, leave, remove and delete path (§14). |
+| O2 | Deliverables 10 and 11 **remove her from your family and re-invite her**; her phone deletes your family's log in between and pulls it back in full. Is that acceptable on her real phone, or should removal be walked with the second account only? | **Her phone is handled by the owner later.** No deliverable needs her phone now; her steps are marked "later, owner" (§14). Removal is walked with the second account on the Pixel. |
+| O3 | **The shared phone (R13):** when A signs back in on a phone B used, B's unsynced entries are offered into A's family. Kept as is. Do you want it changed (for example, never offering entries logged under another account)? | **R13 stays as is.** |
+| O4 | **Version numbers stop matching increments:** 11b is 0.12.0, so Increment 12 (billing) would ship as 0.13.0. Acceptable, or would you rather 11b were 0.11.1 (versionCode 15)? | **0.12.0 (versionCode 15).** |
