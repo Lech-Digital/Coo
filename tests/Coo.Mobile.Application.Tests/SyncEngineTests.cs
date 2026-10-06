@@ -42,7 +42,7 @@ public sealed class SyncEngineTests : IDisposable
         _familyStore.ListAsync(default, default).ReturnsForAnyArgs((IReadOnlyList<FamilyMembership>?)null);
         var cycle = new SyncCycle(
             _account, _sessions, consent, _store, _moves, _state, _api, Substitute.For<IVersionClock>(), device, _time, _familyStore,
-            Substitute.For<IHouseholdApi>(), new SyncStops());
+            Substitute.For<IHouseholdApi>(), new SyncStops(), Substitute.For<IHouseholdStore>());
         _engine = new SyncEngine(cycle, _store, _moves, _sessions, _account, consent, _writes, _time, new SyncOptions(() => 1.0));
     }
 

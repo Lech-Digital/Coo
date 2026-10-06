@@ -53,7 +53,7 @@ public sealed class SyncCycleTests : IDisposable
 
     private SyncCycle Cycle() => new(
         _account, _sessions, new ConsentGate(_state, _accounts, _consentApi), _store, _moves, _state, _api, _clock, _device, _time,
-        _families, _households, _stops);
+        _families, _households, _stops, Substitute.For<IHouseholdStore>());
 
     private Task SignInAsync(bool joinPending = false, HouseholdId? moveFrom = null) => _account.SignedInAsync(
         new StoredSession("access", Now.AddMinutes(15), "refresh", Profile, Household, joinPending, PendingMoveFrom: moveFrom), CancellationToken.None);

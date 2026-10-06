@@ -13,13 +13,14 @@ namespace Coo.Mobile.Application.Sync;
 /// family (Spec 011 ruling 8). Records move into the home family only as the <c>created</c> sign-in's marker names (Spec 011
 /// §4), and never mid-join (ruling 4). Mid-join, nothing is pushed or pulled for a family that has never synced (§5.3,
 /// ruling 5); a shown family that is not an account family is never pushed (ruling 1). The home family follows the
-/// account's memberships (§7.1, §8.4). It throws only for programming errors; network and server answers become a
+/// account's memberships (§7.1, §8.4). A family on the phone that has synced but is missing from the account's list is
+/// only asked about (<c>/membership</c>), so a removal found by a refresh is still confirmed (§8.2). It throws only for programming errors; network and server answers become a
 /// <see cref="CycleReport"/>.
 /// </summary>
 public sealed class SyncCycle(
     Account account, ISessionStore sessions, ConsentGate consent, ISyncStore store, IHouseholdMoves moves, ISyncState state,
     ISyncApi api, IVersionClock clock, IDeviceIdentity device, TimeProvider time, IFamilyStore families, IHouseholdApi households,
-    SyncStops stops)
+    SyncStops stops, IHouseholdStore onPhone)
 {
     public const int PushBatchSize = 200;
 
@@ -89,33 +90,74 @@ public sealed class SyncCycle(
                 await SyncFamilyAsync(family, shown: family == local, run, cancellationToken);
             }
 
+            // After the account families: confirming a removal never holds up syncing the others.
+            if (!run.Interrupted && memberships is not null)
+                await ConfirmDroppedFamiliesAsync(memberships, joining, created ? home : null, run, cancellationToken);
+
             return run.Report();
         }
         catch (StoppedException e)
         {
-            return new CycleReport(CycleOutcome.Failed, run.Changed, e.Message);
+            return run.Report(CycleOutcome.Failed, e.Message);
         }
         catch (SyncRefusedException e) when (e.Refusal == SyncRefusal.ConsentRequired)
         {
             await consent.ForgetAsync(user, cancellationToken);
-            return new CycleReport(CycleOutcome.ConsentNeeded, run.Changed);
+            return run.Report(CycleOutcome.ConsentNeeded);
         }
         catch (SyncRefusedException e) when (e.Refusal == SyncRefusal.ClientTooOld)
         {
-            return new CycleReport(CycleOutcome.ClientTooOld, run.Changed, e.Refusal.ToString());
+            return run.Report(CycleOutcome.ClientTooOld, e.Refusal.ToString());
         }
         catch (SyncRefusedException e) when (e.Refusal == SyncRefusal.Malformed)
         {
             // `sync.malformed` and `sync.batch-too-large`: retrying sends the same request (Spec 011b §9, ruling 21).
-            return new CycleReport(CycleOutcome.Failed, run.Changed, NoProgressError);
+            return run.Report(CycleOutcome.Failed, NoProgressError);
         }
         catch (SyncRefusedException e)
         {
-            return new CycleReport(CycleOutcome.Failed, run.Changed, e.Refusal.ToString());
+            return run.Report(CycleOutcome.Failed, e.Refusal.ToString());
         }
         catch (SyncUnavailableException)
         {
-            return new CycleReport(CycleOutcome.Failed, run.Changed, nameof(SyncUnavailableException));
+            return run.Report(CycleOutcome.Failed, nameof(SyncUnavailableException));
+        }
+    }
+
+    /// <summary>
+    /// Spec 011b §8.2 (review C1): <c>/api/me</c> lists active memberships only, so a refresh drops a family the person was
+    /// removed from, before or after its soft-lock. Each family on the phone that has synced and that the known list lacks
+    /// is asked about, never pushed or pulled: <c>revoked</c> reports its removal (the first only, ruling 23); <c>active</c>
+    /// means the list is stale; anything else (another account's family answers not-a-member) leaves it alone.
+    /// </summary>
+    private async Task ConfirmDroppedFamiliesAsync(
+        IReadOnlyList<FamilyMembership> memberships, JoiningMarker? joining, HouseholdId? created, Run run, CancellationToken cancellationToken)
+    {
+        // The joined family and a family created this cycle are account families the list does not know yet.
+        var known = memberships.Select(m => m.Household).ToHashSet();
+        if (joining is not null)
+            known.Add(joining.Joined);
+        if (created is { } family)
+            known.Add(family);
+
+        foreach (var household in await onPhone.ListHouseholdsAsync(cancellationToken))
+        {
+            if (run.Removed is not null)
+                return;
+            if (household.IsDeleted || known.Contains(household.Id) || !await moves.HasEverSyncedAsync(household.Id, cancellationToken))
+                continue;
+
+            var status = await api.GetMembershipAsync(household.Id, cancellationToken);
+            if (Moved(run))
+            {
+                run.Interrupted = true;
+                return;
+            }
+
+            if (status == MembershipStatus.Revoked)
+                run.Removed = household.Id;
+            else if (status == MembershipStatus.Active)
+                run.RefreshFamilies = true;
         }
     }
 
@@ -178,7 +220,10 @@ public sealed class SyncCycle(
 
                 var fresh = new HouseholdId(Guid.CreateVersion7(time.GetUtcNow()));
 
-                // A household that ever synced is never re-keyed: the store refuses, and the fresh ID holds none of its records.
+                // A household that ever synced is never re-keyed. Unreachable in practice: the shown family was found never-synced
+                // above, and no cycle syncs a family of no account. Were it refused, the store would move nothing and make the
+                // fresh ID active with a copy of the settings; it is not created on the server, so the next cycle, finding the
+                // fresh family never-synced and shown, creates that one instead.
                 if (!await moves.MoveAllAsync(target, fresh, run.User, cancellationToken))
                     return (home, false);
                 run.Changed = true;
@@ -452,6 +497,10 @@ public sealed class SyncCycle(
             return new CycleReport(outcome, Changed, Household: Removed, RunAgain: RunAgain, RefreshFamilies: RefreshFamilies,
                 NotAMember: NotAMember.Count > 0 ? [.. NotAMember] : null);
         }
+
+        /// <summary>A cycle-wide end (review I2): what the families before it found (a refresh, a stop) still travels.</summary>
+        public CycleReport Report(CycleOutcome outcome, string? error = null) =>
+            new(outcome, Changed, error, RefreshFamilies: RefreshFamilies, NotAMember: NotAMember.Count > 0 ? [.. NotAMember] : null);
     }
 
     /// <summary>A stop that retrying cannot fix: the cycle reports it as Failed with its message as the error.</summary>
