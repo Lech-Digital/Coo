@@ -26,6 +26,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient<SetHiddenKinds>();
         services.AddTransient<GetAttention>();
         services.AddTransient<DismissDuplicate>();
+        services.AddTransient<MergeFeeds>();
+        services.AddTransient<UndoFeedMerge>();
 
         // Sign-in and sessions (Spec 010 §6).
         services.AddSingleton<Account>();

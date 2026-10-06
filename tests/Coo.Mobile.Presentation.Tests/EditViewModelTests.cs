@@ -88,7 +88,7 @@ public sealed class EditViewModelTests
 
     private EditViewModel Model()
     {
-        var undo = new UndoService(new DeleteEntry(_store, _clock), new ReviseEntry(_store, _clock, _time), _store, _time);
+        var undo = new UndoService(new DeleteEntry(_store, _clock), new ReviseEntry(_store, _clock, _time), new UndoFeedMerge(_store, _clock, _time), _store, _time);
         return new EditViewModel(_store, _households, new LogEntry(_store, _clock, _time), new ReviseEntry(_store, _clock, _time), undo, _time);
     }
 

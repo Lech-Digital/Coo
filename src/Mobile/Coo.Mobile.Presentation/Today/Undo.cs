@@ -13,11 +13,12 @@ public sealed record UndoToast(string Text, bool CanUndo);
 /// <list type="bullet">
 /// <item>a delete is not written until the 5 seconds pass, so Undo writes nothing (Spec 001 has no undelete);</item>
 /// <item>a quick log was saved at once, so Undo writes a tombstone;</item>
-/// <item>an edit was saved at once, so Undo writes the previous values back as a new revision.</item>
+/// <item>an edit was saved at once, so Undo writes the previous values back as a new revision;</item>
+/// <item>a merge of feeds was saved at once, so Undo restores the earliest feed and brings the others back, in one write.</item>
 /// </list>
 /// A pending delete lost to an app kill leaves the entry in place: the safe direction.
 /// </summary>
-public sealed class UndoService(DeleteEntry delete, ReviseEntry revise, ICareLogStore store, TimeProvider time) : IDisposable
+public sealed class UndoService(DeleteEntry delete, ReviseEntry revise, UndoFeedMerge undoMerge, ICareLogStore store, TimeProvider time) : IDisposable
 {
     public static readonly TimeSpan Window = TimeSpan.FromSeconds(5);
 
@@ -86,6 +87,10 @@ public sealed class UndoService(DeleteEntry delete, ReviseEntry revise, ICareLog
                 await revise.ExecuteAsync(id, (e, v, _) => e.SetNote(note, v), CancellationToken.None);
         });
     }
+
+    /// <summary>Offers to put back a merge that was saved at once: <c>"Merged into one feed"</c> (Spec 011d §4).</summary>
+    public void OfferUndoForMerge(FeedMergeReceipt merged, string message) =>
+        Offer(message, () => undoMerge.ExecuteAsync(merged, CancellationToken.None));
 
     /// <summary>Shows a plain toast with no undo, such as "Switch side".</summary>
     public void Say(string message)

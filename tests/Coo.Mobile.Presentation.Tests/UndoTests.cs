@@ -100,8 +100,53 @@ public sealed class UndoTests
         saved.Version.Should().BeGreaterThan(before.Version, "last-writer-wins needs a newer version, never an older one");
     }
 
+    [Fact]
+    public async Task OfferUndoForMerge_Undo_PutsTheMergeBackInOneWrite()
+    {
+        // Arrange: the merge made the earliest entry dirty and deleted the other.
+        var before = Diaper(DiaperContents.Wet);
+        var merged = Diaper(DiaperContents.Wet, before.Id);
+        merged.Revise<DiaperDetails>(d => d.WithContents(DiaperContents.Dirty), new HlcStamp(++_wall, 0, Device), _time.GetUtcNow());
+        var gone = Diaper();
+        gone.Delete(new HlcStamp(++_wall, 0, Device));
+        _store.FindAsync(before.Id, Arg.Any<CancellationToken>()).Returns(new LiveEntry(merged));
+        _store.FindAsync(gone.Id, Arg.Any<CancellationToken>()).Returns(new LiveEntry(gone));
+        CareLogWrites? written = null;
+        _store.WriteAllAsync(Arg.Do<CareLogWrites>(w => written = w), Arg.Any<CancellationToken>()).Returns(true);
+        UndoToast? toast = null;
+        using var undo = Undo();
+        undo.ToastChanged += (_, t) => toast ??= t;
+
+        // Act
+        undo.OfferUndoForMerge(new FeedMergeReceipt(before.Id, before.Details, before.Note, [gone.Id]), "Merged into one feed");
+        await undo.UndoAsync();
+
+        // Assert
+        toast.Should().Be(new UndoToast("Merged into one feed", CanUndo: true));
+        ((DiaperDetails)written!.Saves.Should().ContainSingle().Which.Details).Contents.Should().Be(DiaperContents.Wet);
+        written.Restores.Select(r => r.Id).Should().Equal(gone.Id);
+        await _store.DidNotReceiveWithAnyArgs().SaveAsync(default!, default);
+    }
+
+    [Fact]
+    public async Task OfferUndoForMerge_WindowPasses_WritesNothing()
+    {
+        // Arrange
+        var entry = Diaper();
+        using var undo = Undo();
+
+        // Act
+        undo.OfferUndoForMerge(new FeedMergeReceipt(entry.Id, entry.Details, null, [new EntryId(Guid.CreateVersion7(_time.GetUtcNow()))]), "Merged into one feed");
+        _time.Advance(UndoService.Window + TimeSpan.FromMilliseconds(1));
+        await Task.Delay(50);
+        await undo.UndoAsync();
+
+        // Assert
+        await _store.DidNotReceiveWithAnyArgs().WriteAllAsync(default!, default);
+    }
+
     private UndoService Undo() =>
-        new(new DeleteEntry(_store, _clock), new ReviseEntry(_store, _clock, _time), _store, _time);
+        new(new DeleteEntry(_store, _clock), new ReviseEntry(_store, _clock, _time), new UndoFeedMerge(_store, _clock, _time), _store, _time);
 
     private CareEntry Diaper(DiaperContents contents = DiaperContents.Wet, EntryId? id = null) =>
         CareEntry.Create(id ?? new EntryId(Guid.CreateVersion7(_time.GetUtcNow().AddMilliseconds(++_wall))), Household, EntrySubject.Baby(Baby),
