@@ -49,6 +49,8 @@ public static class ServiceCollectionExtensions
         // Members and invitations (Spec 011b).
         services.AddTransient<ProvisionalSettings>();
         services.AddSingleton<Families>();
+        services.AddTransient<BringFamilyEntriesOver>();
+        services.AddTransient<JoinFamily>();
         return services;
     }
 }
