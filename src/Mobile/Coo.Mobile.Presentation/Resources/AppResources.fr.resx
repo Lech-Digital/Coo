@@ -308,7 +308,6 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Sync.Paused" xml:space="preserve"><value>Le partage est en pause. Vos entrées sont en sécurité sur ce téléphone.</value></data>
   <data name="Sync.Sharing.one" xml:space="preserve"><value>Partage de {0} modification…</value></data>
   <data name="Sync.Sharing.other" xml:space="preserve"><value>Partage de {0} modifications…</value></data>
-  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Le partage est arrêté : les entrées de ce téléphone ne font pas encore partie de votre famille. Déconnectez-vous puis reconnectez-vous pour choisir quoi en faire.</value></data>
   <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Le partage est arrêté. Vos modifications sont en sécurité sur ce téléphone. Coo réessaiera à la prochaine ouverture de l’app.</value></data>
   <data name="Sync.TurnOn" xml:space="preserve"><value>Activer le partage</value></data>
   <data name="Sync.UpToDate" xml:space="preserve"><value>À jour · {0}</value></data>

@@ -24,9 +24,6 @@ public sealed class SyncCycle(
 {
     public const int PushBatchSize = 200;
 
-    /// <summary>No longer produced (Spec 011b ruling 1); kept so a stored status from 0.11.0 still reads.</summary>
-    public const string HouseholdMismatchError = "household-mismatch";
-
     public const string NoProgressError = "no-progress";
 
     public async Task<CycleReport> RunAsync(CancellationToken cancellationToken)

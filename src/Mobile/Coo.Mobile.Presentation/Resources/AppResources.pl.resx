@@ -324,7 +324,6 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Sync.Sharing.few" xml:space="preserve"><value>Udostępnianie {0} zmian…</value></data>
   <data name="Sync.Sharing.many" xml:space="preserve"><value>Udostępnianie {0} zmian…</value></data>
   <data name="Sync.Sharing.one" xml:space="preserve"><value>Udostępnianie {0} zmiany…</value></data>
-  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Udostępnianie zatrzymane: wpisy z tego telefonu nie są jeszcze częścią Twojej rodziny. Wyloguj się i zaloguj ponownie, aby zdecydować, co z nimi zrobić.</value></data>
   <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Udostępnianie zatrzymane. Twoje zmiany są bezpieczne na tym telefonie. Coo spróbuje ponownie po ponownym otwarciu aplikacji.</value></data>
   <data name="Sync.TurnOn" xml:space="preserve"><value>Włącz udostępnianie</value></data>
   <data name="Sync.UpToDate" xml:space="preserve"><value>Zsynchronizowano · {0}</value></data>

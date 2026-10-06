@@ -308,7 +308,6 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Sync.Paused" xml:space="preserve"><value>Sharing is paused. Your entries are safe on this phone.</value></data>
   <data name="Sync.Sharing.one" xml:space="preserve"><value>Sharing {0} change…</value></data>
   <data name="Sync.Sharing.other" xml:space="preserve"><value>Sharing {0} changes…</value></data>
-  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Sharing stopped: the entries on this phone aren't part of your family yet. Sign out and sign in again to choose what to do with them.</value></data>
   <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Sharing stopped. Your changes are safe on this phone. Coo will try again when you reopen the app.</value></data>
   <data name="Sync.TurnOn" xml:space="preserve"><value>Turn on sharing</value></data>
   <data name="Sync.UpToDate" xml:space="preserve"><value>Up to date · {0}</value></data>

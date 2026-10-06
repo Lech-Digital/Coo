@@ -18,7 +18,7 @@ public sealed record SyncLineView(string Text, SyncLineAction Action);
 /// <summary>
 /// The line under the account (Spec 011 §2), the only sync indicator. Pure: the state, the status and the clock format
 /// in, the text out. It never says "up to date" while the outbox holds anything; "Sharing n changes…" only when n &gt; 0
-/// (ruling 11), so the 30-second pull does not flicker it. A cycle that stopped for good (a household mismatch, no progress)
+/// (ruling 11), so the 30-second pull does not flicker it. A cycle that stopped for good (no progress)
 /// is said as such, never as waiting for a connection: the engine tries again only when the app reopens.
 /// </summary>
 public static class SyncLine
@@ -44,8 +44,9 @@ public static class SyncLine
         {
             CycleOutcome.ConsentDeclined or CycleOutcome.ConsentNeeded => new SyncLineView(Strings.Get("Sync.Off"), SyncLineAction.TurnOnSharing),
             CycleOutcome.ClientTooOld => new SyncLineView(Strings.Get("Sync.UpdateApp"), SyncLineAction.None),
+            // A paused (soft-locked) family reads as paused, not as removed from the server; the stop is only for a shown family that is not.
+            _ when status.ShownStopped && status.Last is not CycleOutcome.SoftLocked => new SyncLineView(Strings.Get("Sync.NotAMember"), SyncLineAction.None),
             _ when status.IsRunning && status.Pending > 0 => Sharing(status.Pending),
-            CycleOutcome.Failed when status.LastError == SyncCycle.HouseholdMismatchError => new SyncLineView(Strings.Get("Sync.StoppedMismatch"), SyncLineAction.None),
             CycleOutcome.Failed when status.LastError == SyncCycle.NoProgressError => new SyncLineView(Strings.Get("Sync.StoppedNoProgress"), SyncLineAction.None),
             CycleOutcome.SoftLocked or CycleOutcome.Removed => new SyncLineView(Strings.Get("Sync.Paused"), SyncLineAction.None),
             CycleOutcome.Failed => new SyncLineView(

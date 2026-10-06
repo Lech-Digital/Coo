@@ -23,4 +23,6 @@ internal sealed class MauiExternalLauncher : IExternalLauncher
     public Task OpenBrowserAsync(Uri uri) => Browser.Default.OpenAsync(uri, BrowserLaunchMode.SystemPreferred);
 
     public Task CopyAsync(string text) => Clipboard.Default.SetTextAsync(text);
+
+    public Task ShareTextAsync(string text, string title) => Share.Default.RequestAsync(new ShareTextRequest { Text = text, Title = title });
 }

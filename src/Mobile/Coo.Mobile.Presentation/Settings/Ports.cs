@@ -18,6 +18,15 @@ public interface IExternalLauncher
     Task OpenBrowserAsync(Uri uri);
 
     Task CopyAsync(string text);
+
+    /// <summary>Android's share sheet with a text (the invitation, spec §3; unshared entries, §8.2). Closing it sends nothing.</summary>
+    Task ShareTextAsync(string text, string title);
+}
+
+/// <summary>Spec 011 §3's consent sheet, shown where the person is (Spec 011b §3, §5.1). True when consent is given once it closes.</summary>
+public interface IConsentPrompt
+{
+    Task<bool> AskAsync();
 }
 
 public static class AppVersionText

@@ -356,23 +356,4 @@ public sealed class AccountViewModelTests : IDisposable
         _households,
         _sync,
         _clock);
-
-    private sealed class MemorySessions : ISessionStore
-    {
-        private StoredSession? _stored;
-
-        public Task<StoredSession?> GetAsync(CancellationToken cancellationToken) => Task.FromResult(_stored);
-
-        public Task SaveAsync(StoredSession session, CancellationToken cancellationToken)
-        {
-            _stored = session;
-            return Task.CompletedTask;
-        }
-
-        public Task ClearAsync(CancellationToken cancellationToken)
-        {
-            _stored = null;
-            return Task.CompletedTask;
-        }
-    }
 }

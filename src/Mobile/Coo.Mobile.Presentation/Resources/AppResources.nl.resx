@@ -308,7 +308,6 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Sync.Paused" xml:space="preserve"><value>Delen is gepauzeerd. Je items zijn veilig op deze telefoon.</value></data>
   <data name="Sync.Sharing.one" xml:space="preserve"><value>{0} wijziging wordt gedeeld…</value></data>
   <data name="Sync.Sharing.other" xml:space="preserve"><value>{0} wijzigingen worden gedeeld…</value></data>
-  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Delen is gestopt: de items op deze telefoon maken nog geen deel uit van je gezin. Log uit en log opnieuw in om te kiezen wat je ermee doet.</value></data>
   <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Delen is gestopt. Je wijzigingen zijn veilig op deze telefoon. Coo probeert het opnieuw zodra je de app weer opent.</value></data>
   <data name="Sync.TurnOn" xml:space="preserve"><value>Delen inschakelen</value></data>
   <data name="Sync.UpToDate" xml:space="preserve"><value>Bijgewerkt · {0}</value></data>

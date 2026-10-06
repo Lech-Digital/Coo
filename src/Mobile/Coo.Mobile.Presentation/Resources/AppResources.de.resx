@@ -308,7 +308,6 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Sync.Paused" xml:space="preserve"><value>Teilen ist pausiert. Deine Einträge sind auf diesem Handy sicher.</value></data>
   <data name="Sync.Sharing.one" xml:space="preserve"><value>{0} Änderung wird geteilt…</value></data>
   <data name="Sync.Sharing.other" xml:space="preserve"><value>{0} Änderungen werden geteilt…</value></data>
-  <data name="Sync.StoppedMismatch" xml:space="preserve"><value>Teilen wurde angehalten: Die Einträge auf diesem Handy gehören noch nicht zu deiner Familie. Melde dich ab und wieder an, um zu entscheiden, was damit passiert.</value></data>
   <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>Teilen wurde angehalten. Deine Änderungen sind auf diesem Handy sicher. Coo versucht es erneut, wenn du die App wieder öffnest.</value></data>
   <data name="Sync.TurnOn" xml:space="preserve"><value>Teilen einschalten</value></data>
   <data name="Sync.UpToDate" xml:space="preserve"><value>Aktuell · {0}</value></data>

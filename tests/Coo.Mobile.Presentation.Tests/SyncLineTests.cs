@@ -139,11 +139,9 @@ public sealed class SyncLineTests : IDisposable
         Strings.Use(new LanguagePreference("pl"), null);
 
         // Act
-        var mismatch = SyncLine.For(Signed, Status(CycleOutcome.Failed) with { LastError = SyncCycle.HouseholdMismatchError }, is24Hour: true);
         var noProgress = SyncLine.For(Signed, Status(CycleOutcome.Failed) with { LastError = SyncCycle.NoProgressError }, is24Hour: true);
 
         // Assert
-        mismatch.Text.Should().StartWith("Udostępnianie zatrzymane:");
         noProgress.Text.Should().StartWith("Udostępnianie zatrzymane.");
     }
 
@@ -168,7 +166,6 @@ public sealed class SyncLineTests : IDisposable
     }
 
     [Theory]
-    [InlineData(SyncCycle.HouseholdMismatchError, "Sharing stopped: the entries on this phone aren't part of your family yet. Sign out and sign in again to choose what to do with them.")]
     [InlineData(SyncCycle.NoProgressError, "Sharing stopped. Your changes are safe on this phone. Coo will try again when you reopen the app.")]
     public void For_StoppedForGood_SaysSoNotThatItWaitsForAConnection(string error, string expected)
     {
@@ -220,5 +217,35 @@ public sealed class SyncLineTests : IDisposable
         // Assert
         line.Text.Should().Be($"Up to date · {new Formats(false, VolumeUnit.Millilitres).Time(At)}");
         line.Text.Should().NotBe($"Up to date · {new Formats(true, VolumeUnit.Millilitres).Time(At)}");
+    }
+
+    [Fact]
+    public void For_ShownFamilyNotAMember_SaysSharingStoppedForThatFamily()
+    {
+        // Act
+        var line = SyncLine.For(Signed, Status(CycleOutcome.Synced, at: At) with { ShownStopped = true }, is24Hour: true);
+
+        // Assert
+        line.Text.Should().Be("Sharing stopped: this family is no longer on Coo's server. Your entries are safe on this phone.");
+    }
+
+    [Fact]
+    public void For_ShownFamilyPausedAndAlsoStopped_ReadsAsPausedNotRemoved()
+    {
+        // Act
+        var line = SyncLine.For(Signed, Status(CycleOutcome.SoftLocked) with { ShownStopped = true }, is24Hour: true);
+
+        // Assert
+        line.Text.Should().Be("Sharing is paused. Your entries are safe on this phone.");
+    }
+
+    [Fact]
+    public void For_ShownFamilyPausedAlone_ReadsAsPaused()
+    {
+        // Act
+        var line = SyncLine.For(Signed, Status(CycleOutcome.SoftLocked), is24Hour: true);
+
+        // Assert
+        line.Text.Should().Be("Sharing is paused. Your entries are safe on this phone.");
     }
 }

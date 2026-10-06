@@ -37,6 +37,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<LogViewModel>();
         services.AddSingleton<Settings.SettingsViewModel>();
         services.AddSingleton<Settings.AccountViewModel>();
+        services.AddSingleton<Settings.FamilySectionViewModel>();
         services.AddTransient<Settings.BabyProfileViewModel>();
         services.AddTransient<Settings.ConsentViewModel>();
         services.AddTransient<Settings.BringOverViewModel>();
