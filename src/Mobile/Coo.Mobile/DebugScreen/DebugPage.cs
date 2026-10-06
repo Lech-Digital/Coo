@@ -36,6 +36,8 @@ public sealed class DebugPage : ContentPage
     private readonly Label _accountLine = new() { FontSize = 13 };
     private readonly Label _syncLine = new() { FontSize = 13 };
     private readonly SyncEngine _sync;
+    private readonly IServiceProvider _services;
+    private readonly Label _familiesLine = new() { FontSize = 13 };
 
     // For the process lifetime: this transient page is rebuilt on every visit, and the token must outlive a sign-out
     // (Spec 010 §10.6: Keep token, sign out in Settings, reopen this page, then try the token).
@@ -52,6 +54,7 @@ public sealed class DebugPage : ContentPage
         (_log, _revise, _delete, _entries, _store, _households, _clock, _diagnostics, _accountApi, _sessions, _account, _time) =
             (log, revise, delete, entries, store, households, clock, diagnostics, accountApi, sessions, account, time);
         _sync = sync;
+        _services = services;
 
         Title = "Coo debug";
         BackgroundColor = Colors.White;
@@ -107,6 +110,14 @@ public sealed class DebugPage : ContentPage
                             await ShowSyncAsync();
                             await RefreshAsync();
                         })),
+                    new Label { Text = "Families (Spec 011b)", FontSize = 17, Margin = new Thickness(0, 12, 0, 0) },
+                    _familiesLine,
+                    Row(Button("Refresh families", async () =>
+                    {
+                        _status.Text = await services.GetRequiredService<Families>().RefreshAsync(CancellationToken.None)
+                            ? "Families refreshed" : "Families not refreshed (offline or signed out)";
+                        await ShowFamiliesAsync();
+                    })),
                     new Label { Text = "Last 20 entries", FontSize = 17, Margin = new Thickness(0, 12, 0, 0) },
                     _list,
                 },
@@ -155,6 +166,7 @@ public sealed class DebugPage : ContentPage
         _baby = babies[0].Id;
         await RefreshAsync();
         await ShowSyncAsync();
+        await ShowFamiliesAsync();
     }
 
     private async Task ShowSyncAsync()
@@ -168,12 +180,28 @@ public sealed class DebugPage : ContentPage
               + $"{(s.LastSyncedAt is { } at ? $" · synced {at:HH:mm:ss}" : "")}{(s.IsRunning ? " · running" : "")}";
     }
 
+    private async Task ShowFamiliesAsync()
+    {
+        var families = await _services.GetRequiredService<Families>().ListAsync(CancellationToken.None);
+        var store = _services.GetRequiredService<IFamilyStore>();
+        var pending = await store.GetPendingInvitationAsync(CancellationToken.None);
+        var joining = await store.GetJoiningAsync(CancellationToken.None);
+        var lines = families.Select(f =>
+            $"{(f.IsShown ? "▶ " : "  ")}{f.Id.Value.ToString()[^6..]} · {string.Join(", ", f.BabyNames)} · "
+            + $"{f.Membership?.Role.ToString() ?? "not an account family"}{(f.Membership is { } m ? $" ({m.MemberCount}, owner {m.OwnerName})" : "")}"
+            + $"{(f.IsHome ? " · home" : "")}{(f.IsSoftLocked ? " · soft-locked" : "")}{(f.HasEverSynced ? " · synced" : " · never synced")}");
+        _familiesLine.Text = string.Join("\n", lines)
+            + $"\npending invitation: {pending?.Code.Display ?? "none"} · joining: {(joining is null ? "none" : joining.Joined.Value.ToString()[^6..])}"
+            + $"{(_sync.Status.ShownStopped ? " · shown family stopped (not a member)" : "")}";
+    }
+
     // Raised from background threads: dispatched to the main thread, with a catch-all (async void).
     private void OnSyncStatus(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
     {
         try
         {
             await ShowSyncAsync();
+            await ShowFamiliesAsync();
         }
         catch (Exception ex)
         {
