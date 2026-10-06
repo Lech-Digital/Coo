@@ -91,6 +91,45 @@ public sealed class FamiliesTests : IDisposable
     }
 
     [Fact]
+    public async Task RefreshAsync_TwoMemberships_StoresEachFamilysMemberNamesForWhoLoggedIt()
+    {
+        // Arrange: walk fix F4, Today and Log name the parent who logged an entry.
+        var andrzej = new UserId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c9"));
+        await SignInAsync();
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Home, "owner", [], null,
+            [new MembershipInfo(Joined, Role.Parent, Now.AddDays(1)), new MembershipInfo(Home, Role.Owner, Now)]));
+        _api.ListMembersAsync(Home, Arg.Any<CancellationToken>()).Returns(new FamilyMembers(
+            [new FamilyMember(Me, "Kasia", "k@example.com", Role.Owner, Now, true)], []));
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(new FamilyMembers(
+            [new FamilyMember(andrzej, "Andrzej Lech", "a@example.com", Role.Owner, Now, false),
+             new FamilyMember(Me, "Kasia", "k@example.com", Role.Parent, Now.AddDays(1), true)], []));
+
+        // Act
+        await Families().RefreshAsync(CancellationToken.None);
+
+        // Assert
+        await _store.Received(1).SetMemberNamesAsync(Joined, Arg.Is<IReadOnlyList<FamilyMemberName>>(n =>
+            n.SequenceEqual(new[] { new FamilyMemberName(andrzej, "Andrzej Lech"), new FamilyMemberName(Me, "Kasia") })), Arg.Any<CancellationToken>());
+        await _store.Received(1).SetMemberNamesAsync(Home, Arg.Is<IReadOnlyList<FamilyMemberName>>(n => n.Single() == new FamilyMemberName(Me, "Kasia")), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task RefreshAsync_MembersCallFails_KeepsTheStoredNames()
+    {
+        // Arrange
+        await SignInAsync();
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Home, "owner", [], null,
+            [new MembershipInfo(Joined, Role.Parent, Now)]));
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdUnavailableException("offline"));
+
+        // Act
+        await Families().RefreshAsync(CancellationToken.None);
+
+        // Assert
+        await _store.DidNotReceiveWithAnyArgs().SetMemberNamesAsync(default, default!, default);
+    }
+
+    [Fact]
     public async Task RefreshAsync_MembersCallFails_KeepsTheLastKnownNameAndCount()
     {
         // Arrange

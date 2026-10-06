@@ -12,6 +12,9 @@ public sealed record FamilyMembership(HouseholdId Household, Role Role, DateTime
 /// <summary>A code from a link or "Enter a code", kept in <c>app_state</c> with the time it arrived (spec §4.1).</summary>
 public sealed record PendingInvitation(InvitationCode Code, DateTimeOffset ArrivedAt);
 
+/// <summary>A member of a family as this phone last heard (walk fix F4): who logged an entry is named on Today and Log.</summary>
+public sealed record FamilyMemberName(UserId UserId, string Name);
+
 /// <summary>Accepted, but the choice about this phone's entries is not made yet (spec §5.3).</summary>
 public sealed record JoiningMarker(HouseholdId Joined, HouseholdId Source, string InviterName);
 
@@ -37,6 +40,12 @@ public interface IFamilyStore
 
     /// <summary>Spec 011b §6.2's <c>copied_from</c>: the bring-over is not offered again for this pair.</summary>
     Task<bool> WasCopiedAsync(HouseholdId source, HouseholdId target, CancellationToken cancellationToken);
+
+    /// <summary>The family's members as the last list refresh found them (walk fix F4); empty when not known. Cleared at sign-out.</summary>
+    Task<IReadOnlyList<FamilyMemberName>> ListMemberNamesAsync(HouseholdId household, CancellationToken cancellationToken);
+
+    /// <summary>Replaces the family's member names.</summary>
+    Task SetMemberNamesAsync(HouseholdId household, IReadOnlyList<FamilyMemberName> names, CancellationToken cancellationToken);
 }
 
 /// <summary>

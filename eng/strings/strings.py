@@ -232,6 +232,7 @@ S = {
 'Section.Today': ('Today', 'Heute', "Aujourd'hui", 'Hoy', 'Oggi', 'Dziś', 'Vandaag'),
 'Timeline.Empty': ('Nothing logged yet today', 'Heute noch nichts eingetragen', "Rien de noté aujourd'hui", 'Nada registrado hoy', 'Ancora niente oggi', 'Dziś jeszcze nic nie zapisano', 'Vandaag nog niets gelogd'),
 'Who.You': ('You', 'Du', 'Vous', 'Tú', 'Tu', 'Ty', 'Jij'),
+'Who.Other': ('Another parent', 'Anderes Elternteil', 'Autre parent', 'Otro progenitor', 'Altro genitore', 'Drugi rodzic', 'Andere ouder'),
 
 'Diaper.Wet': ('Wet', 'Nass', 'Mouillée', 'Mojado', 'Bagnato', 'Mokra', 'Nat'),
 'Diaper.Dirty': ('Dirty', 'Voll', 'Selles', 'Sucio', 'Sporco', 'Brudna', 'Vies'),

@@ -206,4 +206,50 @@ public sealed class FamilyStoreTests
         before[tables.ToList().IndexOf("baby_profiles")].Should().Be(1);
         before[tables.ToList().IndexOf("household_settings")].Should().Be(1);
     }
+
+    [Fact]
+    public async Task SetMemberNamesAsync_ThenList_ReturnsThatFamilysNamesOnly()
+    {
+        // Arrange: walk fix F4.
+        await using var db = await TestDatabase.CreateAsync();
+        var store = new FamilyStore(db.Database);
+
+        // Act
+        await store.SetMemberNamesAsync(Joined, [new FamilyMemberName(Me, "Kasia"), new FamilyMemberName(Other, "Andrzej Lech")], CancellationToken.None);
+        await store.SetMemberNamesAsync(Home, [new FamilyMemberName(Me, "Kasia")], CancellationToken.None);
+        var joined = await store.ListMemberNamesAsync(Joined, CancellationToken.None);
+
+        // Assert
+        joined.Should().BeEquivalentTo([new FamilyMemberName(Me, "Kasia"), new FamilyMemberName(Other, "Andrzej Lech")]);
+    }
+
+    [Fact]
+    public async Task SetMemberNamesAsync_AMemberLeft_ReplacesTheList()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var store = new FamilyStore(db.Database);
+        await store.SetMemberNamesAsync(Joined, [new FamilyMemberName(Me, "Kasia"), new FamilyMemberName(Other, "Andrzej Lech")], CancellationToken.None);
+
+        // Act
+        await store.SetMemberNamesAsync(Joined, [new FamilyMemberName(Me, "Kasia")], CancellationToken.None);
+
+        // Assert
+        (await store.ListMemberNamesAsync(Joined, CancellationToken.None)).Should().Equal(new FamilyMemberName(Me, "Kasia"));
+    }
+
+    [Fact]
+    public async Task ClearAsync_SignOut_ForgetsTheMemberNames()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var store = new FamilyStore(db.Database);
+        await store.SetMemberNamesAsync(Joined, [new FamilyMemberName(Other, "Andrzej Lech")], CancellationToken.None);
+
+        // Act
+        await store.ClearAsync(CancellationToken.None);
+
+        // Assert
+        (await store.ListMemberNamesAsync(Joined, CancellationToken.None)).Should().BeEmpty();
+    }
 }

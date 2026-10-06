@@ -159,7 +159,7 @@ public sealed class LogViewModelTests
         var undo = new UndoService(new DeleteEntry(store, versions), new ReviseEntry(store, versions, time), store, time);
         var theme = new Coo.Mobile.Presentation.Theme.ThemeController(
             Substitute.For<IDevicePreferences>(), Substitute.For<Coo.Mobile.Presentation.Theme.IOsAppearance>(), time);
-        return new LogViewModel(households, new GetDay(store), clock, undo, theme, time);
+        return new LogViewModel(households, new GetDay(store), clock, undo, theme, time, new WhoLabelsSource(new MemorySessions(), Substitute.For<IFamilyStore>()));
     }
 
     private sealed class MovableTime(DateTimeOffset now) : TimeProvider

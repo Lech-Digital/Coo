@@ -38,6 +38,8 @@ public sealed partial class TodayViewModel : ObservableObject
     private readonly RecordBirth _recordBirth;
     private readonly TimeProvider _time;
     private readonly GetAttention _attention;
+    private readonly WhoLabelsSource _whoSource;
+    private WhoLabels _who = WhoLabels.SignedOut;
     private readonly UndoService _undo;
     private int _attentionCount;
 
@@ -79,9 +81,10 @@ public sealed partial class TodayViewModel : ObservableObject
 
     public TodayViewModel(
         IEnumerable<IHomeSection> sections, IHouseholdStore households, GetToday getToday, HomeActions actions,
-        ThemeController theme, IClockFormat clock, RecordBirth recordBirth, TimeProvider time, GetAttention attention, UndoService undo)
+        ThemeController theme, IClockFormat clock, RecordBirth recordBirth, TimeProvider time, GetAttention attention, UndoService undo,
+        WhoLabelsSource who)
     {
-        (_attention, _undo) = (attention, undo);
+        (_attention, _undo, _whoSource) = (attention, undo, who);
         _all = [.. sections.OrderBy(s => s.Order)];
         (_households, _getToday, _actions, _theme, _clock, _recordBirth, _time) = (households, getToday, actions, theme, clock, recordBirth, time);
         _actions.Done += async (_, outcome) =>
@@ -145,6 +148,7 @@ public sealed partial class TodayViewModel : ObservableObject
         if (_summary is not null && _undo.PendingDelete is { } pending)
             _summary = _summary with { TodayEntries = [.. _summary.TodayEntries.Where(e => e.Id != pending)] };
         _attentionCount = (await _attention.ExecuteAsync(_household.Id, _time.GetLocalNow(), CancellationToken.None)).Count;
+        _who = await _whoSource.ForAsync(_household.Id);
         Relayout();
     }
 
@@ -295,7 +299,7 @@ public sealed partial class TodayViewModel : ObservableObject
         Tick();
     }
 
-    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount);
+    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who);
 
     private Formats Formats() => new(_clock.Is24Hour, _household?.VolumeUnit ?? VolumeUnit.Millilitres);
 

@@ -15,6 +15,10 @@ internal sealed class FamilyStore(LocalDatabase database) : IFamilyStore
     internal const string JoiningSourceKey = "joining_source";
     internal const string JoiningInviterKey = "joining_inviter";
 
+    internal const string MemberNamePrefix = "member_name:";
+
+    internal static string MemberNameKeys(HouseholdId household) => $"{MemberNamePrefix}{Columns.Id(household.Value)}:";
+
     internal static string CopiedKey(HouseholdId source, HouseholdId target) => $"copied_from:{Columns.Id(source.Value)}:{Columns.Id(target.Value)}";
 
     public async Task<IReadOnlyList<FamilyMembership>?> ListAsync(UserId user, CancellationToken cancellationToken)
@@ -65,6 +69,37 @@ internal sealed class FamilyStore(LocalDatabase database) : IFamilyStore
         await connection.ExecuteAsync(
             "DELETE FROM app_state WHERE key IN ($u, $h, $s, $i);", cancellationToken, transaction,
             ("$u", FamiliesUserKey), ("$h", JoiningHouseholdKey), ("$s", JoiningSourceKey), ("$i", JoiningInviterKey));
+        await connection.ExecuteAsync(
+            "DELETE FROM app_state WHERE substr(key, 1, length($p)) = $p;", cancellationToken, transaction, ("$p", MemberNamePrefix));
+        await transaction.CommitAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<FamilyMemberName>> ListMemberNamesAsync(HouseholdId household, CancellationToken cancellationToken)
+    {
+        var prefix = MemberNameKeys(household);
+        await using var connection = await database.OpenAsync(cancellationToken);
+        await using var command = connection.Command(
+            "SELECT key, value FROM app_state WHERE substr(key, 1, length($p)) = $p ORDER BY key;", null, ("$p", prefix));
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        var names = new List<FamilyMemberName>();
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            if (Columns.ParseGuid(reader.GetString(0)[prefix.Length..]) is { } user)
+                names.Add(new FamilyMemberName(new UserId(user), reader.GetString(1)));
+        }
+
+        return names;
+    }
+
+    public async Task SetMemberNamesAsync(HouseholdId household, IReadOnlyList<FamilyMemberName> names, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(names);
+        var prefix = MemberNameKeys(household);
+        await using var connection = await database.OpenAsync(cancellationToken);
+        await using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync(cancellationToken);
+        await connection.ExecuteAsync("DELETE FROM app_state WHERE substr(key, 1, length($p)) = $p;", cancellationToken, transaction, ("$p", prefix));
+        foreach (var name in names)
+            await SetAsync(connection, transaction, prefix + Columns.Id(name.UserId.Value), name.Name, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
     }
 

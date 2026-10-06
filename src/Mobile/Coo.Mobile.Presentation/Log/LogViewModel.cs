@@ -14,7 +14,8 @@ namespace Coo.Mobile.Presentation.Log;
 public sealed record TotalItem(string KindCode, string Number, string Unit);
 
 /// <summary>The Log screen (Spec 006 §7): one local day, with ribbon, totals and timeline.</summary>
-public sealed partial class LogViewModel(IHouseholdStore households, GetDay getDay, IClockFormat clock, UndoService undo, ThemeController theme, TimeProvider time) : ObservableObject
+public sealed partial class LogViewModel(
+    IHouseholdStore households, GetDay getDay, IClockFormat clock, UndoService undo, ThemeController theme, TimeProvider time, WhoLabelsSource whoSource) : ObservableObject
 {
     [ObservableProperty]
     private DateOnly _date = DateOnly.FromDateTime(time.GetLocalNow().DateTime);
@@ -95,7 +96,8 @@ public sealed partial class LogViewModel(IHouseholdStore households, GetDay getD
             new("pump", pumped.Item1, pumped.Item2),
         ];
         Totals = Same(Totals, [.. totals.Where(t => KindVisibility.IsShown(household, t.KindCode))]);
-        Rows = Same(Rows, [.. day.Entries.Where(e => e.Id != undo.PendingDelete).Select(e => new TimelineItem(e.Id, formats.Time(e.Start), e.KindCode, formats.Title(e, now), Strings.Get("Who.You")))]);
+        var who = await whoSource.ForAsync(household.Id);
+        Rows = Same(Rows, [.. day.Entries.Where(e => e.Id != undo.PendingDelete).Select(e => new TimelineItem(e.Id, formats.Time(e.Start), e.KindCode, formats.Title(e, now), who.For(e)))]);
     }
 
     [RelayCommand]

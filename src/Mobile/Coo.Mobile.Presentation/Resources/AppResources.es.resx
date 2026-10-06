@@ -358,5 +358,6 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Warn.pump-amount" xml:space="preserve"><value>Es más de lo habitual (más de 500 ml).</value></data>
   <data name="Warn.running-long" xml:space="preserve"><value>Este temporizador lleva mucho tiempo en marcha.</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>Es un sueño largo (más de 16 horas).</value></data>
+  <data name="Who.Other" xml:space="preserve"><value>Otro progenitor</value></data>
   <data name="Who.You" xml:space="preserve"><value>Tú</value></data>
 </root>

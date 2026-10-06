@@ -377,5 +377,6 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Warn.pump-amount" xml:space="preserve"><value>To więcej niż zwykle (ponad 500 ml).</value></data>
   <data name="Warn.running-long" xml:space="preserve"><value>Ten stoper działa już długo.</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>To długi sen (ponad 16 godzin).</value></data>
+  <data name="Who.Other" xml:space="preserve"><value>Drugi rodzic</value></data>
   <data name="Who.You" xml:space="preserve"><value>Ty</value></data>
 </root>

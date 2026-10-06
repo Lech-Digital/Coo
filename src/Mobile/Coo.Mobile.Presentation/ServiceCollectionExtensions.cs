@@ -33,6 +33,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IHomeSection, LogTilesSection>();
         services.AddSingleton<IHomeSection, TimelineSection>();
         services.AddSingleton<IHomeSection, PausedSection>();
+        services.AddSingleton<WhoLabelsSource>();
         services.AddSingleton<TodayViewModel>();
         services.AddTransient<SetupViewModel>();
         services.AddSingleton<LogViewModel>();

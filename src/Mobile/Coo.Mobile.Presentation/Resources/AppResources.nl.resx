@@ -358,5 +358,6 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Warn.pump-amount" xml:space="preserve"><value>Dat is meer dan gewoonlijk (meer dan 500 ml).</value></data>
   <data name="Warn.running-long" xml:space="preserve"><value>Deze timer loopt al lang.</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>Dat is een lange slaap (meer dan 16 uur).</value></data>
+  <data name="Who.Other" xml:space="preserve"><value>Andere ouder</value></data>
   <data name="Who.You" xml:space="preserve"><value>Jij</value></data>
 </root>

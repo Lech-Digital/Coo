@@ -94,6 +94,7 @@ public sealed class Families(
 
         var previous = await store.ListAsync(user, cancellationToken) ?? [];
         var list = new List<FamilyMembership>();
+        var names = new Dictionary<HouseholdId, IReadOnlyList<FamilyMemberName>>();
         foreach (var membership in me.Memberships.OrderBy(m => m.JoinedAt))
         {
             string owner;
@@ -103,6 +104,7 @@ public sealed class Families(
                 var members = await api.ListMembersAsync(membership.Household, cancellationToken);
                 owner = members.Members.FirstOrDefault(m => m.Role == Role.Owner)?.Name ?? "";
                 count = Math.Max(1, members.Members.Count);
+                names[membership.Household] = [.. members.Members.Select(m => new FamilyMemberName(m.UserId, m.Name))];
             }
             catch (Exception e) when (e is HouseholdUnavailableException or HouseholdRefusedException)
             {
@@ -116,6 +118,10 @@ public sealed class Families(
         if (generation != account.Generation || await sessions.GetAsync(cancellationToken) is not { } again || again.Profile.UserId != user)
             return false;
         await store.ReplaceAsync(user, list, cancellationToken);
+
+        // Who logged an entry (walk fix F4): a family whose members could not be read keeps the names it had.
+        foreach (var (household, known) in names)
+            await store.SetMemberNamesAsync(household, known, cancellationToken);
         return true;
     }
 

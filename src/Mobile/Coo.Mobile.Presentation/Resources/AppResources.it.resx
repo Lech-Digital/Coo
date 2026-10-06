@@ -358,5 +358,6 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Warn.pump-amount" xml:space="preserve"><value>È più del solito (oltre 500 ml).</value></data>
   <data name="Warn.running-long" xml:space="preserve"><value>Questo timer è attivo da molto tempo.</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>È un sonno lungo (oltre 16 ore).</value></data>
+  <data name="Who.Other" xml:space="preserve"><value>Altro genitore</value></data>
   <data name="Who.You" xml:space="preserve"><value>Tu</value></data>
 </root>

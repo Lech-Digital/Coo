@@ -278,7 +278,7 @@ public sealed partial class TimelineSection : ObservableObject, IHomeSection
     }
 
     internal static TimelineItem Row(StoredEntry e, HomeSnapshot s) =>
-        new(e.Id, s.Formats.Time(e.Start), e.KindCode, s.Formats.Title(e, s.Now), Strings.Get("Who.You"));
+        new(e.Id, s.Formats.Time(e.Start), e.KindCode, s.Formats.Title(e, s.Now), (s.Who ?? WhoLabels.SignedOut).For(e));
 }
 
 /// <summary>"2 need attention" (Spec 007 §6): a quiet line on Today, shown only when there is something.</summary>
