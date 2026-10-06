@@ -82,7 +82,8 @@ internal static class AuthEndpoints
                 User(me.User),
                 me.Membership is null ? null : new MembershipDto(me.Membership.HouseholdId.Value, RoleName(me.Membership.Role)),
                 [.. me.Devices.Select(d => new DeviceSessionDto(d.Id.Value, d.DeviceName, d.LastUsedAt, d.Id == current))],
-                me.Consent is null ? null : new ConsentDto(me.Consent.Wording, me.Consent.GivenAt)));
+                me.Consent is null ? null : new ConsentDto(me.Consent.Wording, me.Consent.GivenAt),
+                [.. (me.Memberships ?? []).Select(m => new MembershipDto(m.HouseholdId.Value, RoleName(m.Role), m.JoinedAt))]));
         }).RequireAuthorization();
 
         app.MapDelete("/api/account", async Task<IResult> (
@@ -133,7 +134,7 @@ internal static class AuthEndpoints
         _ => throw new ArgumentOutOfRangeException(nameof(outcome), outcome, "Unknown outcome."),
     };
 
-    private static string RoleName(Role role) => role switch
+    internal static string RoleName(Role role) => role switch
     {
         Role.Owner => AuthRoles.Owner,
         Role.Parent => AuthRoles.Parent,

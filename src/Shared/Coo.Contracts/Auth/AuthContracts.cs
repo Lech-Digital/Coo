@@ -19,12 +19,14 @@ public sealed record RefreshRequest(string RefreshToken, string? NextRefreshToke
 
 public sealed record TokensResponse(string AccessToken, DateTimeOffset AccessTokenExpiresAt, string RefreshToken);
 
-/// <summary><see cref="Role"/> is one of <see cref="AuthRoles"/>.</summary>
-public sealed record MembershipDto(Guid HouseholdId, string Role);
+/// <summary><see cref="Role"/> is one of <see cref="AuthRoles"/>. <see cref="JoinedAt"/> is set in <c>memberships</c> (Spec 011b).</summary>
+public sealed record MembershipDto(Guid HouseholdId, string Role, DateTimeOffset? JoinedAt = null);
 
 public sealed record DeviceSessionDto(Guid Id, string DeviceName, DateTimeOffset LastUsedAt, bool IsCurrent);
 
-public sealed record MeResponse(UserDto User, MembershipDto? Household, IReadOnlyList<DeviceSessionDto> Devices, ConsentDto? Consent = null);
+public sealed record MeResponse(
+    UserDto User, MembershipDto? Household, IReadOnlyList<DeviceSessionDto> Devices, ConsentDto? Consent = null,
+    IReadOnlyList<MembershipDto>? Memberships = null);
 
 public sealed record DeleteAccountRequest(bool Confirm);
 

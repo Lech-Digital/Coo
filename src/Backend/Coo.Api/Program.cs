@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using Coo.Api.Application.Auth;
 using Coo.Api.Application.CareLog;
 using Coo.Api.Application.Health;
+using Coo.Api.Application.Households;
 using Coo.Api.Application.Sync;
 using Coo.Api.Hosting;
 using Coo.Api.Infrastructure;
@@ -37,7 +38,6 @@ builder.Services.AddSingleton<PurgeAuthNonces>();
 // Scoped: they use IAccountStore, which shares the request's database context with Identity.
 builder.Services.AddScoped<SignInWithGoogle>();
 builder.Services.AddScoped<GetMe>();
-builder.Services.AddScoped<DeleteAccount>();
 builder.Services.AddSingleton<VerifyIntegrity>();
 
 // Sync (Spec 011 §7). The stores are singletons over the data source, so the use cases are too.
@@ -47,6 +47,20 @@ builder.Services.AddSingleton<PullChanges>();
 builder.Services.AddSingleton<RecordConsent>();
 builder.Services.AddSingleton<GetMembershipStatus>();
 builder.Services.AddSingleton<PurgeSyncHistory>();
+
+// Members and invitations (Spec 011b §10). The membership store is a singleton over the data source, so these are too.
+builder.Services.AddSingleton(sp => new CreateInvitation(
+    sp.GetRequiredService<IHouseholdMembershipStore>(), sp.GetRequiredService<TimeProvider>(), RandomNumberGenerator.GetInt32));
+builder.Services.AddSingleton<WithdrawInvitation>();
+builder.Services.AddSingleton<ListMembers>();
+builder.Services.AddSingleton<RemoveMember>();
+builder.Services.AddSingleton<LeaveHousehold>();
+builder.Services.AddSingleton<CreateHousehold>();
+builder.Services.AddSingleton<PreviewInvitation>();
+builder.Services.AddSingleton<AcceptInvitation>();
+
+// Account deletion runs in the membership store's locked transaction: no scoped account store any more.
+builder.Services.AddSingleton<DeleteAccount>();
 if (!verifyOnly)
 {
     builder.Services.AddHostedService<IntegrityScanJob>();
@@ -78,7 +92,7 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// "0.11.0+<commit>": the deploy script compares the commit with the one it shipped (Spec 008 §5).
+// "0.12.0+<commit>": the deploy script compares the commit with the one it shipped (Spec 008 §5).
 var version = typeof(Program).Assembly
     .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown";
 
@@ -89,6 +103,7 @@ app.MapGet("/health", async (IDatabaseProbe database, CancellationToken cancella
 
 app.MapAuthEndpoints();
 app.MapSyncEndpoints();
+app.MapHouseholdEndpoints();
 
 await app.RunAsync();
 return 0;
