@@ -1,6 +1,7 @@
 using Coo.Domain.Common;
 using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.CareLog;
+using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Sync;
 using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
@@ -21,6 +22,7 @@ public sealed class SyncEngineTests : IDisposable
     private readonly ISyncStore _store = Substitute.For<ISyncStore>();
     private readonly IHouseholdMoves _moves = Substitute.For<IHouseholdMoves>();
     private readonly ISyncApi _api = Substitute.For<ISyncApi>();
+    private readonly IFamilyStore _familyStore = Substitute.For<IFamilyStore>();
     private readonly LocalWrites _writes = new();
     private readonly FakeTimeProvider _time = new(Now);
     private readonly SyncEngine _engine;
@@ -37,7 +39,10 @@ public sealed class SyncEngineTests : IDisposable
         var device = Substitute.For<IDeviceIdentity>();
         device.GetAsync(Arg.Any<CancellationToken>()).Returns(Phone);
         var consent = new ConsentGate(_state, _accounts, Substitute.For<IConsentApi>());
-        var cycle = new SyncCycle(_account, _sessions, consent, _store, _moves, _state, _api, Substitute.For<IVersionClock>(), device, _time);
+        _familyStore.ListAsync(default, default).ReturnsForAnyArgs((IReadOnlyList<FamilyMembership>?)null);
+        var cycle = new SyncCycle(
+            _account, _sessions, consent, _store, _moves, _state, _api, Substitute.For<IVersionClock>(), device, _time, _familyStore,
+            Substitute.For<IHouseholdApi>(), new SyncStops());
         _engine = new SyncEngine(cycle, _store, _moves, _sessions, _account, consent, _writes, _time, new SyncOptions(() => 1.0));
     }
 
@@ -308,37 +313,6 @@ public sealed class SyncEngineTests : IDisposable
         act.Should().NotThrow();
         await _engine.WhenIdleAsync();
         _engine.Status.Should().Be(SyncStatus.Initial with { Last = CycleOutcome.Synced, LastSyncedAt = _time.GetLocalNow() });
-    }
-
-    [Fact]
-    public async Task Start_HouseholdMismatch_StatusCarriesItAndTheForegroundTicksDoNotRetry()
-    {
-        // Arrange: no `created` marker names this move (Task 11); retrying cannot fix it.
-        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
-        await SignInAsync();
-        await _engine.WhenIdleAsync();
-        _engine.Start();
-        await _engine.WhenIdleAsync();
-        var status = _engine.Status;
-        var attempts = _moves.ReceivedCalls().Count(c => c.GetMethodInfo().Name == nameof(IHouseholdMoves.ActiveHouseholdAsync));
-
-        // Act: past the longest backoff, a tick at a time.
-        for (var i = 0; i < 11; i++)
-        {
-            _time.Advance(SyncScheduler.ForegroundInterval);
-            await _engine.WhenIdleAsync();
-        }
-
-        var afterTicks = _moves.ReceivedCalls().Count(c => c.GetMethodInfo().Name == nameof(IHouseholdMoves.ActiveHouseholdAsync));
-        await _engine.SyncNowAsync(CancellationToken.None);
-        var afterSyncNow = _moves.ReceivedCalls().Count(c => c.GetMethodInfo().Name == nameof(IHouseholdMoves.ActiveHouseholdAsync));
-
-        // Assert
-        status.Last.Should().Be(CycleOutcome.Failed);
-        status.LastError.Should().Be(SyncCycle.HouseholdMismatchError);
-        afterTicks.Should().Be(attempts);
-        afterSyncNow.Should().Be(attempts + 1);
-        _engine.Status.LastError.Should().Be(SyncCycle.HouseholdMismatchError);
     }
 
     [Fact]

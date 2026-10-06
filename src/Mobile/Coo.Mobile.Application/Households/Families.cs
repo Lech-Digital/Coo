@@ -166,15 +166,17 @@ public sealed class Families(
             await moves.ActivateAsync(next.Id, cancellationToken);
     }
 
-    /// <summary>The families a cycle syncs: the home family and the account's families (ruling 6).</summary>
+    /// <summary>
+    /// The families a cycle syncs: the account's families (ruling 6). Before the first refresh that is the home family; a home
+    /// the known list lacks is no longer synced (the cycle moves the home, §7.1).
+    /// </summary>
     public async Task<IReadOnlyCollection<HouseholdId>> SyncingHouseholdsAsync(CancellationToken cancellationToken)
     {
         if (await sessions.GetAsync(cancellationToken) is not { } session)
             return [];
-        var set = new HashSet<HouseholdId> { session.AccountHousehold };
-        foreach (var membership in await store.ListAsync(session.Profile.UserId, cancellationToken) ?? [])
-            set.Add(membership.Household);
-        return set;
+        if (await store.ListAsync(session.Profile.UserId, cancellationToken) is not { } memberships)
+            return [session.AccountHousehold];
+        return memberships.Select(m => m.Household).ToHashSet();
     }
 
     /// <summary>Where a family's entries may go (§6.3 "Later"): another account family on the phone that is not soft-locked.</summary>

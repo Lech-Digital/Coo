@@ -3,6 +3,7 @@ using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.Common;
 using Coo.Domain.Households;
 using Coo.Mobile.Application.Auth;
+using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Sync;
 using Coo.Mobile.Infrastructure.Persistence;
 using NSubstitute;
@@ -60,7 +61,7 @@ public sealed class HouseholdSwitchScenarioTests : IAsyncLifetime, IDisposable
 
     private SyncCycle Cycle() => new(
         _account, _sessions, new ConsentGate(_state, Substitute.For<IAccountApi>(), Substitute.For<IConsentApi>()), _store, _moves, _state, _api,
-        _db.Device, _db.Device, _db.Time);
+        _db.Device, _db.Device, _db.Time, new FamilyStore(_db.Database), Substitute.For<IHouseholdApi>(), new SyncStops());
 
     private BringEntriesOver BringOver() => new(
         _sessions, _moves, _store, new ConsentGate(_state, Substitute.For<IAccountApi>(), Substitute.For<IConsentApi>()), _account,

@@ -235,13 +235,27 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange: ruling 6, a local family's outbox never drains.
         await SignInAsync();
-        _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Joined, Role.Parent, Now, "Andrzej", 2)]);
+        _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([HomeMembership, JoinedMembership]);
 
         // Act
         var syncing = await Families().SyncingHouseholdsAsync(CancellationToken.None);
 
         // Assert
         syncing.Should().BeEquivalentTo([Home, Joined]);
+    }
+
+    [Fact]
+    public async Task SyncingHouseholdsAsync_KnownListLacksTheHome_LeavesTheHomeOut()
+    {
+        // Arrange: the home family stopped being a membership; the cycle no longer syncs it (Task 14 moves the home).
+        await SignInAsync();
+        _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([JoinedMembership]);
+
+        // Act
+        var syncing = await Families().SyncingHouseholdsAsync(CancellationToken.None);
+
+        // Assert
+        syncing.Should().BeEquivalentTo([Joined]);
     }
 
     [Fact]

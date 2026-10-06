@@ -90,4 +90,8 @@ public enum CycleOutcome
 /// <param name="Error">The failure's type or refusal, for the debug screen; never shown to the person.</param>
 /// <param name="Household">For <see cref="CycleOutcome.Removed"/>: the household the person was removed from.</param>
 /// <param name="RunAgain">Another cycle should run at once (a lifted soft-lock), not at the next tick.</param>
-public sealed record CycleReport(CycleOutcome Outcome, bool DataChanged = false, string? Error = null, HouseholdId? Household = null, bool RunAgain = false);
+/// <param name="RefreshFamilies">The family list should be refreshed: a soft-lock, a not-a-member, a family created (Spec 011b §7.1).</param>
+/// <param name="NotAMember">Families that answered <c>sync.not-a-member</c> this cycle (spec §9).</param>
+public sealed record CycleReport(
+    CycleOutcome Outcome, bool DataChanged = false, string? Error = null, HouseholdId? Household = null, bool RunAgain = false,
+    bool RefreshFamilies = false, IReadOnlyList<HouseholdId>? NotAMember = null);

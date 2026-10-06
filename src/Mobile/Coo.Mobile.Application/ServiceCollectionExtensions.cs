@@ -38,6 +38,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<LocalWrites>();
         services.AddTransient<ConsentGate>();
         services.AddTransient<SyncCycle>();
+        services.AddSingleton<SyncStops>();
         services.AddSingleton<SyncEngine>();
         services.AddSingleton<ISyncStatus>(sp => sp.GetRequiredService<SyncEngine>());
         services.AddSingleton<ISyncControl>(sp => sp.GetRequiredService<SyncEngine>());

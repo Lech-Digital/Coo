@@ -3,6 +3,7 @@ using Coo.Domain.Common;
 using Coo.Domain.Common.Versioning;
 using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.CareLog;
+using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Sync;
 using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
@@ -30,6 +31,9 @@ public sealed class SyncCycleTests : IDisposable
     private readonly ISyncApi _api = Substitute.For<ISyncApi>();
     private readonly IVersionClock _clock = Substitute.For<IVersionClock>();
     private readonly IDeviceIdentity _device = Substitute.For<IDeviceIdentity>();
+    private readonly IFamilyStore _families = Substitute.For<IFamilyStore>();
+    private readonly IHouseholdApi _households = Substitute.For<IHouseholdApi>();
+    private readonly SyncStops _stops = new();
     private readonly FakeTimeProvider _time = new(Now);
 
     public SyncCycleTests()
@@ -42,12 +46,14 @@ public sealed class SyncCycleTests : IDisposable
         _store.NextBatchAsync(Household, Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns([]);
         _store.GetCursorAsync(Household, Arg.Any<CancellationToken>()).Returns(new SyncCursor(0, null));
         _api.PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>()).Returns(new PulledPage([], 0, false, 0));
+        _families.ListAsync(default, default).ReturnsForAnyArgs((IReadOnlyList<FamilyMembership>?)null);
     }
 
     public void Dispose() => _account.Dispose();
 
     private SyncCycle Cycle() => new(
-        _account, _sessions, new ConsentGate(_state, _accounts, _consentApi), _store, _moves, _state, _api, _clock, _device, _time);
+        _account, _sessions, new ConsentGate(_state, _accounts, _consentApi), _store, _moves, _state, _api, _clock, _device, _time,
+        _families, _households, _stops);
 
     private Task SignInAsync(bool joinPending = false, HouseholdId? moveFrom = null) => _account.SignedInAsync(
         new StoredSession("access", Now.AddMinutes(15), "refresh", Profile, Household, joinPending, PendingMoveFrom: moveFrom), CancellationToken.None);
@@ -217,6 +223,7 @@ public sealed class SyncCycleTests : IDisposable
 
         // Assert
         report.Outcome.Should().Be(CycleOutcome.Failed);
+        report.Error.Should().Be(SyncCycle.NoProgressError, "ruling 21: an undecided push stops until a wake");
         await _store.Received(1).ApplyResultsAsync(Household, batch, partial, Now, Arg.Any<CancellationToken>());
     }
 
@@ -522,9 +529,9 @@ public sealed class SyncCycleTests : IDisposable
     }
 
     [Fact]
-    public async Task RunAsync_ActiveDiffersWithoutAMoveMarker_MovesNothingAndFails()
+    public async Task RunAsync_ShownFamilyIsNotTheHome_SyncsTheHomeAndNeverPushesTheShownOne()
     {
-        // Arrange: no `created` sign-in named this move; "active is not the account's" alone never moves records.
+        // Arrange: ruling 1, the household-mismatch stop is retired (a local family shown by the switcher).
         await SignInAsync();
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
 
@@ -532,29 +539,26 @@ public sealed class SyncCycleTests : IDisposable
         var report = await Cycle().RunAsync(CancellationToken.None);
 
         // Assert
-        report.Outcome.Should().Be(CycleOutcome.Failed);
-        report.Error.Should().Be(SyncCycle.HouseholdMismatchError);
+        report.Should().Match<CycleReport>(r => r.Outcome == CycleOutcome.Synced && r.Error == null);
+        await _store.Received(1).PrepareForPushAsync(Household, User, Arg.Any<CancellationToken>());
+        await _store.DidNotReceive().PrepareForPushAsync(Provisional, Arg.Any<UserId>(), Arg.Any<CancellationToken>());
         await _moves.DidNotReceiveWithAnyArgs().MoveAllAsync(default, default, default, default);
-        await _store.DidNotReceiveWithAnyArgs().PrepareForPushAsync(default, default, default);
-        await _api.DidNotReceiveWithAnyArgs().PushAsync(default, default, default!, default);
     }
 
     [Fact]
-    public async Task RunAsync_MoveMarkerNamesAnotherHousehold_MovesNothingAndFails()
+    public async Task RunAsync_MoveMarkerNamesAnotherHousehold_ClearsItMovesNothingAndSyncs()
     {
-        // Arrange
-        var other = new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a3"));
-        await SignInAsync(moveFrom: other);
+        // Arrange: the person switched families before the first cycle.
+        await SignInAsync(moveFrom: new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a9")));
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
 
         // Act
         var report = await Cycle().RunAsync(CancellationToken.None);
 
         // Assert
-        report.Outcome.Should().Be(CycleOutcome.Failed);
-        report.Error.Should().Be(SyncCycle.HouseholdMismatchError);
+        report.Outcome.Should().Be(CycleOutcome.Synced);
+        _sessions.Stored!.PendingMoveFrom.Should().BeNull();
         await _moves.DidNotReceiveWithAnyArgs().MoveAllAsync(default, default, default, default);
-        _sessions.Stored!.PendingMoveFrom.Should().Be(other);
     }
 
     [Fact]
