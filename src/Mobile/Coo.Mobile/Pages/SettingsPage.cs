@@ -380,7 +380,9 @@ public sealed class SettingsPage : ContentPage
         {
             yield return Row(
                 Ui.Text(Strings.Get("Family.BringOver"), "Body"),
-                () => OpenOnceAsync(() => _services.GetRequiredService<Presentation.Sheets.SheetNavigator>().PushAsync(_ => _services.GetRequiredService<FamilyBringOverPage>())));
+                () => OpenOnceAsync(() => _services.GetRequiredService<Presentation.Sheets.SheetNavigator>().PushAsync(stack =>
+                    // Nothing over a sheet the prompter has open or is still opening (review M4).
+                    stack.Count > 0 ? null : _services.GetRequiredService<FamilyBringOverPage>())));
         }
     }
 
@@ -396,7 +398,7 @@ public sealed class SettingsPage : ContentPage
         try
         {
             await _services.GetRequiredService<Presentation.Sheets.SheetNavigator>().PushAsync(stack =>
-                stack.OfType<FamilySwitcherPage>().Any() ? null : FamilySwitcherPage.Open(_services, _family, FamilyActionAsync));
+                stack.Count > 0 ? null : FamilySwitcherPage.Open(_services, _family, FamilyActionAsync));
         }
         finally
         {
@@ -410,8 +412,8 @@ public sealed class SettingsPage : ContentPage
         switch (action)
         {
             case FamilyRowAction.BringHere when _family.ShownId is { } shown:
-                await OpenOnceAsync(() => _services.GetRequiredService<Presentation.Sheets.SheetNavigator>().PushAsync(_ =>
-                    FamilyBringOverPage.Into(_services, row.Id, shown)));
+                await OpenOnceAsync(() => _services.GetRequiredService<Presentation.Sheets.SheetNavigator>().PushAsync(stack =>
+                    stack.Count > 0 ? null : FamilyBringOverPage.Into(_services, row.Id, shown)));
                 break;
             case FamilyRowAction.Leave or FamilyRowAction.Delete:
                 await OpenOnceAsync(() => Navigation.PushAsync(FamilyPage.Open(_services, row.Id)));

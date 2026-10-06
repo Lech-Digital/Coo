@@ -266,22 +266,21 @@ public sealed class JoinPage : ContentPage
     /// </summary>
     private async Task CloseAsync()
     {
+        SheetClose closed;
         try
         {
-            _closeWanted = false;
-            if (await _sheets.CloseAsync(this) == SheetClose.Covered)
-            {
-                _closeWanted = true;
-                return;
-            }
+            closed = await _sheets.CloseAsync(this);
         }
-#pragma warning disable CA1031 // Closing twice must not crash.
+#pragma warning disable CA1031 // Closing twice must not crash; a pop that failed leaves the page as it is (review M5).
         catch (Exception)
 #pragma warning restore CA1031
         {
+            return;
         }
 
-        End();
+        _closeWanted = closed == SheetClose.Covered;
+        if (!_closeWanted)
+            End();
     }
 
     private void End()

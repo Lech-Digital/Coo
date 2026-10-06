@@ -15,6 +15,7 @@ public sealed class ConsentPage : ContentPage
     private readonly ConsentViewModel _model;
     private readonly Account _account;
     private readonly SheetNavigator _sheets;
+    private bool _closeWanted;
     private readonly Label _toast = new() { IsVisible = false };
 
     public ConsentPage(ConsentViewModel model, Account account, SheetNavigator sheets)
@@ -66,8 +67,9 @@ public sealed class ConsentPage : ContentPage
         base.OnAppearing();
         _account.Changed += OnAccountChanged;
 
-        // Signed out while the sheet was opening (or while the privacy policy was in front): nothing left to ask.
-        if (_account.State is SignedOut)
+        // Signed out while the sheet was opening (or while the privacy policy was in front): nothing left to ask. A close asked
+        // for while another sheet was over this one happens now that it is on top (review M2).
+        if (_account.State is SignedOut || _closeWanted)
             Dispatcher.Dispatch(async () => await CloseAsync());
     }
 
@@ -100,8 +102,8 @@ public sealed class ConsentPage : ContentPage
     {
         try
         {
-            // Only this page, never one over it (walk fix F1).
-            await _sheets.CloseAsync(this);
+            // Only this page, never one over it (walk fix F1); covered, it closes once it is on top again (review M2).
+            _closeWanted = await _sheets.CloseAsync(this) == SheetClose.Covered;
         }
 #pragma warning disable CA1031 // Closing twice (a double tap, or Agree and a sign-out together) must not crash.
         catch (Exception)

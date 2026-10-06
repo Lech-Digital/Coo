@@ -14,6 +14,7 @@ public sealed class BringOverPage : ContentPage
     private readonly BringOverViewModel _model;
     private readonly Account _account;
     private readonly SheetNavigator _sheets;
+    private bool _closeWanted;
     private readonly ContentView _body = new();
     private bool _loaded;
 
@@ -40,9 +41,10 @@ public sealed class BringOverPage : ContentPage
         {
             base.OnAppearing();
             _account.Changed += OnAccountChanged;
-            if (_account.State is SignedOut)
+            if (_account.State is SignedOut || _closeWanted)
             {
-                // Dispatched, as ConsentPage does: popping a modal from inside its own appearing is not safe.
+                // Dispatched, as ConsentPage does: popping a modal from inside its own appearing is not safe. A close asked for
+                // while another sheet was over this one happens now (review M2).
                 Dispatcher.Dispatch(async () => await CloseAsync());
                 return;
             }
@@ -151,8 +153,8 @@ public sealed class BringOverPage : ContentPage
     {
         try
         {
-            // Only this page, never one over it (walk fix F1).
-            await _sheets.CloseAsync(this);
+            // Only this page, never one over it (walk fix F1); covered, it closes once it is on top again (review M2).
+            _closeWanted = await _sheets.CloseAsync(this) == SheetClose.Covered;
         }
 #pragma warning disable CA1031 // Closing twice (Keep and a sign-out together) must not crash.
         catch (Exception)

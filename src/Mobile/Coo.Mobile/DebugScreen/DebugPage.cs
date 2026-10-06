@@ -88,7 +88,8 @@ public sealed class DebugPage : ContentPage
                             await _diagnostics.InsertForeignKindRowAsync(_household, _baby, CancellationToken.None);
                             Report(Result.Success);
                         })),
-                    Row(Button("Style gallery", () => Navigation.PushModalAsync(services.GetRequiredService<GalleryPage>()))),
+                    Row(Button("Style gallery", () => services.GetRequiredService<Presentation.Sheets.SheetNavigator>().PushAsync(
+                        stack => stack.Count > 0 ? null : services.GetRequiredService<GalleryPage>()))),
                     new Label { Text = "Account (Spec 010 §8)", FontSize = 17, Margin = new Thickness(0, 12, 0, 0) },
                     _accountLine,
                     Row(Button("Account (/api/me)", ShowServerAccountAsync),

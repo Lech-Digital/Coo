@@ -19,6 +19,7 @@ public sealed class FamilySwitcherPage : ContentPage
     private Func<FamilyRow, FamilyRowAction, Task>? _act;
     private bool _attached;
     private bool _busy;
+    private bool _closeWanted;
 
     public FamilySwitcherPage(SheetNavigator sheets, Presentation.Today.UndoService undo)
     {
@@ -45,14 +46,21 @@ public sealed class FamilySwitcherPage : ContentPage
             "Ground", 28, new Thickness(24, 24, 24, 16));
         card.VerticalOptions = LayoutOptions.End;
         card.Margin = new Thickness(8, 0, 8, 8);
-        card.MaximumHeightRequest = 640;
 
         // Taps on the card stay on the card: only the dimmed area around it closes the sheet.
         card.GestureRecognizers.Add(new TapGestureRecognizer());
 
-        var root = new Grid();
-        root.Add(scrim);
-        root.Add(card);
+        // The card wraps its rows, anchored at the bottom (device check): the dimmed area above takes the rest, and only a long
+        // list scrolls inside the card, which never grows past three quarters of the screen.
+        var root = new Grid { RowDefinitions = [new(GridLength.Star), new(GridLength.Auto)] };
+        root.Add(scrim, 0, 0);
+        Grid.SetRowSpan(scrim, 2);
+        root.Add(card, 0, 1);
+        root.SizeChanged += (_, _) =>
+        {
+            if (root.Height > 0)
+                card.MaximumHeightRequest = root.Height * 0.75;
+        };
         Content = root;
     }
 
@@ -68,6 +76,14 @@ public sealed class FamilySwitcherPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
+
+        // A close asked for while another sheet was over this one happens now that it is on top (review M2).
+        if (_closeWanted)
+        {
+            Dispatcher.Dispatch(async () => await CloseAsync());
+            return;
+        }
+
         if (!_attached && _model is not null)
         {
             _attached = true;
@@ -162,9 +178,9 @@ public sealed class FamilySwitcherPage : ContentPage
     /// <summary>The switch as before (§7.3): only the shown family changes; Today, Log and Settings follow.</summary>
     private async Task ShowAsync(FamilyRow row)
     {
-        if (_model is null)
+        // Only once the sheet has really gone (review M3): with another sheet over it, nothing switches.
+        if (_model is null || !await CloseAsync())
             return;
-        await CloseAsync();
         await _model.SwitchCommand.ExecuteAsync(new FamilyChoice(row.Id, row.Label));
     }
 
@@ -180,8 +196,8 @@ public sealed class FamilySwitcherPage : ContentPage
             return;
         }
 
-        await CloseAsync();
-        await _act(row, action);
+        if (await CloseAsync())
+            await _act(row, action);
     }
 
     /// <summary>One tap at a time: a second tap while a row's action or a confirmation runs does nothing.</summary>
@@ -219,17 +235,23 @@ public sealed class FamilySwitcherPage : ContentPage
 #pragma warning restore CA1031
     }
 
-    /// <summary>Only this page, never one over it (walk fix F1).</summary>
-    private async Task CloseAsync()
+    /// <summary>
+    /// Only this page, never one over it (walk fix F1). True once it has gone (closed now, or already); covered, it closes once it
+    /// is on top again and the caller does nothing more (review M2, M3).
+    /// </summary>
+    private async Task<bool> CloseAsync()
     {
         try
         {
-            await _sheets.CloseAsync(this);
+            var closed = await _sheets.CloseAsync(this);
+            _closeWanted = closed == SheetClose.Covered;
+            return closed != SheetClose.Covered;
         }
-#pragma warning disable CA1031 // Closing twice must not crash.
+#pragma warning disable CA1031 // Closing twice must not crash; a failed pop does not go on to the action.
         catch (Exception)
 #pragma warning restore CA1031
         {
+            return false;
         }
     }
 }

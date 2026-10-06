@@ -15,14 +15,34 @@ public sealed class GalleryPage : ContentPage
 
     private readonly ThemeController _theme;
     private readonly TimeProvider _time;
+    private readonly Presentation.Sheets.SheetNavigator _sheets;
 
-    public GalleryPage(ThemeController theme, TimeProvider time)
+    public GalleryPage(ThemeController theme, TimeProvider time, Presentation.Sheets.SheetNavigator sheets)
     {
         _theme = theme;
         _time = time;
+        _sheets = sheets;
         Title = "Style gallery";
         _theme.PaletteChanged += (_, _) => MainThread.BeginInvokeOnMainThread(Rebuild);
         Rebuild();
+    }
+
+    /// <summary>A sheet on the window's own stack (review M1): Back closes it through the navigator.</summary>
+    protected override bool OnBackButtonPressed()
+    {
+        Dispatcher.Dispatch(async () =>
+        {
+#pragma warning disable CA1031 // A dispatched handler: nothing may escape.
+            try
+            {
+                await _sheets.CloseAsync(this);
+            }
+            catch (Exception)
+            {
+            }
+#pragma warning restore CA1031
+        });
+        return true;
     }
 
     private void Rebuild()
