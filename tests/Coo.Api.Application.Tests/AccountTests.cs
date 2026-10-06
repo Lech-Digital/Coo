@@ -47,53 +47,102 @@ public sealed class AccountTests
         me.Should().BeNull();
     }
 
+    private static readonly UserId Me = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c1"));
+    private static readonly UserId Partner = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c2"));
+
     [Fact]
     public async Task ExecuteAsync_NotConfirmed_DeletesNothing()
     {
         // Arrange
-        var signedIn = await _kit.SignInAsync("google-1", PhoneA, Household);
+        _kit.Households.AddFamily(Household, Me, AuthKit.Start);
 
         // Act
-        var result = await _kit.DeleteAccount().ExecuteAsync(signedIn.User.Id, confirmed: false, CancellationToken.None);
+        var result = await _kit.DeleteAccount().ExecuteAsync(Me, confirmed: false, CancellationToken.None);
 
         // Assert
         result.Error!.Code.Should().Be(AuthErrors.ConfirmationRequired);
-        _kit.Accounts.Deleted.Should().BeNull();
-        _kit.Accounts.Households.Should().Contain(Household);
+        _kit.Households.DeletedUsers.Should().BeEmpty();
+        _kit.Households.Households.Should().Contain(Household);
     }
 
     [Fact]
-    public async Task ExecuteAsync_SoleOwner_DeletesTheUserAndTheHousehold()
+    public async Task ExecuteAsync_SoleOwner_DeletesTheUserAndTheHouseholdUnderItsLock()
     {
         // Arrange
-        var signedIn = await _kit.SignInAsync("google-1", PhoneA, Household);
+        _kit.Households.AddFamily(Household, Me, AuthKit.Start);
 
         // Act
-        var result = await _kit.DeleteAccount().ExecuteAsync(signedIn.User.Id, confirmed: true, CancellationToken.None);
+        var result = await _kit.DeleteAccount().ExecuteAsync(Me, confirmed: true, CancellationToken.None);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        _kit.Accounts.Deleted!.Value.User.Should().Be(signedIn.User.Id);
-        _kit.Accounts.Deleted.Value.Plan.HouseholdsToDelete.Should().Equal(Household);
-        _kit.Accounts.Deleted.Value.Plan.OwnershipTransfers.Should().BeEmpty();
-        _kit.Accounts.BySubject.Should().BeEmpty();
-        _kit.Accounts.Memberships.Should().BeEmpty();
+        _kit.Households.LockedSets.Should().ContainSingle().Which.Should().Equal(Household);
+        _kit.Households.Households.Should().NotContain(Household);
+        _kit.Households.DeletedUsers.Should().Equal(Me);
+        _kit.Households.Members.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task ExecuteAsync_OwnerWithAnotherParent_PassesOwnershipAndKeepsTheHousehold()
+    public async Task ExecuteAsync_ParentJoinsBetweenTheReadAndTheLock_OwnershipPassesToTheJoiner()
     {
-        // Arrange: from 11b a second parent can exist; the rule is in place already (ADR 0003 §8).
-        var signedIn = await _kit.SignInAsync("google-1", PhoneA, Household);
-        var partner = new UserId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c2"));
-        _kit.Accounts.Memberships.Add(Membership.Create(Household, partner, Role.Parent, AuthKit.Start.AddDays(1)));
+        // Arrange: the plan is decided from reads inside the transaction (spec §10.4): a concurrent accept that commits first counts.
+        _kit.Households.AddFamily(Household, Me, AuthKit.Start);
+        _kit.Households.InsideNextTransaction = () => _kit.Households.AddMember(Household, Partner, Role.Parent, AuthKit.Start.AddDays(1));
 
         // Act
-        await _kit.DeleteAccount().ExecuteAsync(signedIn.User.Id, confirmed: true, CancellationToken.None);
+        await _kit.DeleteAccount().ExecuteAsync(Me, confirmed: true, CancellationToken.None);
 
         // Assert
-        _kit.Accounts.Deleted!.Value.Plan.HouseholdsToDelete.Should().BeEmpty();
-        _kit.Accounts.Deleted.Value.Plan.OwnershipTransfers.Should().Equal(new OwnershipTransfer(Household, partner));
+        _kit.Households.Households.Should().Contain(Household);
+        _kit.Households.Members.Should().ContainSingle().Which.Should().Match<FakeHouseholds.MemberRow>(m => m.User == Partner && m.Role == Role.Owner);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_PromotionTouchesNoRow_ThrowsAndRollsBackEverything()
+    {
+        // Arrange: spec §10.4's row-count check; the phone's retry runs again from fresh reads.
+        _kit.Households.AddFamily(Household, Me, AuthKit.Start);
+        _kit.Households.AddMember(Household, Partner, Role.Parent, AuthKit.Start.AddDays(1));
+        _kit.Households.PromotionTouchesNothing = true;
+
+        // Act
+        Func<Task> act = async () => await _kit.DeleteAccount().ExecuteAsync(Me, confirmed: true, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        _kit.Households.DeletedUsers.Should().BeEmpty();
+        _kit.Households.Members.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_RemovedFromAFamilyBefore_OnlyActiveFamiliesAreDecided()
+    {
+        // Arrange: a revoked row does not make Me "a parent" of that family.
+        _kit.Households.AddFamily(Other, Partner, AuthKit.Start);
+        _kit.Households.Members.Add(new FakeHouseholds.MemberRow(Other, Me, Role.Parent, AuthKit.Start, AuthKit.Start.AddDays(1)));
+        _kit.Households.AddFamily(Household, Me, AuthKit.Start);
+
+        // Act
+        await _kit.DeleteAccount().ExecuteAsync(Me, confirmed: true, CancellationToken.None);
+
+        // Assert
+        _kit.Households.Households.Should().Equal(Other);
+        _kit.Households.Members.Should().ContainSingle(m => m.User == Partner && m.Role == Role.Owner);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_MeWithTwoFamilies_ListsBothActiveMembershipsEarliestFirst()
+    {
+        // Arrange
+        var signedIn = await _kit.SignInAsync("google-1", PhoneA, Household);
+        _kit.Accounts.Memberships.Add(Membership.Create(Other, signedIn.User.Id, Role.Parent, AuthKit.Start.AddDays(2)));
+
+        // Act
+        var me = await _kit.GetMe().ExecuteAsync(signedIn.User.Id, CancellationToken.None);
+
+        // Assert
+        me!.Memberships!.Select(m => m.HouseholdId).Should().Equal(Household, Other);
+        me.Membership!.HouseholdId.Should().Be(Household);
     }
 
     [Fact]

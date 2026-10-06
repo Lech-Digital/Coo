@@ -6,8 +6,8 @@ namespace Coo.Api.Application.Auth;
 internal static class AccountStoreExtensions
 {
     /// <summary>
-    /// One household per user in this increment (Spec 010 §3.2): the user's earliest membership, or null when they have none.
-    /// The one place this rule lives, for sign-in and account deletion.
+    /// The user's earliest <b>active</b> membership, or null when they have none (Spec 011b §10.3: a removed user must not
+    /// sign in to the family that removed them). The one place this rule lives, for sign-in.
     /// </summary>
     public static async Task<Membership?> FindEarliestMembershipAsync(
         this IAccountStore accounts, UserId user, CancellationToken cancellationToken) =>

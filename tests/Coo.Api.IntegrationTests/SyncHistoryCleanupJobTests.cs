@@ -1,3 +1,4 @@
+using Coo.Api.Application.Households;
 using Coo.Api.Application.Sync;
 using Coo.Api.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -13,6 +14,7 @@ public sealed class SyncHistoryCleanupJobTests
 
     private readonly FakeTimeProvider _time = new(new DateTimeOffset(2026, 10, 2, 12, 0, 0, TimeSpan.Zero));
     private readonly ISyncStore _store = Substitute.For<ISyncStore>();
+    private readonly IInvitationStore _invitations = Substitute.For<IInvitationStore>();
 
     [Fact]
     public async Task ExecuteAsync_PurgeCancelledWhileTheApiRuns_KeepsRunningAndPurgesTheNextDay()
@@ -31,7 +33,7 @@ public sealed class SyncHistoryCleanupJobTests
                 second.TrySetResult();
                 return Task.FromResult(3);
             });
-        using var job = new SyncHistoryCleanupJob(new PurgeSyncHistory(_store, _time), _time, NullLogger<SyncHistoryCleanupJob>.Instance);
+        using var job = new SyncHistoryCleanupJob(new PurgeSyncHistory(_store, _invitations, _time), _time, NullLogger<SyncHistoryCleanupJob>.Instance);
         await job.StartAsync(CancellationToken.None);
 
         // Act
@@ -57,7 +59,7 @@ public sealed class SyncHistoryCleanupJobTests
                 second.TrySetResult();
                 return Task.FromResult(0);
             });
-        using var job = new SyncHistoryCleanupJob(new PurgeSyncHistory(_store, _time), _time, NullLogger<SyncHistoryCleanupJob>.Instance);
+        using var job = new SyncHistoryCleanupJob(new PurgeSyncHistory(_store, _invitations, _time), _time, NullLogger<SyncHistoryCleanupJob>.Instance);
         await job.StartAsync(CancellationToken.None);
 
         // Act
@@ -74,7 +76,7 @@ public sealed class SyncHistoryCleanupJobTests
     public async Task StopAsync_WhileWaiting_EndsWithoutAFault()
     {
         // Arrange
-        using var job = new SyncHistoryCleanupJob(new PurgeSyncHistory(_store, _time), _time, NullLogger<SyncHistoryCleanupJob>.Instance);
+        using var job = new SyncHistoryCleanupJob(new PurgeSyncHistory(_store, _invitations, _time), _time, NullLogger<SyncHistoryCleanupJob>.Instance);
         await job.StartAsync(CancellationToken.None);
 
         // Act
@@ -95,7 +97,7 @@ public sealed class SyncHistoryCleanupJobTests
             purged.TrySetResult(call.Arg<DateTimeOffset>());
             return Task.FromResult(0);
         });
-        using var job = new SyncHistoryCleanupJob(new PurgeSyncHistory(_store, _time), _time, NullLogger<SyncHistoryCleanupJob>.Instance);
+        using var job = new SyncHistoryCleanupJob(new PurgeSyncHistory(_store, _invitations, _time), _time, NullLogger<SyncHistoryCleanupJob>.Instance);
         await job.StartAsync(CancellationToken.None);
 
         // Act

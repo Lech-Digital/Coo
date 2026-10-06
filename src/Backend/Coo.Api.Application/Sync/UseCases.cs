@@ -116,10 +116,17 @@ public sealed class GetMembershipStatus(IMembershipStore memberships)
         memberships.FindAsync(household, user, cancellationToken);
 }
 
-/// <summary>The daily clean-up (Spec 011 §7.2): change results and conflict records older than 30 days go.</summary>
-public sealed class PurgeSyncHistory(ISyncStore store, TimeProvider time)
+/// <summary>
+/// The daily clean-up (Spec 011 §7.2, Spec 011b §10.3): change results and conflict records older than 30 days, and every
+/// invitation whose expiry has passed.
+/// </summary>
+public sealed class PurgeSyncHistory(ISyncStore store, Households.IInvitationStore invitations, TimeProvider time)
 {
     public static readonly TimeSpan KeepFor = TimeSpan.FromDays(30);
 
-    public Task<int> ExecuteAsync(CancellationToken cancellationToken) => store.PurgeAsync(time.GetUtcNow() - KeepFor, cancellationToken);
+    public async Task<int> ExecuteAsync(CancellationToken cancellationToken)
+    {
+        var now = time.GetUtcNow();
+        return await store.PurgeAsync(now - KeepFor, cancellationToken) + await invitations.PurgeExpiredAsync(now, cancellationToken);
+    }
 }

@@ -84,10 +84,6 @@ public sealed record UserAccount(UserId Id, string Email, string DisplayName);
 
 public sealed record NewAccount(UserId UserId, string GoogleSubject, string Email, string DisplayName, HouseholdId Household, DateTimeOffset CreatedAt);
 
-public sealed record OwnershipTransfer(HouseholdId Household, UserId NewOwner);
-
-public sealed record AccountDeletionPlan(IReadOnlyList<HouseholdId> HouseholdsToDelete, IReadOnlyList<OwnershipTransfer> OwnershipTransfers);
-
 /// <summary>Users (ASP.NET Core Identity, ADR 0003 §3), households and memberships.</summary>
 public interface IAccountStore
 {
@@ -105,15 +101,11 @@ public interface IAccountStore
 
     Task UpdateProfileAsync(UserAccount account, CancellationToken cancellationToken);
 
+    /// <summary>The user's active memberships (<c>revoked_at IS NULL</c>, Spec 011b §10.3).</summary>
     Task<IReadOnlyList<Membership>> ListMembershipsOfUserAsync(UserId user, CancellationToken cancellationToken);
 
+    /// <summary>The household's active members.</summary>
     Task<IReadOnlyList<Membership>> ListMembersAsync(HouseholdId household, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// In one transaction: the ownership transfers, the households to delete with all of their care data, then the user
-    /// with their logins, device sessions and memberships (Spec 010 §5).
-    /// </summary>
-    Task DeleteAccountAsync(UserId user, AccountDeletionPlan plan, CancellationToken cancellationToken);
 }
 
 public sealed record AccessToken(string Value, DateTimeOffset ExpiresAt);

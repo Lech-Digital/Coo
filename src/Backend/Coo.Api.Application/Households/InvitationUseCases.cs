@@ -118,6 +118,10 @@ public sealed class AcceptInvitation(IInvitationStore invitations, IHouseholdMem
             if (!tx.IsLocked(household) || await tx.FindInvitationForUpdateAsync(hash, cancellationToken) is not { } invitation)
                 return Result<AcceptResult>.Failure(HouseholdErrors.InvitationInvalid);
 
+            // The re-read is the truth: a row that is no longer this family's must not join the user to the family that is locked.
+            if (invitation.HouseholdId != household)
+                return Result<AcceptResult>.Failure(HouseholdErrors.InvitationInvalid);
+
             var me = await tx.FindMembershipAsync(household, user, cancellationToken);
             var active = me.Membership is not null && !me.IsRevoked;
             if (active && invitation.WasAcceptedBy(user))

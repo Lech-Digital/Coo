@@ -459,6 +459,193 @@ public sealed class HouseholdMembershipStoreTests(PostgresServer server)
         names.Should().Equal("Maja");
     }
 
+    [Fact]
+    public async Task ExecuteAsync_PromotionTouchingNoRow_RollsTheDeletionBack()
+    {
+        // Arrange: spec §10.4. The partner is revoked between the read and the promotion, so the UPDATE finds no active row.
+        await using var db = await ServerDatabase.CreateAsync(server);
+        await MembersSchemaTests.SeedAsync(db);
+        await AddUserAsync(db, Partner, "Kasia");
+        await db.ExecuteAsync($"INSERT INTO memberships (household_id, user_id, role, joined_at) VALUES ('{Family.Value}', '{Partner.Value}', 'parent', now());");
+        var store = new RevokingBeforePromotion(db.HouseholdStore, Partner);
+
+        // Act
+        var act = async () => await new DeleteAccount(store).ExecuteAsync(Owner, confirmed: true, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        (await db.ScalarAsync($"""SELECT count(*) FROM "AspNetUsers" WHERE "Id" = '{Owner.Value}';""")).Should().Be(1L);
+        (await db.ScalarAsync("SELECT count(*) FROM memberships WHERE revoked_at IS NULL;")).Should().Be(2L);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ExecuteAsync_AcceptAndDeleteAccountAtOnce_EndConsistently(bool acceptFirst)
+    {
+        // Arrange: spec §12's concurrency test. The first of the two holds the family's lock until released; the second
+        // queues behind it (PostgreSQL's own lock wait, not a sleep).
+        await using var db = await ServerDatabase.CreateAsync(server);
+        await MembersSchemaTests.SeedAsync(db);
+        await AddUserAsync(db, Partner, "Kasia");
+        var now = db.Time.GetUtcNow();
+        await db.HouseholdStore.RunLockedAsync([Family], async tx =>
+        {
+            await tx.AddInvitationAsync(Invitation.Create(new InvitationId(db.NewId()), Family, Role.Parent, Owner, now), AuthSecrets.Hash("ABCDEFGH"), CancellationToken.None);
+            return 0;
+        }, CancellationToken.None);
+        await db.Consents.RecordAsync(new ConsentRecord(Partner, Contracts.Sync.CareDataConsent.Purpose, Contracts.Sync.CareDataConsent.CurrentWording, now, null, null), CancellationToken.None);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var held = new HoldingStore(db.HouseholdStore, release.Task);
+        var accept = new AcceptInvitation(db.Invitations, acceptFirst ? held : db.HouseholdStore, db.Consents, db.Time);
+        var delete = new DeleteAccount(acceptFirst ? db.HouseholdStore : held);
+
+        // Act
+        var first = acceptFirst
+            ? (Task)accept.ExecuteAsync(Partner, "ABCDEFGH", CancellationToken.None)
+            : delete.ExecuteAsync(Owner, confirmed: true, CancellationToken.None);
+        await held.Entered;
+        var second = acceptFirst
+            ? (Task)delete.ExecuteAsync(Owner, confirmed: true, CancellationToken.None)
+            : accept.ExecuteAsync(Partner, "ABCDEFGH", CancellationToken.None);
+        await WaitForLockWaitersAsync(db, 1);
+        release.SetResult();
+        await Task.WhenAll(first, second);
+
+        // Assert
+        if (acceptFirst)
+        {
+            // The joiner counted: ownership passed to her, the family stays.
+            (await db.ScalarAsync($"SELECT string_agg(user_id::text || ':' || role, ',') FROM memberships WHERE household_id = '{Family.Value}';"))
+                .Should().Be($"{Partner.Value}:owner");
+        }
+        else
+        {
+            // The family went first: the accept found it gone.
+            var result = await (Task<Result<AcceptResult>>)second;
+            result.Error!.Code.Should().Be(Contracts.Households.HouseholdErrors.InvitationInvalid);
+            (await db.ScalarAsync("SELECT count(*) FROM households;")).Should().Be(0L);
+            (await db.ScalarAsync($"SELECT count(*) FROM memberships WHERE user_id = '{Partner.Value}';")).Should().Be(0L);
+        }
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_PurgeAfterExpiry_DeletesExpiredUsedAndWithdrawnInvitationsOnly()
+    {
+        // Arrange
+        await using var db = await ServerDatabase.CreateAsync(server);
+        await MembersSchemaTests.SeedAsync(db);
+        var now = db.Time.GetUtcNow();
+        await db.HouseholdStore.RunLockedAsync([Family], async tx =>
+        {
+            var used = Invitation.Create(new InvitationId(db.NewId()), Family, Role.Parent, Owner, now.AddHours(-80));
+            used.Accept(Owner, now.AddHours(-79));
+            await tx.AddInvitationAsync(used, "used", CancellationToken.None);
+            await tx.SaveInvitationAsync(used, CancellationToken.None);
+            await tx.AddInvitationAsync(Invitation.Create(new InvitationId(db.NewId()), Family, Role.Parent, Owner, now.AddHours(-73)), "old", CancellationToken.None);
+            var withdrawn = Invitation.Create(new InvitationId(db.NewId()), Family, Role.Parent, Owner, now.AddHours(-75));
+            withdrawn.Withdraw(now.AddHours(-74));
+            await tx.AddInvitationAsync(withdrawn, "withdrawn", CancellationToken.None);
+            await tx.SaveInvitationAsync(withdrawn, CancellationToken.None);
+            await tx.AddInvitationAsync(Invitation.Create(new InvitationId(db.NewId()), Family, Role.Parent, Owner, now), "fresh", CancellationToken.None);
+            return 0;
+        }, CancellationToken.None);
+
+        // Act
+        await new PurgeSyncHistory(db.Sync, db.Invitations, db.Time).ExecuteAsync(CancellationToken.None);
+
+        // Assert
+        (await db.ScalarAsync("SELECT string_agg(code_hash, ',') FROM invitations;")).Should().Be("fresh");
+    }
+
+    /// <summary>Holds the lock it takes until <paramref name="release"/> completes; <see cref="Entered"/> says it holds it.</summary>
+    private sealed class HoldingStore(IHouseholdMembershipStore inner, Task release) : IHouseholdMembershipStore
+    {
+        private readonly TaskCompletionSource _entered = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public Task Entered => _entered.Task;
+
+        public Task<T> RunLockedAsync<T>(IReadOnlyCollection<HouseholdId> households, Func<IMembershipTransaction, Task<T>> work, CancellationToken cancellationToken) =>
+            inner.RunLockedAsync(households, async tx =>
+            {
+                _entered.TrySetResult();
+                await release;
+                return await work(tx);
+            }, cancellationToken);
+
+        public Task<IReadOnlyList<MemberProfile>> ListActiveMembersAsync(HouseholdId household, CancellationToken cancellationToken) =>
+            inner.ListActiveMembersAsync(household, cancellationToken);
+
+        public Task<IReadOnlyList<OpenInvitation>> ListOpenInvitationsAsync(HouseholdId household, DateTimeOffset now, CancellationToken cancellationToken) =>
+            inner.ListOpenInvitationsAsync(household, now, cancellationToken);
+
+        public Task<IReadOnlyList<Membership>> ListActiveMembershipsOfUserAsync(UserId user, CancellationToken cancellationToken) =>
+            inner.ListActiveMembershipsOfUserAsync(user, cancellationToken);
+    }
+
+    /// <summary>Revokes <paramref name="partner"/> inside the transaction right before the promotion, so its UPDATE finds no active row.</summary>
+    private sealed class RevokingBeforePromotion(IHouseholdMembershipStore inner, UserId partner) : IHouseholdMembershipStore
+    {
+        public Task<T> RunLockedAsync<T>(IReadOnlyCollection<HouseholdId> households, Func<IMembershipTransaction, Task<T>> work, CancellationToken cancellationToken) =>
+            inner.RunLockedAsync(households, tx => work(new Revoking(tx, partner)), cancellationToken);
+
+        public Task<IReadOnlyList<MemberProfile>> ListActiveMembersAsync(HouseholdId household, CancellationToken cancellationToken) =>
+            inner.ListActiveMembersAsync(household, cancellationToken);
+
+        public Task<IReadOnlyList<OpenInvitation>> ListOpenInvitationsAsync(HouseholdId household, DateTimeOffset now, CancellationToken cancellationToken) =>
+            inner.ListOpenInvitationsAsync(household, now, cancellationToken);
+
+        public Task<IReadOnlyList<Membership>> ListActiveMembershipsOfUserAsync(UserId user, CancellationToken cancellationToken) =>
+            inner.ListActiveMembershipsOfUserAsync(user, cancellationToken);
+
+        private sealed class Revoking(IMembershipTransaction tx, UserId partner) : IMembershipTransaction
+        {
+            public bool IsLocked(HouseholdId household) => tx.IsLocked(household);
+
+            public Task<MembershipLookup> FindMembershipAsync(HouseholdId household, UserId user, CancellationToken cancellationToken) => tx.FindMembershipAsync(household, user, cancellationToken);
+
+            public Task<IReadOnlyList<Membership>> ActiveMembersAsync(HouseholdId household, CancellationToken cancellationToken) => tx.ActiveMembersAsync(household, cancellationToken);
+
+            public Task<IReadOnlyList<Membership>> ActiveMembershipsOfUserAsync(UserId user, CancellationToken cancellationToken) => tx.ActiveMembershipsOfUserAsync(user, cancellationToken);
+
+            public Task<Invitation?> FindInvitationForUpdateAsync(string codeHash, CancellationToken cancellationToken) => tx.FindInvitationForUpdateAsync(codeHash, cancellationToken);
+
+            public Task<Invitation?> FindInvitationForUpdateAsync(HouseholdId household, InvitationId id, CancellationToken cancellationToken) => tx.FindInvitationForUpdateAsync(household, id, cancellationToken);
+
+            public Task<int> CountOpenInvitationsAsync(HouseholdId household, DateTimeOffset now, CancellationToken cancellationToken) => tx.CountOpenInvitationsAsync(household, now, cancellationToken);
+
+            public Task AddInvitationAsync(Invitation invitation, string codeHash, CancellationToken cancellationToken) => tx.AddInvitationAsync(invitation, codeHash, cancellationToken);
+
+            public Task SaveInvitationAsync(Invitation invitation, CancellationToken cancellationToken) => tx.SaveInvitationAsync(invitation, cancellationToken);
+
+            public Task AddMembershipAsync(Membership membership, CancellationToken cancellationToken) => tx.AddMembershipAsync(membership, cancellationToken);
+
+            public Task ReactivateMembershipAsync(HouseholdId household, UserId user, Role role, DateTimeOffset joinedAt, CancellationToken cancellationToken) => tx.ReactivateMembershipAsync(household, user, role, joinedAt, cancellationToken);
+
+            public Task RevokeMembershipAsync(HouseholdId household, UserId user, DateTimeOffset now, CancellationToken cancellationToken) => tx.RevokeMembershipAsync(household, user, now, cancellationToken);
+
+            public Task<int> WithdrawOpenInvitationsByAsync(HouseholdId household, UserId createdBy, DateTimeOffset now, CancellationToken cancellationToken) => tx.WithdrawOpenInvitationsByAsync(household, createdBy, now, cancellationToken);
+
+            public async Task<int> PromoteToOwnerAsync(HouseholdId household, UserId user, CancellationToken cancellationToken)
+            {
+                // Inside the same transaction: the owner's own delete already ran, so revoke the partner here and let the
+                // UPDATE find no active row.
+                await tx.RevokeMembershipAsync(household, partner, new DateTimeOffset(2026, 10, 1, 13, 0, 0, TimeSpan.Zero), cancellationToken);
+                return await tx.PromoteToOwnerAsync(household, user, cancellationToken);
+            }
+
+            public Task<bool> HoldsAnyRecordAsync(HouseholdId household, CancellationToken cancellationToken) => tx.HoldsAnyRecordAsync(household, cancellationToken);
+
+            public Task<bool> TryCreateHouseholdAsync(HouseholdId household, UserId owner, DateTimeOffset now, CancellationToken cancellationToken) => tx.TryCreateHouseholdAsync(household, owner, now, cancellationToken);
+
+            public Task DeleteHouseholdAsync(HouseholdId household, CancellationToken cancellationToken) => tx.DeleteHouseholdAsync(household, cancellationToken);
+
+            public Task DeleteMembershipsOfUserAsync(UserId user, CancellationToken cancellationToken) => tx.DeleteMembershipsOfUserAsync(user, cancellationToken);
+
+            public Task DeleteUserAsync(UserId user, CancellationToken cancellationToken) => tx.DeleteUserAsync(user, cancellationToken);
+        }
+    }
+
     internal static async Task AddUserAsync(ServerDatabase db, UserId user, string name) => await db.ExecuteAsync(
         $"""
         INSERT INTO "AspNetUsers" ("Id", "UserName", "NormalizedUserName", "Email", "EmailConfirmed", "DisplayName", "PhoneNumberConfirmed",

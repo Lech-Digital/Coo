@@ -352,7 +352,7 @@ public sealed class AuthStoreTests(PostgresServer server)
     }
 
     [Fact]
-    public async Task DeleteAccountAsync_SoleOwner_RemovesTheUserLoginsSessionsMembershipHouseholdAndCareEntries()
+    public async Task ExecuteAsync_SoleOwner_RemovesTheUserLoginsSessionsMembershipHouseholdAndCareEntries()
     {
         // Arrange
         await using var db = await ServerDatabase.CreateAsync(server);
@@ -365,11 +365,7 @@ public sealed class AuthStoreTests(PostgresServer server)
         await db.Store.SaveAsync(entry, CancellationToken.None);
 
         // Act
-        await using (var scope = db.NewScope())
-        {
-            await scope.ServiceProvider.GetRequiredService<IAccountStore>().DeleteAccountAsync(
-                User, new AccountDeletionPlan([ServerDatabase.Household], []), CancellationToken.None);
-        }
+        await new DeleteAccount(db.HouseholdStore).ExecuteAsync(User, confirmed: true, CancellationToken.None);
 
         // Assert
         foreach (var table in new[] { "\"AspNetUsers\"", "\"AspNetUserLogins\"", "device_sessions", "memberships", "households", "care_entries" })
@@ -377,7 +373,7 @@ public sealed class AuthStoreTests(PostgresServer server)
     }
 
     [Fact]
-    public async Task DeleteAccountAsync_OwnershipTransfer_PromotesThePartnerAndKeepsTheHousehold()
+    public async Task ExecuteAsync_OwnerWithAPartner_PromotesThePartnerAndKeepsTheHousehold()
     {
         // Arrange: a partner who is a Parent in the owner's household (possible from 11b).
         await using var db = await ServerDatabase.CreateAsync(server);
@@ -387,16 +383,33 @@ public sealed class AuthStoreTests(PostgresServer server)
             $"INSERT INTO memberships (household_id, user_id, role, joined_at) VALUES ('{ServerDatabase.Household.Value}', '{Partner.Value}', 'parent', now());");
 
         // Act
-        await using (var scope = db.NewScope())
-        {
-            await scope.ServiceProvider.GetRequiredService<IAccountStore>().DeleteAccountAsync(
-                User, new AccountDeletionPlan([], [new OwnershipTransfer(ServerDatabase.Household, Partner)]), CancellationToken.None);
-        }
+        await new DeleteAccount(db.HouseholdStore).ExecuteAsync(User, confirmed: true, CancellationToken.None);
 
         // Assert
         (await db.ScalarAsync($"SELECT string_agg(user_id::text || ':' || role, ',') FROM memberships WHERE household_id = '{ServerDatabase.Household.Value}';"))
             .Should().Be($"{Partner.Value}:owner");
         (await db.ScalarAsync($"SELECT created_by IS NULL FROM households WHERE id = '{ServerDatabase.Household.Value}';")).Should().Be(true);
+    }
+
+    [Fact]
+    public async Task ListMembershipsOfUserAsync_ARevokedRow_IsLeftOut()
+    {
+        // Arrange: a removed user must not sign in to the family that removed them (spec §10.3).
+        await using var db = await ServerDatabase.CreateAsync(server);
+        await CreateAccountAsync(db, User, "sub-1", ServerDatabase.Household);
+        await CreateAccountAsync(db, Partner, "sub-2", PartnersHousehold);
+        await db.ExecuteAsync(
+            $"INSERT INTO memberships (household_id, user_id, role, joined_at, revoked_at) VALUES ('{ServerDatabase.Household.Value}', '{Partner.Value}', 'parent', now(), now());");
+
+        // Act
+        await using var scope = db.NewScope();
+        var accounts = scope.ServiceProvider.GetRequiredService<IAccountStore>();
+        var partners = await accounts.ListMembershipsOfUserAsync(Partner, CancellationToken.None);
+        var members = await accounts.ListMembersAsync(ServerDatabase.Household, CancellationToken.None);
+
+        // Assert
+        partners.Should().ContainSingle().Which.HouseholdId.Should().Be(PartnersHousehold);
+        members.Should().ContainSingle().Which.UserId.Should().Be(User);
     }
 
     private static async Task<Exception?> Attempt(Func<Task> action)

@@ -360,7 +360,7 @@ public sealed class SyncStoreTests(PostgresServer server)
     }
 
     [Fact]
-    public async Task DeleteAccountAsync_LastParent_RemovesTheSyncedRowsAndTheConsent()
+    public async Task ExecuteAsync_LastParent_RemovesTheSyncedRowsAndTheConsent()
     {
         // Arrange
         await using var db = await ServerDatabase.CreateAsync(server);
@@ -371,9 +371,7 @@ public sealed class SyncStoreTests(PostgresServer server)
         await ApplyAsync(db, new HouseholdSettingsWrite(HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", db.NextStamp()).Value));
 
         // Act
-        await using (var scope = db.NewScope())
-            await scope.ServiceProvider.GetRequiredService<IAccountStore>().DeleteAccountAsync(
-                user, new AccountDeletionPlan([Household], []), CancellationToken.None);
+        await new DeleteAccount(db.HouseholdStore).ExecuteAsync(user, confirmed: true, CancellationToken.None);
 
         // Assert
         (await db.ScalarAsync(

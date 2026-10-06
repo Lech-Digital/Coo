@@ -123,8 +123,6 @@ internal sealed class FakeAccounts : IAccountStore
 
     public List<Membership> Memberships { get; } = [];
 
-    public (UserId User, AccountDeletionPlan Plan)? Deleted { get; private set; }
-
     public Task<UserAccount?> FindByGoogleSubjectAsync(string subject, CancellationToken cancellationToken) =>
         Task.FromResult(BySubject.GetValueOrDefault(subject));
 
@@ -159,17 +157,6 @@ internal sealed class FakeAccounts : IAccountStore
 
     public Task<IReadOnlyList<Membership>> ListMembersAsync(HouseholdId household, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<Membership>>([.. Memberships.Where(m => m.HouseholdId == household)]);
-
-    public Task DeleteAccountAsync(UserId user, AccountDeletionPlan plan, CancellationToken cancellationToken)
-    {
-        Deleted = (user, plan);
-        foreach (var subject in BySubject.Where(p => p.Value.Id == user).Select(p => p.Key).ToList())
-            BySubject.Remove(subject);
-        Memberships.RemoveAll(m => m.UserId == user || plan.HouseholdsToDelete.Contains(m.HouseholdId));
-        foreach (var household in plan.HouseholdsToDelete)
-            Households.Remove(household);
-        return Task.CompletedTask;
-    }
 }
 
 internal sealed class FakeTokens : ITokenIssuer
@@ -197,6 +184,8 @@ internal sealed class AuthKit
 
     public FakeConsents Consents { get; } = new();
 
+    public FakeHouseholds Households { get; } = new();
+
     public IssueNonce IssueNonce() => new(Nonces, Time);
 
     public SignInWithGoogle SignIn() => new(Google, Nonces, Accounts, Sessions, Tokens, Time);
@@ -209,7 +198,7 @@ internal sealed class AuthKit
 
     public GetMe GetMe() => new(Accounts, Sessions, Consents);
 
-    public DeleteAccount DeleteAccount() => new(Accounts);
+    public DeleteAccount DeleteAccount() => new(Households);
 
     /// <summary>A nonce from the server, a Google token carrying it, then <c>/api/auth/google</c>.</summary>
     public async Task<SignInResult> SignInAsync(string subject, DeviceId device, HouseholdId household)

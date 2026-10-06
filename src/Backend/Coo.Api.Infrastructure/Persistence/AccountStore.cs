@@ -9,8 +9,8 @@ using Npgsql;
 namespace Coo.Api.Infrastructure.Persistence;
 
 /// <summary>
-/// Users through ASP.NET Core Identity (ADR 0003 §3), households and memberships. Scoped: it shares the request's
-/// <see cref="CooDbContext"/> with Identity's user store, so the user, their login, the household and the membership
+/// Users through ASP.NET Core Identity (ADR 0003 §3), households and memberships (active rows only, Spec 011b §10.3).
+/// Scoped: it shares the request's <see cref="CooDbContext"/> with Identity's user store, so the user, their login, the household and the membership
 /// are written in one transaction. Identity's <see cref="UserManager{TUser}"/> takes no cancellation token, so the
 /// token is checked before each of its calls; everything else passes it down.
 /// </summary>
@@ -97,35 +97,10 @@ internal sealed class AccountStore(CooDbContext context, UserManager<CooUser> us
     }
 
     public async Task<IReadOnlyList<Membership>> ListMembershipsOfUserAsync(UserId user, CancellationToken cancellationToken) =>
-        [.. (await context.Memberships.AsNoTracking().Where(m => m.UserId == user.Value).ToListAsync(cancellationToken)).Select(ToMembership)];
+        [.. (await context.Memberships.AsNoTracking().Where(m => m.UserId == user.Value && m.RevokedAt == null).ToListAsync(cancellationToken)).Select(ToMembership)];
 
     public async Task<IReadOnlyList<Membership>> ListMembersAsync(HouseholdId household, CancellationToken cancellationToken) =>
-        [.. (await context.Memberships.AsNoTracking().Where(m => m.HouseholdId == household.Value).ToListAsync(cancellationToken)).Select(ToMembership)];
-
-    public async Task DeleteAccountAsync(UserId user, AccountDeletionPlan plan, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(plan);
-        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
-
-        // The leaver's memberships first, so a promoted parent never meets a second Owner (ix_memberships_one_owner).
-        await context.Memberships.Where(m => m.UserId == user.Value).ExecuteDeleteAsync(cancellationToken);
-        foreach (var transfer in plan.OwnershipTransfers)
-        {
-            await context.Memberships
-                .Where(m => m.HouseholdId == transfer.Household.Value && m.UserId == transfer.NewOwner.Value)
-                .ExecuteUpdateAsync(s => s.SetProperty(m => m.Role, RoleText.Owner), cancellationToken);
-        }
-
-        foreach (var household in plan.HouseholdsToDelete)
-        {
-            await context.CareEntries.Where(c => c.HouseholdId == household.Value).ExecuteDeleteAsync(cancellationToken);
-            await context.Households.Where(h => h.Id == household.Value).ExecuteDeleteAsync(cancellationToken);
-        }
-
-        // Logins, claims, tokens and device sessions go with the user (ON DELETE CASCADE); created_by becomes NULL.
-        await context.Users.Where(u => u.Id == user.Value).ExecuteDeleteAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-    }
+        [.. (await context.Memberships.AsNoTracking().Where(m => m.HouseholdId == household.Value && m.RevokedAt == null).ToListAsync(cancellationToken)).Select(ToMembership)];
 
     private void AddHousehold(HouseholdId household, UserId owner, DateTimeOffset now)
     {

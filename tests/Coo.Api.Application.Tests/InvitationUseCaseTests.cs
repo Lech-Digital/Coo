@@ -381,6 +381,30 @@ public sealed class InvitationUseCaseTests
         accepted.Error!.Code.Should().Be(HouseholdErrors.InvitationInvalid);
     }
 
+    [Fact]
+    public async Task ExecuteAsync_InvitationBelongsToAnotherFamilyAfterTheLock_IsInvalidAndJoinsNobody()
+    {
+        // Arrange: the re-read under the lock finds the code on a family that is not the one locked.
+        var code = await InviteAsync();
+        await _kit.GiveConsentAsync(Partner);
+        _kit.Store.InsideNextTransaction = () =>
+        {
+            var row = _kit.Store.Invitations.Single();
+            var i = row.Invitation;
+            _kit.Store.Invitations[0] = row with
+            {
+                Invitation = Invitation.Rehydrate(i.Id, Other, i.Role, i.CreatedBy, i.CreatedAt, i.ExpiresAt, i.AcceptedBy, i.AcceptedAt, i.RevokedAt),
+            };
+        };
+
+        // Act
+        var accepted = await _kit.Accept().ExecuteAsync(Partner, code, CancellationToken.None);
+
+        // Assert
+        accepted.Error!.Code.Should().Be(HouseholdErrors.InvitationInvalid);
+        _kit.Store.Members.Should().NotContain(m => m.User == Partner);
+    }
+
     [Theory]
     [InlineData("expired")]
     [InlineData("withdrawn")]
