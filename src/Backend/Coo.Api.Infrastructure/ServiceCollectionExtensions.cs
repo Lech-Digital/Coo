@@ -1,6 +1,7 @@
 using Coo.Api.Application.Auth;
 using Coo.Api.Application.CareLog;
 using Coo.Api.Application.Health;
+using Coo.Api.Application.Households;
 using Coo.Api.Application.Sync;
 using Coo.Api.Infrastructure.Identity;
 using Coo.Api.Infrastructure.Persistence;
@@ -37,6 +38,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ISyncStore, SyncStore>();
         services.AddSingleton<IMembershipStore, MembershipStore>();
         services.AddSingleton<IConsentStore, ConsentStore>();
+
+        // Members and invitations (Spec 011b §10): singletons over the data source, like the sync stores.
+        services.AddSingleton<IInvitationStore, InvitationStore>();
+        services.AddSingleton<IHouseholdMembershipStore, HouseholdMembershipStore>();
 
         // Identity's user store and AccountStore share one scoped context per request (AddDbContextFactory registers
         // it scoped too), so an account is created in one transaction (Spec 010 §4.2). User names are "google:<sub>".

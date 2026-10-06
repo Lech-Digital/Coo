@@ -1,5 +1,6 @@
 using Coo.Api.Application.Auth;
 using Coo.Api.Application.CareLog;
+using Coo.Api.Application.Households;
 using Coo.Api.Application.Sync;
 using Coo.Api.Infrastructure.Persistence;
 using Coo.Domain.Common;
@@ -83,6 +84,10 @@ internal sealed class ServerDatabase : IAsyncDisposable
     public IMembershipStore Memberships => _services.GetRequiredService<IMembershipStore>();
 
     public IConsentStore Consents => _services.GetRequiredService<IConsentStore>();
+
+    public IInvitationStore Invitations => _services.GetRequiredService<IInvitationStore>();
+
+    public IHouseholdMembershipStore HouseholdStore => _services.GetRequiredService<IHouseholdMembershipStore>();
 
     /// <summary>A request's worth of scoped services: <see cref="IAccountStore"/> lives here.</summary>
     public AsyncServiceScope NewScope() => _services.CreateAsyncScope();

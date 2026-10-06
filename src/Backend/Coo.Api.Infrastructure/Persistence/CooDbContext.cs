@@ -34,6 +34,8 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
 
     public DbSet<UserConsentRecord> Consents => Set<UserConsentRecord>();
 
+    public DbSet<InvitationRecord> Invitations => Set<InvitationRecord>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -273,6 +275,31 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
             e.Property(c => c.Language).HasColumnName("language").HasMaxLength(16);
             e.HasOne<CooUser>().WithMany().HasForeignKey(c => c.UserId)
                 .HasConstraintName("fk_consents_users").OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<InvitationRecord>(e =>
+        {
+            e.ToTable("invitations", t => t.HasCheckConstraint("ck_invitations_role", "role IN ('parent', 'caregiver')"));
+            e.HasKey(i => i.Id);
+            e.Property(i => i.Id).HasColumnName("id").ValueGeneratedNever();
+            e.Property(i => i.HouseholdId).HasColumnName("household_id");
+            e.Property(i => i.Role).HasColumnName("role");
+            e.Property(i => i.CodeHash).HasColumnName("code_hash");
+            e.Property(i => i.CreatedBy).HasColumnName("created_by");
+            e.Property(i => i.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz");
+            e.Property(i => i.ExpiresAt).HasColumnName("expires_at").HasColumnType("timestamptz");
+            e.Property(i => i.AcceptedBy).HasColumnName("accepted_by");
+            e.Property(i => i.AcceptedAt).HasColumnName("accepted_at").HasColumnType("timestamptz");
+            e.Property(i => i.RevokedAt).HasColumnName("revoked_at").HasColumnType("timestamptz");
+            e.HasOne<HouseholdRecord>().WithMany().HasForeignKey(i => i.HouseholdId)
+                .HasConstraintName("fk_invitations_households").OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CooUser>().WithMany().HasForeignKey(i => i.CreatedBy)
+                .HasConstraintName("fk_invitations_created_by").OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CooUser>().WithMany().HasForeignKey(i => i.AcceptedBy)
+                .HasConstraintName("fk_invitations_accepted_by").OnDelete(DeleteBehavior.SetNull);
+            e.HasIndex(i => i.CodeHash).IsUnique().HasDatabaseName("ix_invitations_code_hash");
+            e.HasIndex(i => i.HouseholdId).HasDatabaseName("ix_invitations_household_id");
+            e.HasIndex(i => i.ExpiresAt).HasDatabaseName("ix_invitations_expires_at");
         });
     }
 

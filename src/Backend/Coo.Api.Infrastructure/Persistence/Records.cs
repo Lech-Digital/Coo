@@ -255,3 +255,27 @@ internal sealed class UserConsentRecord
 
     public string? Language { get; init; }
 }
+
+/// <summary><c>invitations</c> (Spec 011b §10.3): only the code's SHA-256 is kept; rows go within a day after they expire (the daily job).</summary>
+internal sealed class InvitationRecord
+{
+    public required Guid Id { get; init; }
+
+    public required Guid HouseholdId { get; init; }
+
+    public required string Role { get; init; }
+
+    public required string CodeHash { get; init; }
+
+    public required Guid CreatedBy { get; init; }
+
+    public required DateTime CreatedAt { get; init; }
+
+    public required DateTime ExpiresAt { get; init; }
+
+    public Guid? AcceptedBy { get; init; }
+
+    public DateTime? AcceptedAt { get; init; }
+
+    public DateTime? RevokedAt { get; init; }
+}
