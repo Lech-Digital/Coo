@@ -1,12 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.Households;
 using Coo.Mobile.Presentation.Localization;
 
 namespace Coo.Mobile.Presentation.Setup;
 
 /// <summary>First launch (Spec 006 §3, §3a): the baby, born or expected. Everything else has a default.</summary>
-public sealed partial class SetupViewModel(IHouseholdStore households, SetUpBaby setUpBaby, TimeProvider time) : ObservableObject
+public sealed partial class SetupViewModel(IHouseholdStore households, SetUpBaby setUpBaby, TimeProvider time, Account account) : ObservableObject
 {
     [ObservableProperty]
     private bool _hasArrived = true;
@@ -35,6 +36,12 @@ public sealed partial class SetupViewModel(IHouseholdStore households, SetUpBaby
     public event EventHandler? EnterCodeRequested;
 
     public static string HaveInvitationText => Strings.Get("Setup.HaveInvitation");
+
+    /// <summary>
+    /// The subtitle under "Welcome to Coo" (walk fix F5): signed out, no account is needed; signed in (a removal made a new family,
+    /// or an account's first sign-in), the person already has an account, so it only says what to do.
+    /// </summary>
+    public string Hint => Strings.Get(account.State is SignedOut ? "Setup.Hint" : "Setup.HintSignedIn");
 
     [RelayCommand]
     private void EnterCode() => EnterCodeRequested?.Invoke(this, EventArgs.Empty);

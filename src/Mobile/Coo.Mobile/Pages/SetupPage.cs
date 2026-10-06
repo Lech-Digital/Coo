@@ -58,7 +58,7 @@ public sealed class SetupPage : ContentPage
                 Children =
                 {
                     Ui.Text(Strings.Get("Setup.Title"), "Title"),
-                    Ui.Text(Strings.Get("Setup.Hint"), "Body", "Ink2"),
+                    Ui.Text(model.Hint, "Body", "Ink2"),
                     Ui.Text(Strings.Get("Setup.Arrived"), "Section").Tap(l => l.Margin = new Thickness(0, 16, 0, 0)),
                     new HorizontalStackLayout { Spacing = 8, Children = { yes, notYet } },
                     Ui.Text(Strings.Get("Setup.Name"), "Label"),

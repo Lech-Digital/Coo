@@ -466,7 +466,7 @@ public sealed class RemovalTests : IDisposable
     public void EnterCodeCommand_Tapped_AsksTheHostToOpenTheCodeSheet()
     {
         // Arrange
-        var model = new SetupViewModel(_households, new SetUpBaby(_households, Substitute.For<IVersionClock>(), new FakeTimeProvider(Now)), new FakeTimeProvider(Now));
+        var model = new SetupViewModel(_households, new SetUpBaby(_households, Substitute.For<IVersionClock>(), new FakeTimeProvider(Now)), new FakeTimeProvider(Now), _account);
         var requested = 0;
         model.EnterCodeRequested += (_, _) => requested++;
 

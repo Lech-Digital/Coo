@@ -11,6 +11,7 @@ S = {
 
 'Setup.Title': ('Welcome to Coo', 'Willkommen bei Coo', 'Bienvenue dans Coo', 'Te damos la bienvenida a Coo', 'Benvenuti in Coo', 'Witaj w Coo', 'Welkom bij Coo'),
 'Setup.Hint': ('No account needed to start. You can share with family later.', 'Zum Start brauchst du kein Konto. Mit der Familie teilen kannst du später.', "Pas besoin de compte pour commencer. Vous pourrez partager avec la famille plus tard.", 'Para empezar no necesitas cuenta. Podrás compartir con la familia más adelante.', 'Per iniziare non serve un account. Potrai condividere con la famiglia più avanti.', 'Na start nie potrzebujesz konta. Udostępnić rodzinie możesz później.', 'Je hebt geen account nodig om te beginnen. Delen met familie kan later.'),
+'Setup.HintSignedIn': ("Add your baby to start your family's log.", 'Füge dein Baby hinzu, um die Einträge deiner Familie zu beginnen.', 'Ajoutez votre bébé pour commencer le journal de votre famille.', 'Añade a tu bebé para empezar el registro de tu familia.', 'Aggiungi il tuo bambino per iniziare il registro della tua famiglia.', 'Dodaj dziecko, aby zacząć dziennik swojej rodziny.', 'Voeg je baby toe om het logboek van je gezin te beginnen.'),
 'Setup.Arrived': ('Has the baby arrived?', 'Ist das Baby schon da?', 'Le bébé est-il né ?', '¿Ya ha nacido el bebé?', 'Il bambino è già nato?', 'Czy dziecko jest już na świecie?', 'Is de baby al geboren?'),
 'Setup.Yes': ('Yes', 'Ja', 'Oui', 'Sí', 'Sì', 'Tak', 'Ja'),
 'Setup.NotYet': ('Not yet', 'Noch nicht', 'Pas encore', 'Todavía no', 'Non ancora', 'Jeszcze nie', 'Nog niet'),

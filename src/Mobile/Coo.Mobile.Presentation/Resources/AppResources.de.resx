@@ -307,6 +307,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Setup.DueDate" xml:space="preserve"><value>Errechneter Termin</value></data>
   <data name="Setup.HaveInvitation" xml:space="preserve"><value>Hast du eine Einladung? Code eingeben</value></data>
   <data name="Setup.Hint" xml:space="preserve"><value>Zum Start brauchst du kein Konto. Mit der Familie teilen kannst du später.</value></data>
+  <data name="Setup.HintSignedIn" xml:space="preserve"><value>Füge dein Baby hinzu, um die Einträge deiner Familie zu beginnen.</value></data>
   <data name="Setup.Name" xml:space="preserve"><value>Name</value></data>
   <data name="Setup.NotYet" xml:space="preserve"><value>Noch nicht</value></data>
   <data name="Setup.Title" xml:space="preserve"><value>Willkommen bei Coo</value></data>

@@ -322,6 +322,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Setup.DueDate" xml:space="preserve"><value>Termin porodu</value></data>
   <data name="Setup.HaveInvitation" xml:space="preserve"><value>Masz zaproszenie? Wpisz kod</value></data>
   <data name="Setup.Hint" xml:space="preserve"><value>Na start nie potrzebujesz konta. Udostępnić rodzinie możesz później.</value></data>
+  <data name="Setup.HintSignedIn" xml:space="preserve"><value>Dodaj dziecko, aby zacząć dziennik swojej rodziny.</value></data>
   <data name="Setup.Name" xml:space="preserve"><value>Imię</value></data>
   <data name="Setup.NotYet" xml:space="preserve"><value>Jeszcze nie</value></data>
   <data name="Setup.Title" xml:space="preserve"><value>Witaj w Coo</value></data>
