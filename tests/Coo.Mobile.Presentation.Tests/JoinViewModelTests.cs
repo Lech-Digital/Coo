@@ -1040,7 +1040,7 @@ public sealed class JoinViewModelTests : IDisposable
         // Assert
         message.Should().Be("That didn't work. Check your connection and try again.");
         canRetry.Should().BeTrue();
-        canKeep.Should().BeTrue();
+        canKeep.Should().BeFalse("a failed choice can't tell whether this phone has a baby, so it offers Try again only");
         model.Step.Should().Be(JoinStep.Choice);
     }
 
@@ -1068,7 +1068,7 @@ public sealed class JoinViewModelTests : IDisposable
     }
 
     [Fact]
-    public async Task StartAsync_PreviewSaysJoinedAndTheChoiceFails_OffersTryAgainAndKeepSeparate()
+    public async Task StartAsync_PreviewSaysJoinedAndTheChoiceFails_OffersTryAgainOnly()
     {
         // Arrange: the join is stored, so a failed choice is not a failed join.
         await SignInAsync();
@@ -1084,7 +1084,7 @@ public sealed class JoinViewModelTests : IDisposable
         model.Step.Should().Be(JoinStep.Message);
         model.Message.Should().Be("That didn't work. Check your connection and try again.");
         model.CanRetry.Should().BeTrue();
-        model.CanKeepSeparate.Should().BeTrue();
+        model.CanKeepSeparate.Should().BeFalse();
     }
 
     [Fact]

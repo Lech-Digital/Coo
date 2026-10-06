@@ -421,7 +421,9 @@ public sealed partial class JoinViewModel : ObservableObject
         {
             _inviterName = inviterName;
             ShowMessage(Strings.Get("Family.ActionFailed"), Retry.Decide);
-            CanKeepSeparate = true;
+            // The choice failed, so whether this phone has a baby is unknown: Try again only, never a second baby
+            // (final review; Keep separate stays reachable from NotReady, where the answer is known).
+            CanKeepSeparate = false;
         }
     }
 

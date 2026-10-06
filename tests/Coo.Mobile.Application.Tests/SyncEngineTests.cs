@@ -763,6 +763,15 @@ public sealed class SyncEngineTests : IDisposable
             asking.TrySetResult();
             return answer.Task;
         });
+        // The fake store takes the family off the phone when it is deleted, as the real one does in the same transaction: the
+        // cycle the acknowledgment requests may start at once and must find it gone.
+        HouseholdSettings[] onPhone = [FamiliesTests.Settings(Household)];
+        _householdStore.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns(_ => Volatile.Read(ref onPhone));
+        _records.DeleteAndReplaceAsync(Household, Arg.Any<HouseholdSettings>(), Arg.Any<CancellationToken>()).Returns(_ =>
+        {
+            Volatile.Write(ref onPhone, [FamiliesTests.Settings(Provisional)]);
+            return Task.CompletedTask;
+        });
         var sync = _engine.SyncNowAsync(CancellationToken.None);
         await asking.Task.WaitAsync(TimeSpan.FromSeconds(10));
 
@@ -772,7 +781,6 @@ public sealed class SyncEngineTests : IDisposable
         answer.SetResult(MembershipStatus.Revoked);
         await sync;
         await acknowledge.WaitAsync(TimeSpan.FromSeconds(10));
-        _householdStore.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([FamiliesTests.Settings(Provisional)]);
         await _engine.WhenIdleAsync();
 
         // Assert
