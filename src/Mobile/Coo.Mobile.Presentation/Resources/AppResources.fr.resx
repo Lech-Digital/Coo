@@ -145,6 +145,7 @@
   <data name="Error.breast.too-long" xml:space="preserve"><value>Une tétée dure au plus 6 heures. Vérifiez les heures.</value></data>
   <data name="Error.entry.not-editable" xml:space="preserve"><value>Cette entrée ne peut pas être modifiée dans cette version de Coo.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>Cette entrée n’existe plus.</value></data>
+  <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>Les heures de cette entrée ne concordent pas. Modifiez-la pour l’envoyer à nouveau.</value></data>
   <data name="Error.household.already-has-family" xml:space="preserve"><value>Vous faites déjà partie d'une famille sur Coo.</value></data>
   <data name="Error.household.confirmation-required" xml:space="preserve"><value>Cette famille a encore des entrées sur le serveur de Coo. Confirmez pour les supprimer.</value></data>
   <data name="Error.household.forbidden" xml:space="preserve"><value>Vous ne pouvez pas faire cela dans cette famille.</value></data>

@@ -154,6 +154,7 @@
   <data name="Error.breast.too-long" xml:space="preserve"><value>Karmienie piersią trwa najwyżej 6 godzin. Sprawdź godziny.</value></data>
   <data name="Error.entry.not-editable" xml:space="preserve"><value>Tego wpisu nie można edytować w tej wersji Coo.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>Ten wpis już nie istnieje.</value></data>
+  <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>Godziny w tym wpisie do siebie nie pasują. Edytuj go, aby wysłać ponownie.</value></data>
   <data name="Error.household.already-has-family" xml:space="preserve"><value>Już należysz do rodziny w Coo.</value></data>
   <data name="Error.household.confirmation-required" xml:space="preserve"><value>Ta rodzina ma jeszcze wpisy na serwerze Coo. Potwierdź, aby je usunąć.</value></data>
   <data name="Error.household.forbidden" xml:space="preserve"><value>Nie możesz tego zrobić w tej rodzinie.</value></data>

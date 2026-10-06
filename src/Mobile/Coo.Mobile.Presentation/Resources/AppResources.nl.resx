@@ -145,6 +145,7 @@
   <data name="Error.breast.too-long" xml:space="preserve"><value>Een borstvoeding duurt hoogstens 6 uur. Controleer de tijden.</value></data>
   <data name="Error.entry.not-editable" xml:space="preserve"><value>Dit item kan in deze versie van Coo niet worden bewerkt.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>Dit item bestaat niet meer.</value></data>
+  <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>De tijden van dit item kloppen niet met elkaar. Bewerk het item om het opnieuw te versturen.</value></data>
   <data name="Error.household.already-has-family" xml:space="preserve"><value>Je hoort al bij een gezin in Coo.</value></data>
   <data name="Error.household.confirmation-required" xml:space="preserve"><value>Dit gezin heeft nog items op de server van Coo. Bevestig om ze te verwijderen.</value></data>
   <data name="Error.household.forbidden" xml:space="preserve"><value>Dat kun je in dit gezin niet doen.</value></data>

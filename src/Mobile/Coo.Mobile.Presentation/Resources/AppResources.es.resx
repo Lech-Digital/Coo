@@ -145,6 +145,7 @@
   <data name="Error.breast.too-long" xml:space="preserve"><value>Una toma dura como máximo 6 horas. Revisa las horas.</value></data>
   <data name="Error.entry.not-editable" xml:space="preserve"><value>Esta entrada no se puede editar en esta versión de Coo.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>Esta entrada ya no existe.</value></data>
+  <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>Las horas de este registro no encajan. Edítalo para enviarlo de nuevo.</value></data>
   <data name="Error.household.already-has-family" xml:space="preserve"><value>Ya formas parte de una familia en Coo.</value></data>
   <data name="Error.household.confirmation-required" xml:space="preserve"><value>Esta familia aún tiene registros en el servidor de Coo. Confirma para eliminarlos.</value></data>
   <data name="Error.household.forbidden" xml:space="preserve"><value>No puedes hacer eso en esta familia.</value></data>

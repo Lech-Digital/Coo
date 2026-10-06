@@ -145,6 +145,7 @@
   <data name="Error.breast.too-long" xml:space="preserve"><value>Stillen dauert höchstens 6 Stunden. Prüfe die Zeiten.</value></data>
   <data name="Error.entry.not-editable" xml:space="preserve"><value>Dieser Eintrag lässt sich in dieser Coo-Version nicht bearbeiten.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>Dieser Eintrag existiert nicht mehr.</value></data>
+  <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>Die Zeiten dieses Eintrags passen nicht zusammen. Bearbeite den Eintrag, um ihn erneut zu senden.</value></data>
   <data name="Error.household.already-has-family" xml:space="preserve"><value>Du bist schon in einer Familie bei Coo.</value></data>
   <data name="Error.household.confirmation-required" xml:space="preserve"><value>Diese Familie hat noch Einträge auf dem Server von Coo. Bestätige, um sie zu löschen.</value></data>
   <data name="Error.household.forbidden" xml:space="preserve"><value>Das kannst du in dieser Familie nicht tun.</value></data>

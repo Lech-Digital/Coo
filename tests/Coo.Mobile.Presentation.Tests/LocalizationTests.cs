@@ -158,6 +158,7 @@ public sealed partial class LocalizationTests
     [InlineData("baby.due-date-out-of-range")]
     [InlineData("baby.birth-or-due-date-required")]
     [InlineData("baby.already-born")]
+    [InlineData("entry.timing-shape-not-allowed")]
     public void Error_CodesTheUiCanShow_HaveAString(string code)
     {
         // Arrange

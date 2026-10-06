@@ -145,6 +145,7 @@
   <data name="Error.breast.too-long" xml:space="preserve"><value>Una poppata dura al massimo 6 ore. Controlla gli orari.</value></data>
   <data name="Error.entry.not-editable" xml:space="preserve"><value>Questa voce non si può modificare in questa versione di Coo.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>Questa voce non esiste più.</value></data>
+  <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>Gli orari di questa voce non tornano. Modificala per inviarla di nuovo.</value></data>
   <data name="Error.household.already-has-family" xml:space="preserve"><value>Fai già parte di una famiglia su Coo.</value></data>
   <data name="Error.household.confirmation-required" xml:space="preserve"><value>Questa famiglia ha ancora voci sul server di Coo. Conferma per eliminarle.</value></data>
   <data name="Error.household.forbidden" xml:space="preserve"><value>Non puoi farlo in questa famiglia.</value></data>
