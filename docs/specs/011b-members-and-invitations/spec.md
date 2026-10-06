@@ -735,7 +735,7 @@ path is walked above on the Pixel.
 | 12 | Re-join, copy, delete the old family | **Walked by the owner by hand:** join, bring over, delete the old family; the entries reached the emulator. The agent's repeat hit the hourly invitation rate limit ("Too many tries"), which shows the limit works. |
 | 13 | Removal | **PASS.** The removal sheet about 8 s after the phone came online, the unshared entries in the share text, a new family and the baby step. |
 | 14 | Join with entries never synced (move) | **PASS on the phone side:** sign-in from the join sheet, no consent step, bring over, the entries on the emulator. The server-side `households` checks were **not run** (the production database read was denied). |
-| 15 | CI green | Not recorded in the ledger; check the repository's Actions. |
+| 15 | CI green | ✓ GitHub Actions run 37539114412 (main at 2ab6152, 2026-10-07), with the 11b walk fixes and Spec 011d. |
 
 ### 16.3 Findings and fixes (0.13.0)
 

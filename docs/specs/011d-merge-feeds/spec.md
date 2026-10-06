@@ -185,3 +185,16 @@ On the Pixel (and the emulator in the same family when the invitation limit allo
 - "Keep all" is not atomic across a group's pairs.
 - The overlap case was not made on a device; tests only.
 - Rejected timer feeds from before the fix are not recovered by themselves (§10.3).
+
+**Final review (whole increment, with the 11b walk fixes and the timer fix).** No Critical findings. One Important, fixed:
+an edit form left open while the other phone merged its feed could, on Save or Undo, drop the parts it did not know
+about. Ruling: when the stored entry's version differs from the one the form loaded, Save writes nothing, says "This
+entry changed on another phone. Have a look and save again." and shows the entry as stored; Undo after an edit puts back
+the entry as stored right before the save (cd3e261). Also fixed: a rejected entry saved unchanged from Edit is written
+again with a new version, so it is pushed again (2ab6152); a part that starts after midnight is clamped to the day's end
+on the chart (195d69f). Deferred minors: a save that fails after a first revision makes the next Save report "changed on
+another phone" once; the clamped after-midnight sliver is drawn at the 3 px minimum width. Rulings on the reviewer's
+open questions: a deleted feed edited offline on the other phone comes back beside the survivor as an Overlap group
+that "Keep only this one" resolves (last writer wins, ADR 0002); a feed can show twice for one pull between the revision
+and the tombstones, and converges on the next pull. CI green: run 37539114412 (2ab6152). Final build 2ab6152 installed
+on the Pixel and the emulator.
