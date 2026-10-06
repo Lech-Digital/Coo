@@ -53,7 +53,7 @@ internal static class SyncHttp
                 if (body?.Code == SyncErrors.ConsentRequired)
                     throw new SyncRefusedException(SyncRefusal.ConsentRequired, null);
                 if (body?.Code == SyncErrors.NotAMember)
-                    throw new SyncRefusedException(SyncRefusal.NotAMember, null);
+                    throw new SyncRefusedException(SyncRefusal.NotAMember, household);
             }
 
             if (response.StatusCode == HttpStatusCode.BadRequest && body?.Code is SyncErrors.Malformed or SyncErrors.BatchTooLarge)

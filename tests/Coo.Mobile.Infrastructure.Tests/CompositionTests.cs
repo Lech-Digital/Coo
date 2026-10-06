@@ -49,4 +49,24 @@ public sealed class CompositionTests : IDisposable
         provider.GetRequiredService<ISyncControl>().Should().BeSameAs(engine);
         engine.Dispose();
     }
+
+    [Fact]
+    public void Resolve_FamilyUseCases_NeedOnlyThePlatformServices()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddSingleton<TimeProvider>(new ManualTimeProvider(new DateTimeOffset(2026, 10, 6, 12, 0, 0, TimeSpan.Zero)));
+        services.AddSingleton<ISecretStore>(new MemorySecrets());
+        services.AddMobileApplication();
+        services.AddMobileInfrastructure(Path.Combine(_folder, "coo.db"), "0.12.0", new Uri("https://api.test/"));
+        using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = false, ValidateScopes = true });
+
+        // Act
+        var families = provider.GetRequiredService<Coo.Mobile.Application.Households.Families>();
+        var api = provider.GetRequiredService<Coo.Mobile.Application.Households.IHouseholdApi>();
+
+        // Assert
+        families.Should().NotBeNull();
+        api.Should().NotBeNull();
+    }
 }

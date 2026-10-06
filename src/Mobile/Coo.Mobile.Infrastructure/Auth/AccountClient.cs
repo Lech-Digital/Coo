@@ -28,7 +28,10 @@ internal sealed class AccountClient(HttpClient http) : IAccountApi
             me.Household is null ? null : new HouseholdId(me.Household.HouseholdId),
             me.Household?.Role,
             [.. me.Devices.Select(d => new DeviceSessionInfo(d.DeviceName, d.LastUsedAt, d.IsCurrent))],
-            me.Consent is null ? null : new ConsentInfo(me.Consent.Wording, me.Consent.GivenAt));
+            me.Consent is null ? null : new ConsentInfo(me.Consent.Wording, me.Consent.GivenAt),
+            me.Memberships is null ? null : [.. me.Memberships
+                .Where(m => m.HouseholdId != Guid.Empty && m.JoinedAt is not null && RoleNames.Parse(m.Role) is not null)
+                .Select(m => new MembershipInfo(new HouseholdId(m.HouseholdId), RoleNames.Parse(m.Role)!.Value, m.JoinedAt!.Value))]);
     }
 
     public async Task DeleteAccountAsync(CancellationToken cancellationToken)

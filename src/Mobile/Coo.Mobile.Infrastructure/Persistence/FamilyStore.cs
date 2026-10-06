@@ -29,7 +29,7 @@ internal sealed class FamilyStore(LocalDatabase database) : IFamilyStore
         var list = new List<FamilyMembership>();
         while (await reader.ReadAsync(cancellationToken))
         {
-            if (Columns.ParseGuid(reader.GetString(0)) is not { } id || ParseRole(reader.GetString(1)) is not { } role)
+            if (Columns.ParseGuid(reader.GetString(0)) is not { } id || RoleNames.Parse(reader.GetString(1)) is not { } role)
                 continue;
             list.Add(new FamilyMembership(new HouseholdId(id), role, DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(2)),
                 reader.GetString(3), (int)reader.GetInt64(4)));
@@ -49,7 +49,7 @@ internal sealed class FamilyStore(LocalDatabase database) : IFamilyStore
             await connection.ExecuteAsync(
                 "INSERT INTO family_memberships (household_id, role, joined_utc_ms, owner_name, member_count) VALUES ($h, $role, $at, $owner, $count);",
                 cancellationToken, transaction,
-                ("$h", Columns.Id(m.Household.Value)), ("$role", RoleText(m.Role)), ("$at", m.JoinedAt.ToUnixTimeMilliseconds()),
+                ("$h", Columns.Id(m.Household.Value)), ("$role", RoleNames.Text(m.Role)), ("$at", m.JoinedAt.ToUnixTimeMilliseconds()),
                 ("$owner", m.OwnerName), ("$count", Math.Max(1, m.MemberCount)));
         }
 
@@ -123,22 +123,6 @@ internal sealed class FamilyStore(LocalDatabase database) : IFamilyStore
         await using var connection = await database.OpenAsync(cancellationToken);
         return await connection.ScalarAsync("SELECT 1 FROM app_state WHERE key = $k;", cancellationToken, null, ("$k", CopiedKey(source, target))) is not null;
     }
-
-    internal static string RoleText(Role role) => role switch
-    {
-        Role.Owner => "owner",
-        Role.Parent => "parent",
-        Role.Caregiver => "caregiver",
-        _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Unknown role."),
-    };
-
-    internal static Role? ParseRole(string? value) => value switch
-    {
-        "owner" => Role.Owner,
-        "parent" => Role.Parent,
-        "caregiver" => Role.Caregiver,
-        _ => null,
-    };
 
     private static async Task SetAsync(SqliteConnection connection, SqliteTransaction? transaction, string key, string value, CancellationToken cancellationToken) =>
         await connection.ExecuteAsync(

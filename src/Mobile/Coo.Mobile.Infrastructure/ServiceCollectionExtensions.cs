@@ -4,6 +4,7 @@ using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Preferences;
 using Coo.Mobile.Application.Sync;
 using Coo.Mobile.Infrastructure.Auth;
+using Coo.Mobile.Infrastructure.Households;
 using Coo.Mobile.Infrastructure.Persistence;
 using Coo.Mobile.Infrastructure.Sync;
 using Microsoft.Extensions.DependencyInjection;
@@ -68,6 +69,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(sp => new SyncClient(Authenticated(sp)));
         services.AddSingleton<ISyncApi>(sp => sp.GetRequiredService<SyncClient>());
         services.AddSingleton<IConsentApi>(sp => sp.GetRequiredService<SyncClient>());
+
+        // Members and invitations (Spec 011b §10.1): the same refreshing handler.
+        services.AddSingleton<IHouseholdApi>(sp => new HouseholdClient(Authenticated(sp)));
         return services;
     }
 }

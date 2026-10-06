@@ -184,6 +184,48 @@ public sealed class AuthClientTests
         overview.Consent.Should().BeNull();
     }
 
+    [Fact]
+    public async Task GetMeAsync_Memberships_MapsEachActiveFamily()
+    {
+        // Arrange
+        var client = new AccountClient(new HttpClient(new FakeServer(_ => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(
+                """
+                {"user":{"id":"7a1c0000-0000-7000-8000-0000000000c1","email":"k@example.com","displayName":"Kasia"},
+                 "household":{"householdId":"7a1c0000-0000-7000-8000-0000000000a1","role":"owner"},"devices":[],
+                 "memberships":[{"householdId":"7a1c0000-0000-7000-8000-0000000000a1","role":"owner","joinedAt":"2026-09-01T00:00:00+00:00"},
+                                {"householdId":"7a1c0000-0000-7000-8000-0000000000a2","role":"parent","joinedAt":"2026-10-06T00:00:00+00:00"},
+                                {"householdId":"7a1c0000-0000-7000-8000-0000000000a3","role":"admin","joinedAt":"2026-10-06T00:00:00+00:00"}]}
+                """, Encoding.UTF8, "application/json"),
+        })))
+        { BaseAddress = new Uri("https://api.test/") });
+
+        // Act
+        var me = await client.GetMeAsync(CancellationToken.None);
+
+        // Assert: a role this build does not know is left out, not guessed.
+        me.Memberships!.Select(m => (m.Household.Value.ToString(), m.Role)).Should().Equal(
+            ("7a1c0000-0000-7000-8000-0000000000a1", Coo.Domain.Households.Role.Owner), ("7a1c0000-0000-7000-8000-0000000000a2", Coo.Domain.Households.Role.Parent));
+    }
+
+    [Theory]
+    [InlineData("", null)]
+    [InlineData(",\"memberships\":[]", 0)]
+    public async Task GetMeAsync_MembershipsFieldMissingOrEmpty_IsUnknownOrEmpty(string field, int? count)
+    {
+        // Arrange
+        var body = """{"user":{"id":"7a1c0000-0000-7000-8000-0000000000c1","email":"a@b.c","displayName":"A"},"household":null,"devices":[]""" + field + "}";
+        var client = Account(_ => Json(HttpStatusCode.OK, body));
+
+        // Act
+        var me = await client.GetMeAsync(CancellationToken.None);
+
+        // Assert
+        me.Memberships?.Count.Should().Be(count);
+        (me.Memberships is null).Should().Be(count is null);
+    }
+
     private static string MeBody(string? consent) =>
         """{"user":{"id":"7a1c0000-0000-7000-8000-0000000000c1","email":"a@b.c","displayName":"A"},"household":null,"devices":[]""" +
         (consent is null ? "" : ",\"consent\":" + consent) + "}";

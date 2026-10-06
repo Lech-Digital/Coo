@@ -92,6 +92,19 @@ public sealed class SyncClientTests
     }
 
     [Fact]
+    public async Task PullAsync_NotAMember_NamesTheHouseholdAskedAbout()
+    {
+        // Arrange: Spec 011b §9, only that family stops.
+        var client = Client(_ => Json(HttpStatusCode.Forbidden, """{"code":"sync.not-a-member"}"""));
+
+        // Act
+        var act = async () => await client.PullAsync(Household, 0, null, CancellationToken.None);
+
+        // Assert
+        (await act.Should().ThrowAsync<SyncRefusedException>()).Which.Should().Match<SyncRefusedException>(e => e.Refusal == SyncRefusal.NotAMember && e.Household == Household);
+    }
+
+    [Fact]
     public async Task PushAsync_RevokedProblemForThisHousehold_IsMembershipRevoked()
     {
         // Arrange
