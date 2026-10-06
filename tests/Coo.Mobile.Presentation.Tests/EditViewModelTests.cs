@@ -1,3 +1,4 @@
+using Coo.Contracts.Sync;
 using Coo.Domain.CareLog;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.CareLog.Kinds.Feeding;
@@ -7,6 +8,7 @@ using Coo.Domain.Households;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Preferences;
+using Coo.Mobile.Application.Sync;
 using Coo.Mobile.Presentation.Edit;
 using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Today;
@@ -27,6 +29,7 @@ public sealed class EditViewModelTests : IDisposable
     private readonly ICareLogStore _store = Substitute.For<ICareLogStore>();
     private readonly IHouseholdStore _households = Substitute.For<IHouseholdStore>();
     private readonly IVersionClock _clock = Substitute.For<IVersionClock>();
+    private readonly ISyncStore _sync = Substitute.For<ISyncStore>();
     private long _wall = 1;
 
     public EditViewModelTests()
@@ -39,6 +42,7 @@ public sealed class EditViewModelTests : IDisposable
         var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([settings]);
         _households.ListBabiesAsync(Household, Arg.Any<CancellationToken>()).Returns([baby]);
+        _sync.ListRejectionsAsync(Arg.Any<HouseholdId>(), Arg.Any<CancellationToken>()).Returns([]);
     }
 
     private const string ChangedElsewhere = "This entry changed on another phone. Have a look and save again.";
@@ -276,6 +280,46 @@ public sealed class EditViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task Save_ARejectedFeedInPartsWithNoChange_WritesItAgainWithANewVersionAndTheSameSegments()
+    {
+        // Arrange: a pause-and-resume timer feed the server rejected (timer-rejection-report.md, "Recovering").
+        var feed = InParts((BreastSide.Left, -60, -50), (BreastSide.Right, -47, -42), (BreastSide.Left, -40, -36), seconds: 17);
+        var (details, version) = (feed.Details, feed.Version);
+        _sync.ListRejectionsAsync(Household, Arg.Any<CancellationToken>())
+            .Returns([new SyncRejection(SyncEntityTypes.CareEntry, feed.Id.Value, "entry.timing-shape-not-allowed", _time.GetUtcNow())]);
+        var saved = new List<CareEntry>();
+        await _store.SaveAsync(Arg.Do<CareEntry>(saved.Add), Arg.Any<CancellationToken>());
+        var model = Model();
+        await model.LoadAsync(feed.Id);
+
+        // Act
+        await model.SaveCommand.ExecuteAsync(null);
+
+        // Assert
+        model.Error.Should().BeEmpty();
+        var written = saved.Should().ContainSingle("a new version is pushed again").Which;
+        written.Details.Should().Be(details);
+        written.Version.Should().BeGreaterThan(version);
+    }
+
+    [Fact]
+    public async Task Save_AnEntryWithNoChange_WritesNothing()
+    {
+        // Arrange
+        var diaper = Diaper();
+        _store.FindAsync(diaper.Id, Arg.Any<CancellationToken>()).Returns(_ => new LiveEntry(diaper));
+        var model = Model();
+        await model.LoadAsync(diaper.Id);
+
+        // Act
+        await model.SaveCommand.ExecuteAsync(null);
+
+        // Assert
+        model.Error.Should().BeEmpty();
+        await _store.DidNotReceiveWithAnyArgs().SaveAsync(default!, default);
+    }
+
+    [Fact]
     public async Task LoadAsync_AFeedInParts_RaisesIsInPartsAndPartLines()
     {
         // Arrange
@@ -322,7 +366,8 @@ public sealed class EditViewModelTests : IDisposable
         undo = new UndoService(new DeleteEntry(_store, _clock), new ReviseEntry(_store, _clock, _time), new UndoFeedMerge(_store, _clock, _time), _store, _time);
         var clockFormat = Substitute.For<IClockFormat>();
         clockFormat.Is24Hour.Returns(true);
-        return new EditViewModel(_store, _households, new LogEntry(_store, _clock, _time), new ReviseEntry(_store, _clock, _time), undo, clockFormat, _time);
+        return new EditViewModel(_store, _households, new LogEntry(_store, _clock, _time), new ReviseEntry(_store, _clock, _time),
+            new ResubmitRejectedEntry(_store, _sync, _clock), undo, clockFormat, _time);
     }
 
     /// <summary>The store as SQLite is: each read is a fresh copy, each save replaces what is stored. Returns what is stored now.</summary>

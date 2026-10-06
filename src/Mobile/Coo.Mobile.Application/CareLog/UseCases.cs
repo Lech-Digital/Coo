@@ -1,6 +1,7 @@
 using Coo.Domain.CareLog;
 using Coo.Domain.Common;
 using Coo.Domain.Common.Versioning;
+using Coo.Mobile.Application.Sync;
 
 namespace Coo.Mobile.Application.CareLog;
 
@@ -55,6 +56,28 @@ public sealed class ReviseEntry(ICareLogStore store, IVersionClock clock, TimePr
         if (result.IsFailure)
             return Result<CareEntry>.Failure(result.Error!);
 
+        await store.SaveAsync(entry, cancellationToken);
+        return entry;
+    }
+}
+
+/// <summary>
+/// Writes a care entry the server rejected (ADR 0002 §5) again, unchanged, with a new version, so the next push offers it
+/// once more: Edit, then Save, recovers it even when nothing was changed. An entry that was not rejected is left alone.
+/// </summary>
+public sealed class ResubmitRejectedEntry(ICareLogStore store, ISyncStore sync, IVersionClock clock)
+{
+    /// <returns>The entry as written, or null when nothing was written.</returns>
+    public async Task<CareEntry?> ExecuteAsync(EntryId id, CancellationToken cancellationToken)
+    {
+        if (await store.FindAsync(id, cancellationToken) is not LiveEntry { Entry: { IsDeleted: false } entry })
+            return null;
+        if (!(await Rejections.CareEntryIdsAsync(sync, entry.HouseholdId, cancellationToken)).Contains(id))
+            return null;
+
+        // The same note again: a new version, every field (a feed's exact segments too) as it is.
+        if (entry.SetNote(entry.Note, await clock.NextAsync(cancellationToken)).IsFailure)
+            return null;
         await store.SaveAsync(entry, cancellationToken);
         return entry;
     }

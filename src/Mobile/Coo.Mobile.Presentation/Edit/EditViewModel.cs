@@ -23,7 +23,8 @@ namespace Coo.Mobile.Presentation.Edit;
 /// Domain's; errors and plausibility warnings are shown inline, in the user's language. Warnings never block Save.
 /// </summary>
 public sealed partial class EditViewModel(
-    ICareLogStore store, IHouseholdStore households, LogEntry log, ReviseEntry revise, UndoService undo, IClockFormat clock, TimeProvider time)
+    ICareLogStore store, IHouseholdStore households, LogEntry log, ReviseEntry revise, ResubmitRejectedEntry resubmit, UndoService undo,
+    IClockFormat clock, TimeProvider time)
     : ObservableObject
 {
     private CareEntry? _original;
@@ -269,20 +270,22 @@ public sealed partial class EditViewModel(
 
     /// <summary>
     /// Each changed part is its own revision with its own stamp from the clock (Spec 007 §3). <paramref name="before"/> is
-    /// the entry as stored right before the save, at the version the form loaded: it is what Undo puts back.
+    /// the entry as stored right before the save, at the version the form loaded: it is what Undo puts back. A rejected
+    /// entry saved with no change is written again with a new version, so it is pushed again.
     /// </summary>
     private async Task<Result> UpdateAsync(CareEntry before, EntryDetails details, EntryTiming? timing, Note? note)
     {
         // ReviseEntry reloads the entry from storage for each change, so before keeps the values as they were.
         var derived = before.Kind.TimingFor(details) == TimingRule.DerivedFromDetails;
         var after = before;
+        var wrote = false;
 
         if (!before.Details.Equals(details))
         {
             var r = await revise.ExecuteAsync(before.Id, (e, v, now) => e.Revise<EntryDetails>(_ => Result<EntryDetails>.Ok(details), v, now), CancellationToken.None);
             if (r.IsFailure)
                 return r;
-            after = r.Value;
+            (after, wrote) = (r.Value, true);
         }
 
         if (!derived && timing is not null && timing != before.Timing)
@@ -290,7 +293,7 @@ public sealed partial class EditViewModel(
             var r = await revise.ExecuteAsync(before.Id, (e, v, now) => e.Retime(timing, v, now), CancellationToken.None);
             if (r.IsFailure)
                 return r;
-            after = r.Value;
+            (after, wrote) = (r.Value, true);
         }
 
         if (note != before.Note)
@@ -298,8 +301,11 @@ public sealed partial class EditViewModel(
             var r = await revise.ExecuteAsync(before.Id, (e, v, _) => e.SetNote(note, v), CancellationToken.None);
             if (r.IsFailure)
                 return r;
-            after = r.Value;
+            (after, wrote) = (r.Value, true);
         }
+
+        if (!wrote && await resubmit.ExecuteAsync(before.Id, CancellationToken.None) is { } resubmitted)
+            after = resubmitted;
 
         // The toast names the entry as it is now: "Saved · Diaper · Mixed".
         undo.OfferUndoForEdit(before, Strings.Format("Toast.Saved", Formats().Title(after, time.GetLocalNow())));

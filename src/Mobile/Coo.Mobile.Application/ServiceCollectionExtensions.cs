@@ -14,6 +14,7 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         services.AddTransient<LogEntry>();
         services.AddTransient<ReviseEntry>();
+        services.AddTransient<ResubmitRejectedEntry>();
         services.AddTransient<DeleteEntry>();
         services.AddTransient<GetEntries>();
         services.AddTransient<EnsureProvisionalHousehold>();
