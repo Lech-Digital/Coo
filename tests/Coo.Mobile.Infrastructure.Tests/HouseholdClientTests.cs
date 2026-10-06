@@ -227,6 +227,139 @@ public sealed class HouseholdClientTests
         text.Should().Be(expected);
     }
 
+    [Theory]
+    [InlineData(HouseholdErrors.InvitationInvalid)]
+    [InlineData(HouseholdErrors.InvitationRoleUnsupported)]
+    [InlineData(HouseholdErrors.InvitationTooMany)]
+    [InlineData(HouseholdErrors.Forbidden)]
+    [InlineData(HouseholdErrors.MemberNotFound)]
+    [InlineData(HouseholdErrors.OwnerCannotLeave)]
+    [InlineData(HouseholdErrors.LastFamily)]
+    [InlineData(HouseholdErrors.ConfirmationRequired)]
+    [InlineData(HouseholdErrors.IdTaken)]
+    [InlineData(HouseholdErrors.AlreadyHasFamily)]
+    [InlineData(HouseholdErrors.Malformed)]
+    [InlineData(HouseholdErrors.RateLimited)]
+    [InlineData("sync.consent-required")]
+    public async Task PreviewAsync_EveryServerCode_IsARefusalWithThatCode(string code)
+    {
+        // Arrange
+        var client = Client(_ => Json(HttpStatusCode.BadRequest, $$"""{"code":"{{code}}"}"""));
+
+        // Act
+        var act = async () => await client.PreviewAsync(Code, CancellationToken.None);
+
+        // Assert
+        (await act.Should().ThrowAsync<HouseholdRefusedException>()).Which.Code.Should().Be(code);
+    }
+
+    [Fact]
+    public async Task PreviewAsync_Timeout_IsUnavailable()
+    {
+        // Arrange: the caller did not cancel.
+        var client = Client(_ => throw new TaskCanceledException());
+
+        // Act
+        var act = async () => await client.PreviewAsync(Code, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<HouseholdUnavailableException>();
+    }
+
+    [Fact]
+    public async Task PreviewAsync_SessionCannotRefresh_IsUnavailable()
+    {
+        // Arrange
+        var client = Client(_ => throw new Coo.Mobile.Application.Auth.AuthUnavailableException("no refresh"));
+
+        // Act
+        var act = async () => await client.PreviewAsync(Code, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<HouseholdUnavailableException>();
+    }
+
+    [Fact]
+    public async Task PreviewAsync_Bare401_IsUnavailable()
+    {
+        // Arrange: after the refresh, TokenRefresher signs out; here it is only "nothing decided".
+        var client = Client(_ => Raw(HttpStatusCode.Unauthorized, "text/plain", ""));
+
+        // Act
+        var act = async () => await client.PreviewAsync(Code, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<HouseholdUnavailableException>();
+    }
+
+    [Theory]
+    [InlineData("withdraw")]
+    [InlineData("remove")]
+    [InlineData("create")]
+    public async Task BodylessCall_PortalAnswers200Page_IsUnavailable(string call)
+    {
+        // Arrange: a captive portal's 200 is not the server's 204 or 201.
+        var client = Client(_ => Raw(HttpStatusCode.OK, "text/html", "<html>Log in to the Wi-Fi</html>"));
+
+        // Act
+        var act = async () => await Call(client, call);
+
+        // Assert
+        await act.Should().ThrowAsync<HouseholdUnavailableException>();
+    }
+
+    [Theory]
+    [InlineData("withdraw", "DELETE", "https://api.test/api/households/7a1c0000-0000-7000-8000-0000000000a1/invitations/7a1c0000-0000-7000-8000-0000000000e1", HttpStatusCode.NoContent)]
+    [InlineData("remove", "DELETE", "https://api.test/api/households/7a1c0000-0000-7000-8000-0000000000a1/members/7a1c0000-0000-7000-8000-0000000000c1", HttpStatusCode.NoContent)]
+    [InlineData("create", "POST", "https://api.test/api/households", HttpStatusCode.Created)]
+    public async Task BodylessCall_ServerStatus_SucceedsOnTheRoute(string call, string method, string uri, HttpStatusCode status)
+    {
+        // Arrange
+        HttpRequestMessage? sent = null;
+        var client = Client(r =>
+        {
+            sent = r;
+            return Task.FromResult(new HttpResponseMessage(status));
+        });
+
+        // Act
+        await Call(client, call);
+
+        // Assert
+        (sent!.Method.Method, sent.RequestUri!.ToString()).Should().Be((method, uri));
+    }
+
+    [Fact]
+    public async Task LeaveAsync_And_CreateInvitationAsync_UseTheirRoutes()
+    {
+        // Arrange
+        var uris = new List<string>();
+        var client = Client(r =>
+        {
+            uris.Add(r.Method.Method + " " + r.RequestUri);
+            return Json(r.RequestUri!.AbsolutePath.EndsWith("leave", StringComparison.Ordinal) ? HttpStatusCode.OK : HttpStatusCode.Created,
+                r.RequestUri.AbsolutePath.EndsWith("leave", StringComparison.Ordinal)
+                    ? """{"outcome":"left"}"""
+                    : """{"invitationId":"7a1c0000-0000-7000-8000-0000000000e1","code":"ABCDEFGH","link":"x","expiresAt":"2026-10-09T12:02:00+00:00"}""");
+        });
+
+        // Act
+        await client.LeaveAsync(Family, confirm: false, CancellationToken.None);
+        await client.CreateInvitationAsync(Family, CancellationToken.None);
+
+        // Assert
+        uris.Should().Equal(
+            "POST https://api.test/api/households/7a1c0000-0000-7000-8000-0000000000a1/leave",
+            "POST https://api.test/api/households/7a1c0000-0000-7000-8000-0000000000a1/invitations");
+    }
+
+    private static Task Call(HouseholdClient client, string call) => call switch
+    {
+        "withdraw" => client.WithdrawInvitationAsync(Family, Guid.Parse("7a1c0000-0000-7000-8000-0000000000e1"), CancellationToken.None),
+        "remove" => client.RemoveMemberAsync(Family, new UserId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c1")), CancellationToken.None),
+        _ => client.CreateHouseholdAsync(Family, CancellationToken.None),
+    };
+
     private static HouseholdClient Client(Func<HttpRequestMessage, Task<HttpResponseMessage>> server) =>
         new(new HttpClient(new FakeServer(server)) { BaseAddress = new Uri("https://api.test/") });
 

@@ -196,7 +196,8 @@ public sealed class AuthClientTests
                  "household":{"householdId":"7a1c0000-0000-7000-8000-0000000000a1","role":"owner"},"devices":[],
                  "memberships":[{"householdId":"7a1c0000-0000-7000-8000-0000000000a1","role":"owner","joinedAt":"2026-09-01T00:00:00+00:00"},
                                 {"householdId":"7a1c0000-0000-7000-8000-0000000000a2","role":"parent","joinedAt":"2026-10-06T00:00:00+00:00"},
-                                {"householdId":"7a1c0000-0000-7000-8000-0000000000a3","role":"admin","joinedAt":"2026-10-06T00:00:00+00:00"}]}
+                                {"householdId":"00000000-0000-0000-0000-000000000000","role":"parent","joinedAt":"2026-10-06T00:00:00+00:00"},
+                                {"householdId":"7a1c0000-0000-7000-8000-0000000000a4","role":"parent"}]}
                 """, Encoding.UTF8, "application/json"),
         })))
         { BaseAddress = new Uri("https://api.test/") });
@@ -204,9 +205,23 @@ public sealed class AuthClientTests
         // Act
         var me = await client.GetMeAsync(CancellationToken.None);
 
-        // Assert: a role this build does not know is left out, not guessed.
+        // Assert: an empty id and a missing joinedAt are skipped.
         me.Memberships!.Select(m => (m.Household.Value.ToString(), m.Role)).Should().Equal(
             ("7a1c0000-0000-7000-8000-0000000000a1", Coo.Domain.Households.Role.Owner), ("7a1c0000-0000-7000-8000-0000000000a2", Coo.Domain.Households.Role.Parent));
+    }
+
+    [Fact]
+    public async Task GetMeAsync_OneUnknownRole_MakesTheWholeListUnknown()
+    {
+        // Arrange: fail closed, the phone keeps the list it has rather than a partial one.
+        var body = """{"user":{"id":"7a1c0000-0000-7000-8000-0000000000c1","email":"a@b.c","displayName":"A"},"household":null,"devices":[],"memberships":[{"householdId":"7a1c0000-0000-7000-8000-0000000000a1","role":"owner","joinedAt":"2026-09-01T00:00:00+00:00"},{"householdId":"7a1c0000-0000-7000-8000-0000000000a3","role":"admin","joinedAt":"2026-10-06T00:00:00+00:00"}]}""";
+        var client = Account(_ => Json(HttpStatusCode.OK, body));
+
+        // Act
+        var me = await client.GetMeAsync(CancellationToken.None);
+
+        // Assert
+        me.Memberships.Should().BeNull();
     }
 
     [Theory]

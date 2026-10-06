@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
@@ -54,6 +55,14 @@ internal static class HouseholdHttp
                 throw new HouseholdRefusedException(code);
             throw new HouseholdUnavailableException(string.Create(CultureInfo.InvariantCulture, $"The server answered {(int)response.StatusCode}."));
         }
+    }
+
+    /// <summary>For answers without a body: only the exact status the server sends is success, so a portal's 200 page is not.</summary>
+    public static async Task SendExpectingAsync(HttpClient http, HttpRequestMessage request, HttpStatusCode expected, CancellationToken cancellationToken)
+    {
+        using var response = await SendAsync(http, request, cancellationToken);
+        if (response.StatusCode != expected)
+            throw new HouseholdUnavailableException(string.Create(CultureInfo.InvariantCulture, $"The server answered {(int)response.StatusCode}, not {(int)expected}."));
     }
 
     public static async Task<T> ReadAsync<T>(HttpResponseMessage response, JsonTypeInfo<T> type, CancellationToken cancellationToken)

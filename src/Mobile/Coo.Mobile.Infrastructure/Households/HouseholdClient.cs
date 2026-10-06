@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using Coo.Contracts.Auth;
 using Coo.Contracts.Households;
@@ -31,7 +32,7 @@ internal sealed class HouseholdClient(HttpClient http) : IHouseholdApi
     public async Task WithdrawInvitationAsync(HouseholdId household, Guid invitationId, CancellationToken cancellationToken)
     {
         using var request = new HttpRequestMessage(HttpMethod.Delete, Path(household, $"invitations/{invitationId:D}"));
-        using var response = await HouseholdHttp.SendAsync(http, request, cancellationToken);
+        await HouseholdHttp.SendExpectingAsync(http, request, HttpStatusCode.NoContent, cancellationToken);
     }
 
     public async Task<FamilyMembers> ListMembersAsync(HouseholdId household, CancellationToken cancellationToken)
@@ -47,7 +48,7 @@ internal sealed class HouseholdClient(HttpClient http) : IHouseholdApi
     public async Task RemoveMemberAsync(HouseholdId household, UserId member, CancellationToken cancellationToken)
     {
         using var request = new HttpRequestMessage(HttpMethod.Delete, Path(household, $"members/{member.Value:D}"));
-        using var response = await HouseholdHttp.SendAsync(http, request, cancellationToken);
+        await HouseholdHttp.SendExpectingAsync(http, request, HttpStatusCode.NoContent, cancellationToken);
     }
 
     public async Task<LeaveOutcome> LeaveAsync(HouseholdId household, bool confirm, CancellationToken cancellationToken)
@@ -72,7 +73,7 @@ internal sealed class HouseholdClient(HttpClient http) : IHouseholdApi
         {
             Content = JsonContent.Create(new CreateHouseholdRequest(household.Value), HouseholdJsonContext.Default.CreateHouseholdRequest),
         };
-        using var response = await HouseholdHttp.SendAsync(http, request, cancellationToken);
+        await HouseholdHttp.SendExpectingAsync(http, request, HttpStatusCode.Created, cancellationToken);
     }
 
     public async Task<InvitationPreview> PreviewAsync(InvitationCode code, CancellationToken cancellationToken)

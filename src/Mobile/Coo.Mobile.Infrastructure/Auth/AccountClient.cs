@@ -29,9 +29,24 @@ internal sealed class AccountClient(HttpClient http) : IAccountApi
             me.Household?.Role,
             [.. me.Devices.Select(d => new DeviceSessionInfo(d.DeviceName, d.LastUsedAt, d.IsCurrent))],
             me.Consent is null ? null : new ConsentInfo(me.Consent.Wording, me.Consent.GivenAt),
-            me.Memberships is null ? null : [.. me.Memberships
-                .Where(m => m.HouseholdId != Guid.Empty && m.JoinedAt is not null && RoleNames.Parse(m.Role) is not null)
-                .Select(m => new MembershipInfo(new HouseholdId(m.HouseholdId), RoleNames.Parse(m.Role)!.Value, m.JoinedAt!.Value))]);
+            ActiveMemberships(me.Memberships));
+    }
+
+    /// <summary>Fail closed: a role this build cannot read makes the whole list unknown, so the phone keeps the one it has.</summary>
+    private static List<MembershipInfo>? ActiveMemberships(IReadOnlyList<MembershipDto>? memberships)
+    {
+        if (memberships is null)
+            return null;
+        var result = new List<MembershipInfo>();
+        foreach (var m in memberships)
+        {
+            if (RoleNames.Parse(m.Role) is not { } role)
+                return null;
+            if (m.HouseholdId != Guid.Empty && m.JoinedAt is { } joinedAt)
+                result.Add(new MembershipInfo(new HouseholdId(m.HouseholdId), role, joinedAt));
+        }
+
+        return result;
     }
 
     public async Task DeleteAccountAsync(CancellationToken cancellationToken)
