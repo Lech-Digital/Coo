@@ -150,7 +150,7 @@
   <data name="Error.household.member-not-found" xml:space="preserve"><value>Tej osoby nie ma już w tej rodzinie.</value></data>
   <data name="Error.household.owner-cannot-leave" xml:space="preserve"><value>Osoba, która utworzyła rodzinę, nie może jej opuścić, dopóki są w niej inni.</value></data>
   <data name="Error.invitation.invalid" xml:space="preserve"><value>Tego zaproszenia nie można użyć. Mogło wygasnąć, zostać już użyte lub wycofane. Poproś o nowe.</value></data>
-  <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Na razie można zapraszać tylko rodziców.</value></data>
+  <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Można zapraszać tylko rodziców.</value></data>
   <data name="Error.invitation.too-many" xml:space="preserve"><value>Ta rodzina ma już 5 otwartych zaproszeń. Wycofaj jedno, aby utworzyć nowe.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>Notatka może mieć najwyżej 500 znaków.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Odciąganie trwa najwyżej 4 godziny. Sprawdź godziny.</value></data>

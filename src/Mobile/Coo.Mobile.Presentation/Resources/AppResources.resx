@@ -142,7 +142,7 @@
   <data name="Error.household.member-not-found" xml:space="preserve"><value>That person is no longer in this family.</value></data>
   <data name="Error.household.owner-cannot-leave" xml:space="preserve"><value>The person who created the family can't leave it while others are in it.</value></data>
   <data name="Error.invitation.invalid" xml:space="preserve"><value>This invitation can't be used. It may have expired, been used or been withdrawn. Ask for a new one.</value></data>
-  <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Only parents can be invited for now.</value></data>
+  <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Only parents can be invited.</value></data>
   <data name="Error.invitation.too-many" xml:space="preserve"><value>This family already has 5 open invitations. Withdraw one to make a new one.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>A note can be at most 500 characters.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Pumping can be at most 4 hours. Check the times.</value></data>

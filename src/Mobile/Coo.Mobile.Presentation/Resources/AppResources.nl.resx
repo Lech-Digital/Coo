@@ -142,7 +142,7 @@
   <data name="Error.household.member-not-found" xml:space="preserve"><value>Die persoon hoort niet meer bij dit gezin.</value></data>
   <data name="Error.household.owner-cannot-leave" xml:space="preserve"><value>Wie het gezin heeft aangemaakt, kan het niet verlaten zolang er anderen in zitten.</value></data>
   <data name="Error.invitation.invalid" xml:space="preserve"><value>Deze uitnodiging kan niet worden gebruikt. Misschien is ze verlopen, al gebruikt of ingetrokken. Vraag om een nieuwe.</value></data>
-  <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Voorlopig kunnen alleen ouders worden uitgenodigd.</value></data>
+  <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Alleen ouders kunnen worden uitgenodigd.</value></data>
   <data name="Error.invitation.too-many" xml:space="preserve"><value>Dit gezin heeft al 5 openstaande uitnodigingen. Trek er een in om een nieuwe te maken.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>Een notitie heeft hoogstens 500 tekens.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Kolven duurt hoogstens 4 uur. Controleer de tijden.</value></data>
@@ -170,7 +170,7 @@
   <data name="Family.InvitationLine" xml:space="preserve"><value>Uitnodiging voor een ouder · tot {0}</value></data>
   <data name="Family.Invitations" xml:space="preserve"><value>Openstaande uitnodigingen</value></data>
   <data name="Family.Invite" xml:space="preserve"><value>Een ouder uitnodigen</value></data>
-  <data name="Family.Join" xml:space="preserve"><value>Bij een gezin komen</value></data>
+  <data name="Family.Join" xml:space="preserve"><value>Aansluiten bij een gezin</value></data>
   <data name="Family.Leave" xml:space="preserve"><value>Dit gezin verlaten</value></data>
   <data name="Family.LeaveConfirm" xml:space="preserve"><value>Dit gezin verlaten? Het logboek wordt van deze telefoon verwijderd. Items die jij hebt toegevoegd blijven bij het gezin.</value></data>
   <data name="Family.LeaveShort" xml:space="preserve"><value>Verlaten</value></data>
@@ -212,29 +212,29 @@
   <data name="Hero.Started" xml:space="preserve"><value>begonnen {0}</value></data>
   <data name="Invite.ShareText" xml:space="preserve"><value>Kom bij mijn gezin in Coo, dan houden we samen het logboek van onze baby bij: {0}
 
-Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Bij een gezin komen en voer de code {1} in. Hij kan één keer worden gebruikt, tot {2}.</value></data>
+Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten bij een gezin en voer de code {1} in. Hij kan één keer worden gebruikt, tot {2}.</value></data>
   <data name="Join.AlreadyMember" xml:space="preserve"><value>Je hoort al bij dit gezin.</value></data>
   <data name="Join.Babies" xml:space="preserve"><value>Het logboek van dat gezin heeft: {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} heeft je uitgenodigd als ouder. Jullie zien allebei het logboek van het gezin en kunnen het aanvullen.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Beide gezinnen staan op deze telefoon. Wissel tussen ze in Instellingen → Gezin.</value></data>
   <data name="Join.Copied" xml:space="preserve"><value>Je items staan nu ook in het gezin van {0}.</value></data>
-  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Je items staan nu ook in het gezin van {1}. Je oude gezin verwijderen? Het {0} item voor {2} wordt van de server van Coo en van deze telefoon verwijderd. De kopieën blijven.</value></data>
+  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Je items staan nu ook in het gezin van {1}. Je oude gezin verwijderen? {0} item voor {2} wordt van de server van Coo en van deze telefoon verwijderd. De kopieën blijven.</value></data>
   <data name="Join.DeleteOld.other" xml:space="preserve"><value>Je items staan nu ook in het gezin van {1}. Je oude gezin verwijderen? De {0} items voor {2} worden van de server van Coo en van deze telefoon verwijderd. De kopieën blijven.</value></data>
   <data name="Join.DeleteOldButton" xml:space="preserve"><value>Oude gezin verwijderen</value></data>
   <data name="Join.EnterHint" xml:space="preserve"><value>Voer de code uit je uitnodiging in.</value></data>
-  <data name="Join.Join" xml:space="preserve"><value>Meedoen</value></data>
+  <data name="Join.Join" xml:space="preserve"><value>Aansluiten</value></data>
   <data name="Join.Joined" xml:space="preserve"><value>Je hoort nu bij het gezin van {0}.</value></data>
   <data name="Join.KeepIt" xml:space="preserve"><value>Behouden</value></data>
-  <data name="Join.Later" xml:space="preserve"><value>Je kunt later meedoen met dezelfde link, tot {0}.</value></data>
+  <data name="Join.Later" xml:space="preserve"><value>Je kunt je later aansluiten met dezelfde link, tot {0}.</value></data>
   <data name="Join.LeaveOld" xml:space="preserve"><value>Je items staan nu ook in het gezin van {0}. Je oude gezin verlaten? Het logboek wordt van deze telefoon verwijderd. Items die jij hebt toegevoegd blijven bij dat gezin.</value></data>
   <data name="Join.Malformed" xml:space="preserve"><value>Controleer de code: die heeft 8 letters en cijfers, zoals ABCD-EFGH.</value></data>
   <data name="Join.NoBaby" xml:space="preserve"><value>Het logboek van dat gezin heeft nog geen baby.</value></data>
   <data name="Join.OK" xml:space="preserve"><value>OK</value></data>
   <data name="Join.SignInBody" xml:space="preserve"><value>Je bent uitgenodigd voor een gezin in Coo. Log in met je Google-account om de uitnodiging te zien.</value></data>
-  <data name="Join.SignInTitle" xml:space="preserve"><value>Log in om bij een gezin te komen</value></data>
+  <data name="Join.SignInTitle" xml:space="preserve"><value>Log in om je aan te sluiten bij een gezin</value></data>
   <data name="Join.Skipped.one" xml:space="preserve"><value>{0} item kan niet worden overgezet en wordt mee verwijderd.</value></data>
   <data name="Join.Skipped.other" xml:space="preserve"><value>{0} items kunnen niet worden overgezet en worden mee verwijderd.</value></data>
-  <data name="Join.Title" xml:space="preserve"><value>Bij het gezin van {0} komen?</value></data>
+  <data name="Join.Title" xml:space="preserve"><value>Aansluiten bij het gezin van {0}?</value></data>
   <data name="Join.TryAgain" xml:space="preserve"><value>Opnieuw proberen</value></data>
   <data name="Kind.Diaper" xml:space="preserve"><value>Luier</value></data>
   <data name="Kind.Feed" xml:space="preserve"><value>Voeding</value></data>

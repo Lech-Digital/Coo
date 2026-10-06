@@ -142,7 +142,7 @@
   <data name="Error.household.member-not-found" xml:space="preserve"><value>Cette personne ne fait plus partie de cette famille.</value></data>
   <data name="Error.household.owner-cannot-leave" xml:space="preserve"><value>La personne qui a créé la famille ne peut pas la quitter tant que d'autres en font partie.</value></data>
   <data name="Error.invitation.invalid" xml:space="preserve"><value>Cette invitation ne peut pas être utilisée. Elle a peut-être expiré, déjà servi ou été retirée. Demandez-en une nouvelle.</value></data>
-  <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Pour le moment, seuls des parents peuvent être invités.</value></data>
+  <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Seuls des parents peuvent être invités.</value></data>
   <data name="Error.invitation.too-many" xml:space="preserve"><value>Cette famille a déjà 5 invitations en attente. Retirez-en une pour en créer une nouvelle.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>Une note fait au plus 500 caractères.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Le tire-lait dure au plus 4 heures. Vérifiez les heures.</value></data>
@@ -192,8 +192,8 @@
   <data name="Family.Title" xml:space="preserve"><value>Famille</value></data>
   <data name="Family.Unshared.one" xml:space="preserve"><value>{0} entrée de ce téléphone n'a pas encore été partagée et sera perdue.</value></data>
   <data name="Family.Unshared.other" xml:space="preserve"><value>{0} entrées de ce téléphone n'ont pas encore été partagées et seront perdues.</value></data>
-  <data name="Family.Withdraw" xml:space="preserve"><value>Retirer</value></data>
-  <data name="Family.WithdrawConfirm" xml:space="preserve"><value>Retirer cette invitation ? Son lien et son code ne fonctionneront plus.</value></data>
+  <data name="Family.Withdraw" xml:space="preserve"><value>Annuler l'invitation</value></data>
+  <data name="Family.WithdrawConfirm" xml:space="preserve"><value>Annuler cette invitation ? Son lien et son code ne fonctionneront plus.</value></data>
   <data name="Family.You" xml:space="preserve"><value>{0} (vous)</value></data>
   <data name="Family.Yours" xml:space="preserve"><value>Votre famille</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Biberon</value></data>
@@ -218,7 +218,7 @@ Si le lien n'ouvre pas Coo, va dans Réglages → Famille → Rejoindre une fami
   <data name="Join.Body" xml:space="preserve"><value>{0} vous invite à rejoindre la famille en tant que parent. Vous verrez tous les deux le journal de la famille et pourrez le compléter.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Les deux familles sont sur ce téléphone. Passez de l'une à l'autre dans Réglages → Famille.</value></data>
   <data name="Join.Copied" xml:space="preserve"><value>Vos entrées sont maintenant aussi dans la famille de {0}.</value></data>
-  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Vos entrées sont maintenant aussi dans la famille de {1}. Supprimer votre ancienne famille ? Sa {0} entrée pour {2} sera supprimée du serveur de Coo et de ce téléphone. Les copies restent.</value></data>
+  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Vos entrées sont maintenant aussi dans la famille de {1}. Supprimer votre ancienne famille ? {0} entrée pour {2} sera supprimée du serveur de Coo et de ce téléphone. Les copies restent.</value></data>
   <data name="Join.DeleteOld.other" xml:space="preserve"><value>Vos entrées sont maintenant aussi dans la famille de {1}. Supprimer votre ancienne famille ? Ses {0} entrées pour {2} seront supprimées du serveur de Coo et de ce téléphone. Les copies restent.</value></data>
   <data name="Join.DeleteOldButton" xml:space="preserve"><value>Supprimer l'ancienne famille</value></data>
   <data name="Join.EnterHint" xml:space="preserve"><value>Saisissez le code de votre invitation.</value></data>

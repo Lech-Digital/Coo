@@ -142,7 +142,7 @@
   <data name="Error.household.member-not-found" xml:space="preserve"><value>Esa persona ya no está en esta familia.</value></data>
   <data name="Error.household.owner-cannot-leave" xml:space="preserve"><value>Quien creó la familia no puede salir de ella mientras haya otras personas.</value></data>
   <data name="Error.invitation.invalid" xml:space="preserve"><value>Esta invitación no se puede usar. Puede que haya caducado, ya se haya usado o se haya retirado. Pide una nueva.</value></data>
-  <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Por ahora solo se puede invitar a progenitores.</value></data>
+  <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Solo se puede invitar a progenitores.</value></data>
   <data name="Error.invitation.too-many" xml:space="preserve"><value>Esta familia ya tiene 5 invitaciones abiertas. Retira una para crear otra.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>Una nota tiene como máximo 500 caracteres.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>La extracción dura como máximo 4 horas. Revisa las horas.</value></data>
@@ -162,10 +162,10 @@
   <data name="Family.ActionFailed" xml:space="preserve"><value>No ha funcionado. Comprueba la conexión y vuelve a intentarlo.</value></data>
   <data name="Family.BringOver" xml:space="preserve"><value>Traer registros</value></data>
   <data name="Family.Delete" xml:space="preserve"><value>Eliminar esta familia</value></data>
-  <data name="Family.DeleteConfirm.one" xml:space="preserve"><value>¿Eliminar esta familia? Su {0} registro de {1} se eliminará del servidor de Coo y de este teléfono. No se puede deshacer.</value></data>
-  <data name="Family.DeleteConfirm.other" xml:space="preserve"><value>¿Eliminar esta familia? Sus {0} registros de {1} se eliminarán del servidor de Coo y de este teléfono. No se puede deshacer.</value></data>
-  <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>¿Eliminar esta familia? Su {0} registro se eliminará del servidor de Coo y de este teléfono. No se puede deshacer.</value></data>
-  <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>¿Eliminar esta familia? Sus {0} registros se eliminarán del servidor de Coo y de este teléfono. No se puede deshacer.</value></data>
+  <data name="Family.DeleteConfirm.one" xml:space="preserve"><value>¿Eliminar esta familia? Se eliminará {0} registro de {1} del servidor de Coo y de este teléfono. No se puede deshacer.</value></data>
+  <data name="Family.DeleteConfirm.other" xml:space="preserve"><value>¿Eliminar esta familia? Se eliminarán {0} registros de {1} del servidor de Coo y de este teléfono. No se puede deshacer.</value></data>
+  <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>¿Eliminar esta familia? Se eliminará {0} registro del servidor de Coo y de este teléfono. No se puede deshacer.</value></data>
+  <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>¿Eliminar esta familia? Se eliminarán {0} registros del servidor de Coo y de este teléfono. No se puede deshacer.</value></data>
   <data name="Family.DeleteShort" xml:space="preserve"><value>Eliminar</value></data>
   <data name="Family.InvitationLine" xml:space="preserve"><value>Invitación para un progenitor · hasta el {0}</value></data>
   <data name="Family.Invitations" xml:space="preserve"><value>Invitaciones abiertas</value></data>
@@ -184,7 +184,7 @@
   <data name="Family.RefreshFailed" xml:space="preserve"><value>No se ha podido actualizar. Comprueba la conexión.</value></data>
   <data name="Family.Remove" xml:space="preserve"><value>Quitar</value></data>
   <data name="Family.RemoveConfirm" xml:space="preserve"><value>¿Quitar a {0} de la familia? Sus teléfonos dejarán de compartir el registro de esta familia y se eliminará de ellos. Los registros que añadió se quedan.</value></data>
-  <data name="Family.RoleCaregiver" xml:space="preserve"><value>Cuidador</value></data>
+  <data name="Family.RoleCaregiver" xml:space="preserve"><value>Persona cuidadora</value></data>
   <data name="Family.RoleOwner" xml:space="preserve"><value>Progenitor · creó la familia</value></data>
   <data name="Family.RoleParent" xml:space="preserve"><value>Progenitor</value></data>
   <data name="Family.Showing" xml:space="preserve"><value>Mostrando: {0}</value></data>
@@ -215,14 +215,14 @@
 Si el enlace no abre Coo, ve a Ajustes → Familia → Unirse a una familia en Coo e introduce el código {1}. Se puede usar una vez, hasta el {2}.</value></data>
   <data name="Join.AlreadyMember" xml:space="preserve"><value>Ya formas parte de esta familia.</value></data>
   <data name="Join.Babies" xml:space="preserve"><value>El registro de esa familia tiene: {0}.</value></data>
-  <data name="Join.Body" xml:space="preserve"><value>{0} te ha invitado a unirte como progenitor. Los dos veréis el registro de la familia y podréis añadir registros.</value></data>
+  <data name="Join.Body" xml:space="preserve"><value>{0} te ha invitado a unirte a la familia como madre o padre. Compartiréis el registro de la familia y podréis añadir registros.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Las dos familias están en este teléfono. Cambia entre ellas en Ajustes → Familia.</value></data>
   <data name="Join.Copied" xml:space="preserve"><value>Tus registros ahora también están en la familia de {0}.</value></data>
-  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Tus registros ahora también están en la familia de {1}. ¿Eliminar tu familia anterior? Su {0} registro de {2} se eliminará del servidor de Coo y de este teléfono. Las copias se quedan.</value></data>
-  <data name="Join.DeleteOld.other" xml:space="preserve"><value>Tus registros ahora también están en la familia de {1}. ¿Eliminar tu familia anterior? Sus {0} registros de {2} se eliminarán del servidor de Coo y de este teléfono. Las copias se quedan.</value></data>
+  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Tus registros ahora también están en la familia de {1}. ¿Eliminar tu familia anterior? Se eliminará {0} registro de {2} del servidor de Coo y de este teléfono. Las copias se quedan.</value></data>
+  <data name="Join.DeleteOld.other" xml:space="preserve"><value>Tus registros ahora también están en la familia de {1}. ¿Eliminar tu familia anterior? Se eliminarán {0} registros de {2} del servidor de Coo y de este teléfono. Las copias se quedan.</value></data>
   <data name="Join.DeleteOldButton" xml:space="preserve"><value>Eliminar la familia anterior</value></data>
   <data name="Join.EnterHint" xml:space="preserve"><value>Introduce el código de tu invitación.</value></data>
-  <data name="Join.Join" xml:space="preserve"><value>Unirme</value></data>
+  <data name="Join.Join" xml:space="preserve"><value>Unirse</value></data>
   <data name="Join.Joined" xml:space="preserve"><value>Ya formas parte de la familia de {0}.</value></data>
   <data name="Join.KeepIt" xml:space="preserve"><value>Conservarla</value></data>
   <data name="Join.Later" xml:space="preserve"><value>Puedes unirte más tarde con el mismo enlace, hasta el {0}.</value></data>

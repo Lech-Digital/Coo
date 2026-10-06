@@ -142,7 +142,7 @@
   <data name="Error.household.member-not-found" xml:space="preserve"><value>Diese Person ist nicht mehr in dieser Familie.</value></data>
   <data name="Error.household.owner-cannot-leave" xml:space="preserve"><value>Wer die Familie angelegt hat, kann sie nicht verlassen, solange andere darin sind.</value></data>
   <data name="Error.invitation.invalid" xml:space="preserve"><value>Diese Einladung kann nicht verwendet werden. Sie ist vielleicht abgelaufen, schon benutzt oder zurückgezogen. Bitte um eine neue.</value></data>
-  <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Einladen kann man vorerst nur Eltern.</value></data>
+  <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Es können nur Eltern eingeladen werden.</value></data>
   <data name="Error.invitation.too-many" xml:space="preserve"><value>Diese Familie hat schon 5 offene Einladungen. Zieh eine zurück, um eine neue zu erstellen.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>Eine Notiz hat höchstens 500 Zeichen.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Abpumpen dauert höchstens 4 Stunden. Prüfe die Zeiten.</value></data>
@@ -162,17 +162,17 @@
   <data name="Family.ActionFailed" xml:space="preserve"><value>Das hat nicht geklappt. Prüfe deine Verbindung und versuche es noch einmal.</value></data>
   <data name="Family.BringOver" xml:space="preserve"><value>Einträge übernehmen</value></data>
   <data name="Family.Delete" xml:space="preserve"><value>Diese Familie löschen</value></data>
-  <data name="Family.DeleteConfirm.one" xml:space="preserve"><value>Diese Familie löschen? Ihre Einträge für {1}, {0} Eintrag, werden vom Server von Coo und von diesem Handy gelöscht. Das lässt sich nicht rückgängig machen.</value></data>
-  <data name="Family.DeleteConfirm.other" xml:space="preserve"><value>Diese Familie löschen? Ihre Einträge für {1}, {0} Einträge, werden vom Server von Coo und von diesem Handy gelöscht. Das lässt sich nicht rückgängig machen.</value></data>
-  <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>Diese Familie löschen? Ihre Einträge, {0} Eintrag, werden vom Server von Coo und von diesem Handy gelöscht. Das lässt sich nicht rückgängig machen.</value></data>
-  <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>Diese Familie löschen? Ihre Einträge, {0} Einträge, werden vom Server von Coo und von diesem Handy gelöscht. Das lässt sich nicht rückgängig machen.</value></data>
+  <data name="Family.DeleteConfirm.one" xml:space="preserve"><value>Diese Familie löschen? Ihr Verlauf für {1} mit {0} Eintrag wird vom Server von Coo und von diesem Handy gelöscht. Das lässt sich nicht rückgängig machen.</value></data>
+  <data name="Family.DeleteConfirm.other" xml:space="preserve"><value>Diese Familie löschen? Ihr Verlauf für {1} mit {0} Einträgen wird vom Server von Coo und von diesem Handy gelöscht. Das lässt sich nicht rückgängig machen.</value></data>
+  <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>Diese Familie löschen? Ihr Verlauf mit {0} Eintrag wird vom Server von Coo und von diesem Handy gelöscht. Das lässt sich nicht rückgängig machen.</value></data>
+  <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>Diese Familie löschen? Ihr Verlauf mit {0} Einträgen wird vom Server von Coo und von diesem Handy gelöscht. Das lässt sich nicht rückgängig machen.</value></data>
   <data name="Family.DeleteShort" xml:space="preserve"><value>Löschen</value></data>
   <data name="Family.InvitationLine" xml:space="preserve"><value>Einladung für ein Elternteil · bis {0}</value></data>
   <data name="Family.Invitations" xml:space="preserve"><value>Offene Einladungen</value></data>
   <data name="Family.Invite" xml:space="preserve"><value>Elternteil einladen</value></data>
   <data name="Family.Join" xml:space="preserve"><value>Einer Familie beitreten</value></data>
   <data name="Family.Leave" xml:space="preserve"><value>Diese Familie verlassen</value></data>
-  <data name="Family.LeaveConfirm" xml:space="preserve"><value>Diese Familie verlassen? Ihre Einträge werden von diesem Handy entfernt. Deine Einträge bleiben bei der Familie.</value></data>
+  <data name="Family.LeaveConfirm" xml:space="preserve"><value>Diese Familie verlassen? Die Einträge dieser Familie werden von diesem Handy entfernt. Deine Einträge bleiben bei der Familie.</value></data>
   <data name="Family.LeaveShort" xml:space="preserve"><value>Verlassen</value></data>
   <data name="Family.LocalOnly" xml:space="preserve"><value>Nur auf diesem Handy</value></data>
   <data name="Family.Members" xml:space="preserve"><value>Mitglieder</value></data>
@@ -218,7 +218,7 @@ Wenn der Link Coo nicht öffnet, geh in Coo zu Einstellungen → Familie → Ein
   <data name="Join.Body" xml:space="preserve"><value>{0} hat dich als Elternteil eingeladen. Ihr seht beide die Einträge der Familie und könnt sie ergänzen.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Beide Familien sind auf diesem Handy. Wechsle zwischen ihnen unter Einstellungen → Familie.</value></data>
   <data name="Join.Copied" xml:space="preserve"><value>Deine Einträge sind jetzt auch in der Familie von {0}.</value></data>
-  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Deine Einträge sind jetzt auch in der Familie von {1}. Deine alte Familie löschen? Ihr {0} Eintrag für {2} wird vom Server von Coo und von diesem Handy gelöscht. Die Kopien bleiben.</value></data>
+  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Deine Einträge sind jetzt auch in der Familie von {1}. Deine alte Familie löschen? {0} Eintrag für {2} wird vom Server von Coo und von diesem Handy gelöscht. Die Kopien bleiben.</value></data>
   <data name="Join.DeleteOld.other" xml:space="preserve"><value>Deine Einträge sind jetzt auch in der Familie von {1}. Deine alte Familie löschen? Ihre {0} Einträge für {2} werden vom Server von Coo und von diesem Handy gelöscht. Die Kopien bleiben.</value></data>
   <data name="Join.DeleteOldButton" xml:space="preserve"><value>Alte Familie löschen</value></data>
   <data name="Join.EnterHint" xml:space="preserve"><value>Gib den Code aus deiner Einladung ein.</value></data>
@@ -226,7 +226,7 @@ Wenn der Link Coo nicht öffnet, geh in Coo zu Einstellungen → Familie → Ein
   <data name="Join.Joined" xml:space="preserve"><value>Du bist jetzt in der Familie von {0}.</value></data>
   <data name="Join.KeepIt" xml:space="preserve"><value>Behalten</value></data>
   <data name="Join.Later" xml:space="preserve"><value>Du kannst später mit demselben Link beitreten, bis {0}.</value></data>
-  <data name="Join.LeaveOld" xml:space="preserve"><value>Deine Einträge sind jetzt auch in der Familie von {0}. Deine alte Familie verlassen? Ihre Einträge werden von diesem Handy entfernt. Deine Einträge bleiben bei dieser Familie.</value></data>
+  <data name="Join.LeaveOld" xml:space="preserve"><value>Deine Einträge sind jetzt auch in der Familie von {0}. Deine alte Familie verlassen? Die Einträge dieser Familie werden von diesem Handy entfernt. Deine Einträge bleiben bei dieser Familie.</value></data>
   <data name="Join.Malformed" xml:space="preserve"><value>Prüfe den Code: Er hat 8 Buchstaben und Ziffern, etwa ABCD-EFGH.</value></data>
   <data name="Join.NoBaby" xml:space="preserve"><value>In den Einträgen dieser Familie ist noch kein Baby.</value></data>
   <data name="Join.OK" xml:space="preserve"><value>OK</value></data>
@@ -251,8 +251,8 @@ Wenn der Link Coo nicht öffnet, geh in Coo zu Einstellungen → Familie → Ein
   <data name="Night.LastFeed" xml:space="preserve"><value>Letzte Mahlzeit</value></data>
   <data name="Night.Title" xml:space="preserve"><value>{0} · Nachtmodus</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Wie viel?</value></data>
-  <data name="Removal.Body" xml:space="preserve"><value>Du bist nicht mehr Mitglied der Familie, in der {0} eingetragen wird. Ihre Einträge werden deshalb von diesem Handy entfernt. Einträge, die du schon geteilt hast, bleiben bei der Familie.</value></data>
-  <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Du bist nicht mehr Mitglied dieser Familie. Ihre Einträge werden deshalb von diesem Handy entfernt. Einträge, die du schon geteilt hast, bleiben bei der Familie.</value></data>
+  <data name="Removal.Body" xml:space="preserve"><value>Du gehörst nicht mehr zu der Familie, die die Einträge für {0} führt. Diese Einträge werden deshalb von diesem Handy entfernt. Einträge, die du schon geteilt hast, bleiben bei der Familie.</value></data>
+  <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Du bist nicht mehr Mitglied dieser Familie. Die Einträge dieser Familie werden deshalb von diesem Handy entfernt. Einträge, die du schon geteilt hast, bleiben bei der Familie.</value></data>
   <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>
   <data name="Removal.Share" xml:space="preserve"><value>Als Text teilen</value></data>
   <data name="Removal.Title" xml:space="preserve"><value>Du bist nicht mehr in dieser Familie</value></data>
