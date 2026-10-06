@@ -1,17 +1,22 @@
 using Coo.Domain.Common;
 using Coo.Mobile.Application.Auth;
+using Coo.Mobile.Application.Households;
 
 namespace Coo.Mobile.Application.Sync;
 
 /// <summary>What the sync line and the debug screen read (Spec 011 §2, §11).</summary>
 /// <param name="LastSyncedAt">The phone's local time of the last successful cycle.</param>
-/// <param name="Pending">Outbox rows of the account's household.</param>
-/// <param name="Removal">A household the person was removed from, waiting for <see cref="SyncEngine.AcknowledgeRemovalAsync"/>.</param>
+/// <param name="Pending">Outbox records of the families that sync (Spec 011b §7.2, ruling 6).</param>
+/// <param name="Removal">
+/// A family the person was removed from, waiting for <see cref="SyncEngine.AcknowledgeRemovalAsync"/>: one at a time (ruling 23).
+/// </param>
 /// <param name="JoinReady">
 /// Join-pending, consent given, and a pull of the account's household has completed: bring-over may be offered (Spec 011 §4).
 /// </param>
+/// <param name="ShownStopped">The shown family answered <c>not-a-member</c> and stopped until a wake (Spec 011b §9).</param>
 public sealed record SyncStatus(
-    CycleOutcome? Last, DateTimeOffset? LastSyncedAt, int Pending, bool IsRunning, string? LastError, HouseholdId? Removal, bool JoinReady = false)
+    CycleOutcome? Last, DateTimeOffset? LastSyncedAt, int Pending, bool IsRunning, string? LastError, HouseholdId? Removal, bool JoinReady = false,
+    bool ShownStopped = false)
 {
     public static SyncStatus Initial { get; } = new(null, null, 0, false, null, null);
 }
@@ -32,8 +37,10 @@ public sealed record SyncOptions(Func<double> Jitter);
 /// sync line reads. Events are raised from background threads; handlers dispatch to the UI themselves. Each handler is
 /// called inside a catch-all: one that throws cannot break the engine or the other handlers.
 /// A cycle that throws (a store error) is a failed cycle and backs off. A failure that retrying cannot fix
-/// (<see cref="SyncCycle.HouseholdMismatchError"/>, <see cref="SyncCycle.NoProgressError"/>) stops the cycles: the
-/// status keeps it, and only app start, resume, Sync now or an account change tries again.
+/// (<see cref="SyncCycle.NoProgressError"/>) stops the cycles: the status keeps it, and only a wake (app start, resume,
+/// Sync now, a requested sync or an account change) tries again. A wake also lifts every family's <c>not-a-member</c> stop
+/// (<see cref="SyncStops"/>) and refreshes the account's family list before the next cycle (Spec 011b §7.1, §9). After each
+/// cycle a soft-locked shown family gives way to another (§8.2).
 /// </summary>
 public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
 {
@@ -45,6 +52,10 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
     private readonly ConsentGate _consent;
     private readonly LocalWrites _writes;
     private readonly TimeProvider _time;
+    private readonly Families _families;
+    private readonly IFamilyStore _familyStore;
+    private readonly IFamilyRecords _records;
+    private readonly SyncStops _stops;
     private readonly SyncScheduler _scheduler;
     private readonly Lock _statusLock = new();
     private SyncStatus _status = SyncStatus.Initial;
@@ -54,13 +65,17 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
     private long _wakes;
     private long _stoppedAtWake = -1;
 
+    // Set by every wake (and for the first cycle): the next cycle refreshes the family list before it runs.
+    private int _refreshFamilies = 1;
+
     // Moves with every account change, before its status update: a cycle that outlived the account it started under
     // reports nothing (its Removal or sync time belongs to that account).
     private long _accountEpoch;
 
     public SyncEngine(
         SyncCycle cycle, ISyncStore store, IHouseholdMoves moves, ISessionStore sessions, Account account, ConsentGate consent,
-        LocalWrites writes, TimeProvider time, SyncOptions? options = null)
+        LocalWrites writes, TimeProvider time, Families families, IFamilyStore familyStore, IFamilyRecords records, SyncStops stops,
+        SyncOptions? options = null)
     {
         _cycle = cycle;
         _store = store;
@@ -70,6 +85,10 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
         _consent = consent;
         _writes = writes;
         _time = time;
+        _families = families;
+        _familyStore = familyStore;
+        _records = records;
+        _stops = stops;
         _scheduler = new SyncScheduler(RunCycleAsync, time, options?.Jitter);
         _lastAccount = account.State;
         account.Changed += OnAccountChanged;
@@ -140,14 +159,20 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
     public async Task<SyncCounts?> CountsAsync(CancellationToken cancellationToken) =>
         await _sessions.GetAsync(cancellationToken) is { } session ? await _store.CountsAsync(session.AccountHousehold, cancellationToken) : null;
 
-    /// <summary>The person was told they were removed (11b's sheet): the household goes from this phone (ADR 0002 §10).</summary>
+    /// <summary>
+    /// The person pressed OK on the removal sheet (Spec 011b §8.2): the family goes from this phone (ADR 0002 §10), replaced
+    /// by a new provisional family when it was the last one (§8.4), and the list is refreshed. Nothing is deleted before.
+    /// The next cycle creates a replacement family on the server (§8.4) and reports the next removal, if any.
+    /// </summary>
     public async Task AcknowledgeRemovalAsync(CancellationToken cancellationToken)
     {
         if (Status.Removal is not { } household)
             return;
-        await _moves.DeleteHouseholdAsync(household, cancellationToken);
+        await _families.RemoveFromPhoneAsync(household, cancellationToken);
         Update(s => s with { Removal = null, Last = null });
+        await RefreshFamiliesAsync(cancellationToken);
         Raise(DataChanged);
+        RequestSync();
     }
 
     public void NotifyDataChanged() => Raise(DataChanged);
@@ -170,6 +195,9 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
 
         var epoch = Interlocked.Read(ref _accountEpoch);
         Update(s => s with { IsRunning = true });
+        if (Interlocked.Exchange(ref _refreshFamilies, 0) == 1)
+            await RefreshFamiliesAsync(cancellationToken);
+
         CycleReport report;
         try
         {
@@ -181,6 +209,11 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
         {
             report = new CycleReport(CycleOutcome.Failed, Error: e.GetType().Name);
         }
+
+        if (report.RefreshFamilies)
+            await RefreshFamiliesAsync(cancellationToken);
+        var switched = await HideSoftLockedAsync(cancellationToken);
+        var shownStopped = await ShownStoppedAsync(cancellationToken);
 
         var pending = await PendingAsync(cancellationToken);
         var joinReady = await JoinReadyAsync(cancellationToken);
@@ -206,9 +239,10 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
                 LastError = report.Error,
                 Removal = report.Outcome == CycleOutcome.Removed ? report.Household : signedOut ? null : s.Removal,
                 JoinReady = joinReady ?? (!signedOut && s.JoinReady),
+                ShownStopped = shownStopped,
             };
         });
-        if (report.DataChanged)
+        if (report.DataChanged || switched)
             Raise(DataChanged);
 
         // The account change requested its own cycle; this one must not back off or stop and swallow it.
@@ -219,7 +253,7 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
         if (report.RunAgain)
             _scheduler.Request(SyncTrigger.Manual);
 
-        if (report is { Outcome: CycleOutcome.Failed, Error: SyncCycle.HouseholdMismatchError or SyncCycle.NoProgressError })
+        if (report is { Outcome: CycleOutcome.Failed, Error: SyncCycle.NoProgressError })
         {
             // Not a connection problem: backing off would only repeat it. Stopped until something wakes the engine.
             Interlocked.Exchange(ref _stoppedAtWake, wake);
@@ -233,13 +267,67 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
     {
         try
         {
-            return (await CountsAsync(cancellationToken))?.Outbox;
+            return await _records.CountPendingAsync(await _families.SyncingHouseholdsAsync(cancellationToken), cancellationToken);
         }
 #pragma warning disable CA1031 // The count is for the sync line only; the last known one stays.
         catch (Exception)
 #pragma warning restore CA1031
         {
             return null;
+        }
+    }
+
+    private async Task RefreshFamiliesAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _families.RefreshAsync(cancellationToken);
+        }
+#pragma warning disable CA1031 // The list is refreshed again at the next wake; a failure never stops a cycle.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+        }
+    }
+
+    private async Task<bool> HideSoftLockedAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _families.HideSoftLockedAsync(cancellationToken);
+        }
+#pragma warning disable CA1031 // The next cycle tries again; the shown family stays shown meanwhile.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+            return false;
+        }
+    }
+
+    private async Task<bool> ShownStoppedAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            return _stops.IsStopped(await _moves.ActiveHouseholdAsync(cancellationToken));
+        }
+#pragma warning disable CA1031 // For the sync line only.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+            return false;
+        }
+    }
+
+    private async Task ClearFamiliesAsync()
+    {
+        try
+        {
+            await _familyStore.ClearAsync(CancellationToken.None);
+        }
+#pragma warning disable CA1031 // Fire-and-forget: the next sign-in replaces the list anyway.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
         }
     }
 
@@ -290,6 +378,7 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
         if (now is SignedOut)
         {
             Update(_ => SyncStatus.Initial with { Last = CycleOutcome.NotSignedIn });
+            _ = ClearFamiliesAsync();
 
             // A cycle still in flight drops its result (the epoch moved); this one, signed out and without IO, settles it.
             _scheduler.Request(SyncTrigger.Manual);
@@ -332,7 +421,12 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
         }
     }
 
-    private void Wake() => Interlocked.Increment(ref _wakes);
+    private void Wake()
+    {
+        Interlocked.Increment(ref _wakes);
+        _stops.Clear();
+        Interlocked.Exchange(ref _refreshFamilies, 1);
+    }
 
     private void Update(Func<SyncStatus, SyncStatus> change)
     {

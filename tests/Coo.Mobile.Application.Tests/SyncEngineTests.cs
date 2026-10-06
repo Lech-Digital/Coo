@@ -1,4 +1,5 @@
 using Coo.Domain.Common;
+using Coo.Domain.Households;
 using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
@@ -23,6 +24,10 @@ public sealed class SyncEngineTests : IDisposable
     private readonly IHouseholdMoves _moves = Substitute.For<IHouseholdMoves>();
     private readonly ISyncApi _api = Substitute.For<ISyncApi>();
     private readonly IFamilyStore _familyStore = Substitute.For<IFamilyStore>();
+    private readonly IFamilyRecords _records = Substitute.For<IFamilyRecords>();
+    private readonly IHouseholdApi _householdApi = Substitute.For<IHouseholdApi>();
+    private readonly IHouseholdStore _householdStore = Substitute.For<IHouseholdStore>();
+    private readonly SyncStops _stops = new();
     private readonly LocalWrites _writes = new();
     private readonly FakeTimeProvider _time = new(Now);
     private readonly SyncEngine _engine;
@@ -39,11 +44,23 @@ public sealed class SyncEngineTests : IDisposable
         var device = Substitute.For<IDeviceIdentity>();
         device.GetAsync(Arg.Any<CancellationToken>()).Returns(Phone);
         var consent = new ConsentGate(_state, _accounts, Substitute.For<IConsentApi>());
+        _records.CountPendingAsync(default!, default).ReturnsForAnyArgs(0);
         _familyStore.ListAsync(default, default).ReturnsForAnyArgs((IReadOnlyList<FamilyMembership>?)null);
+        _householdStore.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([]);
+        _store.NextBatchAsync(Provisional, Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns([]);
+        _store.GetCursorAsync(Provisional, Arg.Any<CancellationToken>()).Returns(new SyncCursor(0, null));
+        _api.PullAsync(Provisional, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>()).Returns(new PulledPage([], 0, false, 0));
+        var locale = Substitute.For<IDeviceLocale>();
+        locale.TimeZoneId.Returns("Europe/Amsterdam");
+        var provisionalClock = Substitute.For<IVersionClock>();
+        provisionalClock.NextAsync(Arg.Any<CancellationToken>()).Returns(new Coo.Domain.Common.Versioning.HlcStamp(1_790_000_000_000, 0, Phone));
+        var families = new Families(_account, _familyStore, _accounts, _householdApi, _sessions, _householdStore, _moves, _state, _records,
+            new ProvisionalSettings(provisionalClock, locale, _time));
         var cycle = new SyncCycle(
             _account, _sessions, consent, _store, _moves, _state, _api, Substitute.For<IVersionClock>(), device, _time, _familyStore,
-            Substitute.For<IHouseholdApi>(), new SyncStops(), Substitute.For<IHouseholdStore>());
-        _engine = new SyncEngine(cycle, _store, _moves, _sessions, _account, consent, _writes, _time, new SyncOptions(() => 1.0));
+            _householdApi, _stops, _householdStore);
+        _engine = new SyncEngine(cycle, _store, _moves, _sessions, _account, consent, _writes, _time, families, _familyStore, _records, _stops,
+            new SyncOptions(() => 1.0));
     }
 
     public void Dispose()
@@ -73,7 +90,7 @@ public sealed class SyncEngineTests : IDisposable
     {
         // Arrange
         await SignInAsync();
-        _store.CountsAsync(Household, Arg.Any<CancellationToken>()).Returns(new SyncCounts(0, 2, 0));
+        _records.CountPendingAsync(default!, default).ReturnsForAnyArgs(2);
         _api.PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromException<PulledPage>(new SyncUnavailableException("offline")));
 
@@ -125,12 +142,14 @@ public sealed class SyncEngineTests : IDisposable
     [Fact]
     public async Task AcknowledgeRemovalAsync_AfterAConfirmedRemoval_DeletesTheHouseholdThenAndOnlyThen()
     {
-        // Arrange
+        // Arrange: the removed family is the only one on the phone (§8.4).
         await SignInAsync();
+        _householdStore.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([FamiliesTests.Settings(Household)]);
         _state.IsSoftLockedAsync(Household, Arg.Any<CancellationToken>()).Returns(true);
         _api.GetMembershipAsync(Household, Arg.Any<CancellationToken>()).Returns(MembershipStatus.Revoked);
         await _engine.SyncNowAsync(CancellationToken.None);
         var removalBefore = _engine.Status.Removal;
+        await _records.DidNotReceiveWithAnyArgs().DeleteAndReplaceAsync(default, default!, default);
         await _moves.DidNotReceiveWithAnyArgs().DeleteHouseholdAsync(default, default);
 
         // Act
@@ -138,8 +157,36 @@ public sealed class SyncEngineTests : IDisposable
 
         // Assert
         removalBefore.Should().Be(Household);
-        await _moves.Received(1).DeleteHouseholdAsync(Household, Arg.Any<CancellationToken>());
+        await _records.Received(1).DeleteAndReplaceAsync(Household, Arg.Any<HouseholdSettings>(), Arg.Any<CancellationToken>());
         _engine.Status.Removal.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task AcknowledgeRemovalAsync_AfterAConfirmedRemoval_RefreshesTheListBeforeThePagesHearThenRunsACycle()
+    {
+        // Arrange
+        await SignInAsync();
+        _state.IsSoftLockedAsync(Household, Arg.Any<CancellationToken>()).Returns(true);
+        _api.GetMembershipAsync(Household, Arg.Any<CancellationToken>()).Returns(MembershipStatus.Revoked);
+        await _engine.SyncNowAsync(CancellationToken.None);
+        await _engine.WhenIdleAsync();
+        _accounts.ClearReceivedCalls();
+        _api.ClearReceivedCalls();
+        var refreshedBeforeDataChanged = new List<bool>();
+        _engine.DataChanged += (_, _) =>
+        {
+            lock (refreshedBeforeDataChanged)
+                refreshedBeforeDataChanged.Add(_accounts.ReceivedCalls().Any(c => c.GetMethodInfo().Name == nameof(IAccountApi.GetMeAsync)));
+        };
+
+        // Act
+        await _engine.AcknowledgeRemovalAsync(CancellationToken.None);
+        await _engine.WhenIdleAsync();
+
+        // Assert
+        lock (refreshedBeforeDataChanged)
+            refreshedBeforeDataChanged.Should().NotBeEmpty().And.HaveElementAt(0, true);
+        await _api.Received().GetMembershipAsync(Household, Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -276,7 +323,7 @@ public sealed class SyncEngineTests : IDisposable
         // Arrange
         await SignInAsync();
         await _engine.SyncNowAsync(CancellationToken.None);
-        _store.CountsAsync(Household, Arg.Any<CancellationToken>()).Returns(new SyncCounts(0, 3, 0));
+        _records.CountPendingAsync(default!, default).ReturnsForAnyArgs(3);
         var batches = _store.ReceivedCalls().Count(c => c.GetMethodInfo().Name == nameof(ISyncStore.NextBatchAsync));
         var pendingSeen = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         _engine.StatusChanged += (_, _) => throw new InvalidOperationException("a broken view model");
@@ -361,7 +408,7 @@ public sealed class SyncEngineTests : IDisposable
 
         // Act
         await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
-        release.SetResult(new SyncCounts(0, 0, 0));
+        release.SetResult(0);
         await sync;
         await _engine.WhenIdleAsync();
 
@@ -369,6 +416,7 @@ public sealed class SyncEngineTests : IDisposable
         _engine.Status.Should().Be(SyncStatus.Initial with { Last = CycleOutcome.NotSignedIn });
         await _engine.AcknowledgeRemovalAsync(CancellationToken.None);
         await _moves.DidNotReceiveWithAnyArgs().DeleteHouseholdAsync(default, default);
+        await _records.DidNotReceiveWithAnyArgs().DeleteAndReplaceAsync(default, default!, default);
     }
 
     [Fact]
@@ -384,7 +432,7 @@ public sealed class SyncEngineTests : IDisposable
 
         // Act
         await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
-        release.SetResult(new SyncCounts(0, 0, 0));
+        release.SetResult(0);
         await sync;
         await _engine.WhenIdleAsync();
 
@@ -392,11 +440,11 @@ public sealed class SyncEngineTests : IDisposable
         _engine.Status.Should().Be(SyncStatus.Initial with { Last = CycleOutcome.NotSignedIn });
     }
 
-    private (Task Entered, TaskCompletionSource<SyncCounts> Release) HoldTheNextCount()
+    private (Task Entered, TaskCompletionSource<int> Release) HoldTheNextCount()
     {
         var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var release = new TaskCompletionSource<SyncCounts>(TaskCreationOptions.RunContinuationsAsynchronously);
-        _store.CountsAsync(Household, Arg.Any<CancellationToken>()).Returns(_ =>
+        var release = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _records.CountPendingAsync(default!, default).ReturnsForAnyArgs(_ =>
         {
             entered.TrySetResult();
             return release.Task;
@@ -439,5 +487,250 @@ public sealed class SyncEngineTests : IDisposable
 
         // Assert
         _engine.Status.JoinReady.Should().Be(expected);
+    }
+
+    [Fact]
+    public async Task SyncNowAsync_PendingInTwoFamilies_StatusCountsBoth()
+    {
+        // Arrange: spec §7.2, Pending across the families that sync.
+        await SignInAsync();
+        _familyStore.ListAsync(User, Arg.Any<CancellationToken>()).Returns([
+            new FamilyMembership(Household, Coo.Domain.Households.Role.Owner, Now, "Andrzej", 1),
+            new FamilyMembership(Provisional, Coo.Domain.Households.Role.Parent, Now, "Andrzej", 2)]);
+        _records.CountPendingAsync(
+                Arg.Is<IReadOnlyCollection<HouseholdId>>(s => s.Count == 2 && s.Contains(Household) && s.Contains(Provisional)), Arg.Any<CancellationToken>())
+            .Returns(3);
+
+        // Act
+        await _engine.SyncNowAsync(CancellationToken.None);
+
+        // Assert
+        _engine.Status.Pending.Should().Be(3);
+    }
+
+    [Fact]
+    public async Task SyncNowAsync_ShownFamilyNotAMember_StatusSaysShownStoppedUntilTheNextWake()
+    {
+        // Arrange
+        await SignInAsync();
+        _api.PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromException<PulledPage>(new SyncRefusedException(SyncRefusal.NotAMember, Household)));
+
+        // Act
+        await _engine.SyncNowAsync(CancellationToken.None);
+        var stopped = _engine.Status.ShownStopped;
+        _api.PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>()).Returns(new PulledPage([], 0, false, 0));
+        _engine.Resumed();
+        await _engine.WhenIdleAsync();
+
+        // Assert
+        stopped.Should().BeTrue();
+        _engine.Status.ShownStopped.Should().BeFalse("a resume is a wake");
+    }
+
+    [Fact]
+    public async Task SyncNowAsync_AnotherFamilyNotAMember_StatusDoesNotSayShownStopped()
+    {
+        // Arrange: the stop belongs to a family that is not shown.
+        await SignInAsync();
+        _familyStore.ListAsync(User, Arg.Any<CancellationToken>()).Returns([
+            new FamilyMembership(Household, Coo.Domain.Households.Role.Owner, Now, "Andrzej", 1),
+            new FamilyMembership(Provisional, Coo.Domain.Households.Role.Parent, Now, "Andrzej", 2)]);
+        _api.PullAsync(Provisional, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromException<PulledPage>(new SyncRefusedException(SyncRefusal.NotAMember, Provisional)));
+
+        // Act
+        await _engine.SyncNowAsync(CancellationToken.None);
+
+        // Assert
+        _stops.IsStopped(Provisional).Should().BeTrue();
+        _engine.Status.ShownStopped.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task SyncNowAsync_ACycleAsksForARefresh_RefreshesTheFamilyListAfterIt()
+    {
+        // Arrange: the wake's own refresh happens before the cycle; the cycle's not-a-member asks for another one.
+        await SignInAsync();
+        await _engine.WhenIdleAsync();
+        _api.PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromException<PulledPage>(new SyncRefusedException(SyncRefusal.NotAMember, Household)));
+        _accounts.ClearReceivedCalls();
+
+        // Act
+        await _engine.SyncNowAsync(CancellationToken.None);
+
+        // Assert
+        await _accounts.Received(2).GetMeAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SyncNowAsync_NothingAsksForARefresh_RefreshesTheFamilyListOnlyAtTheWake()
+    {
+        // Arrange
+        await SignInAsync();
+        await _engine.WhenIdleAsync();
+        _accounts.ClearReceivedCalls();
+        _api.ClearReceivedCalls();
+
+        // Act
+        await _engine.SyncNowAsync(CancellationToken.None);
+        _writes.Notify();
+        _time.Advance(SyncScheduler.Debounce);
+        await _engine.WhenIdleAsync();
+
+        // Assert: a local write is not a wake.
+        await _accounts.Received(1).GetMeAsync(Arg.Any<CancellationToken>());
+        await _api.Received(2).PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SyncNowAsync_TheRefreshThrows_TheCycleStillRuns()
+    {
+        // Arrange
+        await SignInAsync();
+        await _engine.WhenIdleAsync();
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(Task.FromException<AccountOverview>(new InvalidOperationException("disk")));
+        _api.ClearReceivedCalls();
+
+        // Act
+        await _engine.SyncNowAsync(CancellationToken.None);
+
+        // Assert
+        await _api.Received(1).PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
+        _engine.Status.Last.Should().Be(CycleOutcome.Synced);
+    }
+
+    [Fact]
+    public async Task Resumed_AWake_RefreshesTheFamilyListBeforeTheCycle()
+    {
+        // Arrange
+        await SignInAsync();
+        await _engine.WhenIdleAsync();
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Household, "owner", [], null,
+            [new MembershipInfo(Household, Coo.Domain.Households.Role.Owner, Now)]));
+        _householdApi.ListMembersAsync(Household, Arg.Any<CancellationToken>()).Returns(new FamilyMembers([], []));
+        var order = new List<string>();
+        _familyStore.When(f => f.ReplaceAsync(User, Arg.Any<IReadOnlyList<FamilyMembership>>(), Arg.Any<CancellationToken>()))
+            .Do(_ => order.Add("refresh"));
+        _api.When(a => a.PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>())).Do(_ => order.Add("pull"));
+
+        // Act
+        _engine.Resumed();
+        await _engine.WhenIdleAsync();
+
+        // Assert
+        order.Should().StartWith(["refresh", "pull"]);
+    }
+
+    [Fact]
+    public async Task Resumed_AFamilyStoppedAsNotAMember_SyncsItAgain()
+    {
+        // Arrange
+        await SignInAsync();
+        await _engine.WhenIdleAsync();
+        _stops.Stop(Household);
+        _api.ClearReceivedCalls();
+
+        // Act
+        _engine.Resumed();
+        await _engine.WhenIdleAsync();
+
+        // Assert
+        _stops.IsStopped(Household).Should().BeFalse();
+        await _api.Received(1).PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SignedOut_ClearsTheFamilyList()
+    {
+        // Arrange
+        await SignInAsync();
+
+        // Act
+        await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+        await _engine.WhenIdleAsync();
+
+        // Assert
+        await _familyStore.Received().ClearAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SyncNowAsync_ShownFamilySoftLockedWithAnother_SwitchesAndTellsThePages()
+    {
+        // Arrange: spec §8.2, a soft-locked family is hidden whenever another exists.
+        await SignInAsync();
+        await _engine.WhenIdleAsync();
+        _householdStore.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([FamiliesTests.Settings(Household), FamiliesTests.Settings(Provisional)]);
+        _householdStore.ListBabiesAsync(default, default).ReturnsForAnyArgs([]);
+        _state.IsSoftLockedAsync(Household, Arg.Any<CancellationToken>()).Returns(true);
+        _api.GetMembershipAsync(Household, Arg.Any<CancellationToken>()).Returns(MembershipStatus.Unknown);
+        var changed = 0;
+        _engine.DataChanged += (_, _) => Interlocked.Increment(ref changed);
+
+        // Act
+        await _engine.SyncNowAsync(CancellationToken.None);
+
+        // Assert
+        await _moves.Received(1).ActivateAsync(Provisional, Arg.Any<CancellationToken>());
+        changed.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task SyncNowAsync_ShownFamilySoftLockedAlone_NeitherSwitchesNorTellsThePages()
+    {
+        // Arrange: §8.2, the only family stays shown (Today's banner).
+        await SignInAsync();
+        await _engine.WhenIdleAsync();
+        _householdStore.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([FamiliesTests.Settings(Household)]);
+        _householdStore.ListBabiesAsync(default, default).ReturnsForAnyArgs([]);
+        _state.IsSoftLockedAsync(Household, Arg.Any<CancellationToken>()).Returns(true);
+        _api.GetMembershipAsync(Household, Arg.Any<CancellationToken>()).Returns(MembershipStatus.Unknown);
+        var changed = 0;
+        _engine.DataChanged += (_, _) => Interlocked.Increment(ref changed);
+
+        // Act
+        await _engine.SyncNowAsync(CancellationToken.None);
+
+        // Assert
+        await _moves.DidNotReceiveWithAnyArgs().ActivateAsync(default, default);
+        changed.Should().Be(0);
+        _engine.Status.Last.Should().Be(CycleOutcome.SoftLocked);
+    }
+
+    [Fact]
+    public async Task SyncNowAsync_HidingTheSoftLockedFamilyThrows_TheStatusStillSettles()
+    {
+        // Arrange
+        await SignInAsync();
+        await _engine.WhenIdleAsync();
+        _state.IsSoftLockedAsync(Household, Arg.Any<CancellationToken>()).Returns(true);
+        _api.GetMembershipAsync(Household, Arg.Any<CancellationToken>()).Returns(MembershipStatus.Unknown);
+        _householdStore.ListHouseholdsAsync(Arg.Any<CancellationToken>())
+            .Returns(Task.FromException<IReadOnlyList<HouseholdSettings>>(new InvalidOperationException("disk")));
+
+        // Act
+        await _engine.SyncNowAsync(CancellationToken.None);
+
+        // Assert
+        _engine.Status.Last.Should().Be(CycleOutcome.SoftLocked);
+        _engine.Status.IsRunning.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task SyncNowAsync_TheShownFamilyCannotBeRead_TheStatusStillSettles()
+    {
+        // Arrange: the store fails for the cycle and for every read after it.
+        await SignInAsync();
+        await _engine.WhenIdleAsync();
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Task.FromException<HouseholdId>(new InvalidOperationException("disk")));
+
+        // Act
+        await _engine.SyncNowAsync(CancellationToken.None);
+
+        // Assert
+        _engine.Status.Last.Should().Be(CycleOutcome.Failed);
+        _engine.Status.ShownStopped.Should().BeFalse();
+        _engine.Status.IsRunning.Should().BeFalse();
     }
 }
