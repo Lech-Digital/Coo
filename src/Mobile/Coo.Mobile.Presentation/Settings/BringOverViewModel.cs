@@ -74,22 +74,11 @@ public sealed partial class BringOverViewModel(BringEntriesOver bringOver) : Obs
             return;
         }
 
-        Summary = Strings.Plural("BringOver.Entries", choice.Local.EntryCount, string.Join(", ", choice.Local.Babies.Select(b => b.Name)));
+        Summary = BabyMappings.Summary(choice);
         Family = choice.Family.Count == 0
             ? Strings.Get("BringOver.FamilyEmpty")
             : Strings.Format("BringOver.Family", string.Join(", ", choice.Family.Select(b => b.Name)));
-        IReadOnlyList<BabyOption> options = [.. choice.Family.Select(b => new BabyOption(b.Id, b.Name)), new BabyOption(null, Strings.Get("BringOver.AddNew"))];
-        Mappings = [.. choice.Local.Babies.Select(b => new BabyMapping(b, options, DefaultFor(b, choice)))];
-    }
-
-    /// <summary>The same name (as NameKey compares names) is the same baby; one baby on each side is the same baby; else new.</summary>
-    private static int DefaultFor(LocalBaby local, BringOverChoice choice)
-    {
-        var key = NameKey.From(local.Name);
-        var byName = choice.Family.ToList().FindIndex(f => NameKey.From(f.Name) == key);
-        if (byName >= 0)
-            return byName;
-        return choice.Family.Count == 1 && choice.Local.Babies.Count == 1 ? 0 : choice.Family.Count;
+        Mappings = BabyMappings.For(choice);
     }
 
     [RelayCommand]

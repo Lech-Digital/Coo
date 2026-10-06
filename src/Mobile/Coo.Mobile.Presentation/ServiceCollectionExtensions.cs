@@ -42,6 +42,9 @@ public static class ServiceCollectionExtensions
         services.AddTransient<Settings.BabyProfileViewModel>();
         services.AddTransient<Settings.ConsentViewModel>();
         services.AddTransient<Settings.BringOverViewModel>();
+        services.AddTransient<Settings.FamilyBringOverViewModel>();
+        services.AddTransient<Settings.JoinViewModel>();
+        services.AddTransient<Settings.EnterCodeViewModel>();
         services.AddTransient<EditViewModel>();
         services.AddTransient<AttentionViewModel>();
         return services;
