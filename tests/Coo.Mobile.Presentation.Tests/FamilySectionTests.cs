@@ -64,7 +64,7 @@ public sealed class FamilySectionTests : IDisposable
         var signIn = new SignIn(Substitute.For<IAuthApi>(), Substitute.For<ISignInProvider>(), _households, Substitute.For<IDeviceIdentity>(),
             Substitute.For<IDeviceName>(), _account);
         return new FamilySectionViewModel(families, _account, signIn, new ConsentGate(_state, Substitute.For<IAccountApi>(), Substitute.For<IConsentApi>()),
-            _sessions, _consentPrompt, new InviteParent(_api), _launcher, _clock, _sync);
+            _sessions, _consentPrompt, new InviteParent(_api, Substitute.For<IInvitationCodes>()), _launcher, _clock, _sync);
     }
 
     private Task SignInAsync() => _account.SignedInAsync(

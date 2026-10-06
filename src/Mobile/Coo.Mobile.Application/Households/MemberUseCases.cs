@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using Coo.Contracts.Households;
 using Coo.Domain.Common;
+using Coo.Domain.Households;
 using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.Sync;
 
@@ -18,43 +19,90 @@ public sealed record FamilyAction(bool Succeeded, string? Code = null)
     internal static FamilyAction From(Exception e) => e is HouseholdRefusedException refused ? Refused(refused.Code) : Unavailable;
 }
 
-public sealed record MembersLoad(FamilyMembers? Members, bool IsFresh);
+public sealed record MembersLoad(FamilyMembers? Members, bool IsFresh)
+{
+    internal static readonly IReadOnlyDictionary<Guid, InvitationCode> NoCodes = new Dictionary<Guid, InvitationCode>();
 
-/// <summary>The Family page's list (spec §2). Offline it returns the last list fetched in this app run (ruling 24). One per app.</summary>
-public sealed class LoadFamilyMembers(IHouseholdApi api)
+    /// <summary>The codes of the open invitations this phone made (walk fix F3), by invitation.</summary>
+    public IReadOnlyDictionary<Guid, InvitationCode> Codes { get; init; } = NoCodes;
+}
+
+/// <summary>
+/// The Family page's list (spec §2). Offline it returns the last list fetched in this app run (ruling 24). One per app. With it,
+/// the codes of the open invitations this phone made; a fresh list forgets the codes of invitations no longer open.
+/// </summary>
+public sealed class LoadFamilyMembers(IHouseholdApi api, IInvitationCodes codes)
 {
     private readonly ConcurrentDictionary<HouseholdId, FamilyMembers> _last = new();
 
     public async Task<MembersLoad> ExecuteAsync(HouseholdId household, CancellationToken cancellationToken)
     {
+        MembersLoad load;
         try
         {
             var members = await api.ListMembersAsync(household, cancellationToken);
             _last[household] = members;
-            return new MembersLoad(members, IsFresh: true);
+            load = new MembersLoad(members, IsFresh: true);
         }
         catch (Exception e) when (e is HouseholdUnavailableException or HouseholdRefusedException)
         {
-            return new MembersLoad(_last.GetValueOrDefault(household), IsFresh: false);
+            load = new MembersLoad(_last.GetValueOrDefault(household), IsFresh: false);
+        }
+
+        return load.Members is { } list ? load with { Codes = await CodesAsync(household, list, load.IsFresh, cancellationToken) } : load;
+    }
+
+    private async Task<IReadOnlyDictionary<Guid, InvitationCode>> CodesAsync(
+        HouseholdId household, FamilyMembers members, bool fresh, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var open = members.Invitations.Select(i => i.InvitationId).ToHashSet();
+            if (fresh)
+                await codes.KeepOnlyAsync(household, open, cancellationToken);
+            var known = (await codes.ListAsync(household, cancellationToken)).Where(c => open.Contains(c.Key)).ToDictionary();
+            return known.Count == 0 ? MembersLoad.NoCodes : known;
+        }
+#pragma warning disable CA1031 // The codes are a convenience of this phone: a failed local read or write never hides the list.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+            return MembersLoad.NoCodes;
         }
     }
 }
 
 public sealed record InviteResult(CreatedInvitation? Invitation, FamilyAction Action);
 
-/// <summary>Invite a parent (spec §3): the code exists only in this answer and on the share sheet.</summary>
-public sealed class InviteParent(IHouseholdApi api)
+/// <summary>
+/// Invite a parent (spec §3): the code exists only in this answer, on the share sheet, and on this phone's Family page (walk fix
+/// F3), which remembers it by invitation.
+/// </summary>
+public sealed class InviteParent(IHouseholdApi api, IInvitationCodes codes)
 {
     public async Task<InviteResult> ExecuteAsync(HouseholdId household, CancellationToken cancellationToken)
     {
+        CreatedInvitation created;
         try
         {
-            return new InviteResult(await api.CreateInvitationAsync(household, cancellationToken), FamilyAction.Done);
+            created = await api.CreateInvitationAsync(household, cancellationToken);
         }
         catch (Exception e) when (e is HouseholdUnavailableException or HouseholdRefusedException)
         {
             return new InviteResult(null, FamilyAction.From(e));
         }
+
+        try
+        {
+            await codes.RememberAsync(household, created.InvitationId, created.Code, cancellationToken);
+        }
+#pragma warning disable CA1031 // The invitation exists and is shared anyway; only this phone's reminder of its code is lost.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+        }
+
+        return new InviteResult(created, FamilyAction.Done);
     }
 }
 

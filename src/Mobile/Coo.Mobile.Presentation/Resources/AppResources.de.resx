@@ -172,7 +172,9 @@
   <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>Diese Familie löschen? Ihr Verlauf mit {0} Eintrag wird vom Server von Coo und von diesem Handy gelöscht. Das lässt sich nicht rückgängig machen.</value></data>
   <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>Diese Familie löschen? Ihr Verlauf mit {0} Einträgen wird vom Server von Coo und von diesem Handy gelöscht. Das lässt sich nicht rückgängig machen.</value></data>
   <data name="Family.DeleteShort" xml:space="preserve"><value>Löschen</value></data>
+  <data name="Family.InvitationCode" xml:space="preserve"><value>Code {0} · erstellt am {1}</value></data>
   <data name="Family.InvitationLine" xml:space="preserve"><value>Einladung für ein Elternteil · bis {0}</value></data>
+  <data name="Family.InvitationMade" xml:space="preserve"><value>Erstellt am {0}</value></data>
   <data name="Family.Invitations" xml:space="preserve"><value>Offene Einladungen</value></data>
   <data name="Family.Invite" xml:space="preserve"><value>Elternteil einladen</value></data>
   <data name="Family.Join" xml:space="preserve"><value>Einer Familie beitreten</value></data>

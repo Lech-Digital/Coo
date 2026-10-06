@@ -39,6 +39,20 @@ public interface IFamilyStore
     Task<bool> WasCopiedAsync(HouseholdId source, HouseholdId target, CancellationToken cancellationToken);
 }
 
+/// <summary>
+/// The codes of the invitations this phone made (walk fix F3), by family and invitation: the server keeps only a hash, so only the
+/// phone that made one can show its code. Plain app storage: once shared a code is not a secret, but it is never logged.
+/// </summary>
+public interface IInvitationCodes
+{
+    Task<IReadOnlyDictionary<Guid, InvitationCode>> ListAsync(HouseholdId household, CancellationToken cancellationToken);
+
+    Task RememberAsync(HouseholdId household, Guid invitationId, InvitationCode code, CancellationToken cancellationToken);
+
+    /// <summary>Forgets the family's codes whose invitations are not in <paramref name="open"/>.</summary>
+    Task KeepOnlyAsync(HouseholdId household, IReadOnlyCollection<Guid> open, CancellationToken cancellationToken);
+}
+
 public sealed record CopyResult(int Copied, int Skipped);
 
 /// <summary>Whole-family operations on this phone, each in one SQLite transaction.</summary>

@@ -172,7 +172,9 @@
   <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>Delete this family? Its log, {0} entry, is deleted from Coo's server and this phone. This can't be undone.</value></data>
   <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>Delete this family? Its log, {0} entries, is deleted from Coo's server and this phone. This can't be undone.</value></data>
   <data name="Family.DeleteShort" xml:space="preserve"><value>Delete</value></data>
+  <data name="Family.InvitationCode" xml:space="preserve"><value>Code {0} · made {1}</value></data>
   <data name="Family.InvitationLine" xml:space="preserve"><value>Invitation for a parent · until {0}</value></data>
+  <data name="Family.InvitationMade" xml:space="preserve"><value>Made {0}</value></data>
   <data name="Family.Invitations" xml:space="preserve"><value>Open invitations</value></data>
   <data name="Family.Invite" xml:space="preserve"><value>Invite a parent</value></data>
   <data name="Family.Join" xml:space="preserve"><value>Join a family</value></data>

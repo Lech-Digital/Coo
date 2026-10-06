@@ -66,7 +66,7 @@ public sealed class FamilySwitcherTests : IDisposable
         var signIn = new SignIn(Substitute.For<IAuthApi>(), Substitute.For<ISignInProvider>(), _households, Substitute.For<IDeviceIdentity>(),
             Substitute.For<IDeviceName>(), _account);
         return new FamilySectionViewModel(families, _account, signIn, new ConsentGate(_state, Substitute.For<IAccountApi>(), Substitute.For<IConsentApi>()),
-            _sessions, Substitute.For<IConsentPrompt>(), new InviteParent(Substitute.For<IHouseholdApi>()), Substitute.For<IExternalLauncher>(),
+            _sessions, Substitute.For<IConsentPrompt>(), new InviteParent(Substitute.For<IHouseholdApi>(), Substitute.For<IInvitationCodes>()), Substitute.For<IExternalLauncher>(),
             Substitute.For<IClockFormat>(), _sync);
     }
 

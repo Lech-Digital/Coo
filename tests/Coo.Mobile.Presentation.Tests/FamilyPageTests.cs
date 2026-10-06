@@ -37,6 +37,7 @@ public sealed class FamilyPageTests : IDisposable
     private readonly IClockFormat _clock = Substitute.For<IClockFormat>();
     private readonly ISyncState _state = Substitute.For<ISyncState>();
     private readonly ISyncControl _sync = SyncControls.PassThrough();
+    private readonly MemoryInvitationCodes _codes = new();
     private readonly List<Families> _made = [];
 
     public FamilyPageTests()
@@ -79,11 +80,77 @@ public sealed class FamilyPageTests : IDisposable
             new ProvisionalSettings(Substitute.For<IVersionClock>(), Substitute.For<IDeviceLocale>(), new FakeTimeProvider(Now)));
         _made.Add(families);
         _clock.Is24Hour.Returns(true);
-        var page = new FamilyPageViewModel(new LoadFamilyMembers(_api), new RemoveFamilyMember(_api, families, _account), new WithdrawFamilyInvitation(_api),
-            new InviteParent(_api), new LeaveFamily(_api, families, _sync, _account), families, _launcher, _clock);
+        var page = new FamilyPageViewModel(new LoadFamilyMembers(_api, _codes), new RemoveFamilyMember(_api, families, _account), new WithdrawFamilyInvitation(_api),
+            new InviteParent(_api, _codes), new LeaveFamily(_api, families, _sync, _account), families, _launcher, _clock);
         if (load)
             await page.LoadAsync(Joined);
         return page;
+    }
+
+    [Fact]
+    public async Task LoadAsync_InvitationMadeOnThisPhone_ShowsItsCodeAndWhenItWasMade()
+    {
+        // Arrange: walk fix F3, two open invitations are told apart.
+        var made = new DateTimeOffset(2026, 10, 6, 21, 21, 0, TimeSpan.Zero);
+        await _codes.RememberAsync(Joined, InvitationId, InvitationCode.Parse("KAHNZ8FW").Value, CancellationToken.None);
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(new FamilyMembers(
+            [new FamilyMember(Me, "Kasia", "k@example.com", Role.Parent, Now, true)], [new FamilyInvitation(InvitationId, Role.Parent, Me, made, made.AddHours(72))]));
+
+        // Act
+        var page = await PageAsync(Role.Parent, 2);
+
+        // Assert
+        var row = page.Invitations.Single();
+        row.Line.Should().Be("Invitation for a parent · until " + FamilyLabels.Until(made.AddHours(72), is24Hour: true));
+        row.Detail.Should().Be("Code KAHN-Z8FW · made " + FamilyLabels.Until(made, is24Hour: true));
+    }
+
+    [Fact]
+    public async Task LoadAsync_InvitationMadeOnAnotherPhone_ShowsOnlyWhenItWasMade()
+    {
+        // Arrange
+        var made = new DateTimeOffset(2026, 10, 6, 21, 21, 0, TimeSpan.Zero);
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(new FamilyMembers(
+            [new FamilyMember(Me, "Kasia", "k@example.com", Role.Parent, Now, true)], [new FamilyInvitation(InvitationId, Role.Parent, Andrzej, made, made.AddHours(72))]));
+
+        // Act
+        var page = await PageAsync(Role.Parent, 2);
+
+        // Assert
+        page.Invitations.Single().Detail.Should().Be("Made " + FamilyLabels.Until(made, is24Hour: true));
+    }
+
+    [Fact]
+    public async Task LoadAsync_CreatedTimeNotSent_ShowsOnlyUntil()
+    {
+        // Arrange: an answer without createdAt reads as the default time.
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(new FamilyMembers(
+            [new FamilyMember(Me, "Kasia", "k@example.com", Role.Parent, Now, true)], [new FamilyInvitation(InvitationId, Role.Parent, Andrzej, default, Now.AddHours(72))]));
+
+        // Act
+        var page = await PageAsync(Role.Parent, 2);
+
+        // Assert
+        page.Invitations.Single().Detail.Should().BeEmpty();
+        page.Invitations.Single().Line.Should().StartWith("Invitation for a parent · until ");
+    }
+
+    [Fact]
+    public async Task InviteCommand_Answered_TheNewInvitationShowsItsCodeOnThisPhone()
+    {
+        // Arrange
+        var page = await PageAsync(Role.Parent, 2);
+        var created = Guid.Parse("7a1c0000-0000-7000-8000-0000000000e9");
+        _api.CreateInvitationAsync(Joined, Arg.Any<CancellationToken>()).Returns(new CreatedInvitation(
+            created, InvitationCode.Parse("KAHNZ8FW").Value, new Uri("https://api.coo.lechdigital.nl/i/KAHNZ8FW"), Now.AddHours(72)));
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(new FamilyMembers(
+            [new FamilyMember(Me, "Kasia", "k@example.com", Role.Parent, Now, true)], [new FamilyInvitation(created, Role.Parent, Me, Now, Now.AddHours(72))]));
+
+        // Act
+        await page.InviteCommand.ExecuteAsync(null);
+
+        // Assert
+        page.Invitations.Single().Detail.Should().StartWith("Code KAHN-Z8FW · made ");
     }
 
     [Fact]
@@ -681,5 +748,27 @@ public sealed class FamilyPageTests : IDisposable
 
         // Assert
         await _api.Received(1).LeaveAsync(Joined, true, Arg.Any<CancellationToken>());
+    }
+
+    /// <summary>The phone's remembered codes, in memory.</summary>
+    private sealed class MemoryInvitationCodes : IInvitationCodes
+    {
+        private readonly Dictionary<(HouseholdId, Guid), InvitationCode> _codes = [];
+
+        public Task<IReadOnlyDictionary<Guid, InvitationCode>> ListAsync(HouseholdId household, CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlyDictionary<Guid, InvitationCode>>(_codes.Where(c => c.Key.Item1 == household).ToDictionary(c => c.Key.Item2, c => c.Value));
+
+        public Task RememberAsync(HouseholdId household, Guid invitationId, InvitationCode code, CancellationToken cancellationToken)
+        {
+            _codes[(household, invitationId)] = code;
+            return Task.CompletedTask;
+        }
+
+        public Task KeepOnlyAsync(HouseholdId household, IReadOnlyCollection<Guid> open, CancellationToken cancellationToken)
+        {
+            foreach (var key in _codes.Keys.Where(k => k.Item1 == household && !open.Contains(k.Item2)).ToList())
+                _codes.Remove(key);
+            return Task.CompletedTask;
+        }
     }
 }

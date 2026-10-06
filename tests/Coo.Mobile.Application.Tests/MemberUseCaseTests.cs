@@ -33,6 +33,7 @@ public sealed class MemberUseCaseTests : IDisposable
     private readonly ISyncControl _sync = Substitute.For<ISyncControl>();
     private readonly IVersionClock _clock = Substitute.For<IVersionClock>();
     private readonly IDeviceLocale _locale = Substitute.For<IDeviceLocale>();
+    private readonly IInvitationCodes _codes = Substitute.For<IInvitationCodes>();
     private readonly List<Families> _made = [];
 
     public MemberUseCaseTests()
@@ -46,6 +47,7 @@ public sealed class MemberUseCaseTests : IDisposable
             [new MembershipInfo(Home, Role.Owner, Now)]));
         _api.ListMembersAsync(Home, Arg.Any<CancellationToken>()).Returns(new FamilyMembers([new FamilyMember(Me, "Kasia", "k@example.com", Role.Owner, Now, true)], []));
         _sync.RunExclusiveAsync(default!, default).ReturnsForAnyArgs(c => c.Arg<Func<CancellationToken, Task>>()(c.Arg<CancellationToken>()));
+        _codes.ListAsync(default, default).ReturnsForAnyArgs(new Dictionary<Guid, InvitationCode>());
     }
 
     public void Dispose()
@@ -74,7 +76,7 @@ public sealed class MemberUseCaseTests : IDisposable
     public async Task ExecuteAsync_LoadOfflineAfterAFreshLoad_ReturnsTheLastListAsNotFresh()
     {
         // Arrange: spec §2, offline shows the last list fetched (ruling 24).
-        var load = new LoadFamilyMembers(_api);
+        var load = new LoadFamilyMembers(_api, _codes);
         var members = new FamilyMembers([new FamilyMember(Me, "Kasia", "k@example.com", Role.Parent, Now, true)], []);
         _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(members);
         await load.ExecuteAsync(Joined, CancellationToken.None);
@@ -95,7 +97,7 @@ public sealed class MemberUseCaseTests : IDisposable
         _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(members);
 
         // Act
-        var load = await new LoadFamilyMembers(_api).ExecuteAsync(Joined, CancellationToken.None);
+        var load = await new LoadFamilyMembers(_api, _codes).ExecuteAsync(Joined, CancellationToken.None);
 
         // Assert
         load.Should().Be(new MembersLoad(members, IsFresh: true));
@@ -105,7 +107,7 @@ public sealed class MemberUseCaseTests : IDisposable
     public async Task ExecuteAsync_LoadRefusedAfterAFreshLoadOfAnotherFamily_ReturnsNothingNotFresh()
     {
         // Arrange: the last list is kept per family; a refusal (not a member any more) never shows another family's list.
-        var load = new LoadFamilyMembers(_api);
+        var load = new LoadFamilyMembers(_api, _codes);
         _api.ListMembersAsync(Home, Arg.Any<CancellationToken>()).Returns(new FamilyMembers([], []));
         await load.ExecuteAsync(Home, CancellationToken.None);
         _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(HouseholdErrors.Forbidden));
@@ -125,10 +127,93 @@ public sealed class MemberUseCaseTests : IDisposable
         _api.CreateInvitationAsync(Joined, Arg.Any<CancellationToken>()).Returns(created);
 
         // Act
-        var result = await new InviteParent(_api).ExecuteAsync(Joined, CancellationToken.None);
+        var result = await new InviteParent(_api, _codes).ExecuteAsync(Joined, CancellationToken.None);
 
         // Assert
         result.Should().Be(new InviteResult(created, FamilyAction.Done));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_InviteAnswered_RemembersTheCodeOnThisPhone()
+    {
+        // Arrange: walk fix F3, the phone that made an invitation shows its code.
+        var code = InvitationCode.Parse("KAHNZ8FW").Value;
+        _api.CreateInvitationAsync(Joined, Arg.Any<CancellationToken>()).Returns(
+            new CreatedInvitation(InvitationId, code, new Uri("https://api.coo.lechdigital.nl/i/KAHNZ8FW"), Now.AddHours(72)));
+
+        // Act
+        await new InviteParent(_api, _codes).ExecuteAsync(Joined, CancellationToken.None);
+
+        // Assert
+        await _codes.Received(1).RememberAsync(Joined, InvitationId, code, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_InviteAnsweredButTheCodeCannotBeStored_StillReturnsTheInvitation()
+    {
+        // Arrange: the code on this phone is a convenience; the invitation exists and is shared anyway.
+        var created = new CreatedInvitation(InvitationId, InvitationCode.Parse("KAHNZ8FW").Value, new Uri("https://api.coo.lechdigital.nl/i/KAHNZ8FW"), Now.AddHours(72));
+        _api.CreateInvitationAsync(Joined, Arg.Any<CancellationToken>()).Returns(created);
+        _codes.RememberAsync(default, default, default!, default).ThrowsAsyncForAnyArgs(new InvalidOperationException("disk"));
+
+        // Act
+        var result = await new InviteParent(_api, _codes).ExecuteAsync(Joined, CancellationToken.None);
+
+        // Assert
+        result.Should().Be(new InviteResult(created, FamilyAction.Done));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_LoadFresh_ForgetsCodesOfInvitationsGoneAndReturnsTheOthers()
+    {
+        // Arrange
+        var other = Guid.Parse("7a1c0000-0000-7000-8000-0000000000e2");
+        var code = InvitationCode.Parse("KAHNZ8FW").Value;
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(new FamilyMembers([], [
+            new FamilyInvitation(InvitationId, Role.Parent, Me, Now, Now.AddHours(72)), new FamilyInvitation(other, Role.Parent, Me, Now, Now.AddHours(72))]));
+        _codes.ListAsync(Joined, Arg.Any<CancellationToken>()).Returns(new Dictionary<Guid, InvitationCode> { [InvitationId] = code });
+
+        // Act
+        var load = await new LoadFamilyMembers(_api, _codes).ExecuteAsync(Joined, CancellationToken.None);
+
+        // Assert
+        await _codes.Received(1).KeepOnlyAsync(Joined, Arg.Is<IReadOnlyCollection<Guid>>(open => open.Count == 2 && open.Contains(InvitationId) && open.Contains(other)), Arg.Any<CancellationToken>());
+        load.Codes.Should().Equal(new Dictionary<Guid, InvitationCode> { [InvitationId] = code });
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_LoadOffline_ForgetsNoCode()
+    {
+        // Arrange: the last list may be out of date; only a fresh list tells an invitation is gone.
+        var code = InvitationCode.Parse("KAHNZ8FW").Value;
+        var load = new LoadFamilyMembers(_api, _codes);
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(new FamilyMembers([], [new FamilyInvitation(InvitationId, Role.Parent, Me, Now, Now.AddHours(72))]));
+        await load.ExecuteAsync(Joined, CancellationToken.None);
+        _codes.ClearReceivedCalls();
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdUnavailableException("offline"));
+        _codes.ListAsync(Joined, Arg.Any<CancellationToken>()).Returns(new Dictionary<Guid, InvitationCode> { [InvitationId] = code });
+
+        // Act
+        var again = await load.ExecuteAsync(Joined, CancellationToken.None);
+
+        // Assert
+        await _codes.DidNotReceiveWithAnyArgs().KeepOnlyAsync(default, default!, default);
+        again.Codes.Should().ContainKey(InvitationId);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_LoadFreshButTheCodesCannotBeRead_StillReturnsTheList()
+    {
+        // Arrange
+        var members = new FamilyMembers([], [new FamilyInvitation(InvitationId, Role.Parent, Me, Now, Now.AddHours(72))]);
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(members);
+        _codes.KeepOnlyAsync(default, default!, default).ThrowsAsyncForAnyArgs(new InvalidOperationException("disk"));
+
+        // Act
+        var load = await new LoadFamilyMembers(_api, _codes).ExecuteAsync(Joined, CancellationToken.None);
+
+        // Assert
+        load.Should().Be(new MembersLoad(members, IsFresh: true));
     }
 
     [Fact]
@@ -138,7 +223,7 @@ public sealed class MemberUseCaseTests : IDisposable
         _api.CreateInvitationAsync(Joined, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(HouseholdErrors.InvitationTooMany));
 
         // Act
-        var result = await new InviteParent(_api).ExecuteAsync(Joined, CancellationToken.None);
+        var result = await new InviteParent(_api, _codes).ExecuteAsync(Joined, CancellationToken.None);
 
         // Assert
         result.Invitation.Should().BeNull();
@@ -152,7 +237,7 @@ public sealed class MemberUseCaseTests : IDisposable
         _api.CreateInvitationAsync(Joined, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdUnavailableException("offline"));
 
         // Act
-        var result = await new InviteParent(_api).ExecuteAsync(Joined, CancellationToken.None);
+        var result = await new InviteParent(_api, _codes).ExecuteAsync(Joined, CancellationToken.None);
 
         // Assert
         result.Should().Be(new InviteResult(null, FamilyAction.Unavailable));

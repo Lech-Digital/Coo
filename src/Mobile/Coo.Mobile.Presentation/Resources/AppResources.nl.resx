@@ -172,7 +172,9 @@
   <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>Dit gezin verwijderen? Het logboek, {0} item, wordt van de server van Coo en van deze telefoon verwijderd. Dit kan niet ongedaan worden gemaakt.</value></data>
   <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>Dit gezin verwijderen? Het logboek, {0} items, wordt van de server van Coo en van deze telefoon verwijderd. Dit kan niet ongedaan worden gemaakt.</value></data>
   <data name="Family.DeleteShort" xml:space="preserve"><value>Verwijderen</value></data>
+  <data name="Family.InvitationCode" xml:space="preserve"><value>Code {0} · gemaakt op {1}</value></data>
   <data name="Family.InvitationLine" xml:space="preserve"><value>Uitnodiging voor een ouder · tot {0}</value></data>
+  <data name="Family.InvitationMade" xml:space="preserve"><value>Gemaakt op {0}</value></data>
   <data name="Family.Invitations" xml:space="preserve"><value>Openstaande uitnodigingen</value></data>
   <data name="Family.Invite" xml:space="preserve"><value>Een ouder uitnodigen</value></data>
   <data name="Family.Join" xml:space="preserve"><value>Aansluiten bij een gezin</value></data>

@@ -172,7 +172,9 @@
   <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>Supprimer cette famille ? Son journal, {0} entrée, sera supprimé du serveur de Coo et de ce téléphone. C'est irréversible.</value></data>
   <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>Supprimer cette famille ? Son journal, {0} entrées, sera supprimé du serveur de Coo et de ce téléphone. C'est irréversible.</value></data>
   <data name="Family.DeleteShort" xml:space="preserve"><value>Supprimer</value></data>
+  <data name="Family.InvitationCode" xml:space="preserve"><value>Code {0} · créée le {1}</value></data>
   <data name="Family.InvitationLine" xml:space="preserve"><value>Invitation pour un parent · jusqu'au {0}</value></data>
+  <data name="Family.InvitationMade" xml:space="preserve"><value>Créée le {0}</value></data>
   <data name="Family.Invitations" xml:space="preserve"><value>Invitations en attente</value></data>
   <data name="Family.Invite" xml:space="preserve"><value>Inviter un parent</value></data>
   <data name="Family.Join" xml:space="preserve"><value>Rejoindre une famille</value></data>

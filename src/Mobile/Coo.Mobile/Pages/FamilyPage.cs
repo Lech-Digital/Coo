@@ -179,7 +179,10 @@ public sealed class FamilyPage : ContentPage
             foreach (var invitation in _model.Invitations)
             {
                 var grid = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 8 };
-                grid.Add(Ui.Text(invitation.Line, "Body").Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
+                var lines = new VerticalStackLayout { Spacing = 2, VerticalOptions = LayoutOptions.Center, Children = { Ui.Text(invitation.Line, "Body") } };
+                if (invitation.Detail.Length > 0)
+                    lines.Add(Ui.Text(invitation.Detail, "Meta", "Ink2"));
+                grid.Add(lines, 0);
                 grid.Add(Styled(Strings.Get("Family.Withdraw"), "GhostButton", () => ConfirmAsync(() => Task.FromResult(_model.WithdrawPrompt), () => _model.WithdrawCommand.ExecuteAsync(invitation))), 1);
                 stack.Add(new Card(grid));
             }

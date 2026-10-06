@@ -182,7 +182,9 @@
   <data name="Family.DeleteConfirmNoBaby.many" xml:space="preserve"><value>Usunąć tę rodzinę? Jej dziennik ({0} wpisów) zostanie usunięty z serwera Coo i z tego telefonu. Tego nie można cofnąć.</value></data>
   <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>Usunąć tę rodzinę? Jej dziennik ({0} wpis) zostanie usunięty z serwera Coo i z tego telefonu. Tego nie można cofnąć.</value></data>
   <data name="Family.DeleteShort" xml:space="preserve"><value>Usuń</value></data>
+  <data name="Family.InvitationCode" xml:space="preserve"><value>Kod {0} · utworzone {1}</value></data>
   <data name="Family.InvitationLine" xml:space="preserve"><value>Zaproszenie dla rodzica · do {0}</value></data>
+  <data name="Family.InvitationMade" xml:space="preserve"><value>Utworzone {0}</value></data>
   <data name="Family.Invitations" xml:space="preserve"><value>Otwarte zaproszenia</value></data>
   <data name="Family.Invite" xml:space="preserve"><value>Zaproś rodzica</value></data>
   <data name="Family.Join" xml:space="preserve"><value>Dołącz do rodziny</value></data>

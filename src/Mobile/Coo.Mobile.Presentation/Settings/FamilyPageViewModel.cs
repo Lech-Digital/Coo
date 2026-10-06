@@ -13,7 +13,11 @@ namespace Coo.Mobile.Presentation.Settings;
 /// <param name="Name">The plain name, for the confirmation.</param>
 public sealed record MemberRow(UserId UserId, string Label, string Email, string Role, bool CanRemove, string Name);
 
-public sealed record InvitationRow(Guid Id, string Line);
+/// <param name="Detail">
+/// Walk fix F3: "Code KAHN-Z8FW · made Tue 6 Oct, 21:21" on the phone that made it, "Made Tue 6 Oct, 21:21" elsewhere, empty
+/// when the server did not say when it was made.
+/// </param>
+public sealed record InvitationRow(Guid Id, string Line, string Detail = "");
 
 /// <summary>
 /// The Family page (Spec 011b §2), pushed from Settings → Family → Members. Offline it shows the last list fetched and says
@@ -105,8 +109,19 @@ public sealed partial class FamilyPageViewModel(
         Members = [.. members.Members.Select(m => new MemberRow(
             m.UserId, FamilyLabels.MemberName(m), m.Email, FamilyLabels.RoleText(m.Role), CanRemove: manage && !m.IsYou && m.Role != Role.Owner, m.Name))];
         Invitations = manage
-            ? [.. members.Invitations.Select(i => new InvitationRow(i.InvitationId, Strings.Format("Family.InvitationLine", FamilyLabels.Until(i.ExpiresAt, clock.Is24Hour))))]
+            ? [.. members.Invitations.Select(i => new InvitationRow(
+                i.InvitationId, Strings.Format("Family.InvitationLine", FamilyLabels.Until(i.ExpiresAt, clock.Is24Hour)), Detail(i, loaded.Codes)))]
             : [];
+    }
+
+    private string Detail(FamilyInvitation invitation, IReadOnlyDictionary<Guid, InvitationCode> codes)
+    {
+        if (invitation.CreatedAt == default)
+            return "";
+        var made = FamilyLabels.Until(invitation.CreatedAt, clock.Is24Hour);
+        return codes.TryGetValue(invitation.InvitationId, out var code)
+            ? Strings.Format("Family.InvitationCode", code.Display, made)
+            : Strings.Format("Family.InvitationMade", made);
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "The page binds to it on the instance.")]
