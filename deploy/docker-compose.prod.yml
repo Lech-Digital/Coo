@@ -30,6 +30,8 @@ services:
       Auth__SigningKeys__k1: ${AUTH_SIGNING_KEY_K1:?set AUTH_SIGNING_KEY_K1 in .env}
       # App Links (Spec 011b §4.2): the API refuses to start without a signing-certificate fingerprint.
       AppLinks__Sha256CertFingerprints__0: ${APPLINKS_SHA256_DEBUG:?set APPLINKS_SHA256_DEBUG in .env}
+      # Invitation codes (Spec 011b §10.3): the pepper of their stored hashes. The API refuses to start without it.
+      Invitations__CodePepper: ${INVITATIONS_CODE_PEPPER:?set INVITATIONS_CODE_PEPPER in .env}
     networks:
       - coo_internal
       - coldstart_default

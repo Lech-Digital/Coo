@@ -81,7 +81,7 @@ Expected: `3`.
 
 ## Members and invitations (Spec 011b)
 
-The `MembersAndInvitations` migration runs at start-up: it adds `invitations` (only the code's SHA-256 is stored).
+The `MembersAndInvitations` migration runs at start-up: it adds `invitations` (only a keyed hash of the code is stored, see "Invitation codes").
 
 - `SyncHistoryCleanupJob` also deletes every invitation whose expiry has passed (used and withdrawn ones included), so
   no invitation outlives its 72 hours by more than a day. Its log line counts them with the sync rows.
@@ -90,6 +90,22 @@ The `MembersAndInvitations` migration runs at start-up: it adds `invitations` (o
 - Codes travel in request bodies; `/i/{code}` carries one in its path, so **no request lines are logged**
   (`Microsoft.AspNetCore: Warning`) and the Caddy block for `api.coo.lechdigital.nl` has **no `log` directive**. Keep it
   that way.
+
+### Invitation codes
+
+A code has only 40 bits, so its stored hash is an HMAC-SHA256 under a pepper that is **not in the database**.
+`coo-api` refuses to start in Production without `Invitations__CodePepper`, from `/opt/coo/.env`:
+
+| `.env` | Becomes | What |
+|---|---|---|
+| `INVITATIONS_CODE_PEPPER` | `Invitations__CodePepper` | 32 random bytes in base64 (`openssl rand -base64 32`). A secret: generated on the server, never printed. |
+
+`deploy-prod.sh` generates it once when missing. **Changing or losing it makes every open invitation invalid** (the
+hashes no longer match): the first deploy that adds it invalidates the invitations created before it, which is accepted
+while the app is unreleased. Members are not affected; people just need a new code. Back it up with the rest of `.env`.
+
+The `Invitations:*` limits (`PerUserPerHour`, `PerAddressPerHour`, `CreatePerUserPerDay`) must be positive whole numbers
+or the API refuses to start.
 
 ### App Links
 

@@ -61,6 +61,11 @@ ssh "$HOST" "set -e; mkdir -p $REMOTE_DIR/deploy $REMOTE_DIR/backups $REMOTE_DIR
     sed -i '/^APPLINKS_SHA256_DEBUG=/d' $REMOTE_DIR/.env
     printf 'APPLINKS_SHA256_DEBUG=%s\n' '$APPLINKS_SHA256_DEBUG' >> $REMOTE_DIR/.env
     echo '    Added the App Link fingerprint to .env.'
+  fi
+  if ! grep -q '^INVITATIONS_CODE_PEPPER=.' $REMOTE_DIR/.env; then
+    sed -i '/^INVITATIONS_CODE_PEPPER=/d' $REMOTE_DIR/.env
+    printf 'INVITATIONS_CODE_PEPPER=%s\n' \"\$(openssl rand -base64 32)\" >> $REMOTE_DIR/.env
+    echo '    Added a new invitation-code pepper to .env (open invitations stop working).'
   fi"
 
 # ---- Sync -------------------------------------------------------------------------------------

@@ -54,7 +54,8 @@ builder.Services.AddSingleton<PurgeSyncHistory>();
 
 // Members and invitations (Spec 011b §10). The membership store is a singleton over the data source, so these are too.
 builder.Services.AddSingleton(sp => new CreateInvitation(
-    sp.GetRequiredService<IHouseholdMembershipStore>(), sp.GetRequiredService<TimeProvider>(), RandomNumberGenerator.GetInt32));
+    sp.GetRequiredService<IHouseholdMembershipStore>(), sp.GetRequiredService<TimeProvider>(), RandomNumberGenerator.GetInt32,
+    sp.GetRequiredService<InvitationCodeHasher>()));
 builder.Services.AddSingleton<WithdrawInvitation>();
 builder.Services.AddSingleton<ListMembers>();
 builder.Services.AddSingleton<RemoveMember>();
@@ -62,10 +63,13 @@ builder.Services.AddSingleton<LeaveHousehold>();
 builder.Services.AddSingleton<CreateHousehold>();
 builder.Services.AddSingleton<PreviewInvitation>();
 builder.Services.AddSingleton<AcceptInvitation>();
-builder.Services.AddInvitationRateLimiting(new InvitationLimits(
-    builder.Configuration.GetValue("Invitations:PerUserPerHour", InvitationLimits.Default.PerUserPerHour),
-    builder.Configuration.GetValue("Invitations:PerAddressPerHour", InvitationLimits.Default.PerAddressPerHour),
-    builder.Configuration.GetValue("Invitations:CreatePerUserPerDay", InvitationLimits.Default.CreatePerUserPerDay)));
+// Production refuses to start without the pepper (Spec 011b §10.3) or with a limit that is not a positive integer (§10.2).
+builder.Services.AddSingleton(new InvitationCodeHasher(StartupChecks.SelectCodePepper(
+    builder.Configuration[StartupChecks.CodePepperKey], builder.Environment.IsProduction(), RandomNumberGenerator.GetBytes(StartupChecks.MinimumKeyBytes))));
+builder.Services.AddInvitationRateLimiting(StartupChecks.SelectInvitationLimits(
+    builder.Configuration[StartupChecks.PerUserPerHourKey],
+    builder.Configuration[StartupChecks.PerAddressPerHourKey],
+    builder.Configuration[StartupChecks.CreatePerUserPerDayKey]));
 
 // Account deletion runs in the membership store's locked transaction: no scoped account store any more.
 builder.Services.AddSingleton<DeleteAccount>();

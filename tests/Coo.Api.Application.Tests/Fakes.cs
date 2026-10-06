@@ -154,9 +154,6 @@ internal sealed class FakeAccounts : IAccountStore
 
     public Task<IReadOnlyList<Membership>> ListMembershipsOfUserAsync(UserId user, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<Membership>>([.. Memberships.Where(m => m.UserId == user)]);
-
-    public Task<IReadOnlyList<Membership>> ListMembersAsync(HouseholdId household, CancellationToken cancellationToken) =>
-        Task.FromResult<IReadOnlyList<Membership>>([.. Memberships.Where(m => m.HouseholdId == household)]);
 }
 
 internal sealed class FakeTokens : ITokenIssuer

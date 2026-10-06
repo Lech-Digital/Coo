@@ -99,9 +99,6 @@ internal sealed class AccountStore(CooDbContext context, UserManager<CooUser> us
     public async Task<IReadOnlyList<Membership>> ListMembershipsOfUserAsync(UserId user, CancellationToken cancellationToken) =>
         [.. (await context.Memberships.AsNoTracking().Where(m => m.UserId == user.Value && m.RevokedAt == null).ToListAsync(cancellationToken)).Select(ToMembership)];
 
-    public async Task<IReadOnlyList<Membership>> ListMembersAsync(HouseholdId household, CancellationToken cancellationToken) =>
-        [.. (await context.Memberships.AsNoTracking().Where(m => m.HouseholdId == household.Value && m.RevokedAt == null).ToListAsync(cancellationToken)).Select(ToMembership)];
-
     private void AddHousehold(HouseholdId household, UserId owner, DateTimeOffset now)
     {
         context.Households.Add(new HouseholdRecord { Id = household.Value, CreatedAt = now.UtcDateTime, CreatedBy = owner.Value });

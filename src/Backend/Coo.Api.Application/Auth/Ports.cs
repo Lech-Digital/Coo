@@ -103,9 +103,6 @@ public interface IAccountStore
 
     /// <summary>The user's active memberships (<c>revoked_at IS NULL</c>, Spec 011b §10.3).</summary>
     Task<IReadOnlyList<Membership>> ListMembershipsOfUserAsync(UserId user, CancellationToken cancellationToken);
-
-    /// <summary>The household's active members.</summary>
-    Task<IReadOnlyList<Membership>> ListMembersAsync(HouseholdId household, CancellationToken cancellationToken);
 }
 
 public sealed record AccessToken(string Value, DateTimeOffset ExpiresAt);

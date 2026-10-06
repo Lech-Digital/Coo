@@ -14,7 +14,7 @@ public sealed record CreatedInvitation(InvitationId Id, InvitationCode Code, Dat
 /// <c>POST /api/households/{id}/invitations</c> (spec §3). An Owner or Parent; Parent invitations only (R2), so a
 /// Caregiver invitation later is an Application change. At most 5 open invitations per family, checked under the lock.
 /// </summary>
-public sealed class CreateInvitation(IHouseholdMembershipStore store, TimeProvider time, Func<int, int> nextIndex)
+public sealed class CreateInvitation(IHouseholdMembershipStore store, TimeProvider time, Func<int, int> nextIndex, InvitationCodeHasher hasher)
 {
     public const int MaxOpenPerFamily = 5;
 
@@ -36,7 +36,7 @@ public sealed class CreateInvitation(IHouseholdMembershipStore store, TimeProvid
 
             var code = InvitationCode.FromRandom(nextIndex);
             var invitation = Invitation.Create(new InvitationId(Guid.CreateVersion7(now)), household, Role.Parent, user, now);
-            await tx.AddInvitationAsync(invitation, AuthSecrets.Hash(code.Value), cancellationToken);
+            await tx.AddInvitationAsync(invitation, hasher.Hash(code.Value), cancellationToken);
             return Result<CreatedInvitation>.Ok(new CreatedInvitation(invitation.Id, code, invitation.ExpiresAt));
         }, cancellationToken);
 }
@@ -68,12 +68,12 @@ public sealed record InvitationPreview(
 /// <c>POST /api/invitations/preview</c> (spec §5.1 step 2). One answer, <c>invitation.invalid</c>, for unknown, expired,
 /// used, withdrawn and malformed codes. A code this caller already used, while still a member, previews as already-member.
 /// </summary>
-public sealed class PreviewInvitation(IInvitationStore invitations, IMembershipStore memberships, TimeProvider time)
+public sealed class PreviewInvitation(IInvitationStore invitations, IMembershipStore memberships, TimeProvider time, InvitationCodeHasher hasher)
 {
     public async Task<Result<InvitationPreview>> ExecuteAsync(UserId user, string? code, CancellationToken cancellationToken)
     {
         var parsed = InvitationCode.Parse(code);
-        if (parsed.IsFailure || await invitations.FindByHashAsync(AuthSecrets.Hash(parsed.Value.Value), cancellationToken) is not { } found)
+        if (parsed.IsFailure || await invitations.FindByHashAsync(hasher.Hash(parsed.Value.Value), cancellationToken) is not { } found)
             return Result<InvitationPreview>.Failure(HouseholdErrors.InvitationInvalid);
 
         var invitation = found.Invitation;
@@ -100,14 +100,15 @@ public sealed record AcceptResult(HouseholdId Household, Role Role, AcceptOutcom
 /// <c>POST /api/invitations/accept</c> (spec §10.4): find by hash, lock the family, re-read the invitation, then decide.
 /// No membership without consent (R4): <c>sync.consent-required</c> changes nothing.
 /// </summary>
-public sealed class AcceptInvitation(IInvitationStore invitations, IHouseholdMembershipStore store, IConsentStore consents, TimeProvider time)
+public sealed class AcceptInvitation(
+    IInvitationStore invitations, IHouseholdMembershipStore store, IConsentStore consents, TimeProvider time, InvitationCodeHasher hasher)
 {
     public async Task<Result<AcceptResult>> ExecuteAsync(UserId user, string? code, CancellationToken cancellationToken)
     {
         var parsed = InvitationCode.Parse(code);
         if (parsed.IsFailure)
             return Result<AcceptResult>.Failure(HouseholdErrors.InvitationInvalid);
-        var hash = AuthSecrets.Hash(parsed.Value.Value);
+        var hash = hasher.Hash(parsed.Value.Value);
         if (await invitations.FindByHashAsync(hash, cancellationToken) is not { } found)
             return Result<AcceptResult>.Failure(HouseholdErrors.InvitationInvalid);
         var household = found.Invitation.HouseholdId;
@@ -126,6 +127,10 @@ public sealed class AcceptInvitation(IInvitationStore invitations, IHouseholdMem
             var active = me.Membership is not null && !me.IsRevoked;
             if (active && invitation.WasAcceptedBy(user))
                 return Result<AcceptResult>.Ok(new AcceptResult(household, me.Membership!.Role, AcceptOutcome.Joined));
+
+            // A removed member needs a new invitation: one that was already out when they were removed does not bring them back.
+            if (me.RevokedAt is { } removedAt && invitation.CreatedAt < removedAt)
+                return Result<AcceptResult>.Failure(HouseholdErrors.InvitationInvalid);
 
             var now = time.GetUtcNow();
             if (!invitation.IsUsable(now))

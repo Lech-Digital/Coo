@@ -405,11 +405,9 @@ public sealed class AuthStoreTests(PostgresServer server)
         await using var scope = db.NewScope();
         var accounts = scope.ServiceProvider.GetRequiredService<IAccountStore>();
         var partners = await accounts.ListMembershipsOfUserAsync(Partner, CancellationToken.None);
-        var members = await accounts.ListMembersAsync(ServerDatabase.Household, CancellationToken.None);
 
         // Assert
         partners.Should().ContainSingle().Which.HouseholdId.Should().Be(PartnersHousehold);
-        members.Should().ContainSingle().Which.UserId.Should().Be(User);
     }
 
     private static async Task<Exception?> Attempt(Func<Task> action)

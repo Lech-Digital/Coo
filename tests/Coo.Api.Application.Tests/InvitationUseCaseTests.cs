@@ -1,4 +1,3 @@
-using Coo.Api.Application.Auth;
 using Coo.Api.Application.Households;
 using Coo.Contracts.Households;
 using Coo.Domain.Households;
@@ -23,7 +22,7 @@ public sealed class InvitationUseCaseTests
         created.Value.Code.Value.Should().Be("ABCDEFGH", "the test's randomness counts 0, 1, 2, …");
         created.Value.ExpiresAt.Should().Be(Start.AddHours(72));
         var row = _kit.Store.Invitations.Should().ContainSingle().Subject;
-        row.Hash.Should().Be(AuthSecrets.Hash("ABCDEFGH"));
+        row.Hash.Should().Be(HouseholdKit.Hasher.Hash("ABCDEFGH"));
         row.Invitation.Role.Should().Be(Role.Parent);
         row.Invitation.CreatedBy.Should().Be(Owner);
         _kit.Store.LockedSets.Should().ContainSingle().Which.Should().Equal(Family);
@@ -329,6 +328,44 @@ public sealed class InvitationUseCaseTests
         var row = _kit.Store.Members.Single(m => m.User == Partner);
         row.RevokedAt.Should().BeNull();
         row.JoinedAt.Should().Be(Start.AddHours(1));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_AcceptACodeCreatedBeforeBeingRemoved_IsInvalidAndStaysRemoved()
+    {
+        // Arrange: spec §10.4, a removed member needs a new invitation, not one that was already out when they were removed.
+        _kit.Store.AddMember(Family, Partner, Role.Parent, Start.AddDays(-1));
+        var code = await InviteAsync();
+        _kit.Time.Advance(TimeSpan.FromHours(1));
+        await _kit.Remove().ExecuteAsync(Owner, Family, Partner, CancellationToken.None);
+        _kit.Time.Advance(TimeSpan.FromHours(1));
+        await _kit.GiveConsentAsync(Partner);
+
+        // Act
+        var accepted = await _kit.Accept().ExecuteAsync(Partner, code, CancellationToken.None);
+
+        // Assert
+        accepted.Error!.Code.Should().Be(HouseholdErrors.InvitationInvalid);
+        _kit.Store.Members.Single(m => m.User == Partner).RevokedAt.Should().Be(Start.AddHours(1));
+        _kit.Store.Invitations.Single().Invitation.AcceptedBy.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_AcceptACodeCreatedAfterBeingRemoved_Rejoins()
+    {
+        // Arrange
+        _kit.Store.AddMember(Family, Partner, Role.Parent, Start.AddDays(-1));
+        await _kit.Remove().ExecuteAsync(Owner, Family, Partner, CancellationToken.None);
+        _kit.Time.Advance(TimeSpan.FromHours(1));
+        var code = await InviteAsync();
+        await _kit.GiveConsentAsync(Partner);
+
+        // Act
+        var accepted = await _kit.Accept().ExecuteAsync(Partner, code, CancellationToken.None);
+
+        // Assert
+        accepted.Value.Outcome.Should().Be(AcceptOutcome.Rejoined);
+        _kit.Store.Members.Single(m => m.User == Partner).RevokedAt.Should().BeNull();
     }
 
     [Fact]

@@ -221,6 +221,113 @@ public sealed class StartupChecksTests
         act.Should().Throw<InvalidOperationException>().WithMessage("*AppLinks:Sha256CertFingerprints*");
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void SelectCodePepper_ProductionWithoutOne_ThrowsNamingTheSetting(string? value)
+    {
+        // Act
+        var act = () => StartupChecks.SelectCodePepper(value, isProduction: true, DevelopmentKey);
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>().WithMessage("*Invitations:CodePepper*");
+    }
+
+    [Theory]
+    [InlineData("not base64!")]
+    [InlineData("AAAA")]
+    public void SelectCodePepper_NotBase64OrTooShort_ThrowsInEveryEnvironment(string value)
+    {
+        // Act
+        var act = () => StartupChecks.SelectCodePepper(value, isProduction: false, DevelopmentKey);
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>().WithMessage("*Invitations:CodePepper*");
+    }
+
+    [Fact]
+    public void SelectCodePepper_AValidOne_IsDecoded()
+    {
+        // Act
+        var pepper = StartupChecks.SelectCodePepper(" " + KeyA + " ", isProduction: true, DevelopmentKey);
+
+        // Assert
+        pepper.Should().Equal(Enumerable.Repeat((byte)1, 32));
+    }
+
+    [Fact]
+    public void SelectCodePepper_DevelopmentWithoutOne_IsTheGivenFallback()
+    {
+        // Act
+        var pepper = StartupChecks.SelectCodePepper(null, isProduction: false, DevelopmentKey);
+
+        // Assert
+        pepper.Should().Equal(DevelopmentKey);
+    }
+
+    [Fact]
+    public async Task Start_ProductionWithoutACodePepper_FailsAtStartUp()
+    {
+        // Arrange
+        await using var api = TestApi.Create("Host=unused", configure: h => h.UseSetting(StartupChecks.CodePepperKey, ""));
+
+        // Act
+        var act = () => api.CreateClient();
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>().WithMessage("*Invitations:CodePepper*");
+    }
+
+    [Fact]
+    public void SelectInvitationLimits_NothingSet_IsTheDefaults()
+    {
+        // Act
+        var limits = StartupChecks.SelectInvitationLimits(null, " ", "");
+
+        // Assert
+        limits.Should().Be(InvitationLimits.Default);
+    }
+
+    [Fact]
+    public void SelectInvitationLimits_PositiveIntegers_AreUsed()
+    {
+        // Act
+        var limits = StartupChecks.SelectInvitationLimits("3", "4", "5");
+
+        // Assert
+        limits.Should().Be(new InvitationLimits(3, 4, 5));
+    }
+
+    [Theory]
+    [InlineData("0", "Invitations:PerUserPerHour")]
+    [InlineData("-5", "Invitations:PerUserPerHour")]
+    [InlineData("ten", "Invitations:PerUserPerHour")]
+    [InlineData("1.5", "Invitations:PerUserPerHour")]
+    public void SelectInvitationLimits_NotAPositiveInteger_ThrowsNamingTheSetting(string value, string setting)
+    {
+        // Act
+        var act = () => StartupChecks.SelectInvitationLimits(value, null, null);
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>().WithMessage($"*{setting}*");
+    }
+
+    [Theory]
+    [InlineData("Invitations:PerAddressPerHour")]
+    [InlineData("Invitations:CreatePerUserPerDay")]
+    public async Task Start_AZeroInvitationLimit_FailsAtStartUp(string setting)
+    {
+        // Arrange: a limit of 0 would refuse every call, and the ASP.NET limiter itself throws on a negative one, at the first request.
+        await using var api = TestApi.Create("Host=unused", configure: h => h.UseSetting(setting, "0"));
+
+        // Act
+        var act = () => api.CreateClient();
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>().WithMessage($"*{setting}*");
+    }
+
     private static List<KeyValuePair<string, string?>> Keys(params (string Id, string Value)[] keys) =>
         [.. keys.Select(k => KeyValuePair.Create(k.Id, (string?)k.Value))];
 }

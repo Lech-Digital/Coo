@@ -129,6 +129,31 @@ public sealed class HouseholdApiTests(AuthApi api) : IClassFixture<AuthApi>
         theirLink.StatusCode.Should().Be(HttpStatusCode.NotFound, "a removed member's open invitations are withdrawn with them");
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task SignIn_ARemovedMemberAgain_StaysOutOfTheFamilyThatRemovedThem(bool withTheRemovedFamilyAsProvisional)
+    {
+        // Arrange: spec §10.3. The removal is permanent until a new invitation; signing in again must not undo it.
+        using var client = api.Factory.CreateClient();
+        var (family, ownFamily, phone) = (Calls.Id(7101), Calls.Id(7104), Calls.Id(7103));
+        var owner = await SyncCalls.SignInWithConsentAsync(client, "re-owner", Calls.Id(7102), family);
+        var joiner = await SyncCalls.SignInWithConsentAsync(client, "re-joiner", phone, ownFamily);
+        await HouseholdCalls.AcceptAsync(client, joiner.AccessToken, (await HouseholdCalls.InviteAsync(client, owner.AccessToken, family)).Code);
+        await Calls.SendAsync(client, HttpMethod.Delete, HouseholdCalls.Member(family, joiner.User.Id), owner.AccessToken);
+
+        // Act
+        var again = await Calls.SignInAsync(client, "re-joiner", phone, withTheRemovedFamilyAsProvisional ? family : Calls.Id(7105));
+        var me = await (await Calls.SendAsync(client, HttpMethod.Get, Calls.Me, again.AccessToken)).Content.ReadFromJsonAsync<MeResponse>();
+        var pull = await Calls.SendAsync(client, HttpMethod.Get, SyncCalls.Pull(family, 0), again.AccessToken);
+
+        // Assert
+        again.HouseholdId.Should().Be(ownFamily);
+        me!.Memberships!.Select(m => m.HouseholdId).Should().Equal(ownFamily);
+        me.Household!.HouseholdId.Should().Be(ownFamily);
+        pull.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
     [Fact]
     public async Task Members_AStranger_IsForbiddenNotTheSyncProblem()
     {

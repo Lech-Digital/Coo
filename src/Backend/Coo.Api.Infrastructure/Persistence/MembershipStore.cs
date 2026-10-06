@@ -17,6 +17,6 @@ internal sealed class MembershipStore(NpgsqlDataSource dataSource) : IMembership
         if (!await reader.ReadAsync(cancellationToken))
             return MembershipLookup.None;
         var membership = Membership.Create(household, user, RoleText.Parse(reader.GetString(0)), ServerColumns.Utc(reader.GetDateTime(1)));
-        return new MembershipLookup(membership, IsRevoked: !reader.IsDBNull(2));
+        return new MembershipLookup(membership, IsRevoked: !reader.IsDBNull(2), RevokedAt: reader.IsDBNull(2) ? null : ServerColumns.Utc(reader.GetDateTime(2)));
     }
 }

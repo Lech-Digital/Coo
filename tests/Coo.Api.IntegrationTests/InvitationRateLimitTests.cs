@@ -87,6 +87,50 @@ public sealed class InvitationRateLimitTests(AuthApi api) : IClassFixture<AuthAp
     }
 
     [Fact]
+    public async Task CreateInvitation_Anonymous_Answers401EveryTimeAndSharesNoDailyBudget()
+    {
+        // Arrange: an unauthenticated caller has no user to count against; they must reach the 401, not fill an "anonymous" bucket.
+        await using var factory = TestApi.Create(api.ConnectionString, api.Google, limits: new InvitationLimits(1000, 1000, 1));
+        using var client = factory.CreateClient();
+
+        // Act
+        var codes = new List<HttpStatusCode>();
+        for (var i = 0; i < 3; i++)
+        {
+            codes.Add((await Calls.SendAsync(client, HttpMethod.Post, HouseholdCalls.Invitations(Calls.Id(7161)), null,
+                new CreateInvitationRequest(Contracts.Auth.AuthRoles.Parent))).StatusCode);
+        }
+
+        // Assert
+        codes.Should().AllBeEquivalentTo(HttpStatusCode.Unauthorized);
+    }
+
+    [Theory]
+    [InlineData("203.0.113.7", "203.0.113.7")]
+    [InlineData("::ffff:203.0.113.7", "203.0.113.7")]
+    [InlineData("2001:db8:1:2:aaaa:bbbb:cccc:dddd", "2001:db8:1:2::/64")]
+    [InlineData("2001:db8:1:2:1111:2222:3333:4444", "2001:db8:1:2::/64")]
+    [InlineData("2001:db8:1:3::1", "2001:db8:1:3::/64")]
+    public void AddressKey_IPv4AndIPv6_PartitionsIPv6ByItsSlash64(string address, string expected)
+    {
+        // Act
+        var key = HouseholdEndpoints.AddressKey(IPAddress.Parse(address));
+
+        // Assert
+        key.Should().Be(expected);
+    }
+
+    [Fact]
+    public void AddressKey_NoAddress_IsUnknown()
+    {
+        // Act
+        var key = HouseholdEndpoints.AddressKey(null);
+
+        // Assert
+        key.Should().Be("unknown");
+    }
+
+    [Fact]
     public async Task Me_AfterTheUsersCodeBudgetIsSpent_StillAnswers()
     {
         // Arrange

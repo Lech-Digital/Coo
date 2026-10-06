@@ -36,6 +36,25 @@ public sealed class InvitationTests
     }
 
     [Theory]
+    [InlineData("ABCD\u00ADEFGH", "a soft hyphen, as a messenger may insert")]
+    [InlineData("ABCD\u2010EFGH", "U+2010 hyphen")]
+    [InlineData("ABCD\u2011EFGH", "U+2011 non-breaking hyphen")]
+    [InlineData("ABCD\u2013EFGH", "U+2013 en dash")]
+    [InlineData("ABCD\u2014EFGH", "U+2014 em dash")]
+    [InlineData("ABCD\u200BEFGH", "a zero-width space")]
+    [InlineData("\uFEFFABCDEFGH", "a byte-order mark")]
+    [InlineData("ABCD\u00A0EFGH", "a no-break space")]
+    public void Parse_UnicodeDashesAndInvisibleFormatCharacters_AreIgnored(string text, string why)
+    {
+        // Act
+        var code = InvitationCode.Parse(text);
+
+        // Assert
+        code.IsSuccess.Should().BeTrue(why);
+        code.Value.Value.Should().Be("ABCDEFGH");
+    }
+
+    [Theory]
     [InlineData("ABCD-EFG0")]
     [InlineData("ABCD-EFGO")]
     [InlineData("ABCD-EFG1")]

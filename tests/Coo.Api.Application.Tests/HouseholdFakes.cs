@@ -107,7 +107,7 @@ internal sealed class FakeHouseholds : IHouseholdMembershipStore, IInvitationSto
         public Task<MembershipLookup> FindMembershipAsync(HouseholdId household, UserId user, CancellationToken cancellationToken)
         {
             var row = _members.FirstOrDefault(m => m.Household == household && m.User == user);
-            return Task.FromResult(row is null ? MembershipLookup.None : new MembershipLookup(ToMembership(row), row.RevokedAt is not null));
+            return Task.FromResult(row is null ? MembershipLookup.None : new MembershipLookup(ToMembership(row), row.RevokedAt is not null, row.RevokedAt));
         }
 
         public Task<IReadOnlyList<Membership>> ActiveMembersAsync(HouseholdId household, CancellationToken cancellationToken) =>
@@ -230,6 +230,8 @@ internal sealed class HouseholdKit
     public static readonly UserId Partner = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c2"));
     public static readonly UserId Nanny = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c3"));
 
+    public static readonly InvitationCodeHasher Hasher = new([.. Enumerable.Repeat((byte)5, 32)]);
+
     public Microsoft.Extensions.Time.Testing.FakeTimeProvider Time { get; } = new(Start);
 
     public FakeHouseholds Store { get; } = new();
@@ -239,7 +241,7 @@ internal sealed class HouseholdKit
     private int _draws = -1;
 
     /// <summary>Codes are drawn from a counter, so each invitation of a test has its own: ABCDEFGH, then JKMNPQRS, …</summary>
-    public CreateInvitation Create() => new(Store, Time, _ => Interlocked.Increment(ref _draws) % 31);
+    public CreateInvitation Create() => new(Store, Time, _ => Interlocked.Increment(ref _draws) % 31, Hasher);
 
     public WithdrawInvitation Withdraw() => new(Store, Time);
 
@@ -251,9 +253,9 @@ internal sealed class HouseholdKit
 
     public CreateHousehold CreateHousehold() => new(Store, Time);
 
-    public PreviewInvitation Preview() => new(Store, new MembershipsOver(Store), Time);
+    public PreviewInvitation Preview() => new(Store, new MembershipsOver(Store), Time, Hasher);
 
-    public AcceptInvitation Accept() => new(Store, Store, Consents, Time);
+    public AcceptInvitation Accept() => new(Store, Store, Consents, Time, Hasher);
 
     public async Task GiveConsentAsync(UserId user) => await Consents.RecordAsync(
         new ConsentRecord(user, Contracts.Sync.CareDataConsent.Purpose, Contracts.Sync.CareDataConsent.CurrentWording, Start, "0.12.0", "en"),
@@ -265,7 +267,7 @@ internal sealed class HouseholdKit
         public override Task<MembershipLookup> FindAsync(HouseholdId household, UserId user, CancellationToken cancellationToken)
         {
             var row = store.Members.FirstOrDefault(m => m.Household == household && m.User == user);
-            return Task.FromResult(row is null ? MembershipLookup.None : new MembershipLookup(FakeHouseholds.ToMembership(row), row.RevokedAt is not null));
+            return Task.FromResult(row is null ? MembershipLookup.None : new MembershipLookup(FakeHouseholds.ToMembership(row), row.RevokedAt is not null, row.RevokedAt));
         }
     }
 }

@@ -14,6 +14,7 @@ public sealed class HouseholdMembershipStoreTests(PostgresServer server)
 {
     private static readonly HouseholdId Family = ServerDatabase.Household;
     private static readonly UserId Owner = new(MembersSchemaTests.Owner);
+    private static readonly InvitationCodeHasher Hasher = new([.. Enumerable.Repeat((byte)5, 32)]);
     private static readonly UserId Partner = new(Guid.Parse("7a1c0000-0000-7000-8000-00000000c0c2"));
 
     [Fact]
@@ -131,6 +132,7 @@ public sealed class HouseholdMembershipStoreTests(PostgresServer server)
         afterAdd.Should().Be(2);
         afterRevoke.Should().Be(1);
         lookup.IsRevoked.Should().BeTrue();
+        lookup.RevokedAt.Should().Be(now.AddHours(1));
         afterReactivate.JoinedAt.Should().Be(now.AddHours(2));
         (await db.HouseholdStore.ListActiveMembersAsync(Family, CancellationToken.None)).Select(m => m.Name).Should().Equal("Andrzej", "Kasia");
     }
@@ -269,14 +271,14 @@ public sealed class HouseholdMembershipStoreTests(PostgresServer server)
         }
 
         const string code = "ABCDEFGH";
-        var hash = AuthSecrets.Hash(code);
+        var hash = Hasher.Hash(code);
         var now = db.Time.GetUtcNow();
         await db.HouseholdStore.RunLockedAsync([Family], async tx =>
         {
             await tx.AddInvitationAsync(Invitation.Create(new InvitationId(db.NewId()), Family, Role.Parent, Owner, now), hash, CancellationToken.None);
             return 0;
         }, CancellationToken.None);
-        var accept = new AcceptInvitation(db.Invitations, db.HouseholdStore, db.Consents, db.Time);
+        var accept = new AcceptInvitation(db.Invitations, db.HouseholdStore, db.Consents, db.Time, Hasher);
         var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var held = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var holder = db.HouseholdStore.RunLockedAsync([Family], async _ =>
@@ -491,13 +493,13 @@ public sealed class HouseholdMembershipStoreTests(PostgresServer server)
         var now = db.Time.GetUtcNow();
         await db.HouseholdStore.RunLockedAsync([Family], async tx =>
         {
-            await tx.AddInvitationAsync(Invitation.Create(new InvitationId(db.NewId()), Family, Role.Parent, Owner, now), AuthSecrets.Hash("ABCDEFGH"), CancellationToken.None);
+            await tx.AddInvitationAsync(Invitation.Create(new InvitationId(db.NewId()), Family, Role.Parent, Owner, now), Hasher.Hash("ABCDEFGH"), CancellationToken.None);
             return 0;
         }, CancellationToken.None);
         await db.Consents.RecordAsync(new ConsentRecord(Partner, Contracts.Sync.CareDataConsent.Purpose, Contracts.Sync.CareDataConsent.CurrentWording, now, null, null), CancellationToken.None);
         var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var held = new HoldingStore(db.HouseholdStore, release.Task);
-        var accept = new AcceptInvitation(db.Invitations, acceptFirst ? held : db.HouseholdStore, db.Consents, db.Time);
+        var accept = new AcceptInvitation(db.Invitations, acceptFirst ? held : db.HouseholdStore, db.Consents, db.Time, Hasher);
         var delete = new DeleteAccount(acceptFirst ? db.HouseholdStore : held);
 
         // Act

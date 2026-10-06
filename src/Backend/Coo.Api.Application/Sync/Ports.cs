@@ -31,7 +31,7 @@ public interface ISyncStore
 }
 
 /// <summary>A user's membership of a household: active, revoked (ADR 0002 §10), or never (<see cref="None"/>).</summary>
-public sealed record MembershipLookup(Membership? Membership, bool IsRevoked)
+public sealed record MembershipLookup(Membership? Membership, bool IsRevoked, DateTimeOffset? RevokedAt = null)
 {
     public static MembershipLookup None { get; } = new(null, false);
 }

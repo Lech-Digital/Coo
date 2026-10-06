@@ -123,4 +123,61 @@ internal static class StartupChecks
                 + "through deploy/docker-compose.prod.yml (DEPLOY.md, \"App Links\").")
             : list;
     }
+
+    public const string CodePepperKey = "Invitations:CodePepper";
+
+    /// <summary>
+    /// The pepper for invitation-code hashes (Spec 011b §10.3): base64, at least <see cref="MinimumKeyBytes"/> bytes. Production
+    /// refuses to start without it, so a code is never hashed unkeyed; a malformed one fails in every environment. Elsewhere
+    /// the missing pepper is <paramref name="developmentPepper"/>, so codes end with the process.
+    /// </summary>
+    public static byte[] SelectCodePepper(string? value, bool isProduction, byte[] developmentPepper)
+    {
+        ArgumentNullException.ThrowIfNull(developmentPepper);
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return isProduction
+                ? throw new InvalidOperationException(
+                    $"{CodePepperKey} is not set. In production it comes from /opt/coo/.env (INVITATIONS_CODE_PEPPER), which deploy-prod.sh "
+                    + "creates, through deploy/docker-compose.prod.yml (DEPLOY.md, \"Invitation codes\").")
+                : developmentPepper;
+        }
+
+        byte[] pepper;
+        try
+        {
+            pepper = Convert.FromBase64String(value.Trim());
+        }
+        catch (FormatException)
+        {
+            throw new InvalidOperationException($"{CodePepperKey} is not base64. Generate one with: openssl rand -base64 32");
+        }
+
+        return pepper.Length >= MinimumKeyBytes
+            ? pepper
+            : throw new InvalidOperationException(
+                $"{CodePepperKey} has {pepper.Length} bytes; at least {MinimumKeyBytes} are required. Generate one with: openssl rand -base64 32");
+    }
+
+    public const string PerUserPerHourKey = "Invitations:PerUserPerHour";
+    public const string PerAddressPerHourKey = "Invitations:PerAddressPerHour";
+    public const string CreatePerUserPerDayKey = "Invitations:CreatePerUserPerDay";
+
+    /// <summary>
+    /// The invitation limits (Spec 011b §10.2): unset means the default; a set value must be a positive integer, so a typo
+    /// fails at start-up with its name instead of refusing every call or throwing at the first request.
+    /// </summary>
+    public static InvitationLimits SelectInvitationLimits(string? perUserPerHour, string? perAddressPerHour, string? createPerUserPerDay) => new(
+        PositiveInteger(PerUserPerHourKey, perUserPerHour, InvitationLimits.Default.PerUserPerHour),
+        PositiveInteger(PerAddressPerHourKey, perAddressPerHour, InvitationLimits.Default.PerAddressPerHour),
+        PositiveInteger(CreatePerUserPerDayKey, createPerUserPerDay, InvitationLimits.Default.CreatePerUserPerDay));
+
+    private static int PositiveInteger(string key, string? value, int fallback)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return fallback;
+        return int.TryParse(value.Trim(), System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var number) && number > 0
+            ? number
+            : throw new InvalidOperationException($"{key} is '{value}': it must be a positive whole number.");
+    }
 }

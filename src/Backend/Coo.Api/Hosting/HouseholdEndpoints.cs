@@ -59,17 +59,38 @@ internal static class HouseholdEndpoints
                     ? Hourly("user:" + UserKey(http), limits.PerUserPerHour)
                     : RateLimitPartition.GetNoLimiter("none")),
                 PartitionedRateLimiter.Create<HttpContext, string>(http => IsLimitedCodeCall(http)
-                    ? Hourly("address:" + (http.Connection.RemoteIpAddress?.ToString() ?? "unknown"), limits.PerAddressPerHour)
+                    ? Hourly("address:" + AddressKey(http.Connection.RemoteIpAddress), limits.PerAddressPerHour)
                     : RateLimitPartition.GetNoLimiter("none")));
-            options.AddPolicy(CreatePolicy, http => RateLimitPartition.GetFixedWindowLimiter(
-                "create:" + UserKey(http),
-                _ => new FixedWindowRateLimiterOptions { PermitLimit = limits.CreatePerUserPerDay, Window = TimeSpan.FromDays(1), QueueLimit = 0 }));
+            // Like the code calls: an unauthenticated caller reaches the 401 uncounted, with no shared "anonymous" bucket.
+            options.AddPolicy(CreatePolicy, http => http.User.Identity?.IsAuthenticated == true
+                ? RateLimitPartition.GetFixedWindowLimiter(
+                    "create:" + UserKey(http),
+                    _ => new FixedWindowRateLimiterOptions { PermitLimit = limits.CreatePerUserPerDay, Window = TimeSpan.FromDays(1), QueueLimit = 0 })
+                : RateLimitPartition.GetNoLimiter("none"));
         });
     }
 
     // An unauthenticated call reaches the 401 uncounted: it must not spend the address budget a signed-in family shares.
     private static bool IsLimitedCodeCall(HttpContext http) =>
         http.User.Identity?.IsAuthenticated == true && http.GetEndpoint()?.Metadata.GetMetadata<InvitationCodeLimit>() is not null;
+
+    /// <summary>
+    /// The address partition. One IPv6 subscriber holds a whole /64, so a per-address budget would be free to dodge: the key is
+    /// the /64 prefix. An IPv4-mapped IPv6 address counts as its IPv4 address.
+    /// </summary>
+    internal static string AddressKey(System.Net.IPAddress? address)
+    {
+        if (address is null)
+            return "unknown";
+        if (address.IsIPv4MappedToIPv6)
+            address = address.MapToIPv4();
+        if (address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetworkV6)
+            return address.ToString();
+        Span<byte> bytes = stackalloc byte[16];
+        address.TryWriteBytes(bytes, out _);
+        bytes[8..].Clear();
+        return new System.Net.IPAddress(bytes).ToString() + "/64";
+    }
 
     private static string UserKey(HttpContext http) => http.User.FindFirst(AccessTokenClaims.User)?.Value ?? "anonymous";
 
