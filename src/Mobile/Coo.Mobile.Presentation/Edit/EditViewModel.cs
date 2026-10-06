@@ -26,6 +26,8 @@ public sealed partial class EditViewModel(
     : ObservableObject
 {
     private CareEntry? _original;
+    private DateTimeOffset _loadedStart;
+    private IReadOnlyList<string> _partLines = [];
     private bool _loading;
     private HouseholdSettings? _household;
     private BabyProfile? _baby;
@@ -108,7 +110,15 @@ public sealed partial class EditViewModel(
     public bool IsInParts => PartLines.Count > 0;
 
     /// <summary>"Part 1 · 14:02–14:12 · left", one line per part; empty unless <see cref="IsInParts"/>.</summary>
-    public IReadOnlyList<string> PartLines { get; private set; } = [];
+    public IReadOnlyList<string> PartLines
+    {
+        get => _partLines;
+        private set
+        {
+            if (SetProperty(ref _partLines, value))
+                OnPropertyChanged(nameof(IsInParts));
+        }
+    }
 
     public string UnitLabel => Strings.Get(_household?.VolumeUnit == VolumeUnit.Ounces ? "Unit.Oz" : "Unit.Ml");
 
@@ -224,7 +234,8 @@ public sealed partial class EditViewModel(
     protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
-        if (e.PropertyName is nameof(Warnings) or nameof(Error) or nameof(IsNew) or nameof(KindCode) or nameof(IsReadable) or nameof(UnreadableText))
+        if (e.PropertyName is nameof(Warnings) or nameof(Error) or nameof(IsNew) or nameof(KindCode) or nameof(IsReadable) or nameof(UnreadableText)
+            or nameof(PartLines) or nameof(IsInParts))
             return;
         RecomputeWarnings();
     }
@@ -247,8 +258,21 @@ public sealed partial class EditViewModel(
         var before = _original!;
         var derived = before.Kind.TimingFor(details) == TimingRule.DerivedFromDetails;
         var after = before;
+        var current = before.Details;
 
-        if (!before.Details.Equals(details))
+        if (!IsInParts && details is BreastFeed
+            && await store.FindAsync(before.Id, CancellationToken.None) is LiveEntry { Entry.Details: BreastFeed { IsCompleted: true, Parts: > 1 } merged })
+        {
+            // Merged on the other phone while this form was open (Spec 011d §5): the form cannot express the parts, so it
+            // keeps every segment; only a move of the start applies, to all of them.
+            var shift = Combine(StartDate, StartTime) - Combine(Local(_loadedStart).Date, Local(_loadedStart).TimeOfDay);
+            var moved = merged.WithSegments(merged.Segments.Select(s => s with { Start = s.Start + shift, End = s.End + shift }));
+            if (moved.IsFailure)
+                return Result.Failure(moved.Error!);
+            (current, details) = (merged, moved.Value);
+        }
+
+        if (!current.Equals(details))
         {
             var r = await revise.ExecuteAsync(before.Id, (e, v, now) => e.Revise<EntryDetails>(_ => Result<EntryDetails>.Ok(details), v, now), CancellationToken.None);
             if (r.IsFailure)
@@ -414,6 +438,7 @@ public sealed partial class EditViewModel(
 
     private void Fill(CareEntry entry)
     {
+        _loadedStart = entry.Timing.OccurredAt;
         PartLines = entry.Details is BreastFeed { IsCompleted: true, Parts: > 1 } parted ? Lines(parted) : [];
         KindCode = entry.KindCode.Value;
         IsRunning = entry.Timing.IsInProgress;

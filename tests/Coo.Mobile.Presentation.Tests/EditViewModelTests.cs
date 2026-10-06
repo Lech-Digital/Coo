@@ -164,6 +164,74 @@ public sealed class EditViewModelTests : IDisposable
         written.Details.Should().Be(feed.Details);
     }
 
+    [Fact]
+    public async Task Save_AOnePartFeedMergedOnTheOtherPhoneWhileOpen_KeepsEveryPartAndSavesTheNote()
+    {
+        // Arrange: the form opened a one-part timer feed; the other phone merged it, and the pull brought the merge.
+        var single = InParts([(BreastSide.Left, -60, -50)], 17);
+        var model = Model();
+        await model.LoadAsync(single.Id);
+        var merged = Merged(single, (BreastSide.Left, -60, -50), (BreastSide.Right, -47, -42), (BreastSide.Left, -40, -36));
+        var saved = new List<CareEntry>();
+        await _store.SaveAsync(Arg.Do<CareEntry>(saved.Add), Arg.Any<CancellationToken>());
+
+        // Act
+        model.Note = "sleepy";
+        await model.SaveCommand.ExecuteAsync(null);
+
+        // Assert
+        model.IsInParts.Should().BeFalse("the form still shows what it loaded");
+        var written = saved.Should().ContainSingle("only the note changes; the form cannot express the parts").Which;
+        written.Note!.Text.Should().Be("sleepy");
+        written.Details.Should().Be(merged);
+    }
+
+    [Fact]
+    public async Task Save_AOnePartFeedMergedMeanwhileMovedTenMinutes_ShiftsEveryPart()
+    {
+        // Arrange
+        var single = InParts([(BreastSide.Left, -60, -50)], 17);
+        var model = Model();
+        await model.LoadAsync(single.Id);
+        var merged = Merged(single, (BreastSide.Left, -60, -50), (BreastSide.Right, -47, -42));
+        var saved = new List<CareEntry>();
+        await _store.SaveAsync(Arg.Do<CareEntry>(saved.Add), Arg.Any<CancellationToken>());
+
+        // Act
+        model.StartTime += TimeSpan.FromMinutes(10);
+        await model.SaveCommand.ExecuteAsync(null);
+
+        // Assert
+        model.Error.Should().BeEmpty();
+        var segments = ((BreastFeed)saved.Should().ContainSingle().Which.Details).Segments;
+        segments.Should().Equal(merged.Segments.Select(s => s with { Start = s.Start.AddMinutes(10), End = s.End!.Value.AddMinutes(10) }));
+    }
+
+    [Fact]
+    public async Task LoadAsync_AFeedInParts_RaisesIsInPartsAndPartLines()
+    {
+        // Arrange
+        var feed = InParts((BreastSide.Left, -60, -50), (BreastSide.Right, -47, -42), (BreastSide.Left, -40, -36));
+        var model = Model();
+        var changed = new List<string?>();
+        model.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+        // Act
+        await model.LoadAsync(feed.Id);
+
+        // Assert
+        changed.Should().Contain([nameof(EditViewModel.IsInParts), nameof(EditViewModel.PartLines)]);
+    }
+
+    /// <summary>The store now holds <paramref name="entry"/> as merged on the other phone: its segments, with seconds.</summary>
+    private BreastFeed Merged(CareEntry entry, params (BreastSide Side, int From, int To)[] segments)
+    {
+        var now = _time.GetUtcNow().AddSeconds(17);
+        var details = BreastFeed.Create(segments.Select(s => new BreastSegment(s.Side, now.AddMinutes(s.From), now.AddMinutes(s.To))), isCompleted: true).Value;
+        entry.Revise<BreastFeed>(_ => Result<BreastFeed>.Ok(details), new HlcStamp(++_wall, 0, Device), _time.GetUtcNow());
+        return details;
+    }
+
     private CareEntry InParts((BreastSide Side, int From, int To) first, (BreastSide Side, int From, int To) second) => InParts([first, second], 0);
 
     private CareEntry InParts((BreastSide Side, int From, int To) first, (BreastSide Side, int From, int To) second, (BreastSide Side, int From, int To) third, int seconds = 0) =>
