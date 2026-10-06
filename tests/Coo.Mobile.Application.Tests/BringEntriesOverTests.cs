@@ -2,6 +2,7 @@ using Coo.Domain.Common;
 using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.Sync;
 using NSubstitute;
+using NSubstitute.Extensions;
 using static Coo.Mobile.Application.Tests.SyncCycleTests;
 
 namespace Coo.Mobile.Application.Tests;
@@ -31,6 +32,7 @@ public sealed class BringEntriesOverTests : IDisposable
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
         _moves.SummaryAsync(Provisional, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new(LocalBaby, "Maja")]));
         _moves.SummaryAsync(Household, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new(FamilyBaby, "Maja")]));
+        _sync.RunExclusiveAsync(default!, default).ReturnsForAnyArgs(c => c.Arg<Func<CancellationToken, Task>>()(c.Arg<CancellationToken>()));
     }
 
     public void Dispose() => _account.Dispose();
@@ -69,6 +71,36 @@ public sealed class BringEntriesOverTests : IDisposable
             Arg.Is<BringOverPlan>(p => p.From == Provisional && p.To == Household && p.Babies[LocalBaby] == FamilyBaby), User, Arg.Any<CancellationToken>());
         _account.State.Should().Be(new SignedIn(Profile));
         _sync.Received(1).RequestSync();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_JoinPending_MovesOnlyInsideTheExclusiveSection()
+    {
+        // Arrange: the move is a whole-family change (final review C1): no cycle may push or pull the family meanwhile.
+        await JoinPendingAsync();
+        var inside = false;
+        bool? movedInside = null;
+        _sync.Configure().RunExclusiveAsync(default!, default).ReturnsForAnyArgs(async c =>
+        {
+            inside = true;
+            try
+            {
+                await c.Arg<Func<CancellationToken, Task>>()(c.Arg<CancellationToken>());
+            }
+            finally
+            {
+                inside = false;
+            }
+        });
+        _moves.When(m => m.BringOverAsync(Arg.Any<BringOverPlan>(), User, Arg.Any<CancellationToken>())).Do(_ => movedInside = inside);
+
+        // Act
+        var done = await UseCase().ExecuteAsync(new Dictionary<BabyId, BabyId?> { [LocalBaby] = FamilyBaby }, CancellationToken.None);
+
+        // Assert
+        done.Should().Be(BringOverResult.Done);
+        movedInside.Should().BeTrue();
+        await _sync.DidNotReceive().SyncNowAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]

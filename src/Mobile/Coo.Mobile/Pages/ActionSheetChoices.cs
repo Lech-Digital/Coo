@@ -21,7 +21,7 @@ internal static class ActionSheetChoices
         {
             var unique = label;
             while (shown.Contains(unique))
-                unique += "​";
+                unique += "\u200B";
             shown.Add(unique);
         }
 

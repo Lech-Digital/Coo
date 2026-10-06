@@ -60,7 +60,11 @@
   <data name="BringOver.Failed" xml:space="preserve"><value>Cela n’a pas fonctionné. Rien n’a été modifié.</value></data>
   <data name="BringOver.Family" xml:space="preserve"><value>Le journal de votre famille contient : {0}.</value></data>
   <data name="BringOver.FamilyEmpty" xml:space="preserve"><value>Le journal de votre famille n’a pas encore de bébé.</value></data>
+  <data name="BringOver.InFamilyOf" xml:space="preserve"><value>dans la famille de {0}</value></data>
+  <data name="BringOver.InOtherFamily" xml:space="preserve"><value>dans l'autre famille</value></data>
+  <data name="BringOver.InYourFamily" xml:space="preserve"><value>dans votre famille</value></data>
   <data name="BringOver.Keep" xml:space="preserve"><value>Les garder séparées</value></data>
+  <data name="BringOver.Moved" xml:space="preserve"><value>Vos entrées sont maintenant {0}.</value></data>
   <data name="BringOver.Which" xml:space="preserve"><value>{0} sur ce téléphone est</value></data>
   <data name="Chart.Awake" xml:space="preserve"><value>éveil {0}</value></data>
   <data name="Chart.Hint" xml:space="preserve"><value>Touchez deux fois pour le détail de la journée</value></data>
@@ -167,7 +171,7 @@
   <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>Supprimer cette famille ? Son journal, {0} entrée, sera supprimé du serveur de Coo et de ce téléphone. C'est irréversible.</value></data>
   <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>Supprimer cette famille ? Son journal, {0} entrées, sera supprimé du serveur de Coo et de ce téléphone. C'est irréversible.</value></data>
   <data name="Family.DeleteShort" xml:space="preserve"><value>Supprimer</value></data>
-  <data name="Family.InvitationLine" xml:space="preserve"><value>Invitation d'un parent · jusqu'au {0}</value></data>
+  <data name="Family.InvitationLine" xml:space="preserve"><value>Invitation pour un parent · jusqu'au {0}</value></data>
   <data name="Family.Invitations" xml:space="preserve"><value>Invitations en attente</value></data>
   <data name="Family.Invite" xml:space="preserve"><value>Inviter un parent</value></data>
   <data name="Family.Join" xml:space="preserve"><value>Rejoindre une famille</value></data>
@@ -217,16 +221,16 @@ Si le lien n'ouvre pas Coo, va dans Réglages → Famille → Rejoindre une fami
   <data name="Join.Babies" xml:space="preserve"><value>Le journal de cette famille contient : {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} vous invite à rejoindre la famille en tant que parent. Vous verrez tous les deux le journal de la famille et pourrez le compléter.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Les deux familles sont sur ce téléphone. Passez de l'une à l'autre dans Réglages → Famille.</value></data>
-  <data name="Join.Copied" xml:space="preserve"><value>Vos entrées sont maintenant aussi dans la famille de {0}.</value></data>
-  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Vos entrées sont maintenant aussi dans la famille de {1}. Supprimer votre ancienne famille ? {0} entrée pour {2} sera supprimée du serveur de Coo et de ce téléphone. Les copies restent.</value></data>
-  <data name="Join.DeleteOld.other" xml:space="preserve"><value>Vos entrées sont maintenant aussi dans la famille de {1}. Supprimer votre ancienne famille ? Ses {0} entrées pour {2} seront supprimées du serveur de Coo et de ce téléphone. Les copies restent.</value></data>
+  <data name="Join.Copied" xml:space="preserve"><value>Vos entrées sont maintenant aussi {0}.</value></data>
+  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Vos entrées sont maintenant aussi {1}. Supprimer votre ancienne famille ? {0} entrée pour {2} sera supprimée du serveur de Coo et de ce téléphone. Les copies restent.</value></data>
+  <data name="Join.DeleteOld.other" xml:space="preserve"><value>Vos entrées sont maintenant aussi {1}. Supprimer votre ancienne famille ? Ses {0} entrées pour {2} seront supprimées du serveur de Coo et de ce téléphone. Les copies restent.</value></data>
   <data name="Join.DeleteOldButton" xml:space="preserve"><value>Supprimer l'ancienne famille</value></data>
   <data name="Join.EnterHint" xml:space="preserve"><value>Saisissez le code de votre invitation.</value></data>
   <data name="Join.Join" xml:space="preserve"><value>Rejoindre</value></data>
   <data name="Join.Joined" xml:space="preserve"><value>Vous faites maintenant partie de la famille de {0}.</value></data>
   <data name="Join.KeepIt" xml:space="preserve"><value>La garder</value></data>
   <data name="Join.Later" xml:space="preserve"><value>Vous pourrez rejoindre la famille plus tard avec le même lien, jusqu'au {0}.</value></data>
-  <data name="Join.LeaveOld" xml:space="preserve"><value>Vos entrées sont maintenant aussi dans la famille de {0}. Quitter votre ancienne famille ? Son journal sera supprimé de ce téléphone. Les entrées que vous avez ajoutées restent dans cette famille.</value></data>
+  <data name="Join.LeaveOld" xml:space="preserve"><value>Vos entrées sont maintenant aussi {0}. Quitter votre ancienne famille ? Son journal sera supprimé de ce téléphone. Les entrées que vous avez ajoutées restent dans cette famille.</value></data>
   <data name="Join.Malformed" xml:space="preserve"><value>Vérifiez le code : il compte 8 lettres et chiffres, comme ABCD-EFGH.</value></data>
   <data name="Join.NoBaby" xml:space="preserve"><value>Le journal de cette famille n'a pas encore de bébé.</value></data>
   <data name="Join.OK" xml:space="preserve"><value>OK</value></data>

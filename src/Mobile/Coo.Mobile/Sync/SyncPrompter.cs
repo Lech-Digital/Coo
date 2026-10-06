@@ -57,7 +57,21 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
 
     public Task ShowConsentAsync() => ShowAsync(() => services.GetRequiredService<ConsentPage>());
 
-    public Task ShowBringOverAsync() => ShowAsync(() => services.GetRequiredService<BringOverPage>());
+    /// <summary>
+    /// The sync line's "Choose what to do with them" (Spec 011 §4). While a join is under way (an invitation pending or a choice
+    /// waiting) its choice replaces this one (Spec 011b §5.3, final review U1): the join sheet opens instead.
+    /// </summary>
+    public async Task ShowBringOverAsync()
+    {
+        if (await services.GetRequiredService<JoinFamily>().StageAsync(CancellationToken.None) != JoinStage.None)
+        {
+            _joinOffered = false;
+            await ShowJoinAsync();
+            return;
+        }
+
+        await ShowAsync(() => services.GetRequiredService<BringOverPage>());
+    }
 
     // Both events come from background threads.
     private void OnStatusChanged(object? sender, EventArgs e) => OnMainThread(PromptAsync);
@@ -144,32 +158,66 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
     });
 
     /// <summary>
-    /// The consent sheet asked for by a flow (inviting, joining): it may open over the join sheet, and the flow waits for it to
-    /// close. <see cref="ConsentAnswer.NotAsked"/> when it could not open or the account signed out while it showed (review I1).
+    /// The consent sheet asked for by a flow (inviting, joining), and the flow waits for it to close. It opens over the join
+    /// sheet only (the flow that owns the sheets); over any other sheet it does not open. One consent sheet at a time (final
+    /// review U2): when one already shows, the flow waits for it to close and reads the answer it left.
+    /// <see cref="ConsentAnswer.NotAsked"/> when it could not open or the account signed out while it showed (review I1).
     /// Main thread.
     /// </summary>
     public async Task<ConsentAnswer> AskConsentAsync()
     {
-        var closed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        if (ShowingConsent() is { } showing)
+        {
+            await ClosedAsync(showing);
+            return await AnsweredConsentAsync();
+        }
+
+        Task? closed = null;
         var opened = await ShowAsync(
             () =>
             {
                 var page = services.GetRequiredService<ConsentPage>();
-
-                // Disappearing is also raised by a page opening over it: closed only once it left the modal stack.
-                page.Disappearing += (_, _) => OnMainThread(() =>
-                {
-                    if (!OnModalStack(page))
-                        closed.TrySetResult();
-                    return Task.CompletedTask;
-                });
+                closed = ClosedAsync(page);
                 return page;
             },
-            overSheet: true);
-        if (!opened)
+            overSheet: JoinShowing() && ReferenceEquals(_sheet, _join));
+        if (!opened || closed is null)
             return ConsentAnswer.NotAsked;
         _consentShown = true;
-        await closed.Task;
+        await closed;
+        return await AnsweredConsentAsync();
+    }
+
+    /// <summary>The consent sheet on the modal stack, if one shows (whoever opened it).</summary>
+    private static ConsentPage? ShowingConsent() =>
+        Microsoft.Maui.Controls.Application.Current?.Windows is { Count: > 0 } windows && windows[0].Page is { } root
+            ? root.Navigation.ModalStack.OfType<ConsentPage>().LastOrDefault()
+            : null;
+
+    /// <summary>
+    /// Completes once the page has left the modal stack. Disappearing is also raised by a page opening over it, so each one is
+    /// checked against the stack.
+    /// </summary>
+    private static Task ClosedAsync(Page page)
+    {
+        var closed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        void OnDisappearing(object? sender, EventArgs e) => OnMainThread(() =>
+        {
+            if (!OnModalStack(page))
+            {
+                page.Disappearing -= OnDisappearing;
+                closed.TrySetResult();
+            }
+
+            return Task.CompletedTask;
+        });
+        page.Disappearing += OnDisappearing;
+        return closed.Task;
+    }
+
+    /// <summary>What the consent sheet left: Given or Declined, or NotAsked when signed out meanwhile.</summary>
+    private async Task<ConsentAnswer> AnsweredConsentAsync()
+    {
         if (account.State is SignedOut || await services.GetRequiredService<ISessionStore>().GetAsync(CancellationToken.None) is not { } session)
             return ConsentAnswer.NotAsked;
         return await services.GetRequiredService<ConsentGate>().CachedAsync(session.Profile.UserId, CancellationToken.None) == ConsentState.Given
@@ -209,7 +257,8 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
             return;
         }
 
-        if (!_joinOffered && await services.GetRequiredService<JoinFamily>().StageAsync(CancellationToken.None) != JoinStage.None)
+        var stage = await services.GetRequiredService<JoinFamily>().StageAsync(CancellationToken.None);
+        if (!_joinOffered && stage != JoinStage.None)
         {
             await ShowJoinAsync();
             return;
@@ -218,8 +267,10 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
         if (status.Last == CycleOutcome.ConsentNeeded && !_consentShown)
             _consentShown = await ShowAsync(() => services.GetRequiredService<ConsentPage>());
 
-        // Only once consent is given and the family's log has been pulled (final review C1): there is something to choose.
-        else if (status.JoinReady && account.State is JoinPending && !_bringOverShown)
+        // Only once consent is given and the family's log has been pulled (final review C1): there is something to choose. Not
+        // while a join is under way (an invitation pending, or its choice waiting): its choice replaces this one (Spec 011b
+        // §5.3, final review U1).
+        else if (stage == JoinStage.None && status.JoinReady && account.State is JoinPending && !_bringOverShown)
             _bringOverShown = await ShowAsync(() => services.GetRequiredService<BringOverPage>());
     }
 

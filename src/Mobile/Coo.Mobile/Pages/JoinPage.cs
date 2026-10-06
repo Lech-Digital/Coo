@@ -9,7 +9,7 @@ namespace Coo.Mobile.Pages;
 /// <summary>
 /// The join flow (Spec 011b §5) as one modal page whose content follows the steps. While it is on the modal stack it owns the
 /// sheets (the prompter opens nothing else). Back is Not now, except at the choice, where it only closes: the joining marker
-/// stays and the flow opens there again at the next start (§5.3). It closes by itself when the account signs out after the
+/// stays and the flow opens there again at the next start (§5.3); while a copy or a leave runs, Back does nothing. It closes by itself when the account signs out after the
 /// sign-in step (ruling 27: the invitation stays, and the flow reopens with its sign-in step). Every handler catches everything.
 /// </summary>
 public sealed class JoinPage : ContentPage
@@ -138,6 +138,9 @@ public sealed class JoinPage : ContentPage
 #pragma warning disable CA1031 // A dispatched handler: nothing may escape.
             try
             {
+                // A copy or a leave is running: its outcome ends the flow (final review minor).
+                if (_model.BringOver.IsBusy)
+                    return;
                 if (_model.Step == JoinStep.Choice)
                     await CloseAsync();
                 else
@@ -154,8 +157,16 @@ public sealed class JoinPage : ContentPage
     // Raised from whichever thread changed the account (a refused session is found in the background).
     private void OnAccountChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
     {
-        if (_account.State is SignedOut && _model.Step != JoinStep.SignIn)
-            await CloseAsync();
+#pragma warning disable CA1031 // A dispatched handler: nothing may escape.
+        try
+        {
+            if (_account.State is SignedOut && _model.Step != JoinStep.SignIn)
+                await CloseAsync();
+        }
+        catch (Exception)
+        {
+        }
+#pragma warning restore CA1031
     });
 
     private void SafeRender()

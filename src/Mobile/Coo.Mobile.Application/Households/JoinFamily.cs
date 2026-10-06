@@ -65,7 +65,11 @@ public enum ChoiceStatus
 
 /// <param name="Copies">The source has synced, so bringing it over copies (§6.2) and is followed by the old-family question.</param>
 /// <param name="Source">The family shown before joining, whose entries are offered (and which the old-family question is about).</param>
-public sealed record JoinChoice(ChoiceStatus Status, string InviterName, BringOverChoice? Offer = null, bool Copies = false, HouseholdId Source = default);
+/// <param name="ShownHasBaby">
+/// With <see cref="ChoiceStatus.NotReady"/>: the shown family has a baby. With none, the baby step shows and "Keep them separate"
+/// is not offered: the person would add a second baby there while the joined family's is on its way.
+/// </param>
+public sealed record JoinChoice(ChoiceStatus Status, string InviterName, BringOverChoice? Offer = null, bool Copies = false, HouseholdId Source = default, bool ShownHasBaby = true);
 
 /// <summary>
 /// Joining a family (Spec 011b §4–§6). The code becomes the pending invitation; preview, consent, accept; the joined family is
@@ -263,7 +267,7 @@ public sealed class JoinFamily(
         {
             await sync.SyncNowAsync(cancellationToken);
             if (account.Generation != generation || !await store.HasPulledAsync(marker.Joined, cancellationToken))
-                return new JoinChoice(ChoiceStatus.NotReady, marker.InviterName);
+                return new JoinChoice(ChoiceStatus.NotReady, marker.InviterName, ShownHasBaby: await ShownHasBabyAsync(cancellationToken));
         }
 
         var source = marker.Source;
@@ -294,6 +298,10 @@ public sealed class JoinFamily(
 
         return new JoinChoice(ChoiceStatus.Ask, marker.InviterName, choice, Copies: synced, Source: source);
     }
+
+    /// <summary>Whether the shown family has a baby; with none, the first-launch baby step shows (Spec 006 §3).</summary>
+    private async Task<bool> ShownHasBabyAsync(CancellationToken cancellationToken) =>
+        (await households.ListBabiesAsync(await moves.ActiveHouseholdAsync(cancellationToken), cancellationToken)).Count > 0;
 
     /// <summary>
     /// True only when a list refreshed just now lacks the joined family, which is neither the session's own family. A list

@@ -8,12 +8,34 @@ using Coo.Mobile.Presentation.Localization;
 
 namespace Coo.Mobile.Presentation.Settings;
 
+/// <param name="InTarget">Where the entries go, as <see cref="FamilyLabels.In(string)"/> words it ("in Andrzej's family").</param>
 /// <param name="Execute">Brings the entries over (the join's <c>JoinFamily.BringAsync</c>, or <c>BringFamilyEntriesOver.ExecuteAsync</c> from Settings).</param>
 /// <param name="Keep">"Keep them separate" in the join flow; null in Settings, where Back cancels.</param>
 /// <param name="DoneToast">What a move says when it is done.</param>
 public sealed record BringOverRequest(
-    HouseholdId Source, BringOverChoice Choice, string FamilyLine, string TargetName,
-    Func<IReadOnlyDictionary<BabyId, BabyId?>, CancellationToken, Task<BringOutcome>> Execute, Func<CancellationToken, Task>? Keep, string DoneToast);
+    HouseholdId Source, BringOverChoice Choice, string FamilyLine, string InTarget,
+    Func<IReadOnlyDictionary<BabyId, BabyId?>, CancellationToken, Task<BringOutcome>> Execute, Func<CancellationToken, Task>? Keep, string DoneToast)
+{
+    /// <summary>
+    /// Settings → Family → Bring entries over (§6.3 "Later"): the target is named as Settings names it (yours, by its owner, or
+    /// without a name), and a move says where the entries now are, without "too" (nothing stays behind).
+    /// </summary>
+    public static BringOverRequest ForSettings(
+        HouseholdId source, BringOverChoice choice, FamilyOnPhone target, Func<IReadOnlyDictionary<BabyId, BabyId?>, CancellationToken, Task<BringOutcome>> execute)
+    {
+        ArgumentNullException.ThrowIfNull(choice);
+        ArgumentNullException.ThrowIfNull(target);
+        var inTarget = FamilyLabels.In(target);
+        return new BringOverRequest(source, choice, FamilyLineFor(choice), inTarget, execute, Keep: null, Strings.Format("BringOver.Moved", inTarget));
+    }
+
+    /// <summary>"Their family's log has: Maja." or "…has no baby yet."</summary>
+    public static string FamilyLineFor(BringOverChoice choice)
+    {
+        ArgumentNullException.ThrowIfNull(choice);
+        return choice.Family.Count == 0 ? Strings.Get("Join.NoBaby") : Strings.Format("Join.Babies", string.Join(", ", choice.Family.Select(b => b.Name)));
+    }
+}
 
 public enum BringOverStep
 {
@@ -107,20 +129,20 @@ public sealed partial class FamilyBringOverViewModel(LeaveFamily leave) : Observ
             switch (outcome)
             {
                 case { Path: BringPath.Copied, Question: OldFamilyQuestion.DeleteOld }:
-                    Question = Strings.Plural("Join.DeleteOld", request.Choice.Local.EntryCount, request.TargetName,
+                    Question = Strings.Plural("Join.DeleteOld", request.Choice.Local.EntryCount, request.InTarget,
                         string.Join(", ", request.Choice.Local.Babies.Select(b => b.Name)));
                     QuestionNote = outcome.Skipped > 0 ? Strings.Plural("Join.Skipped", outcome.Skipped) : "";
                     AnswerText = Strings.Get("Join.DeleteOldButton");
                     Step = BringOverStep.OldFamily;
                     break;
                 case { Path: BringPath.Copied, Question: OldFamilyQuestion.LeaveOld }:
-                    Question = Strings.Format("Join.LeaveOld", request.TargetName);
+                    Question = Strings.Format("Join.LeaveOld", request.InTarget);
                     QuestionNote = "";
                     AnswerText = Strings.Get("Family.LeaveShort");
                     Step = BringOverStep.OldFamily;
                     break;
                 case { Path: BringPath.Copied }:
-                    Finished?.Invoke(this, Strings.Format("Join.Copied", request.TargetName));
+                    Finished?.Invoke(this, Strings.Format("Join.Copied", request.InTarget));
                     break;
                 default:
                     Finished?.Invoke(this, request.DoneToast);
@@ -190,6 +212,11 @@ public sealed partial class FamilyBringOverViewModel(LeaveFamily leave) : Observ
         }
     }
 
+    /// <summary>"Keep it": the flow ends, but not under a leave that is still running (its outcome ends it).</summary>
     [RelayCommand]
-    private void KeepOld() => Finished?.Invoke(this, "");
+    private void KeepOld()
+    {
+        if (!IsBusy)
+            Finished?.Invoke(this, "");
+    }
 }

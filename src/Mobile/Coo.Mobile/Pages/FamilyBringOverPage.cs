@@ -79,20 +79,14 @@ public sealed class FamilyBringOverPage : ContentPage
 
             (_source, _target) = (source.Id, target.Id);
             var choice = await _bring.PrepareAsync(source.Id, target.Id, CancellationToken.None);
-            var name = target.Membership?.OwnerName ?? "";
-            _model.Start(new BringOverRequest(
-                source.Id, choice,
-                choice.Family.Count == 0 ? Strings.Get("Join.NoBaby") : Strings.Format("Join.Babies", string.Join(", ", choice.Family.Select(b => b.Name))),
-                name,
-                async (mapping, ct) =>
-                {
-                    var outcome = await _bring.ExecuteAsync(source.Id, target.Id, mapping, ct);
-                    _sync.NotifyDataChanged();
-                    _sync.RequestSync();
-                    return outcome;
-                },
-                Keep: null,
-                Strings.Format("Join.Copied", name)));
+            _model.Start(BringOverRequest.ForSettings(source.Id, choice, target, async (mapping, ct) =>
+            {
+                // BringFamilyEntriesOver runs its move or copy in the exclusive section itself (final review C1).
+                var outcome = await _bring.ExecuteAsync(source.Id, target.Id, mapping, ct);
+                _sync.NotifyDataChanged();
+                _sync.RequestSync();
+                return outcome;
+            }));
             SafeRender();
         }
         catch (Exception)

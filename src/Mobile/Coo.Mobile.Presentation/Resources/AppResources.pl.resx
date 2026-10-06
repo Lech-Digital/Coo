@@ -65,7 +65,11 @@
   <data name="BringOver.Failed" xml:space="preserve"><value>Nie udało się. Nic nie zostało zmienione.</value></data>
   <data name="BringOver.Family" xml:space="preserve"><value>W dzienniku rodziny: {0}.</value></data>
   <data name="BringOver.FamilyEmpty" xml:space="preserve"><value>W dzienniku rodziny nie ma jeszcze dziecka.</value></data>
+  <data name="BringOver.InFamilyOf" xml:space="preserve"><value>w rodzinie: {0}</value></data>
+  <data name="BringOver.InOtherFamily" xml:space="preserve"><value>w drugiej rodzinie</value></data>
+  <data name="BringOver.InYourFamily" xml:space="preserve"><value>w Twojej rodzinie</value></data>
   <data name="BringOver.Keep" xml:space="preserve"><value>Zostaw je osobno</value></data>
+  <data name="BringOver.Moved" xml:space="preserve"><value>Twoje wpisy są teraz {0}.</value></data>
   <data name="BringOver.Which" xml:space="preserve"><value>{0} na tym telefonie to</value></data>
   <data name="Chart.Awake" xml:space="preserve"><value>czuwanie {0}</value></data>
   <data name="Chart.Hint" xml:space="preserve"><value>Stuknij dwukrotnie, aby zobaczyć szczegóły dnia</value></data>
@@ -229,17 +233,17 @@ Jeśli link nie otworzy Coo, przejdź w Coo do Ustawienia → Rodzina → Dołą
   <data name="Join.Babies" xml:space="preserve"><value>W dzienniku tej rodziny: {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} zaprasza Cię do rodziny jako rodzica. Będziecie razem widzieć dziennik rodziny i dodawać do niego wpisy.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Obie rodziny są na tym telefonie. Przełączaj się między nimi w Ustawienia → Rodzina.</value></data>
-  <data name="Join.Copied" xml:space="preserve"><value>Twoje wpisy są teraz także w rodzinie: {0}.</value></data>
-  <data name="Join.DeleteOld.few" xml:space="preserve"><value>Twoje wpisy są teraz także w rodzinie: {1}. Usunąć starą rodzinę? Jej {0} wpisy dla: {2} zostaną usunięte z serwera Coo i z tego telefonu. Kopie zostaną.</value></data>
-  <data name="Join.DeleteOld.many" xml:space="preserve"><value>Twoje wpisy są teraz także w rodzinie: {1}. Usunąć starą rodzinę? Jej {0} wpisów dla: {2} zostanie usuniętych z serwera Coo i z tego telefonu. Kopie zostaną.</value></data>
-  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Twoje wpisy są teraz także w rodzinie: {1}. Usunąć starą rodzinę? Jej {0} wpis dla: {2} zostanie usunięty z serwera Coo i z tego telefonu. Kopie zostaną.</value></data>
+  <data name="Join.Copied" xml:space="preserve"><value>Twoje wpisy są teraz także {0}.</value></data>
+  <data name="Join.DeleteOld.few" xml:space="preserve"><value>Twoje wpisy są teraz także {1}. Usunąć starą rodzinę? Jej {0} wpisy dla: {2} zostaną usunięte z serwera Coo i z tego telefonu. Kopie zostaną.</value></data>
+  <data name="Join.DeleteOld.many" xml:space="preserve"><value>Twoje wpisy są teraz także {1}. Usunąć starą rodzinę? Jej {0} wpisów dla: {2} zostanie usuniętych z serwera Coo i z tego telefonu. Kopie zostaną.</value></data>
+  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Twoje wpisy są teraz także {1}. Usunąć starą rodzinę? Jej {0} wpis dla: {2} zostanie usunięty z serwera Coo i z tego telefonu. Kopie zostaną.</value></data>
   <data name="Join.DeleteOldButton" xml:space="preserve"><value>Usuń starą rodzinę</value></data>
   <data name="Join.EnterHint" xml:space="preserve"><value>Wpisz kod z zaproszenia.</value></data>
   <data name="Join.Join" xml:space="preserve"><value>Dołącz</value></data>
   <data name="Join.Joined" xml:space="preserve"><value>Należysz teraz do rodziny: {0}.</value></data>
   <data name="Join.KeepIt" xml:space="preserve"><value>Zachowaj</value></data>
   <data name="Join.Later" xml:space="preserve"><value>Możesz dołączyć później tym samym linkiem, do {0}.</value></data>
-  <data name="Join.LeaveOld" xml:space="preserve"><value>Twoje wpisy są teraz także w rodzinie: {0}. Opuścić starą rodzinę? Jej dziennik zostanie usunięty z tego telefonu. Dodane przez Ciebie wpisy zostaną w tamtej rodzinie.</value></data>
+  <data name="Join.LeaveOld" xml:space="preserve"><value>Twoje wpisy są teraz także {0}. Opuścić starą rodzinę? Jej dziennik zostanie usunięty z tego telefonu. Dodane przez Ciebie wpisy zostaną w tamtej rodzinie.</value></data>
   <data name="Join.Malformed" xml:space="preserve"><value>Sprawdź kod: ma 8 liter i cyfr, np. ABCD-EFGH.</value></data>
   <data name="Join.NoBaby" xml:space="preserve"><value>W dzienniku tej rodziny nie ma jeszcze dziecka.</value></data>
   <data name="Join.OK" xml:space="preserve"><value>OK</value></data>

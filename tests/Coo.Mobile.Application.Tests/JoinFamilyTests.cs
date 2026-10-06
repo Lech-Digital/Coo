@@ -821,6 +821,40 @@ public sealed class JoinFamilyTests : IDisposable
     }
 
     [Fact]
+    public async Task DecideAsync_NotPulledYetAndTheShownFamilyHasABaby_SaysTheShownFamilyHasABaby()
+    {
+        // Arrange: Keep separate is safe; Today shows the baby that is already there.
+        await SignInAsync();
+        Joining(Home);
+        _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(false);
+        _households.ListBabiesAsync(Home, Arg.Any<CancellationToken>()).Returns([Baby(Home, "Maja")]);
+
+        // Act
+        var choice = await Join().DecideAsync(CancellationToken.None);
+
+        // Assert
+        choice.Status.Should().Be(ChoiceStatus.NotReady);
+        choice.ShownHasBaby.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task DecideAsync_NotPulledYetAndTheShownFamilyHasNoBaby_SaysSoSoKeepSeparateIsNotOffered()
+    {
+        // Arrange: final review minor, a phone with no baby yet shows setup; keeping them separate there would add a second baby.
+        await SignInAsync();
+        Joining(Home);
+        _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(false);
+        _households.ListBabiesAsync(Home, Arg.Any<CancellationToken>()).Returns([]);
+
+        // Act
+        var choice = await Join().DecideAsync(CancellationToken.None);
+
+        // Assert
+        choice.Status.Should().Be(ChoiceStatus.NotReady);
+        choice.ShownHasBaby.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task DecideAsync_PulledByTheCycleItRuns_Decides()
     {
         // Arrange

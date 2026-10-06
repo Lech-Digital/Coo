@@ -60,6 +60,7 @@ public sealed class JoinViewModelTests : IDisposable
         _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
         _device.GetAsync(Arg.Any<CancellationToken>()).Returns(Phone);
         _versions.NextAsync(Arg.Any<CancellationToken>()).Returns(new HlcStamp(1_790_000_000_000, 0, Phone));
+        _households.ListBabiesAsync(Home, Arg.Any<CancellationToken>()).Returns([Baby(Home, "Maja")]);
     }
 
     public void Dispose()
@@ -72,6 +73,9 @@ public sealed class JoinViewModelTests : IDisposable
 
     private static HouseholdSettings Settings(HouseholdId id) =>
         HouseholdSettings.Create(id, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1_790_000_000_000, 0, Phone)).Value;
+
+    private static BabyProfile Baby(HouseholdId household, string name) =>
+        BabyProfile.Create(MyMaja, household, name, [], new DateOnly(2026, 8, 20), null, new HlcStamp(1_790_000_000_000, 0, Phone), new DateOnly(2026, 10, 6)).Value;
 
     private Task SignInAsync() => _account.SignedInAsync(
         new StoredSession("a", Now, "r", new AccountProfile(Me, "Kasia", "k@example.com"), Home, JoinPending: false), CancellationToken.None);
@@ -1038,6 +1042,116 @@ public sealed class JoinViewModelTests : IDisposable
         canRetry.Should().BeTrue();
         canKeep.Should().BeTrue();
         model.Step.Should().Be(JoinStep.Choice);
+    }
+
+    [Fact]
+    public async Task StartAsync_PreviewSaysJoinedAfterALostAcceptAnswer_OpensTheChoice()
+    {
+        // Arrange: final review C2, the accept's answer was lost; the preview says already a member and the retried accept joined.
+        await SignInAsync();
+        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Maja"], Role.Parent, Now.AddHours(72), true));
+        _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
+        _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        var finished = 0;
+
+        // Act
+        var model = Join();
+        model.Finished += (_, _) => finished++;
+        await model.StartAsync();
+
+        // Assert
+        model.Step.Should().Be(JoinStep.Choice);
+        model.BringOver.Summary.Should().Be("This phone has 42 entries for Maja.");
+        finished.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task StartAsync_PreviewSaysJoinedAndTheChoiceFails_OffersTryAgainAndKeepSeparate()
+    {
+        // Arrange: the join is stored, so a failed choice is not a failed join.
+        await SignInAsync();
+        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Maja"], Role.Parent, Now.AddHours(72), true));
+        _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
+        _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).ThrowsAsync(new IOException("disk"));
+
+        // Act
+        var model = Join();
+        await model.StartAsync();
+
+        // Assert
+        model.Step.Should().Be(JoinStep.Message);
+        model.Message.Should().Be("That didn't work. Check your connection and try again.");
+        model.CanRetry.Should().BeTrue();
+        model.CanKeepSeparate.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task JoinCommand_ALinkReplacedTheCodeAndItsPreviewThrows_OffersTryAgainThatStartsOver()
+    {
+        // Arrange: final review minor, the new invitation could not be shown; the sheet must not stay on the old one.
+        await SignInAsync();
+        var other = InvitationCode.Parse("ZZZZZZZZ").Value;
+        _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
+        _store.GetPendingInvitationAsync(Arg.Any<CancellationToken>()).Returns(
+            new PendingInvitation(Code, Now), new PendingInvitation(Code, Now), new PendingInvitation(other, Now));
+        _api.PreviewAsync(other, Arg.Any<CancellationToken>()).Returns(
+            _ => throw new InvalidOperationException("disk"),
+            _ => new InvitationPreview(Home, "Ola", [], Role.Parent, Now.AddHours(72), false));
+        var model = Join();
+        await model.StartAsync();
+
+        // Act
+        await model.JoinCommand.ExecuteAsync(null);
+        var step = model.Step;
+        var message = model.Message;
+        var canRetry = model.CanRetry;
+        await model.RetryCommand.ExecuteAsync(null);
+
+        // Assert
+        step.Should().Be(JoinStep.Message);
+        message.Should().Be("That didn't work. Check your connection and try again.");
+        canRetry.Should().BeTrue();
+        model.Step.Should().Be(JoinStep.Invitation);
+        model.Title.Should().Be("Join Ola's family?");
+    }
+
+    [Fact]
+    public async Task NotNowCommand_AfterALinkWithoutACode_KeepsTheInvitationThatWasPending()
+    {
+        // Arrange: final review minor, Back on the malformed-link message is about that link only.
+        await SignInAsync();
+        var model = Join();
+        var finished = 0;
+        model.Finished += (_, _) => finished++;
+        model.ShowMalformed();
+
+        // Act
+        await model.NotNowCommand.ExecuteAsync(null);
+
+        // Assert
+        await _store.DidNotReceive().SetPendingInvitationAsync(null, Arg.Any<CancellationToken>());
+        finished.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task StartAsync_JoinedFamilyNotOnThePhoneYetAndNoBabyYet_OffersTryAgainButNotKeepSeparate()
+    {
+        // Arrange: final review minor, setup shows; keeping them separate would have the person add a second baby.
+        await SignInAsync();
+        _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(Marker);
+        _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(false);
+        _households.ListBabiesAsync(Home, Arg.Any<CancellationToken>()).Returns([]);
+
+        // Act
+        var model = Join();
+        await model.StartAsync();
+
+        // Assert
+        model.Step.Should().Be(JoinStep.Message);
+        model.CanRetry.Should().BeTrue();
+        model.CanKeepSeparate.Should().BeFalse();
     }
 
     private EnterCodeViewModel EnterCode() => new(new JoinFamily(_store, _api, _sessions, _account,

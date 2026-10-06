@@ -60,7 +60,11 @@
   <data name="BringOver.Failed" xml:space="preserve"><value>That didn't work. Nothing was changed.</value></data>
   <data name="BringOver.Family" xml:space="preserve"><value>Your family's log has: {0}.</value></data>
   <data name="BringOver.FamilyEmpty" xml:space="preserve"><value>Your family's log has no baby yet.</value></data>
+  <data name="BringOver.InFamilyOf" xml:space="preserve"><value>in {0}'s family</value></data>
+  <data name="BringOver.InOtherFamily" xml:space="preserve"><value>in the other family</value></data>
+  <data name="BringOver.InYourFamily" xml:space="preserve"><value>in your family</value></data>
   <data name="BringOver.Keep" xml:space="preserve"><value>Keep them separate</value></data>
+  <data name="BringOver.Moved" xml:space="preserve"><value>Your entries are now {0}.</value></data>
   <data name="BringOver.Which" xml:space="preserve"><value>{0} on this phone is</value></data>
   <data name="Chart.Awake" xml:space="preserve"><value>awake {0}</value></data>
   <data name="Chart.Hint" xml:space="preserve"><value>Double-tap for the day in detail</value></data>
@@ -217,16 +221,16 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Join.Babies" xml:space="preserve"><value>Their family's log has: {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} invited you to join as a parent. You'll both see the family's log and add to it.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Both families are on this phone. Switch between them in Settings → Family.</value></data>
-  <data name="Join.Copied" xml:space="preserve"><value>Your entries are now in {0}'s family too.</value></data>
-  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Your entries are now in {1}'s family too. Delete your old family? Its {0} entry for {2} is deleted from Coo's server and this phone. The copies stay.</value></data>
-  <data name="Join.DeleteOld.other" xml:space="preserve"><value>Your entries are now in {1}'s family too. Delete your old family? Its {0} entries for {2} are deleted from Coo's server and this phone. The copies stay.</value></data>
+  <data name="Join.Copied" xml:space="preserve"><value>Your entries are now {0} too.</value></data>
+  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Your entries are now {1} too. Delete your old family? Its {0} entry for {2} is deleted from Coo's server and this phone. The copies stay.</value></data>
+  <data name="Join.DeleteOld.other" xml:space="preserve"><value>Your entries are now {1} too. Delete your old family? Its {0} entries for {2} are deleted from Coo's server and this phone. The copies stay.</value></data>
   <data name="Join.DeleteOldButton" xml:space="preserve"><value>Delete old family</value></data>
   <data name="Join.EnterHint" xml:space="preserve"><value>Enter the code from your invitation.</value></data>
   <data name="Join.Join" xml:space="preserve"><value>Join</value></data>
   <data name="Join.Joined" xml:space="preserve"><value>You've joined {0}'s family.</value></data>
   <data name="Join.KeepIt" xml:space="preserve"><value>Keep it</value></data>
   <data name="Join.Later" xml:space="preserve"><value>You can join later with the same link, until {0}.</value></data>
-  <data name="Join.LeaveOld" xml:space="preserve"><value>Your entries are now in {0}'s family too. Leave your old family? Its log is removed from this phone. Entries you added stay with that family.</value></data>
+  <data name="Join.LeaveOld" xml:space="preserve"><value>Your entries are now {0} too. Leave your old family? Its log is removed from this phone. Entries you added stay with that family.</value></data>
   <data name="Join.Malformed" xml:space="preserve"><value>Check the code: it's 8 letters and numbers, like ABCD-EFGH.</value></data>
   <data name="Join.NoBaby" xml:space="preserve"><value>Their family's log has no baby yet.</value></data>
   <data name="Join.OK" xml:space="preserve"><value>OK</value></data>

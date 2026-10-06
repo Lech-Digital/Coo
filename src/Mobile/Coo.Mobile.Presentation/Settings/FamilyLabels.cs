@@ -29,6 +29,28 @@ public static class FamilyLabels
         };
     }
 
+    /// <summary>
+    /// Where entries brought over now are (Spec 011b §6), preposition included: "in Andrzej's family", or "in the other family"
+    /// when the name is not known.
+    /// </summary>
+    public static string In(string ownerName)
+    {
+        ArgumentNullException.ThrowIfNull(ownerName);
+        return ownerName.Length == 0 ? Strings.Get("BringOver.InOtherFamily") : Strings.Format("BringOver.InFamilyOf", ownerName);
+    }
+
+    /// <summary>As <see cref="Second"/> names a family: "in your family" for the person's own, else by its owner's name.</summary>
+    public static string In(FamilyOnPhone family)
+    {
+        ArgumentNullException.ThrowIfNull(family);
+        return family.Membership switch
+        {
+            { Role: Role.Owner } => Strings.Get("BringOver.InYourFamily"),
+            { } m => In(m.OwnerName),
+            null => In(""),
+        };
+    }
+
     /// <summary>"Maja · Family of Andrzej": one line for the switcher's action sheet.</summary>
     public static string Choice(FamilyOnPhone family) => $"{Title(family)} · {Second(family)}";
 

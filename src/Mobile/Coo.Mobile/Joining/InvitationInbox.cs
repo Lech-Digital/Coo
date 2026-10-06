@@ -44,14 +44,25 @@ internal sealed class InvitationInbox(IServiceProvider services)
     /// </summary>
     public void Unready() => _ready = false;
 
-    /// <summary>The held link becomes the pending invitation; malformed links are reported, never stored.</summary>
+    /// <summary>
+    /// The held link becomes the pending invitation; malformed links are reported, never stored. A store that fails puts the
+    /// link back (unless a newer one arrived meanwhile), so the next start or resume stores it.
+    /// </summary>
     public async Task<HeldLink> StoreHeldAsync()
     {
         if (Interlocked.Exchange(ref _held, null) is not { } link)
             return HeldLink.None;
-        return await services.GetRequiredService<JoinFamily>().ReceiveAsync(link.ToString(), CancellationToken.None)
-            ? HeldLink.Stored
-            : HeldLink.Malformed;
+        try
+        {
+            return await services.GetRequiredService<JoinFamily>().ReceiveAsync(link.ToString(), CancellationToken.None)
+                ? HeldLink.Stored
+                : HeldLink.Malformed;
+        }
+        catch
+        {
+            Interlocked.CompareExchange(ref _held, link, null);
+            throw;
+        }
     }
 
     private void Drain() => MainThread.BeginInvokeOnMainThread(async () =>

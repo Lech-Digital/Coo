@@ -22,7 +22,7 @@ public sealed class ConsentAndBringOverTests : IDisposable
     private readonly ISessionStore _sessions = Substitute.For<ISessionStore>();
     private readonly ISyncState _state = Substitute.For<ISyncState>();
     private readonly IConsentApi _consentApi = Substitute.For<IConsentApi>();
-    private readonly ISyncControl _sync = Substitute.For<ISyncControl>();
+    private readonly ISyncControl _sync = SyncControls.PassThrough();
     private readonly IExternalLauncher _launcher = Substitute.For<IExternalLauncher>();
     private readonly IAboutInfo _about = Substitute.For<IAboutInfo>();
     private readonly IHouseholdMoves _moves = Substitute.For<IHouseholdMoves>();

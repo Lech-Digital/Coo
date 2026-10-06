@@ -60,7 +60,11 @@
   <data name="BringOver.Failed" xml:space="preserve"><value>No ha funcionado. No se ha cambiado nada.</value></data>
   <data name="BringOver.Family" xml:space="preserve"><value>El registro de tu familia tiene: {0}.</value></data>
   <data name="BringOver.FamilyEmpty" xml:space="preserve"><value>El registro de tu familia aún no tiene ningún bebé.</value></data>
+  <data name="BringOver.InFamilyOf" xml:space="preserve"><value>en la familia de {0}</value></data>
+  <data name="BringOver.InOtherFamily" xml:space="preserve"><value>en la otra familia</value></data>
+  <data name="BringOver.InYourFamily" xml:space="preserve"><value>en tu familia</value></data>
   <data name="BringOver.Keep" xml:space="preserve"><value>Mantenerlos separados</value></data>
+  <data name="BringOver.Moved" xml:space="preserve"><value>Tus registros ahora están {0}.</value></data>
   <data name="BringOver.Which" xml:space="preserve"><value>{0} en este teléfono es</value></data>
   <data name="Chart.Awake" xml:space="preserve"><value>vigilia {0}</value></data>
   <data name="Chart.Hint" xml:space="preserve"><value>Toca dos veces para ver el día en detalle</value></data>
@@ -217,16 +221,16 @@ Si el enlace no abre Coo, ve a Ajustes → Familia → Unirse a una familia en C
   <data name="Join.Babies" xml:space="preserve"><value>El registro de esa familia tiene: {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} te ha invitado a unirte a la familia como madre o padre. Compartiréis el registro de la familia y podréis añadir registros.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Las dos familias están en este teléfono. Cambia entre ellas en Ajustes → Familia.</value></data>
-  <data name="Join.Copied" xml:space="preserve"><value>Tus registros ahora también están en la familia de {0}.</value></data>
-  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Tus registros ahora también están en la familia de {1}. ¿Eliminar tu familia anterior? Se eliminará {0} registro de {2} del servidor de Coo y de este teléfono. Las copias se quedan.</value></data>
-  <data name="Join.DeleteOld.other" xml:space="preserve"><value>Tus registros ahora también están en la familia de {1}. ¿Eliminar tu familia anterior? Se eliminarán {0} registros de {2} del servidor de Coo y de este teléfono. Las copias se quedan.</value></data>
+  <data name="Join.Copied" xml:space="preserve"><value>Tus registros ahora también están {0}.</value></data>
+  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Tus registros ahora también están {1}. ¿Eliminar tu familia anterior? Se eliminará {0} registro de {2} del servidor de Coo y de este teléfono. Las copias se quedan.</value></data>
+  <data name="Join.DeleteOld.other" xml:space="preserve"><value>Tus registros ahora también están {1}. ¿Eliminar tu familia anterior? Se eliminarán {0} registros de {2} del servidor de Coo y de este teléfono. Las copias se quedan.</value></data>
   <data name="Join.DeleteOldButton" xml:space="preserve"><value>Eliminar la familia anterior</value></data>
   <data name="Join.EnterHint" xml:space="preserve"><value>Introduce el código de tu invitación.</value></data>
   <data name="Join.Join" xml:space="preserve"><value>Unirse</value></data>
   <data name="Join.Joined" xml:space="preserve"><value>Ya formas parte de la familia de {0}.</value></data>
   <data name="Join.KeepIt" xml:space="preserve"><value>Conservarla</value></data>
   <data name="Join.Later" xml:space="preserve"><value>Puedes unirte más tarde con el mismo enlace, hasta el {0}.</value></data>
-  <data name="Join.LeaveOld" xml:space="preserve"><value>Tus registros ahora también están en la familia de {0}. ¿Salir de tu familia anterior? Su registro se eliminará de este teléfono. Los registros que añadiste se quedan en esa familia.</value></data>
+  <data name="Join.LeaveOld" xml:space="preserve"><value>Tus registros ahora también están {0}. ¿Salir de tu familia anterior? Su registro se eliminará de este teléfono. Los registros que añadiste se quedan en esa familia.</value></data>
   <data name="Join.Malformed" xml:space="preserve"><value>Revisa el código: tiene 8 letras y números, como ABCD-EFGH.</value></data>
   <data name="Join.NoBaby" xml:space="preserve"><value>El registro de esa familia aún no tiene ningún bebé.</value></data>
   <data name="Join.OK" xml:space="preserve"><value>Aceptar</value></data>

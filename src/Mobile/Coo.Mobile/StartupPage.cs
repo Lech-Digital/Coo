@@ -125,10 +125,8 @@ public sealed class StartupPage : ContentPage
     {
         try
         {
-            var prompter = _services.GetRequiredService<Sync.SyncPrompter>();
-            prompter.JoinEnded -= OnJoinEnded;
-            prompter.JoinEnded += OnJoinEnded;
-            await prompter.ShowJoinAsync(malformed);
+            // Over setup, ShowSetup has subscribed to its end already; over Today nothing follows it.
+            await _services.GetRequiredService<Sync.SyncPrompter>().ShowJoinAsync(malformed);
         }
 #pragma warning disable CA1031 // The invitation stays pending; the flow opens again at the next start.
         catch (Exception e)
@@ -152,6 +150,9 @@ public sealed class StartupPage : ContentPage
     {
         try
         {
+            // Whatever follows, this check answers the popped sheet; a sheet still open subscribes again below.
+            if (_setupWindow is { } popped)
+                popped.ModalPopped -= OnSetupModalPopped;
             if (_setupWindow is not { Page: Pages.SetupPage } window)
                 return;
             var households = _services.GetRequiredService<IHouseholdStore>();
@@ -159,7 +160,6 @@ public sealed class StartupPage : ContentPage
                 || (await households.ListBabiesAsync(household.Id, CancellationToken.None)).Count == 0
                 || window.Page is not Pages.SetupPage setup)
                 return;
-            window.ModalPopped -= OnSetupModalPopped;
             if (setup.Navigation.ModalStack.Count > 0)
             {
                 window.ModalPopped += OnSetupModalPopped;
@@ -167,6 +167,7 @@ public sealed class StartupPage : ContentPage
             }
 
             window.Page = _services.GetRequiredService<AppShell>();
+            DetachSetup(window);
             StartSync();
         }
 #pragma warning disable CA1031 // A main-thread callback must not end the app; setup stays.
@@ -189,6 +190,10 @@ public sealed class StartupPage : ContentPage
         var prompter = _services.GetRequiredService<Sync.SyncPrompter>();
         prompter.JoinEnded -= OnJoinEnded;
         prompter.JoinEnded += OnJoinEnded;
+
+        // The prompter outlives the window: its handlers go with the window, so none runs for a dead one.
+        window.Destroying -= OnWindowDestroying;
+        window.Destroying += OnWindowDestroying;
         model.EnterCodeRequested += (_, _) => MainThread.BeginInvokeOnMainThread(async () =>
         {
             try
@@ -208,6 +213,7 @@ public sealed class StartupPage : ContentPage
                 try
                 {
                     window.Page = _services.GetRequiredService<AppShell>();
+                    DetachSetup(window);
                 }
 #pragma warning disable CA1031 // A main-thread callback must not end the app; the next launch shows Today.
                 catch (Exception e)
@@ -222,6 +228,30 @@ public sealed class StartupPage : ContentPage
                     StartSync();
             });
         window.Page = setup;
+    }
+
+    private void OnWindowDestroying(object? sender, EventArgs e)
+    {
+#pragma warning disable CA1031 // A window callback: nothing may escape.
+        try
+        {
+            if (sender is Window window)
+                DetachSetup(window);
+        }
+        catch (Exception)
+        {
+        }
+#pragma warning restore CA1031
+    }
+
+    /// <summary>Setup is gone (Today replaced it, or the window is going): the join's end and the window's events no longer reach this page.</summary>
+    private void DetachSetup(Window window)
+    {
+        _services.GetRequiredService<Sync.SyncPrompter>().JoinEnded -= OnJoinEnded;
+        window.ModalPopped -= OnSetupModalPopped;
+        window.Destroying -= OnWindowDestroying;
+        if (ReferenceEquals(_setupWindow, window))
+            _setupWindow = null;
     }
 
     /// <summary>

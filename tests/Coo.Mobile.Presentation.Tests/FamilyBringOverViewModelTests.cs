@@ -61,13 +61,126 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
     private static BringOverRequest Request(
         BringOverChoice choice, Func<IReadOnlyDictionary<BabyId, BabyId?>, CancellationToken, Task<BringOutcome>> execute,
         Func<CancellationToken, Task>? keep = null) =>
-        new(Old, choice, "Their family's log has: Maja.", "Andrzej", execute, keep, "You've joined Andrzej's family.");
+        new(Old, choice, "Their family's log has: Maja.", "in Andrzej's family", execute, keep, "You've joined Andrzej's family.");
 
     private static Task<BringOutcome> Outcome(BringPath path, OldFamilyQuestion question, int skipped = 0) =>
         Task.FromResult(new BringOutcome(path, 40, skipped, question));
 
     private static BringOverRequest Copying(OldFamilyQuestion question, int skipped = 0) =>
         Request(Offer([new LocalBaby(MyMaja, "Maja")], [new LocalBaby(TheirMaja, "Maja")]), (_, _) => Outcome(BringPath.Copied, question, skipped));
+
+    private static FamilyOnPhone Target(Role role, string ownerName) =>
+        new(Other, ["Maja"], new FamilyMembership(Other, role, Now, ownerName, 2), false, false, false, true);
+
+    private static BringOverRequest FromSettings(FamilyOnPhone target, BringPath path, OldFamilyQuestion question) =>
+        BringOverRequest.ForSettings(Old, Offer([new LocalBaby(MyMaja, "Maja")], []), target, (_, _) => Outcome(path, question));
+
+    [Theory]
+    [InlineData(Role.Parent, "Andrzej", "Your entries are now in Andrzej's family.")]
+    [InlineData(Role.Owner, "Kasia", "Your entries are now in your family.")]
+    [InlineData(Role.Parent, "", "Your entries are now in the other family.")]
+    public async Task ConfirmCommand_MovedFromSettings_SaysWhereTheEntriesAreWithoutToo(Role role, string ownerName, string expected)
+    {
+        // Arrange: final review U3, a move leaves nothing behind, so it is not "too"; the target is named as Settings names it.
+        var model = Model();
+        string? toast = null;
+        model.Finished += (_, t) => toast = t;
+        model.Start(FromSettings(Target(role, ownerName), BringPath.Moved, OldFamilyQuestion.None));
+
+        // Act
+        await model.ConfirmCommand.ExecuteAsync(null);
+
+        // Assert
+        toast.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(Role.Parent, "Andrzej", "Your entries are now in Andrzej's family too.")]
+    [InlineData(Role.Owner, "Kasia", "Your entries are now in your family too.")]
+    [InlineData(Role.Parent, "", "Your entries are now in the other family too.")]
+    public async Task ConfirmCommand_CopiedFromSettings_SaysTheEntriesAreInTheTargetToo(Role role, string ownerName, string expected)
+    {
+        // Arrange
+        var model = Model();
+        string? toast = null;
+        model.Finished += (_, t) => toast = t;
+        model.Start(FromSettings(Target(role, ownerName), BringPath.Copied, OldFamilyQuestion.None));
+
+        // Act
+        await model.ConfirmCommand.ExecuteAsync(null);
+
+        // Assert
+        toast.Should().Be(expected);
+    }
+
+    [Fact]
+    public async Task ConfirmCommand_CopiedFromSettingsIntoTheirOwnFamily_AsksAboutTheOldFamilyNamingItYours()
+    {
+        // Arrange
+        var model = Model();
+        model.Start(FromSettings(Target(Role.Owner, "Kasia"), BringPath.Copied, OldFamilyQuestion.LeaveOld));
+
+        // Act
+        await model.ConfirmCommand.ExecuteAsync(null);
+
+        // Assert
+        model.Question.Should().StartWith("Your entries are now in your family too. Leave your old family?");
+    }
+
+    [Fact]
+    public async Task ConfirmCommand_CopiedFromSettingsIntoANamelessFamily_AsksToDeleteTheOldFamilyWithoutAName()
+    {
+        // Arrange
+        var model = Model();
+        model.Start(FromSettings(Target(Role.Parent, ""), BringPath.Copied, OldFamilyQuestion.DeleteOld));
+
+        // Act
+        await model.ConfirmCommand.ExecuteAsync(null);
+
+        // Assert
+        model.Question.Should().Be(
+            "Your entries are now in the other family too. Delete your old family? Its 42 entries for Maja are deleted from Coo's server and this phone. The copies stay.");
+    }
+
+    [Fact]
+    public async Task ConfirmCommand_MovedFromSettingsInPolish_UsesTheLocativeForYourFamily()
+    {
+        // Arrange
+        Strings.Use(new LanguagePreference("pl"), null);
+        var model = Model();
+        string? toast = null;
+        model.Finished += (_, t) => toast = t;
+        model.Start(FromSettings(Target(Role.Owner, "Kasia"), BringPath.Moved, OldFamilyQuestion.None));
+
+        // Act
+        await model.ConfirmCommand.ExecuteAsync(null);
+
+        // Assert
+        toast.Should().Be("Twoje wpisy są teraz w Twojej rodzinie.");
+    }
+
+    [Fact]
+    public async Task KeepOldCommand_WhileTheOldFamilyIsBeingLeft_IsIgnored()
+    {
+        // Arrange: final review minor, "Keep it" must not close the sheet under a leave that is still running.
+        var model = Model();
+        var finished = new List<string>();
+        model.Finished += (_, t) => finished.Add(t);
+        var leaving = new TaskCompletionSource<LeaveOutcome>();
+        _api.LeaveAsync(Old, true, Arg.Any<CancellationToken>()).Returns(leaving.Task);
+        model.Start(Copying(OldFamilyQuestion.DeleteOld));
+        await model.ConfirmCommand.ExecuteAsync(null);
+        var answer = model.AnswerCommand.ExecuteAsync(null);
+
+        // Act
+        model.KeepOldCommand.Execute(null);
+
+        // Assert
+        finished.Should().BeEmpty();
+        leaving.SetResult(LeaveOutcome.Deleted);
+        await answer;
+        finished.Should().Equal("");
+    }
 
     [Fact]
     public void Start_BabiesWithMatchingAndNewNames_DefaultsByNameThenToANewBaby()

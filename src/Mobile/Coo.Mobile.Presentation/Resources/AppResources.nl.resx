@@ -60,7 +60,11 @@
   <data name="BringOver.Failed" xml:space="preserve"><value>Dat is niet gelukt. Er is niets veranderd.</value></data>
   <data name="BringOver.Family" xml:space="preserve"><value>Het logboek van je gezin heeft: {0}.</value></data>
   <data name="BringOver.FamilyEmpty" xml:space="preserve"><value>Het logboek van je gezin heeft nog geen baby.</value></data>
+  <data name="BringOver.InFamilyOf" xml:space="preserve"><value>in het gezin van {0}</value></data>
+  <data name="BringOver.InOtherFamily" xml:space="preserve"><value>in het andere gezin</value></data>
+  <data name="BringOver.InYourFamily" xml:space="preserve"><value>in je gezin</value></data>
   <data name="BringOver.Keep" xml:space="preserve"><value>Apart houden</value></data>
+  <data name="BringOver.Moved" xml:space="preserve"><value>Je items staan nu {0}.</value></data>
   <data name="BringOver.Which" xml:space="preserve"><value>{0} op deze telefoon is</value></data>
   <data name="Chart.Awake" xml:space="preserve"><value>wakker {0}</value></data>
   <data name="Chart.Hint" xml:space="preserve"><value>Dubbeltik voor de dag in detail</value></data>
@@ -217,16 +221,16 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Join.Babies" xml:space="preserve"><value>Het logboek van dat gezin heeft: {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} heeft je uitgenodigd als ouder. Jullie zien allebei het logboek van het gezin en kunnen het aanvullen.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Beide gezinnen staan op deze telefoon. Wissel tussen ze in Instellingen → Gezin.</value></data>
-  <data name="Join.Copied" xml:space="preserve"><value>Je items staan nu ook in het gezin van {0}.</value></data>
-  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Je items staan nu ook in het gezin van {1}. Je oude gezin verwijderen? {0} item voor {2} wordt van de server van Coo en van deze telefoon verwijderd. De kopieën blijven.</value></data>
-  <data name="Join.DeleteOld.other" xml:space="preserve"><value>Je items staan nu ook in het gezin van {1}. Je oude gezin verwijderen? De {0} items voor {2} worden van de server van Coo en van deze telefoon verwijderd. De kopieën blijven.</value></data>
+  <data name="Join.Copied" xml:space="preserve"><value>Je items staan nu ook {0}.</value></data>
+  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Je items staan nu ook {1}. Je oude gezin verwijderen? {0} item voor {2} wordt van de server van Coo en van deze telefoon verwijderd. De kopieën blijven.</value></data>
+  <data name="Join.DeleteOld.other" xml:space="preserve"><value>Je items staan nu ook {1}. Je oude gezin verwijderen? De {0} items voor {2} worden van de server van Coo en van deze telefoon verwijderd. De kopieën blijven.</value></data>
   <data name="Join.DeleteOldButton" xml:space="preserve"><value>Oude gezin verwijderen</value></data>
   <data name="Join.EnterHint" xml:space="preserve"><value>Voer de code uit je uitnodiging in.</value></data>
   <data name="Join.Join" xml:space="preserve"><value>Aansluiten</value></data>
   <data name="Join.Joined" xml:space="preserve"><value>Je hoort nu bij het gezin van {0}.</value></data>
   <data name="Join.KeepIt" xml:space="preserve"><value>Behouden</value></data>
   <data name="Join.Later" xml:space="preserve"><value>Je kunt je later aansluiten met dezelfde link, tot {0}.</value></data>
-  <data name="Join.LeaveOld" xml:space="preserve"><value>Je items staan nu ook in het gezin van {0}. Je oude gezin verlaten? Het logboek wordt van deze telefoon verwijderd. Items die jij hebt toegevoegd blijven bij dat gezin.</value></data>
+  <data name="Join.LeaveOld" xml:space="preserve"><value>Je items staan nu ook {0}. Je oude gezin verlaten? Het logboek wordt van deze telefoon verwijderd. Items die jij hebt toegevoegd blijven bij dat gezin.</value></data>
   <data name="Join.Malformed" xml:space="preserve"><value>Controleer de code: die heeft 8 letters en cijfers, zoals ABCD-EFGH.</value></data>
   <data name="Join.NoBaby" xml:space="preserve"><value>Het logboek van dat gezin heeft nog geen baby.</value></data>
   <data name="Join.OK" xml:space="preserve"><value>OK</value></data>

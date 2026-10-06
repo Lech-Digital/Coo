@@ -43,6 +43,9 @@ public sealed partial class JoinViewModel : ObservableObject
     private Retry _retry;
     private string _inviterName = "";
 
+    // The message is about a link that held no code: Not now (Back) leaves any pending invitation alone.
+    private bool _malformedShown;
+
     [ObservableProperty]
     private JoinStep _step = JoinStep.Loading;
 
@@ -136,7 +139,11 @@ public sealed partial class JoinViewModel : ObservableObject
     }
 
     /// <summary>A link whose path holds no code (spec §4.1). The page calls it from its link event and dispatches to the main thread.</summary>
-    public void ShowMalformed() => ShowMessage(Strings.Error("invitation.invalid"), Retry.None);
+    public void ShowMalformed()
+    {
+        ShowMessage(Strings.Error("invitation.invalid"), Retry.None);
+        _malformedShown = true;
+    }
 
     [RelayCommand]
     private async Task SignInAsync()
@@ -180,7 +187,9 @@ public sealed partial class JoinViewModel : ObservableObject
             return;
         try
         {
-            await _join.DeclineAsync(CancellationToken.None);
+            // A link without a code is not the invitation that may be pending: that one stays (final review minor).
+            if (!_malformedShown)
+                await _join.DeclineAsync(CancellationToken.None);
         }
 #pragma warning disable CA1031 // Not now only forgets a code; the sheet closes regardless.
         catch (Exception)
@@ -295,6 +304,10 @@ public sealed partial class JoinViewModel : ObservableObject
                 Babies = _preview.BabyNames.Count == 0 ? Strings.Get("Join.NoBaby") : Strings.Format("Join.Babies", string.Join(", ", _preview.BabyNames));
                 Step = JoinStep.Invitation;
                 break;
+            case PreviewStatus.Joined:
+                // An accept whose answer was lost (final review C2): the join is stored; on to the choice.
+                await DecideAfterJoinAsync(result.Invitation?.InviterName ?? "");
+                break;
             case PreviewStatus.AlreadyMember:
                 ShowMessage(Strings.Get("Join.AlreadyMember"), Retry.None);
                 break;
@@ -341,19 +354,7 @@ public sealed partial class JoinViewModel : ObservableObject
         switch (accepted.Status)
         {
             case AcceptStatus.Joined:
-                try
-                {
-                    await DecideAsync();
-                }
-#pragma warning disable CA1031 // The join is stored: a failed choice is not a failed join. Try again reopens the choice; Keep separate never strands the person.
-                catch (Exception)
-#pragma warning restore CA1031
-                {
-                    _inviterName = preview.InviterName;
-                    ShowMessage(Strings.Get("Family.ActionFailed"), Retry.Decide);
-                    CanKeepSeparate = true;
-                }
-
+                await DecideAfterJoinAsync(preview.InviterName);
                 break;
             case AcceptStatus.AlreadyMember:
                 ShowMessage(Strings.Get("Join.AlreadyMember"), Retry.None);
@@ -380,7 +381,17 @@ public sealed partial class JoinViewModel : ObservableObject
             case AcceptStatus.Changed:
                 // A newer link replaced the code: show that invitation instead (review I2).
                 (_preview, _code) = (null, null);
-                await StartCoreAsync();
+                try
+                {
+                    await StartCoreAsync();
+                }
+#pragma warning disable CA1031 // The old invitation is gone from the sheet: a failure is a message with Try again, which starts over.
+                catch (Exception)
+#pragma warning restore CA1031
+                {
+                    ShowMessage(Strings.Get("Family.ActionFailed"), Retry.Start);
+                }
+
                 break;
             case AcceptStatus.Invalid:
                 ShowMessage(Strings.Error("invitation.invalid"), Retry.None);
@@ -397,6 +408,23 @@ public sealed partial class JoinViewModel : ObservableObject
         }
     }
 
+    /// <summary>After a join is stored: the choice. A failed choice is not a failed join: Try again reopens it, Keep separate never strands the person.</summary>
+    private async Task DecideAfterJoinAsync(string inviterName)
+    {
+        try
+        {
+            await DecideAsync();
+        }
+#pragma warning disable CA1031 // The join is stored; the marker reopens the choice.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+            _inviterName = inviterName;
+            ShowMessage(Strings.Get("Family.ActionFailed"), Retry.Decide);
+            CanKeepSeparate = true;
+        }
+    }
+
     private async Task DecideAsync()
     {
         var choice = await _join.DecideAsync(CancellationToken.None);
@@ -408,15 +436,16 @@ public sealed partial class JoinViewModel : ObservableObject
             case ChoiceStatus.NotReady:
                 _inviterName = choice.InviterName;
                 ShowMessage(Strings.Get("Family.RefreshFailed"), Retry.Decide);
-                CanKeepSeparate = true;
+
+                // With no baby yet the baby step shows: keeping them separate there would add a second baby (final review minor).
+                CanKeepSeparate = choice.ShownHasBaby;
                 break;
             default:
-                var family = choice.Offer!.Family;
                 BringOver.Start(new BringOverRequest(
                     choice.Source,
-                    choice.Offer,
-                    family.Count == 0 ? Strings.Get("Join.NoBaby") : Strings.Format("Join.Babies", string.Join(", ", family.Select(b => b.Name))),
-                    choice.InviterName,
+                    choice.Offer!,
+                    BringOverRequest.FamilyLineFor(choice.Offer!),
+                    FamilyLabels.In(choice.InviterName),
                     _join.BringAsync,
                     _join.KeepSeparateAsync,
                     Strings.Format("Join.Joined", choice.InviterName)));
@@ -432,9 +461,15 @@ public sealed partial class JoinViewModel : ObservableObject
         ShowMessage(Strings.Format("Join.Later", FamilyLabels.Until(preview.ExpiresAt, _clock.Is24Hour)), Retry.None);
     }
 
+    partial void OnStepChanged(JoinStep value)
+    {
+        if (value != JoinStep.Message)
+            _malformedShown = false;
+    }
+
     private void ShowMessage(string message, Retry retry)
     {
-        (Message, _retry, CanRetry, CanKeepSeparate) = (message, retry, retry != Retry.None, false);
+        (Message, _retry, CanRetry, CanKeepSeparate, _malformedShown) = (message, retry, retry != Retry.None, false, false);
         Step = JoinStep.Message;
     }
 }

@@ -61,26 +61,42 @@ public sealed class BringEntriesOver(ISessionStore sessions, IHouseholdMoves mov
         return new BringOverChoice(mine, family.Babies);
     }
 
-    /// <summary>A target that is not one of the family's babies counts as "Add as a new baby". A failing move throws (rolled back).</summary>
+    /// <summary>
+    /// A target that is not one of the family's babies counts as "Add as a new baby". A failing move throws (rolled back).
+    /// The move is a whole-family change: it runs with no cycle in flight (final review C1), and the join completes after it.
+    /// </summary>
     public async Task<BringOverResult> ExecuteAsync(IReadOnlyDictionary<BabyId, BabyId?> mapping, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(mapping);
         var generation = account.Generation;
         if (await sessions.GetAsync(cancellationToken) is not { JoinPending: true } session)
             return BringOverResult.NothingChanged;
-        var local = await moves.ActiveHouseholdAsync(cancellationToken);
         var moved = false;
-        if (local != session.AccountHousehold)
-        {
-            var family = (await moves.SummaryAsync(session.AccountHousehold, cancellationToken)).Babies.Select(b => b.Id).ToHashSet();
-            var babies = (await moves.SummaryAsync(local, cancellationToken)).Babies.ToDictionary(
-                b => b.Id,
-                b => mapping.TryGetValue(b.Id, out var target) && target is { } t && family.Contains(t) ? t : (BabyId?)null);
-            if (account.Generation != generation)
-                return BringOverResult.NothingChanged;
-            await moves.BringOverAsync(new BringOverPlan(local, session.AccountHousehold, babies), session.Profile.UserId, cancellationToken);
-            moved = true;
-        }
+        var stale = false;
+
+        // Decided after any cycle in flight: what is shown, and the babies on both sides, are read inside the section.
+        await sync.RunExclusiveAsync(
+            async ct =>
+            {
+                var local = await moves.ActiveHouseholdAsync(ct);
+                if (local == session.AccountHousehold)
+                    return;
+                var family = (await moves.SummaryAsync(session.AccountHousehold, ct)).Babies.Select(b => b.Id).ToHashSet();
+                var babies = (await moves.SummaryAsync(local, ct)).Babies.ToDictionary(
+                    b => b.Id,
+                    b => mapping.TryGetValue(b.Id, out var target) && target is { } t && family.Contains(t) ? t : (BabyId?)null);
+                if (account.Generation != generation)
+                {
+                    stale = true;
+                    return;
+                }
+
+                await moves.BringOverAsync(new BringOverPlan(local, session.AccountHousehold, babies), session.Profile.UserId, ct);
+                moved = true;
+            },
+            cancellationToken);
+        if (stale)
+            return BringOverResult.NothingChanged;
 
         try
         {
