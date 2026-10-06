@@ -209,4 +209,59 @@ public sealed class FamilySectionTests : IDisposable
         await _moves.Received(1).ActivateAsync(Home, Arg.Any<CancellationToken>());
         _sync.Received(1).NotifyDataChanged();
     }
+
+    [Fact]
+    public async Task InviteCommand_FinalRefreshThrows_DoesNotEscape()
+    {
+        // Arrange
+        await SignInAsync();
+        OnPhone(Home);
+        _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1)]);
+        _api.CreateInvitationAsync(Home, Arg.Any<CancellationToken>()).Returns(new CreatedInvitation(Guid.Parse("7a1c0000-0000-7000-8000-0000000000e1"),
+            InvitationCode.Parse("ABCDEFGH").Value, new Uri("https://api.coo.lechdigital.nl/i/ABCDEFGH"), Now.AddHours(72)));
+        var section = Section();
+        await section.RefreshAsync();
+        _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromException<IReadOnlyList<HouseholdSettings>>(new IOException("db")));
+
+        // Act
+        Func<Task> act = async () => await section.InviteCommand.ExecuteAsync(null);
+
+        // Assert
+        await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task SwitchCommand_ActivationThrows_SaysItDidNotWork()
+    {
+        // Arrange
+        await SignInAsync();
+        OnPhone(Joined, Home);
+        _moves.ActivateAsync(Home, Arg.Any<CancellationToken>()).Returns(Task.FromException(new IOException("db")));
+        var section = Section();
+
+        // Act
+        Func<Task> act = async () => await section.SwitchCommand.ExecuteAsync(new FamilyChoice(Home, "Maja · Your family"));
+
+        // Assert
+        await act.Should().NotThrowAsync();
+        section.Toast.Should().Be("That didn't work. Check your connection and try again.");
+    }
+
+    [Fact]
+    public async Task InviteCommand_ShownFamilyAsCaregiver_InvitesNobody()
+    {
+        // Arrange
+        await SignInAsync();
+        OnPhone(Joined, Home);
+        _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([
+            new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1), new FamilyMembership(Joined, Role.Caregiver, Now.AddDays(1), "Andrzej", 2)]);
+        var section = Section();
+
+        // Act
+        await section.InviteCommand.ExecuteAsync(null);
+
+        // Assert
+        await _api.DidNotReceiveWithAnyArgs().CreateInvitationAsync(default, default);
+        await _launcher.DidNotReceiveWithAnyArgs().ShareTextAsync(default!, default!);
+    }
 }

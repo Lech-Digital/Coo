@@ -53,6 +53,7 @@ public sealed partial class FamilySectionViewModel(
     /// <summary>The shown family, for the Family page and the bring-over.</summary>
     public HouseholdId? ShownId { get; private set; }
 
+    /// <summary>Raises PropertyChanged on the caller's thread: pages dispatch before calling it from Account.Changed or DataChanged.</summary>
     public async Task RefreshAsync()
     {
         var list = await families.ListAsync(CancellationToken.None);
@@ -75,9 +76,18 @@ public sealed partial class FamilySectionViewModel(
     private async Task SwitchAsync(FamilyChoice choice)
     {
         ArgumentNullException.ThrowIfNull(choice);
-        await families.SwitchAsync(choice.Id, CancellationToken.None);
-        sync.NotifyDataChanged();
-        await RefreshAsync();
+        try
+        {
+            await families.SwitchAsync(choice.Id, CancellationToken.None);
+            sync.NotifyDataChanged();
+            await RefreshAsync();
+        }
+#pragma warning disable CA1031 // A failed local write must say so, never crash Settings.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+            Toast = Strings.Get("Family.ActionFailed");
+        }
     }
 
     /// <summary>§3: signed out, sign-in opens in place, then consent if the account has none, then the share sheet.</summary>
@@ -114,6 +124,8 @@ public sealed partial class FamilySectionViewModel(
             var shown = await families.ShownAsync(CancellationToken.None);
 
             // Ruling 28: after signing in, the account's own family; otherwise the shown one, which the row was for.
+            if (!justSignedIn && shown is { IsShared: true, CanManage: false })
+                return;
             var target = !justSignedIn && shown is { IsShared: true } ? shown.Id : session.AccountHousehold;
             var result = await invite.ExecuteAsync(target, CancellationToken.None);
             if (result.Invitation is { } invitation)
@@ -130,7 +142,15 @@ public sealed partial class FamilySectionViewModel(
         finally
         {
             IsBusy = false;
-            await RefreshAsync();
+            try
+            {
+                await RefreshAsync();
+            }
+#pragma warning disable CA1031 // The rows keep what they showed; a failed read must not escape the command.
+            catch (Exception)
+#pragma warning restore CA1031
+            {
+            }
         }
     }
 }

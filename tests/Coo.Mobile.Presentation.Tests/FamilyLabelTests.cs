@@ -86,4 +86,21 @@ public sealed class FamilyLabelTests : IDisposable
         text.Should().StartWith("Join my family on Coo, so we can keep our baby's log together: https://api.coo.lechdigital.nl/i/ABCDEFGH")
             .And.Contain("enter the code ABCD-EFGH.").And.EndWith("until Fri 9 Oct, 14:02.");
     }
+
+    [Fact]
+    public void ShareText_TwelveHourClock_EndsWithTheAmPmTime()
+    {
+        // Arrange
+        var offset = TimeZoneInfo.Local.GetUtcOffset(new DateTime(2026, 10, 9));
+        var invitation = new CreatedInvitation(Guid.Parse("7a1c0000-0000-7000-8000-0000000000e1"), InvitationCode.Parse("ABCDEFGH").Value,
+            new Uri("https://api.coo.lechdigital.nl/i/ABCDEFGH"), new DateTimeOffset(2026, 10, 9, 14, 2, 0, offset));
+
+        // Act
+        var text = FamilyLabels.ShareText(invitation, is24Hour: false);
+        var until = FamilyLabels.Until(invitation.ExpiresAt, is24Hour: false);
+
+        // Assert
+        text.Should().EndWith("until Fri 9 Oct, 2:02 PM.");
+        until.Should().Be("Fri 9 Oct, 2:02 PM");
+    }
 }

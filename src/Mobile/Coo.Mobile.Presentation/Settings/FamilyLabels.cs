@@ -1,3 +1,4 @@
+using Coo.Domain.Common;
 using Coo.Domain.Households;
 using Coo.Mobile.Application.Households;
 using Coo.Mobile.Presentation.Formatting;
@@ -5,7 +6,7 @@ using Coo.Mobile.Presentation.Localization;
 
 namespace Coo.Mobile.Presentation.Settings;
 
-public sealed record FamilyChoice(Coo.Domain.Common.HouseholdId Id, string Label);
+public sealed record FamilyChoice(HouseholdId Id, string Label);
 
 /// <summary>How a family and its members read (Spec 011b §2, §7.3). Names join with ", " (ruling 11).</summary>
 public static class FamilyLabels
