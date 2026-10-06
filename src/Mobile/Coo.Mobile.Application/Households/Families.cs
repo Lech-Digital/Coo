@@ -132,7 +132,8 @@ public sealed class Families(
         {
             if (generation != account.Generation)
                 break;
-            if ((await store.ListMemberNamesAsync(household, cancellationToken)).SequenceEqual(known))
+            // As sets (re-review N1): the server lists members by joining order, the store by user ID.
+            if ((await store.ListMemberNamesAsync(household, cancellationToken)).ToHashSet().SetEquals(known))
                 continue;
             await store.SetMemberNamesAsync(household, known, cancellationToken);
             Interlocked.Exchange(ref _namesChanged, 1);

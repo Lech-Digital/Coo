@@ -148,6 +148,26 @@ public sealed class FamiliesTests : IDisposable
     }
 
     [Fact]
+    public async Task RefreshAsync_NamesStoredInAnotherOrder_WritesNothingAndReportsNoChange()
+    {
+        // Arrange: re-review N1, the server lists members by joining order and the store by user ID.
+        await SignInAsync();
+        var earlier = new UserId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000f0"));
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Home, "owner", [], null, [new MembershipInfo(Home, Role.Owner, Now)]));
+        _api.ListMembersAsync(Home, Arg.Any<CancellationToken>()).Returns(new FamilyMembers(
+            [new FamilyMember(Me, "Kasia", "k@example.com", Role.Owner, Now, true), new FamilyMember(earlier, "Tomek", "t@example.com", Role.Parent, Now, false)], []));
+        _store.ListMemberNamesAsync(Home, Arg.Any<CancellationToken>()).Returns([new FamilyMemberName(earlier, "Tomek"), new FamilyMemberName(Me, "Kasia")]);
+        var families = Families();
+
+        // Act
+        await families.RefreshAsync(CancellationToken.None);
+
+        // Assert
+        await _store.DidNotReceiveWithAnyArgs().SetMemberNamesAsync(default, default!, default);
+        families.TakeNamesChanged().Should().BeFalse();
+    }
+
+    [Fact]
     public async Task RefreshAsync_ANameChanged_ReportsTheChangeOnce()
     {
         // Arrange
