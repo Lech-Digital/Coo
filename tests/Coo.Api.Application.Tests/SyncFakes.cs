@@ -58,11 +58,11 @@ internal sealed class FakeSyncStore : ISyncStore
     public Task<int> PurgeAsync(DateTimeOffset before, CancellationToken cancellationToken) => Task.FromResult(0);
 }
 
-internal sealed class FakeMemberships : IMembershipStore
+internal class FakeMemberships : IMembershipStore
 {
     public Dictionary<(HouseholdId, UserId), MembershipLookup> Rows { get; } = [];
 
-    public Task<MembershipLookup> FindAsync(HouseholdId household, UserId user, CancellationToken cancellationToken) =>
+    public virtual Task<MembershipLookup> FindAsync(HouseholdId household, UserId user, CancellationToken cancellationToken) =>
         Task.FromResult(Rows.GetValueOrDefault((household, user), MembershipLookup.None));
 }
 
