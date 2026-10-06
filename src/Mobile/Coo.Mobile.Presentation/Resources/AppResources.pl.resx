@@ -106,6 +106,7 @@
   <data name="Due.Today" xml:space="preserve"><value>Termin jest dziś</value></data>
   <data name="Duration.HoursMinutes" xml:space="preserve"><value>{0} godz. {1} min</value></data>
   <data name="Duration.Minutes" xml:space="preserve"><value>{0} min</value></data>
+  <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>Ten wpis zmieniono na innym telefonie. Sprawdź go i zapisz ponownie.</value></data>
   <data name="Edit.Delete" xml:space="preserve"><value>Usuń</value></data>
   <data name="Edit.Earlier" xml:space="preserve"><value>Wcześniej…</value></data>
   <data name="Edit.End" xml:space="preserve"><value>Koniec</value></data>

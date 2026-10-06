@@ -98,6 +98,7 @@
   <data name="Due.Today" xml:space="preserve"><value>Termin ist heute</value></data>
   <data name="Duration.HoursMinutes" xml:space="preserve"><value>{0} Std. {1} Min.</value></data>
   <data name="Duration.Minutes" xml:space="preserve"><value>{0} Min.</value></data>
+  <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>Dieser Eintrag wurde auf einem anderen Handy geändert. Sieh ihn dir an und speichere erneut.</value></data>
   <data name="Edit.Delete" xml:space="preserve"><value>Löschen</value></data>
   <data name="Edit.Earlier" xml:space="preserve"><value>Früher…</value></data>
   <data name="Edit.End" xml:space="preserve"><value>Ende</value></data>

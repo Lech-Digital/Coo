@@ -98,6 +98,7 @@
   <data name="Due.Today" xml:space="preserve"><value>Due today</value></data>
   <data name="Duration.HoursMinutes" xml:space="preserve"><value>{0} h {1} m</value></data>
   <data name="Duration.Minutes" xml:space="preserve"><value>{0} m</value></data>
+  <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>This entry changed on another phone. Have a look and save again.</value></data>
   <data name="Edit.Delete" xml:space="preserve"><value>Delete</value></data>
   <data name="Edit.Earlier" xml:space="preserve"><value>Earlier…</value></data>
   <data name="Edit.End" xml:space="preserve"><value>End</value></data>

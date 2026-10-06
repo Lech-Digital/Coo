@@ -98,6 +98,7 @@
   <data name="Due.Today" xml:space="preserve"><value>Vandaag uitgerekend</value></data>
   <data name="Duration.HoursMinutes" xml:space="preserve"><value>{0} u {1} min</value></data>
   <data name="Duration.Minutes" xml:space="preserve"><value>{0} min</value></data>
+  <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>Dit item is op een andere telefoon gewijzigd. Bekijk het en sla opnieuw op.</value></data>
   <data name="Edit.Delete" xml:space="preserve"><value>Verwijderen</value></data>
   <data name="Edit.Earlier" xml:space="preserve"><value>Eerder…</value></data>
   <data name="Edit.End" xml:space="preserve"><value>Einde</value></data>

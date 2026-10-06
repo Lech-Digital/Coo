@@ -7,6 +7,7 @@ using Coo.Domain.CareLog.Kinds.Pump;
 using Coo.Domain.CareLog.Kinds.Sleep;
 using Coo.Domain.CareLog.Plausibility;
 using Coo.Domain.Common;
+using Coo.Domain.Common.Versioning;
 using Coo.Domain.Households;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
@@ -26,7 +27,7 @@ public sealed partial class EditViewModel(
     : ObservableObject
 {
     private CareEntry? _original;
-    private DateTimeOffset _loadedStart;
+    private HlcStamp? _loadedVersion;
     private IReadOnlyList<string> _partLines = [];
     private bool _loading;
     private HouseholdSettings? _household;
@@ -127,6 +128,9 @@ public sealed partial class EditViewModel(
     /// <summary>Raised when the form is done (saved or deleted); the host closes it.</summary>
     public event EventHandler? Closed;
 
+    /// <summary>Raised when Save found the entry changed on the other phone and filled the form again: the host redraws it.</summary>
+    public event EventHandler? Reloaded;
+
     /// <summary>Opens an existing entry. Read-only and quarantined entries open as an info form with Delete.</summary>
     public async Task LoadAsync(EntryId id)
     {
@@ -202,6 +206,17 @@ public sealed partial class EditViewModel(
     [RelayCommand]
     private async Task Save()
     {
+        var stored = IsNew ? null : await store.FindAsync(EntryId!.Value, CancellationToken.None);
+        if (stored is LiveEntry { Entry: var changed } && changed.Version != _loadedVersion)
+        {
+            // Changed on the other phone since the form loaded (a merge, a note, a move): the form's values are stale and
+            // would undo that change, so nothing is written; the form shows the entry as it is now (Spec 011d §5).
+            await LoadAsync(changed.Id);
+            Error = Strings.Get("Edit.ChangedElsewhere");
+            Reloaded?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
         var built = Build();
         if (built.IsFailure)
         {
@@ -210,7 +225,9 @@ public sealed partial class EditViewModel(
         }
 
         var (details, timing, note) = built.Value;
-        var result = IsNew ? await CreateAsync(details, timing, note) : await UpdateAsync(details, timing, note);
+        var result = IsNew ? await CreateAsync(details, timing, note)
+            : stored is LiveEntry { Entry: var before } ? await UpdateAsync(before, details, timing, note)
+            : Result.Failure(stored is null ? ApplicationErrors.EntryNotFound : ApplicationErrors.EntryNotEditable);
         if (result.IsFailure)
         {
             Error = Strings.Error(result.Error!.Code);
@@ -250,29 +267,17 @@ public sealed partial class EditViewModel(
         return created;
     }
 
-    /// <summary>Each changed part is its own revision with its own stamp from the clock (Spec 007 §3).</summary>
-    private async Task<Result> UpdateAsync(EntryDetails details, EntryTiming? timing, Note? note)
+    /// <summary>
+    /// Each changed part is its own revision with its own stamp from the clock (Spec 007 §3). <paramref name="before"/> is
+    /// the entry as stored right before the save, at the version the form loaded: it is what Undo puts back.
+    /// </summary>
+    private async Task<Result> UpdateAsync(CareEntry before, EntryDetails details, EntryTiming? timing, Note? note)
     {
-        // ReviseEntry reloads the entry from storage for each change, so _original keeps the values as they were:
-        // it is the snapshot that Undo puts back.
-        var before = _original!;
+        // ReviseEntry reloads the entry from storage for each change, so before keeps the values as they were.
         var derived = before.Kind.TimingFor(details) == TimingRule.DerivedFromDetails;
         var after = before;
-        var current = before.Details;
 
-        if (!IsInParts && details is BreastFeed
-            && await store.FindAsync(before.Id, CancellationToken.None) is LiveEntry { Entry.Details: BreastFeed { IsCompleted: true, Parts: > 1 } merged })
-        {
-            // Merged on the other phone while this form was open (Spec 011d §5): the form cannot express the parts, so it
-            // keeps every segment; only a move of the start applies, to all of them.
-            var shift = Combine(StartDate, StartTime) - Combine(Local(_loadedStart).Date, Local(_loadedStart).TimeOfDay);
-            var moved = merged.WithSegments(merged.Segments.Select(s => s with { Start = s.Start + shift, End = s.End + shift }));
-            if (moved.IsFailure)
-                return Result.Failure(moved.Error!);
-            (current, details) = (merged, moved.Value);
-        }
-
-        if (!current.Equals(details))
+        if (!before.Details.Equals(details))
         {
             var r = await revise.ExecuteAsync(before.Id, (e, v, now) => e.Revise<EntryDetails>(_ => Result<EntryDetails>.Ok(details), v, now), CancellationToken.None);
             if (r.IsFailure)
@@ -438,7 +443,7 @@ public sealed partial class EditViewModel(
 
     private void Fill(CareEntry entry)
     {
-        _loadedStart = entry.Timing.OccurredAt;
+        _loadedVersion = entry.Version;
         PartLines = entry.Details is BreastFeed { IsCompleted: true, Parts: > 1 } parted ? Lines(parted) : [];
         KindCode = entry.KindCode.Value;
         IsRunning = entry.Timing.IsInProgress;

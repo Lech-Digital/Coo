@@ -98,6 +98,7 @@
   <data name="Due.Today" xml:space="preserve"><value>Previsto per oggi</value></data>
   <data name="Duration.HoursMinutes" xml:space="preserve"><value>{0} h {1} min</value></data>
   <data name="Duration.Minutes" xml:space="preserve"><value>{0} min</value></data>
+  <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>Questa voce è stata modificata su un altro telefono. Controllala e salva di nuovo.</value></data>
   <data name="Edit.Delete" xml:space="preserve"><value>Elimina</value></data>
   <data name="Edit.Earlier" xml:space="preserve"><value>Prima…</value></data>
   <data name="Edit.End" xml:space="preserve"><value>Fine</value></data>

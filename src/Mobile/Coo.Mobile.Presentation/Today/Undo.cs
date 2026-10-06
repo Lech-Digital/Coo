@@ -80,7 +80,10 @@ public sealed class UndoService(DeleteEntry delete, ReviseEntry revise, UndoFeed
             return true;
         });
 
-    /// <summary>Offers to put back what an edit changed: details, timing and note, each as its own revision.</summary>
+    /// <summary>
+    /// Offers to put back what an edit changed: details, timing and note, each as its own revision. <paramref name="before"/>
+    /// is the entry as stored right before the save, never an older snapshot such as the one a form loaded.
+    /// </summary>
     public void OfferUndoForEdit(CareEntry before, string message)
     {
         ArgumentNullException.ThrowIfNull(before);
