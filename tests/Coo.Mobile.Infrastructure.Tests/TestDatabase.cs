@@ -79,7 +79,11 @@ internal sealed class TestDatabase : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         Device.Dispose();
-        SqliteConnection.ClearAllPools();
+
+        // Only this database's pool: ClearAllPools also disposes connections other, parallel tests are using (flaky
+        // ObjectDisposedException 'SQLitePCL.sqlite3' under load).
+        await using (var connection = await OpenAsync())
+            SqliteConnection.ClearPool(connection);
         await Task.Yield();
         try
         {

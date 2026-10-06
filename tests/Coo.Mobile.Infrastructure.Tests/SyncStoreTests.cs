@@ -135,7 +135,8 @@ public sealed class SyncStoreTests
         await using var db = await TestDatabase.CreateAsync();
         await db.DiaperAsync(db.Time.GetLocalNow());
         var first = await Store(db).NextBatchAsync(TestDatabase.Household, 200, CancellationToken.None);
-        SqliteConnection.ClearAllPools();
+        await using (var restart = await db.OpenAsync())
+            SqliteConnection.ClearPool(restart);
 
         // Act
         var afterRestart = await Store(db).NextBatchAsync(TestDatabase.Household, 200, CancellationToken.None);

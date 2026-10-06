@@ -29,7 +29,7 @@ public sealed class SchemaTests
 
         // Assert
         version.Should().Be(SchemaMigrator.LatestVersion);
-        tables.Should().Be(10);
+        tables.Should().Be(11);
     }
 
     [Fact]

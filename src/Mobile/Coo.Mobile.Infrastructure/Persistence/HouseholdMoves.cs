@@ -221,9 +221,32 @@ internal sealed class HouseholdMoves(LocalDatabase database, TimeProvider time) 
         await connection.ExecuteAsync($"DELETE FROM outbox AS o WHERE {SyncStore.InHousehold};", cancellationToken, transaction, h);
         foreach (var table in new[] { "care_entries", "baby_profiles", "duplicate_dismissals", "household_settings", "sync_rejections", "sync_cursors" })
             await connection.ExecuteAsync($"DELETE FROM {table} WHERE household_id = $h;", cancellationToken, transaction, h);
-        await connection.ExecuteAsync(
-            "DELETE FROM app_state WHERE key = 'softlock:' || $h OR (key = 'active_household' AND value = $h);", cancellationToken, transaction, h);
+        await ClearFamilyKeysAsync(connection, transaction, Columns.Id(household.Value), cancellationToken);
         await transaction.CommitAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Spec 011b §8.2: a family taken off the phone is no longer named anywhere: its soft-lock, the active key (when it is the
+    /// active one), its copy markers in either direction, a joining marker that names it, and its membership row.
+    /// </summary>
+    internal static async Task ClearFamilyKeysAsync(SqliteConnection connection, SqliteTransaction transaction, string household, CancellationToken cancellationToken)
+    {
+        var h = ("$h", (object?)household);
+        await connection.ExecuteAsync(
+            """
+            DELETE FROM app_state WHERE key = 'softlock:' || $h OR (key = 'active_household' AND value = $h)
+                OR key LIKE 'copied_from:' || $h || ':%' OR key LIKE 'copied_from:%:' || $h;
+            """,
+            cancellationToken, transaction, h);
+        var namesIt = await connection.ScalarAsync(
+            "SELECT 1 FROM app_state WHERE key IN ('joining_household', 'joining_source') AND value = $h;", cancellationToken, transaction, h);
+        if (namesIt is not null)
+        {
+            await connection.ExecuteAsync(
+                "DELETE FROM app_state WHERE key IN ('joining_household', 'joining_source', 'joining_inviter');", cancellationToken, transaction);
+        }
+
+        await connection.ExecuteAsync("DELETE FROM family_memberships WHERE household_id = $h;", cancellationToken, transaction, h);
     }
 
     /// <summary>

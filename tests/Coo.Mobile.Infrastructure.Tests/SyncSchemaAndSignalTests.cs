@@ -21,7 +21,7 @@ public sealed class SyncSchemaAndSignalTests
 
         // Assert
         tables.Should().Be(2);
-        (await db.ScalarAsync("PRAGMA user_version;")).Should().Be(4);
+        (await db.ScalarAsync("PRAGMA user_version;")).Should().Be(Persistence.SchemaMigrator.LatestVersion);
     }
 
     [Fact]
@@ -50,6 +50,7 @@ public sealed class SyncSchemaAndSignalTests
                 """
                 INSERT INTO app_state (key, value) VALUES ('appearance', 'dark');
                 DROP INDEX ix_outbox_entity;
+                DROP TABLE family_memberships;
                 DROP TABLE sync_rejections;
                 DROP TABLE sync_cursors;
                 PRAGMA user_version = 3;
@@ -66,7 +67,7 @@ public sealed class SyncSchemaAndSignalTests
         await db.StartupAsync("1.0.0");
 
         // Assert
-        (await db.ScalarAsync("PRAGMA user_version;")).Should().Be(4);
+        (await db.ScalarAsync("PRAGMA user_version;")).Should().Be(Persistence.SchemaMigrator.LatestVersion);
         foreach (var table in tables)
             (await DumpAsync(db, table)).Should().Equal(before[table], $"migration 0004 leaves {table} untouched");
         before["outbox"].Should().HaveCount(6);

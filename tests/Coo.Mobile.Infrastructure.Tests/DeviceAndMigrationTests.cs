@@ -237,6 +237,7 @@ public sealed class ExpectedBabyMigrationTests
         {
             await connection.ExecuteAsync(
                 """
+                DROP TABLE family_memberships;
                 DROP TABLE sync_rejections;
                 DROP TABLE sync_cursors;
                 DROP TABLE duplicate_dismissals;
@@ -308,6 +309,7 @@ public sealed class DismissalAndOutboxTests
         {
             await connection.ExecuteAsync(
                 """
+                DROP TABLE family_memberships;
                 DROP TABLE sync_rejections;
                 DROP TABLE sync_cursors;
                 DROP TABLE duplicate_dismissals;
