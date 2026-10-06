@@ -12,12 +12,12 @@ namespace Coo.Mobile.Infrastructure.Tests;
 /// <summary>Spec 011 §4 and §11 on a real SQLite file: each move is one transaction, and a failure changes nothing.</summary>
 public sealed class HouseholdMovesTests
 {
-    private static readonly HouseholdId Account = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a9"));
-    private static readonly BabyId FamilyBaby = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
-    private static readonly UserId User = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c1"));
+    internal static readonly HouseholdId Account = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a9"));
+    internal static readonly BabyId FamilyBaby = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
+    internal static readonly UserId User = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c1"));
 
     /// <summary>This phone's provisional household with a baby, its settings, an entry logged before sign-in, and a dismissal.</summary>
-    private static async Task<(TestDatabase Db, CareEntry Entry)> PhoneAsync()
+    internal static async Task<(TestDatabase Db, CareEntry Entry)> PhoneAsync()
     {
         var db = await TestDatabase.CreateAsync();
         await db.Households.SaveSettingsAsync(HouseholdSettings.Create(TestDatabase.Household, VolumeUnit.Millilitres, "Europe/Amsterdam",
@@ -35,7 +35,7 @@ public sealed class HouseholdMovesTests
     }
 
     /// <summary>The family's household as the join-pending bootstrap pulled it: settings and a baby, no outbox rows.</summary>
-    private static async Task PullFamilyAsync(TestDatabase db)
+    internal static async Task PullFamilyAsync(TestDatabase db)
     {
         await using var connection = await db.OpenAsync();
         await connection.ExecuteAsync(
@@ -47,7 +47,7 @@ public sealed class HouseholdMovesTests
             """, CancellationToken.None);
     }
 
-    private static async Task<string> SnapshotAsync(TestDatabase db)
+    internal static async Task<string> SnapshotAsync(TestDatabase db)
     {
         var text = new StringBuilder();
         await using var connection = await db.OpenAsync();
@@ -66,7 +66,7 @@ public sealed class HouseholdMovesTests
         return text.ToString();
     }
 
-    private static async Task BreakAsync(TestDatabase db, string trigger)
+    internal static async Task BreakAsync(TestDatabase db, string trigger)
     {
         await using var connection = await db.OpenAsync();
         await connection.ExecuteAsync(trigger, CancellationToken.None);

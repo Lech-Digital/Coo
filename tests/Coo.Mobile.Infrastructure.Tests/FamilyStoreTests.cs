@@ -110,7 +110,7 @@ public sealed class FamilyStoreTests
         await db.ExecuteAsync(
             $"""
             INSERT INTO app_state (key, value) VALUES ('softlock:{Joined.Value}', '1'), ('copied_from:{Home.Value}:{Joined.Value}', '1'),
-                ('copied_from:{Joined.Value}:{Home.Value}', '1'), ('softlock:{Home.Value}', '1');
+                ('copied_from:{Joined.Value}:{Home.Value}', '1'), ('softlock:{Home.Value}', '1'), ('active_household', '{Joined.Value}');
             """);
 
         // Act
@@ -121,6 +121,22 @@ public sealed class FamilyStoreTests
         (await db.ScalarAsync($"SELECT count(*) FROM app_state WHERE key = 'softlock:{Home.Value}';")).Should().Be(1, "another family's keys stay");
         (await store.GetJoiningAsync(CancellationToken.None)).Should().BeNull();
         (await store.ListAsync(Me, CancellationToken.None)).Should().ContainSingle().Which.Household.Should().Be(Home);
+    }
+
+    [Fact]
+    public async Task DeleteHouseholdAsync_TheJoiningMarkersSource_ClearsTheMarkerToo()
+    {
+        // Arrange: the removed family is the SOURCE the join was started from, not the joined one.
+        await using var db = await TestDatabase.CreateAsync();
+        var store = new FamilyStore(db.Database);
+        await store.SetJoiningAsync(new JoiningMarker(Joined, Home, "Andrzej"), CancellationToken.None);
+
+        // Act
+        await new HouseholdMoves(db.Database, db.Time).DeleteHouseholdAsync(Home, CancellationToken.None);
+
+        // Assert
+        (await store.GetJoiningAsync(CancellationToken.None)).Should().BeNull();
+        (await db.ScalarAsync("SELECT count(*) FROM app_state WHERE key LIKE 'joining_%';")).Should().Be(0);
     }
 
     [Fact]
@@ -166,6 +182,9 @@ public sealed class FamilyStoreTests
         await using var db = await TestDatabase.CreateAsync();
         await db.DiaperAsync(new DateTimeOffset(2026, 10, 1, 9, 0, 0, TimeSpan.FromHours(2)));
         await db.DiaperAsync(new DateTimeOffset(2026, 10, 1, 9, 5, 0, TimeSpan.FromHours(2)));
+        await db.Households.SaveSettingsAsync(HouseholdSettings.Create(Home, VolumeUnit.Millilitres, "Europe/Amsterdam", await db.Device.NextAsync(CancellationToken.None)).Value, CancellationToken.None);
+        await db.Households.SaveBabyAsync(BabyProfile.Create(TestDatabase.Baby, Home, "Maja", [], new DateOnly(2026, 8, 20), null,
+            await db.Device.NextAsync(CancellationToken.None), new DateOnly(2026, 10, 1)).Value, CancellationToken.None);
         await db.ExecuteAsync("INSERT INTO app_state (key, value) VALUES ('active_household', 'h');");
         var tables = new[] { "care_entries", "outbox", "app_state", "sync_cursors", "sync_rejections", "baby_profiles", "household_settings", "duplicate_dismissals" };
         await db.ExecuteAsync("DROP TABLE family_memberships; PRAGMA user_version = 4;");
@@ -177,12 +196,14 @@ public sealed class FamilyStoreTests
         await db.StartupAsync("1.0.3");
 
         // Assert
-        (await db.ScalarAsync("PRAGMA user_version;")).Should().Be(5);
+        (await db.ScalarAsync("PRAGMA user_version;")).Should().Be(SchemaMigrator.LatestVersion);
         (await db.ScalarAsync("SELECT count(*) FROM family_memberships;")).Should().Be(0);
         var after = new List<long>();
         foreach (var table in tables)
             after.Add(await db.ScalarAsync($"SELECT count(*) FROM {table};"));
         after.Should().Equal(before);
         before[0].Should().Be(2);
+        before[tables.ToList().IndexOf("baby_profiles")].Should().Be(1);
+        before[tables.ToList().IndexOf("household_settings")].Should().Be(1);
     }
 }

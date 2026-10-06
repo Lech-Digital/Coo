@@ -43,6 +43,15 @@ internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time, 
         ArgumentNullException.ThrowIfNull(settings);
         await using var connection = await database.OpenAsync(cancellationToken);
         await using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync(cancellationToken);
+        await WriteSettingsAsync(connection, transaction, settings, time, cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        writes.Notify();
+    }
+
+    /// <summary>The settings row and its outbox row, inside the caller's transaction (also used by <see cref="FamilyRecords"/>).</summary>
+    internal static async Task WriteSettingsAsync(
+        SqliteConnection connection, SqliteTransaction transaction, HouseholdSettings settings, TimeProvider time, CancellationToken cancellationToken)
+    {
         await connection.ExecuteAsync(
             """
             INSERT INTO household_settings (household_id, volume_unit, time_zone_id, hidden_kinds, version_wall_ms, version_counter, version_device, is_deleted)
@@ -62,8 +71,6 @@ internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time, 
                 ("$deleted", settings.IsDeleted ? 1 : 0),
             ]);
         await Outbox.AppendAsync(connection, transaction, SyncedEntityType.HouseholdSettings, settings.Id.Value, settings.IsDeleted, settings.Version, time, cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-        writes.Notify();
     }
 
     public async Task<IReadOnlyList<BabyProfile>> ListBabiesAsync(HouseholdId household, CancellationToken cancellationToken)

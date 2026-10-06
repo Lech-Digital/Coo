@@ -43,6 +43,7 @@ public static class ServiceCollectionExtensions
 
         // Members and invitations (Spec 011b §7).
         services.AddSingleton<IFamilyStore, FamilyStore>();
+        services.AddSingleton<IFamilyRecords, FamilyRecords>();
 
         // There are no data migrations in v1 (Spec 004 §7). New ones are registered here, by hand.
         services.AddSingleton(sp => new DataMigrationRunner([], sp.GetRequiredService<TimeProvider>()));

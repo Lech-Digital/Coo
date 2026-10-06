@@ -217,12 +217,18 @@ internal sealed class HouseholdMoves(LocalDatabase database, TimeProvider time) 
     {
         await using var connection = await database.OpenAsync(cancellationToken);
         await using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync(cancellationToken);
+        await DeleteHouseholdRowsAsync(connection, transaction, household, cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+    }
+
+    /// <summary>Every record, outbox row, rejection, cursor and key of the household (ADR 0002 §10), inside the caller's transaction.</summary>
+    internal static async Task DeleteHouseholdRowsAsync(SqliteConnection connection, SqliteTransaction transaction, HouseholdId household, CancellationToken cancellationToken)
+    {
         var h = ("$h", (object?)Columns.Id(household.Value));
         await connection.ExecuteAsync($"DELETE FROM outbox AS o WHERE {SyncStore.InHousehold};", cancellationToken, transaction, h);
         foreach (var table in new[] { "care_entries", "baby_profiles", "duplicate_dismissals", "household_settings", "sync_rejections", "sync_cursors" })
             await connection.ExecuteAsync($"DELETE FROM {table} WHERE household_id = $h;", cancellationToken, transaction, h);
         await ClearFamilyKeysAsync(connection, transaction, Columns.Id(household.Value), cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
     }
 
     /// <summary>
@@ -311,7 +317,7 @@ internal sealed class HouseholdMoves(LocalDatabase database, TimeProvider time) 
             await Outbox.AppendAsync(connection, transaction, SyncedEntityType.HouseholdSettings, Guid.Parse(to), false, stamp, time, cancellationToken);
     }
 
-    private static async Task SetActiveAsync(SqliteConnection connection, SqliteTransaction? transaction, string household, CancellationToken cancellationToken)
+    internal static async Task SetActiveAsync(SqliteConnection connection, SqliteTransaction? transaction, string household, CancellationToken cancellationToken)
     {
         await connection.ExecuteAsync(
             "INSERT INTO app_state (key, value) VALUES ($key, $v) ON CONFLICT (key) DO UPDATE SET value = excluded.value;",
