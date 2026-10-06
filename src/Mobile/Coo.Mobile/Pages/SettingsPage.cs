@@ -9,13 +9,14 @@ using Coo.Mobile.Presentation.Today;
 namespace Coo.Mobile.Pages;
 
 /// <summary>
-/// The Settings tab (Spec 009 §2–§3, Spec 010 §2): account, baby, what you log, units, appearance, language, about.
+/// The Settings tab (Spec 009 §2–§3, Spec 010 §2, Spec 011b §2): account, family, baby, what you log, units, appearance, language, about.
 /// One scrolling page; it is rebuilt from the model whenever the model changes, like Log.
 /// </summary>
 public sealed class SettingsPage : ContentPage
 {
     private readonly SettingsViewModel _model;
     private readonly AccountViewModel _account;
+    private readonly FamilySectionViewModel _family;
     private readonly IServiceProvider _services;
     private readonly IClockFormat _clock;
     private readonly UndoService _undo;
@@ -24,12 +25,17 @@ public sealed class SettingsPage : ContentPage
     private bool _confirming;
     private bool _rendering;
     private bool _renderQueued;
+    private bool _familyRefreshQueued;
+    private bool _opening;
     private string? _renderedLanguage;
 
-    public SettingsPage(SettingsViewModel model, AccountViewModel account, IClockFormat clock, UndoService undo, LanguageController language, IServiceProvider services)
+    public SettingsPage(
+        SettingsViewModel model, AccountViewModel account, FamilySectionViewModel family, IClockFormat clock, UndoService undo, LanguageController language,
+        IServiceProvider services)
     {
         _model = model;
         _account = account;
+        _family = family;
         _language = language;
         _clock = clock;
         _undo = undo;
@@ -52,15 +58,25 @@ public sealed class SettingsPage : ContentPage
         _account.PropertyChanged += OnAccountChanged;
         _account.ConsentRequested += OnConsentRequested;
         _account.BringOverRequested += OnBringOverRequested;
+        _family.PropertyChanged += OnFamilyChanged;
         _undo.DataChanged += OnDataChanged;
 
-        // The first visit draws at once from the data loaded at start-up, before the page's first frame: drawing after
-        // the refresh showed one blank frame (recorded on the Pixel 10).
-        if (_body.Content is null)
-            Render();
-        await _model.RefreshAsync();
-        if (_renderedLanguage != Strings.Language)
-            QueueRender();
+#pragma warning disable CA1031 // async void: nothing may escape; the page keeps what it showed.
+        try
+        {
+            // The first visit draws at once from the data loaded at start-up, before the page's first frame: drawing after
+            // the refresh showed one blank frame (recorded on the Pixel 10).
+            if (_body.Content is null)
+                Render();
+            await _model.RefreshAsync();
+            await RunTappedAsync(_family.RefreshAsync);
+            if (_renderedLanguage != Strings.Language)
+                QueueRender();
+        }
+        catch (Exception)
+        {
+        }
+#pragma warning restore CA1031
 
         // The latest name and email, without holding up the page; offline nothing changes (Spec 010 deliverable 5).
         Dispatcher.Dispatch(async () =>
@@ -84,6 +100,7 @@ public sealed class SettingsPage : ContentPage
         _account.PropertyChanged -= OnAccountChanged;
         _account.ConsentRequested -= OnConsentRequested;
         _account.BringOverRequested -= OnBringOverRequested;
+        _family.PropertyChanged -= OnFamilyChanged;
         _undo.DataChanged -= OnDataChanged;
     }
 
@@ -94,6 +111,7 @@ public sealed class SettingsPage : ContentPage
         try
         {
             await _model.RefreshAsync();
+            await _family.RefreshAsync();
         }
         catch (Exception)
         {
@@ -132,14 +150,60 @@ public sealed class SettingsPage : ContentPage
             return;
         }
 
+        // The engine refreshes the family list before it reports a cycle, and signing in or out changes it.
+        QueueFamilyRefresh();
+        QueueRender();
+    });
+
+    // The family list can change from a background refresh; through the dispatcher like the account.
+    private void OnFamilyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) => Dispatcher.Dispatch(() =>
+    {
+        if (e.PropertyName == nameof(FamilySectionViewModel.Toast))
+        {
+            if (!string.IsNullOrEmpty(_family.Toast))
+                _undo.Say(_family.Toast);
+            _family.Toast = "";
+            return;
+        }
+
         QueueRender();
     });
 
     private void OnLanguageChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
     {
-        await _model.RefreshAsync();
-        QueueRender();
+#pragma warning disable CA1031 // Fire-and-forget: the page keeps what it showed; the next visit refreshes it.
+        try
+        {
+            await _model.RefreshAsync();
+            await _family.RefreshAsync();
+            QueueRender();
+        }
+        catch (Exception)
+        {
+        }
+#pragma warning restore CA1031
     });
+
+    /// <summary>A sync status change raises three account properties; they become one family read (main thread).</summary>
+    private void QueueFamilyRefresh()
+    {
+        if (_familyRefreshQueued)
+            return;
+        _familyRefreshQueued = true;
+        Dispatcher.Dispatch(async () =>
+        {
+            _familyRefreshQueued = false;
+#pragma warning disable CA1031 // Fire-and-forget: the rows keep what they showed.
+            try
+            {
+                await _family.RefreshAsync();
+            }
+            catch (Exception)
+            {
+            }
+#pragma warning restore CA1031
+        });
+    }
 
     /// <summary>A refresh sets a dozen properties; they become one redraw, not twelve (review, owner's finding).</summary>
     private void QueueRender()
@@ -162,6 +226,8 @@ public sealed class SettingsPage : ContentPage
         stack.Add(Ui.Text(Strings.Get("Tab.Settings"), "Title"));
 
         foreach (var view in AccountViews())
+            stack.Add(view);
+        foreach (var view in FamilyViews())
             stack.Add(view);
 
         stack.Add(Header("Settings.Baby"));
@@ -268,6 +334,72 @@ public sealed class SettingsPage : ContentPage
 
         yield return Row(Ui.Text(Strings.Get("Account.SignOut"), "Body"), ConfirmSignOutAsync);
         yield return Row(Ui.Text(Strings.Get("Account.Delete"), "Body"), ConfirmDeleteAsync);
+    }
+
+    /// <summary>Settings → Family (Spec 011b §2), right after Account.</summary>
+    private IEnumerable<View> FamilyViews()
+    {
+        yield return Header("Family.Title");
+        if (_family.ShowsSwitcher)
+        {
+            yield return Row(
+                new VerticalStackLayout { Spacing = 2, Children = { Ui.Text(_family.ShowingTitle, "BodyStrong"), Ui.Text(_family.ShowingLine, "Meta", "Ink2") } },
+                ChooseFamilyAsync);
+        }
+
+        if (_family.ShowsMembers && _family.ShownId is { } shown)
+        {
+            yield return Row(
+                new VerticalStackLayout { Spacing = 2, Children = { Ui.Text(Strings.Get("Family.Members"), "BodyStrong"), Ui.Text(_family.MembersLine, "Meta", "Ink2") } },
+                () => OpenOnceAsync(() => Navigation.PushAsync(FamilyPage.Open(_services, shown))));
+        }
+
+        if (_family.ShowsOnlyHere)
+            yield return Ui.Text(Strings.Get("Family.OnlyHere"), "Meta", "Ink2");
+        if (_family.ShowsInvite)
+            yield return Row(Ui.Text(Strings.Get("Family.Invite"), "Body"), () => _family.InviteCommand.ExecuteAsync(null));
+        yield return Row(Ui.Text(Strings.Get("Family.Join"), "Body"), () => _services.GetRequiredService<Sync.SyncPrompter>().ShowEnterCodeAsync());
+        if (_family.ShowsBringOver)
+        {
+            yield return Row(
+                Ui.Text(Strings.Get("Family.BringOver"), "Body"),
+                () => OpenOnceAsync(() => Navigation.PushModalAsync(_services.GetRequiredService<FamilyBringOverPage>())));
+        }
+    }
+
+    /// <summary>The switcher (§7.3): "Show which family?", every family but soft-locked ones.</summary>
+    private async Task ChooseFamilyAsync()
+    {
+        if (_confirming)
+            return;
+        _confirming = true;
+        try
+        {
+            var choices = _family.Choices;
+            var chosen = await DisplayActionSheetAsync(Strings.Get("Family.Switch"), Strings.Get("Action.Cancel"), null, [.. choices.Select(c => c.Label)]);
+            if (choices.FirstOrDefault(c => c.Label == chosen) is { } choice)
+                await _family.SwitchCommand.ExecuteAsync(choice);
+        }
+        finally
+        {
+            _confirming = false;
+        }
+    }
+
+    /// <summary>A second tap while a page is being pushed opens nothing more.</summary>
+    private async Task OpenOnceAsync(Func<Task> open)
+    {
+        if (_opening)
+            return;
+        _opening = true;
+        try
+        {
+            await open();
+        }
+        finally
+        {
+            _opening = false;
+        }
     }
 
     private async Task ConfirmSignOutAsync()

@@ -64,6 +64,13 @@ internal sealed class LiveView : ContentView, IDisposable
 
     private void OnSourceChanged(object? sender, PropertyChangedEventArgs e)
     {
+        // A section may change off the main thread (the paused banner follows the engine's status, Spec 011b §8.2).
+        if (Dispatcher.IsDispatchRequired)
+        {
+            Dispatcher.Dispatch(() => OnSourceChanged(sender, e));
+            return;
+        }
+
         if (!_relevant(e.PropertyName))
             return;
         if (_onScreen)
@@ -100,6 +107,7 @@ internal static class SectionViews
         LogTilesSection s => Live(s, () => Tiles(s, host)),
         TimelineSection s => Live(s, () => Timeline(s, host)),
         NightSection s => Live(s, () => Night(s, host), nameof(NightSection.Title)),
+        PausedSection s => Live(s, () => Paused(s)),
         _ => new ContentView(),
     };
 
@@ -180,6 +188,14 @@ internal static class SectionViews
                 arrived,
             },
         }).Tap(c => c.Margin = new Thickness(24, 16, 24, 0));
+    }
+
+    /// <summary>Spec 011b §8.2: only while the shown family is soft-locked and the only family; empty otherwise.</summary>
+    private static View Paused(PausedSection s)
+    {
+        if (s.Text.Length == 0)
+            return new ContentView();
+        return Ui.Rounded(Ui.Text(s.Text, "Body"), "Surface", 12, new Thickness(16, 12), "Line").Tap(v => v.Margin = new Thickness(24, 8, 24, 0));
     }
 
     private static View Hero(StatusHeroSection s) => new VerticalStackLayout

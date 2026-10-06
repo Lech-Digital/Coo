@@ -54,6 +54,8 @@ public static class MauiProgram
         builder.Services.AddTransient<JoinPage>();
         builder.Services.AddTransient<EnterCodePage>();
         builder.Services.AddTransient<RemovalPage>();
+        builder.Services.AddTransient<FamilyPage>();
+        builder.Services.AddTransient<FamilyBringOverPage>();
         builder.Services.AddSingleton<Sync.SyncPrompter>();
         builder.Services.AddSingleton<Joining.InvitationInbox>();
         builder.Services.AddSingleton<Coo.Mobile.Presentation.Settings.IConsentPrompt, Joining.MauiConsentPrompt>();
