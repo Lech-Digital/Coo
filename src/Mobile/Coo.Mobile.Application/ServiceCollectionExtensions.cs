@@ -51,6 +51,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Families>();
         services.AddTransient<BringFamilyEntriesOver>();
         services.AddTransient<JoinFamily>();
+        services.AddSingleton<LoadFamilyMembers>();
+        services.AddTransient<InviteParent>();
+        services.AddTransient<WithdrawFamilyInvitation>();
+        services.AddTransient<RemoveFamilyMember>();
+        services.AddTransient<LeaveFamily>();
         return services;
     }
 }
