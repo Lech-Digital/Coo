@@ -195,7 +195,7 @@ public sealed class JoinFamilyTests : IDisposable
     }
 
     [Fact]
-    public async Task PreviewAsync_Invitation_IsReadyAndKeepsThePendingInvitation()
+    public async Task PreviewAsync_Invitation_IsReadyWithThePreviewedCodeAndKeepsThePendingInvitation()
     {
         // Arrange
         await SignInAsync();
@@ -207,7 +207,7 @@ public sealed class JoinFamilyTests : IDisposable
         var preview = await Join().PreviewAsync(CancellationToken.None);
 
         // Assert
-        preview.Should().Be(new JoinPreview(PreviewStatus.Ready, invitation));
+        preview.Should().Be(new JoinPreview(PreviewStatus.Ready, invitation, Code));
         await _store.DidNotReceiveWithAnyArgs().SetPendingInvitationAsync(default, default);
     }
 
@@ -338,11 +338,29 @@ public sealed class JoinFamilyTests : IDisposable
         await SignInAsync();
 
         // Act
-        var accepted = await Join().AcceptAsync("Andrzej", CancellationToken.None);
+        var accepted = await Join().AcceptAsync(Code, "Andrzej", CancellationToken.None);
 
         // Assert
         accepted.Status.Should().Be(AcceptStatus.NothingPending);
         await _api.DidNotReceiveWithAnyArgs().AcceptAsync(default!, default);
+    }
+
+    [Fact]
+    public async Task AcceptAsync_PendingCodeIsNotThePreviewedOne_AcceptsNothingAndKeepsTheNewInvitation()
+    {
+        // Arrange: review I2, a second link replaced the pending code after the first one was previewed.
+        await SignInAsync();
+        Pending();
+        var previewed = InvitationCode.Parse("ZZZZZZZZ").Value;
+
+        // Act
+        var accepted = await Join().AcceptAsync(previewed, "Andrzej", CancellationToken.None);
+
+        // Assert
+        accepted.Status.Should().Be(AcceptStatus.Changed);
+        await _api.DidNotReceiveWithAnyArgs().AcceptAsync(default!, default);
+        await _store.DidNotReceiveWithAnyArgs().SetPendingInvitationAsync(default, default);
+        await _store.DidNotReceiveWithAnyArgs().SetJoiningAsync(default, default);
     }
 
     [Fact]
@@ -352,7 +370,7 @@ public sealed class JoinFamilyTests : IDisposable
         Pending();
 
         // Act
-        var accepted = await Join().AcceptAsync("Andrzej", CancellationToken.None);
+        var accepted = await Join().AcceptAsync(Code, "Andrzej", CancellationToken.None);
 
         // Assert
         accepted.Status.Should().Be(AcceptStatus.Unavailable);
@@ -370,7 +388,7 @@ public sealed class JoinFamilyTests : IDisposable
         _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(new AcceptedInvitation(Joined, Role.Parent, outcome));
 
         // Act
-        var accepted = await Join().AcceptAsync("Andrzej", CancellationToken.None);
+        var accepted = await Join().AcceptAsync(Code, "Andrzej", CancellationToken.None);
 
         // Assert: the marker is stored before the pending invitation goes, so the mid-join guard never lapses (§5.3).
         accepted.Status.Should().Be(AcceptStatus.Joined);
@@ -400,7 +418,7 @@ public sealed class JoinFamilyTests : IDisposable
             .ThrowsAsync(new OperationCanceledException());
 
         // Act
-        var accepted = await Join().AcceptAsync("Andrzej", cancel.Token);
+        var accepted = await Join().AcceptAsync(Code, "Andrzej", cancel.Token);
 
         // Assert: the stored join is not a failure; the refresh and pull come with the next cycle and the choice reopens.
         accepted.Status.Should().Be(AcceptStatus.Joined);
@@ -418,7 +436,7 @@ public sealed class JoinFamilyTests : IDisposable
         _sync.SyncNowAsync(Arg.Any<CancellationToken>()).ThrowsAsync(new IOException("disk"));
 
         // Act
-        var accepted = await Join().AcceptAsync("Andrzej", CancellationToken.None);
+        var accepted = await Join().AcceptAsync(Code, "Andrzej", CancellationToken.None);
 
         // Assert
         accepted.Status.Should().Be(AcceptStatus.Joined);
@@ -434,7 +452,7 @@ public sealed class JoinFamilyTests : IDisposable
         _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.AlreadyMember));
 
         // Act
-        var accepted = await Join().AcceptAsync("Andrzej", CancellationToken.None);
+        var accepted = await Join().AcceptAsync(Code, "Andrzej", CancellationToken.None);
 
         // Assert
         accepted.Status.Should().Be(AcceptStatus.AlreadyMember);
@@ -452,7 +470,7 @@ public sealed class JoinFamilyTests : IDisposable
         _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdUnavailableException("offline"));
 
         // Act
-        var accepted = await Join().AcceptAsync("Andrzej", CancellationToken.None);
+        var accepted = await Join().AcceptAsync(Code, "Andrzej", CancellationToken.None);
 
         // Assert
         accepted.Status.Should().Be(AcceptStatus.Unavailable);
@@ -472,7 +490,7 @@ public sealed class JoinFamilyTests : IDisposable
         _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(code));
 
         // Act
-        var accepted = await Join().AcceptAsync("Andrzej", CancellationToken.None);
+        var accepted = await Join().AcceptAsync(Code, "Andrzej", CancellationToken.None);
 
         // Assert
         accepted.Status.Should().Be(expected);
@@ -489,7 +507,7 @@ public sealed class JoinFamilyTests : IDisposable
         _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(SyncErrors.ConsentRequired));
 
         // Act
-        var accepted = await Join().AcceptAsync("Andrzej", CancellationToken.None);
+        var accepted = await Join().AcceptAsync(Code, "Andrzej", CancellationToken.None);
 
         // Assert
         accepted.Status.Should().Be(AcceptStatus.NeedsConsent);
@@ -513,7 +531,7 @@ public sealed class JoinFamilyTests : IDisposable
         });
 
         // Act
-        var accepted = await Join().AcceptAsync("Andrzej", CancellationToken.None);
+        var accepted = await Join().AcceptAsync(Code, "Andrzej", CancellationToken.None);
 
         // Assert
         accepted.Status.Should().Be(AcceptStatus.Unavailable);
@@ -533,7 +551,7 @@ public sealed class JoinFamilyTests : IDisposable
         _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(_ => SignOutAndInThenRefuseAsync(code));
 
         // Act
-        var accepted = await Join().AcceptAsync("Andrzej", CancellationToken.None);
+        var accepted = await Join().AcceptAsync(Code, "Andrzej", CancellationToken.None);
 
         // Assert
         accepted.Status.Should().Be(AcceptStatus.Unavailable);

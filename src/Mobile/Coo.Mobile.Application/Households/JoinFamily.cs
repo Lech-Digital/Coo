@@ -25,7 +25,8 @@ public enum PreviewStatus
     NothingPending,
 }
 
-public sealed record JoinPreview(PreviewStatus Status, InvitationPreview? Invitation = null);
+/// <param name="Code">The code that was previewed: the accept must be for this one (a later link may have replaced the pending one).</param>
+public sealed record JoinPreview(PreviewStatus Status, InvitationPreview? Invitation = null, InvitationCode? Code = null);
 
 public enum AcceptStatus
 {
@@ -39,6 +40,9 @@ public enum AcceptStatus
     RateLimited,
     Unavailable,
     NothingPending,
+
+    /// <summary>The pending invitation is no longer the one previewed (a newer link replaced it): nothing was accepted; preview again.</summary>
+    Changed,
 }
 
 public sealed record JoinAccept(AcceptStatus Status);
@@ -122,7 +126,7 @@ public sealed class JoinFamily(
         }
 
         if (!preview.AlreadyMember)
-            return new JoinPreview(PreviewStatus.Ready, preview);
+            return new JoinPreview(PreviewStatus.Ready, preview, pending.Code);
         if (account.Generation != generation)
             return new JoinPreview(PreviewStatus.Unavailable);
         await families.SetPendingInvitationAsync(null, cancellationToken);
@@ -135,15 +139,19 @@ public sealed class JoinFamily(
         await sessions.GetAsync(cancellationToken) is { } session && await consent.CheckAsync(session.Profile.UserId, cancellationToken) == ConsentState.Given;
 
     /// <summary>
-    /// The accept. Only an answer of this sign-in is acted on; any other outcome leaves the invitation pending except
+    /// The accept, of the code that was previewed (<paramref name="previewed"/>). Only an answer of this sign-in is acted on; any other outcome leaves the invitation pending except
     /// <c>invitation.invalid</c> (ruling 25). <c>sync.consent-required</c> (§5.1: no membership without consent) forgets the
     /// cached consent and joins nothing: the flow shows the consent sheet and accepts again.
     /// </summary>
-    public async Task<JoinAccept> AcceptAsync(string inviterName, CancellationToken cancellationToken)
+    public async Task<JoinAccept> AcceptAsync(InvitationCode previewed, string inviterName, CancellationToken cancellationToken)
     {
         var generation = account.Generation;
         if (await families.GetPendingInvitationAsync(cancellationToken) is not { } pending)
             return new JoinAccept(AcceptStatus.NothingPending);
+
+        // A newer link replaced the code the person saw: accept nothing, the flow previews the new one (review I2).
+        if (pending.Code != previewed)
+            return new JoinAccept(AcceptStatus.Changed);
         if (await sessions.GetAsync(cancellationToken) is not { } session)
             return new JoinAccept(AcceptStatus.Unavailable);
 

@@ -117,7 +117,7 @@ public sealed partial class FamilySectionViewModel(
 
             if (await sessions.GetAsync(CancellationToken.None) is not { } session)
                 return;
-            if (await consent.CheckAsync(session.Profile.UserId, CancellationToken.None) != ConsentState.Given && !await consentPrompt.AskAsync())
+            if (await consent.CheckAsync(session.Profile.UserId, CancellationToken.None) != ConsentState.Given && await consentPrompt.AskAsync() != ConsentAnswer.Given)
                 return;
 
             await families.RefreshAsync(CancellationToken.None);

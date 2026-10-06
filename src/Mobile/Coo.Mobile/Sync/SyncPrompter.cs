@@ -3,6 +3,7 @@ using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Sync;
 using Coo.Mobile.Pages;
+using Coo.Mobile.Presentation.Settings;
 
 namespace Coo.Mobile.Sync;
 
@@ -23,6 +24,7 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
     private bool _consentShown;
     private bool _bringOverShown;
     private bool _joinOffered;
+    private bool _malformedPending;
     private HouseholdId? _removalShown;
     private Pages.JoinPage? _join;
     private Page? _pushing;
@@ -85,12 +87,17 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
     /// it opened, it is not offered again by itself until the next resume (Back at the choice keeps the marker).
     /// </summary>
     /// <returns>Whether it opened; false in the background, while another sheet (this one included) is showing, or with no window.</returns>
+    /// <param name="malformed">
+    /// The link held no code: its notice is kept until a join sheet actually opens (M2), so a sheet in front does not lose it.
+    /// </param>
     public async Task<bool> ShowJoinAsync(bool malformed = false)
     {
+        _malformedPending |= malformed;
         var opened = await ShowAsync(() =>
         {
             var page = services.GetRequiredService<JoinPage>();
-            page.Malformed = malformed;
+            page.Malformed = _malformedPending;
+            _malformedPending = false;
             page.Ended += (_, _) =>
             {
                 if (ReferenceEquals(_join, page))
@@ -104,6 +111,12 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
             _joinOffered = true;
         return opened;
     }
+
+    /// <summary>
+    /// Whether a link that arrived must stay held (main thread): a join sheet shows and cannot start again now (review I2).
+    /// Storing it would replace the code the open flow previewed; it is stored when the join leaves the stack (<see cref="PromptAsync"/>).
+    /// </summary>
+    public bool HoldsLinks => JoinShowing() && !_join!.CanTakeLink;
 
     /// <summary>
     /// A link arrived while Coo runs (spec §4.1), already stored when it held a code. A join sheet showing starts again from
@@ -132,9 +145,10 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
 
     /// <summary>
     /// The consent sheet asked for by a flow (inviting, joining): it may open over the join sheet, and the flow waits for it to
-    /// close. True when consent is given then. Main thread.
+    /// close. <see cref="ConsentAnswer.NotAsked"/> when it could not open or the account signed out while it showed (review I1).
+    /// Main thread.
     /// </summary>
-    public async Task<bool> AskConsentAsync()
+    public async Task<ConsentAnswer> AskConsentAsync()
     {
         var closed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var opened = await ShowAsync(
@@ -153,11 +167,14 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
             },
             overSheet: true);
         if (!opened)
-            return false;
+            return ConsentAnswer.NotAsked;
         _consentShown = true;
         await closed.Task;
-        return await services.GetRequiredService<ISessionStore>().GetAsync(CancellationToken.None) is { } session
-            && await services.GetRequiredService<ConsentGate>().CachedAsync(session.Profile.UserId, CancellationToken.None) == ConsentState.Given;
+        if (account.State is SignedOut || await services.GetRequiredService<ISessionStore>().GetAsync(CancellationToken.None) is not { } session)
+            return ConsentAnswer.NotAsked;
+        return await services.GetRequiredService<ConsentGate>().CachedAsync(session.Profile.UserId, CancellationToken.None) == ConsentState.Given
+            ? ConsentAnswer.Given
+            : ConsentAnswer.Declined;
     }
 
     private bool JoinShowing() => _join is not null && OnModalStack(_join);
@@ -176,6 +193,7 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
         var held = await services.GetRequiredService<Joining.InvitationInbox>().StoreHeldAsync();
         if (held != Joining.HeldLink.None)
             _joinOffered = false;
+        _malformedPending |= held == Joining.HeldLink.Malformed;
 
         var status = engine.Status;
         if (status.Removal is { } removed && removed != _removalShown)
@@ -185,9 +203,9 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
             return;
         }
 
-        if (held == Joining.HeldLink.Malformed)
+        if (_malformedPending)
         {
-            await ShowJoinAsync(malformed: true);
+            await ShowJoinAsync();
             return;
         }
 

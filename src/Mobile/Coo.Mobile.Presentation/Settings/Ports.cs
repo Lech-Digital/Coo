@@ -23,10 +23,23 @@ public interface IExternalLauncher
     Task ShareTextAsync(string text, string title);
 }
 
-/// <summary>Spec 011 §3's consent sheet, shown where the person is (Spec 011b §3, §5.1). True when consent is given once it closes.</summary>
+/// <summary>What the consent sheet came to (Spec 011b §5.1, review ruling: "couldn't ask" is not "said no").</summary>
+public enum ConsentAnswer
+{
+    /// <summary>The sheet could not be shown (Coo in the background, another sheet opening, no window), or the account signed out while it showed.</summary>
+    NotAsked,
+
+    /// <summary>Consent is given once the sheet closed.</summary>
+    Given,
+
+    /// <summary>The person closed the sheet without agreeing (Not now, Back).</summary>
+    Declined,
+}
+
+/// <summary>Spec 011 §3's consent sheet, shown where the person is (Spec 011b §3, §5.1).</summary>
 public interface IConsentPrompt
 {
-    Task<bool> AskAsync();
+    Task<ConsentAnswer> AskAsync();
 }
 
 public static class AppVersionText

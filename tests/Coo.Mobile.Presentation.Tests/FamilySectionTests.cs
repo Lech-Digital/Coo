@@ -165,7 +165,25 @@ public sealed class FamilySectionTests : IDisposable
         await SignInAsync();
         OnPhone(Home);
         _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Declined);
-        _consentPrompt.AskAsync().Returns(false);
+        _consentPrompt.AskAsync().Returns(ConsentAnswer.Declined);
+        var section = Section();
+
+        // Act
+        await section.InviteCommand.ExecuteAsync(null);
+
+        // Assert
+        await _api.DidNotReceiveWithAnyArgs().CreateInvitationAsync(default, default);
+        await _launcher.DidNotReceiveWithAnyArgs().ShareTextAsync(default!, default!);
+    }
+
+    [Fact]
+    public async Task InviteCommand_ConsentSheetCouldNotOpen_InvitesNobody()
+    {
+        // Arrange: review I1.
+        await SignInAsync();
+        OnPhone(Home);
+        _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Declined);
+        _consentPrompt.AskAsync().Returns(ConsentAnswer.NotAsked);
         var section = Section();
 
         // Act

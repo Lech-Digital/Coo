@@ -6,7 +6,7 @@ namespace Coo.Mobile.Joining;
 internal sealed class MauiConsentPrompt(IServiceProvider services) : IConsentPrompt
 {
     /// <summary>The prompter works on the main thread only; a flow that awaited off it is brought back.</summary>
-    public Task<bool> AskAsync()
+    public Task<ConsentAnswer> AskAsync()
     {
         var prompter = services.GetRequiredService<Sync.SyncPrompter>();
         return MainThread.IsMainThread ? prompter.AskConsentAsync() : MainThread.InvokeOnMainThreadAsync(prompter.AskConsentAsync);

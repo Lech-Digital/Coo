@@ -20,6 +20,7 @@ public sealed class JoinPage : ContentPage
     private readonly ContentView _body = new();
     private bool _started;
     private bool _ended;
+    private bool _closeWanted;
 
     public JoinPage(JoinViewModel model, UndoService undo, Account account)
     {
@@ -39,15 +40,29 @@ public sealed class JoinPage : ContentPage
     public event EventHandler? Ended;
 
     /// <summary>
-    /// A new link arrived while the sheet shows (main thread): the flow starts again from the new pending invitation, unless it
-    /// is still loading, busy, or at the choice (a join is stored; the new invitation opens once this flow ends).
+    /// Whether a new link may restart the flow now (main thread): not while it loads, works, is at the choice (a join is stored),
+    /// or has a sheet over it (its consent). Otherwise the link stays held and opens once this flow ends (review I2).
+    /// </summary>
+    public bool CanTakeLink
+    {
+        get
+        {
+            var stack = Navigation.ModalStack;
+            return _started && !_ended && !_model.IsBusy && !_model.BringOver.IsBusy && _model.Step is not (JoinStep.Loading or JoinStep.Choice)
+                && stack.Count > 0 && ReferenceEquals(stack[stack.Count - 1], this);
+        }
+    }
+
+    /// <summary>
+    /// A new link arrived while the sheet shows (main thread) and <see cref="CanTakeLink"/> held: the flow starts again from
+    /// the new pending invitation.
     /// </summary>
     public void NewLink(bool malformed)
     {
 #pragma warning disable CA1031 // Called from a main-thread callback: nothing may escape; the invitation stays pending.
         try
         {
-            if (!_started || _model.IsBusy || _model.BringOver.IsBusy || _model.Step is JoinStep.Loading or JoinStep.Choice)
+            if (!CanTakeLink)
                 return;
             if (malformed)
             {
@@ -72,6 +87,14 @@ public sealed class JoinPage : ContentPage
             base.OnAppearing();
             _account.Changed -= OnAccountChanged;
             _account.Changed += OnAccountChanged;
+
+            // A close asked for while another sheet was over this one (M1): now it is on top.
+            if (_closeWanted)
+            {
+                Dispatcher.Dispatch(async () => await CloseAsync());
+                return;
+            }
+
             if (_started)
                 return;
             _started = true;
@@ -112,10 +135,18 @@ public sealed class JoinPage : ContentPage
     {
         Dispatcher.Dispatch(async () =>
         {
-            if (_model.Step == JoinStep.Choice)
-                await CloseAsync();
-            else
-                await RunAsync(() => _model.NotNowCommand.ExecuteAsync(null));
+#pragma warning disable CA1031 // A dispatched handler: nothing may escape.
+            try
+            {
+                if (_model.Step == JoinStep.Choice)
+                    await CloseAsync();
+                else
+                    await RunAsync(() => _model.NotNowCommand.ExecuteAsync(null));
+            }
+            catch (Exception)
+            {
+            }
+#pragma warning restore CA1031
         });
         return true;
     }
@@ -222,22 +253,33 @@ public sealed class JoinPage : ContentPage
 #pragma warning restore CA1031
     }
 
+    /// <summary>
+    /// Pops this page only when it is on top (M1): with a sheet over it (its consent), popping would close that one instead,
+    /// so the close waits until this page appears again.
+    /// </summary>
     private async Task CloseAsync()
     {
         try
         {
-            if (Navigation.ModalStack.Contains(this))
+            var stack = Navigation.ModalStack;
+            if (stack.Count > 0 && ReferenceEquals(stack[stack.Count - 1], this))
+            {
+                _closeWanted = false;
                 await Navigation.PopModalAsync();
+            }
+            else if (stack.Contains(this))
+            {
+                _closeWanted = true;
+                return;
+            }
         }
 #pragma warning disable CA1031 // Closing twice must not crash.
         catch (Exception)
 #pragma warning restore CA1031
         {
         }
-        finally
-        {
-            End();
-        }
+
+        End();
     }
 
     private void End()

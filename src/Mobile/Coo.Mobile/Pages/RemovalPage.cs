@@ -16,6 +16,7 @@ public sealed class RemovalPage : ContentPage
     private readonly Account _account;
     private readonly ContentView _body = new();
     private bool _loaded;
+    private bool _closeWanted;
 
     public RemovalPage(RemovalViewModel model, Account account)
     {
@@ -35,7 +36,7 @@ public sealed class RemovalPage : ContentPage
             base.OnAppearing();
             _account.Changed -= OnAccountChanged;
             _account.Changed += OnAccountChanged;
-            if (_account.State is SignedOut)
+            if (_account.State is SignedOut || _closeWanted)
             {
                 // Dispatched, as ConsentPage does: popping a modal from inside its own appearing is not safe.
                 Dispatcher.Dispatch(async () => await CloseAsync());
@@ -124,12 +125,21 @@ public sealed class RemovalPage : ContentPage
         return button;
     }
 
+    /// <summary>Pops this page only when it is on top (M1); with a sheet over it, the close waits until this page appears again.</summary>
     private async Task CloseAsync()
     {
         try
         {
-            if (Navigation.ModalStack.Contains(this))
+            var stack = Navigation.ModalStack;
+            if (stack.Count > 0 && ReferenceEquals(stack[stack.Count - 1], this))
+            {
+                _closeWanted = false;
                 await Navigation.PopModalAsync();
+            }
+            else if (stack.Contains(this))
+            {
+                _closeWanted = true;
+            }
         }
 #pragma warning disable CA1031 // Closing twice must not crash.
         catch (Exception)

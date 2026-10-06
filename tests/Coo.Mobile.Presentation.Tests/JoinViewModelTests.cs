@@ -124,7 +124,7 @@ public sealed class JoinViewModelTests : IDisposable
         // Arrange: §5.1 step 3.
         await SignInAsync();
         _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Declined);
-        _consent.AskAsync().Returns(false);
+        _consent.AskAsync().Returns(ConsentAnswer.Declined);
         var model = Join();
         await model.StartAsync();
 
@@ -577,6 +577,95 @@ public sealed class JoinViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task JoinCommand_ConsentSheetCouldNotOpen_KeepsTheInvitationAndOffersTryAgain()
+    {
+        // Arrange: review I1, "couldn't ask" is not "said no".
+        await SignInAsync();
+        _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Declined);
+        _consent.AskAsync().Returns(ConsentAnswer.NotAsked);
+        var model = Join();
+        await model.StartAsync();
+
+        // Act
+        await model.JoinCommand.ExecuteAsync(null);
+
+        // Assert
+        await _api.DidNotReceiveWithAnyArgs().AcceptAsync(default!, default);
+        await _store.DidNotReceive().SetPendingInvitationAsync(null, Arg.Any<CancellationToken>());
+        model.Step.Should().Be(JoinStep.Message);
+        model.Message.Should().Be("That didn't work. Check your connection and try again.");
+        model.CanRetry.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task RetryCommand_AfterTheConsentSheetCouldNotOpen_AsksAgainAndJoins()
+    {
+        // Arrange
+        await SignInAsync();
+        _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Declined);
+        _consent.AskAsync().Returns(ConsentAnswer.NotAsked, ConsentAnswer.Given);
+        _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
+        _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, []));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        var model = Join();
+        string? toast = null;
+        model.Finished += (_, t) => toast = t;
+        await model.StartAsync();
+        await model.JoinCommand.ExecuteAsync(null);
+
+        // Act
+        await model.RetryCommand.ExecuteAsync(null);
+
+        // Assert
+        await _consent.Received(2).AskAsync();
+        await _api.Received(1).AcceptAsync(Code, Arg.Any<CancellationToken>());
+        toast.Should().Be("You've joined Andrzej's family.");
+    }
+
+    [Fact]
+    public async Task JoinCommand_ServerWantsConsentAndTheSheetCouldNotOpen_KeepsTheInvitationAndOffersTryAgain()
+    {
+        // Arrange
+        await SignInAsync();
+        _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
+        _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(SyncErrors.ConsentRequired));
+        _consent.AskAsync().Returns(ConsentAnswer.NotAsked);
+        var model = Join();
+        await model.StartAsync();
+
+        // Act
+        await model.JoinCommand.ExecuteAsync(null);
+
+        // Assert
+        await _store.DidNotReceive().SetPendingInvitationAsync(null, Arg.Any<CancellationToken>());
+        model.Message.Should().Be("That didn't work. Check your connection and try again.");
+        model.CanRetry.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task JoinCommand_ALinkReplacedTheCodeSinceThePreview_ShowsTheNewInvitationAndAcceptsNothing()
+    {
+        // Arrange: review I2, the accept must be for the invitation the person saw.
+        await SignInAsync();
+        var other = InvitationCode.Parse("ZZZZZZZZ").Value;
+        _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
+        _store.GetPendingInvitationAsync(Arg.Any<CancellationToken>()).Returns(
+            new PendingInvitation(Code, Now), new PendingInvitation(Code, Now), new PendingInvitation(other, Now));
+        _api.PreviewAsync(other, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Home, "Ola", [], Role.Parent, Now.AddHours(72), false));
+        var model = Join();
+        await model.StartAsync();
+
+        // Act
+        await model.JoinCommand.ExecuteAsync(null);
+
+        // Assert
+        await _api.DidNotReceiveWithAnyArgs().AcceptAsync(default!, default);
+        model.Step.Should().Be(JoinStep.Invitation);
+        model.Title.Should().Be("Join Ola's family?");
+    }
+
+    [Fact]
     public async Task JoinCommand_ServerWantsConsent_AsksThenAcceptsAgain()
     {
         // Arrange: §5.1, the phone thought consent was given but the server disagrees.
@@ -585,7 +674,7 @@ public sealed class JoinViewModelTests : IDisposable
         _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(
             _ => throw new HouseholdRefusedException(SyncErrors.ConsentRequired),
             _ => new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.Joined));
-        _consent.AskAsync().Returns(true);
+        _consent.AskAsync().Returns(ConsentAnswer.Given);
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
         _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, []));
         _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
@@ -611,7 +700,7 @@ public sealed class JoinViewModelTests : IDisposable
         await SignInAsync();
         _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
         _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(SyncErrors.ConsentRequired));
-        _consent.AskAsync().Returns(false);
+        _consent.AskAsync().Returns(ConsentAnswer.Declined);
         var model = Join();
         await model.StartAsync();
 
@@ -841,7 +930,7 @@ public sealed class JoinViewModelTests : IDisposable
         // Arrange
         await SignInAsync();
         _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Declined);
-        _consent.AskAsync().Returns(true);
+        _consent.AskAsync().Returns(ConsentAnswer.Given);
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
         _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, []));
@@ -866,7 +955,7 @@ public sealed class JoinViewModelTests : IDisposable
         // Arrange
         await SignInAsync();
         _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Declined);
-        _consent.AskAsync().Returns(true);
+        _consent.AskAsync().Returns(ConsentAnswer.Given);
         _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(SyncErrors.ConsentRequired));
         var model = Join();
         await model.StartAsync();

@@ -38,6 +38,12 @@ internal sealed class InvitationInbox(IServiceProvider services)
         Drain();
     }
 
+    /// <summary>
+    /// The start-up page is starting (a new window, perhaps in a process that lives on, M4): links are held again until it has
+    /// routed, so they go held → stored → opened over the right page.
+    /// </summary>
+    public void Unready() => _ready = false;
+
     /// <summary>The held link becomes the pending invitation; malformed links are reported, never stored.</summary>
     public async Task<HeldLink> StoreHeldAsync()
     {
@@ -52,9 +58,13 @@ internal sealed class InvitationInbox(IServiceProvider services)
     {
         try
         {
+            // A join that cannot start again now keeps the link held (review I2); the prompter stores it when the join ends.
+            var prompter = services.GetRequiredService<Sync.SyncPrompter>();
+            if (prompter.HoldsLinks)
+                return;
             var held = await StoreHeldAsync();
             if (held != HeldLink.None)
-                await services.GetRequiredService<Sync.SyncPrompter>().OfferLinkAsync(malformed: held == HeldLink.Malformed);
+                await prompter.OfferLinkAsync(malformed: held == HeldLink.Malformed);
         }
 #pragma warning disable CA1031 // Fire-and-forget on the main thread: the link stays pending and the flow opens at the next start or resume.
         catch (Exception e)

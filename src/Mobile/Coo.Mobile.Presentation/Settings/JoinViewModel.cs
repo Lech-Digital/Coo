@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Coo.Domain.Households;
 using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Preferences;
@@ -28,6 +29,7 @@ public sealed partial class JoinViewModel : ObservableObject
         None,
         Preview,
         Accept,
+        Join,
         Decide,
         Start,
     }
@@ -37,6 +39,7 @@ public sealed partial class JoinViewModel : ObservableObject
     private readonly IConsentPrompt _consent;
     private readonly IClockFormat _clock;
     private InvitationPreview? _preview;
+    private InvitationCode? _code;
     private Retry _retry;
     private string _inviterName = "";
 
@@ -196,19 +199,7 @@ public sealed partial class JoinViewModel : ObservableObject
         IsBusy = true;
         try
         {
-            var asked = false;
-            if (!await _join.HasConsentAsync(CancellationToken.None))
-            {
-                if (!await _consent.AskAsync())
-                {
-                    await DeclineForConsentAsync(preview);
-                    return;
-                }
-
-                asked = true;
-            }
-
-            await AcceptAsync(preview, consentAsked: asked);
+            await JoinCoreAsync(preview);
         }
 #pragma warning disable CA1031 // Nothing was joined that the stored marker does not keep; say it did not work and let the person try again.
         catch (Exception)
@@ -237,6 +228,9 @@ public sealed partial class JoinViewModel : ObservableObject
                     break;
                 case Retry.Accept when _preview is { } preview:
                     await AcceptAsync(preview, consentAsked: false);
+                    break;
+                case Retry.Join when _preview is { } preview:
+                    await JoinCoreAsync(preview);
                     break;
                 case Retry.Decide:
                     await DecideAsync();
@@ -295,7 +289,7 @@ public sealed partial class JoinViewModel : ObservableObject
         switch (result.Status)
         {
             case PreviewStatus.Ready:
-                _preview = result.Invitation!;
+                (_preview, _code) = (result.Invitation!, result.Code);
                 Title = Strings.Format("Join.Title", _preview.InviterName);
                 Body = Strings.Format("Join.Body", _preview.InviterName);
                 Babies = _preview.BabyNames.Count == 0 ? Strings.Get("Join.NoBaby") : Strings.Format("Join.Babies", string.Join(", ", _preview.BabyNames));
@@ -319,9 +313,31 @@ public sealed partial class JoinViewModel : ObservableObject
         }
     }
 
+    /// <summary>Consent if the account has none (the host's sheet), then the accept.</summary>
+    private async Task JoinCoreAsync(InvitationPreview preview)
+    {
+        var asked = false;
+        if (!await _join.HasConsentAsync(CancellationToken.None))
+        {
+            switch (await _consent.AskAsync())
+            {
+                case ConsentAnswer.Declined:
+                    await DeclineForConsentAsync(preview);
+                    return;
+                case ConsentAnswer.NotAsked:
+                    ShowMessage(Strings.Get("Family.ActionFailed"), Retry.Join);
+                    return;
+            }
+
+            asked = true;
+        }
+
+        await AcceptAsync(preview, consentAsked: asked);
+    }
+
     private async Task AcceptAsync(InvitationPreview preview, bool consentAsked)
     {
-        var accepted = await _join.AcceptAsync(preview.InviterName, CancellationToken.None);
+        var accepted = await _join.AcceptAsync(_code!, preview.InviterName, CancellationToken.None);
         switch (accepted.Status)
         {
             case AcceptStatus.Joined:
@@ -342,11 +358,29 @@ public sealed partial class JoinViewModel : ObservableObject
             case AcceptStatus.AlreadyMember:
                 ShowMessage(Strings.Get("Join.AlreadyMember"), Retry.None);
                 break;
-            case AcceptStatus.NeedsConsent when !consentAsked && await _consent.AskAsync():
-                await AcceptAsync(preview, consentAsked: true);
+            case AcceptStatus.NeedsConsent when consentAsked:
+                await DeclineForConsentAsync(preview);
                 break;
             case AcceptStatus.NeedsConsent:
-                await DeclineForConsentAsync(preview);
+                switch (await _consent.AskAsync())
+                {
+                    case ConsentAnswer.Given:
+                        await AcceptAsync(preview, consentAsked: true);
+                        break;
+                    case ConsentAnswer.Declined:
+                        await DeclineForConsentAsync(preview);
+                        break;
+                    default:
+                        // The sheet could not be shown: the invitation stays; Try again asks again (review I1).
+                        ShowMessage(Strings.Get("Family.ActionFailed"), Retry.Join);
+                        break;
+                }
+
+                break;
+            case AcceptStatus.Changed:
+                // A newer link replaced the code: show that invitation instead (review I2).
+                (_preview, _code) = (null, null);
+                await StartCoreAsync();
                 break;
             case AcceptStatus.Invalid:
                 ShowMessage(Strings.Error("invitation.invalid"), Retry.None);

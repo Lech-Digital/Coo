@@ -9,6 +9,8 @@ namespace Coo.Mobile.Pages;
 /// </summary>
 public sealed class EnterCodePage : ContentPage
 {
+    private bool _closeWanted;
+
     public EnterCodePage(EnterCodeViewModel model)
     {
         SetDynamicResource(BackgroundColorProperty, "Ground");
@@ -28,7 +30,18 @@ public sealed class EnterCodePage : ContentPage
         model.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(EnterCodeViewModel.Error))
-                Dispatcher.Dispatch(() => error.Text = model.Error);
+                Dispatcher.Dispatch(() =>
+                {
+#pragma warning disable CA1031 // A dispatched redraw: nothing may escape.
+                    try
+                    {
+                        error.Text = model.Error;
+                    }
+                    catch (Exception)
+                    {
+                    }
+#pragma warning restore CA1031
+                });
         };
         var go = new Button { Text = EnterCodeViewModel.ContinueText };
         go.SetDynamicResource(StyleProperty, "PrimaryButton");
@@ -59,6 +72,14 @@ public sealed class EnterCodePage : ContentPage
     /// <summary>Raised once the code is stored and the sheet closed (main thread); the prompter then opens the join sheet.</summary>
     public event EventHandler? CodeAccepted;
 
+    /// <summary>A close asked for while another sheet was over this one (M1): now it is on top.</summary>
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        if (_closeWanted)
+            Dispatcher.Dispatch(async () => await CloseAsync());
+    }
+
     protected override bool OnBackButtonPressed()
     {
         Dispatcher.Dispatch(async () => await CloseAsync());
@@ -80,12 +101,21 @@ public sealed class EnterCodePage : ContentPage
 #pragma warning restore CA1031
     }
 
+    /// <summary>Pops this page only when it is on top (M1); with a sheet over it, the close waits until this page appears again.</summary>
     private async Task CloseAsync()
     {
         try
         {
-            if (Navigation.ModalStack.Contains(this))
+            var stack = Navigation.ModalStack;
+            if (stack.Count > 0 && ReferenceEquals(stack[stack.Count - 1], this))
+            {
+                _closeWanted = false;
                 await Navigation.PopModalAsync();
+            }
+            else if (stack.Contains(this))
+            {
+                _closeWanted = true;
+            }
         }
 #pragma warning disable CA1031 // Closing twice must not crash.
         catch (Exception)

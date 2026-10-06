@@ -25,6 +25,9 @@ public sealed class StartupPage : ContentPage
         _services = services;
         BackgroundColor = Color.FromArgb("#F1EDE5");
         Content = _status;
+
+        // Built for a new window, before the activity offers its link (M4): the link is held until this page has routed.
+        services.GetRequiredService<Joining.InvitationInbox>().Unready();
     }
 
     protected override async void OnAppearing()
@@ -135,10 +138,16 @@ public sealed class StartupPage : ContentPage
         }
     }
 
+    // A sheet over setup closed while Today was waiting to open (M3).
+    private void OnSetupModalPopped(object? sender, ModalPoppedEventArgs e) => MainThread.BeginInvokeOnMainThread(async () => await ShowShellIfBabyAsync());
+
     // Raised on the main thread by the prompter; dispatched anyway, so the sheet has left the stack first.
     private void OnJoinEnded(object? sender, EventArgs e) => MainThread.BeginInvokeOnMainThread(async () => await ShowShellIfBabyAsync());
 
-    /// <summary>The join ended over the setup step: with a baby in the shown family now, Today opens (spec §5.3). Catches everything.</summary>
+    /// <summary>
+    /// The join ended over the setup step: with a baby in the shown family now, Today opens (spec §5.3). Only with no sheet
+    /// open (M3: replacing the root page would drop it); otherwise once the last sheet closes. Catches everything.
+    /// </summary>
     private async Task ShowShellIfBabyAsync()
     {
         try
@@ -148,8 +157,15 @@ public sealed class StartupPage : ContentPage
             var households = _services.GetRequiredService<IHouseholdStore>();
             if ((await households.ListHouseholdsAsync(CancellationToken.None)).FirstOrDefault(h => !h.IsDeleted) is not { } household
                 || (await households.ListBabiesAsync(household.Id, CancellationToken.None)).Count == 0
-                || window.Page is not Pages.SetupPage)
+                || window.Page is not Pages.SetupPage setup)
                 return;
+            window.ModalPopped -= OnSetupModalPopped;
+            if (setup.Navigation.ModalStack.Count > 0)
+            {
+                window.ModalPopped += OnSetupModalPopped;
+                return;
+            }
+
             window.Page = _services.GetRequiredService<AppShell>();
             StartSync();
         }
