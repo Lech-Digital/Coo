@@ -18,7 +18,8 @@ public enum SyncTrigger
 /// after it (coalesced, never queued); local writes are debounced by a second; every 30 seconds in the foreground; on the
 /// way to the background, one more cycle after any backoff. A failed cycle backs off from 2 s, doubling to 5 minutes, jittered ×[0.5, 1];
 /// during a backoff only Start, Resume, connectivity regained and Manual run at once (they reset it, ruling 12).
-/// Nothing escapes: a cycle that throws is a failure.
+/// Nothing escapes: a cycle that throws is a failure. A whole-family change on the phone runs in an exclusive section
+/// (<see cref="RunExclusiveAsync"/>), between cycles.
 /// </summary>
 public sealed class SyncScheduler : IDisposable
 {
@@ -33,6 +34,9 @@ public sealed class SyncScheduler : IDisposable
     private readonly Lock _gate = new();
     private readonly CancellationTokenSource _lifetime = new();
     private TaskCompletionSource _idle = CompletedIdle();
+
+    // Completes when the running loop has returned; RunExclusiveAsync waits for it.
+    private TaskCompletionSource _loopEnded = CompletedIdle();
     private ITimer? _debounce;
     private ITimer? _backoff;
     private ITimer? _periodic;
@@ -49,6 +53,9 @@ public sealed class SyncScheduler : IDisposable
     private bool _foreground;
     private bool _disposed;
     private int _failures;
+
+    // Exclusive sections in progress (final review C1): while above zero no cycle starts; triggers wait for the last to end.
+    private int _holds;
 
     /// <param name="cycle">Runs one cycle; false means "failed, back off".</param>
     /// <param name="jitter">A factor in [0.5, 1]; the default draws it from <see cref="RandomNumberGenerator"/>.</param>
@@ -118,6 +125,34 @@ public sealed class SyncScheduler : IDisposable
         await WhenIdleAsync().WaitAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Runs <paramref name="work"/> with no cycle in flight (final review C1): waits for a running cycle to end, and starts
+    /// none until the work has ended, however it ends. Triggers meanwhile are coalesced into one cycle after it, and
+    /// <see cref="WhenIdleAsync"/> waits for that cycle. Sections may nest or overlap; cycles wait for the last one.
+    /// The work must not wait for a cycle (<see cref="RunNowAsync"/>): that cycle cannot start before the work ends.
+    /// </summary>
+    public async Task RunExclusiveAsync(Func<CancellationToken, Task> work, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(work);
+        Task running;
+        lock (_gate)
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            _holds++;
+            running = _running ? _loopEnded.Task : Task.CompletedTask;
+        }
+
+        try
+        {
+            await running.WaitAsync(cancellationToken);
+            await work(cancellationToken);
+        }
+        finally
+        {
+            Release();
+        }
+    }
+
     /// <summary>Completes when no cycle is running or about to run. For tests and <see cref="RunNowAsync"/>.</summary>
     public Task WhenIdleAsync()
     {
@@ -137,6 +172,7 @@ public sealed class SyncScheduler : IDisposable
             _backoff?.Dispose();
             _periodic?.Dispose();
             _idle.TrySetResult();
+            _loopEnded.TrySetResult();
         }
 
         _lifetime.Cancel();
@@ -193,19 +229,58 @@ public sealed class SyncScheduler : IDisposable
 
         if (_waitingForBackoff)
             return false;
-        if (_running)
+        if (_running || _holds > 0)
         {
             _again = true;
 
             // Sync now or connectivity during a cycle: the next cycle runs at once even if this one fails.
             _againAtOnce |= resetBackoff;
+
+            // Held by an exclusive section: the cycle is about to run, once the section ends.
+            if (_idle.Task.IsCompleted)
+                _idle = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             return false;
         }
 
+        StartLoop();
+        return true;
+    }
+
+    /// <summary>Under the lock: the loop is about to be launched.</summary>
+    private void StartLoop()
+    {
         _running = true;
+        _loopEnded = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         if (_idle.Task.IsCompleted)
             _idle = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        return true;
+    }
+
+    /// <summary>An exclusive section ended: when it was the last, a trigger that came meanwhile runs its cycle now.</summary>
+    private void Release()
+    {
+        var start = false;
+        lock (_gate)
+        {
+            _holds--;
+            if (_holds == 0 && !_running && !_disposed)
+            {
+                if (_again && !_waitingForBackoff)
+                {
+                    _again = false;
+                    _againAtOnce = false;
+                    StartLoop();
+                    start = true;
+                }
+                else
+                {
+                    _again = false;
+                    _idle.TrySetResult();
+                }
+            }
+        }
+
+        if (start)
+            Launch();
     }
 
     // Started outside the lock and off the caller's thread: a cycle never runs under the lock or inside a timer callback.
@@ -243,16 +318,21 @@ public sealed class SyncScheduler : IDisposable
                     }
                 }
 
-                if (_again && !_disposed)
+                if (_again && !_disposed && _holds == 0)
                 {
                     _again = false;
                     _againAtOnce = false;
                     continue;
                 }
 
-                _againAtOnce = false;
-
                 _running = false;
+                _loopEnded.TrySetResult();
+
+                // Held: a trigger that came during the cycle keeps _again; its cycle starts when the section ends.
+                if (_holds > 0 && _again && !_disposed)
+                    return;
+
+                _againAtOnce = false;
                 _idle.TrySetResult();
                 return;
             }

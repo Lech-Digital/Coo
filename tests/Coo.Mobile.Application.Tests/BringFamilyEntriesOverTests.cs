@@ -8,7 +8,9 @@ using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Sync;
 using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
+using NSubstitute.Core;
 using NSubstitute.ExceptionExtensions;
+using NSubstitute.Extensions;
 using static Coo.Mobile.Application.Tests.FamiliesTests;
 
 namespace Coo.Mobile.Application.Tests;
@@ -28,6 +30,7 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
     private readonly IHouseholdApi _api = Substitute.For<IHouseholdApi>();
     private readonly IVersionClock _clock = Substitute.For<IVersionClock>();
     private readonly IHouseholdStore _households = Substitute.For<IHouseholdStore>();
+    private readonly ISyncControl _sync = Substitute.For<ISyncControl>();
 
     public BringFamilyEntriesOverTests()
     {
@@ -37,13 +40,14 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
         _clock.NextAsync(Arg.Any<CancellationToken>()).Returns(new HlcStamp(1_790_000_000_000, 4, Phone));
         _records.CountRecordsAsync(Home, Arg.Any<CancellationToken>()).Returns(45);
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([Settings(Home), Settings(Joined)]);
+        _sync.RunExclusiveAsync(default!, default).ReturnsForAnyArgs(c => c.Arg<Func<CancellationToken, Task>>()(c.Arg<CancellationToken>()));
     }
 
     public void Dispose() => _account.Dispose();
 
     private BringFamilyEntriesOver UseCase() => new(_sessions, _account, _moves, _records, _store, _api, _clock,
         new Families(_account, _store, Substitute.For<IAccountApi>(), _api, _sessions, _households, _moves, Substitute.For<ISyncState>(), _records,
-            new ProvisionalSettings(_clock, Substitute.For<IDeviceLocale>(), new FakeTimeProvider(Now))));
+            new ProvisionalSettings(_clock, Substitute.For<IDeviceLocale>(), new FakeTimeProvider(Now))), _sync);
 
     private Task SignInAsync() => _account.SignedInAsync(
         new StoredSession("access", Now.AddMinutes(15), "refresh", Profile, Home, JoinPending: false), CancellationToken.None);
@@ -259,7 +263,7 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
         _records.CountRecordsAsync(Home, Arg.Any<CancellationToken>()).Returns(45, 47);
         _clock.NextAsync(Arg.Any<CancellationToken>()).Returns(new HlcStamp(1_790_000_000_000, 4, Phone), new HlcStamp(1_790_000_000_000, 50, Phone));
         _records.CopyAsync(default!, default, default, default, default).ReturnsForAnyArgs(
-            _ => throw new InvalidOperationException("The copy needs more stamps than were reserved for it."), _ => new CopyResult(42, 0));
+            _ => throw new StampBudgetExceededException(), _ => new CopyResult(42, 0));
 
         // Act
         var outcome = await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?>(), CancellationToken.None);
@@ -281,14 +285,60 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
         // Arrange
         await SignInAsync();
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
-        _records.CopyAsync(default!, default, default, default, default).ThrowsAsyncForAnyArgs(new InvalidOperationException("budget"));
+        _records.CopyAsync(default!, default, default, default, default).ThrowsAsyncForAnyArgs(new StampBudgetExceededException());
+
+        // Act
+        Func<Task> act = async () => await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?>(), CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<StampBudgetExceededException>();
+        await _records.ReceivedWithAnyArgs(2).CopyAsync(default!, default, default, default, default);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_CopyFailsForAnotherReason_SurfacesWithoutARetry()
+    {
+        // Arrange: only the stamp budget is retried (final review minor).
+        await SignInAsync();
+        _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
+        _records.CopyAsync(default!, default, default, default, default).ThrowsAsyncForAnyArgs(new InvalidOperationException("disk"));
 
         // Act
         Func<Task> act = async () => await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?>(), CancellationToken.None);
 
         // Assert
         await act.Should().ThrowAsync<InvalidOperationException>();
-        await _records.ReceivedWithAnyArgs(2).CopyAsync(default!, default, default, default, default);
+        await _records.ReceivedWithAnyArgs(1).CopyAsync(default!, default, default, default, default);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WhileTheCyclePushesTheNeverSyncedSource_DecidesAfterTheCycleAndCopies()
+    {
+        // Arrange: final review C1. The source's first push is unanswered: deciding now would move records the server is
+        // about to hold under the source. The engine holds the work until the cycle has ended; by then the source has synced.
+        await SignInAsync();
+        _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(false);
+        _moves.BringOverAsync(default!, default, default).ReturnsForAnyArgs(true);
+        MemberOf(Home, Role.Owner, 1);
+        _records.CopyAsync(default!, default, default, default, default).ReturnsForAnyArgs(new CopyResult(42, 0));
+        var cycleEnded = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _sync.Configure().RunExclusiveAsync(default!, default).ReturnsForAnyArgs(async c =>
+        {
+            await cycleEnded.Task;
+            await c.Arg<Func<CancellationToken, Task>>()(CancellationToken.None);
+        });
+
+        // Act
+        var bring = UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?>(), CancellationToken.None);
+        var movedDuringTheCycle = _moves.ReceivedCalls().Any(c => c.GetMethodInfo().Name == nameof(IHouseholdMoves.BringOverAsync));
+        _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
+        cycleEnded.SetResult();
+        var outcome = await bring.WaitAsync(TimeSpan.FromSeconds(10));
+
+        // Assert
+        movedDuringTheCycle.Should().BeFalse();
+        outcome.Path.Should().Be(BringPath.Copied);
+        await _moves.DidNotReceiveWithAnyArgs().BringOverAsync(default!, default, default);
     }
 
     [Theory]

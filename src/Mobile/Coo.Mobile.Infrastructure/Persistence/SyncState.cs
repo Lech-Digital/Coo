@@ -4,9 +4,12 @@ using Coo.Mobile.Application.Sync;
 
 namespace Coo.Mobile.Infrastructure.Persistence;
 
-/// <summary>Consent per account and the soft-lock per household, as <c>app_state</c> rows (Spec 011 §3, §6.5).</summary>
+/// <summary>Consent per account, the soft-lock per household and §8.4's replacement family, as <c>app_state</c> rows (Spec 011 §3, §6.5).</summary>
 internal sealed class SyncState(LocalDatabase database) : ISyncState
 {
+    /// <summary>Written by <see cref="FamilyRecords.DeleteAndReplaceAsync"/>, moved by a re-key (<see cref="HouseholdMoves.MoveAllAsync"/>).</summary>
+    internal const string ReplacementKey = "replacement_household";
+
     private const string Declined = "declined";
 
     public async Task<ConsentState> GetConsentAsync(UserId user, CancellationToken cancellationToken) =>
@@ -30,6 +33,16 @@ internal sealed class SyncState(LocalDatabase database) : ISyncState
     public Task SetSoftLockAsync(HouseholdId household, bool locked, CancellationToken cancellationToken) => locked
         ? SetAsync("softlock:" + Columns.Id(household.Value), "1", cancellationToken)
         : RemoveAsync("softlock:" + Columns.Id(household.Value), cancellationToken);
+
+    public async Task<HouseholdId?> GetReplacementHouseholdAsync(CancellationToken cancellationToken) =>
+        Columns.ParseGuid(await GetAsync(ReplacementKey, cancellationToken)) is { } id ? new HouseholdId(id) : null;
+
+    public async Task ClearReplacementHouseholdAsync(HouseholdId household, CancellationToken cancellationToken)
+    {
+        await using var connection = await database.OpenAsync(cancellationToken);
+        await connection.ExecuteAsync(
+            "DELETE FROM app_state WHERE key = $key AND value = $value;", cancellationToken, null, ("$key", ReplacementKey), ("$value", Columns.Id(household.Value)));
+    }
 
     private async Task<string?> GetAsync(string key, CancellationToken cancellationToken)
     {

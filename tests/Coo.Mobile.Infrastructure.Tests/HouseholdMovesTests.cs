@@ -113,6 +113,21 @@ public sealed class HouseholdMovesTests
     }
 
     [Fact]
+    public async Task MoveAllAsync_TheReplacementFamilyReKeyed_TheReplacementKeyFollowsIt()
+    {
+        // Arrange: final review C3, §8.4's id-taken re-key keeps the family the one the server may create.
+        var (db, _) = await PhoneAsync();
+        await using var cleanup = db;
+        await db.ExecuteAsync($"INSERT INTO app_state (key, value) VALUES ('replacement_household', '{TestDatabase.Household.Value}');");
+
+        // Act
+        await new HouseholdMoves(db.Database, db.Time).MoveAllAsync(TestDatabase.Household, Account, User, CancellationToken.None);
+
+        // Assert
+        (await new SyncState(db.Database).GetReplacementHouseholdAsync(CancellationToken.None)).Should().Be(Account);
+    }
+
+    [Fact]
     public async Task MoveAllAsync_AFailureHalfWay_ChangesNothing()
     {
         // Arrange

@@ -32,10 +32,12 @@ public sealed record BringOutcome(BringPath Path, int Copied, int Skipped, OldFa
 /// "Bring my entries over" into a chosen family (Spec 011b §6): the phone chooses the path, never the person. A source that
 /// has never synced moves (one transaction, Spec 011 §4's bring-over); one that synced is copied (ruling 8's stamps) and is
 /// never re-keyed (R5). A source of another account is never offered (callers check <see cref="FamilyOnPhone.MayBeBroughtOver"/>).
+/// Each change on the phone runs in the engine's exclusive section (<see cref="ISyncControl.RunExclusiveAsync"/>), so callers
+/// (the join and Settings) get it without asking; none of them may already hold it while waiting for a cycle.
 /// </summary>
 public sealed class BringFamilyEntriesOver(
     ISessionStore sessions, Account account, IHouseholdMoves moves, IFamilyRecords records, IFamilyStore families, IHouseholdApi api,
-    IVersionClock clock, Families list)
+    IVersionClock clock, Families list, ISyncControl sync)
 {
     public async Task<BringOverChoice> PrepareAsync(HouseholdId source, HouseholdId target, CancellationToken cancellationToken) =>
         new(await moves.SummaryAsync(source, cancellationToken), (await moves.SummaryAsync(target, cancellationToken)).Babies);
@@ -56,26 +58,43 @@ public sealed class BringFamilyEntriesOver(
         if (account.Generation != generation)
             throw new InvalidOperationException("The account changed: nothing was brought over.");
 
-        // The port re-checks "never synced" inside its transaction: a source that synced meanwhile is copied instead.
-        if (!await moves.HasEverSyncedAsync(source, cancellationToken) && await moves.BringOverAsync(plan, user, cancellationToken))
+        // Move or copy with no cycle in flight (final review C1): a first push of a never-synced source that is still
+        // unanswered would otherwise land under the source after its records moved, and never reach the target. Decided
+        // after the wait, a source whose push was answered has synced and is copied.
+        var (moved, copied) = (false, (CopyResult?)null);
+        await sync.RunExclusiveAsync(
+            async ct =>
+            {
+                if (account.Generation != generation)
+                    throw new InvalidOperationException("The account changed: nothing was brought over.");
+
+                // The port re-checks "never synced" inside its transaction: a source that synced meanwhile is copied instead.
+                if (!await moves.HasEverSyncedAsync(source, ct) && await moves.BringOverAsync(plan, user, ct))
+                {
+                    moved = true;
+                    return;
+                }
+
+                if (await families.WasCopiedAsync(source, target, ct))
+                    return;
+
+                try
+                {
+                    copied = await CopyAsync(plan, user, ct);
+                }
+                catch (StampBudgetExceededException)
+                {
+                    // Records were added between the count and the copy, which then wrote nothing: count, reserve and copy
+                    // once more. A second failure surfaces.
+                    copied = await CopyAsync(plan, user, ct);
+                }
+            },
+            cancellationToken);
+
+        if (moved)
         {
             await LeaveEmptyAdoptedAsync(source, cancellationToken);
             return new BringOutcome(BringPath.Moved, 0, 0, OldFamilyQuestion.None);
-        }
-
-        if (await families.WasCopiedAsync(source, target, cancellationToken))
-            return new BringOutcome(BringPath.AlreadyCopied, 0, 0, OldFamilyQuestion.None);
-
-        CopyResult? copied;
-        try
-        {
-            copied = await CopyAsync(plan, user, cancellationToken);
-        }
-        catch (InvalidOperationException)
-        {
-            // A pull added records between the count and the copy, which then wrote nothing: count, reserve and copy once more.
-            // A second failure surfaces.
-            copied = await CopyAsync(plan, user, cancellationToken);
         }
 
         if (copied is null)
@@ -116,10 +135,16 @@ public sealed class BringFamilyEntriesOver(
         }
 
         // The answer belongs to the sign-in that asked: under another one, the phone keeps the family (the next list refresh decides).
-        if (account.Generation != generation)
-            return;
-        await list.RemoveFromPhoneAsync(source, cancellationToken);
-        await list.RefreshAsync(cancellationToken);
+        // With no cycle in flight, as every whole-family change on the phone (final review C1).
+        await sync.RunExclusiveAsync(
+            async ct =>
+            {
+                if (account.Generation != generation)
+                    return;
+                await list.RemoveFromPhoneAsync(source, ct);
+                await list.RefreshAsync(ct);
+            },
+            cancellationToken);
     }
 
     /// <summary>

@@ -72,11 +72,13 @@ public sealed class MultiFamilyCycleTests : IDisposable
     private void OnPhone(params HouseholdId[] families) =>
         _onPhone.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([.. families.Select(FamiliesTests.Settings)]);
 
+    /// <summary>Spec 011b §8.4: the last family went from the phone and the provisional family that replaced it is shown.</summary>
     private void NoFamilyAndAFreshShownFamily()
     {
         Memberships();
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
         _moves.HasEverSyncedAsync(Provisional, Arg.Any<CancellationToken>()).Returns(false);
+        _state.GetReplacementHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
     }
 
     [Fact]
@@ -457,6 +459,46 @@ public sealed class MultiFamilyCycleTests : IDisposable
         await _store.Received(1).PrepareForPushAsync(Provisional, User, Arg.Any<CancellationToken>());
         await _api.Received(1).PullAsync(Provisional, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
         await _api.DidNotReceive().PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
+        await _state.Received(1).ClearReplacementHouseholdAsync(Provisional, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task RunAsync_NoActiveFamilyAndALocalFamilyNoRemovalMadeShown_CreatesNothingAndSyncsNothing()
+    {
+        // Arrange: final review C3. A never-synced local family (another account's, or one from before any account) is
+        // shown; no removal, leave or delete on this phone replaced the account's last family with it.
+        await SignInAsync();
+        Memberships();
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
+        _moves.HasEverSyncedAsync(Provisional, Arg.Any<CancellationToken>()).Returns(false);
+        OnPhone(Provisional);
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.Outcome.Should().Be(CycleOutcome.Synced);
+        await _households.DidNotReceiveWithAnyArgs().CreateHouseholdAsync(default, default);
+        await _store.DidNotReceiveWithAnyArgs().PrepareForPushAsync(default, default, default);
+        _sessions.Stored!.AccountHousehold.Should().Be(Household);
+    }
+
+    [Fact]
+    public async Task RunAsync_NoActiveFamilyAndAnotherLocalFamilyShownThanTheReplacement_CreatesNothing()
+    {
+        // Arrange: final review C3, the create is for the replacement while it is the shown family, never for another one.
+        await SignInAsync();
+        NoFamilyAndAFreshShownFamily();
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Third);
+        _moves.HasEverSyncedAsync(Third, Arg.Any<CancellationToken>()).Returns(false);
+        OnPhone(Provisional, Third);
+
+        // Act
+        await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        await _households.DidNotReceiveWithAnyArgs().CreateHouseholdAsync(default, default);
+        await _store.DidNotReceiveWithAnyArgs().PrepareForPushAsync(default, default, default);
     }
 
     [Fact]

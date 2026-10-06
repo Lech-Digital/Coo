@@ -36,7 +36,7 @@ public sealed class FamilyPageTests : IDisposable
     private readonly IExternalLauncher _launcher = Substitute.For<IExternalLauncher>();
     private readonly IClockFormat _clock = Substitute.For<IClockFormat>();
     private readonly ISyncState _state = Substitute.For<ISyncState>();
-    private readonly ISyncControl _sync = Substitute.For<ISyncControl>();
+    private readonly ISyncControl _sync = SyncControls.PassThrough();
     private readonly List<Families> _made = [];
 
     public FamilyPageTests()

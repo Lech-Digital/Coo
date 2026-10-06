@@ -43,7 +43,7 @@ internal sealed class FamilyRecords(LocalDatabase database, TimeProvider time, L
         // The caller reserved reservedCount stamps on the clock before this transaction; a pull in between may have added records.
         // Using more would stamp past the clock, so the copy stops and the transaction rolls back with nothing written.
         HlcStamp Next() => counter - firstStamp.Counter >= reservedCount
-            ? throw new InvalidOperationException("The copy needs more stamps than were reserved for it.")
+            ? throw new StampBudgetExceededException()
             : new(firstStamp.WallClockMs, counter++, firstStamp.DeviceId);
         string NewId() => Columns.Id(Guid.CreateVersion7(time.GetUtcNow()));
 
@@ -182,6 +182,11 @@ internal sealed class FamilyRecords(LocalDatabase database, TimeProvider time, L
         await HouseholdMoves.DeleteHouseholdRowsAsync(connection, transaction, household, cancellationToken);
         await HouseholdStore.WriteSettingsAsync(connection, transaction, replacement, time, cancellationToken);
         await HouseholdMoves.SetActiveAsync(connection, transaction, Columns.Id(replacement.Id.Value), cancellationToken);
+
+        // Final review C3: the one family a cycle may create on the server for an account left with none.
+        await connection.ExecuteAsync(
+            "INSERT INTO app_state (key, value) VALUES ($k, $v) ON CONFLICT (key) DO UPDATE SET value = excluded.value;",
+            cancellationToken, transaction, ("$k", SyncState.ReplacementKey), ("$v", Columns.Id(replacement.Id.Value)));
         await transaction.CommitAsync(cancellationToken);
         writes.Notify();
     }

@@ -766,16 +766,74 @@ public sealed class SyncEngineTests : IDisposable
         var sync = _engine.SyncNowAsync(CancellationToken.None);
         await asking.Task.WaitAsync(TimeSpan.FromSeconds(10));
 
-        // Act: the family is gone from the phone; the held cycle then hears "revoked".
-        await _engine.AcknowledgeRemovalAsync(CancellationToken.None);
-        _householdStore.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([FamiliesTests.Settings(Provisional)]);
+        // Act: OK is pressed while the cycle is held; the family goes only once the cycle has heard "revoked" (final review C1).
+        var acknowledge = _engine.AcknowledgeRemovalAsync(CancellationToken.None);
+        var removedDuringTheCycle = _records.ReceivedCalls().Any(c => c.GetMethodInfo().Name == nameof(IFamilyRecords.DeleteAndReplaceAsync));
         answer.SetResult(MembershipStatus.Revoked);
         await sync;
+        await acknowledge.WaitAsync(TimeSpan.FromSeconds(10));
+        _householdStore.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([FamiliesTests.Settings(Provisional)]);
         await _engine.WhenIdleAsync();
 
         // Assert
+        removedDuringTheCycle.Should().BeFalse();
         _engine.Status.Removal.Should().BeNull();
         await _records.Received(1).DeleteAndReplaceAsync(Household, Arg.Any<HouseholdSettings>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task RunExclusiveAsync_WhileAPushIsUnanswered_RunsTheWorkOnlyAfterTheCycle()
+    {
+        // Arrange: final review C1, a move must not run while the cycle's first push of its source is unanswered.
+        await SignInAsync();
+        await _engine.WhenIdleAsync();
+        var change = new OutgoingChange(Guid.Parse("7a1c0000-0000-7000-8000-0000000000f2"), "CareEntry", Guid.Parse("7a1c0000-0000-7000-8000-0000000000f1"),
+            false, new Coo.Domain.Common.Versioning.HlcStamp(1_790_000_000_000, 0, Phone), 1, null);
+        _store.NextBatchAsync(Household, Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns([change], []);
+        var pushing = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var answer = new TaskCompletionSource<IReadOnlyList<PushResult>>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _api.PushAsync(Household, Phone, Arg.Any<IReadOnlyList<OutgoingChange>>(), Arg.Any<CancellationToken>()).Returns(_ =>
+        {
+            pushing.TrySetResult();
+            return answer.Task;
+        });
+        var sync = _engine.SyncNowAsync(CancellationToken.None);
+        await pushing.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        var resultsAppliedBeforeTheWork = false;
+
+        // Act
+        var exclusive = _engine.RunExclusiveAsync(
+            _ =>
+            {
+                resultsAppliedBeforeTheWork = _store.ReceivedCalls().Any(c => c.GetMethodInfo().Name == nameof(ISyncStore.ApplyResultsAsync));
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+        var ranDuringThePush = exclusive.IsCompleted;
+        answer.SetResult([new PushResult(change.ChangeId, PushOutcome.Applied, null)]);
+        await sync;
+        await exclusive.WaitAsync(TimeSpan.FromSeconds(10));
+
+        // Assert
+        ranDuringThePush.Should().BeFalse();
+        resultsAppliedBeforeTheWork.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SyncNowAsync_JoinPendingWhileAJoinWaitsAtItsChoice_StatusSaysBringOverMayNotBeOffered()
+    {
+        // Arrange: final review C4, Spec 011's bring-over must not compete with the invitation's choice.
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
+        _store.HasPulledAsync(Household, Arg.Any<CancellationToken>()).Returns(true);
+        _familyStore.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(new JoiningMarker(Household, Provisional, "Kasia"));
+        await _account.SignedInAsync(
+            new StoredSession("access", Now.AddMinutes(15), "refresh", Profile, Household, JoinPending: true), CancellationToken.None);
+
+        // Act
+        await _engine.SyncNowAsync(CancellationToken.None);
+
+        // Assert
+        _engine.Status.JoinReady.Should().BeFalse();
     }
 
     [Fact]
@@ -827,19 +885,19 @@ public sealed class SyncEngineTests : IDisposable
         var acknowledge = _engine.AcknowledgeRemovalAsync(CancellationToken.None);
         await deleting.Task.WaitAsync(TimeSpan.FromSeconds(10));
 
-        // Act: while the first is being deleted, a cycle confirms the second.
+        // Act: while the first is being deleted, a cycle is asked for; it runs after the deletion and confirms the second.
         _api.GetMembershipAsync(Household, Arg.Any<CancellationToken>()).Returns(MembershipStatus.Unknown);
         _api.GetMembershipAsync(Provisional, Arg.Any<CancellationToken>()).Returns(MembershipStatus.Revoked);
-        await _engine.SyncNowAsync(CancellationToken.None);
-        var second = _engine.Status.Removal;
-        _api.GetMembershipAsync(Provisional, Arg.Any<CancellationToken>()).Returns(MembershipStatus.Unknown);
+        var sync = _engine.SyncNowAsync(CancellationToken.None);
+        var syncedDuringTheDeletion = sync.IsCompleted;
         release.SetResult();
         await acknowledge;
+        await sync;
         await _engine.WhenIdleAsync();
 
         // Assert
         first.Should().Be(Household);
-        second.Should().Be(Provisional);
+        syncedDuringTheDeletion.Should().BeFalse();
         _engine.Status.Removal.Should().Be(Provisional);
     }
 

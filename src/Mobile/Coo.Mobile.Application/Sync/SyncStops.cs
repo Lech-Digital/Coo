@@ -35,8 +35,8 @@ public sealed class SyncStops
         }
     }
 
-    /// <summary>Stops the family under the current wake.</summary>
-    public void Stop(HouseholdId household)
+    /// <summary>Stops the family under the current wake. For tests: a cycle stops a family under its own wake.</summary>
+    internal void Stop(HouseholdId household)
     {
         lock (_lock)
             _stopped.Add(household);

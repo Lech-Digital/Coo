@@ -195,9 +195,7 @@ public sealed class AuthClientTests
                 {"user":{"id":"7a1c0000-0000-7000-8000-0000000000c1","email":"k@example.com","displayName":"Kasia"},
                  "household":{"householdId":"7a1c0000-0000-7000-8000-0000000000a1","role":"owner"},"devices":[],
                  "memberships":[{"householdId":"7a1c0000-0000-7000-8000-0000000000a1","role":"owner","joinedAt":"2026-09-01T00:00:00+00:00"},
-                                {"householdId":"7a1c0000-0000-7000-8000-0000000000a2","role":"parent","joinedAt":"2026-10-06T00:00:00+00:00"},
-                                {"householdId":"00000000-0000-0000-0000-000000000000","role":"parent","joinedAt":"2026-10-06T00:00:00+00:00"},
-                                {"householdId":"7a1c0000-0000-7000-8000-0000000000a4","role":"parent"}]}
+                                {"householdId":"7a1c0000-0000-7000-8000-0000000000a2","role":"parent","joinedAt":"2026-10-06T00:00:00+00:00"}]}
                 """, Encoding.UTF8, "application/json"),
         })))
         { BaseAddress = new Uri("https://api.test/") });
@@ -205,9 +203,27 @@ public sealed class AuthClientTests
         // Act
         var me = await client.GetMeAsync(CancellationToken.None);
 
-        // Assert: an empty id and a missing joinedAt are skipped.
+        // Assert
         me.Memberships!.Select(m => (m.Household.Value.ToString(), m.Role)).Should().Equal(
             ("7a1c0000-0000-7000-8000-0000000000a1", Coo.Domain.Households.Role.Owner), ("7a1c0000-0000-7000-8000-0000000000a2", Coo.Domain.Households.Role.Parent));
+    }
+
+    [Theory]
+    [InlineData("""{"householdId":"00000000-0000-0000-0000-000000000000","role":"parent","joinedAt":"2026-10-06T00:00:00+00:00"}""")]
+    [InlineData("""{"householdId":"7a1c0000-0000-7000-8000-0000000000a4","role":"parent"}""")]
+    [InlineData("""{"householdId":"7a1c0000-0000-7000-8000-0000000000a4","role":"parent","joinedAt":null}""")]
+    public async Task GetMeAsync_AMembershipWithAnEmptyIdOrNoJoinedAt_MakesTheWholeListUnknown(string odd)
+    {
+        // Arrange: final review minor, fail closed like an unknown role: the phone keeps the list it has.
+        var body = """{"user":{"id":"7a1c0000-0000-7000-8000-0000000000c1","email":"a@b.c","displayName":"A"},"household":null,"devices":[],"memberships":[{"householdId":"7a1c0000-0000-7000-8000-0000000000a1","role":"owner","joinedAt":"2026-09-01T00:00:00+00:00"},"""
+            + odd + "]}";
+        var client = Account(_ => Json(HttpStatusCode.OK, body));
+
+        // Act
+        var me = await client.GetMeAsync(CancellationToken.None);
+
+        // Assert
+        me.Memberships.Should().BeNull();
     }
 
     [Fact]

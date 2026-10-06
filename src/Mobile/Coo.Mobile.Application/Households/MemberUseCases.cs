@@ -128,8 +128,21 @@ public sealed class LeaveFamily(IHouseholdApi api, Families families, ISyncContr
         if (account.Generation != generation)
             return FamilyAction.Done;
         // Replace-versus-delete is decided from the phone's own family list, so the LeaveOutcome (left or deleted) is intentionally unused.
-        await families.RemoveFromPhoneAsync(household, cancellationToken);
-        await families.RefreshAsync(cancellationToken);
+        // No cycle is in flight while the family goes and the list is refreshed: a pull answered before the leave must not
+        // bring back its cursor, nor a stale list sync the family again (final review C1).
+        var removed = false;
+        await sync.RunExclusiveAsync(
+            async ct =>
+            {
+                if (account.Generation != generation)
+                    return;
+                await families.RemoveFromPhoneAsync(household, ct);
+                removed = true;
+                await families.RefreshAsync(ct);
+            },
+            cancellationToken);
+        if (!removed)
+            return FamilyAction.Done;
         sync.NotifyDataChanged();
         sync.RequestSync();
         return FamilyAction.Done;

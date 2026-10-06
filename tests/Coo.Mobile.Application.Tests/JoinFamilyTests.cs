@@ -38,6 +38,7 @@ public sealed class JoinFamilyTests : IDisposable
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Home);
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([Settings(Home), Settings(Joined)]);
         _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
+        _sync.RunExclusiveAsync(default!, default).ReturnsForAnyArgs(c => c.Arg<Func<CancellationToken, Task>>()(c.Arg<CancellationToken>()));
     }
 
     public void Dispose() => _account.Dispose();
@@ -46,7 +47,7 @@ public sealed class JoinFamilyTests : IDisposable
     {
         var families = new Families(_account, _store, _accounts, _api, _sessions, _households, _moves, _state, _records,
             new ProvisionalSettings(Substitute.For<IVersionClock>(), Substitute.For<IDeviceLocale>(), _time));
-        var bring = new BringFamilyEntriesOver(_sessions, _account, _moves, _records, _store, _api, Substitute.For<IVersionClock>(), families);
+        var bring = new BringFamilyEntriesOver(_sessions, _account, _moves, _records, _store, _api, Substitute.For<IVersionClock>(), families, _sync);
         return new JoinFamily(_store, _api, _sessions, _account, new ConsentGate(_state, _accounts, Substitute.For<IConsentApi>()), _moves,
             _households, _syncStore, _sync, families, bring, _time);
     }
@@ -218,6 +219,7 @@ public sealed class JoinFamilyTests : IDisposable
         await SignInAsync();
         Pending();
         _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Maja"], Role.Parent, Now.AddHours(72), true));
+        _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.AlreadyMember));
 
         // Act
         var preview = await Join().PreviewAsync(CancellationToken.None);
@@ -237,12 +239,56 @@ public sealed class JoinFamilyTests : IDisposable
         Pending();
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([Settings(Home)]);
         _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", [], Role.Parent, Now.AddHours(72), true));
+        _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.AlreadyMember));
 
         // Act
         await Join().PreviewAsync(CancellationToken.None);
 
         // Assert
         await _moves.DidNotReceiveWithAnyArgs().ActivateAsync(default, default);
+    }
+
+    [Fact]
+    public async Task PreviewAsync_AlreadyAMemberAfterALostAcceptAnswer_AcceptsAgainAndReopensAtTheChoice()
+    {
+        // Arrange: final review C2. The accept joined her, its answer was lost, the app restarted: the preview now says
+        // "already a member". The same code's accept answers joined again (idempotent), so the join goes on to the choice.
+        await SignInAsync();
+        Pending();
+        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Maja"], Role.Parent, Now.AddHours(72), true));
+        _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.Joined));
+
+        // Act
+        var preview = await Join().PreviewAsync(CancellationToken.None);
+
+        // Assert
+        preview.Status.Should().Be(PreviewStatus.Joined);
+        preview.Code.Should().Be(Code);
+        preview.Invitation!.InviterName.Should().Be("Andrzej");
+        Received.InOrder(() =>
+        {
+            _store.SetJoiningAsync(new JoiningMarker(Joined, Home, "Andrzej"), Arg.Any<CancellationToken>());
+            _store.SetPendingInvitationAsync(null, Arg.Any<CancellationToken>());
+        });
+        await _moves.DidNotReceiveWithAnyArgs().ActivateAsync(default, default);
+    }
+
+    [Fact]
+    public async Task PreviewAsync_AlreadyAMemberAndTheRetriedAcceptIsUnanswered_KeepsThePendingInvitation()
+    {
+        // Arrange
+        await SignInAsync();
+        Pending();
+        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", [], Role.Parent, Now.AddHours(72), true));
+        _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdUnavailableException("offline"));
+
+        // Act
+        var preview = await Join().PreviewAsync(CancellationToken.None);
+
+        // Assert
+        preview.Status.Should().Be(PreviewStatus.Unavailable);
+        await _store.DidNotReceiveWithAnyArgs().SetPendingInvitationAsync(default, default);
+        await _store.DidNotReceiveWithAnyArgs().SetJoiningAsync(default, default);
     }
 
     [Theory]
@@ -568,6 +614,44 @@ public sealed class JoinFamilyTests : IDisposable
         // Assert
         choice.Status.Should().Be(ChoiceStatus.NothingAsked);
         await _sync.DidNotReceiveWithAnyArgs().SyncNowAsync(default);
+    }
+
+    [Fact]
+    public async Task DecideAsync_JoinedFamilyNotInTheRefreshedList_ClearsTheStaleMarkerAndAsksNothing()
+    {
+        // Arrange: final review minor. The list, refreshed, says the joined family is not this account's.
+        await SignInAsync();
+        Joining(Home);
+        _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
+        _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1)]);
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Home, "owner", [], null, [new MembershipInfo(Home, Role.Owner, Now)]));
+        _api.ListMembersAsync(Home, Arg.Any<CancellationToken>()).Returns(new FamilyMembers([], []));
+
+        // Act
+        var choice = await Join().DecideAsync(CancellationToken.None);
+
+        // Assert
+        choice.Status.Should().Be(ChoiceStatus.NothingAsked);
+        await _store.Received(1).SetJoiningAsync(null, Arg.Any<CancellationToken>());
+        await _accounts.Received(1).GetMeAsync(Arg.Any<CancellationToken>());
+        await _moves.DidNotReceiveWithAnyArgs().ActivateAsync(default, default);
+        await _moves.DidNotReceiveWithAnyArgs().SummaryAsync(default, default);
+    }
+
+    [Fact]
+    public async Task DecideAsync_JoinedFamilyNotInTheListAndTheRefreshFails_KeepsTheMarkerAndDecides()
+    {
+        // Arrange: offline right after the accept, the stored list cannot know the joined family yet; nothing is cleared.
+        await SignInAsync();
+        SyncedSourceWithEntries();
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).ThrowsAsync(new AuthUnavailableException("offline"));
+
+        // Act
+        var choice = await Join().DecideAsync(CancellationToken.None);
+
+        // Assert
+        choice.Status.Should().Be(ChoiceStatus.Ask);
+        await _store.DidNotReceiveWithAnyArgs().SetJoiningAsync(default, default);
     }
 
     [Fact]

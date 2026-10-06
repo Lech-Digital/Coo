@@ -39,7 +39,11 @@ public sealed record PushResult(Guid ChangeId, PushOutcome Outcome, string? Reas
 
 public sealed record PulledRecord(string EntityType, Guid EntityId, HlcStamp Version, bool IsDeleted, RecordPayload Payload);
 
-public sealed record PulledPage(IReadOnlyList<PulledRecord> Records, long Cursor, bool HasMore, long? BootstrapHead);
+/// <param name="Since">
+/// Where the pull started (the cursor and head it sent): a page whose household lost its position on the phone meanwhile is
+/// not applied (final review C1). Null for a page of unknown origin, which is applied as before.
+/// </param>
+public sealed record PulledPage(IReadOnlyList<PulledRecord> Records, long Cursor, bool HasMore, long? BootstrapHead, SyncCursor? Since = null);
 
 /// <summary>Where a household's pull stands; <see cref="BootstrapHead"/> is sent with every page of a bootstrap.</summary>
 public sealed record SyncCursor(long Cursor, long? BootstrapHead);

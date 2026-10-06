@@ -173,27 +173,44 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
     {
         if (Interlocked.CompareExchange(ref _acknowledging, 1, 0) != 0)
             return;
+        var removed = false;
         try
         {
             if (Status.Removal is not { } household)
                 return;
-            await _families.RemoveFromPhoneAsync(household, cancellationToken);
-            Interlocked.Increment(ref _removalEpoch);
 
-            // A removal of another family reported meanwhile stays for its own sheet.
-            Update(s => s.Removal == household ? s with { Removal = null, Last = null } : s);
+            // No cycle in flight while the family goes and the list is refreshed (final review C1).
+            await _scheduler.RunExclusiveAsync(
+                async ct =>
+                {
+                    // The cycle waited for may have changed the status (a sign-out clears it): only the sheet's family goes.
+                    if (Status.Removal != household)
+                        return;
+                    await _families.RemoveFromPhoneAsync(household, ct);
+                    Interlocked.Increment(ref _removalEpoch);
+
+                    // A removal of another family reported meanwhile stays for its own sheet.
+                    Update(s => s.Removal == household ? s with { Removal = null, Last = null } : s);
+                    removed = true;
+                    await RefreshFamiliesAsync(ct);
+                },
+                cancellationToken);
         }
         finally
         {
             Interlocked.Exchange(ref _acknowledging, 0);
         }
 
-        await RefreshFamiliesAsync(cancellationToken);
+        if (!removed)
+            return;
         Raise(DataChanged);
         RequestSync();
     }
 
     public void NotifyDataChanged() => Raise(DataChanged);
+
+    public Task RunExclusiveAsync(Func<CancellationToken, Task> work, CancellationToken cancellationToken) =>
+        _scheduler.RunExclusiveAsync(work, cancellationToken);
 
     /// <summary>For tests: completes when no cycle is running or about to run.</summary>
     internal Task WhenIdleAsync() => _scheduler.WhenIdleAsync();
@@ -255,10 +272,12 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
             if (rerunForShown)
                 return s with { Pending = pending ?? s.Pending, IsRunning = false };
 
-            var removal = report.Outcome == CycleOutcome.Removed && Interlocked.Read(ref _removalEpoch) == removalEpoch ? report.Household : null;
+            // A removal from a cycle that began before an acknowledgment is dropped, and so is its outcome (final review minor).
+            var droppedRemoval = report.Outcome == CycleOutcome.Removed && Interlocked.Read(ref _removalEpoch) != removalEpoch;
+            var removal = report.Outcome == CycleOutcome.Removed && !droppedRemoval ? report.Household : null;
             return s with
             {
-                Last = report.Outcome,
+                Last = droppedRemoval ? s.Last : report.Outcome,
                 LastSyncedAt = report.Outcome == CycleOutcome.Synced ? now : signedOut ? null : s.LastSyncedAt,
                 Pending = pending ?? s.Pending,
                 IsRunning = false,
@@ -359,14 +378,16 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
         }
     }
 
-    /// <summary>For the sync line and the prompter (final review C1): null when it could not be read; the last value stays.</summary>
+    /// <summary>For the sync line and the prompter (final review C1, C4): null when it could not be read; the last value stays.</summary>
     private async Task<bool?> JoinReadyAsync(CancellationToken cancellationToken)
     {
         try
         {
+            // Final review C4: while a join waits at its choice (§5.3), that choice decides; Spec 011's bring-over is not offered.
             return await _sessions.GetAsync(cancellationToken) is { JoinPending: true } session
                 && await _consent.CachedAsync(session.Profile.UserId, cancellationToken) == ConsentState.Given
-                && await _store.HasPulledAsync(session.AccountHousehold, cancellationToken);
+                && await _store.HasPulledAsync(session.AccountHousehold, cancellationToken)
+                && !await _families.IsJoiningAsync(cancellationToken);
         }
 #pragma warning disable CA1031 // A store failure: the line keeps what it showed; the next cycle reads it again.
         catch (Exception)

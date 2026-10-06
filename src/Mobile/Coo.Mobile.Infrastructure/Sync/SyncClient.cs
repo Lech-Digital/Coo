@@ -48,7 +48,8 @@ internal sealed class SyncClient(HttpClient http) : ISyncApi, IConsentApi
         using var request = new HttpRequestMessage(HttpMethod.Get, uri);
         using var response = await SyncHttp.SendAsync(http, request, household, cancellationToken);
         var page = await SyncHttp.ReadAsync(response, SyncJsonContext.Default.PullResponse, cancellationToken);
-        return new PulledPage([.. (page.Records ?? []).Select(FromDto).OfType<PulledRecord>()], page.Cursor, page.HasMore, page.BootstrapHead);
+        return new PulledPage(
+            [.. (page.Records ?? []).Select(FromDto).OfType<PulledRecord>()], page.Cursor, page.HasMore, page.BootstrapHead, new SyncCursor(cursor, bootstrapHead));
     }
 
     public async Task<MembershipStatus> GetMembershipAsync(HouseholdId household, CancellationToken cancellationToken)

@@ -54,6 +54,11 @@ internal sealed class HouseholdMoves(LocalDatabase database, TimeProvider time) 
         await MoveBookkeepingAsync(connection, transaction, f, t, cancellationToken);
         await SyncStore.RewriteThisDeviceAsync(connection, transaction, to, user, cancellationToken);
         await SetActiveAsync(connection, transaction, t, cancellationToken);
+
+        // §8.4's id-taken re-key: the family the server may create keeps being that family (final review C3).
+        await connection.ExecuteAsync(
+            "UPDATE app_state SET value = $to WHERE key = $k AND value = $from;", cancellationToken, transaction,
+            ("$k", SyncState.ReplacementKey), ("$to", t), ("$from", f));
         await transaction.CommitAsync(cancellationToken);
         return true;
     }
@@ -233,7 +238,7 @@ internal sealed class HouseholdMoves(LocalDatabase database, TimeProvider time) 
 
     /// <summary>
     /// Spec 011b §8.2: a family taken off the phone is no longer named anywhere: its soft-lock, the active key (when it is the
-    /// active one), its copy markers in either direction, a joining marker that names it, and its membership row.
+    /// active one), the replacement key (when it names it), its copy markers in either direction, a joining marker that names it, and its membership row.
     /// </summary>
     internal static async Task ClearFamilyKeysAsync(SqliteConnection connection, SqliteTransaction transaction, string household, CancellationToken cancellationToken)
     {
@@ -241,6 +246,7 @@ internal sealed class HouseholdMoves(LocalDatabase database, TimeProvider time) 
         await connection.ExecuteAsync(
             """
             DELETE FROM app_state WHERE key = 'softlock:' || $h OR (key = 'active_household' AND value = $h)
+                OR (key = 'replacement_household' AND value = $h)
                 OR key LIKE 'copied_from:' || $h || ':%' OR key LIKE 'copied_from:%:' || $h;
             """,
             cancellationToken, transaction, h);

@@ -54,7 +54,7 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
     private static HouseholdSettings Settings(HouseholdId id) =>
         HouseholdSettings.Create(id, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1_790_000_000_000, 0, Phone)).Value;
 
-    private FamilyBringOverViewModel Model() => new(new LeaveFamily(_api, _families, Substitute.For<ISyncControl>(), _account));
+    private FamilyBringOverViewModel Model() => new(new LeaveFamily(_api, _families, SyncControls.PassThrough(), _account));
 
     private static BringOverChoice Offer(LocalBaby[] mine, LocalBaby[] theirs, int entries = 42) => new(new LocalSummary(entries, mine), theirs);
 

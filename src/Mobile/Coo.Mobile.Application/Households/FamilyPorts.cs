@@ -52,7 +52,7 @@ public interface IFamilyRecords
     /// <paramref name="firstStamp"/> with consecutive counters; the source is untouched; <c>copied_from</c> is written in
     /// the same transaction and the target becomes active. Null, with nothing written, when the pair was copied before.
     /// <paramref name="reservedCount"/> is how many stamps the caller reserved on the clock: a copy that would use more throws
-    /// <see cref="InvalidOperationException"/> and writes nothing.
+    /// <see cref="StampBudgetExceededException"/> and writes nothing.
     /// </summary>
     Task<CopyResult?> CopyAsync(BringOverPlan plan, UserId user, HlcStamp firstStamp, int reservedCount, CancellationToken cancellationToken);
 
@@ -64,6 +64,25 @@ public interface IFamilyRecords
 
     /// <summary>The household's live care entries that wait in the outbox, oldest first (the removal sheet, spec §8.2).</summary>
     Task<IReadOnlyList<StoredEntry>> ListUnsharedEntriesAsync(HouseholdId household, CancellationToken cancellationToken);
+}
+
+/// <summary>A copy needed more stamps than its caller reserved on the clock (ruling 8): nothing was written; count and reserve again.</summary>
+public sealed class StampBudgetExceededException : Exception
+{
+    public StampBudgetExceededException()
+        : base("The copy needs more stamps than were reserved for it.")
+    {
+    }
+
+    public StampBudgetExceededException(string message)
+        : base(message)
+    {
+    }
+
+    public StampBudgetExceededException(string message, Exception innerException)
+        : base(message, innerException)
+    {
+    }
 }
 
 public sealed record CreatedInvitation(Guid InvitationId, InvitationCode Code, Uri Link, DateTimeOffset ExpiresAt);

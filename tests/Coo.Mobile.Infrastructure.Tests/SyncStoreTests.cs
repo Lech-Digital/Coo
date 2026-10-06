@@ -281,6 +281,43 @@ public sealed class SyncStoreTests
     }
 
     [Fact]
+    public async Task ApplyPageAsync_FamilyTakenOffThePhoneWhileItsPageWasInFlight_AppliesNothingAndWritesNoCursor()
+    {
+        // Arrange: final review C1 (belt). The pull was answered, then a leave took the family off the phone; the page lands.
+        await using var db = await TestDatabase.CreateAsync();
+        var store = Store(db);
+        await store.ApplyPageAsync(TestDatabase.Household, new PulledPage([], 100, false, null), CancellationToken.None);
+        var since = await store.GetCursorAsync(TestDatabase.Household, CancellationToken.None);
+        await new HouseholdMoves(db.Database, db.Time).DeleteHouseholdAsync(TestDatabase.Household, CancellationToken.None);
+        var id = Guid.Parse("7a1c0000-0000-7000-8000-00000000e0c1");
+
+        // Act
+        await store.ApplyPageAsync(TestDatabase.Household, new PulledPage([PulledDiaper(id, 10)], 150, false, null, since), CancellationToken.None);
+
+        // Assert: a re-join pulls the family's whole log from 0.
+        (await CountAsync(db, $"SELECT count(*) FROM sync_cursors WHERE household_id = '{TestDatabase.Household.Value}';")).Should().Be(0);
+        (await CountAsync(db, $"SELECT count(*) FROM care_entries WHERE id = '{id}';")).Should().Be(0);
+        (await store.GetCursorAsync(TestDatabase.Household, CancellationToken.None)).Should().Be(new SyncCursor(0, null));
+    }
+
+    [Fact]
+    public async Task ApplyPageAsync_JoinedFamilysFirstPageBeforeItsSettings_IsAppliedWithItsCursor()
+    {
+        // Arrange: a family being joined has no settings on the phone until its settings record arrives, maybe pages later.
+        await using var db = await TestDatabase.CreateAsync();
+        var store = Store(db);
+        var since = await store.GetCursorAsync(Other, CancellationToken.None);
+
+        // Act
+        await store.ApplyPageAsync(Other, new PulledPage([], 500, true, 900, since), CancellationToken.None);
+        var next = await store.GetCursorAsync(Other, CancellationToken.None);
+        await store.ApplyPageAsync(Other, new PulledPage([], 1000, true, 900, next), CancellationToken.None);
+
+        // Assert
+        (await store.GetCursorAsync(Other, CancellationToken.None)).Should().Be(new SyncCursor(1000, 900));
+    }
+
+    [Fact]
     public async Task ApplyPageAsync_HeadZeroBootstrapWithMorePages_KeepsHeadZeroNotASkip()
     {
         // Arrange: a phone that holds records pulls every page with head 0 (ruling 20).

@@ -23,6 +23,12 @@ public enum PreviewStatus
     RateLimited,
     Unavailable,
     NothingPending,
+
+    /// <summary>
+    /// The preview said "already a member" and the same code's accept answered joined: an accept whose answer was lost
+    /// (final review C2). The join is stored; the flow goes on to the choice (<see cref="JoinFamily.DecideAsync"/>).
+    /// </summary>
+    Joined,
 }
 
 /// <param name="Code">The code that was previewed: the accept must be for this one (a later link may have replaced the pending one).</param>
@@ -129,6 +135,32 @@ public sealed class JoinFamily(
             return new JoinPreview(PreviewStatus.Ready, preview, pending.Code);
         if (account.Generation != generation)
             return new JoinPreview(PreviewStatus.Unavailable);
+
+        // Final review C2: "already a member" may be this very code's accept, whose answer was lost (the app closed before
+        // the marker was stored). The same code's accept is idempotent: joined (by this invitation) stores the marker and
+        // the choice follows; already-member (another way in) clears the invitation and shows the family, as before.
+        return (await AcceptAsync(pending.Code, preview.InviterName, cancellationToken)).Status switch
+        {
+            AcceptStatus.Joined => new JoinPreview(PreviewStatus.Joined, preview, pending.Code),
+            AcceptStatus.AlreadyMember => new JoinPreview(PreviewStatus.AlreadyMember, preview),
+            AcceptStatus.Invalid => new JoinPreview(PreviewStatus.Invalid),
+            AcceptStatus.RateLimited => new JoinPreview(PreviewStatus.RateLimited),
+            AcceptStatus.NothingPending => new JoinPreview(PreviewStatus.NothingPending),
+            AcceptStatus.NeedsConsent => await AlreadyMemberAsync(preview, generation, cancellationToken),
+
+            // Unavailable, or a newer link replaced the code meanwhile: the invitation stays and Try again previews it.
+            _ => new JoinPreview(PreviewStatus.Unavailable),
+        };
+    }
+
+    /// <summary>
+    /// A member already, by another way in, without consent to the current wording (the server checks consent before
+    /// answering already-member): nothing to accept; the family is shown as before.
+    /// </summary>
+    private async Task<JoinPreview> AlreadyMemberAsync(InvitationPreview preview, long generation, CancellationToken cancellationToken)
+    {
+        if (account.Generation != generation)
+            return new JoinPreview(PreviewStatus.Unavailable);
         await families.SetPendingInvitationAsync(null, cancellationToken);
         await ShowAsync(preview.Household, cancellationToken);
         return new JoinPreview(PreviewStatus.AlreadyMember, preview);
@@ -219,6 +251,14 @@ public sealed class JoinFamily(
         var generation = account.Generation;
         if (await families.GetJoiningAsync(cancellationToken) is not { } marker)
             return new JoinChoice(ChoiceStatus.NothingAsked, "");
+        if (await IsStaleAsync(marker, generation, cancellationToken))
+        {
+            // Final review minor: the joined family is not this account's (a fresh list says so): no choice to make.
+            if (account.Generation == generation)
+                await families.SetJoiningAsync(null, CancellationToken.None);
+            return new JoinChoice(ChoiceStatus.NothingAsked, marker.InviterName);
+        }
+
         if (!await store.HasPulledAsync(marker.Joined, cancellationToken))
         {
             await sync.SyncNowAsync(cancellationToken);
@@ -253,6 +293,21 @@ public sealed class JoinFamily(
         }
 
         return new JoinChoice(ChoiceStatus.Ask, marker.InviterName, choice, Copies: synced, Source: source);
+    }
+
+    /// <summary>
+    /// True only when a list refreshed just now lacks the joined family, which is neither the session's own family. A list
+    /// that cannot be refreshed (offline right after the accept) proves nothing: the marker stays.
+    /// </summary>
+    private async Task<bool> IsStaleAsync(JoiningMarker marker, long generation, CancellationToken cancellationToken)
+    {
+        if (await sessions.GetAsync(cancellationToken) is not { } session || session.AccountHousehold == marker.Joined)
+            return false;
+        if ((await families.ListAsync(session.Profile.UserId, cancellationToken) ?? []).Any(m => m.Household == marker.Joined))
+            return false;
+        if (!await list.RefreshAsync(cancellationToken) || account.Generation != generation)
+            return false;
+        return await families.ListAsync(session.Profile.UserId, cancellationToken) is { } fresh && fresh.All(m => m.Household != marker.Joined);
     }
 
     /// <summary>

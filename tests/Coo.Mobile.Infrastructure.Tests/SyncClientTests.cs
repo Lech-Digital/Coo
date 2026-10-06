@@ -92,6 +92,20 @@ public sealed class SyncClientTests
     }
 
     [Fact]
+    public async Task PullAsync_Answered_RemembersWhereThePullStarted()
+    {
+        // Arrange: final review C1, the store applies a page only where the phone still stands.
+        var client = Client(_ => Json(HttpStatusCode.OK, """{"records":[],"cursor":700,"hasMore":true,"bootstrapHead":900}"""));
+
+        // Act
+        var page = await client.PullAsync(Household, 500, 900, CancellationToken.None);
+
+        // Assert
+        page.Should().Be(new PulledPage([], 700, true, 900, new SyncCursor(500, 900)) with { Records = page.Records });
+        page.Records.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task PullAsync_NotAMember_NamesTheHouseholdAskedAbout()
     {
         // Arrange: Spec 011b §9, only that family stops.

@@ -32,7 +32,10 @@ internal sealed class AccountClient(HttpClient http) : IAccountApi
             ActiveMemberships(me.Memberships));
     }
 
-    /// <summary>Fail closed: a role this build cannot read makes the whole list unknown, so the phone keeps the one it has.</summary>
+    /// <summary>
+    /// Fail closed: a role this build cannot read, an empty family ID or a missing joining time makes the whole list unknown,
+    /// so the phone keeps the one it has rather than a partial one that would drop a family.
+    /// </summary>
     private static List<MembershipInfo>? ActiveMemberships(IReadOnlyList<MembershipDto>? memberships)
     {
         if (memberships is null)
@@ -40,10 +43,9 @@ internal sealed class AccountClient(HttpClient http) : IAccountApi
         var result = new List<MembershipInfo>();
         foreach (var m in memberships)
         {
-            if (RoleNames.Parse(m.Role) is not { } role)
+            if (RoleNames.Parse(m.Role) is not { } role || m.HouseholdId == Guid.Empty || m.JoinedAt is not { } joinedAt)
                 return null;
-            if (m.HouseholdId != Guid.Empty && m.JoinedAt is { } joinedAt)
-                result.Add(new MembershipInfo(new HouseholdId(m.HouseholdId), role, joinedAt));
+            result.Add(new MembershipInfo(new HouseholdId(m.HouseholdId), role, joinedAt));
         }
 
         return result;

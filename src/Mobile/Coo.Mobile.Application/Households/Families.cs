@@ -144,6 +144,9 @@ public sealed class Families(
             .ThenBy(f => f.Id.Value, ByGuid)];
     }
 
+    /// <summary>A join waits at its choice: the joining marker is stored (§5.3).</summary>
+    internal async Task<bool> IsJoiningAsync(CancellationToken cancellationToken) => await store.GetJoiningAsync(cancellationToken) is not null;
+
     public async Task<FamilyOnPhone?> ShownAsync(CancellationToken cancellationToken) =>
         (await ListAsync(cancellationToken)).FirstOrDefault(f => f.IsShown);
 

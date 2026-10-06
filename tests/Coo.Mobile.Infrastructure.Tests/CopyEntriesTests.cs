@@ -186,6 +186,29 @@ public sealed class CopyEntriesTests
     }
 
     [Fact]
+    public async Task DeleteAndReplaceAsync_TheLastFamily_NamesTheReplacementAsTheOnlyFamilyTheServerMayCreate()
+    {
+        // Arrange: final review C3, written in the same transaction.
+        var (db, _) = await PhoneAsync();
+        await using var cleanup = db;
+        var replacement = HouseholdSettings.Create(new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000af")), VolumeUnit.Ounces, "Europe/Warsaw",
+            await db.Device.NextAsync(CancellationToken.None)).Value;
+        var state = new SyncState(db.Database);
+
+        // Act
+        await new FamilyRecords(db.Database, db.Time, db.Writes).DeleteAndReplaceAsync(TestDatabase.Household, replacement, CancellationToken.None);
+        var named = await state.GetReplacementHouseholdAsync(CancellationToken.None);
+        await state.ClearReplacementHouseholdAsync(TestDatabase.Household, CancellationToken.None);
+        var afterClearingAnother = await state.GetReplacementHouseholdAsync(CancellationToken.None);
+        await state.ClearReplacementHouseholdAsync(replacement.Id, CancellationToken.None);
+
+        // Assert
+        named.Should().Be(replacement.Id);
+        afterClearingAnother.Should().Be(replacement.Id);
+        (await state.GetReplacementHouseholdAsync(CancellationToken.None)).Should().BeNull();
+    }
+
+    [Fact]
     public async Task DeleteAndReplaceAsync_FailurePartWay_ChangesNothing()
     {
         // Arrange
@@ -492,7 +515,7 @@ public sealed class CopyEntriesTests
         var act = async () => await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(plan, User, First, 3, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().ThrowAsync<StampBudgetExceededException>();
         (await SnapshotAsync(db)).Should().Be(before, "nothing is written: no records, no marker, no active family");
     }
 
@@ -585,7 +608,7 @@ public sealed class CopyEntriesTests
 
         // Assert
         again.Should().BeNull();
-        await failing.Should().ThrowAsync<InvalidOperationException>();
+        await failing.Should().ThrowAsync<StampBudgetExceededException>();
         notified.Should().Be(0);
     }
 

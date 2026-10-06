@@ -200,9 +200,10 @@ public sealed class SyncCycle(
             return (next, false);
         }
 
-        // No active family on the server. Mid-join the joined family becomes one (§5.3); otherwise the shown family does,
-        // if it has never been on a server.
-        if (midJoin || await moves.HasEverSyncedAsync(local, cancellationToken))
+        // No active family on the server. Mid-join the joined family becomes one (§5.3). Otherwise only the provisional family
+        // that replaced the account's last family on this phone does (§8.4, final review C3), while it is shown and has never
+        // been on a server: never another local family (another account's, or one from before any account).
+        if (midJoin || await state.GetReplacementHouseholdAsync(cancellationToken) != local || await moves.HasEverSyncedAsync(local, cancellationToken))
             return (home, false);
 
         var target = local;
@@ -231,8 +232,8 @@ public sealed class SyncCycle(
 
                 // A household that ever synced is never re-keyed. Unreachable in practice: the shown family was found never-synced
                 // above, and no cycle syncs a family of no account. Were it refused, the store would move nothing and make the
-                // fresh ID active with a copy of the settings; it is not created on the server, so the next cycle, finding the
-                // fresh family never-synced and shown, creates that one instead.
+                // fresh ID active with a copy of the settings; it is not created on the server, and as the replacement key
+                // moves only with a re-key, no later cycle creates it either.
                 if (!await moves.MoveAllAsync(target, fresh, run.User, cancellationToken))
                     return (home, false);
                 run.Changed = true;
@@ -259,6 +260,9 @@ public sealed class SyncCycle(
                 run.Interrupted = true;
                 return (home, false);
             }
+
+            // Created: no later cycle creates it again (a re-key moved the key with the family, so it names the target).
+            await state.ClearReplacementHouseholdAsync(target, cancellationToken);
 
             // It syncs in this cycle (§8.4); the list does not know it yet. Waiting for another cycle instead would send the
             // create again, which the server answers with success again (a retried create), until the list was refreshed.

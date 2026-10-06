@@ -81,12 +81,13 @@ public sealed class JoinViewModelTests : IDisposable
         var families = new Families(_account, _store, Substitute.For<IAccountApi>(), _api, _sessions, _households, _moves, _state, _records,
             new ProvisionalSettings(_versions, Substitute.For<IDeviceLocale>(), new FakeTimeProvider(Now)));
         _made.Add(families);
-        var bring = new BringFamilyEntriesOver(_sessions, _account, _moves, _records, _store, _api, _versions, families);
+        var sync = SyncControls.PassThrough();
+        var bring = new BringFamilyEntriesOver(_sessions, _account, _moves, _records, _store, _api, _versions, families, sync);
         var join = new JoinFamily(_store, _api, _sessions, _account, new ConsentGate(_state, Substitute.For<IAccountApi>(), Substitute.For<IConsentApi>()),
-            _moves, _households, _syncStore, Substitute.For<ISyncControl>(), families, bring, new FakeTimeProvider(Now));
+            _moves, _households, _syncStore, sync, families, bring, new FakeTimeProvider(Now));
         var signIn = new SignIn(_auth, _google, _households, _device,
             Substitute.For<IDeviceName>(), _account);
-        return new JoinViewModel(join, signIn, _consent, _clock, new FamilyBringOverViewModel(new LeaveFamily(_api, families, Substitute.For<ISyncControl>(), _account)));
+        return new JoinViewModel(join, signIn, _consent, _clock, new FamilyBringOverViewModel(new LeaveFamily(_api, families, sync, _account)));
     }
 
     [Fact]
@@ -410,6 +411,7 @@ public sealed class JoinViewModelTests : IDisposable
         // Arrange
         await SignInAsync();
         _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Maja"], Role.Parent, Now.AddHours(72), true));
+        _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.AlreadyMember));
 
         // Act
         var model = Join();

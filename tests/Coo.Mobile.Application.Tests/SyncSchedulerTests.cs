@@ -304,6 +304,97 @@ public sealed class SyncSchedulerTests : IDisposable
         _runs.Should().Be(1);
     }
 
+    [Fact]
+    public async Task RunExclusiveAsync_WhileACycleRuns_StartsTheWorkOnlyAfterTheCycleEnds()
+    {
+        // Arrange
+        _gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _scheduler.Request(SyncTrigger.Start);
+        var runningDuringWork = -1;
+
+        // Act
+        var exclusive = _scheduler.RunExclusiveAsync(
+            _ =>
+            {
+                runningDuringWork = Volatile.Read(ref _running);
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+        var startedBeforeTheCycleEnded = runningDuringWork != -1;
+        _gate.SetResult();
+        await exclusive;
+
+        // Assert
+        startedBeforeTheCycleEnded.Should().BeFalse();
+        runningDuringWork.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task RunExclusiveAsync_TriggersDuringTheWork_RunOneCycleOnlyAfterTheWork()
+    {
+        // Arrange
+        var hold = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var inside = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var exclusive = _scheduler.RunExclusiveAsync(
+            async _ =>
+            {
+                inside.SetResult();
+                await hold.Task;
+            },
+            CancellationToken.None);
+        await inside.Task;
+
+        // Act
+        _scheduler.Request(SyncTrigger.Manual);
+        _scheduler.SetForeground(true);
+        _time.Advance(SyncScheduler.ForegroundInterval);
+        var runsWhileHeld = Volatile.Read(ref _runs);
+        var idleWhileHeld = _scheduler.WhenIdleAsync().IsCompleted;
+        hold.SetResult();
+        await exclusive;
+        await _scheduler.WhenIdleAsync();
+
+        // Assert: the triggers were coalesced into one cycle after the work; a waiter saw it as "about to run".
+        runsWhileHeld.Should().Be(0);
+        idleWhileHeld.Should().BeFalse();
+        _runs.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task RunExclusiveAsync_WorkThrows_ThrowsAndReleasesTheScheduler()
+    {
+        // Arrange
+        Func<Task> act = async () => await _scheduler.RunExclusiveAsync(_ => throw new InvalidOperationException("boom"), CancellationToken.None);
+
+        // Act
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        await _scheduler.RunNowAsync(CancellationToken.None);
+
+        // Assert
+        _runs.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task RunExclusiveAsync_Nested_RunsTheInnerWorkWithoutWaitingForItself()
+    {
+        // Arrange
+        var innerRan = false;
+
+        // Act
+        await _scheduler.RunExclusiveAsync(
+            ct => _scheduler.RunExclusiveAsync(
+                _ =>
+                {
+                    innerRan = true;
+                    return Task.CompletedTask;
+                },
+                ct),
+            CancellationToken.None).WaitAsync(TimeSpan.FromSeconds(10));
+
+        // Assert (the timeout only bounds a broken build)
+        innerRan.Should().BeTrue();
+    }
+
     /// <summary>The fake clock, keeping each timer's callback so a test can play one that a real timer had already queued.</summary>
     private sealed class RecordingTime(FakeTimeProvider inner) : TimeProvider
     {

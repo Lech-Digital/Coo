@@ -130,8 +130,14 @@ internal sealed class SyncStore(LocalDatabase database) : ISyncStore
     public async Task<SyncCursor> GetCursorAsync(HouseholdId household, CancellationToken cancellationToken)
     {
         await using var connection = await database.OpenAsync(cancellationToken);
+        return await ReadCursorAsync(connection, null, household, cancellationToken);
+    }
+
+    private static async Task<SyncCursor> ReadCursorAsync(
+        SqliteConnection connection, SqliteTransaction? transaction, HouseholdId household, CancellationToken cancellationToken)
+    {
         var h = ("$h", (object?)Columns.Id(household.Value));
-        await using (var command = connection.Command("SELECT last_seq, bootstrap_head FROM sync_cursors WHERE household_id = $h;", null, h))
+        await using (var command = connection.Command("SELECT last_seq, bootstrap_head FROM sync_cursors WHERE household_id = $h;", transaction, h))
         await using (var reader = await command.ExecuteReaderAsync(cancellationToken))
         {
             // (0, null) is what an empty first pull stores: it still has to meet the holds-records rule below.
@@ -145,7 +151,7 @@ internal sealed class SyncStore(LocalDatabase database) : ISyncStore
             SELECT EXISTS (SELECT 1 FROM care_entries WHERE household_id = $h) OR EXISTS (SELECT 1 FROM baby_profiles WHERE household_id = $h)
                 OR EXISTS (SELECT 1 FROM duplicate_dismissals WHERE household_id = $h);
             """,
-            cancellationToken, null, h);
+            cancellationToken, transaction, h);
         return new SyncCursor(0, Convert.ToInt64(holds, CultureInfo.InvariantCulture) == 1 ? 0 : null);
     }
 
@@ -162,6 +168,8 @@ internal sealed class SyncStore(LocalDatabase database) : ISyncStore
         ArgumentNullException.ThrowIfNull(page);
         await using var connection = await database.OpenAsync(cancellationToken);
         await using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync(cancellationToken);
+        if (page.Since is { } since && !await StillStandsAtAsync(connection, transaction, household, since, cancellationToken))
+            return;
         foreach (var record in page.Records)
         {
             if (await BelongsToAnotherHouseholdAsync(connection, transaction, household, record, cancellationToken))
@@ -184,6 +192,21 @@ internal sealed class SyncStore(LocalDatabase database) : ISyncStore
             cancellationToken, transaction,
             ("$h", Columns.Id(household.Value)), ("$seq", page.Cursor), ("$head", page.HasMore ? page.BootstrapHead : null));
         await transaction.CommitAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Final review C1 (belt): a household with no settings on the phone whose position moved since the pull started was
+    /// taken off the phone meanwhile (a leave, a delete, a removal): its page is not applied, so no cursor outlives the
+    /// family and a re-join pulls its log from 0. A household being joined has no settings either until its settings record
+    /// arrives, maybe pages later; its position has not moved, so its pages apply.
+    /// </summary>
+    private static async Task<bool> StillStandsAtAsync(
+        SqliteConnection connection, SqliteTransaction transaction, HouseholdId household, SyncCursor since, CancellationToken cancellationToken)
+    {
+        var hasSettings = await connection.ScalarAsync(
+            "SELECT EXISTS (SELECT 1 FROM household_settings WHERE household_id = $h);", cancellationToken, transaction, ("$h", Columns.Id(household.Value)));
+        return Convert.ToInt64(hasSettings, CultureInfo.InvariantCulture) == 1
+            || await ReadCursorAsync(connection, transaction, household, cancellationToken) == since;
     }
 
     public async Task<SyncCounts> CountsAsync(HouseholdId household, CancellationToken cancellationToken)

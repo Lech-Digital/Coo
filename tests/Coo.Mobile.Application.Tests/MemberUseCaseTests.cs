@@ -8,7 +8,9 @@ using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Sync;
 using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
+using NSubstitute.Core;
 using NSubstitute.ExceptionExtensions;
+using NSubstitute.Extensions;
 using static Coo.Mobile.Application.Tests.FamiliesTests;
 
 namespace Coo.Mobile.Application.Tests;
@@ -43,6 +45,7 @@ public sealed class MemberUseCaseTests : IDisposable
         _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Home, "owner", [], null,
             [new MembershipInfo(Home, Role.Owner, Now)]));
         _api.ListMembersAsync(Home, Arg.Any<CancellationToken>()).Returns(new FamilyMembers([new FamilyMember(Me, "Kasia", "k@example.com", Role.Owner, Now, true)], []));
+        _sync.RunExclusiveAsync(default!, default).ReturnsForAnyArgs(c => c.Arg<Func<CancellationToken, Task>>()(c.Arg<CancellationToken>()));
     }
 
     public void Dispose()
@@ -289,6 +292,36 @@ public sealed class MemberUseCaseTests : IDisposable
         });
         _sync.Received(1).NotifyDataChanged();
         _sync.Received(1).RequestSync();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_LeaveAnsweredWhileACycleRuns_TakesTheFamilyOffThePhoneOnlyInsideTheExclusiveSection()
+    {
+        // Arrange: final review C1. The engine holds the work until the cycle in flight has ended.
+        await SignInAsync();
+        _api.LeaveAsync(Joined, true, Arg.Any<CancellationToken>()).Returns(LeaveOutcome.Left);
+        Func<CancellationToken, Task>? held = null;
+        var waiting = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _sync.Configure().RunExclusiveAsync(default!, default).ReturnsForAnyArgs(async c =>
+        {
+            held = c.Arg<Func<CancellationToken, Task>>();
+            await waiting.Task;
+            await held(CancellationToken.None);
+        });
+
+        // Act
+        var leave = Leave().ExecuteAsync(Joined, confirm: true, CancellationToken.None);
+        var deletedBefore = _moves.ReceivedCalls().Any(c => c.GetMethodInfo().Name == nameof(IHouseholdMoves.DeleteHouseholdAsync));
+        var refreshedBefore = _store.ReceivedCalls().Any(c => c.GetMethodInfo().Name == nameof(IFamilyStore.ReplaceAsync));
+        waiting.SetResult();
+        var result = await leave.WaitAsync(TimeSpan.FromSeconds(10));
+
+        // Assert
+        held.Should().NotBeNull();
+        deletedBefore.Should().BeFalse();
+        refreshedBefore.Should().BeFalse();
+        result.Should().Be(FamilyAction.Done);
+        await _moves.Received(1).DeleteHouseholdAsync(Joined, Arg.Any<CancellationToken>());
     }
 
     [Fact]

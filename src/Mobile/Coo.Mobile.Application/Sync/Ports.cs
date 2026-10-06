@@ -100,6 +100,16 @@ public interface ISyncState
     Task<bool> IsSoftLockedAsync(HouseholdId household, CancellationToken cancellationToken);
 
     Task SetSoftLockAsync(HouseholdId household, bool locked, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The provisional family that replaced the last one taken off the phone (Spec 011b §8.4), written in that same
+    /// transaction (<see cref="Households.IFamilyRecords.DeleteAndReplaceAsync"/>): the only family a cycle may create on the
+    /// server for an account with none (final review C3). It follows a re-key of that family.
+    /// </summary>
+    Task<HouseholdId?> GetReplacementHouseholdAsync(CancellationToken cancellationToken);
+
+    /// <summary>After the server created it: forgotten, unless a newer replacement has been written meanwhile.</summary>
+    Task ClearReplacementHouseholdAsync(HouseholdId household, CancellationToken cancellationToken);
 }
 
 /// <summary>Connectivity regained (Spec 011 §6.3): a cycle at once, and the backoff resets.</summary>
@@ -122,6 +132,13 @@ public interface ISyncControl
 
     /// <summary>The person pressed OK on the removal sheet (Spec 011b §8.2): the removed family goes from the phone.</summary>
     Task AcknowledgeRemovalAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Runs a whole-family change on this phone (a leave, a delete, a removal, a bring-over) with no cycle in flight: waits
+    /// for a running cycle to end and starts none until <paramref name="work"/> has ended, however it ends (final review C1).
+    /// Triggers meanwhile run one cycle after it. <paramref name="work"/> must not wait for a cycle (<see cref="SyncNowAsync"/>).
+    /// </summary>
+    Task RunExclusiveAsync(Func<CancellationToken, Task> work, CancellationToken cancellationToken);
 }
 
 public enum SyncRefusal
