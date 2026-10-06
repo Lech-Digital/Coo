@@ -34,11 +34,13 @@ public sealed class SyncCycleTests : IDisposable
     private readonly IFamilyStore _families = Substitute.For<IFamilyStore>();
     private readonly IHouseholdApi _households = Substitute.For<IHouseholdApi>();
     private readonly SyncStops _stops = new();
+    private readonly IHouseholdStore _onPhone = Substitute.For<IHouseholdStore>();
     private readonly FakeTimeProvider _time = new(Now);
 
     public SyncCycleTests()
     {
         _account = new Account(_sessions);
+        _onPhone.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([FamiliesTests.Settings(Household)]);
         _state.GetConsentAsync(User, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Household);
         _moves.MoveAllAsync(default, default, default, default).ReturnsForAnyArgs(true);
@@ -53,7 +55,7 @@ public sealed class SyncCycleTests : IDisposable
 
     private SyncCycle Cycle() => new(
         _account, _sessions, new ConsentGate(_state, _accounts, _consentApi), _store, _moves, _state, _api, _clock, _device, _time,
-        _families, _households, _stops, Substitute.For<IHouseholdStore>());
+        _families, _households, _stops, _onPhone);
 
     private Task SignInAsync(bool joinPending = false, HouseholdId? moveFrom = null) => _account.SignedInAsync(
         new StoredSession("access", Now.AddMinutes(15), "refresh", Profile, Household, joinPending, PendingMoveFrom: moveFrom), CancellationToken.None);

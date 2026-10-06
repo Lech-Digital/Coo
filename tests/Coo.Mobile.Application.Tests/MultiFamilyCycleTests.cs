@@ -46,6 +46,7 @@ public sealed class MultiFamilyCycleTests : IDisposable
         _store.NextBatchAsync(default, default, default).ReturnsForAnyArgs([]);
         _store.GetCursorAsync(default, default).ReturnsForAnyArgs(new SyncCursor(0, null));
         _api.PullAsync(default, default, default, default).ReturnsForAnyArgs(new PulledPage([], 0, false, 0));
+        OnPhone(Household);
     }
 
     public void Dispose() => _account.Dispose();
@@ -958,5 +959,138 @@ public sealed class MultiFamilyCycleTests : IDisposable
         await _state.Received(1).SetSoftLockAsync(Joined, false, Arg.Any<CancellationToken>());
         await _api.Received(1).PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
         await _api.DidNotReceive().PullAsync(Third, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task RunAsync_TheShownAndOnlyFamilySoftLockedWithAnEmptyList_ReportsSoftLocked()
+    {
+        // Arrange: review I2, spec §9: the line says "Sharing is paused", not "Up to date".
+        await SignInAsync();
+        Memberships();
+        OnPhone(Household);
+        _state.IsSoftLockedAsync(Household, Arg.Any<CancellationToken>()).Returns(true);
+        _api.GetMembershipAsync(Household, Arg.Any<CancellationToken>()).Returns(MembershipStatus.Unknown);
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.Outcome.Should().Be(CycleOutcome.SoftLocked);
+        report.Household.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task RunAsync_ADroppedFamilySoftLockedButNotShown_StaysSynced()
+    {
+        // Arrange: only the shown family speaks for the line (ruling 20).
+        await SignInAsync();
+        Memberships(Household);
+        OnPhone(Household, Joined);
+        _state.IsSoftLockedAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
+        _api.GetMembershipAsync(Joined, Arg.Any<CancellationToken>()).Returns(MembershipStatus.Unknown);
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.Outcome.Should().Be(CycleOutcome.Synced);
+    }
+
+    [Fact]
+    public async Task RunAsync_TheShownFamilyDroppedButNotSoftLocked_StaysSynced()
+    {
+        // Arrange: another account's family shown (not-a-member, read as Unknown) is not paused.
+        await SignInAsync();
+        Memberships();
+        OnPhone(Household);
+        _api.GetMembershipAsync(Household, Arg.Any<CancellationToken>()).Returns(MembershipStatus.Unknown);
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.Outcome.Should().Be(CycleOutcome.Synced);
+    }
+
+    [Fact]
+    public async Task RunAsync_TheHomeIsGoneFromThePhoneAndTheListUnknown_NeverSyncsIt()
+    {
+        // Arrange: review M-d, after an acknowledged removal with no list: a new provisional family is shown.
+        await SignInAsync();
+        OnPhone(Provisional);
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
+
+        // Act
+        var report = await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        report.Outcome.Should().Be(CycleOutcome.Synced);
+        await _api.DidNotReceive().PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
+        await _store.DidNotReceive().PrepareForPushAsync(Household, Arg.Any<UserId>(), Arg.Any<CancellationToken>());
+        await _state.DidNotReceive().IsSoftLockedAsync(Household, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task RunAsync_TheHomeNotOnThePhoneButInTheList_SyncsIt()
+    {
+        // Arrange: an account family never pulled here (the home moved to it) arrives with its first pull.
+        await SignInAsync();
+        Memberships(Household);
+        OnPhone(Provisional);
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
+
+        // Act
+        await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        await _api.Received(1).PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task RunAsync_JoinPendingWithTheHomeNotOnThePhone_PullsIt()
+    {
+        // Arrange: the family's log arrives with the pull (Spec 011 ruling 8).
+        await SignInAsync(joinPending: true);
+        OnPhone(Provisional);
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
+
+        // Act
+        await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        await _api.Received(1).PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task RunAsync_CreatedSignInWithTheHomeNotOnThePhone_MovesIntoItAndSyncsIt()
+    {
+        // Arrange: the `created` marker names the move into the account's new household (Spec 011 §4).
+        await SignInAsync(moveFrom: Provisional);
+        OnPhone(Provisional);
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
+
+        // Act
+        await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        await _moves.Received(1).MoveAllAsync(Provisional, Household, User, Arg.Any<CancellationToken>());
+        await _api.Received(1).PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task RunAsync_TheHomesSettingsDeletedAndTheListUnknown_NeverSyncsIt()
+    {
+        // Arrange: a household whose settings are deleted is not on the phone (as the Family section reads it).
+        await SignInAsync();
+        var deleted = FamiliesTests.Settings(Household);
+        deleted.Delete(new HlcStamp(1_790_000_000_001, 0, Phone));
+        _onPhone.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([deleted, FamiliesTests.Settings(Provisional)]);
+        _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
+
+        // Act
+        await Cycle().RunAsync(CancellationToken.None);
+
+        // Assert
+        await _api.DidNotReceive().PullAsync(Household, Arg.Any<long>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
     }
 }

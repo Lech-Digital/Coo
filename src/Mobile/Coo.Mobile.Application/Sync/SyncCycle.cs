@@ -45,7 +45,7 @@ public sealed class SyncCycle(
                 return new CycleReport(CycleOutcome.ConsentNeeded);
         }
 
-        var run = new Run(generation, user);
+        var run = new Run(generation, user, stops.Wake);
         try
         {
             var local = await moves.ActiveHouseholdAsync(cancellationToken);
@@ -66,6 +66,14 @@ public sealed class SyncCycle(
             if (created)
                 local = home;
             var homeActive = created || memberships is null || session.JoinPending || memberships.Any(m => m.Household == home);
+            if (homeActive && memberships is null && !session.JoinPending && session.PendingMoveFrom is null
+                && !(await onPhone.ListHouseholdsAsync(cancellationToken)).Any(h => h.Id == home && !h.IsDeleted))
+            {
+                // Review M-d: the home was taken off this phone (an acknowledged removal) and no list says it is still
+                // the account's. Nothing is pushed, pulled or soft-locked for it; the next refresh moves the home (§7.1).
+                homeActive = false;
+            }
+
             if (homeActive && !stops.IsStopped(home))
                 await HomeStepAsync(session, home, local, midJoin, joining, run, cancellationToken);
 
@@ -92,7 +100,7 @@ public sealed class SyncCycle(
 
             // After the account families: confirming a removal never holds up syncing the others.
             if (!run.Interrupted && memberships is not null)
-                await ConfirmDroppedFamiliesAsync(memberships, joining, created ? home : null, run, cancellationToken);
+                await ConfirmDroppedFamiliesAsync(memberships, joining, created ? home : null, local, run, cancellationToken);
 
             return run.Report();
         }
@@ -128,10 +136,12 @@ public sealed class SyncCycle(
     /// Spec 011b §8.2 (review C1): <c>/api/me</c> lists active memberships only, so a refresh drops a family the person was
     /// removed from, before or after its soft-lock. Each family on the phone that has synced and that the known list lacks
     /// is asked about, never pushed or pulled: <c>revoked</c> reports its removal (the first only, ruling 23); <c>active</c>
-    /// means the list is stale; anything else (another account's family answers not-a-member) leaves it alone.
+    /// means the list is stale; anything else (another account's family answers not-a-member) leaves it alone, except that a
+    /// shown family already soft-locked stays paused for the sync line (review I2, spec §9).
     /// </summary>
     private async Task ConfirmDroppedFamiliesAsync(
-        IReadOnlyList<FamilyMembership> memberships, JoiningMarker? joining, HouseholdId? created, Run run, CancellationToken cancellationToken)
+        IReadOnlyList<FamilyMembership> memberships, JoiningMarker? joining, HouseholdId? created, HouseholdId shown, Run run,
+        CancellationToken cancellationToken)
     {
         // The joined family and a family created this cycle are account families the list does not know yet.
         var known = memberships.Select(m => m.Household).ToHashSet();
@@ -158,6 +168,8 @@ public sealed class SyncCycle(
                 run.Removed = household.Id;
             else if (status == MembershipStatus.Active)
                 run.RefreshFamilies = true;
+            else if (household.Id == shown && await state.IsSoftLockedAsync(household.Id, cancellationToken))
+                run.ShownSoftLocked = true;
         }
     }
 
@@ -349,7 +361,7 @@ public sealed class SyncCycle(
                 return;
             }
 
-            stops.Stop(household);
+            stops.Stop(household, run.Wake);
             run.RefreshFamilies = true;
             run.NotAMember.Add(household);
         }
@@ -465,9 +477,12 @@ public sealed class SyncCycle(
     }
 
     /// <summary>What one cycle found across its families; the outcome follows ruling 20's precedence.</summary>
-    private sealed class Run(long generation, UserId user)
+    private sealed class Run(long generation, UserId user, long wake)
     {
         public long Generation { get; } = generation;
+
+        /// <summary>The wake this cycle began under: its not-a-member stops do not outlive a later one (review M-a).</summary>
+        public long Wake { get; } = wake;
 
         public UserId User { get; } = user;
 

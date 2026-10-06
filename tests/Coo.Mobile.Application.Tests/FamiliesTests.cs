@@ -7,6 +7,7 @@ using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Sync;
 using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
+using NSubstitute.Core;
 using NSubstitute.ExceptionExtensions;
 
 namespace Coo.Mobile.Application.Tests;
@@ -844,5 +845,36 @@ public sealed class FamiliesTests : IDisposable
         (await queued).Should().BeFalse();
         await _accounts.Received(1).GetMeAsync(Arg.Any<CancellationToken>());
         await _store.DidNotReceiveWithAnyArgs().ReplaceAsync(default, default!, default);
+    }
+
+    [Fact]
+    public async Task ClearAsync_DuringARefresh_ClearsAfterTheRefreshStored()
+    {
+        // Arrange: review M-c, a refresh that passed its last check stores before the sign-out's clear, never after.
+        await SignInAsync();
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Home, "owner", [], null,
+            [new MembershipInfo(Home, Role.Owner, Now)]));
+        _api.ListMembersAsync(Home, Arg.Any<CancellationToken>()).Returns(new FamilyMembers([], []));
+        var storing = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _store.ReplaceAsync(Me, Arg.Any<IReadOnlyList<FamilyMembership>>(), Arg.Any<CancellationToken>()).Returns(_ =>
+        {
+            storing.TrySetResult();
+            return release.Task;
+        });
+        using var families = Families();
+        var refresh = families.RefreshAsync(CancellationToken.None);
+        await storing.Task.WaitAsync(TimeSpan.FromSeconds(10));
+
+        // Act
+        var clear = families.ClearAsync(CancellationToken.None);
+        var clearedWhileStoring = _store.ReceivedCalls().Any(c => c.GetMethodInfo().Name == nameof(IFamilyStore.ClearAsync));
+        release.SetResult();
+        await refresh;
+        await clear.WaitAsync(TimeSpan.FromSeconds(10));
+
+        // Assert
+        clearedWhileStoring.Should().BeFalse();
+        await _store.Received(1).ClearAsync(Arg.Any<CancellationToken>());
     }
 }

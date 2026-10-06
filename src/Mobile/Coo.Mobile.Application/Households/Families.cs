@@ -40,6 +40,23 @@ public sealed class Families(
 
     public void Dispose() => _refreshing.Dispose();
 
+    /// <summary>
+    /// Sign-out (ruling 27): the list goes, after any refresh in flight. That refresh began under the old sign-in, so it
+    /// either stored before this or finds the generation moved and stores nothing (review M-c).
+    /// </summary>
+    public async Task ClearAsync(CancellationToken cancellationToken)
+    {
+        await _refreshing.WaitAsync(cancellationToken);
+        try
+        {
+            await store.ClearAsync(cancellationToken);
+        }
+        finally
+        {
+            _refreshing.Release();
+        }
+    }
+
     /// <summary>False when it could not be refreshed (offline, signed out, the account changed meanwhile): the stored list stays.</summary>
     public async Task<bool> RefreshAsync(CancellationToken cancellationToken)
     {
