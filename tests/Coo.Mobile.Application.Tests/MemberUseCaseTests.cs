@@ -341,17 +341,33 @@ public sealed class MemberUseCaseTests : IDisposable
         _sync.DidNotReceive().NotifyDataChanged();
     }
 
-    [Theory]
-    [InlineData(HouseholdErrors.LastFamily, false)]
-    [InlineData(HouseholdErrors.OwnerCannotLeave, false)]
-    [InlineData(HouseholdErrors.ConfirmationRequired, false)]
-    public async Task ExecuteAsync_LeaveRefused_ReportsTheCodeAndKeepsEverything(string code, bool confirm)
+    [Fact]
+    public async Task ExecuteAsync_LeaveCancelled_ThrowsAndTouchesNothingOnThePhone()
     {
         // Arrange
-        _api.LeaveAsync(Joined, confirm, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(code));
+        _api.LeaveAsync(Joined, true, Arg.Any<CancellationToken>()).ThrowsAsync(new OperationCanceledException());
 
         // Act
-        var result = await Leave().ExecuteAsync(Joined, confirm, CancellationToken.None);
+        Func<Task> act = async () => await Leave().ExecuteAsync(Joined, confirm: true, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<OperationCanceledException>();
+        await _moves.DidNotReceiveWithAnyArgs().DeleteHouseholdAsync(default, default);
+        await _records.DidNotReceiveWithAnyArgs().DeleteAndReplaceAsync(default, default!, default);
+        _sync.DidNotReceive().NotifyDataChanged();
+    }
+
+    [Theory]
+    [InlineData(HouseholdErrors.LastFamily)]
+    [InlineData(HouseholdErrors.OwnerCannotLeave)]
+    [InlineData(HouseholdErrors.ConfirmationRequired)]
+    public async Task ExecuteAsync_LeaveRefused_ReportsTheCodeAndKeepsEverything(string code)
+    {
+        // Arrange
+        _api.LeaveAsync(Joined, false, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(code));
+
+        // Act
+        var result = await Leave().ExecuteAsync(Joined, confirm: false, CancellationToken.None);
 
         // Assert
         result.Should().Be(FamilyAction.Refused(code));
@@ -366,5 +382,10 @@ public sealed class MemberUseCaseTests : IDisposable
         return outcome;
     }
 
-    private Task SignOutDuringAsync() => _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+    /// <summary>Signs out and the same person in again: the generation moves, yet a refresh would still find a session.</summary>
+    private async Task SignOutDuringAsync()
+    {
+        await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+        await SignInAsync();
+    }
 }

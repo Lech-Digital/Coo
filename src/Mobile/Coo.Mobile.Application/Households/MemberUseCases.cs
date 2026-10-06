@@ -127,6 +127,7 @@ public sealed class LeaveFamily(IHouseholdApi api, Families families, ISyncContr
         // Signed out or in again meanwhile: the server did leave, but this phone's family is not this sign-in's to delete.
         if (account.Generation != generation)
             return FamilyAction.Done;
+        // Replace-versus-delete is decided from the phone's own family list, so the LeaveOutcome (left or deleted) is intentionally unused.
         await families.RemoveFromPhoneAsync(household, cancellationToken);
         await families.RefreshAsync(cancellationToken);
         sync.NotifyDataChanged();
