@@ -4,6 +4,10 @@ Date: 2026-09-29
 
 Status: Accepted
 
+Amended by: Spec 011b §15.1 R1 (§6: invitation links are `https://api.coo.lechdigital.nl/i/{code}`, because
+`coo.lechdigital.nl` has no DNS; the API serves `assetlinks.json` and an English fallback page with the code) and R5 (§7:
+bringing entries over from a household that has synced copies them as new records instead of rewriting them)
+
 ## Context
 
 ADR 0002 syncs data per household and authorises every push and pull against the caller's
@@ -151,8 +155,11 @@ record's scope.
 
 **Invitations.** An Owner or Parent creates an invitation for a given role.
 
-- It is shared as a link, `https://coo.lechdigital.nl/i/{code}`. That is an Android App Link that
-  opens the app if installed, and the Play listing otherwise.
+- It is shared as a link, `https://api.coo.lechdigital.nl/i/{code}` *(amended by Spec 011b: originally
+  `coo.lechdigital.nl`, which has no DNS; moving the link later needs an app update)*. That is an Android App
+  Link (`autoVerify`, with `/.well-known/assetlinks.json` served by the API) that opens the app if installed.
+  Otherwise the browser shows a small page with a Play Store link and the code, which the app accepts under
+  "Enter a code".
 - The code is 8 characters from an alphabet without ambiguous characters (no `0/O`, `1/I/l`).
 - A code expires after 72 hours and can be used once. The inviter can revoke it before then.
 - Accepting an invitation requires sign-in. Attempts are rate-limited per user and per address,
@@ -176,6 +183,9 @@ The app then asks the person explicitly:
 - **Bring my entries over.** The person maps each local baby to a baby in the invited household.
   The app rewrites the household and baby references of the local records *and of their outbox
   entries* in one SQLite transaction, then syncs.
+  *(Amended by Spec 011b: a household that has ever synced is never rewritten. Its records are copied
+  into the invited household as new records with new IDs, and the person then chooses whether to leave or
+  delete the old household.)*
 - **Keep them separate.** The provisional household stays on the device as its own household.
   This is possible because users can belong to several households (section 6).
 
