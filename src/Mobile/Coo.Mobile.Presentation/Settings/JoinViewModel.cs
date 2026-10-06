@@ -142,23 +142,26 @@ public sealed partial class JoinViewModel : ObservableObject
             return;
         IsBusy = true;
         Toast = "";
+        var failure = "Account.SignInFailed";
         try
         {
-            switch (await _signIn.ExecuteAsync(CancellationToken.None))
+            var result = await _signIn.ExecuteAsync(CancellationToken.None);
+            if (result == SignInResult.SignedIn)
             {
-                case SignInResult.SignedIn:
-                    await PreviewAsync();
-                    break;
-                case SignInResult.Failed:
-                    Toast = Strings.Get("Account.SignInFailed");
-                    break;
+                // Signed in: anything that goes wrong from here is the preview's, not the sign-in's.
+                failure = "Family.ActionFailed";
+                await PreviewAsync();
+            }
+            else if (result == SignInResult.Failed)
+            {
+                Toast = Strings.Get(failure);
             }
         }
 #pragma warning disable CA1031 // A sign-in or preview that throws is "didn't work", never a crash.
         catch (Exception)
 #pragma warning restore CA1031
         {
-            Toast = Strings.Get("Account.SignInFailed");
+            Toast = Strings.Get(failure);
         }
         finally
         {
@@ -169,6 +172,9 @@ public sealed partial class JoinViewModel : ObservableObject
     [RelayCommand]
     private async Task NotNowAsync()
     {
+        // Not now while a join is under way would forget the code the accept is using.
+        if (IsBusy)
+            return;
         try
         {
             await _join.DeclineAsync(CancellationToken.None);
@@ -190,13 +196,19 @@ public sealed partial class JoinViewModel : ObservableObject
         IsBusy = true;
         try
         {
-            if (!await _join.HasConsentAsync(CancellationToken.None) && !await _consent.AskAsync())
+            var asked = false;
+            if (!await _join.HasConsentAsync(CancellationToken.None))
             {
-                await DeclineForConsentAsync(preview);
-                return;
+                if (!await _consent.AskAsync())
+                {
+                    await DeclineForConsentAsync(preview);
+                    return;
+                }
+
+                asked = true;
             }
 
-            await AcceptAsync(preview, consentAsked: false);
+            await AcceptAsync(preview, consentAsked: asked);
         }
 #pragma warning disable CA1031 // Nothing was joined that the stored marker does not keep; say it did not work and let the person try again.
         catch (Exception)
@@ -313,7 +325,19 @@ public sealed partial class JoinViewModel : ObservableObject
         switch (accepted.Status)
         {
             case AcceptStatus.Joined:
-                await DecideAsync();
+                try
+                {
+                    await DecideAsync();
+                }
+#pragma warning disable CA1031 // The join is stored: a failed choice is not a failed join. Try again reopens the choice; Keep separate never strands the person.
+                catch (Exception)
+#pragma warning restore CA1031
+                {
+                    _inviterName = preview.InviterName;
+                    ShowMessage(Strings.Get("Family.ActionFailed"), Retry.Decide);
+                    CanKeepSeparate = true;
+                }
+
                 break;
             case AcceptStatus.AlreadyMember:
                 ShowMessage(Strings.Get("Join.AlreadyMember"), Retry.None);

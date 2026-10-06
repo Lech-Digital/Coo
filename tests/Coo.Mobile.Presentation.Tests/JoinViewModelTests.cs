@@ -835,6 +835,120 @@ public sealed class JoinViewModelTests : IDisposable
         model.Error.Should().Be("That didn't work. Check your connection and try again.");
     }
 
+    [Fact]
+    public async Task JoinCommand_NoConsentPersonAgrees_AcceptsAndFinishesWithTheJoinedToast()
+    {
+        // Arrange
+        await SignInAsync();
+        _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Declined);
+        _consent.AskAsync().Returns(true);
+        _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
+        _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, []));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        var model = Join();
+        string? toast = null;
+        model.Finished += (_, t) => toast = t;
+        await model.StartAsync();
+
+        // Act
+        await model.JoinCommand.ExecuteAsync(null);
+
+        // Assert
+        await _consent.Received(1).AskAsync();
+        await _api.Received(1).AcceptAsync(Code, Arg.Any<CancellationToken>());
+        toast.Should().Be("You've joined Andrzej's family.");
+    }
+
+    [Fact]
+    public async Task JoinCommand_PersonJustAgreedAndServerStillWantsConsent_DoesNotAskASecondTime()
+    {
+        // Arrange
+        await SignInAsync();
+        _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Declined);
+        _consent.AskAsync().Returns(true);
+        _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(SyncErrors.ConsentRequired));
+        var model = Join();
+        await model.StartAsync();
+
+        // Act
+        await model.JoinCommand.ExecuteAsync(null);
+
+        // Assert
+        await _consent.Received(1).AskAsync();
+        model.Message.Should().StartWith("You can join later with the same link, until ");
+    }
+
+    [Fact]
+    public async Task NotNowCommand_WhileJoining_DoesNothing()
+    {
+        // Arrange
+        await SignInAsync();
+        _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
+        var gate = new TaskCompletionSource<AcceptedInvitation>();
+        _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(_ => gate.Task);
+        var model = Join();
+        var finished = 0;
+        model.Finished += (_, _) => finished++;
+        await model.StartAsync();
+        var joining = model.JoinCommand.ExecuteAsync(null);
+
+        // Act
+        await model.NotNowCommand.ExecuteAsync(null);
+
+        // Assert
+        finished.Should().Be(0);
+        await _store.DidNotReceive().SetPendingInvitationAsync(null, Arg.Any<CancellationToken>());
+        gate.SetException(new HouseholdUnavailableException("offline"));
+        await joining;
+    }
+
+    [Fact]
+    public async Task SignInCommand_PreviewFailsUnexpectedlyAfterSigningIn_SaysItDidNotWorkNotThatSignInFailed()
+    {
+        // Arrange
+        _google.GetIdTokenAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns("token");
+        Granted();
+        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).ThrowsAsync(new InvalidOperationException("boom"));
+        var model = Join();
+        await model.StartAsync();
+
+        // Act
+        await model.SignInCommand.ExecuteAsync(null);
+
+        // Assert
+        model.Toast.Should().Be("That didn't work. Check your connection and try again.");
+    }
+
+    [Fact]
+    public async Task JoinCommand_FailsAfterTheAccept_OffersTryAgainAtTheChoice()
+    {
+        // Arrange
+        await SignInAsync();
+        _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
+        _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
+        _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).ThrowsAsync(new IOException("disk"));
+        _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        var model = Join();
+        await model.StartAsync();
+
+        // Act
+        await model.JoinCommand.ExecuteAsync(null);
+        var message = model.Message;
+        var canRetry = model.CanRetry;
+        var canKeep = model.CanKeepSeparate;
+        _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
+        await model.RetryCommand.ExecuteAsync(null);
+
+        // Assert
+        message.Should().Be("That didn't work. Check your connection and try again.");
+        canRetry.Should().BeTrue();
+        canKeep.Should().BeTrue();
+        model.Step.Should().Be(JoinStep.Choice);
+    }
+
     private EnterCodeViewModel EnterCode() => new(new JoinFamily(_store, _api, _sessions, _account,
         new ConsentGate(_state, Substitute.For<IAccountApi>(), Substitute.For<IConsentApi>()), _moves, _households, _syncStore,
         Substitute.For<ISyncControl>(), null!, null!, new FakeTimeProvider(Now)));
