@@ -31,15 +31,35 @@ public sealed record FamilyContents(int EntryCount, IReadOnlyList<string> BabyNa
 /// without a new provisional family in its place). It raises nothing: callers tell the pages (<see cref="ISyncControl.NotifyDataChanged"/>).
 /// </summary>
 public sealed class Families(
-    IFamilyStore store, IAccountApi accounts, IHouseholdApi api, ISessionStore sessions, IHouseholdStore households, IHouseholdMoves moves,
-    ISyncState state, IFamilyRecords records, ProvisionalSettings provisional)
+    Account account, IFamilyStore store, IAccountApi accounts, IHouseholdApi api, ISessionStore sessions, IHouseholdStore households, IHouseholdMoves moves,
+    ISyncState state, IFamilyRecords records, ProvisionalSettings provisional) : IDisposable
 {
     private static readonly IComparer<Guid> ByGuid = Comparer<Guid>.Create(GuidOrder.Compare);
+
+    private readonly SemaphoreSlim _refreshing = new(1, 1);
+
+    public void Dispose() => _refreshing.Dispose();
 
     /// <summary>False when it could not be refreshed (offline, signed out, the account changed meanwhile): the stored list stays.</summary>
     public async Task<bool> RefreshAsync(CancellationToken cancellationToken)
     {
-        if (await sessions.GetAsync(cancellationToken) is not { } session)
+        // Refreshes run one after another, so the one that started last stores last; one that began under an earlier
+        // sign-in (the generation moved) stores nothing, even for the same person signing in again.
+        var generation = account.Generation;
+        await _refreshing.WaitAsync(cancellationToken);
+        try
+        {
+            return await RefreshCoreAsync(generation, cancellationToken);
+        }
+        finally
+        {
+            _refreshing.Release();
+        }
+    }
+
+    private async Task<bool> RefreshCoreAsync(long generation, CancellationToken cancellationToken)
+    {
+        if (generation != account.Generation || await sessions.GetAsync(cancellationToken) is not { } session)
             return false;
         AccountOverview me;
         try
@@ -76,7 +96,7 @@ public sealed class Families(
             list.Add(new FamilyMembership(membership.Household, membership.Role, membership.JoinedAt, owner, count));
         }
 
-        if (await sessions.GetAsync(cancellationToken) is not { } again || again.Profile.UserId != user)
+        if (generation != account.Generation || await sessions.GetAsync(cancellationToken) is not { } again || again.Profile.UserId != user)
             return false;
         await store.ReplaceAsync(user, list, cancellationToken);
         return true;

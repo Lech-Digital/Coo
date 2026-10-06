@@ -52,7 +52,7 @@ public sealed class FamiliesTests : IDisposable
             new HlcStamp(1_790_000_000_000, 0, Phone), new DateOnly(2026, 10, 6)).Value;
 
     private Families Families() => new(
-        _store, _accounts, _api, _sessions, _households, _moves, _state, _records, new ProvisionalSettings(_clock, _locale, _time));
+        _account, _store, _accounts, _api, _sessions, _households, _moves, _state, _records, new ProvisionalSettings(_clock, _locale, _time));
 
     private Task SignInAsync() => _account.SignedInAsync(
         new StoredSession("access", Now.AddMinutes(15), "refresh", Profile, Home, JoinPending: false), CancellationToken.None);
@@ -737,5 +737,98 @@ public sealed class FamiliesTests : IDisposable
         // Assert
         settings.VolumeUnit.Should().Be(VolumeUnit.Ounces);
         settings.TimeZoneId.Should().Be("America/New_York");
+    }
+
+    private static readonly HouseholdId OtherLocal = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a4"));
+
+    [Fact]
+    public async Task ListAsync_TwoLocalFamilies_AreOrderedById()
+    {
+        // Arrange
+        await SignInAsync();
+        OnPhone((OtherLocal, []), (Local, []));
+        _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([HomeMembership]);
+
+        // Act
+        var families = await Families().ListAsync(CancellationToken.None);
+
+        // Assert
+        families.Select(f => f.Id).Should().Equal(Local, OtherLocal);
+    }
+
+    [Fact]
+    public async Task RefreshAsync_OverlappingRefreshes_RunOneAfterAnotherSoTheLaterStartedListWins()
+    {
+        // Arrange
+        await SignInAsync();
+        var stored = new List<IReadOnlyList<FamilyMembership>>();
+        _store.ReplaceAsync(Me, Arg.Do<IReadOnlyList<FamilyMembership>>(stored.Add), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Home, "owner", [], null,
+            [new MembershipInfo(Joined, Role.Parent, Now)]));
+        var release = new TaskCompletionSource<FamilyMembers>();
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(_ => release.Task);
+        var families = Families();
+        var first = families.RefreshAsync(CancellationToken.None);
+
+        // Act
+        var second = families.RefreshAsync(CancellationToken.None);
+        var askedWhileFirstRuns = _accounts.ReceivedCalls().Count();
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Home, "owner", [], null, []));
+        release.SetResult(new FamilyMembers([new FamilyMember(Me, "Old", "o@example.com", Role.Owner, Now, true)], []));
+        await Task.WhenAll(first, second);
+
+        // Assert
+        askedWhileFirstRuns.Should().Be(1);
+        stored.Should().HaveCount(2);
+        stored[0].Should().ContainSingle(m => m.OwnerName == "Old");
+        stored[1].Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task RefreshAsync_SameUserSignsOutAndInAgainWhileMembersAreRead_StoresNothingFromTheOldSession()
+    {
+        // Arrange
+        await SignInAsync();
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Home, "owner", [], null,
+            [new MembershipInfo(Joined, Role.Parent, Now)]));
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(async _ =>
+        {
+            await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+            await SignInAsync();
+            return new FamilyMembers([], []);
+        });
+
+        // Act
+        var refreshed = await Families().RefreshAsync(CancellationToken.None);
+
+        // Assert
+        refreshed.Should().BeFalse();
+        await _store.DidNotReceiveWithAnyArgs().ReplaceAsync(default, default!, default);
+    }
+
+    [Fact]
+    public async Task RefreshAsync_QueuedRefreshOutlivedBySignOutAndIn_AsksNobodyAndStoresNothing()
+    {
+        // Arrange
+        await SignInAsync();
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Home, "owner", [], null,
+            [new MembershipInfo(Joined, Role.Parent, Now)]));
+        var release = new TaskCompletionSource<FamilyMembers>();
+        _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(_ => release.Task);
+        var families = Families();
+        var first = families.RefreshAsync(CancellationToken.None);
+        var queued = families.RefreshAsync(CancellationToken.None);
+
+        // Act
+        await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
+        await SignInAsync();
+        release.SetResult(new FamilyMembers([], []));
+        await Task.WhenAll(first, queued);
+
+        // Assert
+        (await first).Should().BeFalse();
+        (await queued).Should().BeFalse();
+        await _accounts.Received(1).GetMeAsync(Arg.Any<CancellationToken>());
+        await _store.DidNotReceiveWithAnyArgs().ReplaceAsync(default, default!, default);
     }
 }
