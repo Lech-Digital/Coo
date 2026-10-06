@@ -51,8 +51,10 @@ public interface IFamilyRecords
     /// Spec 011b §6.2: the source's readable live records become new records of the target, stamped from
     /// <paramref name="firstStamp"/> with consecutive counters; the source is untouched; <c>copied_from</c> is written in
     /// the same transaction and the target becomes active. Null, with nothing written, when the pair was copied before.
+    /// <paramref name="reservedCount"/> is how many stamps the caller reserved on the clock: a copy that would use more throws
+    /// <see cref="InvalidOperationException"/> and writes nothing.
     /// </summary>
-    Task<CopyResult?> CopyAsync(BringOverPlan plan, UserId user, HlcStamp firstStamp, CancellationToken cancellationToken);
+    Task<CopyResult?> CopyAsync(BringOverPlan plan, UserId user, HlcStamp firstStamp, int reservedCount, CancellationToken cancellationToken);
 
     /// <summary>Spec 011b §8.4: the household goes and <paramref name="replacement"/> (with an outbox row) becomes the active one.</summary>
     Task DeleteAndReplaceAsync(HouseholdId household, HouseholdSettings replacement, CancellationToken cancellationToken);

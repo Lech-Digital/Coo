@@ -25,9 +25,11 @@ internal sealed class FamilyRecords(LocalDatabase database, TimeProvider time, L
         return Convert.ToInt32(count, CultureInfo.InvariantCulture);
     }
 
-    public async Task<CopyResult?> CopyAsync(BringOverPlan plan, UserId user, HlcStamp firstStamp, CancellationToken cancellationToken)
+    public async Task<CopyResult?> CopyAsync(BringOverPlan plan, UserId user, HlcStamp firstStamp, int reservedCount, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(plan);
+        if (plan.From == plan.To)
+            throw new ArgumentException("A family cannot be copied into itself.", nameof(plan));
         await using var connection = await database.OpenAsync(cancellationToken);
         await using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync(cancellationToken);
         var marker = FamilyStore.CopiedKey(plan.From, plan.To);
@@ -37,7 +39,12 @@ internal sealed class FamilyRecords(LocalDatabase database, TimeProvider time, L
         var (source, target) = (Columns.Id(plan.From.Value), Columns.Id(plan.To.Value));
         var person = Columns.Person(PersonRef.User(user));
         var counter = firstStamp.Counter;
-        HlcStamp Next() => new(firstStamp.WallClockMs, counter++, firstStamp.DeviceId);
+
+        // The caller reserved reservedCount stamps on the clock before this transaction; a pull in between may have added records.
+        // Using more would stamp past the clock, so the copy stops and the transaction rolls back with nothing written.
+        HlcStamp Next() => counter - firstStamp.Counter >= reservedCount
+            ? throw new InvalidOperationException("The copy needs more stamps than were reserved for it.")
+            : new(firstStamp.WallClockMs, counter++, firstStamp.DeviceId);
         string NewId() => Columns.Id(Guid.CreateVersion7(time.GetUtcNow()));
 
         // 1. Babies: mapped ones point at the target's; the others become new profiles (spec §6.2's table).

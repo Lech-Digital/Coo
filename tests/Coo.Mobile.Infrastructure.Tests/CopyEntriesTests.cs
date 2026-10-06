@@ -55,7 +55,7 @@ public sealed class CopyEntriesTests
         var sourceBefore = await SourceRowsAsync(db);
 
         // Act
-        var result = await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, CancellationToken.None);
+        var result = await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
 
         // Assert
         result.Should().Be(new CopyResult(2, 0));
@@ -81,7 +81,7 @@ public sealed class CopyEntriesTests
         await db.ExecuteAsync($"UPDATE care_entries SET details = '{details}' WHERE id = '{first.Id.Value}';");
 
         // Act
-        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, CancellationToken.None);
+        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
 
         // Assert
         await using var connection = await db.OpenAsync();
@@ -105,7 +105,7 @@ public sealed class CopyEntriesTests
             """);
 
         // Act
-        var result = await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, CancellationToken.None);
+        var result = await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
 
         // Assert
         result.Should().Be(new CopyResult(1, 1));
@@ -121,7 +121,7 @@ public sealed class CopyEntriesTests
         var plan = new BringOverPlan(TestDatabase.Household, Account, new Dictionary<BabyId, BabyId?> { [TestDatabase.Baby] = null });
 
         // Act
-        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(plan, User, First, CancellationToken.None);
+        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(plan, User, First, 100, CancellationToken.None);
 
         // Assert
         (await db.ScalarAsync($"SELECT count(*) FROM baby_profiles WHERE household_id = '{Account.Value}' AND name = 'Maja' AND id <> '{TestDatabase.Baby.Value}';"))
@@ -137,11 +137,11 @@ public sealed class CopyEntriesTests
         var (db, _, _) = await SyncedPhoneAsync();
         await using var cleanup = db;
         var records = new FamilyRecords(db.Database, db.Time, db.Writes);
-        await records.CopyAsync(ToFamily(), User, First, CancellationToken.None);
+        await records.CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
         var after = await SnapshotAsync(db);
 
         // Act
-        var again = await records.CopyAsync(ToFamily(), User, First, CancellationToken.None);
+        var again = await records.CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
 
         // Assert
         again.Should().BeNull();
@@ -158,7 +158,7 @@ public sealed class CopyEntriesTests
         var before = await SnapshotAsync(db);
 
         // Act
-        var act = async () => await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, CancellationToken.None);
+        var act = async () => await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
 
         // Assert
         await act.Should().ThrowAsync<SqliteException>();
@@ -232,7 +232,7 @@ public sealed class CopyEntriesTests
         var stranger = new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b8"));
 
         // Act
-        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(stranger), User, First, CancellationToken.None);
+        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(stranger), User, First, 100, CancellationToken.None);
 
         // Assert
         (await db.ScalarAsync($"SELECT count(*) FROM care_entries WHERE household_id = '{Account.Value}' AND subject_baby_id = '{stranger.Value}';")).Should().Be(0);
@@ -250,7 +250,7 @@ public sealed class CopyEntriesTests
         await db.ExecuteAsync($"UPDATE baby_profiles SET is_deleted = 1 WHERE id = '{FamilyBaby.Value}';");
 
         // Act
-        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, CancellationToken.None);
+        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
 
         // Assert
         (await db.ScalarAsync($"SELECT count(*) FROM care_entries WHERE household_id = '{Account.Value}' AND subject_baby_id = '{FamilyBaby.Value}';")).Should().Be(0);
@@ -266,7 +266,7 @@ public sealed class CopyEntriesTests
         await db.ExecuteAsync($"UPDATE baby_profiles SET is_deleted = 1 WHERE id = '{TestDatabase.Baby.Value}';");
 
         // Act
-        var result = await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, CancellationToken.None);
+        var result = await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
 
         // Assert
         result.Should().Be(new CopyResult(0, 2));
@@ -282,7 +282,7 @@ public sealed class CopyEntriesTests
         await db.ExecuteAsync($"UPDATE care_entries SET subject_baby_id = NULL, subject_person = 'this-device' WHERE id = '{first.Id.Value}';");
 
         // Act
-        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, CancellationToken.None);
+        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
 
         // Assert
         (await db.ScalarAsync($"SELECT count(*) FROM care_entries WHERE household_id = '{Account.Value}' AND subject_person = 'user:{User.Value}';")).Should().Be(1);
@@ -298,7 +298,7 @@ public sealed class CopyEntriesTests
         await db.ExecuteAsync($"UPDATE care_entries SET start_utc_ms = start_utc_ms + 3600000 WHERE id = '{first.Id.Value}';");
 
         // Act
-        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, CancellationToken.None);
+        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
 
         // Assert
         (await db.ScalarAsync($"SELECT count(*) FROM duplicate_dismissals WHERE household_id = '{Account.Value}' AND entry_a < entry_b;")).Should().Be(1);
@@ -313,7 +313,7 @@ public sealed class CopyEntriesTests
         await db.ExecuteAsync($"UPDATE duplicate_dismissals SET is_deleted = 1 WHERE household_id = '{TestDatabase.Household.Value}';");
 
         // Act
-        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, CancellationToken.None);
+        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
 
         // Assert
         (await db.ScalarAsync($"SELECT count(*) FROM duplicate_dismissals WHERE household_id = '{Account.Value}';")).Should().Be(0);
@@ -328,7 +328,7 @@ public sealed class CopyEntriesTests
         var plan = new BringOverPlan(TestDatabase.Household, Account, new Dictionary<BabyId, BabyId?> { [TestDatabase.Baby] = null });
 
         // Act
-        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(plan, User, First, CancellationToken.None);
+        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(plan, User, First, 100, CancellationToken.None);
 
         // Assert
         (await db.ScalarAsync("SELECT min(version_counter) * 100 + max(version_counter) FROM outbox;")).Should().Be(10 * 100 + 13);
@@ -351,7 +351,7 @@ public sealed class CopyEntriesTests
             """);
 
         // Act
-        var result = await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, CancellationToken.None);
+        var result = await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
 
         // Assert
         result.Should().Be(new CopyResult(2, 0));
@@ -368,7 +368,7 @@ public sealed class CopyEntriesTests
         await db.ExecuteAsync($"INSERT INTO app_state (key, value) VALUES ('copied_from:{Account.Value}:{TestDatabase.Household.Value}', '1');");
 
         // Act
-        var result = await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, CancellationToken.None);
+        var result = await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
 
         // Assert
         result.Should().Be(new CopyResult(2, 0));
@@ -464,7 +464,7 @@ public sealed class CopyEntriesTests
     }
 
     [Fact]
-    public async Task CountRecordsAsync_CountsTombstonesAndNoOtherFamilysRecords()
+    public async Task CountRecordsAsync_TombstoneAndAnotherFamilysBaby_CountsOnlyThisHouseholdsRecordsTombstonesIncluded()
     {
         // Arrange
         var (db, entry) = await PhoneAsync();
@@ -477,5 +477,134 @@ public sealed class CopyEntriesTests
 
         // Assert
         count.Should().Be(3, "the tombstone still counts toward the stamp budget; the family's baby does not");
+    }
+
+    [Fact]
+    public async Task CopyAsync_BudgetSmallerThanTheStampsNeeded_ThrowsAndWritesNothing()
+    {
+        // Arrange: two entries, one new baby and a dismissal need 4 stamps; only 3 were reserved (a pull added records after counting).
+        var (db, _, _) = await SyncedPhoneAsync();
+        await using var cleanup = db;
+        var plan = new BringOverPlan(TestDatabase.Household, Account, new Dictionary<BabyId, BabyId?> { [TestDatabase.Baby] = null });
+        var before = await SnapshotAsync(db);
+
+        // Act
+        var act = async () => await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(plan, User, First, 3, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        (await SnapshotAsync(db)).Should().Be(before, "nothing is written: no records, no marker, no active family");
+    }
+
+    [Fact]
+    public async Task CopyAsync_BudgetExactlyTheStampsNeeded_Copies()
+    {
+        // Arrange
+        var (db, _, _) = await SyncedPhoneAsync();
+        await using var cleanup = db;
+        var plan = new BringOverPlan(TestDatabase.Household, Account, new Dictionary<BabyId, BabyId?> { [TestDatabase.Baby] = null });
+
+        // Act
+        var result = await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(plan, User, First, 4, CancellationToken.None);
+
+        // Assert
+        result.Should().Be(new CopyResult(2, 0));
+    }
+
+    [Fact]
+    public async Task CopyAsync_SourceAndTargetTheSame_Throws()
+    {
+        // Arrange
+        var (db, _, _) = await SyncedPhoneAsync();
+        await using var cleanup = db;
+        var plan = new BringOverPlan(TestDatabase.Household, TestDatabase.Household, new Dictionary<BabyId, BabyId?>());
+
+        // Act
+        var act = async () => await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(plan, User, First, 100, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
+    public async Task CopyAsync_SourceHasAnOutboxRowAndARejection_LeavesBothUntouched()
+    {
+        // Arrange
+        var (db, first, _) = await SyncedPhoneAsync();
+        await using var cleanup = db;
+        await db.ExecuteAsync(
+            $"""
+            INSERT INTO outbox (change_id, entity_type, entity_id, operation, version_wall_ms, version_counter, version_device)
+            VALUES ('src-1', 'CareEntry', '{first.Id.Value}', 'upsert', 1, 5, '{TestDatabase.Baby.Value}');
+            INSERT INTO sync_rejections (entity_type, entity_id, household_id, reason, rejected_utc_ms)
+            VALUES ('CareEntry', '{first.Id.Value}', '{TestDatabase.Household.Value}', 'too-old', 1);
+            """);
+        var outboxBefore = await db.ScalarAsync("SELECT count(*) FROM outbox WHERE entity_id = '" + first.Id.Value + "';");
+        var rejectionsBefore = await SnapshotAsync(db);
+
+        // Act
+        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
+
+        // Assert
+        (await db.ScalarAsync("SELECT count(*) FROM outbox WHERE entity_id = '" + first.Id.Value + "';")).Should().Be(outboxBefore);
+        (await db.ScalarAsync($"SELECT count(*) FROM sync_rejections WHERE household_id = '{TestDatabase.Household.Value}' AND reason = 'too-old';")).Should().Be(1);
+        rejectionsBefore.Should().Contain("too-old");
+    }
+
+    [Fact]
+    public async Task CopyAsync_Success_NotifiesOnce()
+    {
+        // Arrange
+        var (db, _, _) = await SyncedPhoneAsync();
+        await using var cleanup = db;
+        var notified = 0;
+        db.Writes.Written += (_, _) => notified++;
+
+        // Act
+        await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
+
+        // Assert
+        notified.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task CopyAsync_AlreadyCopiedOrFailing_DoesNotNotify()
+    {
+        // Arrange
+        var (db, _, _) = await SyncedPhoneAsync();
+        await using var cleanup = db;
+        var records = new FamilyRecords(db.Database, db.Time, db.Writes);
+        await records.CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
+        var notified = 0;
+        db.Writes.Written += (_, _) => notified++;
+        var tooSmall = new BringOverPlan(TestDatabase.Household, new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000aa")), new Dictionary<BabyId, BabyId?>());
+
+        // Act
+        var again = await records.CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
+        var failing = async () => await records.CopyAsync(tooSmall, User, First, 0, CancellationToken.None);
+
+        // Assert
+        again.Should().BeNull();
+        await failing.Should().ThrowAsync<InvalidOperationException>();
+        notified.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task CountPendingAsync_TwoFamiliesWithPendingRows_AddsThem()
+    {
+        // Arrange
+        var (db, _, _) = await SyncedPhoneAsync();
+        await using var cleanup = db;
+        var records = new FamilyRecords(db.Database, db.Time, db.Writes);
+        await records.CopyAsync(ToFamily(), User, First, 100, CancellationToken.None);
+        var source = await records.CountPendingAsync([TestDatabase.Household], CancellationToken.None);
+        var target = await records.CountPendingAsync([Account], CancellationToken.None);
+
+        // Act
+        var both = await records.CountPendingAsync([TestDatabase.Household, Account], CancellationToken.None);
+
+        // Assert
+        target.Should().Be(3, "the copies of two entries and a dismissal");
+        both.Should().Be(source + target);
     }
 }
