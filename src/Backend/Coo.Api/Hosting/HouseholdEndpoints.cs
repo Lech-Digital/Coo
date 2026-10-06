@@ -55,10 +55,10 @@ internal static class HouseholdEndpoints
         return services.AddRateLimiter(options =>
         {
             options.GlobalLimiter = PartitionedRateLimiter.CreateChained(
-                PartitionedRateLimiter.Create<HttpContext, string>(http => IsCodeCall(http)
+                PartitionedRateLimiter.Create<HttpContext, string>(http => IsLimitedCodeCall(http)
                     ? Hourly("user:" + UserKey(http), limits.PerUserPerHour)
                     : RateLimitPartition.GetNoLimiter("none")),
-                PartitionedRateLimiter.Create<HttpContext, string>(http => IsCodeCall(http)
+                PartitionedRateLimiter.Create<HttpContext, string>(http => IsLimitedCodeCall(http)
                     ? Hourly("address:" + (http.Connection.RemoteIpAddress?.ToString() ?? "unknown"), limits.PerAddressPerHour)
                     : RateLimitPartition.GetNoLimiter("none")));
             options.AddPolicy(CreatePolicy, http => RateLimitPartition.GetFixedWindowLimiter(
@@ -67,7 +67,9 @@ internal static class HouseholdEndpoints
         });
     }
 
-    private static bool IsCodeCall(HttpContext http) => http.GetEndpoint()?.Metadata.GetMetadata<InvitationCodeLimit>() is not null;
+    // An unauthenticated call reaches the 401 uncounted: it must not spend the address budget a signed-in family shares.
+    private static bool IsLimitedCodeCall(HttpContext http) =>
+        http.User.Identity?.IsAuthenticated == true && http.GetEndpoint()?.Metadata.GetMetadata<InvitationCodeLimit>() is not null;
 
     private static string UserKey(HttpContext http) => http.User.FindFirst(AccessTokenClaims.User)?.Value ?? "anonymous";
 

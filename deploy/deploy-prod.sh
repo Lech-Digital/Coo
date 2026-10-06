@@ -15,6 +15,7 @@ HOST="${COO_HOST:-coldstart-prod}"
 PUBLIC_URL="${COO_PUBLIC_URL:-https://api.coo.lechdigital.nl}"
 REMOTE_DIR="${COO_REMOTE_DIR:-/opt/coo}"
 GOOGLE_WEB_CLIENT_ID="${COO_GOOGLE_WEB_CLIENT_ID:-282211746968-l54aogbkec1gf1g0rp0n7bk2mhbg2c7r.apps.googleusercontent.com}"
+APPLINKS_SHA256_DEBUG="${COO_APPLINKS_SHA256_DEBUG:-6E:7E:3C:4E:88:95:35:CE:FE:90:1C:8C:D2:C5:37:D1:E4:2C:FB:91:4D:B7:2D:BB:F5:7A:C8:BD:15:3A:28:7C}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if [ "${1:-}" != "--confirm" ]; then
@@ -55,6 +56,11 @@ ssh "$HOST" "set -e; mkdir -p $REMOTE_DIR/deploy $REMOTE_DIR/backups $REMOTE_DIR
     sed -i '/^AUTH_SIGNING_KEY_K1=/d' $REMOTE_DIR/.env
     printf 'AUTH_SIGNING_KEY_K1=%s\n' \"\$(openssl rand -base64 32)\" >> $REMOTE_DIR/.env
     echo '    Added a new access-token signing key to .env.'
+  fi
+  if ! grep -q '^APPLINKS_SHA256_DEBUG=.' $REMOTE_DIR/.env; then
+    sed -i '/^APPLINKS_SHA256_DEBUG=/d' $REMOTE_DIR/.env
+    printf 'APPLINKS_SHA256_DEBUG=%s\n' '$APPLINKS_SHA256_DEBUG' >> $REMOTE_DIR/.env
+    echo '    Added the App Link fingerprint to .env.'
   fi"
 
 # ---- Sync -------------------------------------------------------------------------------------

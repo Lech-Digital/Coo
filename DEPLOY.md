@@ -79,6 +79,43 @@ Check after a deploy (read-only):
 
 Expected: `3`.
 
+## Members and invitations (Spec 011b)
+
+The `MembersAndInvitations` migration runs at start-up: it adds `invitations` (only the code's SHA-256 is stored).
+
+- `SyncHistoryCleanupJob` also deletes every invitation whose expiry has passed (used and withdrawn ones included), so
+  no invitation outlives its 72 hours by more than a day. Its log line counts them with the sync rows.
+- Preview and accept are limited per user (10 an hour) and per client address (30 an hour); creating invitations to 20
+  per user a day (`Invitations:*` settings override them). In memory: a restart resets them.
+- Codes travel in request bodies; `/i/{code}` carries one in its path, so **no request lines are logged**
+  (`Microsoft.AspNetCore: Warning`) and the Caddy block for `api.coo.lechdigital.nl` has **no `log` directive**. Keep it
+  that way.
+
+### App Links
+
+`coo-api` refuses to start without `AppLinks__Sha256CertFingerprints__0`, from `/opt/coo/.env`:
+
+| `.env` | Becomes | What |
+|---|---|---|
+| `APPLINKS_SHA256_DEBUG` | `AppLinks__Sha256CertFingerprints__0` | The SHA-256 of the key that signs the installed APK: the debug key until Increment 18, when the Play app-signing key's is added as `__1`. Not a secret. |
+
+`deploy-prod.sh` adds it when missing (override with `COO_APPLINKS_SHA256_DEBUG`). The value comes from:
+
+    keytool -list -v -keystore "$HOME/Library/Application Support/Xamarin/Mono for Android/debug.keystore" \
+      -alias androiddebugkey -storepass android -keypass android | grep SHA256
+
+**Before the Play release:** a Play-installed app is signed with Google's app-signing key, not the debug key. Add that
+key's SHA-256 (Play Console, Setup, App signing) as `AppLinks__Sha256CertFingerprints__1` in
+`deploy/docker-compose.prod.yml` (from a new `.env` line) and deploy, or invitation links will open the browser page
+instead of Coo on Play installs.
+
+Check after a deploy:
+
+    curl -s https://api.coo.lechdigital.nl/.well-known/assetlinks.json
+    ssh coldstart-prod "docker exec coo-postgres psql -U coo -d coo -tAc \"SELECT count(*) FROM information_schema.tables WHERE table_name = 'invitations'\""
+
+Expected: the JSON lists `com.lechdigital.coo` with the fingerprint; `1`.
+
 ## First deployment: the Caddy block (once)
 
 On the very first deploy, `deploy-prod.sh` ends with `DEPLOY FAILED`: its health check goes through Caddy, which has

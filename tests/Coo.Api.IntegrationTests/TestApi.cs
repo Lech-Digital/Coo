@@ -12,6 +12,7 @@ namespace Coo.Api.IntegrationTests;
 internal static class TestApi
 {
     public const string ClientId = "test-client.apps.googleusercontent.com";
+    public const string Fingerprint = "6E:7E:3C:4E:88:95:35:CE:FE:90:1C:8C:D2:C5:37:D1:E4:2C:FB:91:4D:B7:2D:BB:F5:7A:C8:BD:15:3A:28:7C";
     public static readonly string SigningKey = Convert.ToBase64String([.. Enumerable.Repeat((byte)7, 32)]);
 
     /// <param name="google">Replaces the real Google verifier (ADR 0003 §5's port), when given.</param>
@@ -26,6 +27,7 @@ internal static class TestApi
             host.UseSetting($"ConnectionStrings:{StartupChecks.ConnectionStringName}", connectionString);
             host.UseSetting(StartupChecks.GoogleWebClientIdKey, ClientId);
             host.UseSetting(StartupChecks.SigningKeysSection + ":k1", SigningKey);
+            host.UseSetting(StartupChecks.FingerprintsSection + ":0", Fingerprint);
             var l = limits ?? new InvitationLimits(1000, 1000, 1000);
             host.UseSetting("Invitations:PerUserPerHour", l.PerUserPerHour.ToString(CultureInfo.InvariantCulture));
             host.UseSetting("Invitations:PerAddressPerHour", l.PerAddressPerHour.ToString(CultureInfo.InvariantCulture));

@@ -26,6 +26,10 @@ var auth = StartupChecks.SelectAuth(
     builder.Configuration[StartupChecks.ActiveSigningKeyIdKey],
     builder.Environment.IsProduction(),
     RandomNumberGenerator.GetBytes(StartupChecks.MinimumKeyBytes));
+// App Links (Spec 011b §4.2): Production refuses to start without a well-formed signing-certificate fingerprint.
+var fingerprints = StartupChecks.SelectFingerprints(
+    builder.Configuration.GetSection(StartupChecks.FingerprintsSection).GetChildren().Select(c => c.Value),
+    builder.Environment.IsProduction());
 builder.Services.AddApiIdentity(auth.GoogleWebClientId, auth.ActiveKeyId, auth.SigningKeys);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 builder.Services.AddAuthorization();
@@ -109,6 +113,7 @@ app.MapGet("/health", async (IDatabaseProbe database, CancellationToken cancella
 app.MapAuthEndpoints();
 app.MapSyncEndpoints();
 app.MapHouseholdEndpoints();
+app.MapAppLinkEndpoints(fingerprints);
 
 await app.RunAsync();
 return 0;

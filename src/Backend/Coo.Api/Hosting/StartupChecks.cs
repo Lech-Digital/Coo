@@ -93,4 +93,34 @@ internal static class StartupChecks
             : throw new InvalidOperationException(
                 $"{SigningKeysSection}:{id} has {key.Length} bytes; at least {MinimumKeyBytes} are required. Generate a key with: openssl rand -base64 32");
     }
+
+    public const string FingerprintsSection = "AppLinks:Sha256CertFingerprints";
+
+    private static readonly System.Text.RegularExpressions.Regex Fingerprint =
+        new("^([0-9A-F]{2}:){31}[0-9A-F]{2}$", System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The signing certificates' SHA-256 fingerprints for <c>assetlinks.json</c> (Spec 011b §4.2): the debug key's now, the Play
+    /// app-signing key's in Increment 18. A malformed one fails in every environment; Production refuses to start without one.
+    /// </summary>
+    public static IReadOnlyList<string> SelectFingerprints(IEnumerable<string?> values, bool isProduction)
+    {
+        ArgumentNullException.ThrowIfNull(values);
+        var list = new List<string>();
+        foreach (var value in values)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                continue;
+            var normalised = value.Trim().ToUpperInvariant();
+            if (!Fingerprint.IsMatch(normalised))
+                throw new InvalidOperationException($"{FingerprintsSection} has '{value}': each must be 32 colon-separated hex bytes (keytool -list -v, SHA256).");
+            list.Add(normalised);
+        }
+
+        return isProduction && list.Count == 0
+            ? throw new InvalidOperationException(
+                $"{FingerprintsSection} has no fingerprint. In production it comes from /opt/coo/.env (APPLINKS_SHA256_DEBUG) "
+                + "through deploy/docker-compose.prod.yml (DEPLOY.md, \"App Links\").")
+            : list;
+    }
 }

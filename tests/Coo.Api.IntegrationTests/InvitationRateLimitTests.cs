@@ -65,4 +65,65 @@ public sealed class InvitationRateLimitTests(AuthApi api) : IClassFixture<AuthAp
         // Assert
         third.StatusCode.Should().Be((HttpStatusCode)429);
     }
+
+    [Fact]
+    public async Task Preview_Anonymous_DoesNotConsumeTheAddressBudget()
+    {
+        // Arrange: every test client comes from one address; the signed-in call below shares it.
+        await using var factory = TestApi.Create(api.ConnectionString, api.Google, limits: new InvitationLimits(1000, 2, 1000));
+        using var client = factory.CreateClient();
+        var user = await SyncCalls.SignInWithConsentAsync(client, "ran-user", Calls.Id(7131), Calls.Id(7132));
+
+        // Act
+        var anonymous = new List<HttpStatusCode>();
+        for (var i = 0; i < 4; i++)
+            anonymous.Add((await Calls.SendAsync(client, HttpMethod.Post, HouseholdCalls.Preview, null, new InvitationCodeRequest("ZZZZ-ZZZZ"))).StatusCode);
+        anonymous.Add((await Calls.SendAsync(client, HttpMethod.Post, HouseholdCalls.Accept, null, new InvitationCodeRequest("ZZZZ-ZZZZ"))).StatusCode);
+        var signedIn = await Calls.SendAsync(client, HttpMethod.Post, HouseholdCalls.Preview, user.AccessToken, new InvitationCodeRequest("ZZZZ-ZZZZ"));
+
+        // Assert
+        anonymous.Should().AllBeEquivalentTo(HttpStatusCode.Unauthorized);
+        signedIn.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Me_AfterTheUsersCodeBudgetIsSpent_StillAnswers()
+    {
+        // Arrange
+        await using var factory = TestApi.Create(api.ConnectionString, api.Google, limits: new InvitationLimits(1, 1000, 1000));
+        using var client = factory.CreateClient();
+        var user = await SyncCalls.SignInWithConsentAsync(client, "rme-user", Calls.Id(7141), Calls.Id(7142));
+        await Calls.SendAsync(client, HttpMethod.Post, HouseholdCalls.Preview, user.AccessToken, new InvitationCodeRequest("ZZZZ-ZZZZ"));
+        var spent = await Calls.SendAsync(client, HttpMethod.Post, HouseholdCalls.Preview, user.AccessToken, new InvitationCodeRequest("ZZZZ-ZZZZ"));
+
+        // Act
+        var me = await Calls.SendAsync(client, HttpMethod.Get, Calls.Me, user.AccessToken);
+
+        // Assert
+        spent.StatusCode.Should().Be((HttpStatusCode)429);
+        me.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task CreateInvitation_SecondUser_HasADailyBudgetOfTheirOwn()
+    {
+        // Arrange
+        await using var factory = TestApi.Create(api.ConnectionString, api.Google, limits: new InvitationLimits(1000, 1000, 1));
+        using var client = factory.CreateClient();
+        var firstFamily = Calls.Id(7151);
+        var secondFamily = Calls.Id(7153);
+        var first = await SyncCalls.SignInWithConsentAsync(client, "rd-1", Calls.Id(7152), firstFamily);
+        var second = await SyncCalls.SignInWithConsentAsync(client, "rd-2", Calls.Id(7154), secondFamily);
+        await HouseholdCalls.InviteAsync(client, first.AccessToken, firstFamily);
+
+        // Act
+        var firstAgain = await Calls.SendAsync(client, HttpMethod.Post, HouseholdCalls.Invitations(firstFamily), first.AccessToken,
+            new CreateInvitationRequest(Contracts.Auth.AuthRoles.Parent));
+        var secondsFirst = await Calls.SendAsync(client, HttpMethod.Post, HouseholdCalls.Invitations(secondFamily), second.AccessToken,
+            new CreateInvitationRequest(Contracts.Auth.AuthRoles.Parent));
+
+        // Assert
+        firstAgain.StatusCode.Should().Be((HttpStatusCode)429);
+        secondsFirst.StatusCode.Should().Be(HttpStatusCode.Created);
+    }
 }

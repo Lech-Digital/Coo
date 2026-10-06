@@ -164,6 +164,63 @@ public sealed class StartupChecksTests
         act.Should().Throw<InvalidOperationException>().WithMessage("*Auth:SigningKeys*");
     }
 
+    [Fact]
+    public void SelectFingerprints_ProductionWithNone_ThrowsNamingTheSetting()
+    {
+        // Act
+        var act = () => StartupChecks.SelectFingerprints([], isProduction: true);
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>().WithMessage("*AppLinks:Sha256CertFingerprints*");
+    }
+
+    [Theory]
+    [InlineData("6E:7E:3C")]
+    [InlineData("6E7E3C4E889535CEFE901C8CD2C537D1E42CFB914DB72DBBF57AC8BD153A287C")]
+    [InlineData("GG:7E:3C:4E:88:95:35:CE:FE:90:1C:8C:D2:C5:37:D1:E4:2C:FB:91:4D:B7:2D:BB:F5:7A:C8:BD:15:3A:28:7C")]
+    public void SelectFingerprints_Malformed_ThrowsInEveryEnvironment(string value)
+    {
+        // Act
+        var act = () => StartupChecks.SelectFingerprints([value], isProduction: false);
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>().WithMessage("*32 colon-separated hex bytes*");
+    }
+
+    [Fact]
+    public void SelectFingerprints_LowerCaseAndBlanks_AreNormalisedAndSkipped()
+    {
+        // Act
+        var fingerprints = StartupChecks.SelectFingerprints(
+            ["6e:7e:3c:4e:88:95:35:ce:fe:90:1c:8c:d2:c5:37:d1:e4:2c:fb:91:4d:b7:2d:bb:f5:7a:c8:bd:15:3a:28:7c", " ", null], isProduction: true);
+
+        // Assert
+        fingerprints.Should().Equal(TestApi.Fingerprint);
+    }
+
+    [Fact]
+    public void SelectFingerprints_DevelopmentWithNone_IsAnEmptyList()
+    {
+        // Act
+        var fingerprints = StartupChecks.SelectFingerprints([], isProduction: false);
+
+        // Assert
+        fingerprints.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Start_ProductionWithoutAFingerprint_FailsAtStartUp()
+    {
+        // Arrange: as the two tests above, start-up fails before the database is touched.
+        await using var api = TestApi.Create("Host=unused", configure: h => h.UseSetting(StartupChecks.FingerprintsSection + ":0", ""));
+
+        // Act
+        var act = () => api.CreateClient();
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>().WithMessage("*AppLinks:Sha256CertFingerprints*");
+    }
+
     private static List<KeyValuePair<string, string?>> Keys(params (string Id, string Value)[] keys) =>
         [.. keys.Select(k => KeyValuePair.Create(k.Id, (string?)k.Value))];
 }
