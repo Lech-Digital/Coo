@@ -305,4 +305,26 @@ public sealed class AccountGenerationTests : IDisposable
         cleared.Should().BeFalse();
         _sessions.Stored!.PendingMoveFrom.Should().Be(other);
     }
+
+    [Fact]
+    public async Task TrySetHomeAsync_SameGeneration_MovesTheHomeFamilyOnly()
+    {
+        // Arrange
+        var sessions = new MemorySessions();
+        using var account = new Account(sessions);
+        var profile = new AccountProfile(new UserId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c1")), "A", "a@example.com");
+        await account.SignedInAsync(new StoredSession("a", DateTimeOffset.UnixEpoch, "r", profile,
+            new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a1")), JoinPending: false), CancellationToken.None);
+        var next = new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a2"));
+
+        // Act
+        var moved = await account.TrySetHomeAsync(account.Generation, next, CancellationToken.None);
+        var stale = await account.TrySetHomeAsync(account.Generation - 1, new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a3")), CancellationToken.None);
+
+        // Assert
+        moved.Should().BeTrue();
+        stale.Should().BeFalse();
+        sessions.Stored!.AccountHousehold.Should().Be(next);
+        sessions.Stored.RefreshToken.Should().Be("r");
+    }
 }

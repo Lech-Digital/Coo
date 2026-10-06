@@ -79,8 +79,12 @@ public sealed record DeviceSessionInfo(string Name, DateTimeOffset LastUsedAt, b
 /// <summary>The account's consent to a wording (Spec 011 §3), as <c>/api/me</c> reports it.</summary>
 public sealed record ConsentInfo(string Wording, DateTimeOffset GivenAt);
 
+/// <summary>One active membership as <c>/api/me</c> lists it (Spec 011b §10.1).</summary>
+public sealed record MembershipInfo(HouseholdId Household, Coo.Domain.Households.Role Role, DateTimeOffset JoinedAt);
+
 public sealed record AccountOverview(
-    AccountProfile Profile, HouseholdId? Household, string? Role, IReadOnlyList<DeviceSessionInfo> Devices, ConsentInfo? Consent = null);
+    AccountProfile Profile, HouseholdId? Household, string? Role, IReadOnlyList<DeviceSessionInfo> Devices, ConsentInfo? Consent = null,
+    IReadOnlyList<MembershipInfo>? Memberships = null);
 
 /// <summary>Calls made with the access token, refreshed as needed by the infrastructure.</summary>
 public interface IAccountApi

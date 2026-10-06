@@ -209,6 +209,20 @@ public sealed class SyncEngineTests : IDisposable
     }
 
     [Fact]
+    public void NotifyDataChanged_Called_RaisesDataChangedOnce()
+    {
+        // Arrange
+        var raised = 0;
+        _engine.DataChanged += (_, _) => raised++;
+
+        // Act
+        _engine.NotifyDataChanged();
+
+        // Assert
+        raised.Should().Be(1);
+    }
+
+    [Fact]
     public async Task SignedOut_StatusSaysNotSignedIn()
     {
         // Arrange

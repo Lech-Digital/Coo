@@ -116,6 +116,9 @@ public interface ISyncControl
     void RequestSync();
 
     Task SyncNowAsync(CancellationToken cancellationToken);
+
+    /// <summary>Local data changed outside a cycle (a switch, a join, a leave): the pages show what is now stored.</summary>
+    void NotifyDataChanged();
 }
 
 public enum SyncRefusal

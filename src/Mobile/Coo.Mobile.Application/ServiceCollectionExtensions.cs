@@ -44,6 +44,10 @@ public static class ServiceCollectionExtensions
         services.AddTransient<RecordConsent>();
         services.AddTransient<DeclineConsent>();
         services.AddTransient<BringEntriesOver>();
+
+        // Members and invitations (Spec 011b).
+        services.AddTransient<ProvisionalSettings>();
+        services.AddSingleton<Families>();
         return services;
     }
 }

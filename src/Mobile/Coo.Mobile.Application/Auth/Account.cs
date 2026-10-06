@@ -85,6 +85,13 @@ public sealed class Account(ISessionStore sessions) : IDisposable
     public Task<bool> TryClearPendingMoveAsync(long generation, CancellationToken cancellationToken) =>
         TryChangeAsync(generation, s => s with { PendingMoveFrom = null }, cancellationToken);
 
+    /// <summary>
+    /// The home family moves (Spec 011b §7.1): it stopped being an active membership, or §8.4 created a new one. Only this
+    /// session's generation may move it; nothing else changes.
+    /// </summary>
+    public Task<bool> TrySetHomeAsync(long generation, HouseholdId household, CancellationToken cancellationToken) =>
+        TryChangeAsync(generation, s => s with { AccountHousehold = household }, cancellationToken);
+
     /// <summary>The server ended the session (only <c>auth.refresh-invalid</c>); after a deliberate sign-out it does nothing.</summary>
     public async Task<bool> TryExpireAsync(long generation, CancellationToken cancellationToken)
     {

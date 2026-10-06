@@ -44,13 +44,8 @@ public sealed class EnsureProvisionalHousehold(IHouseholdStore households, IVers
         if (existing.FirstOrDefault(h => !h.IsDeleted) is { } household)
             return household;
 
-        var id = new HouseholdId(Guid.CreateVersion7(time.GetUtcNow()));
-        var unit = locale.PrefersOunces ? VolumeUnit.Ounces : VolumeUnit.Millilitres;
-        var settings = HouseholdSettings.Create(id, unit, locale.TimeZoneId, await clock.NextAsync(cancellationToken));
-        if (settings.IsFailure)
-            throw new InvalidOperationException($"The device time zone '{locale.TimeZoneId}' is unusable: {settings.Error}.");
-
-        await households.SaveSettingsAsync(settings.Value, cancellationToken);
-        return settings.Value;
+        var settings = await new ProvisionalSettings(clock, locale, time).CreateAsync(cancellationToken);
+        await households.SaveSettingsAsync(settings, cancellationToken);
+        return settings;
     }
 }

@@ -150,6 +150,8 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
         Raise(DataChanged);
     }
 
+    public void NotifyDataChanged() => Raise(DataChanged);
+
     /// <summary>For tests: completes when no cycle is running or about to run.</summary>
     internal Task WhenIdleAsync() => _scheduler.WhenIdleAsync();
 
