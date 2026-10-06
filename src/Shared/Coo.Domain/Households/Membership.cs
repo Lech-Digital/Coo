@@ -15,8 +15,8 @@ public enum Role
 }
 
 /// <summary>
-/// A user's place in a household (ADR 0003 §6). A user may belong to several households (the nanny case). Until
-/// Increment 11b every household has only its Owner.
+/// A user's place in a household (ADR 0003 §6). A user may belong to several households (the nanny case). Increment 11b
+/// adds Parents who join by invitation.
 /// </summary>
 public sealed class Membership
 {
@@ -55,5 +55,12 @@ public sealed class Membership
     {
         ArgumentNullException.ThrowIfNull(other);
         return IsParent && other.HouseholdId == HouseholdId && other.UserId != UserId && other.Role != Role.Owner;
+    }
+
+    /// <summary>An Owner or Parent may withdraw any open invitation of the same household, not only their own (Spec 011b §15.2 Q3).</summary>
+    public bool CanWithdraw(Invitation invitation)
+    {
+        ArgumentNullException.ThrowIfNull(invitation);
+        return IsParent && invitation.HouseholdId == HouseholdId;
     }
 }

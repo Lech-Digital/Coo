@@ -6,6 +6,7 @@ namespace Coo.Domain.Tests.Households;
 /// <summary>ADR 0003 §6 (what each role may do) and §8 (what happens to a household when a member leaves).</summary>
 public sealed class MembershipTests
 {
+    private static readonly InvitationId InvitationKey = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000e1"));
     private static readonly UserId Nanny = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c3"));
     private static readonly HouseholdId OtherHousehold = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a2"));
 
@@ -189,5 +190,36 @@ public sealed class MembershipTests
 
         // Assert
         act.Should().Throw<ArgumentException>();
+    }
+
+    [Theory]
+    [InlineData(Role.Owner, true)]
+    [InlineData(Role.Parent, true)]
+    [InlineData(Role.Caregiver, false)]
+    public void CanWithdraw_EachRoleOfTheSameFamily_FollowsTheParentRight(Role role, bool expected)
+    {
+        // Arrange: any Owner or Parent may withdraw, not only the inviter (spec §15.2 Q3).
+        var invitation = Invitation.Create(InvitationKey, A.Household, Role.Parent, A.OtherParent, A.Now);
+        var member = Membership.Create(A.Household, A.Parent, role, A.Now);
+
+        // Act
+        var allowed = member.CanWithdraw(invitation);
+
+        // Assert
+        allowed.Should().Be(expected);
+    }
+
+    [Fact]
+    public void CanWithdraw_InvitationOfAnotherFamily_IsRefused()
+    {
+        // Arrange
+        var invitation = Invitation.Create(InvitationKey, OtherHousehold, Role.Parent, A.OtherParent, A.Now);
+        var owner = Membership.Create(A.Household, A.Parent, Role.Owner, A.Now);
+
+        // Act
+        var allowed = owner.CanWithdraw(invitation);
+
+        // Assert
+        allowed.Should().BeFalse();
     }
 }
