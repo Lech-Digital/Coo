@@ -53,6 +53,7 @@
   <data name="Birth.Title" xml:space="preserve"><value>Benvenuto, {0}</value></data>
   <data name="BringOver.AddNew" xml:space="preserve"><value>Aggiungi come nuovo bambino</value></data>
   <data name="BringOver.Bring" xml:space="preserve"><value>Porta le mie voci</value></data>
+  <data name="BringOver.ChooseTarget" xml:space="preserve"><value>In quale famiglia portare le voci?</value></data>
   <data name="BringOver.Confirm" xml:space="preserve"><value>Portale</value></data>
   <data name="BringOver.Entries.one" xml:space="preserve"><value>Questo telefono ha {0} voce per {1}.</value></data>
   <data name="BringOver.Entries.other" xml:space="preserve"><value>Questo telefono ha {0} voci per {1}.</value></data>
@@ -117,6 +118,7 @@
   <data name="Entry.Sleep" xml:space="preserve"><value>Sonno · {0}</value></data>
   <data name="Entry.Sleeping" xml:space="preserve"><value>Dorme</value></data>
   <data name="Error.Generic" xml:space="preserve"><value>Non è stato possibile salvare.</value></data>
+  <data name="Error.auth.rate-limited" xml:space="preserve"><value>Troppi tentativi. Aspetta un po' e riprova.</value></data>
   <data name="Error.baby.already-born" xml:space="preserve"><value>La nascita è già registrata.</value></data>
   <data name="Error.baby.birth-in-future" xml:space="preserve"><value>La data di nascita non può essere nel futuro.</value></data>
   <data name="Error.baby.birth-or-due-date-required" xml:space="preserve"><value>Aggiungi una data di nascita o una data prevista.</value></data>
@@ -131,11 +133,23 @@
   <data name="Error.breast.too-long" xml:space="preserve"><value>Una poppata dura al massimo 6 ore. Controlla gli orari.</value></data>
   <data name="Error.entry.not-editable" xml:space="preserve"><value>Questa voce non si può modificare in questa versione di Coo.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>Questa voce non esiste più.</value></data>
+  <data name="Error.household.already-has-family" xml:space="preserve"><value>Fai già parte di una famiglia su Coo.</value></data>
+  <data name="Error.household.confirmation-required" xml:space="preserve"><value>Questa famiglia ha ancora voci sul server di Coo. Conferma per eliminarle.</value></data>
+  <data name="Error.household.forbidden" xml:space="preserve"><value>Non puoi farlo in questa famiglia.</value></data>
+  <data name="Error.household.id-taken" xml:space="preserve"><value>Non ha funzionato. Riprova.</value></data>
+  <data name="Error.household.last-family" xml:space="preserve"><value>È la tua unica famiglia, quindi non puoi lasciarla.</value></data>
+  <data name="Error.household.malformed" xml:space="preserve"><value>Non ha funzionato. Riprova.</value></data>
+  <data name="Error.household.member-not-found" xml:space="preserve"><value>Questa persona non fa più parte di questa famiglia.</value></data>
+  <data name="Error.household.owner-cannot-leave" xml:space="preserve"><value>Chi ha creato la famiglia non può lasciarla finché ci sono altre persone.</value></data>
+  <data name="Error.invitation.invalid" xml:space="preserve"><value>Questo invito non può essere usato. Potrebbe essere scaduto, già usato o ritirato. Chiedine uno nuovo.</value></data>
+  <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Per ora si possono invitare solo genitori.</value></data>
+  <data name="Error.invitation.too-many" xml:space="preserve"><value>Questa famiglia ha già 5 inviti aperti. Ritirane uno per crearne uno nuovo.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>Una nota ha al massimo 500 caratteri.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Il tiralatte dura al massimo 4 ore. Controlla gli orari.</value></data>
   <data name="Error.settings.all-kinds-hidden" xml:space="preserve"><value>Lascia visibile almeno un tipo.</value></data>
   <data name="Error.sleep.too-long" xml:space="preserve"><value>Un sonno dura al massimo 24 ore. Controlla gli orari.</value></data>
   <data name="Error.sync.change-malformed" xml:space="preserve"><value>Il server non è riuscito a leggere questa modifica.</value></data>
+  <data name="Error.sync.consent-required" xml:space="preserve"><value>Prima accetta la condivisione, poi riprova.</value></data>
   <data name="Error.sync.household-mismatch" xml:space="preserve"><value>Questa voce appartiene già al registro di un’altra famiglia.</value></data>
   <data name="Error.sync.person-unresolved" xml:space="preserve"><value>Non si sa ancora chi ha registrato questa voce. Modificala per inviarla di nuovo.</value></data>
   <data name="Error.sync.role-forbidden" xml:space="preserve"><value>Il tuo ruolo in questa famiglia non consente questa modifica.</value></data>
@@ -145,6 +159,43 @@
   <data name="Error.time.too-far-in-future" xml:space="preserve"><value>Quest’ora è troppo nel futuro.</value></data>
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Inserisci una quantità sopra 0 e fino a 1.000 ml.</value></data>
   <data name="Expecting.Eyebrow" xml:space="preserve"><value>In attesa</value></data>
+  <data name="Family.ActionFailed" xml:space="preserve"><value>Non ha funzionato. Controlla la connessione e riprova.</value></data>
+  <data name="Family.BringOver" xml:space="preserve"><value>Porta le voci</value></data>
+  <data name="Family.Delete" xml:space="preserve"><value>Elimina questa famiglia</value></data>
+  <data name="Family.DeleteConfirm.one" xml:space="preserve"><value>Eliminare questa famiglia? Il suo registro di {1}, {0} voce, verrà eliminato dal server di Coo e da questo telefono. Non si può annullare.</value></data>
+  <data name="Family.DeleteConfirm.other" xml:space="preserve"><value>Eliminare questa famiglia? Il suo registro di {1}, {0} voci, verrà eliminato dal server di Coo e da questo telefono. Non si può annullare.</value></data>
+  <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>Eliminare questa famiglia? Il suo registro, {0} voce, verrà eliminato dal server di Coo e da questo telefono. Non si può annullare.</value></data>
+  <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>Eliminare questa famiglia? Il suo registro, {0} voci, verrà eliminato dal server di Coo e da questo telefono. Non si può annullare.</value></data>
+  <data name="Family.DeleteShort" xml:space="preserve"><value>Elimina</value></data>
+  <data name="Family.InvitationLine" xml:space="preserve"><value>Invito per un genitore · fino al {0}</value></data>
+  <data name="Family.Invitations" xml:space="preserve"><value>Inviti aperti</value></data>
+  <data name="Family.Invite" xml:space="preserve"><value>Invita un genitore</value></data>
+  <data name="Family.Join" xml:space="preserve"><value>Unisciti a una famiglia</value></data>
+  <data name="Family.Leave" xml:space="preserve"><value>Lascia questa famiglia</value></data>
+  <data name="Family.LeaveConfirm" xml:space="preserve"><value>Lasciare questa famiglia? Il suo registro verrà rimosso da questo telefono. Le voci che hai aggiunto restano alla famiglia.</value></data>
+  <data name="Family.LeaveShort" xml:space="preserve"><value>Lascia</value></data>
+  <data name="Family.LocalOnly" xml:space="preserve"><value>Solo su questo telefono</value></data>
+  <data name="Family.Members" xml:space="preserve"><value>Membri</value></data>
+  <data name="Family.NoBaby" xml:space="preserve"><value>Ancora nessun bambino</value></data>
+  <data name="Family.Of" xml:space="preserve"><value>Famiglia di {0}</value></data>
+  <data name="Family.OnlyHere" xml:space="preserve"><value>Il registro di questa famiglia è solo su questo telefono.</value></data>
+  <data name="Family.People.one" xml:space="preserve"><value>{0} persona</value></data>
+  <data name="Family.People.other" xml:space="preserve"><value>{0} persone</value></data>
+  <data name="Family.RefreshFailed" xml:space="preserve"><value>Aggiornamento non riuscito. Controlla la connessione.</value></data>
+  <data name="Family.Remove" xml:space="preserve"><value>Rimuovi</value></data>
+  <data name="Family.RemoveConfirm" xml:space="preserve"><value>Rimuovere {0} dalla famiglia? I suoi telefoni smetteranno di condividere il registro di questa famiglia, che verrà rimosso. Le voci che ha aggiunto restano.</value></data>
+  <data name="Family.RoleCaregiver" xml:space="preserve"><value>Persona che accudisce</value></data>
+  <data name="Family.RoleOwner" xml:space="preserve"><value>Genitore · ha creato la famiglia</value></data>
+  <data name="Family.RoleParent" xml:space="preserve"><value>Genitore</value></data>
+  <data name="Family.Showing" xml:space="preserve"><value>Visualizzata: {0}</value></data>
+  <data name="Family.Switch" xml:space="preserve"><value>Quale famiglia mostrare?</value></data>
+  <data name="Family.Title" xml:space="preserve"><value>Famiglia</value></data>
+  <data name="Family.Unshared.one" xml:space="preserve"><value>{0} voce su questo telefono non è ancora stata condivisa e andrà persa.</value></data>
+  <data name="Family.Unshared.other" xml:space="preserve"><value>{0} voci su questo telefono non sono ancora state condivise e andranno perse.</value></data>
+  <data name="Family.Withdraw" xml:space="preserve"><value>Ritira</value></data>
+  <data name="Family.WithdrawConfirm" xml:space="preserve"><value>Ritirare questo invito? Il link e il codice smetteranno di funzionare.</value></data>
+  <data name="Family.You" xml:space="preserve"><value>{0} (tu)</value></data>
+  <data name="Family.Yours" xml:space="preserve"><value>La tua famiglia</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Biberon</value></data>
   <data name="Feed.BreastHint" xml:space="preserve"><value>Avvia un timer su quel lato</value></data>
   <data name="Feed.Left" xml:space="preserve"><value>Sinistro</value></data>
@@ -159,6 +210,32 @@
   <data name="Hero.SinceAfterNap" xml:space="preserve"><value>dalle {0}, dopo un pisolino di {1}</value></data>
   <data name="Hero.Sleeping" xml:space="preserve"><value>Dorme</value></data>
   <data name="Hero.Started" xml:space="preserve"><value>iniziato alle {0}</value></data>
+  <data name="Invite.ShareText" xml:space="preserve"><value>Unisciti alla mia famiglia su Coo, così teniamo insieme il registro del nostro bambino: {0}
+
+Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una famiglia in Coo e inserisci il codice {1}. Si può usare una volta, fino al {2}.</value></data>
+  <data name="Join.AlreadyMember" xml:space="preserve"><value>Fai già parte di questa famiglia.</value></data>
+  <data name="Join.Babies" xml:space="preserve"><value>Il registro di quella famiglia ha: {0}.</value></data>
+  <data name="Join.Body" xml:space="preserve"><value>{0} ti ha invitato a unirti come genitore. Entrambi vedrete il registro della famiglia e potrete aggiungere voci.</value></data>
+  <data name="Join.BothFamilies" xml:space="preserve"><value>Entrambe le famiglie sono su questo telefono. Passa dall'una all'altra in Impostazioni → Famiglia.</value></data>
+  <data name="Join.Copied" xml:space="preserve"><value>Le tue voci ora sono anche nella famiglia di {0}.</value></data>
+  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Le tue voci ora sono anche nella famiglia di {1}. Eliminare la tua vecchia famiglia? La sua {0} voce per {2} verrà eliminata dal server di Coo e da questo telefono. Le copie restano.</value></data>
+  <data name="Join.DeleteOld.other" xml:space="preserve"><value>Le tue voci ora sono anche nella famiglia di {1}. Eliminare la tua vecchia famiglia? Le sue {0} voci per {2} verranno eliminate dal server di Coo e da questo telefono. Le copie restano.</value></data>
+  <data name="Join.DeleteOldButton" xml:space="preserve"><value>Elimina la vecchia famiglia</value></data>
+  <data name="Join.EnterHint" xml:space="preserve"><value>Inserisci il codice del tuo invito.</value></data>
+  <data name="Join.Join" xml:space="preserve"><value>Unisciti</value></data>
+  <data name="Join.Joined" xml:space="preserve"><value>Ora fai parte della famiglia di {0}.</value></data>
+  <data name="Join.KeepIt" xml:space="preserve"><value>Tienila</value></data>
+  <data name="Join.Later" xml:space="preserve"><value>Puoi unirti più tardi con lo stesso link, fino al {0}.</value></data>
+  <data name="Join.LeaveOld" xml:space="preserve"><value>Le tue voci ora sono anche nella famiglia di {0}. Lasciare la tua vecchia famiglia? Il suo registro verrà rimosso da questo telefono. Le voci che hai aggiunto restano a quella famiglia.</value></data>
+  <data name="Join.Malformed" xml:space="preserve"><value>Controlla il codice: ha 8 lettere e cifre, come ABCD-EFGH.</value></data>
+  <data name="Join.NoBaby" xml:space="preserve"><value>Il registro di quella famiglia non ha ancora un bambino.</value></data>
+  <data name="Join.OK" xml:space="preserve"><value>OK</value></data>
+  <data name="Join.SignInBody" xml:space="preserve"><value>Hai ricevuto un invito in una famiglia su Coo. Accedi con il tuo account Google per vederlo.</value></data>
+  <data name="Join.SignInTitle" xml:space="preserve"><value>Accedi per unirti a una famiglia</value></data>
+  <data name="Join.Skipped.one" xml:space="preserve"><value>{0} voce non può essere portata e verrà eliminata con essa.</value></data>
+  <data name="Join.Skipped.other" xml:space="preserve"><value>{0} voci non possono essere portate e verranno eliminate con essa.</value></data>
+  <data name="Join.Title" xml:space="preserve"><value>Unirti alla famiglia di {0}?</value></data>
+  <data name="Join.TryAgain" xml:space="preserve"><value>Riprova</value></data>
   <data name="Kind.Diaper" xml:space="preserve"><value>Pannolino</value></data>
   <data name="Kind.Feed" xml:space="preserve"><value>Poppata</value></data>
   <data name="Kind.Pump" xml:space="preserve"><value>Tiralatte</value></data>
@@ -174,6 +251,13 @@
   <data name="Night.LastFeed" xml:space="preserve"><value>Ultima poppata</value></data>
   <data name="Night.Title" xml:space="preserve"><value>{0} · Modalità notte</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Quanto?</value></data>
+  <data name="Removal.Body" xml:space="preserve"><value>Non sei più membro della famiglia che tiene il registro di {0}, quindi quel registro verrà rimosso da questo telefono. Le voci che hai già condiviso restano alla famiglia.</value></data>
+  <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Non sei più membro di questa famiglia, quindi il suo registro verrà rimosso da questo telefono. Le voci che hai già condiviso restano alla famiglia.</value></data>
+  <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>
+  <data name="Removal.Share" xml:space="preserve"><value>Condividile come testo</value></data>
+  <data name="Removal.Title" xml:space="preserve"><value>Non fai più parte di questa famiglia</value></data>
+  <data name="Removal.Unshared.one" xml:space="preserve"><value>{0} voce che hai registrato non è ancora stata condivisa.</value></data>
+  <data name="Removal.Unshared.other" xml:space="preserve"><value>{0} voci che hai registrato non sono ancora state condivise.</value></data>
   <data name="Section.Today" xml:space="preserve"><value>Oggi</value></data>
   <data name="Settings.About" xml:space="preserve"><value>Informazioni</value></data>
   <data name="Settings.Appearance" xml:space="preserve"><value>Aspetto</value></data>
@@ -209,6 +293,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Setup.Continue" xml:space="preserve"><value>Continua</value></data>
   <data name="Setup.DefaultName" xml:space="preserve"><value>Bimbo</value></data>
   <data name="Setup.DueDate" xml:space="preserve"><value>Data prevista</value></data>
+  <data name="Setup.HaveInvitation" xml:space="preserve"><value>Hai un invito? Inserisci un codice</value></data>
   <data name="Setup.Hint" xml:space="preserve"><value>Per iniziare non serve un account. Potrai condividere con la famiglia più avanti.</value></data>
   <data name="Setup.Name" xml:space="preserve"><value>Nome</value></data>
   <data name="Setup.NotYet" xml:space="preserve"><value>Non ancora</value></data>
@@ -218,6 +303,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.Left" xml:space="preserve"><value>sinistro</value></data>
   <data name="Side.R" xml:space="preserve"><value>D</value></data>
   <data name="Side.Right" xml:space="preserve"><value>destro</value></data>
+  <data name="Sync.NotAMember" xml:space="preserve"><value>La condivisione si è fermata: questa famiglia non è più sul server di Coo. Le tue voci sono al sicuro su questo telefono.</value></data>
   <data name="Sync.Off" xml:space="preserve"><value>La condivisione è disattivata. Il tuo registro è solo su questo telefono.</value></data>
   <data name="Sync.Paused" xml:space="preserve"><value>La condivisione è in pausa. Le tue voci sono al sicuro su questo telefono.</value></data>
   <data name="Sync.Sharing.one" xml:space="preserve"><value>Condivisione di {0} modifica…</value></data>
@@ -244,6 +330,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Toast.Logged" xml:space="preserve"><value>Registrato · {0}</value></data>
   <data name="Toast.Saved" xml:space="preserve"><value>Salvato · {0}</value></data>
   <data name="Toast.Undone" xml:space="preserve"><value>Annullato</value></data>
+  <data name="Today.Paused" xml:space="preserve"><value>La condivisione con questa famiglia è in pausa. Le tue voci sono al sicuro su questo telefono.</value></data>
   <data name="Totals.Diapers.one" xml:space="preserve"><value>pannolino</value></data>
   <data name="Totals.Diapers.other" xml:space="preserve"><value>pannolini</value></data>
   <data name="Totals.Feeds.one" xml:space="preserve"><value>poppata</value></data>

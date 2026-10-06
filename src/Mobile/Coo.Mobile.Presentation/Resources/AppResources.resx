@@ -53,6 +53,7 @@
   <data name="Birth.Title" xml:space="preserve"><value>Welcome, {0}</value></data>
   <data name="BringOver.AddNew" xml:space="preserve"><value>Add as a new baby</value></data>
   <data name="BringOver.Bring" xml:space="preserve"><value>Bring my entries over</value></data>
+  <data name="BringOver.ChooseTarget" xml:space="preserve"><value>Bring entries over to which family?</value></data>
   <data name="BringOver.Confirm" xml:space="preserve"><value>Bring them over</value></data>
   <data name="BringOver.Entries.one" xml:space="preserve"><value>This phone has {0} entry for {1}.</value></data>
   <data name="BringOver.Entries.other" xml:space="preserve"><value>This phone has {0} entries for {1}.</value></data>
@@ -117,6 +118,7 @@
   <data name="Entry.Sleep" xml:space="preserve"><value>Sleep · {0}</value></data>
   <data name="Entry.Sleeping" xml:space="preserve"><value>Sleeping</value></data>
   <data name="Error.Generic" xml:space="preserve"><value>That could not be saved.</value></data>
+  <data name="Error.auth.rate-limited" xml:space="preserve"><value>Too many tries. Wait a while and try again.</value></data>
   <data name="Error.baby.already-born" xml:space="preserve"><value>The birth is already recorded.</value></data>
   <data name="Error.baby.birth-in-future" xml:space="preserve"><value>The birth date cannot be in the future.</value></data>
   <data name="Error.baby.birth-or-due-date-required" xml:space="preserve"><value>Add a birth date or a due date.</value></data>
@@ -131,11 +133,23 @@
   <data name="Error.breast.too-long" xml:space="preserve"><value>A breast feed can be at most 6 hours. Check the times.</value></data>
   <data name="Error.entry.not-editable" xml:space="preserve"><value>This entry cannot be edited in this version of Coo.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>This entry no longer exists.</value></data>
+  <data name="Error.household.already-has-family" xml:space="preserve"><value>You're already in a family on Coo.</value></data>
+  <data name="Error.household.confirmation-required" xml:space="preserve"><value>This family still has entries on Coo's server. Confirm to delete them.</value></data>
+  <data name="Error.household.forbidden" xml:space="preserve"><value>You can't do that in this family.</value></data>
+  <data name="Error.household.id-taken" xml:space="preserve"><value>That didn't work. Try again.</value></data>
+  <data name="Error.household.last-family" xml:space="preserve"><value>This is your only family, so it can't be left.</value></data>
+  <data name="Error.household.malformed" xml:space="preserve"><value>That didn't work. Try again.</value></data>
+  <data name="Error.household.member-not-found" xml:space="preserve"><value>That person is no longer in this family.</value></data>
+  <data name="Error.household.owner-cannot-leave" xml:space="preserve"><value>The person who created the family can't leave it while others are in it.</value></data>
+  <data name="Error.invitation.invalid" xml:space="preserve"><value>This invitation can't be used. It may have expired, been used or been withdrawn. Ask for a new one.</value></data>
+  <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Only parents can be invited for now.</value></data>
+  <data name="Error.invitation.too-many" xml:space="preserve"><value>This family already has 5 open invitations. Withdraw one to make a new one.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>A note can be at most 500 characters.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Pumping can be at most 4 hours. Check the times.</value></data>
   <data name="Error.settings.all-kinds-hidden" xml:space="preserve"><value>Keep at least one type visible.</value></data>
   <data name="Error.sleep.too-long" xml:space="preserve"><value>A sleep can be at most 24 hours. Check the times.</value></data>
   <data name="Error.sync.change-malformed" xml:space="preserve"><value>The server couldn't read this change.</value></data>
+  <data name="Error.sync.consent-required" xml:space="preserve"><value>Agree to share first, then try again.</value></data>
   <data name="Error.sync.household-mismatch" xml:space="preserve"><value>This entry already belongs to another family's log.</value></data>
   <data name="Error.sync.person-unresolved" xml:space="preserve"><value>Who logged this isn't known yet. Edit the entry to send it again.</value></data>
   <data name="Error.sync.role-forbidden" xml:space="preserve"><value>Your role in this family can't change this.</value></data>
@@ -145,6 +159,43 @@
   <data name="Error.time.too-far-in-future" xml:space="preserve"><value>That time is too far in the future.</value></data>
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Enter an amount above 0 and up to 1,000 ml.</value></data>
   <data name="Expecting.Eyebrow" xml:space="preserve"><value>Expecting</value></data>
+  <data name="Family.ActionFailed" xml:space="preserve"><value>That didn't work. Check your connection and try again.</value></data>
+  <data name="Family.BringOver" xml:space="preserve"><value>Bring entries over</value></data>
+  <data name="Family.Delete" xml:space="preserve"><value>Delete this family</value></data>
+  <data name="Family.DeleteConfirm.one" xml:space="preserve"><value>Delete this family? Its log of {1}, {0} entry, is deleted from Coo's server and this phone. This can't be undone.</value></data>
+  <data name="Family.DeleteConfirm.other" xml:space="preserve"><value>Delete this family? Its log of {1}, {0} entries, is deleted from Coo's server and this phone. This can't be undone.</value></data>
+  <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>Delete this family? Its log, {0} entry, is deleted from Coo's server and this phone. This can't be undone.</value></data>
+  <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>Delete this family? Its log, {0} entries, is deleted from Coo's server and this phone. This can't be undone.</value></data>
+  <data name="Family.DeleteShort" xml:space="preserve"><value>Delete</value></data>
+  <data name="Family.InvitationLine" xml:space="preserve"><value>Invitation for a parent · until {0}</value></data>
+  <data name="Family.Invitations" xml:space="preserve"><value>Open invitations</value></data>
+  <data name="Family.Invite" xml:space="preserve"><value>Invite a parent</value></data>
+  <data name="Family.Join" xml:space="preserve"><value>Join a family</value></data>
+  <data name="Family.Leave" xml:space="preserve"><value>Leave this family</value></data>
+  <data name="Family.LeaveConfirm" xml:space="preserve"><value>Leave this family? Its log is removed from this phone. Entries you added stay with the family.</value></data>
+  <data name="Family.LeaveShort" xml:space="preserve"><value>Leave</value></data>
+  <data name="Family.LocalOnly" xml:space="preserve"><value>On this phone only</value></data>
+  <data name="Family.Members" xml:space="preserve"><value>Members</value></data>
+  <data name="Family.NoBaby" xml:space="preserve"><value>No baby yet</value></data>
+  <data name="Family.Of" xml:space="preserve"><value>Family of {0}</value></data>
+  <data name="Family.OnlyHere" xml:space="preserve"><value>This family's log is only on this phone.</value></data>
+  <data name="Family.People.one" xml:space="preserve"><value>{0} person</value></data>
+  <data name="Family.People.other" xml:space="preserve"><value>{0} people</value></data>
+  <data name="Family.RefreshFailed" xml:space="preserve"><value>Couldn't refresh. Check your connection.</value></data>
+  <data name="Family.Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Family.RemoveConfirm" xml:space="preserve"><value>Remove {0} from the family? Their phones stop sharing this family's log, and it is removed from them. Entries they added stay.</value></data>
+  <data name="Family.RoleCaregiver" xml:space="preserve"><value>Caregiver</value></data>
+  <data name="Family.RoleOwner" xml:space="preserve"><value>Parent · created the family</value></data>
+  <data name="Family.RoleParent" xml:space="preserve"><value>Parent</value></data>
+  <data name="Family.Showing" xml:space="preserve"><value>Showing: {0}</value></data>
+  <data name="Family.Switch" xml:space="preserve"><value>Show which family?</value></data>
+  <data name="Family.Title" xml:space="preserve"><value>Family</value></data>
+  <data name="Family.Unshared.one" xml:space="preserve"><value>{0} entry on this phone wasn't shared yet and will be lost.</value></data>
+  <data name="Family.Unshared.other" xml:space="preserve"><value>{0} entries on this phone weren't shared yet and will be lost.</value></data>
+  <data name="Family.Withdraw" xml:space="preserve"><value>Withdraw</value></data>
+  <data name="Family.WithdrawConfirm" xml:space="preserve"><value>Withdraw this invitation? Its link and code stop working.</value></data>
+  <data name="Family.You" xml:space="preserve"><value>{0} (you)</value></data>
+  <data name="Family.Yours" xml:space="preserve"><value>Your family</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Bottle</value></data>
   <data name="Feed.BreastHint" xml:space="preserve"><value>Starts a timer on that side</value></data>
   <data name="Feed.Left" xml:space="preserve"><value>Left</value></data>
@@ -159,6 +210,32 @@
   <data name="Hero.SinceAfterNap" xml:space="preserve"><value>since {0}, after a {1} nap</value></data>
   <data name="Hero.Sleeping" xml:space="preserve"><value>Sleeping</value></data>
   <data name="Hero.Started" xml:space="preserve"><value>started {0}</value></data>
+  <data name="Invite.ShareText" xml:space="preserve"><value>Join my family on Coo, so we can keep our baby's log together: {0}
+
+If the link doesn't open Coo, go to Settings → Family → Join a family in Coo and enter the code {1}. It can be used once, until {2}.</value></data>
+  <data name="Join.AlreadyMember" xml:space="preserve"><value>You're already in this family.</value></data>
+  <data name="Join.Babies" xml:space="preserve"><value>Their family's log has: {0}.</value></data>
+  <data name="Join.Body" xml:space="preserve"><value>{0} invited you to join as a parent. You'll both see the family's log and add to it.</value></data>
+  <data name="Join.BothFamilies" xml:space="preserve"><value>Both families are on this phone. Switch between them in Settings → Family.</value></data>
+  <data name="Join.Copied" xml:space="preserve"><value>Your entries are now in {0}'s family too.</value></data>
+  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Your entries are now in {1}'s family too. Delete your old family? Its {0} entry for {2} is deleted from Coo's server and this phone. The copies stay.</value></data>
+  <data name="Join.DeleteOld.other" xml:space="preserve"><value>Your entries are now in {1}'s family too. Delete your old family? Its {0} entries for {2} are deleted from Coo's server and this phone. The copies stay.</value></data>
+  <data name="Join.DeleteOldButton" xml:space="preserve"><value>Delete old family</value></data>
+  <data name="Join.EnterHint" xml:space="preserve"><value>Enter the code from your invitation.</value></data>
+  <data name="Join.Join" xml:space="preserve"><value>Join</value></data>
+  <data name="Join.Joined" xml:space="preserve"><value>You've joined {0}'s family.</value></data>
+  <data name="Join.KeepIt" xml:space="preserve"><value>Keep it</value></data>
+  <data name="Join.Later" xml:space="preserve"><value>You can join later with the same link, until {0}.</value></data>
+  <data name="Join.LeaveOld" xml:space="preserve"><value>Your entries are now in {0}'s family too. Leave your old family? Its log is removed from this phone. Entries you added stay with that family.</value></data>
+  <data name="Join.Malformed" xml:space="preserve"><value>Check the code: it's 8 letters and numbers, like ABCD-EFGH.</value></data>
+  <data name="Join.NoBaby" xml:space="preserve"><value>Their family's log has no baby yet.</value></data>
+  <data name="Join.OK" xml:space="preserve"><value>OK</value></data>
+  <data name="Join.SignInBody" xml:space="preserve"><value>You've been invited to a family on Coo. Sign in with your Google account to see the invitation.</value></data>
+  <data name="Join.SignInTitle" xml:space="preserve"><value>Sign in to join a family</value></data>
+  <data name="Join.Skipped.one" xml:space="preserve"><value>{0} entry can't be brought over and is deleted with it.</value></data>
+  <data name="Join.Skipped.other" xml:space="preserve"><value>{0} entries can't be brought over and are deleted with it.</value></data>
+  <data name="Join.Title" xml:space="preserve"><value>Join {0}'s family?</value></data>
+  <data name="Join.TryAgain" xml:space="preserve"><value>Try again</value></data>
   <data name="Kind.Diaper" xml:space="preserve"><value>Diaper</value></data>
   <data name="Kind.Feed" xml:space="preserve"><value>Feed</value></data>
   <data name="Kind.Pump" xml:space="preserve"><value>Pump</value></data>
@@ -174,6 +251,13 @@
   <data name="Night.LastFeed" xml:space="preserve"><value>Last feed</value></data>
   <data name="Night.Title" xml:space="preserve"><value>{0} · Night mode</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>How much?</value></data>
+  <data name="Removal.Body" xml:space="preserve"><value>You're no longer a member of the family that logs {0}, so its log will be removed from this phone. Entries you already shared stay with the family.</value></data>
+  <data name="Removal.BodyNoBaby" xml:space="preserve"><value>You're no longer a member of this family, so its log will be removed from this phone. Entries you already shared stay with the family.</value></data>
+  <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>
+  <data name="Removal.Share" xml:space="preserve"><value>Share them as text</value></data>
+  <data name="Removal.Title" xml:space="preserve"><value>You're no longer in this family</value></data>
+  <data name="Removal.Unshared.one" xml:space="preserve"><value>{0} entry you logged wasn't shared yet.</value></data>
+  <data name="Removal.Unshared.other" xml:space="preserve"><value>{0} entries you logged weren't shared yet.</value></data>
   <data name="Section.Today" xml:space="preserve"><value>Today</value></data>
   <data name="Settings.About" xml:space="preserve"><value>About</value></data>
   <data name="Settings.Appearance" xml:space="preserve"><value>Appearance</value></data>
@@ -209,6 +293,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Setup.Continue" xml:space="preserve"><value>Continue</value></data>
   <data name="Setup.DefaultName" xml:space="preserve"><value>Baby</value></data>
   <data name="Setup.DueDate" xml:space="preserve"><value>Due date</value></data>
+  <data name="Setup.HaveInvitation" xml:space="preserve"><value>Have an invitation? Enter a code</value></data>
   <data name="Setup.Hint" xml:space="preserve"><value>No account needed to start. You can share with family later.</value></data>
   <data name="Setup.Name" xml:space="preserve"><value>Name</value></data>
   <data name="Setup.NotYet" xml:space="preserve"><value>Not yet</value></data>
@@ -218,6 +303,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.Left" xml:space="preserve"><value>left</value></data>
   <data name="Side.R" xml:space="preserve"><value>R</value></data>
   <data name="Side.Right" xml:space="preserve"><value>right</value></data>
+  <data name="Sync.NotAMember" xml:space="preserve"><value>Sharing stopped: this family is no longer on Coo's server. Your entries are safe on this phone.</value></data>
   <data name="Sync.Off" xml:space="preserve"><value>Sharing is off. Your log is only on this phone.</value></data>
   <data name="Sync.Paused" xml:space="preserve"><value>Sharing is paused. Your entries are safe on this phone.</value></data>
   <data name="Sync.Sharing.one" xml:space="preserve"><value>Sharing {0} change…</value></data>
@@ -244,6 +330,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Toast.Logged" xml:space="preserve"><value>Logged · {0}</value></data>
   <data name="Toast.Saved" xml:space="preserve"><value>Saved · {0}</value></data>
   <data name="Toast.Undone" xml:space="preserve"><value>Undone</value></data>
+  <data name="Today.Paused" xml:space="preserve"><value>Sharing with this family is paused. Your entries are safe on this phone.</value></data>
   <data name="Totals.Diapers.one" xml:space="preserve"><value>diaper</value></data>
   <data name="Totals.Diapers.other" xml:space="preserve"><value>diapers</value></data>
   <data name="Totals.Feeds.one" xml:space="preserve"><value>feed</value></data>

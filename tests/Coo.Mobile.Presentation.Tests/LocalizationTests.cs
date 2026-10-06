@@ -2,6 +2,7 @@ using System.Collections;
 using System.Globalization;
 using System.Resources;
 using System.Text.RegularExpressions;
+using Coo.Mobile.Application.Preferences;
 using Coo.Mobile.Presentation.Localization;
 
 namespace Coo.Mobile.Presentation.Tests;
@@ -169,6 +170,52 @@ public sealed partial class LocalizationTests
         text.Should().NotBe(generic, $"'{code}' needs its own message");
     }
 
+    public static TheoryData<string, string> HouseholdWords => new()
+    {
+        { "en", "household" }, { "de", "haushalt" }, { "fr", "foyer|ménage" }, { "es", "hogar" }, { "it", "nucleo" },
+        { "pl", "gospodarstw" }, { "nl", "huishoud" },
+    };
+
+    [Theory]
+    [MemberData(nameof(HouseholdWords))]
+    public void Values_EveryLanguage_SayFamilyNeverHousehold(string language, string forbidden)
+    {
+        // Arrange: Spec 011b §2 and R10.
+        var set = Set(language);
+
+        // Act
+        var offending = set.Where(e => Regex.IsMatch(e.Value, forbidden, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)).Select(e => e.Key).ToList();
+
+        // Assert
+        offending.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData("invitation.invalid")]
+    [InlineData("invitation.role-unsupported")]
+    [InlineData("invitation.too-many")]
+    [InlineData("household.forbidden")]
+    [InlineData("household.member-not-found")]
+    [InlineData("household.owner-cannot-leave")]
+    [InlineData("household.last-family")]
+    [InlineData("household.confirmation-required")]
+    [InlineData("household.id-taken")]
+    [InlineData("household.already-has-family")]
+    [InlineData("household.malformed")]
+    [InlineData("auth.rate-limited")]
+    [InlineData("sync.consent-required")]
+    public void Error_EveryCodeThePhoneCanReceive_HasAString(string code)
+    {
+        // Arrange: ADR 0006 §3, spec §10.1.
+        var generic = Strings.Get("Error.Generic");
+
+        // Act
+        var text = Strings.Error(code);
+
+        // Assert
+        text.Should().NotBe(generic, $"'{code}' needs its own message");
+    }
+
     private static bool IsPlural(string key) => key.EndsWith(".one", StringComparison.Ordinal) || key.EndsWith(".other", StringComparison.Ordinal)
         || key.EndsWith(".few", StringComparison.Ordinal) || key.EndsWith(".many", StringComparison.Ordinal);
 
@@ -184,4 +231,29 @@ public sealed partial class LocalizationTests
 
     [GeneratedRegex(@"\{\d+\}")]
     private static partial Regex Placeholder();
+}
+
+/// <summary>Spec 011b §3: the invitation's share text. Sets the language, so it runs alone (StringsState).</summary>
+[Collection(nameof(StringsState))]
+public sealed class ShareTextTests : IDisposable
+{
+    public ShareTextTests() => Strings.Use(new LanguagePreference("en"), null);
+
+    public void Dispose() => Strings.Use(LanguagePreference.System, null);
+
+    [Fact]
+    public void Format_ShareText_PutsTheLinkCodeAndExpiryInPlace()
+    {
+        // Arrange
+        const string link = "https://api.coo.lechdigital.nl/i/ABCDEFGH";
+
+        // Act
+        var text = Strings.Format("Invite.ShareText", link, "ABCD-EFGH", "Thu 9 Oct, 14:02");
+
+        // Assert
+        text.Should().Be(
+            "Join my family on Coo, so we can keep our baby's log together: https://api.coo.lechdigital.nl/i/ABCDEFGH\n\n"
+            + "If the link doesn't open Coo, go to Settings → Family → Join a family in Coo and enter the code ABCD-EFGH. "
+            + "It can be used once, until Thu 9 Oct, 14:02.");
+    }
 }
