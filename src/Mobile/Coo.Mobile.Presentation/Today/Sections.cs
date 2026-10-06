@@ -273,7 +273,9 @@ public sealed partial class TimelineSection : ObservableObject, IHomeSection
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         IReadOnlyList<TimelineItem> next = [.. (snapshot.Today?.TodayEntries ?? []).Select(e => Row(e, snapshot))];
-        if (Running.Changed(Items, next, i => i.Time + i.Title))
+
+        // Who too (walk fix F4): the family's names may arrive after the first draw.
+        if (Running.Changed(Items, next, i => i.Time + i.Title + i.Who))
             Items = next;
     }
 

@@ -101,18 +101,37 @@ public sealed class WhoLabelsTests : IDisposable
     public void Update_TimelineEntryLoggedByAnotherParent_ShowsTheirName()
     {
         // Arrange
-        var entry = CareEntry.Create(new EntryId(Guid.CreateVersion7(Now)), Household, EntrySubject.Baby(Baby), new Coo.Domain.CareLog.Kinds.Sleep.SleepDetails(),
+        var section = new TimelineSection();
+
+        // Act
+        section.Update(TimelineSnapshot(Family()));
+
+        // Assert
+        section.Items.Single().Who.Should().Be("Kasia");
+    }
+
+    [Fact]
+    public void Update_TheNamesArriveAfterTheFirstDraw_TheRowSaysTheName()
+    {
+        // Arrange: the first family list refresh after this update stores the names.
+        var section = new TimelineSection();
+        section.Update(TimelineSnapshot(WhoLabels.For(Me, [])));
+
+        // Act
+        section.Update(TimelineSnapshot(Family()));
+
+        // Assert
+        section.Items.Single().Who.Should().Be("Kasia");
+    }
+
+    private static HomeSnapshot TimelineSnapshot(WhoLabels who)
+    {
+        var entry = CareEntry.Create(new EntryId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000f2")), Household, EntrySubject.Baby(Baby), new Coo.Domain.CareLog.Kinds.Sleep.SleepDetails(),
             EntryTiming.Session(TimeRange.Open(Now.AddHours(-1))), PersonRef.User(Kasia), EntrySource.Timer, new HlcStamp(1, 0, Device), Now).Value;
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
         var baby = BabyProfile.Create(Baby, Household, "Zosia", [], new DateOnly(2026, 5, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
         var summary = new TodaySummary([], null, null, null, null, null, [new LiveEntry(entry)], DayMath.Day(new DateOnly(2026, 10, 6), TimeZoneInfo.Utc));
-        var section = new TimelineSection();
-
-        // Act
-        section.Update(new HomeSnapshot(settings, baby, summary, Now, PaletteKind.Day, new Formats(true, VolumeUnit.Millilitres), Who: Family()));
-
-        // Assert
-        section.Items.Single().Who.Should().Be("Kasia");
+        return new HomeSnapshot(settings, baby, summary, Now, PaletteKind.Day, new Formats(true, VolumeUnit.Millilitres), Who: who);
     }
 
     [Fact]
