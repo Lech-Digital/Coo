@@ -329,6 +329,10 @@ public sealed class SyncEngine : ISyncStatus, ISyncControl, IDisposable
         try
         {
             await _families.RefreshAsync(cancellationToken);
+
+            // A member's name came or changed (review M7): Today and Log say who logged an entry.
+            if (_families.TakeNamesChanged())
+                NotifyDataChanged();
         }
 #pragma warning disable CA1031 // The list is refreshed again at the next wake; a failure never stops a cycle.
         catch (Exception)

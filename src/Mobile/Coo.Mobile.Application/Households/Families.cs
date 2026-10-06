@@ -37,8 +37,15 @@ public sealed class Families(
     private static readonly IComparer<Guid> ByGuid = Comparer<Guid>.Create(GuidOrder.Compare);
 
     private readonly SemaphoreSlim _refreshing = new(1, 1);
+    private int _namesChanged;
 
     public void Dispose() => _refreshing.Dispose();
+
+    /// <summary>
+    /// Whether a refresh stored member names that differ from what the phone had since this was last asked (review M7): the
+    /// caller then tells the pages, so "Another parent" becomes the name without waiting for the next data change.
+    /// </summary>
+    public bool TakeNamesChanged() => Interlocked.Exchange(ref _namesChanged, 0) == 1;
 
     /// <summary>
     /// Sign-out (ruling 27): the list goes, after any refresh in flight. That refresh began under the old sign-in, so it
@@ -119,9 +126,18 @@ public sealed class Families(
             return false;
         await store.ReplaceAsync(user, list, cancellationToken);
 
-        // Who logged an entry (walk fix F4): a family whose members could not be read keeps the names it had.
+        // Who logged an entry (walk fix F4): a family whose members could not be read keeps the names it had. Only for the sign-in
+        // that asked (review M6); a sign-out's clear waits for this refresh, so what is written here is cleared with the list.
         foreach (var (household, known) in names)
+        {
+            if (generation != account.Generation)
+                break;
+            if ((await store.ListMemberNamesAsync(household, cancellationToken)).SequenceEqual(known))
+                continue;
             await store.SetMemberNamesAsync(household, known, cancellationToken);
+            Interlocked.Exchange(ref _namesChanged, 1);
+        }
+
         return true;
     }
 

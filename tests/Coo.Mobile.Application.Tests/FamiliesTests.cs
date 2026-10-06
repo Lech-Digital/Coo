@@ -114,6 +114,60 @@ public sealed class FamiliesTests : IDisposable
     }
 
     [Fact]
+    public async Task RefreshAsync_SignedOutWhileTheListIsStored_WritesNoNames()
+    {
+        // Arrange: review M6, names of one account never outlive its sign-out.
+        await SignInAsync();
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Home, "owner", [], null, [new MembershipInfo(Home, Role.Owner, Now)]));
+        _api.ListMembersAsync(Home, Arg.Any<CancellationToken>()).Returns(new FamilyMembers([new FamilyMember(Me, "Kasia", "k@example.com", Role.Owner, Now, true)], []));
+        _store.ReplaceAsync(default, default!, default).ReturnsForAnyArgs(async _ => await _account.SignedOutAsync(false, CancellationToken.None));
+
+        // Act
+        await Families().RefreshAsync(CancellationToken.None);
+
+        // Assert
+        await _store.DidNotReceiveWithAnyArgs().SetMemberNamesAsync(default, default!, default);
+    }
+
+    [Fact]
+    public async Task RefreshAsync_NamesAsStored_WritesNothingAndReportsNoChange()
+    {
+        // Arrange: review M7, the pages redraw only when a name changed.
+        await SignInAsync();
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Home, "owner", [], null, [new MembershipInfo(Home, Role.Owner, Now)]));
+        _api.ListMembersAsync(Home, Arg.Any<CancellationToken>()).Returns(new FamilyMembers([new FamilyMember(Me, "Kasia", "k@example.com", Role.Owner, Now, true)], []));
+        _store.ListMemberNamesAsync(Home, Arg.Any<CancellationToken>()).Returns([new FamilyMemberName(Me, "Kasia")]);
+        var families = Families();
+
+        // Act
+        await families.RefreshAsync(CancellationToken.None);
+
+        // Assert
+        await _store.DidNotReceiveWithAnyArgs().SetMemberNamesAsync(default, default!, default);
+        families.TakeNamesChanged().Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RefreshAsync_ANameChanged_ReportsTheChangeOnce()
+    {
+        // Arrange
+        await SignInAsync();
+        _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Home, "owner", [], null, [new MembershipInfo(Home, Role.Owner, Now)]));
+        _api.ListMembersAsync(Home, Arg.Any<CancellationToken>()).Returns(new FamilyMembers([new FamilyMember(Me, "Kasia Nowak", "k@example.com", Role.Owner, Now, true)], []));
+        _store.ListMemberNamesAsync(Home, Arg.Any<CancellationToken>()).Returns([new FamilyMemberName(Me, "Kasia")]);
+        var families = Families();
+
+        // Act
+        await families.RefreshAsync(CancellationToken.None);
+        var first = families.TakeNamesChanged();
+        var second = families.TakeNamesChanged();
+
+        // Assert
+        first.Should().BeTrue();
+        second.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task RefreshAsync_MembersCallFails_KeepsTheStoredNames()
     {
         // Arrange
