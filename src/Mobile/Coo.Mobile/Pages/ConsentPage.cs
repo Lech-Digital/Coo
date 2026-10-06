@@ -2,6 +2,7 @@ using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Components;
 using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Settings;
+using Coo.Mobile.Presentation.Sheets;
 
 namespace Coo.Mobile.Pages;
 
@@ -13,12 +14,14 @@ public sealed class ConsentPage : ContentPage
 {
     private readonly ConsentViewModel _model;
     private readonly Account _account;
+    private readonly SheetNavigator _sheets;
     private readonly Label _toast = new() { IsVisible = false };
 
-    public ConsentPage(ConsentViewModel model, Account account)
+    public ConsentPage(ConsentViewModel model, Account account, SheetNavigator sheets)
     {
         _model = model;
         _account = account;
+        _sheets = sheets;
         SetDynamicResource(BackgroundColorProperty, "Ground");
         Shell.SetNavBarIsVisible(this, false);
         model.Closed += (_, _) => Dispatcher.Dispatch(async () => await CloseAsync());
@@ -97,8 +100,8 @@ public sealed class ConsentPage : ContentPage
     {
         try
         {
-            if (Navigation.ModalStack.Contains(this))
-                await Navigation.PopModalAsync();
+            // Only this page, never one over it (walk fix F1).
+            await _sheets.CloseAsync(this);
         }
 #pragma warning disable CA1031 // Closing twice (a double tap, or Agree and a sign-out together) must not crash.
         catch (Exception)

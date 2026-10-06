@@ -4,6 +4,7 @@ using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Sync;
 using Coo.Mobile.Pages;
 using Coo.Mobile.Presentation.Settings;
+using Coo.Mobile.Presentation.Sheets;
 
 namespace Coo.Mobile.Sync;
 
@@ -17,8 +18,10 @@ namespace Coo.Mobile.Sync;
 /// Spec 011b adds the removal sheet (§8.2: one removal at a time; Back closes it until the next resume), the join sheet (§5:
 /// from a link, the code sheet, or a pending invitation or choice at start and resume), and the consent sheet on request
 /// (<see cref="AskConsentAsync"/>). While the join sheet shows it owns the sheets: nothing opens but its own consent.
+/// Every sheet goes on and off the window through <see cref="SheetNavigator"/> (walk fix F1): one step at a time, on the window's
+/// own modal stack, never through the Shell's routes.
 /// </summary>
-internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceProvider services)
+internal sealed class SyncPrompter(SyncEngine engine, Account account, SheetNavigator sheets, IServiceProvider services)
 {
     private bool _attached;
     private bool _consentShown;
@@ -27,7 +30,6 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
     private bool _malformedPending;
     private HouseholdId? _removalShown;
     private Pages.JoinPage? _join;
-    private Page? _pushing;
     private Page? _sheet;
 
     /// <summary>The join sheet left the modal stack, whatever ended it (main thread).</summary>
@@ -50,10 +52,10 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
     });
 
     /// <summary>
-    /// The window stopped (main thread). A push still in flight must never block the sheets for the rest of the run: it is
-    /// forgotten here, and the modal stack tells whether it landed.
+    /// The window stopped (main thread). A push or pop still waiting for its animation must never block the sheets for the rest
+    /// of the run: it is forgotten here, and the modal stack tells whether it landed.
     /// </summary>
-    public void Backgrounded() => _pushing = null;
+    public void Backgrounded() => sheets.Reset();
 
     public Task ShowConsentAsync() => ShowAsync(() => services.GetRequiredService<ConsentPage>());
 
@@ -189,21 +191,18 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
     }
 
     /// <summary>The consent sheet on the modal stack, if one shows (whoever opened it).</summary>
-    private static ConsentPage? ShowingConsent() =>
-        Microsoft.Maui.Controls.Application.Current?.Windows is { Count: > 0 } windows && windows[0].Page is { } root
-            ? root.Navigation.ModalStack.OfType<ConsentPage>().LastOrDefault()
-            : null;
+    private ConsentPage? ShowingConsent() => sheets.Pages.OfType<ConsentPage>().LastOrDefault();
 
     /// <summary>
     /// Completes once the page has left the modal stack. Disappearing is also raised by a page opening over it, so each one is
     /// checked against the stack.
     /// </summary>
-    private static Task ClosedAsync(Page page)
+    private Task ClosedAsync(Page page)
     {
         var closed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         void OnDisappearing(object? sender, EventArgs e) => OnMainThread(() =>
         {
-            if (!OnModalStack(page))
+            if (!sheets.Contains(page))
             {
                 page.Disappearing -= OnDisappearing;
                 closed.TrySetResult();
@@ -225,11 +224,7 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
             : ConsentAnswer.Declined;
     }
 
-    private bool JoinShowing() => _join is not null && OnModalStack(_join);
-
-    private static bool OnModalStack(Page page) =>
-        Microsoft.Maui.Controls.Application.Current?.Windows is { Count: > 0 } windows
-        && windows[0].Page?.Navigation.ModalStack.Contains(page) == true;
+    private bool JoinShowing() => _join is not null && sheets.Contains(_join);
 
     private async Task PromptAsync()
     {
@@ -281,35 +276,36 @@ internal sealed class SyncPrompter(SyncEngine engine, Account account, IServiceP
     /// </param>
     private async Task<bool> ShowAsync(Func<Page> create, bool overSheet = false)
     {
-        if (!App.IsForeground || _pushing is not null || Microsoft.Maui.Controls.Application.Current?.Windows is not { Count: > 0 } windows || windows[0].Page is not { } root)
-            return false;
-        if (!overSheet && _sheet is not null && root.Navigation.ModalStack.Contains(_sheet))
+        if (!CanShow())
             return false;
 
-        var page = create();
-        if (!overSheet || _sheet is null || !root.Navigation.ModalStack.Contains(_sheet))
-            _sheet = page;
-        _pushing = page;
-
-        // When it closes, whatever was held back while it showed (bring-over after consent) gets its turn.
-        page.Disappearing += (_, _) => OnMainThread(PromptAsync);
+        Page? pushed = null;
         try
         {
-            await root.Navigation.PushModalAsync(page);
-            return true;
+            // Decided once the steps before it have finished (a sheet still popping, another being pushed): the stack they left.
+            return await sheets.PushAsync(stack =>
+            {
+                var showing = _sheet is not null && stack.Contains(_sheet);
+                if (!CanShow() || (!overSheet && showing))
+                    return null;
+                var page = create();
+                if (!overSheet || !showing)
+                    _sheet = page;
+                pushed = page;
+
+                // When it closes, whatever was held back while it showed (bring-over after consent) gets its turn.
+                page.Disappearing += (_, _) => OnMainThread(PromptAsync);
+                return page;
+            });
         }
         catch
         {
             // Only its own sheet: a newer one that opened meanwhile stays tracked.
-            if (ReferenceEquals(_sheet, page))
+            if (pushed is not null && ReferenceEquals(_sheet, pushed))
                 _sheet = null;
             throw;
         }
-        finally
-        {
-            // Only its own push: one forgotten in the background must not clear a newer one.
-            if (ReferenceEquals(_pushing, page))
-                _pushing = null;
-        }
     }
+
+    private static bool CanShow() => App.IsForeground && Microsoft.Maui.Controls.Application.Current?.Windows is { Count: > 0 } windows && windows[0].Page is not null;
 }

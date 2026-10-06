@@ -2,6 +2,7 @@ using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Components;
 using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Settings;
+using Coo.Mobile.Presentation.Sheets;
 using Coo.Mobile.Presentation.Today;
 
 namespace Coo.Mobile.Pages;
@@ -17,14 +18,15 @@ public sealed class JoinPage : ContentPage
     private readonly JoinViewModel _model;
     private readonly UndoService _undo;
     private readonly Account _account;
+    private readonly SheetNavigator _sheets;
     private readonly ContentView _body = new();
     private bool _started;
     private bool _ended;
     private bool _closeWanted;
 
-    public JoinPage(JoinViewModel model, UndoService undo, Account account)
+    public JoinPage(JoinViewModel model, UndoService undo, Account account, SheetNavigator sheets)
     {
-        (_model, _undo, _account) = (model, undo, account);
+        (_model, _undo, _account, _sheets) = (model, undo, account, sheets);
         SetDynamicResource(BackgroundColorProperty, "Ground");
         Shell.SetNavBarIsVisible(this, false);
         Content = new ScrollView { Content = _body };
@@ -43,15 +45,9 @@ public sealed class JoinPage : ContentPage
     /// Whether a new link may restart the flow now (main thread): not while it loads, works, is at the choice (a join is stored),
     /// or has a sheet over it (its consent). Otherwise the link stays held and opens once this flow ends (review I2).
     /// </summary>
-    public bool CanTakeLink
-    {
-        get
-        {
-            var stack = Navigation.ModalStack;
-            return _started && !_ended && !_model.IsBusy && !_model.BringOver.IsBusy && _model.Step is not (JoinStep.Loading or JoinStep.Choice)
-                && stack.Count > 0 && ReferenceEquals(stack[stack.Count - 1], this);
-        }
-    }
+    public bool CanTakeLink =>
+        _started && !_ended && !_model.IsBusy && !_model.BringOver.IsBusy && _model.Step is not (JoinStep.Loading or JoinStep.Choice)
+        && _sheets.IsOnTop(this);
 
     /// <summary>
     /// A new link arrived while the sheet shows (main thread) and <see cref="CanTakeLink"/> held: the flow starts again from
@@ -121,7 +117,7 @@ public sealed class JoinPage : ContentPage
 #pragma warning disable CA1031 // A dispatched check: nothing may escape.
             try
             {
-                if (!Navigation.ModalStack.Contains(this))
+                if (!_sheets.Contains(this))
                     End();
             }
             catch (Exception)
@@ -265,20 +261,15 @@ public sealed class JoinPage : ContentPage
     }
 
     /// <summary>
-    /// Pops this page only when it is on top (M1): with a sheet over it (its consent), popping would close that one instead,
-    /// so the close waits until this page appears again.
+    /// Pops this page, never another one, through the window's own stack (walk fix F1). With a sheet over it (its consent) the
+    /// close waits until this page appears again (M1).
     /// </summary>
     private async Task CloseAsync()
     {
         try
         {
-            var stack = Navigation.ModalStack;
-            if (stack.Count > 0 && ReferenceEquals(stack[stack.Count - 1], this))
-            {
-                _closeWanted = false;
-                await Navigation.PopModalAsync();
-            }
-            else if (stack.Contains(this))
+            _closeWanted = false;
+            if (await _sheets.CloseAsync(this) == SheetClose.Covered)
             {
                 _closeWanted = true;
                 return;

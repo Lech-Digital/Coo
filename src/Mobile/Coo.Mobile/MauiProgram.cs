@@ -56,6 +56,8 @@ public static class MauiProgram
         builder.Services.AddTransient<RemovalPage>();
         builder.Services.AddTransient<FamilyPage>();
         builder.Services.AddTransient<FamilyBringOverPage>();
+        builder.Services.AddSingleton<Presentation.Sheets.IModalPages, Sync.WindowModalPages>();
+        builder.Services.AddSingleton<Presentation.Sheets.SheetNavigator>();
         builder.Services.AddSingleton<Sync.SyncPrompter>();
         builder.Services.AddSingleton<Joining.InvitationInbox>();
         builder.Services.AddSingleton<Coo.Mobile.Presentation.Settings.IConsentPrompt, Joining.MauiConsentPrompt>();

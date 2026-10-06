@@ -1,6 +1,7 @@
 using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Components;
 using Coo.Mobile.Presentation.Settings;
+using Coo.Mobile.Presentation.Sheets;
 
 namespace Coo.Mobile.Pages;
 
@@ -12,13 +13,15 @@ public sealed class BringOverPage : ContentPage
 {
     private readonly BringOverViewModel _model;
     private readonly Account _account;
+    private readonly SheetNavigator _sheets;
     private readonly ContentView _body = new();
     private bool _loaded;
 
-    public BringOverPage(BringOverViewModel model, Account account)
+    public BringOverPage(BringOverViewModel model, Account account, SheetNavigator sheets)
     {
         _model = model;
         _account = account;
+        _sheets = sheets;
         SetDynamicResource(BackgroundColorProperty, "Ground");
         Shell.SetNavBarIsVisible(this, false);
         Content = new ScrollView { Content = _body };
@@ -148,8 +151,8 @@ public sealed class BringOverPage : ContentPage
     {
         try
         {
-            if (Navigation.ModalStack.Contains(this))
-                await Navigation.PopModalAsync();
+            // Only this page, never one over it (walk fix F1).
+            await _sheets.CloseAsync(this);
         }
 #pragma warning disable CA1031 // Closing twice (Keep and a sign-out together) must not crash.
         catch (Exception)

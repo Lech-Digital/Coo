@@ -380,7 +380,7 @@ public sealed class SettingsPage : ContentPage
         {
             yield return Row(
                 Ui.Text(Strings.Get("Family.BringOver"), "Body"),
-                () => OpenOnceAsync(() => Navigation.PushModalAsync(_services.GetRequiredService<FamilyBringOverPage>())));
+                () => OpenOnceAsync(() => _services.GetRequiredService<Presentation.Sheets.SheetNavigator>().PushAsync(_ => _services.GetRequiredService<FamilyBringOverPage>())));
         }
     }
 

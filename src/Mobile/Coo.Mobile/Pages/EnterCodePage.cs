@@ -1,5 +1,6 @@
 using Coo.Mobile.Components;
 using Coo.Mobile.Presentation.Settings;
+using Coo.Mobile.Presentation.Sheets;
 
 namespace Coo.Mobile.Pages;
 
@@ -9,10 +10,12 @@ namespace Coo.Mobile.Pages;
 /// </summary>
 public sealed class EnterCodePage : ContentPage
 {
+    private readonly SheetNavigator _sheets;
     private bool _closeWanted;
 
-    public EnterCodePage(EnterCodeViewModel model)
+    public EnterCodePage(EnterCodeViewModel model, SheetNavigator sheets)
     {
+        _sheets = sheets;
         SetDynamicResource(BackgroundColorProperty, "Ground");
         Shell.SetNavBarIsVisible(this, false);
         var field = new Entry
@@ -101,21 +104,12 @@ public sealed class EnterCodePage : ContentPage
 #pragma warning restore CA1031
     }
 
-    /// <summary>Pops this page only when it is on top (M1); with a sheet over it, the close waits until this page appears again.</summary>
+    /// <summary>Pops this page, never another one (walk fix F1); with a sheet over it, the close waits until this page appears again (M1).</summary>
     private async Task CloseAsync()
     {
         try
         {
-            var stack = Navigation.ModalStack;
-            if (stack.Count > 0 && ReferenceEquals(stack[stack.Count - 1], this))
-            {
-                _closeWanted = false;
-                await Navigation.PopModalAsync();
-            }
-            else if (stack.Contains(this))
-            {
-                _closeWanted = true;
-            }
+            _closeWanted = await _sheets.CloseAsync(this) == SheetClose.Covered;
         }
 #pragma warning disable CA1031 // Closing twice must not crash.
         catch (Exception)

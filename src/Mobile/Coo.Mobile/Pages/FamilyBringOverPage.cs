@@ -2,6 +2,7 @@ using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Sync;
 using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Settings;
+using Coo.Mobile.Presentation.Sheets;
 using Coo.Mobile.Presentation.Today;
 
 namespace Coo.Mobile.Pages;
@@ -18,6 +19,7 @@ public sealed class FamilyBringOverPage : ContentPage
     private readonly BringFamilyEntriesOver _bring;
     private readonly ISyncControl _sync;
     private readonly UndoService _undo;
+    private readonly SheetNavigator _sheets;
     private readonly ContentView _body = new();
     private bool _attached;
     private bool _started;
@@ -25,9 +27,9 @@ public sealed class FamilyBringOverPage : ContentPage
     private Coo.Domain.Common.HouseholdId? _source;
     private Coo.Domain.Common.HouseholdId? _target;
 
-    public FamilyBringOverPage(FamilyBringOverViewModel model, Families families, BringFamilyEntriesOver bring, ISyncControl sync, UndoService undo)
+    public FamilyBringOverPage(FamilyBringOverViewModel model, Families families, BringFamilyEntriesOver bring, ISyncControl sync, UndoService undo, SheetNavigator sheets)
     {
-        (_model, _families, _bring, _sync, _undo) = (model, families, bring, sync, undo);
+        (_model, _families, _bring, _sync, _undo, _sheets) = (model, families, bring, sync, undo, sheets);
         SetDynamicResource(BackgroundColorProperty, "Ground");
         Shell.SetNavBarIsVisible(this, false);
         Content = new ScrollView { Content = _body };
@@ -109,7 +111,7 @@ public sealed class FamilyBringOverPage : ContentPage
 #pragma warning disable CA1031 // A dispatched check: nothing may escape.
             try
             {
-                if (!ModalStack().Contains(this))
+                if (!_sheets.Contains(this))
                     Detach();
             }
             catch (Exception)
@@ -213,24 +215,12 @@ public sealed class FamilyBringOverPage : ContentPage
         }
     }
 
-    private static IReadOnlyList<Page> ModalStack() =>
-        Microsoft.Maui.Controls.Application.Current?.Windows is { Count: > 0 } windows && windows[0].Page is { } root ? root.Navigation.ModalStack : [];
-
-    /// <summary>Only this page (Task 23's M1): popped when it is on top; with a sheet over it, once it is on top again.</summary>
+    /// <summary>Only this page (Task 23's M1, walk fix F1): popped when it is on top; with a sheet over it, once it is on top again.</summary>
     private async Task CloseAsync()
     {
         try
         {
-            var stack = ModalStack();
-            if (stack.Count > 0 && ReferenceEquals(stack[^1], this))
-            {
-                _closePending = false;
-                await Navigation.PopModalAsync();
-            }
-            else
-            {
-                _closePending = stack.Contains(this);
-            }
+            _closePending = await _sheets.CloseAsync(this) == SheetClose.Covered;
         }
 #pragma warning disable CA1031 // Closing twice must not crash.
         catch (Exception)

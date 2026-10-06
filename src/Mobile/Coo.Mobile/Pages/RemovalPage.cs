@@ -2,6 +2,7 @@ using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Components;
 using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Settings;
+using Coo.Mobile.Presentation.Sheets;
 
 namespace Coo.Mobile.Pages;
 
@@ -14,13 +15,14 @@ public sealed class RemovalPage : ContentPage
 {
     private readonly RemovalViewModel _model;
     private readonly Account _account;
+    private readonly SheetNavigator _sheets;
     private readonly ContentView _body = new();
     private bool _loaded;
     private bool _closeWanted;
 
-    public RemovalPage(RemovalViewModel model, Account account)
+    public RemovalPage(RemovalViewModel model, Account account, SheetNavigator sheets)
     {
-        (_model, _account) = (model, account);
+        (_model, _account, _sheets) = (model, account, sheets);
         SetDynamicResource(BackgroundColorProperty, "Ground");
         Shell.SetNavBarIsVisible(this, false);
         Content = new ScrollView { Content = _body };
@@ -125,21 +127,12 @@ public sealed class RemovalPage : ContentPage
         return button;
     }
 
-    /// <summary>Pops this page only when it is on top (M1); with a sheet over it, the close waits until this page appears again.</summary>
+    /// <summary>Pops this page, never another one (walk fix F1); with a sheet over it, the close waits until this page appears again (M1).</summary>
     private async Task CloseAsync()
     {
         try
         {
-            var stack = Navigation.ModalStack;
-            if (stack.Count > 0 && ReferenceEquals(stack[stack.Count - 1], this))
-            {
-                _closeWanted = false;
-                await Navigation.PopModalAsync();
-            }
-            else if (stack.Contains(this))
-            {
-                _closeWanted = true;
-            }
+            _closeWanted = await _sheets.CloseAsync(this) == SheetClose.Covered;
         }
 #pragma warning disable CA1031 // Closing twice must not crash.
         catch (Exception)
