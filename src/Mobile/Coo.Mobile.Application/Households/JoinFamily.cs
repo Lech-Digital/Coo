@@ -191,8 +191,17 @@ public sealed class JoinFamily(
         // The marker goes in before the pending invitation goes, so the cycle's mid-join guard never lapses in between.
         await families.SetJoiningAsync(new JoiningMarker(accepted.Household, source, inviterName), CancellationToken.None);
         await families.SetPendingInvitationAsync(null, CancellationToken.None);
-        await list.RefreshAsync(cancellationToken);
-        await sync.SyncNowAsync(cancellationToken);
+        try
+        {
+            await list.RefreshAsync(cancellationToken);
+            await sync.SyncNowAsync(cancellationToken);
+        }
+#pragma warning disable CA1031 // The join is stored: a failed refresh or pull is not a failed join; the cycle catches up and the choice reopens.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+        }
+
         return new JoinAccept(AcceptStatus.Joined);
     }
 
@@ -212,11 +221,14 @@ public sealed class JoinFamily(
         var source = marker.Source;
         var synced = await moves.HasEverSyncedAsync(source, cancellationToken);
         var session = await sessions.GetAsync(cancellationToken);
+        // The session's own family is always the account's, even when the stored list is stale or not refreshed yet.
         var accountFamily = session is not null
-            && (await families.ListAsync(session.Profile.UserId, cancellationToken) ?? []).Any(m => m.Household == source);
+            && (session.AccountHousehold == source
+                || (await families.ListAsync(session.Profile.UserId, cancellationToken) ?? []).Any(m => m.Household == source));
 
-        // Rulings 2 and 3: the joined family itself, or a family of another account, is never offered.
-        if (source == marker.Joined || (synced && !accountFamily))
+        // Rulings 2 and 3: the joined family itself, or a family of another account, is never offered; nor a pair already
+        // copied (§6.2).
+        if (source == marker.Joined || (synced && (!accountFamily || await families.WasCopiedAsync(source, marker.Joined, cancellationToken))))
         {
             await FinishAsync(marker.Joined, generation, cancellationToken);
             return new JoinChoice(ChoiceStatus.NothingAsked, marker.InviterName);
@@ -293,9 +305,12 @@ public sealed class JoinFamily(
         var trimmed = text.Trim();
         if (!Uri.TryCreate(trimmed, UriKind.Absolute, out var uri))
             return trimmed;
+
+        // One trailing slash, as some apps add to a shared link.
+        var path = uri.AbsolutePath.EndsWith('/') ? uri.AbsolutePath[..^1] : uri.AbsolutePath;
         return uri.Host.Equals(InvitationLinks.Host, StringComparison.OrdinalIgnoreCase)
-            && uri.AbsolutePath.StartsWith(InvitationLinks.PathPrefix, StringComparison.OrdinalIgnoreCase)
-            ? uri.AbsolutePath[InvitationLinks.PathPrefix.Length..]
+            && path.StartsWith(InvitationLinks.PathPrefix, StringComparison.OrdinalIgnoreCase)
+            ? path[InvitationLinks.PathPrefix.Length..]
             : null;
     }
 }

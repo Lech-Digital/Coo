@@ -88,6 +88,7 @@ public sealed class JoinFamilyTests : IDisposable
     [InlineData(" ABCD EFGH ")]
     [InlineData("https://api.coo.lechdigital.nl/i/ABCDEFGH")]
     [InlineData("https://api.coo.lechdigital.nl/i/abcd-efgh")]
+    [InlineData("https://api.coo.lechdigital.nl/i/ABCDEFGH/")]
     public async Task ReceiveAsync_PastedLink_StoresTheCode(string text)
     {
         // Act
@@ -103,6 +104,7 @@ public sealed class JoinFamilyTests : IDisposable
     [InlineData("https://example.com/i/ABCDEFGH")]
     [InlineData("https://api.coo.lechdigital.nl/privacy/ABCDEFGH")]
     [InlineData("https://api.coo.lechdigital.nl/abABCDEFGH")]
+    [InlineData("https://api.coo.lechdigital.nl/i/ABCDEFGH//")]
     [InlineData("Join my family on Coo")]
     [InlineData(null)]
     public async Task ReceiveAsync_Garbage_StoresNothing(string? text)
@@ -382,7 +384,7 @@ public sealed class JoinFamilyTests : IDisposable
     }
 
     [Fact]
-    public async Task AcceptAsync_CancelledAfterTheServerAccepted_StillStoresTheJoin()
+    public async Task AcceptAsync_CancelledAfterTheServerAccepted_StoresTheJoinAndSaysJoined()
     {
         // Arrange: nobody becomes a member in limbo: once the server said joined, the marker is stored whatever the token says.
         await SignInAsync();
@@ -398,12 +400,29 @@ public sealed class JoinFamilyTests : IDisposable
             .ThrowsAsync(new OperationCanceledException());
 
         // Act
-        Func<Task> act = async () => await Join().AcceptAsync("Andrzej", cancel.Token);
+        var accepted = await Join().AcceptAsync("Andrzej", cancel.Token);
 
-        // Assert
-        await act.Should().ThrowAsync<OperationCanceledException>();
+        // Assert: the stored join is not a failure; the refresh and pull come with the next cycle and the choice reopens.
+        accepted.Status.Should().Be(AcceptStatus.Joined);
         await _store.Received(1).SetJoiningAsync(new JoiningMarker(Joined, Home, "Andrzej"), CancellationToken.None);
         await _store.Received(1).SetPendingInvitationAsync(null, CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task AcceptAsync_PullAfterTheStoredJoinFails_StillSaysJoined()
+    {
+        // Arrange
+        await SignInAsync();
+        Pending();
+        _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.Joined));
+        _sync.SyncNowAsync(Arg.Any<CancellationToken>()).ThrowsAsync(new IOException("disk"));
+
+        // Act
+        var accepted = await Join().AcceptAsync("Andrzej", CancellationToken.None);
+
+        // Assert
+        accepted.Status.Should().Be(AcceptStatus.Joined);
+        await _store.Received(1).SetJoiningAsync(new JoiningMarker(Joined, Home, "Andrzej"), CancellationToken.None);
     }
 
     [Fact]
@@ -587,6 +606,39 @@ public sealed class JoinFamilyTests : IDisposable
         choice.Source.Should().Be(Home);
         choice.Offer!.Local.EntryCount.Should().Be(42);
         await _store.DidNotReceiveWithAnyArgs().SetJoiningAsync(default, default);
+    }
+
+    [Fact]
+    public async Task DecideAsync_PairCopiedBefore_AsksNothingAndFinishes()
+    {
+        // Arrange: §6.2, the bring-over is not offered again for a pair that was copied.
+        await SignInAsync();
+        SyncedSourceWithEntries();
+        _store.WasCopiedAsync(Home, Joined, Arg.Any<CancellationToken>()).Returns(true);
+
+        // Act
+        var choice = await Join().DecideAsync(CancellationToken.None);
+
+        // Assert
+        choice.Status.Should().Be(ChoiceStatus.NothingAsked);
+        await _store.Received(1).SetJoiningAsync(null, Arg.Any<CancellationToken>());
+        await _moves.Received(1).ActivateAsync(Joined, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task DecideAsync_HomeFamilyMissingFromTheCachedList_StillOffersIt()
+    {
+        // Arrange: the session's own family is the account's even when the stored list is stale or not refreshed yet.
+        await SignInAsync();
+        SyncedSourceWithEntries();
+        _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns((IReadOnlyList<FamilyMembership>?)null);
+
+        // Act
+        var choice = await Join().DecideAsync(CancellationToken.None);
+
+        // Assert
+        choice.Status.Should().Be(ChoiceStatus.Ask);
+        choice.Copies.Should().BeTrue();
     }
 
     [Fact]
