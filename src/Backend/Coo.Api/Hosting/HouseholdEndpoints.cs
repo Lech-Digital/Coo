@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Threading.RateLimiting;
 using Coo.Api.Application.Auth;
 using Coo.Api.Application.Households;
 using Coo.Contracts.Auth;
@@ -8,6 +9,15 @@ using Coo.Domain.Common;
 using Coo.Domain.Households;
 
 namespace Coo.Api.Hosting;
+
+/// <summary>Spec 011b §10.2. In memory, one instance; a restart resets them (accepted).</summary>
+internal sealed record InvitationLimits(int PerUserPerHour, int PerAddressPerHour, int CreatePerUserPerDay)
+{
+    public static InvitationLimits Default { get; } = new(10, 30, 20);
+}
+
+/// <summary>Marks the endpoints that take a code: preview and accept share one chained limiter.</summary>
+internal sealed class InvitationCodeLimit;
 
 /// <summary>
 /// Members and invitations (Spec 011b §10.1). Every household endpoint checks an active membership per request in its use
@@ -32,6 +42,38 @@ internal static class HouseholdEndpoints
         [SyncErrors.ConsentRequired] = StatusCodes.Status403Forbidden,
     };
 
+    public const string CreatePolicy = "invitation-create";
+
+    /// <summary>
+    /// The chained limiter for preview and accept (per user, then per client address) and the daily creation limit. It
+    /// needs <c>UseRateLimiter</c> after <c>UseAuthentication</c>, so the user partition sees the <c>sub</c> claim. The
+    /// address is the one after the forwarded headers, like the auth limiter's.
+    /// </summary>
+    public static IServiceCollection AddInvitationRateLimiting(this IServiceCollection services, InvitationLimits limits)
+    {
+        ArgumentNullException.ThrowIfNull(limits);
+        return services.AddRateLimiter(options =>
+        {
+            options.GlobalLimiter = PartitionedRateLimiter.CreateChained(
+                PartitionedRateLimiter.Create<HttpContext, string>(http => IsCodeCall(http)
+                    ? Hourly("user:" + UserKey(http), limits.PerUserPerHour)
+                    : RateLimitPartition.GetNoLimiter("none")),
+                PartitionedRateLimiter.Create<HttpContext, string>(http => IsCodeCall(http)
+                    ? Hourly("address:" + (http.Connection.RemoteIpAddress?.ToString() ?? "unknown"), limits.PerAddressPerHour)
+                    : RateLimitPartition.GetNoLimiter("none")));
+            options.AddPolicy(CreatePolicy, http => RateLimitPartition.GetFixedWindowLimiter(
+                "create:" + UserKey(http),
+                _ => new FixedWindowRateLimiterOptions { PermitLimit = limits.CreatePerUserPerDay, Window = TimeSpan.FromDays(1), QueueLimit = 0 }));
+        });
+    }
+
+    private static bool IsCodeCall(HttpContext http) => http.GetEndpoint()?.Metadata.GetMetadata<InvitationCodeLimit>() is not null;
+
+    private static string UserKey(HttpContext http) => http.User.FindFirst(AccessTokenClaims.User)?.Value ?? "anonymous";
+
+    private static RateLimitPartition<string> Hourly(string key, int permits) =>
+        RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions { PermitLimit = permits, Window = TimeSpan.FromHours(1), QueueLimit = 0 });
+
     public static void MapHouseholdEndpoints(this IEndpointRouteBuilder app)
     {
         var households = app.MapGroup("/api/households").RequireAuthorization();
@@ -48,7 +90,7 @@ internal static class HouseholdEndpoints
             return Results.Json(
                 new InvitationCreatedResponse(result.Value.Id.Value, code, InvitationLinks.For(code), result.Value.ExpiresAt),
                 statusCode: StatusCodes.Status201Created);
-        });
+        }).RequireRateLimiting(CreatePolicy);
 
         households.MapDelete("/{id:guid}/invitations/{invitationId:guid}", async Task<IResult> (
             Guid id, Guid invitationId, ClaimsPrincipal principal, WithdrawInvitation withdraw, CancellationToken cancellationToken) =>
@@ -103,7 +145,7 @@ internal static class HouseholdEndpoints
             return result.IsFailure ? Refused(result.Error!.Code) : Results.StatusCode(StatusCodes.Status201Created);
         });
 
-        var invitations = app.MapGroup("/api/invitations").RequireAuthorization();
+        var invitations = app.MapGroup("/api/invitations").RequireAuthorization().WithMetadata(new InvitationCodeLimit());
 
         invitations.MapPost("/preview", async Task<IResult> (
             HttpRequest http, ClaimsPrincipal principal, PreviewInvitation preview, CancellationToken cancellationToken) =>
@@ -125,9 +167,10 @@ internal static class HouseholdEndpoints
                 return Refused(result.Error!.Code);
             var outcome = result.Value.Outcome switch
             {
+                AcceptOutcome.Joined => AcceptOutcomes.Joined,
                 AcceptOutcome.Rejoined => AcceptOutcomes.Rejoined,
                 AcceptOutcome.AlreadyMember => AcceptOutcomes.AlreadyMember,
-                _ => AcceptOutcomes.Joined,
+                var unknown => throw new InvalidOperationException($"Unknown accept outcome {unknown}."),
             };
             return Results.Ok(new AcceptInvitationResponse(result.Value.Household.Value, AuthEndpoints.RoleName(result.Value.Role), outcome));
         });

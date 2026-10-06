@@ -278,6 +278,54 @@ public sealed class HouseholdApiTests(AuthApi api) : IClassFixture<AuthApi>
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
+    [Theory]
+    [InlineData("POST", "/api/households", "text/plain", "hello")]
+    [InlineData("POST", "/api/households", "application/json", "{ not json")]
+    [InlineData("POST", "/api/households/7a1c0000-0000-7000-8000-000000007201/invitations", "text/plain", "hello")]
+    [InlineData("POST", "/api/households/7a1c0000-0000-7000-8000-000000007201/invitations", "application/json", "{ not json")]
+    public async Task CreateEndpoints_WithAnUnreadableBody_Answer400Malformed(string method, string path, string contentType, string body)
+    {
+        // Arrange
+        using var client = api.Factory.CreateClient();
+        var session = await SyncCalls.SignInWithConsentAsync(client, "hh-malformed-create-" + path.Length + contentType.Length, Calls.Id(7202 + path.Length + contentType.Length), Calls.Id(7203 + path.Length + contentType.Length));
+
+        // Act
+        var response = await SendRawAsync(client, new HttpMethod(method), path, session.AccessToken, contentType, body);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        (await Calls.CodeAsync(response)).Should().Be("household.malformed");
+    }
+
+    [Theory]
+    [InlineData("/api/invitations/preview", "text/plain", "hello")]
+    [InlineData("/api/invitations/preview", "application/json", "{ not json")]
+    [InlineData("/api/invitations/accept", "text/plain", "hello")]
+    [InlineData("/api/invitations/accept", "application/json", "{ not json")]
+    public async Task CodeEndpoints_WithAnUnreadableBody_Answer404InvitationInvalid(string path, string contentType, string body)
+    {
+        // Arrange
+        using var client = api.Factory.CreateClient();
+        var session = await SyncCalls.SignInWithConsentAsync(client, "hh-malformed-code-" + path.Length + contentType.Length, Calls.Id(7302 + path.Length + contentType.Length), Calls.Id(7303 + path.Length + contentType.Length));
+
+        // Act
+        var response = await SendRawAsync(client, HttpMethod.Post, path, session.AccessToken, contentType, body);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await Calls.CodeAsync(response)).Should().Be("invitation.invalid");
+    }
+
+    private static Task<HttpResponseMessage> SendRawAsync(HttpClient client, HttpMethod method, string path, string token, string contentType, string body)
+    {
+        var request = new HttpRequestMessage(method, new Uri(path, UriKind.Relative))
+        {
+            Content = new StringContent(body, System.Text.Encoding.UTF8, contentType),
+        };
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        return client.SendAsync(request);
+    }
+
     private static async Task<ChangeResultDto> ResultAsync(HttpResponseMessage response) =>
         (await response.Content.ReadFromJsonAsync<PushResponse>())!.Results.Single();
 

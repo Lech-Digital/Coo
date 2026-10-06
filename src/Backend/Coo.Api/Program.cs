@@ -58,6 +58,10 @@ builder.Services.AddSingleton<LeaveHousehold>();
 builder.Services.AddSingleton<CreateHousehold>();
 builder.Services.AddSingleton<PreviewInvitation>();
 builder.Services.AddSingleton<AcceptInvitation>();
+builder.Services.AddInvitationRateLimiting(new InvitationLimits(
+    builder.Configuration.GetValue("Invitations:PerUserPerHour", InvitationLimits.Default.PerUserPerHour),
+    builder.Configuration.GetValue("Invitations:PerAddressPerHour", InvitationLimits.Default.PerAddressPerHour),
+    builder.Configuration.GetValue("Invitations:CreatePerUserPerDay", InvitationLimits.Default.CreatePerUserPerDay)));
 
 // Account deletion runs in the membership store's locked transaction: no scoped account store any more.
 builder.Services.AddSingleton<DeleteAccount>();
@@ -87,9 +91,10 @@ forwarded.KnownIPNetworks.Add(new System.Net.IPNetwork(IPAddress.Parse("10.0.0.0
 forwarded.KnownIPNetworks.Add(new System.Net.IPNetwork(IPAddress.Parse("172.16.0.0"), 12));
 app.UseForwardedHeaders(forwarded);
 
-// Before authentication: the limiter partitions on the forwarded client address (Spec 010 §4.1).
-app.UseRateLimiter();
+// After authentication (Spec 011b §10.2): the invitation limiter partitions on the user claim; the address partitions
+// still see the forwarded client address, because forwarded headers run first (Spec 010 §4.1).
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 // "0.12.0+<commit>": the deploy script compares the commit with the one it shipped (Spec 008 §5).

@@ -83,7 +83,7 @@ internal static class AuthEndpoints
                 me.Membership is null ? null : new MembershipDto(me.Membership.HouseholdId.Value, RoleName(me.Membership.Role)),
                 [.. me.Devices.Select(d => new DeviceSessionDto(d.Id.Value, d.DeviceName, d.LastUsedAt, d.Id == current))],
                 me.Consent is null ? null : new ConsentDto(me.Consent.Wording, me.Consent.GivenAt),
-                [.. (me.Memberships ?? []).Select(m => new MembershipDto(m.HouseholdId.Value, RoleName(m.Role), m.JoinedAt))]));
+                [.. (me.Memberships ?? []).OrderBy(m => m.JoinedAt).ThenBy(m => m.HouseholdId.Value).Select(m => new MembershipDto(m.HouseholdId.Value, RoleName(m.Role), m.JoinedAt))]));
         }).RequireAuthorization();
 
         app.MapDelete("/api/account", async Task<IResult> (
