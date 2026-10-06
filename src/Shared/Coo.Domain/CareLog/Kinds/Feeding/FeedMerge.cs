@@ -2,7 +2,10 @@ using Coo.Domain.Common;
 
 namespace Coo.Domain.CareLog.Kinds.Feeding;
 
-/// <summary>Why feeds cannot be merged (Spec 011d §3). Checked in this order.</summary>
+/// <summary>
+/// Why feeds cannot be merged (Spec 011d §3). Checked in the order listed, except <see cref="NoteTooLong"/>,
+/// which is only reported when every other rule has passed.
+/// </summary>
 public enum FeedMergeRefusal
 {
     /// <summary>Not all about one baby.</summary>
@@ -29,7 +32,7 @@ public enum FeedMergeRefusal
     /// <summary>The merged bottle would hold more than 1000 ml.</summary>
     TooMuch,
 
-    /// <summary>The joined notes would pass the note length limit.</summary>
+    /// <summary>The joined notes would pass the note length limit (reported last, after every rule above).</summary>
     NoteTooLong,
 }
 
@@ -64,6 +67,9 @@ public static class FeedMerge
         if (feeds.Count < 2)
             throw new ArgumentException("Merging needs at least two feeds.", nameof(feeds));
 
+        if (feeds.Select(f => f.Id).Distinct().Count() != feeds.Count)
+            throw new ArgumentException("Each feed can be merged only once.", nameof(feeds));
+
         if (feeds.Any(f => f.Subject is not BabySubject))
             return Refuse(FeedMergeRefusal.MixedVariant);
 
@@ -77,17 +83,18 @@ public static class FeedMerge
             || feeds.Select(f => f.Details.GetType()).Distinct().Count() != 1)
             return Refuse(FeedMergeRefusal.MixedVariant);
 
-        var ordered = feeds.OrderBy(f => f.Timing.OccurredAt).ToList();
-        var survivor = ordered[0];
+        // Equal starts (bottles logged in the same minute): the lowest id wins, so every phone picks the same survivor.
+        var ordered = feeds.OrderBy(f => f.Timing.OccurredAt).ThenBy(f => f.Id.Value).ToList();
         var rest = ordered.Skip(1).Select(f => f.Id).ToList().AsReadOnly();
 
-        var note = JoinNotes(ordered);
-        if (note.IsFailure)
-            return Refuse(FeedMergeRefusal.NoteTooLong);
+        var outcome = ordered[0].Details is BreastFeed ? PlanBreast(ordered, rest) : PlanBottle(ordered, rest);
+        if (outcome.Plan is not { } plan)
+            return outcome;
 
-        return survivor.Details is BreastFeed
-            ? PlanBreast(ordered, rest, note.Value)
-            : PlanBottle(ordered, rest, note.Value);
+        var note = JoinNotes(ordered);
+        return note.IsFailure
+            ? Refuse(FeedMergeRefusal.NoteTooLong)
+            : new FeedMergeOutcome(plan with { Note = note.Value }, null);
     }
 
     /// <summary>
@@ -114,18 +121,21 @@ public static class FeedMerge
     private static DateTimeOffset EndOf(CareEntry entry) =>
         entry.Details is BreastFeed breast ? breast.Segments[^1].End ?? breast.Segments[^1].Start : entry.Timing.OccurredAt;
 
-    private static FeedMergeOutcome PlanBreast(List<CareEntry> ordered, IReadOnlyList<EntryId> rest, Note? note)
+    private static FeedMergeOutcome PlanBreast(List<CareEntry> ordered, IReadOnlyList<EntryId> rest)
     {
         var feeds = ordered.Select(e => (BreastFeed)e.Details).ToList();
         if (feeds.Any(f => !f.IsCompleted))
             return Refuse(FeedMergeRefusal.Running);
 
-        var latestEnd = feeds[0].Segments[^1].End!.Value;
+        // Sorted by start: until the first overlap is found, every feed starts at or after the previous one's end
+        // and ends after it starts, so the previous end is the latest end so far. A feed contained in an earlier
+        // one starts before that earlier end, and is refused at the first pair that holds it.
+        var previousEnd = feeds[0].Segments[^1].End!.Value;
         for (var i = 1; i < feeds.Count; i++)
         {
-            if (feeds[i].FirstStart < latestEnd)
+            if (feeds[i].FirstStart < previousEnd)
                 return Refuse(FeedMergeRefusal.Overlap);
-            latestEnd = feeds[i].Segments[^1].End!.Value;
+            previousEnd = feeds[i].Segments[^1].End!.Value;
         }
 
         for (var i = 1; i < ordered.Count; i++)
@@ -138,10 +148,10 @@ public static class FeedMerge
         if (merged.IsFailure)
             return Refuse(merged.Error!.Code == FeedingErrors.BreastTooLong ? FeedMergeRefusal.TooLong : FeedMergeRefusal.Overlap);
 
-        return new FeedMergeOutcome(new FeedMergePlan(ordered[0].Id, merged.Value, note, rest), null);
+        return new FeedMergeOutcome(new FeedMergePlan(ordered[0].Id, merged.Value, null, rest), null);
     }
 
-    private static FeedMergeOutcome PlanBottle(List<CareEntry> ordered, IReadOnlyList<EntryId> rest, Note? note)
+    private static FeedMergeOutcome PlanBottle(List<CareEntry> ordered, IReadOnlyList<EntryId> rest)
     {
         for (var i = 1; i < ordered.Count; i++)
         {
@@ -162,7 +172,7 @@ public static class FeedMerge
         var merged = BottleFeed.Create(components);
         return merged.IsFailure
             ? Refuse(FeedMergeRefusal.TooMuch)
-            : new FeedMergeOutcome(new FeedMergePlan(ordered[0].Id, merged.Value, note, rest), null);
+            : new FeedMergeOutcome(new FeedMergePlan(ordered[0].Id, merged.Value, null, rest), null);
     }
 
     private static Result<Note?> JoinNotes(IEnumerable<CareEntry> ordered) =>

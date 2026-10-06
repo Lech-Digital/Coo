@@ -446,6 +446,120 @@ public sealed class FeedMergeTests
         ((BottleFeed)plan.Details).Total.Millilitres.Should().Be(90m);
     }
 
+    [Fact]
+    public void Plan_OverlappingFeedsWithLongNotes_RefusesOverlapNotNoteTooLong()
+    {
+        // Arrange
+        var a = WithNote(Breast(T0, 10), new string('a', 300));
+        var b = WithNote(Breast(T0.AddMinutes(5), 10), new string('b', 300));
+
+        // Act
+        var outcome = FeedMerge.Plan([a, b]);
+
+        // Assert
+        outcome.Refusal.Should().Be(FeedMergeRefusal.Overlap);
+    }
+
+    [Fact]
+    public void Plan_BottlesWithNotesTooLongWhenJoined_RefusesNoteTooLong()
+    {
+        // Arrange
+        var a = WithNote(A.Bottle(T0), new string('a', 300));
+        var b = WithNote(A.Bottle(T0.AddMinutes(5)), new string('b', 300));
+
+        // Act
+        var outcome = FeedMerge.Plan([a, b]);
+
+        // Assert
+        outcome.Refusal.Should().Be(FeedMergeRefusal.NoteTooLong);
+    }
+
+    [Fact]
+    public void Plan_TooMuchBottlesWithLongNotes_RefusesTooMuchNotNoteTooLong()
+    {
+        // Arrange
+        var a = WithNote(A.Bottle(T0, 600m), new string('a', 300));
+        var b = WithNote(A.Bottle(T0.AddMinutes(5), 500m), new string('b', 300));
+
+        // Act
+        var outcome = FeedMerge.Plan([a, b]);
+
+        // Assert
+        outcome.Refusal.Should().Be(FeedMergeRefusal.TooMuch);
+    }
+
+    [Fact]
+    public void Plan_TheSameFeedTwice_Throws()
+    {
+        // Arrange
+        var a = A.Bottle(T0);
+
+        // Act
+        var act = () => FeedMerge.Plan([a, a]);
+
+        // Assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void Plan_BottlesAtTheSameTime_PicksTheSameSurvivorInEitherInputOrder()
+    {
+        // Arrange
+        var a = A.Bottle(T0, 50m);
+        var b = A.Bottle(T0, 50m);
+        var lowest = a.Id.Value.CompareTo(b.Id.Value) < 0 ? a : b;
+
+        // Act
+        var forward = Planned(a, b);
+        var reversed = Planned(b, a);
+
+        // Assert
+        forward.SurvivorId.Should().Be(lowest.Id);
+        reversed.SurvivorId.Should().Be(lowest.Id);
+    }
+
+    [Fact]
+    public void Plan_BreastFeedsGivenLatestFirst_MergesInStartOrder()
+    {
+        // Arrange
+        var a = Breast(T0, 10);
+        var b = Breast(T0.AddMinutes(12), 5);
+        var c = Breast(T0.AddMinutes(20), 5);
+
+        // Act
+        var plan = Planned(c, b, a);
+
+        // Assert
+        plan.SurvivorId.Should().Be(a.Id);
+        ((BreastFeed)plan.Details).Segments.Select(s => s.Start).Should().BeInAscendingOrder();
+    }
+
+    [Fact]
+    public void Parts_SingleSegment_IsOne()
+    {
+        // Arrange
+        var feed = BreastFeed.FromSideDurations(T0, [(BreastSide.Left, 5)]).Value;
+
+        // Act
+        var parts = feed.Parts;
+
+        // Assert
+        parts.Should().Be(1);
+    }
+
+    [Fact]
+    public void Parts_OpenLastSegmentAfterAPause_CountsItAsAPart()
+    {
+        // Arrange
+        var feed = BreastFeed.Start(BreastSide.Left, T0).Pause(T0.AddMinutes(5)).Value.Resume(BreastSide.Left, T0.AddMinutes(9)).Value;
+
+        // Act
+        var parts = feed.Parts;
+
+        // Assert
+        parts.Should().Be(2);
+    }
+
     // ---- AreCloseTogether ----
 
     [Fact]
