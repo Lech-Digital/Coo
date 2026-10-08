@@ -13,11 +13,14 @@ public sealed class SetupPage : ContentPage
         var yes = Choice(Strings.Get("Setup.Yes"), () => model.HasArrived = true);
         var notYet = Choice(Strings.Get("Setup.NotYet"), () => model.HasArrived = false);
 
-        var name = new Entry { Placeholder = Strings.Get("Setup.Name"), FontFamily = "FigtreeRegular", FontSize = 17 };
-        name.SetBinding(Entry.TextProperty, nameof(SetupViewModel.Name));
-        name.SetDynamicResource(Entry.TextColorProperty, "Ink");
+        var nameEntry = new Entry { Placeholder = Strings.Get("Setup.Name"), FontFamily = "FigtreeRegular", FontSize = 17 };
+        nameEntry.SetBinding(Entry.TextProperty, nameof(SetupViewModel.Name));
+        nameEntry.SetDynamicResource(Entry.TextColorProperty, "Ink");
+        nameEntry.SetDynamicResource(Entry.PlaceholderColorProperty, "Ink2");
+        var name = Ui.Rounded(nameEntry, "Surface", 12, new Thickness(16, 4), "Line");
 
-        var birth = DatePicker(nameof(SetupViewModel.BirthDate), max: model.Today);
+        var birthPicker = DatePicker(nameof(SetupViewModel.BirthDate), max: model.Today);
+        var birth = Ui.Rounded(birthPicker, "Surface", 12, new Thickness(16, 4), "Line");
         var bornEarly = new HorizontalStackLayout { Spacing = 8 };
         var early = new CheckBox();
         early.SetBinding(CheckBox.IsCheckedProperty, nameof(SetupViewModel.BornEarly));
@@ -25,7 +28,8 @@ public sealed class SetupPage : ContentPage
         bornEarly.Add(early);
         bornEarly.Add(Ui.Text(Strings.Get("Setup.BornEarly"), "Body").Tap(l => l.VerticalOptions = LayoutOptions.Center));
 
-        var due = DatePicker(nameof(SetupViewModel.DueDate), max: model.Today.AddDays(308));
+        var duePicker = DatePicker(nameof(SetupViewModel.DueDate), max: model.Today.AddDays(308));
+        var due = Ui.Rounded(duePicker, "Surface", 12, new Thickness(16, 4), "Line");
         var dueLabel = Ui.Text(Strings.Get("Setup.DueDate"), "Label");
         var birthLabel = Ui.Text(Strings.Get("Setup.BirthDate"), "Label");
         var error = Ui.Text("", "Body", "FeedInk");

@@ -3,7 +3,7 @@ using Coo.Api.Infrastructure.Persistence;
 using Coo.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
-namespace Coo.Api.Infrastructure.Billing;
+namespace Coo.Api.Infrastructure.Persistence;
 
 internal sealed class BillingStore(IDbContextFactory<CooDbContext> contexts, TimeProvider timeProvider) : IBillingStore
 {

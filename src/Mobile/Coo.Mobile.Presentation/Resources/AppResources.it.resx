@@ -98,7 +98,7 @@
   <data name="Due.Today" xml:space="preserve"><value>Previsto per oggi</value></data>
   <data name="Duration.HoursMinutes" xml:space="preserve"><value>{0} h {1} min</value></data>
   <data name="Duration.Minutes" xml:space="preserve"><value>{0} min</value></data>
-  <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>Questa voce è stata modificata su un altro telefono. Controllala e salva di nuovo.</value></data>
+  <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>Questa voce è cambiata su un altro telefono. Controllala e salva di nuovo.</value></data>
   <data name="Edit.Delete" xml:space="preserve"><value>Elimina</value></data>
   <data name="Edit.Earlier" xml:space="preserve"><value>Prima…</value></data>
   <data name="Edit.End" xml:space="preserve"><value>Fine</value></data>
@@ -146,7 +146,7 @@
   <data name="Error.breast.too-long" xml:space="preserve"><value>Una poppata dura al massimo 6 ore. Controlla gli orari.</value></data>
   <data name="Error.entry.not-editable" xml:space="preserve"><value>Questa voce non si può modificare in questa versione di Coo.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>Questa voce non esiste più.</value></data>
-  <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>Gli orari di questa voce non tornano. Modificala per inviarla di nuovo.</value></data>
+  <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>Gli orari di questa voce non sono consentiti.</value></data>
   <data name="Error.household.already-has-family" xml:space="preserve"><value>Fai già parte di una famiglia su Coo.</value></data>
   <data name="Error.household.confirmation-required" xml:space="preserve"><value>Questa famiglia ha ancora voci sul server di Coo. Conferma per eliminarle.</value></data>
   <data name="Error.household.forbidden" xml:space="preserve"><value>Non puoi farlo in questa famiglia.</value></data>
@@ -272,6 +272,12 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Night.LastDiaper" xml:space="preserve"><value>Ultimo pannolino</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Ultima poppata</value></data>
   <data name="Night.Title" xml:space="preserve"><value>{0} · Modalità notte</value></data>
+  <data name="Premium.Active" xml:space="preserve"><value>You have an active Premium subscription. Thank you for your support!</value></data>
+  <data name="Premium.Loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="Premium.Pitch" xml:space="preserve"><value>Get Coo Premium to unlock advanced features and support the development.</value></data>
+  <data name="Premium.PurchaseFailed" xml:space="preserve"><value>Purchase failed. Please try again.</value></data>
+  <data name="Premium.Subscribe" xml:space="preserve"><value>Subscribe</value></data>
+  <data name="Premium.Title" xml:space="preserve"><value>Coo Premium</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Quanto?</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>Non sei più membro della famiglia che tiene il registro di {0}, quindi quel registro verrà rimosso da questo telefono. Le voci che hai già condiviso restano nella famiglia.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Non sei più membro di questa famiglia, quindi il suo registro verrà rimosso da questo telefono. Le voci che hai già condiviso restano nella famiglia.</value></data>

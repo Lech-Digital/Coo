@@ -50,7 +50,6 @@
     <PackageReference Include="Microsoft.Maui.Controls" />
     <PackageReference Include="Plugin.StoreReview" />
     <PackageReference Include="Plugin.InAppBilling" />
-    <PackageReference Include="Xamarin.Google.Android.Play.App.Update" />
   </ItemGroup>
 
   <ItemGroup>

@@ -37,6 +37,8 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
     public DbSet<InvitationRecord> Invitations => Set<InvitationRecord>();
 
     public DbSet<SubscriptionRecord> Subscriptions => Set<SubscriptionRecord>();
+    
+    public DbSet<AdvisorUsageRecord> AdvisorUsages => Set<AdvisorUsageRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -321,6 +323,17 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
             e.HasOne<CooUser>().WithMany().HasForeignKey(s => s.UserId)
                 .HasConstraintName("fk_subscriptions_users").OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(s => s.HouseholdId).HasDatabaseName("ix_subscriptions_household_id");
+        });
+
+        modelBuilder.Entity<AdvisorUsageRecord>(e =>
+        {
+            e.ToTable("advisor_usages");
+            e.HasKey(a => new { a.UserId, a.Date });
+            e.Property(a => a.UserId).HasColumnName("user_id");
+            e.Property(a => a.Date).HasColumnName("date");
+            e.Property(a => a.QuestionCount).HasColumnName("question_count");
+            e.HasOne<CooUser>().WithMany().HasForeignKey(a => a.UserId)
+                .HasConstraintName("fk_advisor_usages_users").OnDelete(DeleteBehavior.Cascade);
         });
     }
 

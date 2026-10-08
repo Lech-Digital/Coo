@@ -299,3 +299,14 @@ internal sealed class SubscriptionRecord
 
     public required DateTime UpdatedAt { get; set; }
 }
+
+/// <summary><c>advisor_usages</c>: tracks daily question counts per user for rate limiting (Increment 15c).</summary>
+internal sealed class AdvisorUsageRecord
+{
+    public required Guid UserId { get; init; }
+    
+    public required DateOnly Date { get; init; }
+    
+    public required int QuestionCount { get; set; }
+}
+

@@ -25,6 +25,8 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__Coo: Host=coo-postgres;Database=coo;Username=coo;Password=${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env};Gss Encryption Mode=Disable
+      # Gemini API (Spec 012)
+      Gemini__ApiKey: ${COO_GEMINI_API_KEY:?set COO_GEMINI_API_KEY in .env}
       # Sign-in (Spec 010 §4.3). The API refuses to start without them; compose refuses to start without the .env lines.
       Auth__GoogleWebClientId: ${AUTH_GOOGLE_WEB_CLIENT_ID:?set AUTH_GOOGLE_WEB_CLIENT_ID in .env}
       Auth__SigningKeys__k1: ${AUTH_SIGNING_KEY_K1:?set AUTH_SIGNING_KEY_K1 in .env}

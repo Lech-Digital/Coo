@@ -27,8 +27,7 @@ public sealed class StoreReviewTrigger(ICareLogStore logStore, ISessionStore ses
         if (session == null) return;
 
         // How many entries in total?
-        var counts = await logStore.CountsAsync(session.AccountHousehold, CancellationToken.None);
-        var totalEntries = counts.Entries;
+        var totalEntries = await logStore.CountAllEntriesAsync(session.AccountHousehold, CancellationToken.None);
         
         // Trigger at 20 entries, and then again at 100
         if ((promptCount == 0 && totalEntries >= 20) || (promptCount == 1 && totalEntries >= 100))
@@ -37,7 +36,7 @@ public sealed class StoreReviewTrigger(ICareLogStore logStore, ISessionStore ses
             
             try
             {
-                CrossStoreReview.Current.RequestReview(false);
+                await CrossStoreReview.Current.RequestReview(false);
             }
             catch (Exception ex)
             {

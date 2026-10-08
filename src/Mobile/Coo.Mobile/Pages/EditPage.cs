@@ -140,7 +140,7 @@ public sealed class EditPage : ContentPage
         var note = new Entry { Placeholder = Strings.Get("Edit.Note"), FontFamily = "FigtreeRegular", FontSize = 16 };
         note.SetDynamicResource(Entry.TextColorProperty, "Ink");
         note.SetBinding(Entry.TextProperty, nameof(EditViewModel.Note));
-        form.Add(Field(Strings.Get("Edit.Note"), Ui.Rounded(note, "Surface", 12, new Thickness(16, 12), "Line")));
+        form.Add(Field(Strings.Get("Edit.Note"), Ui.Rounded(note, "Surface", 12, new Thickness(16, 4), "Line")));
 
         var warnings = Ui.Text("", "Meta", look.Ink);
         warnings.SetBinding(Label.TextProperty, nameof(EditViewModel.Warnings));
@@ -169,7 +169,7 @@ public sealed class EditPage : ContentPage
     private static VerticalStackLayout Field(string label, View input) =>
         new() { Spacing = 4, Children = { Ui.Text(label, "Label"), input } };
 
-    private Grid DateAndTime(string dateProperty, string timeProperty)
+    private View DateAndTime(string dateProperty, string timeProperty)
     {
         var date = new DatePicker { MaximumDate = _model.Today.AddDays(1), FontFamily = "FigtreeRegular", FontSize = 16, Format = "ddd d MMM" };
         date.SetDynamicResource(DatePicker.TextColorProperty, "Ink");
@@ -180,7 +180,7 @@ public sealed class EditPage : ContentPage
         var grid = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 12 };
         grid.Add(date, 0);
         grid.Add(clock, 1);
-        return Ui.Rounded(grid, "Surface", 12, new Thickness(16, 12), "Line");
+        return Ui.Rounded(grid, "Surface", 12, new Thickness(16, 4), "Line");
     }
 
     private static View Number(string property)
@@ -188,7 +188,7 @@ public sealed class EditPage : ContentPage
         var entry = new Entry { Keyboard = Keyboard.Numeric, FontFamily = "FigtreeRegular", FontSize = 16 };
         entry.SetDynamicResource(Entry.TextColorProperty, "Ink");
         entry.SetBinding(Entry.TextProperty, property);
-        return Ui.Rounded(entry, "Surface", 12, new Thickness(16, 12), "Line");
+        return Ui.Rounded(entry, "Surface", 12, new Thickness(16, 4), "Line");
     }
 
     private HorizontalStackLayout Choices((string Text, Action Choose, bool Selected)[] choices)

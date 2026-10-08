@@ -11,6 +11,7 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
     <IsTestProject Condition="$(MSBuildProjectName.EndsWith('.Tests')) Or $(MSBuildProjectName.EndsWith('.IntegrationTests'))">true</IsTestProject>
     <IsHostProject Condition="'$(MSBuildProjectName)' == 'Coo.Api' Or '$(MSBuildProjectName)' == 'Coo.Mobile'">true</IsHostProject>
+    <NoWarn>$(NoWarn);NU1608</NoWarn>
   </PropertyGroup>
 
   <!-- Banned APIs are build errors (Spec 002 §5). Hosts may create TimeProvider.System.

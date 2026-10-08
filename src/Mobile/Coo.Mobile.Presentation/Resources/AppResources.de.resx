@@ -98,7 +98,7 @@
   <data name="Due.Today" xml:space="preserve"><value>Termin ist heute</value></data>
   <data name="Duration.HoursMinutes" xml:space="preserve"><value>{0} Std. {1} Min.</value></data>
   <data name="Duration.Minutes" xml:space="preserve"><value>{0} Min.</value></data>
-  <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>Dieser Eintrag wurde auf einem anderen Handy geändert. Sieh ihn dir an und speichere erneut.</value></data>
+  <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>Dieser Eintrag wurde auf einem anderen Handy geändert. Bitte schau ihn dir an und speichere erneut.</value></data>
   <data name="Edit.Delete" xml:space="preserve"><value>Löschen</value></data>
   <data name="Edit.Earlier" xml:space="preserve"><value>Früher…</value></data>
   <data name="Edit.End" xml:space="preserve"><value>Ende</value></data>
@@ -146,7 +146,7 @@
   <data name="Error.breast.too-long" xml:space="preserve"><value>Stillen dauert höchstens 6 Stunden. Prüfe die Zeiten.</value></data>
   <data name="Error.entry.not-editable" xml:space="preserve"><value>Dieser Eintrag lässt sich in dieser Coo-Version nicht bearbeiten.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>Dieser Eintrag existiert nicht mehr.</value></data>
-  <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>Die Zeiten dieses Eintrags passen nicht zusammen. Bearbeite den Eintrag, um ihn erneut zu senden.</value></data>
+  <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>Die Zeiten dieses Eintrags sind nicht erlaubt.</value></data>
   <data name="Error.household.already-has-family" xml:space="preserve"><value>Du bist schon in einer Familie bei Coo.</value></data>
   <data name="Error.household.confirmation-required" xml:space="preserve"><value>Diese Familie hat noch Einträge auf dem Server von Coo. Bestätige, um sie zu löschen.</value></data>
   <data name="Error.household.forbidden" xml:space="preserve"><value>Das kannst du in dieser Familie nicht tun.</value></data>
@@ -272,6 +272,12 @@ Wenn der Link Coo nicht öffnet, geh in Coo zu Einstellungen → Familie → Ein
   <data name="Night.LastDiaper" xml:space="preserve"><value>Letzte Windel</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Letzte Mahlzeit</value></data>
   <data name="Night.Title" xml:space="preserve"><value>{0} · Nachtmodus</value></data>
+  <data name="Premium.Active" xml:space="preserve"><value>You have an active Premium subscription. Thank you for your support!</value></data>
+  <data name="Premium.Loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="Premium.Pitch" xml:space="preserve"><value>Get Coo Premium to unlock advanced features and support the development.</value></data>
+  <data name="Premium.PurchaseFailed" xml:space="preserve"><value>Purchase failed. Please try again.</value></data>
+  <data name="Premium.Subscribe" xml:space="preserve"><value>Subscribe</value></data>
+  <data name="Premium.Title" xml:space="preserve"><value>Coo Premium</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Wie viel?</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>Du gehörst nicht mehr zu der Familie, die die Einträge für {0} führt. Diese Einträge werden deshalb von diesem Handy entfernt. Einträge, die du schon geteilt hast, bleiben bei der Familie.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Du bist nicht mehr Mitglied dieser Familie. Die Einträge dieser Familie werden deshalb von diesem Handy entfernt. Einträge, die du schon geteilt hast, bleiben bei der Familie.</value></data>

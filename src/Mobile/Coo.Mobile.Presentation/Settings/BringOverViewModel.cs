@@ -61,9 +61,7 @@ public sealed partial class BringOverViewModel(BringEntriesOver bringOver) : Obs
         {
             choice = await bringOver.PrepareAsync(CancellationToken.None);
         }
-#pragma warning disable CA1031 // Nothing to show is the same as nothing to offer: close; the join stays pending and is offered again.
         catch (Exception)
-#pragma warning restore CA1031
         {
         }
 

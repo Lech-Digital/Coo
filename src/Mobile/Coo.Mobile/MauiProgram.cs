@@ -59,6 +59,7 @@ public static class MauiProgram
         builder.Services.AddTransient<FamilyPage>();
         builder.Services.AddTransient<FamilyBringOverPage>();
         builder.Services.AddTransient<FamilySwitcherPage>();
+        builder.Services.AddTransient<AdvisorPage>();
         builder.Services.AddSingleton<Presentation.Sheets.IModalPages, Sync.WindowModalPages>();
         builder.Services.AddSingleton<Presentation.Sheets.SheetNavigator>();
         builder.Services.AddSingleton<Sync.SyncPrompter>();

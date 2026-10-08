@@ -267,13 +267,13 @@ public sealed class TodayPage : ContentPage
 
     private View PumpSheet()
     {
-        Entry Amount(string placeholder, string property)
+        View Amount(string placeholder, string property)
         {
             var entry = new Entry { Placeholder = $"{placeholder} ({_model.UnitLabel})", Keyboard = Keyboard.Numeric, FontSize = 17, FontFamily = "FigtreeRegular" };
             entry.SetDynamicResource(Entry.TextColorProperty, "Ink");
             entry.BindingContext = _model;
             entry.SetBinding(Entry.TextProperty, property);
-            return entry;
+            return Ui.Rounded(entry, "Surface", 12, new Thickness(16, 4), "Line");
         }
 
         return Panel(
@@ -295,7 +295,7 @@ public sealed class TodayPage : ContentPage
         var picker = new DatePicker { MaximumDate = _model.Today, Date = _model.BirthDate, FontSize = 17, FontFamily = "FigtreeRegular", Format = "D" };
         picker.SetDynamicResource(DatePicker.TextColorProperty, "Ink");
         picker.DateSelected += (_, e) => _model.BirthDate = e.NewDate ?? _model.Today;
-        return Panel(Strings.Get("Due.Arrived"), Ui.Text(Strings.Get("Setup.BirthDate"), "Label"), picker, Primary(Strings.Get("Action.Save"), _model.SaveBirthCommand));
+        return Panel(Strings.Get("Due.Arrived"), Ui.Text(Strings.Get("Setup.BirthDate"), "Label"), Ui.Rounded(picker, "Surface", 12, new Thickness(16, 4), "Line"), Primary(Strings.Get("Action.Save"), _model.SaveBirthCommand));
     }
 
     private View Stepper(Func<decimal> value, System.Windows.Input.ICommand change, string? label)

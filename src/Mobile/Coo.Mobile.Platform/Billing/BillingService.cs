@@ -15,11 +15,13 @@ public class BillingService : IBillingService
         var billing = CrossInAppBilling.Current;
         try
         {
-            var connected = await billing.ConnectAsync(ItemType.Subscription);
+#pragma warning disable CA2016
+            var connected = await billing.ConnectAsync(true);
             if (!connected)
                 return null;
 
-            var productInfo = await billing.GetProductInfoAsync(ItemType.Subscription, SubscriptionId);
+            var productInfo = await billing.GetProductInfoAsync(ItemType.Subscription, new[] { SubscriptionId });
+#pragma warning restore CA2016
             var product = productInfo?.FirstOrDefault();
             return product?.LocalizedPrice;
         }
@@ -30,7 +32,9 @@ public class BillingService : IBillingService
         }
         finally
         {
+#pragma warning disable CA2016
             await billing.DisconnectAsync();
+#pragma warning restore CA2016
         }
     }
 
@@ -39,20 +43,22 @@ public class BillingService : IBillingService
         var billing = CrossInAppBilling.Current;
         try
         {
-            var connected = await billing.ConnectAsync(ItemType.Subscription);
+#pragma warning disable CA2016
+            var connected = await billing.ConnectAsync(true);
             if (!connected)
                 return false;
 
             var purchase = await billing.PurchaseAsync(SubscriptionId, ItemType.Subscription, householdId.Value.ToString());
             if (purchase != null && purchase.State == PurchaseState.Purchased)
             {
-                if (!purchase.IsAcknowledged)
+                if (!purchase.IsAcknowledged.GetValueOrDefault())
                 {
-                    await billing.AcknowledgePurchaseAsync(purchase.PurchaseToken);
+                    await billing.FinalizePurchaseAsync(new[] { purchase.PurchaseToken });
                 }
                 IsPremiumCached = true;
                 return true;
             }
+#pragma warning restore CA2016
         }
         catch (Exception ex)
         {
@@ -60,7 +66,9 @@ public class BillingService : IBillingService
         }
         finally
         {
+#pragma warning disable CA2016
             await billing.DisconnectAsync();
+#pragma warning restore CA2016
         }
 
         return false;
@@ -71,7 +79,8 @@ public class BillingService : IBillingService
         var billing = CrossInAppBilling.Current;
         try
         {
-            var connected = await billing.ConnectAsync(ItemType.Subscription);
+#pragma warning disable CA2016
+            var connected = await billing.ConnectAsync(true);
             if (!connected)
                 return IsPremiumCached;
 
@@ -81,6 +90,7 @@ public class BillingService : IBillingService
                 IsPremiumCached = true;
                 return true;
             }
+#pragma warning restore CA2016
             
             IsPremiumCached = false;
             return false;
@@ -92,7 +102,9 @@ public class BillingService : IBillingService
         }
         finally
         {
+#pragma warning disable CA2016
             await billing.DisconnectAsync();
+#pragma warning restore CA2016
         }
     }
 }

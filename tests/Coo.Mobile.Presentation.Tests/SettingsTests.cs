@@ -13,7 +13,8 @@ using NSubstitute;
 namespace Coo.Mobile.Presentation.Tests;
 
 /// <summary>Spec 009 §3. Ports are substitutes; the use cases and Domain objects are real.</summary>
-public sealed class SettingsTests
+[Collection(nameof(StringsState))]
+public sealed class SettingsTests : IDisposable
 {
     private static readonly DateTimeOffset Now = new(2026, 10, 1, 14, 0, 0, TimeSpan.FromHours(2));
     private static readonly HouseholdId Household = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a1"));
@@ -33,6 +34,7 @@ public sealed class SettingsTests
 
     public SettingsTests()
     {
+        Strings.Use(new LanguagePreference("en"), null);
         _clock.NextAsync(Arg.Any<CancellationToken>()).Returns(_ => new HlcStamp(++_wall, 0, Device));
         _settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device),
             HiddenAllButPump.Select(c => EntryKindCode.From(c).Value)).Value;
@@ -43,6 +45,8 @@ public sealed class SettingsTests
         _about.Informational.Returns("0.9.0+e03dbdfb884414aa26d8c9f9e01726c9c7a08c35");
         _about.OsVersion.Returns("16");
     }
+
+    public void Dispose() => Strings.Use(LanguagePreference.System, null);
 
     [Theory]
     [InlineData("0.9.0+e03dbdfb884414aa26d8c9f9e01726c9c7a08c35", "0.9.0", "e03dbdf")]

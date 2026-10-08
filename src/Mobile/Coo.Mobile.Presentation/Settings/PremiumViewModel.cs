@@ -52,6 +52,10 @@ public sealed partial class PremiumViewModel(
     {
         if (IsPremium) return;
         
+#if DEBUG
+        IsPremium = true;
+        return;
+#else
         Loading = true;
         Error = "";
         try
@@ -80,5 +84,14 @@ public sealed partial class PremiumViewModel(
         {
             Loading = false;
         }
+#endif
     }
+
+#if DEBUG
+    [RelayCommand]
+    private void DevExpire()
+    {
+        IsPremium = false;
+    }
+#endif
 }

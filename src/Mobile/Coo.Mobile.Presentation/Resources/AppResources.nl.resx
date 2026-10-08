@@ -98,7 +98,7 @@
   <data name="Due.Today" xml:space="preserve"><value>Vandaag uitgerekend</value></data>
   <data name="Duration.HoursMinutes" xml:space="preserve"><value>{0} u {1} min</value></data>
   <data name="Duration.Minutes" xml:space="preserve"><value>{0} min</value></data>
-  <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>Dit item is op een andere telefoon gewijzigd. Bekijk het en sla opnieuw op.</value></data>
+  <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>Dit item is op een andere telefoon gewijzigd. Kijk ernaar en sla opnieuw op.</value></data>
   <data name="Edit.Delete" xml:space="preserve"><value>Verwijderen</value></data>
   <data name="Edit.Earlier" xml:space="preserve"><value>Eerder…</value></data>
   <data name="Edit.End" xml:space="preserve"><value>Einde</value></data>
@@ -146,7 +146,7 @@
   <data name="Error.breast.too-long" xml:space="preserve"><value>Een borstvoeding duurt hoogstens 6 uur. Controleer de tijden.</value></data>
   <data name="Error.entry.not-editable" xml:space="preserve"><value>Dit item kan in deze versie van Coo niet worden bewerkt.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>Dit item bestaat niet meer.</value></data>
-  <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>De tijden van dit item kloppen niet met elkaar. Bewerk het item om het opnieuw te versturen.</value></data>
+  <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>De tijden van dit item zijn niet toegestaan.</value></data>
   <data name="Error.household.already-has-family" xml:space="preserve"><value>Je hoort al bij een gezin in Coo.</value></data>
   <data name="Error.household.confirmation-required" xml:space="preserve"><value>Dit gezin heeft nog items op de server van Coo. Bevestig om ze te verwijderen.</value></data>
   <data name="Error.household.forbidden" xml:space="preserve"><value>Dat kun je in dit gezin niet doen.</value></data>
@@ -272,6 +272,12 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Night.LastDiaper" xml:space="preserve"><value>Laatste luier</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Laatste voeding</value></data>
   <data name="Night.Title" xml:space="preserve"><value>{0} · Nachtmodus</value></data>
+  <data name="Premium.Active" xml:space="preserve"><value>You have an active Premium subscription. Thank you for your support!</value></data>
+  <data name="Premium.Loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="Premium.Pitch" xml:space="preserve"><value>Get Coo Premium to unlock advanced features and support the development.</value></data>
+  <data name="Premium.PurchaseFailed" xml:space="preserve"><value>Purchase failed. Please try again.</value></data>
+  <data name="Premium.Subscribe" xml:space="preserve"><value>Subscribe</value></data>
+  <data name="Premium.Title" xml:space="preserve"><value>Coo Premium</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Hoeveel?</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>Je bent geen lid meer van het gezin dat het logboek van {0} bijhoudt, dus dat logboek wordt van deze telefoon verwijderd. Items die je al hebt gedeeld blijven bij het gezin.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Je bent geen lid meer van dit gezin, dus het logboek wordt van deze telefoon verwijderd. Items die je al hebt gedeeld blijven bij het gezin.</value></data>

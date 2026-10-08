@@ -18,7 +18,7 @@ public sealed class EnterCodePage : ContentPage
         _sheets = sheets;
         SetDynamicResource(BackgroundColorProperty, "Ground");
         Shell.SetNavBarIsVisible(this, false);
-        var field = new Entry
+        var fieldEntry = new Entry
         {
             Placeholder = "ABCD-EFGH",
             Keyboard = Keyboard.Create(KeyboardFlags.CapitalizeCharacter),
@@ -27,8 +27,9 @@ public sealed class EnterCodePage : ContentPage
             FontFamily = "FigtreeRegular",
             FontSize = 20,
         };
-        field.SetDynamicResource(Entry.TextColorProperty, "Ink");
-        field.TextChanged += (_, e) => model.Code = e.NewTextValue ?? "";
+        fieldEntry.SetDynamicResource(Entry.TextColorProperty, "Ink");
+        fieldEntry.TextChanged += (_, e) => model.Code = e.NewTextValue ?? "";
+        var field = Ui.Rounded(fieldEntry, "Surface", 12, new Thickness(16, 4), "Line");
         var error = Ui.Text("", "Meta", "FeedInk");
         model.PropertyChanged += (_, e) =>
         {

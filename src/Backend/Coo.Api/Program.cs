@@ -124,6 +124,7 @@ app.MapAuthEndpoints();
 app.MapSyncEndpoints();
 app.MapHouseholdEndpoints();
 app.MapAppLinkEndpoints(fingerprints);
+app.MapAdvisorEndpoints();
 app.MapAppUpdateEndpoints();
 app.MapBillingEndpoints();
 

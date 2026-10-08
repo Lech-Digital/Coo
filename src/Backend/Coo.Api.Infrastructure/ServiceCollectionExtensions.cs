@@ -49,8 +49,9 @@ public static class ServiceCollectionExtensions
             .AddEntityFrameworkStores<CooDbContext>();
         services.AddScoped<IAccountStore, AccountStore>();
         
-        services.AddSingleton<Coo.Api.Application.Billing.IBillingStore, Coo.Api.Infrastructure.Billing.BillingStore>();
+        services.AddSingleton<Coo.Api.Application.Billing.IBillingStore, Coo.Api.Infrastructure.Persistence.BillingStore>();
         services.AddSingleton<Coo.Api.Application.Billing.IGooglePlayValidator, Coo.Api.Infrastructure.Billing.GooglePlayValidator>();
+        services.AddSingleton<Coo.Api.Application.Advisor.IAdvisorService, Coo.Api.Infrastructure.Persistence.AdvisorService>();
 
         // Registered first, so it finishes before any other hosted service starts and before the server listens.
         services.AddHostedService<DatabaseStartup>();

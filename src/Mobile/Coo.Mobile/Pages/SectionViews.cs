@@ -154,16 +154,22 @@ internal static class SectionViews
     private static View Header(BabyHeaderSection s, SectionHost host)
     {
         var longPress = host.OpenDebug;
+        var formatted = new FormattedString();
+        if (s.IsPremium)
+        {
+            formatted.Spans.Add(new Span { Text = "co", FontFamily = "FigtreeBold", FontSize = 24 }.Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Ink")));
+            formatted.Spans.Add(new Span { Text = "o ", FontFamily = "FigtreeBold", FontSize = 24 }.Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Accent")));
+            formatted.Spans.Add(new Span { Text = "Premium", FontFamily = "FigtreeBold", FontSize = 24 }.Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Accent")));
+        }
+        else
+        {
+            formatted.Spans.Add(new Span { Text = "co", FontFamily = "FigtreeBold", FontSize = 24 }.Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Ink")));
+            formatted.Spans.Add(new Span { Text = "o", FontFamily = "FigtreeBold", FontSize = 24 }.Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Accent")));
+        }
+
         var mark = new Label
         {
-            FormattedText = new FormattedString
-            {
-                Spans =
-                {
-                    new Span { Text = "co", FontFamily = "FigtreeBold", FontSize = 24 }.Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Ink")),
-                    new Span { Text = "o", FontFamily = "FigtreeBold", FontSize = 24 }.Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Accent")),
-                },
-            },
+            FormattedText = formatted,
             VerticalOptions = LayoutOptions.Center,
         };
         AttachLongPress(mark, longPress);

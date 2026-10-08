@@ -73,13 +73,13 @@ internal static class Running
         var started = Strings.Format("Hero.Started", s.Formats.Time(entry.Timing.OccurredAt));
         IReadOnlyList<RunningAction> buttons = entry.Details switch
         {
-            BreastFeed =>
+            BreastFeed f =>
             [
-                new(Strings.Get("Action.SwitchSide"), false, new AsyncRelayCommand(() => actions.SwitchSideAsync(entry.Id))),
-                new(Strings.Get("Action.Stop"), true, new AsyncRelayCommand(() => actions.StopBreastAsync(entry.Id))),
+                new(Strings.Get("Action.SwitchSide") ?? "Switch side", false, new AsyncRelayCommand(() => actions.SwitchSideAsync(entry.Id))),
+                new(Strings.Get("Action.Stop") ?? "Stop", true, new AsyncRelayCommand(() => actions.StopBreastAsync(entry.Id))),
             ],
-            SleepDetails => [new(Strings.Get("Action.WokeUp"), true, new AsyncRelayCommand(() => actions.EndSessionAsync(entry.Id)))],
-            _ => [new(Strings.Get("Action.Stop"), true, new AsyncRelayCommand(() => { actions.RequestPumpYield(entry.Id); return Task.CompletedTask; }))],
+            SleepDetails => [new(Strings.Get("Action.WokeUp") ?? "Woke up", true, new AsyncRelayCommand(() => actions.EndSessionAsync(entry.Id)))],
+            _ => [new(Strings.Get("Action.Stop") ?? "Stop", true, new AsyncRelayCommand(() => { actions.RequestPumpYield(entry.Id); return Task.CompletedTask; }))],
         };
         return new RunningItem(entry.Id, entry.KindCode.Value, started, buttons);
     }
@@ -122,6 +122,9 @@ public sealed partial class BabyHeaderSection : ObservableObject, IHomeSection
 
     [ObservableProperty]
     private string _age = "";
+    
+    [ObservableProperty]
+    private bool _isPremium;
 
     public bool AppliesTo(HomeStage stage, PaletteKind palette) => palette == PaletteKind.Day || stage == HomeStage.Expecting;
 
@@ -131,6 +134,7 @@ public sealed partial class BabyHeaderSection : ObservableObject, IHomeSection
         BabyName = snapshot.Baby.Name;
         Initial = snapshot.Baby.Name[..1].ToUpper(Strings.Culture);
         Age = snapshot.Baby.IsBorn ? Formats.Age(snapshot.Baby, DateOnly.FromDateTime(snapshot.Now.LocalDateTime)) : Strings.Get("Expecting.Eyebrow");
+        IsPremium = snapshot.IsPremium;
     }
 }
 

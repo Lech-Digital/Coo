@@ -42,6 +42,13 @@ public sealed class AppShell : Shell
                     Route = "settings",
                     ContentTemplate = new DataTemplate(services.GetRequiredService<SettingsPage>),
                 },
+                new ShellContent
+                {
+                    Title = "Advisor",
+                    Icon = "tab_log.png", // Placeholder
+                    Route = "advisor",
+                    ContentTemplate = new DataTemplate(services.GetRequiredService<AdvisorPage>),
+                },
             },
         });
     }

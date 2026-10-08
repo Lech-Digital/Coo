@@ -23,6 +23,25 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.AdvisorUsageRecord", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<int>("QuestionCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("question_count");
+
+                    b.HasKey("UserId", "Date");
+
+                    b.ToTable("advisor_usages", (string)null);
+                });
+
             modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.AppliedChangeRecord", b =>
                 {
                     b.Property<Guid>("ChangeId")
@@ -852,6 +871,16 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.AdvisorUsageRecord", b =>
+                {
+                    b.HasOne("Coo.Api.Infrastructure.Persistence.CooUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_advisor_usages_users");
                 });
 
             modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.BabyProfileRecord", b =>

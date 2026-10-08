@@ -12,7 +12,7 @@ public static class Licences
     public static IReadOnlyList<Licence> All { get; } =
     [
         new("Figtree", "SIL Open Font License 1.1", "figtree-ofl.txt", []),
-        new(".NET and .NET MAUI", "MIT", "dotnet-mit.txt", ["Microsoft.Maui.Controls", "Microsoft.Extensions.DependencyInjection.Abstractions", "Microsoft.Data.Sqlite.Core"]),
+        new(".NET and .NET MAUI", "MIT", "dotnet-mit.txt", ["Microsoft.Maui.Controls", "Microsoft.Extensions.DependencyInjection.Abstractions", "Microsoft.Data.Sqlite.Core", "Plugin.StoreReview", "Plugin.InAppBilling"]),
         new("CommunityToolkit.Mvvm", "MIT", "communitytoolkit-mit.txt", ["CommunityToolkit.Mvvm"]),
         new("SQLitePCLRaw", "Apache License 2.0", "sqlitepclraw-apache2.txt", ["SQLitePCLRaw.bundle_e_sqlite3"]),
         new("SQLite", "Public domain", "sqlite-public-domain.txt", []),

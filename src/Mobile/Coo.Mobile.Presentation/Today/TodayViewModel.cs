@@ -79,11 +79,14 @@ public sealed partial class TodayViewModel : ObservableObject
     [ObservableProperty]
     private string _awakeSince = "";
 
+    private readonly Coo.Mobile.Application.Billing.IBillingService _billing;
+
     public TodayViewModel(
         IEnumerable<IHomeSection> sections, IHouseholdStore households, GetToday getToday, HomeActions actions,
         ThemeController theme, IClockFormat clock, RecordBirth recordBirth, TimeProvider time, GetAttention attention, UndoService undo,
-        WhoLabelsSource who, Coo.Mobile.Application.Preferences.IReviewPrompter reviewPrompter)
+        WhoLabelsSource who, Coo.Mobile.Application.Preferences.IReviewPrompter reviewPrompter, Coo.Mobile.Application.Billing.IBillingService billing)
     {
+        _billing = billing;
         (_attention, _undo, _whoSource) = (attention, undo, who);
         _all = [.. sections.OrderBy(s => s.Order)];
         (_households, _getToday, _actions, _theme, _clock, _recordBirth, _time) = (households, getToday, actions, theme, clock, recordBirth, time);
@@ -301,7 +304,7 @@ public sealed partial class TodayViewModel : ObservableObject
         Tick();
     }
 
-    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who);
+    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached);
 
     private Formats Formats() => new(_clock.Is24Hour, _household?.VolumeUnit ?? VolumeUnit.Millilitres);
 

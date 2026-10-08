@@ -1,0 +1,16 @@
+warn: Microsoft.AspNetCore.DataProtection.Repositories.FileSystemXmlRepository[60]
+      Storing keys in a directory '/home/app/.aspnet/DataProtection-Keys' that may not be persisted outside of the container. Protected data will be unavailable when container is destroyed. For more information go to https://aka.ms/aspnet/dataprotectionwarning
+info: Coo.Api.Infrastructure.Persistence.DatabaseStartup[841691176]
+      Database ready: migrations applied, 4 kind versions registered
+warn: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[35]
+      No XML encryptor configured. Key {968931ff-c86d-4c1d-9194-0f72f81f44d2} may be persisted to storage in unencrypted form.
+warn: Microsoft.AspNetCore.Hosting.Diagnostics[15]
+      Overriding HTTP_PORTS '8080' and HTTPS_PORTS ''. Binding to values defined by URLS instead 'http://+:8080'.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://[::]:8080
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /app

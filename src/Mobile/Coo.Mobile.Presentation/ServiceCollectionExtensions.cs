@@ -51,6 +51,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<Settings.RemovalViewModel>();
         services.AddTransient<EditViewModel>();
         services.AddTransient<AttentionViewModel>();
+        services.AddTransient<Advisor.AdvisorViewModel>();
         return services;
     }
 }

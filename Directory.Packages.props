@@ -6,6 +6,7 @@
   <ItemGroup>
     <!-- Build-time guards -->
     <PackageVersion Include="Google.Apis.AndroidPublisher.v3" Version="1.77.0.4284" />
+    <PackageVersion Include="Google.GenAI" Version="0.2.0-beta" />
     <PackageVersion Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
     <!-- Runtime -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.12" />

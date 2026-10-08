@@ -30,6 +30,7 @@ two.
 | 14 | **Sleep predictor** | 014 | ADR 0008, with the backtest harness gating it. | — |
 | 15 | **AI logging** | 015 | Voice and text to proposals, the confirmation card, pending notes, evals. | — |
 | 15b | **Night and weekly summaries** | 015b | Premium, AI: a written summary of the night, and a weekly summary, with ADR 0005's privacy rules. Designed in its own spec (owner, 2026-10-02). | — |
+| 15c | **Baby Advisor & Milestones** | 015c | Dedicated Insights tab. AI chat for age-based questions (Gemini on backend), free tier limits, clickable preprompted pills, milestone timeline. | — |
 | 16 | **Reports (PDF)** | 016 | The pediatrician report, designed first. | — |
 | 17 | **Wear OS companion** | 017 | ADR 0009. | — |
 | 18 | **Release** | 018 | Signing, the Play listing in seven languages, the privacy policy, closed testing. Store assets per `store-assets/PLAN.md` (demo build, screenshots, feature graphic, listing in seven languages). | — |

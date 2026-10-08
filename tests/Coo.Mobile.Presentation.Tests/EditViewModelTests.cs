@@ -367,7 +367,7 @@ public sealed class EditViewModelTests : IDisposable
         var clockFormat = Substitute.For<IClockFormat>();
         clockFormat.Is24Hour.Returns(true);
         return new EditViewModel(_store, _households, new LogEntry(_store, _clock, _time), new ReviseEntry(_store, _clock, _time),
-            new ResubmitRejectedEntry(_store, _sync, _clock), undo, clockFormat, _time);
+            new ResubmitRejectedEntry(_store, _sync, _clock), undo, clockFormat, _time, Substitute.For<Coo.Mobile.Application.Preferences.IReviewPrompter>());
     }
 
     /// <summary>The store as SQLite is: each read is a fresh copy, each save replaces what is stored. Returns what is stored now.</summary>

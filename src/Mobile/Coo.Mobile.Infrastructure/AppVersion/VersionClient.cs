@@ -5,7 +5,7 @@ using Coo.Mobile.Application;
 
 namespace Coo.Mobile.Infrastructure.AppVersion;
 
-public sealed class VersionClient(HttpClient http) : IVersionApi
+internal sealed class VersionClient(HttpClient http) : IVersionApi
 {
     public async Task<AppVersionInfo?> GetVersionInfoAsync(CancellationToken cancellationToken)
     {
@@ -31,7 +31,7 @@ public sealed class VersionClient(HttpClient http) : IVersionApi
     }
 }
 
-public sealed record AppVersionInfo(
+internal sealed record AppVersionInfo(
     [property: JsonPropertyName("latest")] int Latest,
     [property: JsonPropertyName("minimum")] int Minimum,
     [property: JsonPropertyName("isForced")] bool IsForced

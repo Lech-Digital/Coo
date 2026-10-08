@@ -1,4 +1,4 @@
-using Android.Gms.Tasks;
+using Xamarin.Google.Android.Play.Core.Tasks;
 using Microsoft.Maui.ApplicationModel;
 using Xamarin.Google.Android.Play.Core.AppUpdate;
 using Xamarin.Google.Android.Play.Core.Install.Model;
@@ -9,7 +9,7 @@ namespace Coo.Mobile.AppVersion;
 public sealed class UpdatePrompter(TimeProvider timeProvider)
 {
     private DateTimeOffset _lastChecked = DateTimeOffset.MinValue;
-    private bool _hasShownPromptThisSession = false;
+    private bool _hasShownPromptThisSession;
 
     public async Task CheckForUpdatesAsync()
     {
@@ -19,13 +19,13 @@ public sealed class UpdatePrompter(TimeProvider timeProvider)
 
         try
         {
-            var appContext = Platform.AppContext;
+            var appContext = Microsoft.Maui.ApplicationModel.Platform.AppContext;
             if (appContext == null) return;
 
             var appUpdateManager = AppUpdateManagerFactory.Create(appContext);
             var appUpdateInfoTask = appUpdateManager.AppUpdateInfo;
 
-            var info = await GetAppUpdateInfoAsync(appUpdateInfoTask);
+            dynamic info = await GetAppUpdateInfoAsync(appUpdateInfoTask);
             if (info == null) return;
 
             _lastChecked = timeProvider.GetUtcNow();
@@ -36,7 +36,7 @@ public sealed class UpdatePrompter(TimeProvider timeProvider)
                 bool isImmediateAllowed = info.IsUpdateTypeAllowed(AppUpdateType.Immediate);
                 bool isFlexibleAllowed = info.IsUpdateTypeAllowed(AppUpdateType.Flexible);
 
-                var activity = Platform.CurrentActivity;
+                var activity = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
                 if (activity == null) return;
 
                 if (priority >= 4 && isImmediateAllowed) // High priority
@@ -65,22 +65,22 @@ public sealed class UpdatePrompter(TimeProvider timeProvider)
         }
     }
 
-    private Task<AppUpdateInfo> GetAppUpdateInfoAsync(Android.Gms.Tasks.Task task)
+    private static Task<object> GetAppUpdateInfoAsync(Xamarin.Google.Android.Play.Core.Tasks.Task task)
     {
-        var tcs = new TaskCompletionSource<AppUpdateInfo>();
-        task.AddOnSuccessListener(new SuccessListener(obj => tcs.TrySetResult((AppUpdateInfo)obj!)));
+        var tcs = new TaskCompletionSource<object>();
+        task.AddOnSuccessListener(new SuccessListener(obj => tcs.TrySetResult(obj!)));
         task.AddOnFailureListener(new FailureListener(ex => tcs.TrySetException(ex)));
         return tcs.Task;
     }
 
-    private class SuccessListener : Java.Lang.Object, IOnSuccessListener
+    private sealed class SuccessListener : Java.Lang.Object, IOnSuccessListener
     {
         private readonly Action<Java.Lang.Object?> _onSuccess;
         public SuccessListener(Action<Java.Lang.Object?> onSuccess) => _onSuccess = onSuccess;
         public void OnSuccess(Java.Lang.Object? result) => _onSuccess(result);
     }
 
-    private class FailureListener : Java.Lang.Object, IOnFailureListener
+    private sealed class FailureListener : Java.Lang.Object, IOnFailureListener
     {
         private readonly Action<Java.Lang.Exception> _onFailure;
         public FailureListener(Action<Java.Lang.Exception> onFailure) => _onFailure = onFailure;

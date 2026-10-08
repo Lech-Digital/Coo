@@ -241,6 +241,8 @@ public sealed class DayQueriesTests
         public Task<bool> WriteAllAsync(CareLogWrites changes, CancellationToken cancellationToken) => throw new NotSupportedException();
 
         public Task<StoreCounts> CountsAsync(HouseholdId household, CancellationToken cancellationToken) => throw new NotSupportedException();
+
+        public Task<int> CountAllEntriesAsync(HouseholdId household, CancellationToken cancellationToken) => Task.FromResult(entries.Length);
     }
 }
 

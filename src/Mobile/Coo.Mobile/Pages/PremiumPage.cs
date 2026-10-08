@@ -58,6 +58,11 @@ public sealed class PremiumPage : ContentPage
         else if (_model.IsPremium)
         {
             stack.Add(Ui.Text(Strings.Get("Premium.Active") ?? "You have an active Premium subscription. Thank you for your support!", "BodyStrong"));
+#if DEBUG
+            var expireButton = Ui.Rounded(Ui.Text("DEV: Expire Premium", "BodyStrong", "Ground").Tap(l => l.HorizontalOptions = LayoutOptions.Center), "Error", 8, new Thickness(16));
+            expireButton.GestureRecognizers.Add(new TapGestureRecognizer { Command = _model.DevExpireCommand });
+            stack.Add(expireButton);
+#endif
         }
         else
         {

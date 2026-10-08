@@ -146,7 +146,7 @@
   <data name="Error.breast.too-long" xml:space="preserve"><value>A breast feed can be at most 6 hours. Check the times.</value></data>
   <data name="Error.entry.not-editable" xml:space="preserve"><value>This entry cannot be edited in this version of Coo.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>This entry no longer exists.</value></data>
-  <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>The times on this entry don't fit together. Edit the entry to send it again.</value></data>
+  <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>This entry has times that are not allowed.</value></data>
   <data name="Error.household.already-has-family" xml:space="preserve"><value>You're already in a family on Coo.</value></data>
   <data name="Error.household.confirmation-required" xml:space="preserve"><value>This family still has entries on Coo's server. Confirm to delete them.</value></data>
   <data name="Error.household.forbidden" xml:space="preserve"><value>You can't do that in this family.</value></data>
@@ -272,6 +272,12 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Night.LastDiaper" xml:space="preserve"><value>Last diaper</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Last feed</value></data>
   <data name="Night.Title" xml:space="preserve"><value>{0} · Night mode</value></data>
+  <data name="Premium.Active" xml:space="preserve"><value>You have an active Premium subscription. Thank you for your support!</value></data>
+  <data name="Premium.Loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="Premium.Pitch" xml:space="preserve"><value>Get Coo Premium to unlock advanced features and support the development.</value></data>
+  <data name="Premium.PurchaseFailed" xml:space="preserve"><value>Purchase failed. Please try again.</value></data>
+  <data name="Premium.Subscribe" xml:space="preserve"><value>Subscribe</value></data>
+  <data name="Premium.Title" xml:space="preserve"><value>Coo Premium</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>How much?</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>You're no longer a member of the family that logs {0}, so its log will be removed from this phone. Entries you already shared stay with the family.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>You're no longer a member of this family, so its log will be removed from this phone. Entries you already shared stay with the family.</value></data>
