@@ -5,8 +5,8 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Build-time guards -->
+    <PackageVersion Include="Google.Apis.AndroidPublisher.v3" Version="1.77.0.4284" />
     <PackageVersion Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
-
     <!-- Runtime -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.12" />
     <!-- Tests only: the concrete container for the phone's composition test. -->
@@ -22,6 +22,9 @@
     <PackageVersion Include="Xamarin.AndroidX.Credentials" Version="1.5.0" />
     <PackageVersion Include="Xamarin.AndroidX.Credentials.PlayServicesAuth" Version="1.5.0" />
     <PackageVersion Include="Xamarin.GoogleAndroid.Libraries.Identity.GoogleId" Version="1.1.0.8" />
+    <PackageVersion Include="Plugin.StoreReview" Version="6.0.0" />
+    <PackageVersion Include="Plugin.InAppBilling" Version="10.0.0" />
+    <PackageVersion Include="Xamarin.Google.Android.Play.App.Update" Version="2.1.0.20" />
     <!-- Server storage: PostgreSQL through EF Core, schema by migrations (ADR 0001 §4, Spec 008 §4). -->
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12" />
@@ -33,7 +36,6 @@
     <!-- Sign-in (Spec 010 §4): our own JWTs, and Google ID token verification with cached Google keys (ADR 0003 §5). -->
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
     <PackageVersion Include="Google.Apis.Auth" Version="1.77.0" />
-
     <!-- Tests -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
     <PackageVersion Include="xunit" Version="2.9.3" />

@@ -527,7 +527,7 @@ public sealed partial class EditViewModel(
         : Math.Round(v.Millilitres).ToString("0", Strings.Culture);
 
     private static string Minutes(TimeSpan d) =>
-        d <= TimeSpan.Zero ? "" : Math.Max(1, (int)Math.Round(d.TotalMinutes)).ToString(Strings.Culture);
+        d <= TimeSpan.Zero ? "" : Math.Max(1, (int)Math.Round(d.TotalMinutes, MidpointRounding.AwayFromZero)).ToString(Strings.Culture);
 
     private Formats Formats() => new(clock.Is24Hour, _household?.VolumeUnit ?? VolumeUnit.Millilitres);
 

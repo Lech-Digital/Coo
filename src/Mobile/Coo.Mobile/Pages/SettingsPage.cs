@@ -287,6 +287,9 @@ public sealed class SettingsPage : ContentPage
         }));
         stack.Add(Hint("Settings.ClockHint"));
 
+        stack.Add(Header("Premium"));
+        stack.Add(Row(Ui.Text(Strings.Get("Premium.Title") ?? "Coo Premium", "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<PremiumPage>())));
+
         stack.Add(Header("Settings.Appearance"));
         var start = TimePicker(_model.QuietStart, t => _model.QuietStart = t);
         var end = TimePicker(_model.QuietEnd, t => _model.QuietEnd = t);

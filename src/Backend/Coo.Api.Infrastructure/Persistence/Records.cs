@@ -279,3 +279,23 @@ internal sealed class InvitationRecord
 
     public DateTime? RevokedAt { get; init; }
 }
+
+/// <summary><c>subscriptions</c>: tracks household premium access via store purchases (Increment 12).</summary>
+internal sealed class SubscriptionRecord
+{
+    public required string PurchaseToken { get; init; }
+
+    public required Guid HouseholdId { get; init; }
+
+    public required Guid UserId { get; init; }
+
+    public required string ProductId { get; init; }
+
+    public required string Status { get; set; }
+
+    public required DateTime ExpiryDate { get; set; }
+
+    public required DateTime CreatedAt { get; init; }
+
+    public required DateTime UpdatedAt { get; set; }
+}

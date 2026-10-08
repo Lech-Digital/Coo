@@ -647,6 +647,52 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.SubscriptionRecord", b =>
+                {
+                    b.Property<string>("PurchaseToken")
+                        .HasColumnType("text")
+                        .HasColumnName("purchase_token");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("expiry_date");
+
+                    b.Property<Guid>("HouseholdId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("household_id");
+
+                    b.Property<string>("ProductId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("product_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("PurchaseToken");
+
+                    b.HasIndex("HouseholdId")
+                        .HasDatabaseName("ix_subscriptions_household_id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("subscriptions", (string)null);
+                });
+
             modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.SyncConflictRecord", b =>
                 {
                     b.Property<long>("Id")
@@ -912,6 +958,23 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_memberships_users");
+                });
+
+            modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.SubscriptionRecord", b =>
+                {
+                    b.HasOne("Coo.Api.Infrastructure.Persistence.HouseholdRecord", null)
+                        .WithMany()
+                        .HasForeignKey("HouseholdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_subscriptions_households");
+
+                    b.HasOne("Coo.Api.Infrastructure.Persistence.CooUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_subscriptions_users");
                 });
 
             modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.SyncConflictRecord", b =>

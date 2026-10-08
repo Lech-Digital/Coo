@@ -73,6 +73,12 @@ builder.Services.AddInvitationRateLimiting(StartupChecks.SelectInvitationLimits(
 
 // Account deletion runs in the membership store's locked transaction: no scoped account store any more.
 builder.Services.AddSingleton<DeleteAccount>();
+
+// Billing (Increment 12)
+builder.Services.AddSingleton<Coo.Api.Application.Billing.VerifyReceipt>();
+builder.Services.AddSingleton<Coo.Api.Application.Billing.HandleRTDN>();
+builder.Services.AddSingleton<Coo.Api.Application.Billing.GetEntitlementStatus>();
+
 if (!verifyOnly)
 {
     builder.Services.AddHostedService<IntegrityScanJob>();
@@ -119,6 +125,7 @@ app.MapSyncEndpoints();
 app.MapHouseholdEndpoints();
 app.MapAppLinkEndpoints(fingerprints);
 app.MapAppUpdateEndpoints();
+app.MapBillingEndpoints();
 
 await app.RunAsync();
 return 0;

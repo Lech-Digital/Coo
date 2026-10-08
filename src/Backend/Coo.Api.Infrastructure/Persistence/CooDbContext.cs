@@ -36,6 +36,8 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
 
     public DbSet<InvitationRecord> Invitations => Set<InvitationRecord>();
 
+    public DbSet<SubscriptionRecord> Subscriptions => Set<SubscriptionRecord>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -300,6 +302,25 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
             e.HasIndex(i => i.CodeHash).IsUnique().HasDatabaseName("ix_invitations_code_hash");
             e.HasIndex(i => i.HouseholdId).HasDatabaseName("ix_invitations_household_id");
             e.HasIndex(i => i.ExpiresAt).HasDatabaseName("ix_invitations_expires_at");
+        });
+
+        modelBuilder.Entity<SubscriptionRecord>(e =>
+        {
+            e.ToTable("subscriptions");
+            e.HasKey(s => s.PurchaseToken);
+            e.Property(s => s.PurchaseToken).HasColumnName("purchase_token");
+            e.Property(s => s.HouseholdId).HasColumnName("household_id");
+            e.Property(s => s.UserId).HasColumnName("user_id");
+            e.Property(s => s.ProductId).HasColumnName("product_id");
+            e.Property(s => s.Status).HasColumnName("status");
+            e.Property(s => s.ExpiryDate).HasColumnName("expiry_date").HasColumnType("timestamptz");
+            e.Property(s => s.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz");
+            e.Property(s => s.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz");
+            e.HasOne<HouseholdRecord>().WithMany().HasForeignKey(s => s.HouseholdId)
+                .HasConstraintName("fk_subscriptions_households").OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CooUser>().WithMany().HasForeignKey(s => s.UserId)
+                .HasConstraintName("fk_subscriptions_users").OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(s => s.HouseholdId).HasDatabaseName("ix_subscriptions_household_id");
         });
     }
 

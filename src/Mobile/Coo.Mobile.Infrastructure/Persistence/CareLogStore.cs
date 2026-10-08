@@ -158,6 +158,9 @@ internal sealed class CareLogStore(LocalDatabase database, TimeProvider time, Lo
                 "UPDATE care_entries SET integrity = $integrity, integrity_reason = $reason WHERE id = $id;",
                 cancellationToken,
                 null,
+                ("$integrity", classified.Integrity.ToString()),
+                ("$reason", classified.Reason),
+                ("$id", row.Id.ToString()));
         }
 
         return classified.Entry;
@@ -226,14 +229,13 @@ internal sealed class CareLogStore(LocalDatabase database, TimeProvider time, Lo
 
     public async Task<int> CountAllEntriesAsync(Coo.Domain.Common.HouseholdId household, CancellationToken cancellationToken)
     {
-        using var connection = database.Borrow();
-        await connection.OpenAsync(cancellationToken);
+        await using var connection = await database.OpenAsync(cancellationToken);
         
         using var command = connection.CreateCommand();
         command.CommandText = "SELECT COUNT(*) FROM entries WHERE household = $household AND is_deleted = 0";
         command.Parameters.AddWithValue("$household", household.Value.ToByteArray());
         
         var result = await command.ExecuteScalarAsync(cancellationToken);
-        return Convert.ToInt32(result);
+        return Convert.ToInt32(result, System.Globalization.CultureInfo.InvariantCulture);
     }
 }

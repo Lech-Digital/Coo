@@ -48,6 +48,9 @@ public static class ServiceCollectionExtensions
         services.AddIdentityCore<CooUser>(options => options.User.AllowedUserNameCharacters += ":")
             .AddEntityFrameworkStores<CooDbContext>();
         services.AddScoped<IAccountStore, AccountStore>();
+        
+        services.AddSingleton<Coo.Api.Application.Billing.IBillingStore, Coo.Api.Infrastructure.Billing.BillingStore>();
+        services.AddSingleton<Coo.Api.Application.Billing.IGooglePlayValidator, Coo.Api.Infrastructure.Billing.GooglePlayValidator>();
 
         // Registered first, so it finishes before any other hosted service starts and before the server listens.
         services.AddHostedService<DatabaseStartup>();

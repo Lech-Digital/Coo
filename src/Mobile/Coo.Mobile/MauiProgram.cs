@@ -48,6 +48,7 @@ public static class MauiProgram
         builder.Services.AddTransient<EditPage>();
         builder.Services.AddTransient<AttentionPage>();
         builder.Services.AddTransient<SettingsPage>();
+        builder.Services.AddTransient<PremiumPage>();
         builder.Services.AddTransient<BabyPage>();
         builder.Services.AddTransient<LicencesPage>();
         builder.Services.AddTransient<ConsentPage>();

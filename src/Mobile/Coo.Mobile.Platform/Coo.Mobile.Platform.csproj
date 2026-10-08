@@ -11,6 +11,7 @@
     <PackageReference Include="Xamarin.AndroidX.Credentials" />
     <PackageReference Include="Xamarin.AndroidX.Credentials.PlayServicesAuth" />
     <PackageReference Include="Xamarin.GoogleAndroid.Libraries.Identity.GoogleId" />
+    <PackageReference Include="Plugin.InAppBilling" />
   </ItemGroup>
 
   <ItemGroup>

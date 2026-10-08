@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IDeviceName, AndroidDeviceName>();
         services.AddSingleton<ISignInProvider>(new CredentialManagerSignInProvider(currentActivity, googleWebClientId));
         services.AddSingleton<IConnectivityWatcher>(_ => new Sync.AndroidConnectivity(() => global::Android.App.Application.Context));
+        services.AddSingleton<Coo.Mobile.Application.Billing.IBillingService, Billing.BillingService>();
         return services;
     }
 }
