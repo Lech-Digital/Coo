@@ -24,7 +24,7 @@ namespace Coo.Mobile.Presentation.Edit;
 /// </summary>
 public sealed partial class EditViewModel(
     ICareLogStore store, IHouseholdStore households, LogEntry log, ReviseEntry revise, ResubmitRejectedEntry resubmit, UndoService undo,
-    IClockFormat clock, TimeProvider time)
+    IClockFormat clock, TimeProvider time, IReviewPrompter reviewPrompter)
     : ObservableObject
 {
     private CareEntry? _original;
@@ -236,6 +236,7 @@ public sealed partial class EditViewModel(
         }
 
         Error = "";
+        _ = reviewPrompter.CheckAndPromptAsync(CancellationToken.None);
         Closed?.Invoke(this, EventArgs.Empty);
     }
 

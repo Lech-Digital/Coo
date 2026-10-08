@@ -82,7 +82,7 @@ public sealed partial class TodayViewModel : ObservableObject
     public TodayViewModel(
         IEnumerable<IHomeSection> sections, IHouseholdStore households, GetToday getToday, HomeActions actions,
         ThemeController theme, IClockFormat clock, RecordBirth recordBirth, TimeProvider time, GetAttention attention, UndoService undo,
-        WhoLabelsSource who)
+        WhoLabelsSource who, Coo.Mobile.Application.Preferences.IReviewPrompter reviewPrompter)
     {
         (_attention, _undo, _whoSource) = (attention, undo, who);
         _all = [.. sections.OrderBy(s => s.Order)];
@@ -91,6 +91,8 @@ public sealed partial class TodayViewModel : ObservableObject
         {
             Sheet = HomeSheet.None;
             Toast = outcome.Message;
+            if (outcome.Succeeded)
+                _ = reviewPrompter.CheckAndPromptAsync(CancellationToken.None);
             await RefreshAsync();
         };
         _actions.SheetRequested += (_, request) => OpenSheet(request.Sheet, request.Entry);

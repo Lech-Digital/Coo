@@ -306,6 +306,7 @@ public sealed class StartupPage : ContentPage
         }
 
         SyncStarted = true;
+        _ = _services.GetRequiredService<AppVersion.UpdatePrompter>().CheckForUpdatesAsync();
         try
         {
             var engine = _services.GetRequiredService<Coo.Mobile.Application.Sync.SyncEngine>();
@@ -383,6 +384,7 @@ public sealed class StartupPage : ContentPage
         {
             _services.GetRequiredService<Coo.Mobile.Application.Sync.SyncEngine>().Resumed();
             _services.GetRequiredService<Sync.SyncPrompter>().Resumed();
+            _ = _services.GetRequiredService<AppVersion.UpdatePrompter>().CheckForUpdatesAsync();
         }
 #pragma warning disable CA1031 // Logging never depends on sync (ADR 0002); the next resume tries again.
         catch (Exception e)

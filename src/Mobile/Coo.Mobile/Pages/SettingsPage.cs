@@ -292,9 +292,9 @@ public sealed class SettingsPage : ContentPage
         var end = TimePicker(_model.QuietEnd, t => _model.QuietEnd = t);
         var quiet = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 10 };
         quiet.Add(Ui.Text(Strings.Get("Settings.QuietFrom"), "Label", "Ink2").Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
-        quiet.Add(start, 1);
+        quiet.Add(Ui.Rounded(start, "Ground", 8, new Thickness(12, 8), "Line"), 1);
         quiet.Add(Ui.Text(Strings.Get("Settings.QuietTo"), "Label", "Ink2").Tap(l => l.VerticalOptions = LayoutOptions.Center), 2);
-        quiet.Add(end, 3);
+        quiet.Add(Ui.Rounded(end, "Ground", 8, new Thickness(12, 8), "Line"), 3);
         stack.Add(new Card(new VerticalStackLayout
         {
             Spacing = 10,

@@ -25,6 +25,7 @@ public static class MauiProgram
             }
         });
         Tabular.Register();
+        RemoveUnderlines();
 
         // Composition root (ADR 0001 §2): the only place on the mobile side that creates the real clock.
         builder.Services.AddSingleton(TimeProvider.System);
@@ -61,6 +62,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<Presentation.Sheets.SheetNavigator>();
         builder.Services.AddSingleton<Sync.SyncPrompter>();
         builder.Services.AddSingleton<Joining.InvitationInbox>();
+        builder.Services.AddSingleton<AppVersion.UpdatePrompter>();
+        builder.Services.AddSingleton<Coo.Mobile.Application.Preferences.IReviewPrompter, AppVersion.StoreReviewTrigger>();
         builder.Services.AddSingleton<Coo.Mobile.Presentation.Settings.IConsentPrompt, Joining.MauiConsentPrompt>();
         builder.Services.AddSingleton<Coo.Mobile.Presentation.Settings.IAboutInfo, Settings.MauiAboutInfo>();
         builder.Services.AddSingleton<Coo.Mobile.Presentation.Settings.IExternalLauncher, Settings.MauiExternalLauncher>();
@@ -71,5 +74,16 @@ public static class MauiProgram
 #endif
 
         return builder.Build();
+    }
+
+    private static void RemoveUnderlines()
+    {
+#if ANDROID
+        Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("NoUnderline", (h, v) => h.PlatformView.Background = null);
+        Microsoft.Maui.Handlers.EditorHandler.Mapper.AppendToMapping("NoUnderline", (h, v) => h.PlatformView.Background = null);
+        Microsoft.Maui.Handlers.PickerHandler.Mapper.AppendToMapping("NoUnderline", (h, v) => h.PlatformView.Background = null);
+        Microsoft.Maui.Handlers.DatePickerHandler.Mapper.AppendToMapping("NoUnderline", (h, v) => h.PlatformView.Background = null);
+        Microsoft.Maui.Handlers.TimePickerHandler.Mapper.AppendToMapping("NoUnderline", (h, v) => h.PlatformView.Background = null);
+#endif
     }
 }

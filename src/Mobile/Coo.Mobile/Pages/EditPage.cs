@@ -56,10 +56,15 @@ public sealed class EditPage : ContentPage
         var back = Ui.Rounded(new Icon(IconGeometry.ChevronLeft, "Ink", 24).Tap(i => i.HorizontalOptions = LayoutOptions.Center), "Surface", 999, new Thickness(12), "Line");
         back.WidthRequest = back.HeightRequest = 48;
         back.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await Navigation.PopAsync()) });
-        var title = Ui.Text(Strings.Get(KindKey()), "Title");
-        var header = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 12 };
+        
+        var badge = Ui.Rounded(new Icon(look.Icon, look.Ink, 24).Tap(i => i.VerticalOptions = LayoutOptions.Center), look.Tint, 16, new Thickness(8));
+        badge.WidthRequest = badge.HeightRequest = 40;
+
+        var title = Ui.Text(Strings.Get(KindKey()), "Title", look.Ink);
+        var header = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 12 };
         header.Add(back, 0);
-        header.Add(title.Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
+        header.Add(badge.Tap(b => b.VerticalOptions = LayoutOptions.Center), 1);
+        header.Add(title.Tap(l => l.VerticalOptions = LayoutOptions.Center), 2);
 
         var form = new VerticalStackLayout { Spacing = 14 };
         form.Add(header);
@@ -135,7 +140,7 @@ public sealed class EditPage : ContentPage
         var note = new Entry { Placeholder = Strings.Get("Edit.Note"), FontFamily = "FigtreeRegular", FontSize = 16 };
         note.SetDynamicResource(Entry.TextColorProperty, "Ink");
         note.SetBinding(Entry.TextProperty, nameof(EditViewModel.Note));
-        form.Add(Field(Strings.Get("Edit.Note"), note));
+        form.Add(Field(Strings.Get("Edit.Note"), Ui.Rounded(note, "Surface", 12, new Thickness(16, 12), "Line")));
 
         var warnings = Ui.Text("", "Meta", look.Ink);
         warnings.SetBinding(Label.TextProperty, nameof(EditViewModel.Warnings));
@@ -175,15 +180,15 @@ public sealed class EditPage : ContentPage
         var grid = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 12 };
         grid.Add(date, 0);
         grid.Add(clock, 1);
-        return grid;
+        return Ui.Rounded(grid, "Surface", 12, new Thickness(16, 12), "Line");
     }
 
-    private static Entry Number(string property)
+    private static View Number(string property)
     {
         var entry = new Entry { Keyboard = Keyboard.Numeric, FontFamily = "FigtreeRegular", FontSize = 16 };
         entry.SetDynamicResource(Entry.TextColorProperty, "Ink");
         entry.SetBinding(Entry.TextProperty, property);
-        return entry;
+        return Ui.Rounded(entry, "Surface", 12, new Thickness(16, 12), "Line");
     }
 
     private HorizontalStackLayout Choices((string Text, Action Choose, bool Selected)[] choices)

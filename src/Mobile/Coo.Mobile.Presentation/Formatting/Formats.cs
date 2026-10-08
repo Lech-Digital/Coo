@@ -26,7 +26,7 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
     /// <summary>"1 h 20 m", or "45 m".</summary>
     public static string Duration(TimeSpan span)
     {
-        var minutes = Math.Max(0, (int)span.TotalMinutes);
+        var minutes = Math.Max(0, (int)Math.Round(span.TotalMinutes));
         return minutes >= 60
             ? Strings.Format("Duration.HoursMinutes", minutes / 60, minutes % 60)
             : Strings.Format("Duration.Minutes", minutes);

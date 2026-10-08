@@ -118,6 +118,7 @@ app.MapAuthEndpoints();
 app.MapSyncEndpoints();
 app.MapHouseholdEndpoints();
 app.MapAppLinkEndpoints(fingerprints);
+app.MapAppUpdateEndpoints();
 
 await app.RunAsync();
 return 0;
