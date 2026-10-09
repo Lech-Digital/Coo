@@ -301,6 +301,108 @@ public sealed class NightTimersTests
         card.Started.Should().NotBe(before).And.Contain(new Formats(true, VolumeUnit.Millilitres).Time(Now.AddMinutes(-12)));
     }
 
+    [Fact]
+    public void NextUpSection_AlternatesBreastSideAndCalculatesNapEstimate()
+    {
+        // Arrange
+        var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
+
+        // Last feed was on Left side 45 minutes ago
+        var lastFeed = Entry(BreastFeed.Start(BreastSide.Left, Now.AddMinutes(-45)), null);
+        var awakeSince = Now.AddMinutes(-30);
+        var summary = new TodaySummary([], lastFeed, null, null, null, awakeSince, [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc));
+        var snapshot = new HomeSnapshot(settings, baby, summary, Now, PaletteKind.Day, new Formats(true, VolumeUnit.Millilitres));
+
+        var section = new NextUpSection();
+
+        // Act
+        section.Update(snapshot);
+
+        // Assert
+        section.HasContent.Should().BeTrue();
+        section.NextSide.Should().Contain("right", "alternates from previous left side");
+        section.SinceFeed.Should().Contain("45 m");
+        section.NextNap.Should().NotBeEmpty();
+        section.NapWindow.Should().Contain("60–90m");
+    }
+
+    [Fact]
+    public void DailyProgressSection_CalculatesMetricsAndRatiosAgainstAgeNorms()
+    {
+        // Arrange: 2-month-old baby (born 2026-08-01, tested at 2026-10-01)
+        var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
+
+        var feed1 = Entry(BreastFeed.Start(BreastSide.Left, Now.AddHours(-6)), null);
+        var feed2 = Entry(BreastFeed.Start(BreastSide.Right, Now.AddHours(-3)), null);
+        var diaper1 = Entry(new Coo.Domain.CareLog.Kinds.Diaper.DiaperDetails(Coo.Domain.CareLog.Kinds.Diaper.DiaperContents.Wet), EntryTiming.Point(Now.AddHours(-4)));
+        var sleep1 = Entry(new Coo.Domain.CareLog.Kinds.Sleep.SleepDetails(), EntryTiming.Session(TimeRange.Create(Now.AddHours(-5), Now.AddHours(-3)).Value));
+
+        var storedEntries = new StoredEntry[]
+        {
+            new LiveEntry(feed1),
+            new LiveEntry(feed2),
+            new LiveEntry(diaper1),
+            new LiveEntry(sleep1)
+        };
+
+        var summary = new TodaySummary([], feed2, diaper1, sleep1, null, Now.AddHours(-3), storedEntries, DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc));
+        var snapshot = new HomeSnapshot(settings, baby, summary, Now, PaletteKind.Day, new Formats(true, VolumeUnit.Millilitres));
+
+        var section = new DailyProgressSection();
+
+        // Act
+        section.Update(snapshot);
+
+        // Assert
+        section.FeedsProgress.Should().Contain("2 of 6");
+        section.DiapersProgress.Should().Contain("1 of 5+");
+        section.SleepProgress.Should().Contain("2 h").And.Contain("14");
+        section.FeedsRatio.Should().BeApproximately(2.0 / 6.0, 0.01);
+    }
+
+    [Fact]
+    public void RecentActivitySection_CapsAtThreeItems()
+    {
+        // Arrange
+        var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
+
+        var entries = Enumerable.Range(1, 5).Select(i =>
+            (StoredEntry)new LiveEntry(Entry(new Coo.Domain.CareLog.Kinds.Diaper.DiaperDetails(Coo.Domain.CareLog.Kinds.Diaper.DiaperContents.Wet), EntryTiming.Point(Now.AddMinutes(-i * 10))))
+        ).ToList();
+
+        var summary = new TodaySummary([], null, null, null, null, null, entries, DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc));
+        var snapshot = new HomeSnapshot(settings, baby, summary, Now, PaletteKind.Day, new Formats(true, VolumeUnit.Millilitres));
+
+        var section = new RecentActivitySection();
+
+        // Act
+        section.Update(snapshot);
+
+        // Assert
+        section.Items.Should().HaveCount(3);
+    }
+
+    [Fact]
+    public void AdvisorTipSection_LoadsStageBadgeAndPediatricTip()
+    {
+        // Arrange
+        var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
+        var snapshot = new HomeSnapshot(settings, baby, null, Now, PaletteKind.Day, new Formats(true, VolumeUnit.Millilitres));
+
+        var section = new AdvisorTipSection();
+
+        // Act
+        section.Update(snapshot);
+
+        // Assert
+        section.StageBadge.Should().NotBeEmpty();
+        section.TipText.Should().NotBeEmpty();
+    }
+
     private CareEntry Entry(EntryDetails details, EntryTiming? timing) =>
         CareEntry.Create(new EntryId(Guid.CreateVersion7(Now.AddMilliseconds(++_wall))), Household, EntrySubject.Baby(Baby), details, timing,
             PersonRef.ThisDevicesPerson, EntrySource.Timer, new HlcStamp(++_wall, 0, Device), Now).Value;

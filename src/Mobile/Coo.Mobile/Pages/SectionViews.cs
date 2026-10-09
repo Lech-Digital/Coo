@@ -13,7 +13,14 @@ namespace Coo.Mobile.Pages;
 /// one renders as nothing rather than breaking Today. Each view re-renders when its section changes.
 /// </summary>
 /// <summary>What a section view can ask its page to do.</summary>
-internal sealed record SectionHost(Action? OpenDebug, Action<EntryId> OpenEntry, Action OpenAttention, Action OpenEarlier, TodayViewModel Today);
+internal sealed record SectionHost(
+    Action? OpenDebug,
+    Action<EntryId> OpenEntry,
+    Action OpenAttention,
+    Action OpenEarlier,
+    TodayViewModel Today,
+    Action SwitchToLog,
+    Action SwitchToAdvisor);
 
 /// <summary>
 /// A view that redraws when its source changes, coalesced to one redraw per change burst. Off screen it only notes the
@@ -116,6 +123,10 @@ internal static class SectionViews
         RunningSection s => Live(s, () => RunningCards(s.Items, night: false, host)),
         AttentionSection s => Live(s, () => Attention(s, host)),
         LogTilesSection s => Live(s, () => Tiles(s, host)),
+        NextUpSection s => Live(s, () => NextUp(s, host)),
+        DailyProgressSection s => Live(s, () => DailyProgress(s)),
+        AdvisorTipSection s => Live(s, () => AdvisorTip(s, host)),
+        RecentActivitySection s => Live(s, () => RecentActivity(s, host)),
         TimelineSection s => Live(s, () => Timeline(s, host)),
         NightSection s => Live(s, () => Night(s, host), nameof(NightSection.Title)),
         PausedSection s => Live(s, () => Paused(s)),
@@ -281,6 +292,170 @@ internal static class SectionViews
         earlier.HorizontalOptions = LayoutOptions.End;
         earlier.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(host.OpenEarlier) });
         return new VerticalStackLayout { Children = { grid, new ContentView { Padding = new Thickness(24, 0), Content = earlier } } };
+    }
+
+    private static View NextUp(NextUpSection s, SectionHost host)
+    {
+        if (!s.HasContent)
+            return new ContentView();
+
+        var stack = new VerticalStackLayout { Spacing = 8 };
+        stack.Add(Ui.Text(Strings.Get("Today.NextUp").ToUpper(Strings.Culture), "Label", "Ink2"));
+
+        var row = new HorizontalStackLayout { Spacing = 10, VerticalOptions = LayoutOptions.Center };
+
+        if (!string.IsNullOrEmpty(s.NextSide))
+        {
+            var sidePill = Ui.Rounded(
+                Ui.Text(s.NextSide, "BodyStrong", "FeedInk"),
+                "FeedTint",
+                999,
+                new Thickness(12, 6));
+            row.Add(sidePill);
+        }
+
+        if (!string.IsNullOrEmpty(s.SinceFeed))
+        {
+            var elapsedLabel = Ui.Text(s.SinceFeed, "Body", "Ink2");
+            elapsedLabel.VerticalOptions = LayoutOptions.Center;
+            row.Add(elapsedLabel);
+        }
+
+        if (row.Children.Count > 0)
+            stack.Add(row);
+
+        if (!string.IsNullOrEmpty(s.NextNap))
+        {
+            var napRow = new HorizontalStackLayout { Spacing = 8, VerticalOptions = LayoutOptions.Center };
+            var napIcon = new Icon(IconGeometry.Sleep, "SleepInk", 18) { VerticalOptions = LayoutOptions.Center };
+            var napText = Ui.Text($"{s.NextNap} · {s.NapWindow}", "Body", "Ink2");
+            napText.VerticalOptions = LayoutOptions.Center;
+            napRow.Add(napIcon);
+            napRow.Add(napText);
+            stack.Add(napRow);
+        }
+
+        var card = new Card(stack);
+        card.Margin = new Thickness(24, 12, 24, 0);
+        return card;
+    }
+
+    private static View DailyProgress(DailyProgressSection s)
+    {
+        var stack = new VerticalStackLayout { Spacing = 10 };
+        stack.Add(Ui.Text(Strings.Get("Today.DailyProgress").ToUpper(Strings.Culture), "Label", "Ink2"));
+
+        View MetricRow(string iconGeo, string kindCode, string text, double ratio)
+        {
+            var look = EventAppearance.For(kindCode);
+            var icon = new Icon(iconGeo, look.Ink, 18) { VerticalOptions = LayoutOptions.Center };
+            var label = Ui.Text(text, "BodyStrong", "Ink");
+            label.VerticalOptions = LayoutOptions.Center;
+
+            // Mini progress indicator bar
+            var barTrack = new BoxView
+            {
+                HeightRequest = 4,
+                CornerRadius = 2,
+                HorizontalOptions = LayoutOptions.Fill,
+            };
+            barTrack.SetDynamicResource(BoxView.ColorProperty, "Line");
+
+            var barFill = new BoxView
+            {
+                HeightRequest = 4,
+                CornerRadius = 2,
+                HorizontalOptions = LayoutOptions.Start,
+                WidthRequest = Math.Max(4, 180 * ratio),
+            };
+            barFill.SetDynamicResource(BoxView.ColorProperty, look.Mark + "Brush");
+
+            var barGrid = new Grid
+            {
+                HeightRequest = 4,
+                Children = { barTrack, barFill }
+            };
+
+            var rowGrid = new Grid
+            {
+                ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)],
+                ColumnSpacing = 8,
+                VerticalOptions = LayoutOptions.Center,
+            };
+            rowGrid.Add(icon, 0);
+            rowGrid.Add(label, 1);
+
+            return new VerticalStackLayout
+            {
+                Spacing = 4,
+                Children = { rowGrid, barGrid }
+            };
+        }
+
+        stack.Add(MetricRow(IconGeometry.Feed, "feeding", s.FeedsProgress, s.FeedsRatio));
+        stack.Add(MetricRow(IconGeometry.Diaper, "diaper", s.DiapersProgress, s.DiapersRatio));
+        stack.Add(MetricRow(IconGeometry.Sleep, "sleep", s.SleepProgress, s.SleepRatio));
+
+        var card = new Card(stack);
+        card.Margin = new Thickness(24, 12, 24, 0);
+        return card;
+    }
+
+    private static View AdvisorTip(AdvisorTipSection s, SectionHost host)
+    {
+        var stack = new VerticalStackLayout { Spacing = 6 };
+
+        var topRow = new Grid
+        {
+            ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)],
+            ColumnSpacing = 8,
+            VerticalOptions = LayoutOptions.Center
+        };
+
+        var headerStack = new HorizontalStackLayout { Spacing = 6, VerticalOptions = LayoutOptions.Center };
+        headerStack.Add(Ui.Text("💡", "Body"));
+        headerStack.Add(Ui.Text(Strings.Get("Today.AdvisorTip").ToUpper(Strings.Culture), "Label", "Ink2"));
+
+        var arrow = new Icon(IconGeometry.ChevronRight, "Ink2", 18) { VerticalOptions = LayoutOptions.Center };
+
+        topRow.Add(headerStack, 0);
+        topRow.Add(arrow, 1);
+
+        stack.Add(topRow);
+        stack.Add(Ui.Text(s.StageBadge, "Meta", "SleepInk"));
+        stack.Add(Ui.Text(s.TipText, "Body", "Ink"));
+
+        var card = new Card(stack);
+        card.Margin = new Thickness(24, 12, 24, 0);
+        card.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(host.SwitchToAdvisor) });
+        return card;
+    }
+
+    private static View RecentActivity(RecentActivitySection s, SectionHost host)
+    {
+        var stack = new VerticalStackLayout { Spacing = 4, Margin = new Thickness(24, 16, 24, 16) };
+        stack.Add(Ui.Text(Strings.Get("Today.RecentActivity"), "Section"));
+
+        if (s.Items.Count == 0)
+        {
+            stack.Add(Ui.Text(Strings.Get("Timeline.Empty"), "Body", "Ink2").Tap(l => l.Margin = new Thickness(0, 8)));
+        }
+        else
+        {
+            foreach (var item in s.Items)
+            {
+                var id = item.Id;
+                stack.Add(new TimelineRow(item.Time, item.KindCode, item.Title, item.Who, () => host.OpenEntry(id)));
+            }
+
+            var link = Ui.Text(Strings.Get("Today.SeeAllInLog"), "BodyStrong", "AccentInk");
+            link.Padding = new Thickness(0, 8, 0, 4);
+            link.HorizontalOptions = LayoutOptions.Start;
+            link.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(host.SwitchToLog) });
+            stack.Add(link);
+        }
+
+        return stack;
     }
 
     private static View Timeline(TimelineSection s, SectionHost host)

@@ -232,6 +232,18 @@ S = {
 
 'Section.Today': ('Today', 'Heute', "Aujourd'hui", 'Hoy', 'Oggi', 'Dziś', 'Vandaag'),
 'Timeline.Empty': ('Nothing logged yet today', 'Heute noch nichts eingetragen', "Rien de noté aujourd'hui", 'Nada registrado hoy', 'Ancora niente oggi', 'Dziś jeszcze nic nie zapisano', 'Vandaag nog niets gelogd'),
+'Today.NextUp': ('Next up', 'Als Nächstes', 'À suivre', 'Próximo', 'Prossimo', 'Wkrótce', 'Binnenkort'),
+'Today.NextSide': ('Next side: {0}', 'Nächste Seite: {0}', 'Prochain côté : {0}', 'Próximo lado: {0}', 'Prossimo lato: {0}', 'Następna strona: {0}', 'Volgende kant: {0}'),
+'Today.NextNap': ('Next nap ~{0}', 'Nächstes Schläfchen ~{0}', 'Prochaine sieste ~{0}', 'Próxima siesta ~{0}', 'Prossimo sonnellino ~{0}', 'Następna drzemka ~{0}', 'Volgend dutje ~{0}'),
+'Today.NapWindow': ('{0}m wake window', '{0}m Wachfenster', 'fenêtre d’éveil de {0}m', 'ventana de vigilia de {0}m', 'finestra di veglia di {0}m', '{0}m okno czuwania', '{0}m waakvenster'),
+'Today.SinceFeed': ('{0} since last feed', 'seit {0} nicht gefüttert', 'depuis {0} sans tétée', '{0} desde la última toma', '{0} dall’ultima poppata', '{0} od karmienia', '{0} sinds laatste voeding'),
+'Today.DailyProgress': ('Daily progress', 'Tagesverlauf', 'Progression du jour', 'Progreso diario', 'Progresso giornaliero', 'Postęp dnia', 'Dagelijkse voortgang'),
+'Today.ProgressFeeds': ('{0} of {1} feeds', '{0} von {1} Mahlzeiten', '{0} sur {1} tétées', '{0} de {1} tomas', '{0} su {1} poppate', '{0} z {1} karmień', '{0} van {1} voedingen'),
+'Today.ProgressDiapers': ('{0} of {1}+ diapers', '{0} von {1}+ Windeln', '{0} sur {1}+ couches', '{0} de {1}+ pañales', '{0} su {1}+ pannolini', '{0} z {1}+ pieluszek', '{0} van {1}+ luiers'),
+'Today.ProgressSleep': ('{0} of {1} sleep', '{0} von {1} Schlaf', '{0} sur {1} de sommeil', '{0} de {1} de sueño', '{0} su {1} di sonno', '{0} z {1} snu', '{0} van {1} slaap'),
+'Today.AdvisorTip': ('Tip of the day', 'Tipp des Tages', 'Conseil du jour', 'Consejo del día', 'Consiglio del giorno', 'Wskazówka dnia', 'Tip van de dag'),
+'Today.RecentActivity': ('Recent activity', 'Letzte Aktivitäten', 'Activité récente', 'Actividad reciente', 'Attività recente', 'Ostatnia aktywność', 'Recente activiteit'),
+'Today.SeeAllInLog': ('See full history in Log →', 'Ganzen Verlauf anzeigen →', 'Voir tout le journal →', 'Ver historial en Registro →', 'Vedi tutto nel Registro →', 'Zobacz wszystko w Dzienniku →', 'Bekijk alles in Logboek →'),
 'Who.You': ('You', 'Du', 'Vous', 'Tú', 'Tu', 'Ty', 'Jij'),
 'Who.Other': ('Another parent', 'Anderes Elternteil', 'Autre parent', 'Otro progenitor', 'Altro genitore', 'Drugi rodzic', 'Andere ouder'),
 

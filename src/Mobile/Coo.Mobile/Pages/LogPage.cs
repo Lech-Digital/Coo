@@ -204,11 +204,27 @@ public sealed class LogPage : ContentPage
         _renderedLanguage = Strings.Language;
         var pageHeader = new CooPageHeader(_services);
 
+        var totalsContainer = new ContentView
+        {
+            Padding = new Thickness(24, 0, 24, 0),
+            Content = totals,
+        };
+
         _body.Content = new VerticalStackLayout
         {
             Padding = new Thickness(0, 0, 0, 24),
             Spacing = 16,
-            Children = { pageHeader, new VerticalStackLayout { Padding = new Thickness(24, 0, 24, 0), Spacing = 16, Children = { header, _ribbon, legend, totals, timeline } } },
+            Children =
+            {
+                pageHeader,
+                totalsContainer,
+                new VerticalStackLayout
+                {
+                    Padding = new Thickness(24, 0, 24, 0),
+                    Spacing = 16,
+                    Children = { header, _ribbon, legend, timeline }
+                }
+            },
         };
 
         if (_sheet.IsVisible)

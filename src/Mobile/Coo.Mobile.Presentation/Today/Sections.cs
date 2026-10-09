@@ -229,7 +229,7 @@ public sealed partial class RunningSection(HomeActions actions) : ObservableObje
 /// <summary>Feed, Diaper, Sleep and Pump, with their "last at" lines (Spec 006 §4.4).</summary>
 public sealed partial class LogTilesSection(HomeActions actions) : ObservableObject, IHomeSection
 {
-    public int Order => 40;
+    public int Order => 10;
 
     [ObservableProperty]
     private IReadOnlyList<TileItem> _tiles = [];
@@ -263,15 +263,237 @@ public sealed partial class LogTilesSection(HomeActions actions) : ObservableObj
     }
 }
 
-/// <summary>Today's entries, newest first (Spec 006 §4.5).</summary>
-public sealed partial class TimelineSection : ObservableObject, IHomeSection
+/// <summary>Forward-looking card: next breast side, duration since feed, and next nap window estimate.</summary>
+public sealed partial class NextUpSection : ObservableObject, IHomeSection
 {
-    public int Order => 50;
+    public int Order => 35;
+
+    [ObservableProperty]
+    private string _nextSide = "";
+
+    [ObservableProperty]
+    private string _sinceFeed = "";
+
+    [ObservableProperty]
+    private string _nextNap = "";
+
+    [ObservableProperty]
+    private string _napWindow = "";
+
+    [ObservableProperty]
+    private bool _hasContent;
+
+    public bool AppliesTo(HomeStage stage, PaletteKind palette) => stage == HomeStage.Born && palette == PaletteKind.Day;
+
+    public void Update(HomeSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        var t = snapshot.Today;
+
+        // 1. Next breast side
+        if (t?.LastFeed is { Details: BreastFeed bf })
+        {
+            var nextBreast = bf.LastSide == BreastSide.Left ? BreastSide.Right : BreastSide.Left;
+            NextSide = Strings.Format("Today.NextSide", Formats.Side(nextBreast, shortForm: false));
+        }
+        else
+        {
+            NextSide = "";
+        }
+
+        // 2. Elapsed time since last feed
+        if (t?.LastFeed is { } feed)
+        {
+            var elapsed = snapshot.Now - feed.Timing.OccurredAt;
+            if (elapsed >= TimeSpan.Zero)
+                SinceFeed = Strings.Format("Today.SinceFeed", Formats.Duration(elapsed));
+            else
+                SinceFeed = "";
+        }
+        else
+        {
+            SinceFeed = "";
+        }
+
+        // 3. Nap window estimate
+        if (snapshot.Baby.IsBorn && snapshot.Baby.BirthDate is { } birthDate)
+        {
+            var daysOld = Math.Max(0, DateOnly.FromDateTime(snapshot.Now.LocalDateTime).DayNumber - birthDate.DayNumber);
+            var (minWakeMins, maxWakeMins) = GetWakeWindowMinutes(daysOld);
+            NapWindow = Strings.Format("Today.NapWindow", $"{minWakeMins}–{maxWakeMins}");
+
+            var awakeSince = t?.AwakeSince;
+            if (awakeSince is { } awake)
+            {
+                var estNapTime = awake.AddMinutes(maxWakeMins);
+                NextNap = Strings.Format("Today.NextNap", snapshot.Formats.Time(estNapTime));
+            }
+            else
+            {
+                NextNap = "";
+            }
+        }
+        else
+        {
+            NapWindow = "";
+            NextNap = "";
+        }
+
+        HasContent = !string.IsNullOrEmpty(NextSide) || !string.IsNullOrEmpty(SinceFeed) || !string.IsNullOrEmpty(NextNap);
+    }
+
+    internal static (int MinMinutes, int MaxMinutes) GetWakeWindowMinutes(int daysOld) => daysOld switch
+    {
+        < 14 => (30, 45),
+        < 45 => (45, 60),
+        < 90 => (60, 90),
+        < 150 => (90, 120),
+        < 240 => (120, 150),
+        < 365 => (150, 210),
+        < 545 => (240, 300),
+        _ => (300, 360)
+    };
+}
+
+/// <summary>Daily progress card: Feeds, Diapers, and Sleep totals vs age ranges.</summary>
+public sealed partial class DailyProgressSection : ObservableObject, IHomeSection
+{
+    public int Order => 45;
+
+    [ObservableProperty]
+    private string _feedsProgress = "";
+
+    [ObservableProperty]
+    private string _diapersProgress = "";
+
+    [ObservableProperty]
+    private string _sleepProgress = "";
+
+    [ObservableProperty]
+    private double _feedsRatio;
+
+    [ObservableProperty]
+    private double _diapersRatio;
+
+    [ObservableProperty]
+    private double _sleepRatio;
+
+    public bool AppliesTo(HomeStage stage, PaletteKind palette) => stage == HomeStage.Born && palette == PaletteKind.Day;
+
+    public void Update(HomeSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        var entries = snapshot.Today?.TodayEntries ?? [];
+
+        // Count totals
+        var feedsCount = 0;
+        var diapersCount = 0;
+        var sleepSpan = TimeSpan.Zero;
+
+        foreach (var stored in entries)
+        {
+            if (stored is LiveEntry live)
+            {
+                switch (live.Entry.Details)
+                {
+                    case FeedingDetails:
+                        feedsCount++;
+                        break;
+                    case DiaperDetails:
+                        diapersCount++;
+                        break;
+                    case SleepDetails:
+                        if (live.Entry.Timing is SessionTiming { Range: var r })
+                            sleepSpan += r.Duration(snapshot.Now);
+                        break;
+                }
+            }
+        }
+
+        var daysOld = snapshot.Baby.IsBorn && snapshot.Baby.BirthDate is { } b
+            ? Math.Max(0, DateOnly.FromDateTime(snapshot.Now.LocalDateTime).DayNumber - b.DayNumber)
+            : 30;
+
+        var (targetFeeds, targetDiapers, targetSleepHours) = GetTargets(daysOld);
+
+        FeedsProgress = Strings.Format("Today.ProgressFeeds", feedsCount, targetFeeds);
+        FeedsRatio = Math.Clamp(feedsCount / (double)targetFeeds, 0.0, 1.0);
+
+        DiapersProgress = Strings.Format("Today.ProgressDiapers", diapersCount, targetDiapers);
+        DiapersRatio = Math.Clamp(diapersCount / (double)targetDiapers, 0.0, 1.0);
+
+        var sleepHoursFormatted = Formats.Duration(sleepSpan);
+        SleepProgress = Strings.Format("Today.ProgressSleep", sleepHoursFormatted, $"{targetSleepHours}h");
+        SleepRatio = Math.Clamp(sleepSpan.TotalHours / targetSleepHours, 0.0, 1.0);
+    }
+
+    internal static (int Feeds, int Diapers, double SleepHours) GetTargets(int daysOld) => daysOld switch
+    {
+        < 14 => (8, 6, 16.0),
+        < 45 => (7, 6, 15.0),
+        < 90 => (6, 5, 14.5),
+        < 150 => (5, 5, 14.0),
+        < 240 => (5, 4, 13.5),
+        < 365 => (4, 4, 13.0),
+        _ => (3, 4, 12.0)
+    };
+}
+
+/// <summary>Tip of the day from Advisor knowledge base for the baby's exact age.</summary>
+public sealed partial class AdvisorTipSection : ObservableObject, IHomeSection
+{
+    public int Order => 55;
+
+    [ObservableProperty]
+    private string _stageBadge = "";
+
+    [ObservableProperty]
+    private string _tipText = "";
+
+    public bool AppliesTo(HomeStage stage, PaletteKind palette) => stage == HomeStage.Born && palette == PaletteKind.Day;
+
+    public void Update(HomeSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        var daysOld = snapshot.Baby.IsBorn && snapshot.Baby.BirthDate is { } b
+            ? Math.Max(0, DateOnly.FromDateTime(snapshot.Now.LocalDateTime).DayNumber - b.DayNumber)
+            : 14;
+
+        var info = Coo.Mobile.Presentation.Advisor.AdvisorKnowledgeBase.GetStage(daysOld);
+        StageBadge = info.StageBadge;
+        TipText = info.PediatricTip;
+    }
+}
+
+/// <summary>Compact recent activity (up to 3 entries) with "See full history in Log →".</summary>
+public sealed partial class RecentActivitySection : ObservableObject, IHomeSection
+{
+    public int Order => 65;
 
     [ObservableProperty]
     private IReadOnlyList<TimelineItem> _items = [];
 
     public bool AppliesTo(HomeStage stage, PaletteKind palette) => stage == HomeStage.Born && palette == PaletteKind.Day;
+
+    public void Update(HomeSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        IReadOnlyList<TimelineItem> next = [.. (snapshot.Today?.TodayEntries ?? []).Take(3).Select(e => TimelineSection.Row(e, snapshot))];
+        if (Running.Changed(Items, next, i => i.Time + i.Title + i.Who))
+            Items = next;
+    }
+}
+
+/// <summary>Today's entries, newest first (Spec 006 §4.5). Replaced on Today by dashboard cards; kept for tests and fallback.</summary>
+public sealed partial class TimelineSection : ObservableObject, IHomeSection
+{
+    public int Order => 999;
+
+    [ObservableProperty]
+    private IReadOnlyList<TimelineItem> _items = [];
+
+    // Removed from active Today rendering in favour of NextUp, DailyProgress, AdvisorTip, RecentActivity
+    public bool AppliesTo(HomeStage stage, PaletteKind palette) => false;
 
     public void Update(HomeSnapshot snapshot)
     {

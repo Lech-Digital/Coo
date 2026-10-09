@@ -144,10 +144,14 @@ public sealed class TodayPage : ContentPage
             LiveView.Release(old as IVisualTreeElement);
         _sections.Children.Clear();
         foreach (var section in _model.Sections)
-            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model)));
+            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model, SwitchToLog, SwitchToAdvisor)));
         _built = [.. _model.Sections];
         _builtLanguage = Strings.Language;
     }
+
+    private void SwitchToLog() => Dispatcher.Dispatch(async () => await Shell.Current.GoToAsync("//log"));
+
+    private void SwitchToAdvisor() => Dispatcher.Dispatch(async () => await Shell.Current.GoToAsync("//advisor"));
 
     private async void OpenEntry(EntryId id)
     {

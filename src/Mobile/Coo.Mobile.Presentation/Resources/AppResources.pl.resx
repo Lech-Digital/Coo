@@ -380,7 +380,19 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Toast.NothingUndone" xml:space="preserve"><value>Nic nie cofnięto: to już się zmieniło.</value></data>
   <data name="Toast.Saved" xml:space="preserve"><value>Zapisano · {0}</value></data>
   <data name="Toast.Undone" xml:space="preserve"><value>Cofnięto</value></data>
+  <data name="Today.AdvisorTip" xml:space="preserve"><value>Wskazówka dnia</value></data>
+  <data name="Today.DailyProgress" xml:space="preserve"><value>Postęp dnia</value></data>
+  <data name="Today.NapWindow" xml:space="preserve"><value>{0}m okno czuwania</value></data>
+  <data name="Today.NextNap" xml:space="preserve"><value>Następna drzemka ~{0}</value></data>
+  <data name="Today.NextSide" xml:space="preserve"><value>Następna strona: {0}</value></data>
+  <data name="Today.NextUp" xml:space="preserve"><value>Wkrótce</value></data>
   <data name="Today.Paused" xml:space="preserve"><value>Udostępnianie tej rodzinie jest wstrzymane. Twoje wpisy są bezpieczne na tym telefonie.</value></data>
+  <data name="Today.ProgressDiapers" xml:space="preserve"><value>{0} z {1}+ pieluszek</value></data>
+  <data name="Today.ProgressFeeds" xml:space="preserve"><value>{0} z {1} karmień</value></data>
+  <data name="Today.ProgressSleep" xml:space="preserve"><value>{0} z {1} snu</value></data>
+  <data name="Today.RecentActivity" xml:space="preserve"><value>Ostatnia aktywność</value></data>
+  <data name="Today.SeeAllInLog" xml:space="preserve"><value>Zobacz wszystko w Dzienniku →</value></data>
+  <data name="Today.SinceFeed" xml:space="preserve"><value>{0} od karmienia</value></data>
   <data name="Totals.Diapers.few" xml:space="preserve"><value>pieluchy</value></data>
   <data name="Totals.Diapers.many" xml:space="preserve"><value>pieluch</value></data>
   <data name="Totals.Diapers.one" xml:space="preserve"><value>pielucha</value></data>

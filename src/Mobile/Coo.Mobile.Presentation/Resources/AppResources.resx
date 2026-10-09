@@ -361,7 +361,19 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Toast.NothingUndone" xml:space="preserve"><value>Nothing was undone: it had already changed.</value></data>
   <data name="Toast.Saved" xml:space="preserve"><value>Saved · {0}</value></data>
   <data name="Toast.Undone" xml:space="preserve"><value>Undone</value></data>
+  <data name="Today.AdvisorTip" xml:space="preserve"><value>Tip of the day</value></data>
+  <data name="Today.DailyProgress" xml:space="preserve"><value>Daily progress</value></data>
+  <data name="Today.NapWindow" xml:space="preserve"><value>{0}m wake window</value></data>
+  <data name="Today.NextNap" xml:space="preserve"><value>Next nap ~{0}</value></data>
+  <data name="Today.NextSide" xml:space="preserve"><value>Next side: {0}</value></data>
+  <data name="Today.NextUp" xml:space="preserve"><value>Next up</value></data>
   <data name="Today.Paused" xml:space="preserve"><value>Sharing with this family is paused. Your entries are safe on this phone.</value></data>
+  <data name="Today.ProgressDiapers" xml:space="preserve"><value>{0} of {1}+ diapers</value></data>
+  <data name="Today.ProgressFeeds" xml:space="preserve"><value>{0} of {1} feeds</value></data>
+  <data name="Today.ProgressSleep" xml:space="preserve"><value>{0} of {1} sleep</value></data>
+  <data name="Today.RecentActivity" xml:space="preserve"><value>Recent activity</value></data>
+  <data name="Today.SeeAllInLog" xml:space="preserve"><value>See full history in Log →</value></data>
+  <data name="Today.SinceFeed" xml:space="preserve"><value>{0} since last feed</value></data>
   <data name="Totals.Diapers.one" xml:space="preserve"><value>diaper</value></data>
   <data name="Totals.Diapers.other" xml:space="preserve"><value>diapers</value></data>
   <data name="Totals.Feeds.one" xml:space="preserve"><value>feed</value></data>

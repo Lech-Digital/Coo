@@ -31,6 +31,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IHomeSection, AttentionSection>();
         services.AddSingleton<IHomeSection, RunningSection>();
         services.AddSingleton<IHomeSection, LogTilesSection>();
+        services.AddSingleton<IHomeSection, NextUpSection>();
+        services.AddSingleton<IHomeSection, DailyProgressSection>();
+        services.AddSingleton<IHomeSection, AdvisorTipSection>();
+        services.AddSingleton<IHomeSection, RecentActivitySection>();
         services.AddSingleton<IHomeSection, TimelineSection>();
         services.AddSingleton<IHomeSection, PausedSection>();
         services.AddSingleton<WhoLabelsSource>();
