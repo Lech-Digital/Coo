@@ -402,5 +402,27 @@ public sealed class StartupPage : ContentPage
     {
         await _services.GetRequiredService<Coo.Mobile.Presentation.Log.LogViewModel>().RefreshAsync();
         await _services.GetRequiredService<Coo.Mobile.Presentation.Settings.SettingsViewModel>().RefreshAsync();
+
+        // Check billing entitlement in background if household is available
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var households = _services.GetService<IHouseholdStore>();
+                var billing = _services.GetService<Coo.Mobile.Application.Billing.IBillingService>();
+                if (households != null && billing != null)
+                {
+                    var household = (await households.ListHouseholdsAsync(CancellationToken.None)).FirstOrDefault(h => !h.IsDeleted);
+                    if (household != null)
+                    {
+                        await billing.CheckEntitlementAsync(household.Id, CancellationToken.None);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to sync billing entitlement at start: {ex}");
+            }
+        });
     }
 }

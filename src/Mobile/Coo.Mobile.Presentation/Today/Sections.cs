@@ -322,6 +322,15 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
     [ObservableProperty]
     private string _babyName = "";
 
+    [ObservableProperty]
+    private string _initial = "";
+
+    [ObservableProperty]
+    private string _age = "";
+
+    [ObservableProperty]
+    private bool _isPremium;
+
     /// <summary>
     /// Every running timer, active care first: during a dream feed both the feed and the sleep run, and the feed's
     /// Switch side and Stop must be reachable at night (Spec 006 §5a, found on the phone).
@@ -344,6 +353,9 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
         var t = s.Today;
         Title = Strings.Format("Night.Title", s.Formats.Time(s.Now));
         BabyName = s.Baby.Name;
+        Initial = s.Baby.Name.Length > 0 ? s.Baby.Name[..1].ToUpper(Strings.Culture) : "";
+        Age = s.Baby.IsBorn ? Formats.Age(s.Baby, DateOnly.FromDateTime(s.Now.LocalDateTime)) : Strings.Get("Expecting.Eyebrow");
+        IsPremium = s.IsPremium;
         var running = (t?.Running ?? []).OrderBy(e => e.Details is SleepDetails ? 1 : 0).ThenBy(e => e.Timing.OccurredAt);
         var timers = running.Select(e => Running.Item(e, s, actions, Timers.FirstOrDefault(i => i.Id == e.Id))).ToList();
         if (Running.Changed(Timers, timers, i => i.Id + i.Language))
@@ -355,6 +367,7 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
             _ => Running.LastFeed(f, s),
         } : Strings.Get("Tile.Never");
         var sleeping = t?.Running.FirstOrDefault(e => e.Details is SleepDetails);
+        var runningPump = t?.Running.FirstOrDefault(e => e.Details is PumpDetails);
         IReadOnlyList<FactItem> facts =
         [
             new("feeding", Strings.Get("Night.LastFeed"), feed),
@@ -362,6 +375,7 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
             sleeping is not null
                 ? new("sleep", Strings.Get("Night.AsleepSince"), s.Formats.Time(sleeping.Timing.OccurredAt))
                 : new("sleep", Strings.Get("Night.AwakeSince"), t?.AwakeSince is { } a ? s.Formats.Time(a) : Strings.Get("Tile.Never")),
+            new("pump", Strings.Get("Kind.Pump"), t?.LastPump is { Timing.IsInProgress: true } ? Strings.Get("Tile.Running") : t?.LastPump is { } p ? s.Formats.Time(p.Timing.OccurredAt) : Strings.Get("Tile.Never")),
         ];
 
         facts = [.. facts.Where(f => KindVisibility.IsShown(s.Household, f.KindCode))];
@@ -380,6 +394,9 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
                 actions.RequestSheet(HomeSheet.Bottle);
                 return Task.CompletedTask;
             })),
+            runningPump is not null
+                ? new("pump", Strings.Get("Action.Stop") ?? "Stop", new AsyncRelayCommand(() => { actions.RequestPumpYield(runningPump.Id); return Task.CompletedTask; }))
+                : new("pump", Strings.Get("Kind.Pump"), new AsyncRelayCommand(actions.StartPumpAsync)),
             sleeping is not null
                 ? new("sleep", Strings.Get("Action.WokeUp"), new AsyncRelayCommand(() => actions.EndSessionAsync(sleeping.Id)))
                 : new("sleep", Strings.Get("Kind.Sleep"), new AsyncRelayCommand(actions.StartSleepAsync)),

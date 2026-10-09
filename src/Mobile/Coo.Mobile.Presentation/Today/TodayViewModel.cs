@@ -119,6 +119,8 @@ public sealed partial class TodayViewModel : ObservableObject
     /// <summary>Today's local date from the injected clock, for date pickers' upper bound.</summary>
     public DateTime Today => _time.GetLocalNow().Date;
 
+    public BabyProfile? Baby => _baby;
+
     public HomeStage Stage => _baby?.IsBorn == false ? HomeStage.Expecting : HomeStage.Born;
 
     /// <summary>True when the household has no baby yet: the host shows setup (Spec 006 §3).</summary>
@@ -138,10 +140,11 @@ public sealed partial class TodayViewModel : ObservableObject
         if (_household is null)
             return;
 
-        var babies = await _households.ListBabiesAsync(_household.Id, CancellationToken.None);
+        var babies = (await _households.ListBabiesAsync(_household.Id, CancellationToken.None)).Where(b => !b.IsDeleted).ToList();
         _baby = babies.Count > 0 ? babies[0] : null;
         NeedsSetup = _baby is null;
         OnPropertyChanged(nameof(NeedsSetup));
+        OnPropertyChanged(nameof(Baby));
         if (_baby is null)
             return;
 

@@ -68,10 +68,17 @@ public partial class AdvisorViewModel(
     {
         await RefreshThreadsAsync();
 
-        var session = await sessionStore.GetAsync(CancellationToken.None);
-        if (session != null)
+        var household = (await householdStore.ListHouseholdsAsync(CancellationToken.None)).FirstOrDefault(h => !h.IsDeleted);
+        var householdId = household?.Id;
+        if (householdId == null)
         {
-            var babies = await householdStore.ListBabiesAsync(session.AccountHousehold, CancellationToken.None);
+            var session = await sessionStore.GetAsync(CancellationToken.None);
+            householdId = session?.AccountHousehold;
+        }
+
+        if (householdId != null)
+        {
+            var babies = await householdStore.ListBabiesAsync(householdId.Value, CancellationToken.None);
             var baby = babies.FirstOrDefault(b => !b.IsDeleted);
             if (baby?.BirthDate is { } birthDate)
             {

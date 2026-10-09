@@ -97,6 +97,29 @@ public sealed class HiddenKindsTests
         requested.Should().Be(HomeSheet.Bottle);
     }
 
+    [Fact]
+    public void Update_Night_OffersPumpThatStartsPumping()
+    {
+        var actions = Actions();
+        var section = new NightSection(actions);
+        section.Update(Snapshot(Settings(), Summary([]), PaletteKind.Night));
+        var pump = section.Quick.Single(q => q.Label == "Pump");
+
+        // Act & Assert
+        pump.KindCode.Should().Be("pump");
+        section.Facts.Select(f => f.KindCode).Should().Contain("pump");
+    }
+
+    [Fact]
+    public void Update_NightWithPumpHidden_HasNoPumpFactOrButtons()
+    {
+        var section = new NightSection(Actions());
+        section.Update(Snapshot(Settings("pump"), Summary([]), PaletteKind.Night));
+
+        section.Facts.Select(f => f.KindCode).Should().NotContain("pump");
+        section.Quick.Select(q => q.KindCode).Should().NotContain("pump");
+    }
+
     private HomeActions Actions()
     {
         var time = new FixedTime(Now);

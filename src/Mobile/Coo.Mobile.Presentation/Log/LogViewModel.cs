@@ -59,7 +59,7 @@ public sealed partial class LogViewModel(
         var household = (await households.ListHouseholdsAsync(CancellationToken.None)).FirstOrDefault(h => !h.IsDeleted);
         if (household is null)
             return;
-        var babies = await households.ListBabiesAsync(household.Id, CancellationToken.None);
+        var babies = (await households.ListBabiesAsync(household.Id, CancellationToken.None)).Where(b => !b.IsDeleted).ToList();
         if (babies.Count == 0)
             return;
         var baby = babies[0];
@@ -69,9 +69,10 @@ public sealed partial class LogViewModel(
         // page does not redraw (reviewer's finding, after the owner's Pixel 10 finding).
         var now = time.GetLocalNow();
         now = now.AddTicks(-(now.Ticks % TimeSpan.TicksPerMinute));
+        var today = DateOnly.FromDateTime(now.DateTime);
+
         var day = await getDay.ExecuteAsync(household.Id, baby.Id, Date, zone, now, CancellationToken.None);
         var formats = new Formats(clock.Is24Hour, household.VolumeUnit);
-        var today = DateOnly.FromDateTime(now.DateTime);
 
         Title = Date == today ? Strings.Get("Section.Today") : Date.ToString("dddd d MMMM", Strings.Culture);
         CanGoNext = Date < today;
@@ -114,6 +115,12 @@ public sealed partial class LogViewModel(
             return Task.CompletedTask;
         Date = Date.AddDays(1);
         return RefreshAsync();
+    }
+
+    /// <summary>Resets viewing date to current local day if needed (e.g. overnight transition).</summary>
+    public void ResetToToday()
+    {
+        Date = DateOnly.FromDateTime(time.GetLocalNow().DateTime);
     }
 
     /// <summary>

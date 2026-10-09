@@ -11,15 +11,13 @@ namespace Coo.Mobile.Pages;
 public sealed class AdvisorPage : ContentPage
 {
     private readonly AdvisorViewModel _model;
-    private readonly IBillingService _billing;
-    private readonly ThemeController _theme;
-    private readonly ContentView _brandContainer = new();
+    private readonly IServiceProvider _services;
+    private CooPageHeader? _pageHeader;
 
-    public AdvisorPage(AdvisorViewModel model, IBillingService billing, ThemeController theme)
+    public AdvisorPage(AdvisorViewModel model, IServiceProvider services)
     {
         _model = model;
-        _billing = billing;
-        _theme = theme;
+        _services = services;
         BindingContext = model;
         Shell.SetNavBarIsVisible(this, false);
         SetupUi();
@@ -28,75 +26,54 @@ public sealed class AdvisorPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        _billing.EntitlementChanged += UpdateBrandMark;
-        _theme.PaletteChanged += OnPaletteChanged;
-        UpdateBrandMark();
+        _pageHeader?.Refresh();
         await _model.InitializeAsync();
-    }
-
-    protected override void OnDisappearing()
-    {
-        base.OnDisappearing();
-        _billing.EntitlementChanged -= UpdateBrandMark;
-        _theme.PaletteChanged -= OnPaletteChanged;
-    }
-
-    private void OnPaletteChanged(object? sender, PaletteKind e) => UpdateBrandMark();
-
-    private void UpdateBrandMark()
-    {
-        Dispatcher.Dispatch(() =>
-        {
-            var isNight = _theme.Current == PaletteKind.Night;
-            _brandContainer.Content = CooBrand.CreateMark(_billing.IsPremiumCached, isNight, fontSize: 24);
-        });
     }
 
     private void SetupUi()
     {
-        UpdateBrandMark();
+        // 1. Shared standard Page Header
+        _pageHeader = new CooPageHeader(_services);
 
-        // 1. Top Header
-        var historyButton = new Button
+        // Subheader action bar for Advisor (History drawer button + New chat button)
+        var historyIcon = new Label
         {
-            Text = "History",
-            FontFamily = "FigtreeBold",
+            Text = "📜 History",
+            FontFamily = "FigtreeMedium",
             FontSize = 13,
-            Padding = new Thickness(12, 4),
-            HeightRequest = 36,
             VerticalOptions = LayoutOptions.Center
         };
-        historyButton.SetDynamicResource(Button.TextColorProperty, "Ink");
-        historyButton.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
-        historyButton.SetBinding(Button.CommandProperty, "ToggleHistoryCommand");
+        historyIcon.SetDynamicResource(Label.TextColorProperty, "Ink");
 
-        var newChatButton = new Button
+        var historyButton = Ui.Rounded(historyIcon, "Surface", 999, new Thickness(12, 6), "Line");
+        historyButton.GestureRecognizers.Add(new TapGestureRecognizer
+        {
+            Command = new Command(() => _model.ToggleHistoryCommand.Execute(null))
+        });
+
+        var newChatIcon = new Label
         {
             Text = "+ New",
             FontFamily = "FigtreeBold",
             FontSize = 13,
-            Padding = new Thickness(12, 4),
-            HeightRequest = 36,
             VerticalOptions = LayoutOptions.Center
         };
-        newChatButton.SetDynamicResource(Button.TextColorProperty, "Accent");
-        newChatButton.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
-        newChatButton.SetBinding(Button.CommandProperty, "ResetChatCommand");
+        newChatIcon.SetDynamicResource(Label.TextColorProperty, "Accent");
 
-        var headerButtons = new HorizontalStackLayout
+        var newChatButton = Ui.Rounded(newChatIcon, "Surface", 999, new Thickness(14, 6), "Line");
+        newChatButton.GestureRecognizers.Add(new TapGestureRecognizer
         {
-            Spacing = 8,
-            VerticalOptions = LayoutOptions.Center,
-            Children = { historyButton, newChatButton }
-        };
+            Command = new Command(() => _model.ResetChatCommand.Execute(null))
+        });
 
-        var topBar = new Grid
+        var subheaderBar = new Grid
         {
             ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)],
-            Margin = new Thickness(0, 0, 0, 12)
+            ColumnSpacing = 8,
+            Margin = new Thickness(0, 0, 0, 10),
+            Children = { historyButton, newChatButton }
         };
-        topBar.Add(_brandContainer, 0);
-        topBar.Add(headerButtons, 1);
+        Grid.SetColumn(newChatButton, 1);
 
         // 2. Subtitle
         var titleLabel = new Label
@@ -431,27 +408,76 @@ public sealed class AdvisorPage : ContentPage
         };
         bottomContainer.SetBinding(VisualElement.IsVisibleProperty, new Binding("IsHistoryOpen", converter: new InverseBoolConverter()));
 
-        // Content Scrollable Header
-        var scrollHeader = new VerticalStackLayout
+        // 5. Welcome View (when !HasStartedChat)
+        var welcomeContent = new VerticalStackLayout
         {
-            Children = { topBar, titleLabel, subtitleLabel, milestonesCard, pillsContainer }
+            Spacing = 8,
+            Children = { titleLabel, subtitleLabel, milestonesCard, pillsContainer }
         };
-        messagesCollection.Header = scrollHeader;
+        var welcomeScrollView = new ScrollView
+        {
+            Content = welcomeContent
+        };
+        welcomeScrollView.SetBinding(VisualElement.IsVisibleProperty, new Binding("HasStartedChat", converter: new InverseBoolConverter()));
+
+        // Content Scrollable Header for active chat (only title & subtitle when chatting)
+        var chatTitleLabel = new Label
+        {
+            Text = "Conversation",
+            FontFamily = "FigtreeBold",
+            FontSize = 20,
+            Margin = new Thickness(0, 0, 0, 2)
+        };
+        chatTitleLabel.SetDynamicResource(Label.TextColorProperty, "Ink");
+
+        var chatSubtitleLabel = new Label
+        {
+            Text = "Powered by Google Gemini · Pediatric & milestone guidance",
+            FontFamily = "FigtreeRegular",
+            FontSize = 13,
+            Margin = new Thickness(0, 0, 0, 12)
+        };
+        chatSubtitleLabel.SetDynamicResource(Label.TextColorProperty, "Ink2");
+
+        var chatHeader = new VerticalStackLayout
+        {
+            Children = { chatTitleLabel, chatSubtitleLabel }
+        };
+        messagesCollection.Header = chatHeader;
 
         // Main Layout
         var chatLayout = new Grid
         {
-            RowDefinitions = [new(GridLength.Star), new(GridLength.Auto)],
+            RowDefinitions = [new(GridLength.Auto), new(GridLength.Star)],
             RowSpacing = 0
         };
-        chatLayout.Add(messagesCollection, 0, 0);
-        chatLayout.Add(bottomContainer, 0, 1);
+        chatLayout.Add(_pageHeader!, 0, 0);
+
+        var contentContainer = new Grid
+        {
+            Padding = new Thickness(24, 0, 24, 0),
+            RowDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)],
+            Children = { subheaderBar, welcomeScrollView, messagesCollection, bottomContainer }
+        };
+        Grid.SetRow(subheaderBar, 0);
+        Grid.SetRow(welcomeScrollView, 1);
+        Grid.SetRow(messagesCollection, 1);
+        Grid.SetRow(bottomContainer, 2);
+
+        chatLayout.Add(contentContainer, 0, 1);
         chatLayout.SetBinding(VisualElement.IsVisibleProperty, new Binding("IsHistoryOpen", converter: new InverseBoolConverter()));
+
+        var historyContainer = new ContentView
+        {
+            Padding = new Thickness(24, 16, 24, 20),
+            Content = historyLayout
+        };
+        historyContainer.SetBinding(VisualElement.IsVisibleProperty, "IsHistoryOpen");
 
         var rootGrid = new Grid
         {
-            Padding = new Thickness(24, 40, 24, 20),
-            Children = { chatLayout, historyLayout }
+            Padding = new Thickness(0, 0, 0, 20),
+            Children = { chatLayout, historyContainer }
         };
 
         Content = rootGrid;

@@ -300,12 +300,22 @@ internal static class SectionViews
 
     private static View Night(NightSection s, SectionHost host)
     {
-        var title = Bound(s, nameof(NightSection.Title), "Meta");
-        AttachLongPress(title, host.OpenDebug);
-        var top = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto)], ColumnSpacing = 4, Padding = new Thickness(24, 16, 24, 0) };
-        top.Add(title.Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
+        var mark = CooBrand.CreateMark(s.IsPremium, host.Today.IsNight, longPress: host.OpenDebug, fontSize: 24);
+
+        var initial = Ui.Rounded(Ui.Text(s.Initial, "Meta", "CheekInk").Tap(l => { l.FontFamily = "FigtreeBold"; l.HorizontalOptions = LayoutOptions.Center; }), "Cheek", 999, new Thickness(0));
+        initial.WidthRequest = 28;
+        initial.HeightRequest = 28;
+
+        var chip = Ui.Rounded(new HorizontalStackLayout
+        {
+            Spacing = 8,
+            Children = { initial, Ui.Text($"{s.BabyName} · {s.Age}", "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center) },
+        }, "Surface", 999, new Thickness(6, 6, 14, 6), "Line");
+
+        var top = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto)], ColumnSpacing = 4, Padding = new Thickness(24, 16, 24, 8) };
+        top.Add(mark, 0);
         top.Add(ThemeSwitch(host), 1);
-        top.Add(Ui.Rounded(Ui.Text(s.BabyName, "BodyStrong"), "Surface", 999, new Thickness(14, 8), "Line"), 2);
+        top.Add(chip, 2);
 
         var stack = new VerticalStackLayout { Spacing = 20 };
         stack.Add(top);

@@ -1,0 +1,203 @@
+using Coo.Mobile.Application.Billing;
+using Coo.Mobile.Application.Households;
+using Coo.Mobile.Presentation.Formatting;
+using Coo.Mobile.Presentation.Localization;
+using Coo.Mobile.Presentation.Theme;
+using Coo.Mobile.Presentation.Today;
+
+namespace Coo.Mobile.Components;
+
+/// <summary>
+/// A shared top header across the main tabs (Today, Log, Advisor, Settings).
+/// Consistent height and margins: left brand mark ("coo" / "coo Premium" in gold),
+/// center/right theme switch (day/night toggle), baby chip (initial + name · age), and optional action buttons.
+/// </summary>
+public sealed class CooPageHeader : Grid
+{
+    private readonly IServiceProvider _services;
+    private readonly ContentView _brandContainer = new();
+    private readonly ContentView _themeSwitchContainer = new();
+    private readonly ContentView _babyChipContainer = new();
+    private readonly HorizontalStackLayout _actionsLayout = new() { Spacing = 8, VerticalOptions = LayoutOptions.Center };
+
+    private IBillingService? _billing;
+    private ThemeController? _theme;
+    private IHouseholdStore? _households;
+    private Action? _longPressBrand;
+
+    public CooPageHeader(IServiceProvider services, Action? longPressBrand = null, IEnumerable<View>? additionalActions = null)
+    {
+        _services = services;
+        _longPressBrand = longPressBrand;
+
+        ColumnDefinitions =
+        [
+            new ColumnDefinition(GridLength.Auto),
+            new ColumnDefinition(GridLength.Star),
+            new ColumnDefinition(GridLength.Auto),
+        ];
+        ColumnSpacing = 4;
+        Padding = new Thickness(24, 16, 24, 8);
+
+        _brandContainer.VerticalOptions = LayoutOptions.Center;
+        _themeSwitchContainer.VerticalOptions = LayoutOptions.Center;
+        _babyChipContainer.VerticalOptions = LayoutOptions.Center;
+
+        var rightStack = new HorizontalStackLayout
+        {
+            Spacing = 4,
+            VerticalOptions = LayoutOptions.Center,
+            HorizontalOptions = LayoutOptions.End,
+            Children = { _actionsLayout, _themeSwitchContainer, _babyChipContainer }
+        };
+
+        Grid.SetColumn((BindableObject)_brandContainer, 0);
+        Grid.SetColumn((BindableObject)rightStack, 2);
+        Children.Add(_brandContainer);
+        Children.Add(rightStack);
+
+        if (additionalActions != null)
+        {
+            foreach (var action in additionalActions)
+                _actionsLayout.Add(action);
+        }
+
+        AttachServices();
+    }
+
+    public void AddAction(View action) => _actionsLayout.Add(action);
+
+    public void AttachServices()
+    {
+        _billing = _services.GetService<IBillingService>();
+        _theme = _services.GetService<ThemeController>();
+        _households = _services.GetService<IHouseholdStore>();
+
+        if (_billing != null)
+            _billing.EntitlementChanged += OnEntitlementChanged;
+
+        if (_theme != null)
+            _theme.PaletteChanged += OnPaletteChanged;
+
+        UpdateBrand();
+        UpdateThemeSwitch();
+        _ = UpdateBabyChipAsync();
+    }
+
+    public void DetachServices()
+    {
+        if (_billing != null)
+            _billing.EntitlementChanged -= OnEntitlementChanged;
+
+        if (_theme != null)
+            _theme.PaletteChanged -= OnPaletteChanged;
+    }
+
+    private void OnEntitlementChanged() => Dispatcher.Dispatch(() =>
+    {
+        UpdateBrand();
+    });
+
+    private void OnPaletteChanged(object? sender, PaletteKind e) => Dispatcher.Dispatch(() =>
+    {
+        UpdateBrand();
+        UpdateThemeSwitch();
+    });
+
+    public void Refresh()
+    {
+        UpdateBrand();
+        UpdateThemeSwitch();
+        _ = UpdateBabyChipAsync();
+    }
+
+    private void UpdateBrand()
+    {
+        var isPremium = _billing?.IsPremiumCached ?? false;
+        var isNight = _theme?.Current == PaletteKind.Night;
+        _brandContainer.Content = CooBrand.CreateMark(isPremium, isNight, _longPressBrand, fontSize: 24);
+    }
+
+    private void UpdateThemeSwitch()
+    {
+        if (_theme == null)
+            return;
+
+        var isNight = _theme.Current == PaletteKind.Night;
+        var icon = new Icon(isNight ? IconGeometry.Sun : IconGeometry.Sleep, "Ink2")
+            .Tap(i => { i.HorizontalOptions = LayoutOptions.Center; i.VerticalOptions = LayoutOptions.Center; });
+
+        var button = new ContentView
+        {
+            Content = icon,
+            WidthRequest = 44,
+            HeightRequest = 44,
+            VerticalOptions = LayoutOptions.Center,
+        };
+        SemanticProperties.SetDescription(button, Strings.Get(isNight ? "Theme.ToDay" : "Theme.ToNight"));
+        button.GestureRecognizers.Add(new TapGestureRecognizer
+        {
+            Command = new Command(async () => await _theme.ToggleAsync(CancellationToken.None))
+        });
+
+        _themeSwitchContainer.Content = button;
+    }
+
+    private async Task UpdateBabyChipAsync()
+    {
+        if (_households == null)
+            return;
+
+        try
+        {
+            var household = (await _households.ListHouseholdsAsync(CancellationToken.None)).FirstOrDefault(h => !h.IsDeleted);
+            if (household == null)
+            {
+                Dispatcher.Dispatch(() => _babyChipContainer.Content = null);
+                return;
+            }
+
+            var babies = (await _households.ListBabiesAsync(household.Id, CancellationToken.None)).Where(b => !b.IsDeleted).ToList();
+            if (babies.Count == 0)
+            {
+                Dispatcher.Dispatch(() => _babyChipContainer.Content = null);
+                return;
+            }
+
+            var baby = babies[0];
+            var babyName = baby.Name;
+            var initialText = babyName.Length > 0 ? babyName[..1].ToUpper(Strings.Culture) : "";
+            var time = _services.GetService<TimeProvider>() ?? TimeProvider.System;
+            var ageText = baby.IsBorn
+                ? Formats.Age(baby, DateOnly.FromDateTime(time.GetLocalNow().DateTime))
+                : Strings.Get("Expecting.Eyebrow");
+
+            Dispatcher.Dispatch(() =>
+            {
+                var initial = Ui.Rounded(Ui.Text(initialText, "Meta", "CheekInk").Tap(l =>
+                {
+                    l.FontFamily = "FigtreeBold";
+                    l.HorizontalOptions = LayoutOptions.Center;
+                }), "Cheek", 999, new Thickness(0));
+                initial.WidthRequest = 28;
+                initial.HeightRequest = 28;
+
+                var chipContent = new HorizontalStackLayout
+                {
+                    Spacing = 8,
+                    Children =
+                    {
+                        initial,
+                        Ui.Text($"{babyName} · {ageText}", "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center)
+                    }
+                };
+
+                _babyChipContainer.Content = Ui.Rounded(chipContent, "Surface", 999, new Thickness(6, 6, 14, 6), "Line");
+            });
+        }
+        catch (Exception)
+        {
+            // Keep existing chip on any store reading error
+        }
+    }
+}

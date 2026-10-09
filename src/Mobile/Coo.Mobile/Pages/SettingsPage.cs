@@ -243,26 +243,31 @@ public sealed class SettingsPage : ContentPage
     {
         // The time pickers write back while the page is built; those writes are not edits.
         _rendering = true;
-        var stack = new VerticalStackLayout { Spacing = 12, Padding = new Thickness(24, 32, 24, 96) };
-        var billing = _services.GetService<Coo.Mobile.Application.Billing.IBillingService>();
-        var isPremium = billing?.IsPremiumCached ?? false;
-        var theme = _services.GetService<ThemeController>();
-        var isNight = theme?.Current == PaletteKind.Night;
-        var brandMark = CooBrand.CreateMark(isPremium, isNight, fontSize: 24);
-        stack.Add(new Grid { Margin = new Thickness(0, 0, 0, 4), Children = { brandMark } });
-        stack.Add(Ui.Text(Strings.Get("Tab.Settings"), "Title"));
+        var pageHeader = new CooPageHeader(_services);
+        var titleRow = new Grid { HeightRequest = 48 };
+        titleRow.Add(Ui.Text(Strings.Get("Tab.Settings"), "Title").Tap(l => l.VerticalOptions = LayoutOptions.Center));
+
+        var contentStack = new VerticalStackLayout { Spacing = 16, Padding = new Thickness(24, 0, 24, 0) };
+        contentStack.Add(titleRow);
+
+        var stack = new VerticalStackLayout
+        {
+            Padding = new Thickness(0, 0, 0, 96),
+            Spacing = 16,
+            Children = { pageHeader, contentStack }
+        };
 
         foreach (var view in AccountViews())
-            stack.Add(view);
+            contentStack.Add(view);
         foreach (var view in FamilyViews())
-            stack.Add(view);
+            contentStack.Add(view);
 
-        stack.Add(Header("Settings.Baby"));
-        stack.Add(Row(
+        contentStack.Add(Header("Settings.Baby"));
+        contentStack.Add(Row(
             new VerticalStackLayout { Children = { Ui.Text(_model.BabyName, "BodyStrong"), Ui.Text(_model.BabyLine, "Meta", "Ink2") } },
             async () => await Navigation.PushAsync(_services.GetRequiredService<BabyPage>())));
 
-        stack.Add(Header("Settings.Kinds"));
+        contentStack.Add(Header("Settings.Kinds"));
         var kinds = new VerticalStackLayout { Spacing = 4 };
         foreach (var kind in _model.Kinds)
         {
@@ -280,11 +285,11 @@ public sealed class SettingsPage : ContentPage
             kinds.Add(line);
         }
 
-        stack.Add(new Card(kinds));
-        stack.Add(Hint("Settings.KindsHint"));
+        contentStack.Add(new Card(kinds));
+        contentStack.Add(Hint("Settings.KindsHint"));
 
-        stack.Add(Header("Settings.Units"));
-        stack.Add(new Card(new VerticalStackLayout
+        contentStack.Add(Header("Settings.Units"));
+        contentStack.Add(new Card(new VerticalStackLayout
         {
             Spacing = 10,
             Children =
@@ -295,12 +300,12 @@ public sealed class SettingsPage : ContentPage
                     (Strings.Get("Unit.Oz"), _model.IsOunces, () => _model.SetUnitCommand.Execute(VolumeUnit.Ounces))),
             },
         }));
-        stack.Add(Hint("Settings.ClockHint"));
+        contentStack.Add(Hint("Settings.ClockHint"));
 
-        stack.Add(Header("Premium"));
-        stack.Add(Row(Ui.Text(Strings.Get("Premium.Title") ?? "Coo Premium", "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<PremiumPage>())));
+        contentStack.Add(Header("Premium"));
+        contentStack.Add(Row(Ui.Text(Strings.Get("Premium.Title") ?? "Coo Premium", "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<PremiumPage>())));
 
-        stack.Add(Header("Settings.Appearance"));
+        contentStack.Add(Header("Settings.Appearance"));
         var start = TimePicker(_model.QuietStart, t => _model.QuietStart = t);
         var end = TimePicker(_model.QuietEnd, t => _model.QuietEnd = t);
         var quiet = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 10 };
@@ -308,7 +313,7 @@ public sealed class SettingsPage : ContentPage
         quiet.Add(Ui.Rounded(start, "Ground", 12, new Thickness(12, 4), "Line"), 1);
         quiet.Add(Ui.Text(Strings.Get("Settings.QuietTo"), "Label", "Ink2").Tap(l => l.VerticalOptions = LayoutOptions.Center), 2);
         quiet.Add(Ui.Rounded(end, "Ground", 12, new Thickness(12, 4), "Line"), 3);
-        stack.Add(new Card(new VerticalStackLayout
+        contentStack.Add(new Card(new VerticalStackLayout
         {
             Spacing = 10,
             Children =
@@ -324,14 +329,14 @@ public sealed class SettingsPage : ContentPage
             },
         }));
 
-        stack.Add(Header("Settings.Language"));
-        stack.Add(Row(Ui.Text(_model.LanguageLabel, "Body"), ChooseLanguageAsync));
+        contentStack.Add(Header("Settings.Language"));
+        contentStack.Add(Row(Ui.Text(_model.LanguageLabel, "Body"), ChooseLanguageAsync));
 
-        stack.Add(Header("Settings.About"));
-        stack.Add(Ui.Text(_model.VersionLine, "Meta", "Ink2"));
-        stack.Add(Row(Ui.Text(Strings.Get("Settings.Licences"), "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<LicencesPage>())));
-        stack.Add(Row(Ui.Text(Strings.Get("Settings.Feedback"), "Body"), () => _model.SendFeedbackCommand.ExecuteAsync(null)));
-        stack.Add(Row(Ui.Text(Strings.Get("Settings.Privacy"), "Body"), () => _model.OpenPrivacyCommand.ExecuteAsync(null)));
+        contentStack.Add(Header("Settings.About"));
+        contentStack.Add(Ui.Text(_model.VersionLine, "Meta", "Ink2"));
+        contentStack.Add(Row(Ui.Text(Strings.Get("Settings.Licences"), "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<LicencesPage>())));
+        contentStack.Add(Row(Ui.Text(Strings.Get("Settings.Feedback"), "Body"), () => _model.SendFeedbackCommand.ExecuteAsync(null)));
+        contentStack.Add(Row(Ui.Text(Strings.Get("Settings.Privacy"), "Body"), () => _model.OpenPrivacyCommand.ExecuteAsync(null)));
 
         _body.Content = stack;
         _renderedLanguage = Strings.Language;

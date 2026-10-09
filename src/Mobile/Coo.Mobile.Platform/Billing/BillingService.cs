@@ -7,8 +7,9 @@ namespace Coo.Mobile.Platform.Billing;
 public class BillingService : IBillingService
 {
     private const string SubscriptionId = "premium_subscription";
+    private const string PremiumPreferenceKey = "billing.is_premium";
 
-    public bool IsPremiumCached { get; private set; }
+    public bool IsPremiumCached { get; private set; } = Microsoft.Maui.Storage.Preferences.Default.Get(PremiumPreferenceKey, false);
 
     public event Action? EntitlementChanged;
 
@@ -17,6 +18,7 @@ public class BillingService : IBillingService
         if (IsPremiumCached != isPremium)
         {
             IsPremiumCached = isPremium;
+            Microsoft.Maui.Storage.Preferences.Default.Set(PremiumPreferenceKey, isPremium);
             EntitlementChanged?.Invoke();
         }
     }
@@ -68,6 +70,7 @@ public class BillingService : IBillingService
                 }
                 var wasPremium = IsPremiumCached;
                 IsPremiumCached = true;
+                Microsoft.Maui.Storage.Preferences.Default.Set(PremiumPreferenceKey, true);
                 if (!wasPremium)
                     EntitlementChanged?.Invoke();
                 return true;
@@ -104,6 +107,7 @@ public class BillingService : IBillingService
             {
                 hadChange = !IsPremiumCached;
                 IsPremiumCached = true;
+                Microsoft.Maui.Storage.Preferences.Default.Set(PremiumPreferenceKey, true);
                 if (hadChange)
                     EntitlementChanged?.Invoke();
                 return true;
@@ -112,6 +116,7 @@ public class BillingService : IBillingService
             
             hadChange = IsPremiumCached;
             IsPremiumCached = false;
+            Microsoft.Maui.Storage.Preferences.Default.Set(PremiumPreferenceKey, false);
             if (hadChange)
                 EntitlementChanged?.Invoke();
             return false;

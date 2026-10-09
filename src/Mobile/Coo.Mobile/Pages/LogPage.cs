@@ -79,6 +79,8 @@ public sealed class LogPage : ContentPage
             Render();
         else
             ShowRibbon();
+        if (!_model.CanGoNext)
+            _model.ResetToToday();
         await _model.RefreshAsync();
         if (_renderedLanguage != Strings.Language)
             QueueRender();
@@ -161,7 +163,7 @@ public sealed class LogPage : ContentPage
             return circle;
         }
 
-        var header = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto)], ColumnSpacing = 8 };
+        var header = new Grid { HeightRequest = 48, ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto)], ColumnSpacing = 8 };
         header.Add(Ui.Text(_model.Title, "Title").Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
         header.Add(Nav(IconGeometry.ChevronLeft, _model.PreviousCommand, true), 1);
         header.Add(Nav(IconGeometry.ChevronRight, _model.NextCommand, _model.CanGoNext), 2);
@@ -200,21 +202,13 @@ public sealed class LogPage : ContentPage
         }
 
         _renderedLanguage = Strings.Language;
-        var billing = _services.GetService<Coo.Mobile.Application.Billing.IBillingService>();
-        var isPremium = billing?.IsPremiumCached ?? false;
-        var brandMark = CooBrand.CreateMark(isPremium, _theme.Current == PaletteKind.Night, fontSize: 24);
-        var topBar = new Grid
-        {
-            ColumnDefinitions = [new(GridLength.Star)],
-            Margin = new Thickness(0, 0, 0, 4),
-            Children = { brandMark }
-        };
+        var pageHeader = new CooPageHeader(_services);
 
         _body.Content = new VerticalStackLayout
         {
-            Padding = new Thickness(24, 40, 24, 24),
+            Padding = new Thickness(0, 0, 0, 24),
             Spacing = 16,
-            Children = { topBar, header, _ribbon, legend, totals, timeline },
+            Children = { pageHeader, new VerticalStackLayout { Padding = new Thickness(24, 0, 24, 0), Spacing = 16, Children = { header, _ribbon, legend, totals, timeline } } },
         };
 
         if (_sheet.IsVisible)

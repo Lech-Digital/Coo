@@ -14,7 +14,7 @@ public sealed class TodayPage : ContentPage
 {
     private readonly TodayViewModel _model;
     private readonly IServiceProvider _services;
-    private readonly VerticalStackLayout _sections = new() { Padding = new Thickness(0, 24, 0, 24) };
+    private readonly VerticalStackLayout _sections = new() { Padding = new Thickness(0, 0, 0, 24) };
     private readonly Sheet _sheet = new();
     private readonly UndoService _undo;
     private readonly LanguageController _language;

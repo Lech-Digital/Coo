@@ -56,8 +56,8 @@ public sealed class TodayTests
 
         // Assert
         section.Timers.Should().ContainSingle().Which.Digits.Should().Be("08:00");
-        section.Facts.Should().HaveCount(3);
-        section.Quick.Select(q => q.KindCode).Should().Contain(["diaper", "sleep", "feeding"]);
+        section.Facts.Should().HaveCount(4);
+        section.Quick.Select(q => q.KindCode).Should().Contain(["diaper", "sleep", "feeding", "pump"]);
         section.AppliesTo(HomeStage.Born, PaletteKind.Night).Should().BeTrue();
         section.AppliesTo(HomeStage.Born, PaletteKind.Day).Should().BeFalse();
     }
