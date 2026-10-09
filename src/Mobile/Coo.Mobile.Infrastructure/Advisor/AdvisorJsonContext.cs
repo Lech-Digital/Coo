@@ -6,6 +6,8 @@ namespace Coo.Mobile.Infrastructure.Advisor;
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 [JsonSerializable(typeof(AskAdvisorRequest))]
 [JsonSerializable(typeof(AskAdvisorResponse))]
+[JsonSerializable(typeof(GenerateAvatarRequest))]
+[JsonSerializable(typeof(GenerateAvatarResponse))]
 [JsonSerializable(typeof(AdvisorMessageHistory))]
 [JsonSerializable(typeof(List<AdvisorMessageHistory>))]
 [JsonSerializable(typeof(AdvisorThreadSummary))]

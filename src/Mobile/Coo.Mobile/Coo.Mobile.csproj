@@ -41,7 +41,9 @@
     <!-- Figtree only (design system §3). eng/verify-apk-fonts.sh checks they reach the APK. -->
     <MauiFont Include="Resources\Fonts\*.ttf" />
     <!-- Tab icons, from the same 24-grid paths as the Icon control (design system §5). -->
-    <MauiImage Include="Resources\Images\*.svg" BaseSize="24,24" />
+    <MauiImage Include="Resources\Images\tab_*.svg" BaseSize="24,24" />
+    <!-- Avatar illustration presets: sharp high-resolution rendering -->
+    <MauiImage Include="Resources\Images\avatar_*.svg" BaseSize="256,256" />
     <!-- The licence texts (Spec 009 §3.6), read with FileSystem.OpenAppPackageFileAsync("licences/…"). -->
     <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>

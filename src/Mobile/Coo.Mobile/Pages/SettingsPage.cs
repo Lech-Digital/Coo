@@ -28,6 +28,7 @@ public sealed class SettingsPage : ContentPage
     private bool _familyRefreshQueued;
     private bool _opening;
     private string? _renderedLanguage;
+    private CooPageHeader? _pageHeader;
 
     public SettingsPage(
         SettingsViewModel model, AccountViewModel account, FamilySectionViewModel family, IClockFormat clock, UndoService undo, LanguageController language,
@@ -70,6 +71,7 @@ public sealed class SettingsPage : ContentPage
             // the refresh showed one blank frame (recorded on the Pixel 10).
             if (_body.Content is null)
                 Render();
+            _pageHeader?.Refresh();
             await _model.RefreshAsync();
             await RunTappedAsync(_family.RefreshAsync);
             if (_renderedLanguage != Strings.Language)
@@ -243,7 +245,7 @@ public sealed class SettingsPage : ContentPage
     {
         // The time pickers write back while the page is built; those writes are not edits.
         _rendering = true;
-        var pageHeader = new CooPageHeader(_services);
+        _pageHeader = new CooPageHeader(_services);
         var titleRow = new Grid { HeightRequest = 48 };
         titleRow.Add(Ui.Text(Strings.Get("Tab.Settings"), "Title").Tap(l => l.VerticalOptions = LayoutOptions.Center));
 
@@ -254,7 +256,7 @@ public sealed class SettingsPage : ContentPage
         {
             Padding = new Thickness(0, 0, 0, 96),
             Spacing = 16,
-            Children = { pageHeader, contentStack }
+            Children = { _pageHeader, contentStack }
         };
 
         foreach (var view in AccountViews())

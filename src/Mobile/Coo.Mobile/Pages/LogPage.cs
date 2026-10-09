@@ -19,6 +19,7 @@ public sealed class LogPage : ContentPage
     private bool _renderQueued;
     private string? _renderedLanguage;
     private RibbonView? _ribbon;
+    private CooPageHeader? _pageHeader;
     private readonly Sheet _sheet = new();
     private readonly DayDetailView _detail = new();
 
@@ -79,6 +80,7 @@ public sealed class LogPage : ContentPage
             Render();
         else
             ShowRibbon();
+        _pageHeader?.Refresh();
         if (!_model.CanGoNext)
             _model.ResetToToday();
         await _model.RefreshAsync();
@@ -202,7 +204,7 @@ public sealed class LogPage : ContentPage
         }
 
         _renderedLanguage = Strings.Language;
-        var pageHeader = new CooPageHeader(_services);
+        _pageHeader = new CooPageHeader(_services);
 
         var totalsContainer = new ContentView
         {
@@ -216,7 +218,7 @@ public sealed class LogPage : ContentPage
             Spacing = 16,
             Children =
             {
-                pageHeader,
+                _pageHeader,
                 totalsContainer,
                 new VerticalStackLayout
                 {

@@ -172,27 +172,26 @@ public sealed class CooPageHeader : Grid
                 ? Formats.Age(baby, DateOnly.FromDateTime(time.GetLocalNow().DateTime))
                 : Strings.Get("Expecting.Eyebrow");
 
+            var preferences = _services.GetService<Coo.Mobile.Application.Preferences.IDevicePreferences>();
+            var avatarRef = preferences != null
+                ? await preferences.GetBabyAvatarAsync(baby.Id.Value, CancellationToken.None)
+                : null;
+
             Dispatcher.Dispatch(() =>
             {
-                var initial = Ui.Rounded(Ui.Text(initialText, "Meta", "CheekInk").Tap(l =>
-                {
-                    l.FontFamily = "FigtreeBold";
-                    l.HorizontalOptions = LayoutOptions.Center;
-                }), "Cheek", 999, new Thickness(0));
-                initial.WidthRequest = 28;
-                initial.HeightRequest = 28;
+                var avatar = CooAvatar.Create(avatarRef, initialText, 38);
 
                 var chipContent = new HorizontalStackLayout
                 {
                     Spacing = 8,
                     Children =
                     {
-                        initial,
+                        avatar,
                         Ui.Text($"{babyName} · {ageText}", "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center)
                     }
                 };
 
-                _babyChipContainer.Content = Ui.Rounded(chipContent, "Surface", 999, new Thickness(6, 6, 14, 6), "Line");
+                _babyChipContainer.Content = Ui.Rounded(chipContent, "Surface", 999, new Thickness(5, 5, 14, 5), "Line");
             });
         }
         catch (Exception)

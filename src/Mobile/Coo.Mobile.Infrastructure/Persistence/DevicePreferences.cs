@@ -68,6 +68,29 @@ internal sealed class DevicePreferences(LocalDatabase database) : IDevicePrefere
             cancellationToken, null, ("$k", LanguageKey), ("$v", preference.Language ?? SystemLanguage));
     }
 
+    public async Task<string?> GetBabyAvatarAsync(Guid babyId, CancellationToken cancellationToken)
+    {
+        await using var connection = await database.OpenAsync(cancellationToken);
+        var key = $"baby_avatar:{babyId:D}";
+        return (string?)await connection.ScalarAsync("SELECT value FROM app_state WHERE key = $k;", cancellationToken, null, ("$k", key));
+    }
+
+    public async Task SetBabyAvatarAsync(Guid babyId, string? avatarRef, CancellationToken cancellationToken)
+    {
+        await using var connection = await database.OpenAsync(cancellationToken);
+        var key = $"baby_avatar:{babyId:D}";
+        if (string.IsNullOrEmpty(avatarRef))
+        {
+            await connection.ExecuteAsync("DELETE FROM app_state WHERE key = $k;", cancellationToken, null, ("$k", key));
+        }
+        else
+        {
+            await connection.ExecuteAsync(
+                "INSERT INTO app_state (key, value) VALUES ($k, $v) ON CONFLICT (key) DO UPDATE SET value = excluded.value;",
+                cancellationToken, null, ("$k", key), ("$v", avatarRef));
+        }
+    }
+
     /// <summary>Only a whole, readable override counts; anything else means none.</summary>
     private static AppearanceOverride? ParseOverride(string? palette, string? until) =>
         Enum.TryParse<AppearanceMode>(palette, out var p) && p is AppearanceMode.Day or AppearanceMode.Night

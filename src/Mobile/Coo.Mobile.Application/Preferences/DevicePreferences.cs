@@ -54,6 +54,10 @@ public interface IDevicePreferences
     Task<LanguagePreference> GetLanguageAsync(CancellationToken cancellationToken);
 
     Task SetLanguageAsync(LanguagePreference preference, CancellationToken cancellationToken);
+
+    Task<string?> GetBabyAvatarAsync(Guid babyId, CancellationToken cancellationToken);
+
+    Task SetBabyAvatarAsync(Guid babyId, string? avatarRef, CancellationToken cancellationToken);
 }
 
 /// <summary>Whether the phone shows 24-hour times. It follows the Android setting, not the language (ADR 0006 §5).</summary>

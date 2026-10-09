@@ -126,15 +126,19 @@ public sealed partial class BabyHeaderSection : ObservableObject, IHomeSection
     [ObservableProperty]
     private bool _isPremium;
 
+    [ObservableProperty]
+    private string? _avatarRef;
+
     public bool AppliesTo(HomeStage stage, PaletteKind palette) => palette == PaletteKind.Day || stage == HomeStage.Expecting;
 
     public void Update(HomeSnapshot snapshot)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         BabyName = snapshot.Baby.Name;
-        Initial = snapshot.Baby.Name[..1].ToUpper(Strings.Culture);
+        Initial = snapshot.Baby.Name.Length > 0 ? snapshot.Baby.Name[..1].ToUpper(Strings.Culture) : "";
         Age = snapshot.Baby.IsBorn ? Formats.Age(snapshot.Baby, DateOnly.FromDateTime(snapshot.Now.LocalDateTime)) : Strings.Get("Expecting.Eyebrow");
         IsPremium = snapshot.IsPremium;
+        AvatarRef = snapshot.AvatarRef;
     }
 }
 
@@ -392,20 +396,34 @@ public sealed partial class DailyProgressSection : ObservableObject, IHomeSectio
 
         foreach (var stored in entries)
         {
-            if (stored is LiveEntry live)
+            if (stored.KindCode == "feeding")
             {
-                switch (live.Entry.Details)
+                feedsCount++;
+            }
+            else if (stored.KindCode == "diaper")
+            {
+                diapersCount++;
+            }
+            else if (stored.KindCode == "sleep")
+            {
+                if (stored is LiveEntry live && live.Entry.Timing is SessionTiming { Range: var r })
+                    sleepSpan += r.Duration(snapshot.Now);
+                else if (stored is ReadOnlyEntry ro && ro.EndedAt.HasValue)
+                    sleepSpan += ro.EndedAt.Value - ro.StartedAt;
+            }
+        }
+
+        // If a sleep session is currently in progress and started before today, include its duration
+        if (snapshot.Today?.Running != null)
+        {
+            foreach (var running in snapshot.Today.Running)
+            {
+                if (running.KindCode.Value == "sleep" && running.Timing is SessionTiming { Range: var r })
                 {
-                    case FeedingDetails:
-                        feedsCount++;
-                        break;
-                    case DiaperDetails:
-                        diapersCount++;
-                        break;
-                    case SleepDetails:
-                        if (live.Entry.Timing is SessionTiming { Range: var r })
-                            sleepSpan += r.Duration(snapshot.Now);
-                        break;
+                    if (!entries.Any(e => e.Id == running.Id))
+                    {
+                        sleepSpan += r.Duration(snapshot.Now);
+                    }
                 }
             }
         }
@@ -553,6 +571,9 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
     [ObservableProperty]
     private bool _isPremium;
 
+    [ObservableProperty]
+    private string? _avatarRef;
+
     /// <summary>
     /// Every running timer, active care first: during a dream feed both the feed and the sleep run, and the feed's
     /// Switch side and Stop must be reachable at night (Spec 006 §5a, found on the phone).
@@ -578,6 +599,7 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
         Initial = s.Baby.Name.Length > 0 ? s.Baby.Name[..1].ToUpper(Strings.Culture) : "";
         Age = s.Baby.IsBorn ? Formats.Age(s.Baby, DateOnly.FromDateTime(s.Now.LocalDateTime)) : Strings.Get("Expecting.Eyebrow");
         IsPremium = s.IsPremium;
+        AvatarRef = s.AvatarRef;
         var running = (t?.Running ?? []).OrderBy(e => e.Details is SleepDetails ? 1 : 0).ThenBy(e => e.Timing.OccurredAt);
         var timers = running.Select(e => Running.Item(e, s, actions, Timers.FirstOrDefault(i => i.Id == e.Id))).ToList();
         if (Running.Changed(Timers, timers, i => i.Id + i.Language))

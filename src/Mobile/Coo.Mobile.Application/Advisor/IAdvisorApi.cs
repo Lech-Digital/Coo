@@ -3,6 +3,8 @@ namespace Coo.Mobile.Application.Advisor;
 public interface IAdvisorApi
 {
     Task<AskAdvisorResponse> AskAsync(AskAdvisorRequest request, CancellationToken cancellationToken);
+    Task<GenerateAvatarResponse> GenerateAvatarAsync(GenerateAvatarRequest request, CancellationToken cancellationToken);
+    Task<bool> CheckEntitlementAsync(Guid householdId, CancellationToken cancellationToken);
 }
 
 public class AskAdvisorRequest
@@ -12,6 +14,19 @@ public class AskAdvisorRequest
     public string? Question { get; set; }
     public string? TimeZoneId { get; set; }
     public List<AdvisorMessageHistory>? History { get; set; }
+}
+
+public class GenerateAvatarRequest
+{
+    public Guid HouseholdId { get; set; }
+    public Guid BabyId { get; set; }
+    public string? ImageBase64 { get; set; }
+}
+
+public class GenerateAvatarResponse
+{
+    public string? ImageBase64 { get; set; }
+    public string? ErrorCode { get; set; }
 }
 
 public class AdvisorMessageHistory

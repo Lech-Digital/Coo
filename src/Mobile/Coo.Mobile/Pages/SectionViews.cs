@@ -165,15 +165,12 @@ internal static class SectionViews
     private static View Header(BabyHeaderSection s, SectionHost host)
     {
         var mark = CooBrand.CreateMark(s.IsPremium, host.Today.IsNight, longPress: host.OpenDebug, fontSize: 24);
-
-        var initial = Ui.Rounded(Ui.Text(s.Initial, "Meta", "CheekInk").Tap(l => { l.FontFamily = "FigtreeBold"; l.HorizontalOptions = LayoutOptions.Center; }), "Cheek", 999, new Thickness(0));
-        initial.WidthRequest = 28;
-        initial.HeightRequest = 28;
+        var avatar = CooAvatar.Create(s.AvatarRef, s.Initial, 38);
         var chip = Ui.Rounded(new HorizontalStackLayout
         {
             Spacing = 8,
-            Children = { initial, Ui.Text($"{s.BabyName} · {s.Age}", "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center) },
-        }, "Surface", 999, new Thickness(6, 6, 14, 6), "Line");
+            Children = { avatar, Ui.Text($"{s.BabyName} · {s.Age}", "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center) },
+        }, "Surface", 999, new Thickness(5, 5, 14, 5), "Line");
 
         var grid = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto)], ColumnSpacing = 4, Padding = new Thickness(24, 16, 24, 8) };
         grid.Add(mark, 0);
@@ -355,26 +352,42 @@ internal static class SectionViews
             // Mini progress indicator bar
             var barTrack = new BoxView
             {
-                HeightRequest = 4,
-                CornerRadius = 2,
+                HeightRequest = 6,
+                CornerRadius = 3,
                 HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Center,
             };
             barTrack.SetDynamicResource(BoxView.ColorProperty, "Line");
 
+            var clampedRatio = Math.Clamp(ratio, 0.0, 1.0);
             var barFill = new BoxView
             {
-                HeightRequest = 4,
-                CornerRadius = 2,
-                HorizontalOptions = LayoutOptions.Start,
-                WidthRequest = Math.Max(4, 180 * ratio),
+                HeightRequest = 6,
+                CornerRadius = 3,
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Center,
             };
-            barFill.SetDynamicResource(BoxView.ColorProperty, look.Mark + "Brush");
+            barFill.SetDynamicResource(BoxView.ColorProperty, look.Mark);
+
+            var fillWeight = clampedRatio > 0 ? Math.Max(0.04, clampedRatio) : 0.001;
+            var remainingWeight = Math.Max(0.001, 1.0 - clampedRatio);
 
             var barGrid = new Grid
             {
-                HeightRequest = 4,
-                Children = { barTrack, barFill }
+                HeightRequest = 6,
+                HorizontalOptions = LayoutOptions.Fill,
+                ColumnDefinitions =
+                [
+                    new ColumnDefinition(new GridLength(fillWeight, GridUnitType.Star)),
+                    new ColumnDefinition(new GridLength(remainingWeight, GridUnitType.Star))
+                ],
+                Children = { barTrack }
             };
+            Grid.SetColumnSpan(barTrack, 2);
+            if (clampedRatio > 0)
+            {
+                barGrid.Add(barFill, 0);
+            }
 
             var rowGrid = new Grid
             {
@@ -384,6 +397,10 @@ internal static class SectionViews
             };
             rowGrid.Add(icon, 0);
             rowGrid.Add(label, 1);
+
+            var pct = Ui.Text($"{Math.Round(clampedRatio * 100)}%", "Meta", "Ink2");
+            pct.VerticalOptions = LayoutOptions.Center;
+            rowGrid.Add(pct, 2);
 
             return new VerticalStackLayout
             {
@@ -476,16 +493,13 @@ internal static class SectionViews
     private static View Night(NightSection s, SectionHost host)
     {
         var mark = CooBrand.CreateMark(s.IsPremium, host.Today.IsNight, longPress: host.OpenDebug, fontSize: 24);
-
-        var initial = Ui.Rounded(Ui.Text(s.Initial, "Meta", "CheekInk").Tap(l => { l.FontFamily = "FigtreeBold"; l.HorizontalOptions = LayoutOptions.Center; }), "Cheek", 999, new Thickness(0));
-        initial.WidthRequest = 28;
-        initial.HeightRequest = 28;
+        var avatar = CooAvatar.Create(s.AvatarRef, s.Initial, 38);
 
         var chip = Ui.Rounded(new HorizontalStackLayout
         {
             Spacing = 8,
-            Children = { initial, Ui.Text($"{s.BabyName} · {s.Age}", "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center) },
-        }, "Surface", 999, new Thickness(6, 6, 14, 6), "Line");
+            Children = { avatar, Ui.Text($"{s.BabyName} · {s.Age}", "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center) },
+        }, "Surface", 999, new Thickness(5, 5, 14, 5), "Line");
 
         var top = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto)], ColumnSpacing = 4, Padding = new Thickness(24, 16, 24, 8) };
         top.Add(mark, 0);

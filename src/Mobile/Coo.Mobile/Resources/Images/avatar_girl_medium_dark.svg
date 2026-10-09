@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="256" height="256">
+  <!-- Subtle circular frame background -->
+  <circle cx="50" cy="50" r="48" fill="#F4EAE0"/>
+  <!-- Head -->
+  <circle cx="50" cy="52" r="35" fill="#E8BD9E"/>
+  <!-- Ears -->
+  <circle cx="16" cy="53" r="6" fill="#E8BD9E"/>
+  <circle cx="16" cy="53" r="3.5" fill="#DAA885"/>
+  <circle cx="84" cy="53" r="6" fill="#E8BD9E"/>
+  <circle cx="84" cy="53" r="3.5" fill="#DAA885"/>
+  <!-- Girl dark wavy hair with buttercup flower -->
+  <path d="M19 46 C18 18, 44 14, 81 42 C72 22, 50 16, 20 42 Z" fill="#261A15"/>
+  <circle cx="34" cy="27" r="6.5" fill="#261A15"/>
+  <circle cx="48" cy="23" r="7.5" fill="#261A15"/>
+  <circle cx="72" cy="33" r="5.5" fill="#F8C93E"/>
+  <circle cx="72" cy="33" r="2.2" fill="#D88F15"/>
+  <!-- Soft eyebrows -->
+  <path d="M33 45 Q39 42 45 45" fill="none" stroke="#261A15" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M55 45 Q61 42 67 45" fill="none" stroke="#261A15" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Large expressive baby eyes -->
+  <ellipse cx="38" cy="53" rx="4.5" ry="5.5" fill="#140D0A"/>
+  <ellipse cx="62" cy="53" rx="4.5" ry="5.5" fill="#140D0A"/>
+  <circle cx="39.8" cy="51.2" r="1.8" fill="#FFFFFF"/>
+  <circle cx="36.5" cy="54.8" r="0.9" fill="#FFFFFF"/>
+  <circle cx="63.8" cy="51.2" r="1.8" fill="#FFFFFF"/>
+  <circle cx="60.5" cy="54.8" r="0.9" fill="#FFFFFF"/>
+  <!-- Rosy baby cheeks -->
+  <circle cx="28" cy="61" r="7" fill="#DA8575" opacity="0.65"/>
+  <circle cx="72" cy="61" r="7" fill="#DA8575" opacity="0.65"/>
+  <!-- Sweet baby smile & button nose -->
+  <circle cx="50" cy="57" r="1.6" fill="#CD8776"/>
+  <path d="M43 64 Q50 72 57 64" fill="none" stroke="#A74639" stroke-width="2.6" stroke-linecap="round"/>
+</svg>

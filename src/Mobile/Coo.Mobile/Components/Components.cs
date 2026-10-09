@@ -137,9 +137,15 @@ public sealed class TotalsCell : ContentView
         var look = EventAppearance.For(kindCode);
         var value = Ui.Text(number, "Section", look.Ink);
         value.StyleClass = [Tabular.StyleClass];
-        Content = Ui.Rounded(
-            new VerticalStackLayout { Children = { value, Ui.Text(unit, "Meta", look.Ink) } },
-            look.Tint, 16, new Thickness(12, 10));
+        var stack = new VerticalStackLayout
+        {
+            Spacing = 4,
+            VerticalOptions = LayoutOptions.Center,
+            Children = { value, Ui.Text(unit, "Meta", look.Ink) }
+        };
+        var rounded = Ui.Rounded(stack, look.Tint, 20, new Thickness(10, 12));
+        rounded.MinimumHeightRequest = 96;
+        Content = rounded;
     }
 }
 

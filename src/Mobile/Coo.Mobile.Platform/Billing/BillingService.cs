@@ -8,6 +8,12 @@ public class BillingService : IBillingService
 {
     private const string SubscriptionId = "premium_subscription";
     private const string PremiumPreferenceKey = "billing.is_premium";
+    private readonly IServiceProvider? _services;
+
+    public BillingService(IServiceProvider? services = null)
+    {
+        _services = services;
+    }
 
     public bool IsPremiumCached { get; private set; } = Microsoft.Maui.Storage.Preferences.Default.Get(PremiumPreferenceKey, false);
 
@@ -115,6 +121,26 @@ public class BillingService : IBillingService
 #pragma warning restore CA2016
             
             hadChange = IsPremiumCached;
+
+            // If Google Play store has no active subscription on this Google account, check backend household subscription
+            if (_services != null)
+            {
+                var advisorApi = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetService<Coo.Mobile.Application.Advisor.IAdvisorApi>(_services);
+                if (advisorApi != null)
+                {
+                    var isServerPremium = await advisorApi.CheckEntitlementAsync(householdId.Value, cancellationToken);
+                    if (isServerPremium)
+                    {
+                        hadChange = !IsPremiumCached;
+                        IsPremiumCached = true;
+                        Microsoft.Maui.Storage.Preferences.Default.Set(PremiumPreferenceKey, true);
+                        if (hadChange)
+                            EntitlementChanged?.Invoke();
+                        return true;
+                    }
+                }
+            }
+
             IsPremiumCached = false;
             Microsoft.Maui.Storage.Preferences.Default.Set(PremiumPreferenceKey, false);
             if (hadChange)

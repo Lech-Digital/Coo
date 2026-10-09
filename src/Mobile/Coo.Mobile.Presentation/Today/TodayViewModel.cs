@@ -80,13 +80,17 @@ public sealed partial class TodayViewModel : ObservableObject
     private string _awakeSince = "";
 
     private readonly Coo.Mobile.Application.Billing.IBillingService _billing;
+    private readonly IDevicePreferences _preferences;
+    private string? _avatarRef;
 
     public TodayViewModel(
         IEnumerable<IHomeSection> sections, IHouseholdStore households, GetToday getToday, HomeActions actions,
         ThemeController theme, IClockFormat clock, RecordBirth recordBirth, TimeProvider time, GetAttention attention, UndoService undo,
-        WhoLabelsSource who, Coo.Mobile.Application.Preferences.IReviewPrompter reviewPrompter, Coo.Mobile.Application.Billing.IBillingService billing)
+        WhoLabelsSource who, Coo.Mobile.Application.Preferences.IReviewPrompter reviewPrompter, Coo.Mobile.Application.Billing.IBillingService billing,
+        IDevicePreferences preferences)
     {
         _billing = billing;
+        _preferences = preferences;
         _billing.EntitlementChanged += () => Tick();
         (_attention, _undo, _whoSource) = (attention, undo, who);
         _all = [.. sections.OrderBy(s => s.Order)];
@@ -147,6 +151,8 @@ public sealed partial class TodayViewModel : ObservableObject
         OnPropertyChanged(nameof(Baby));
         if (_baby is null)
             return;
+
+        _avatarRef = await _preferences.GetBabyAvatarAsync(_baby.Id.Value, CancellationToken.None);
 
         _actions.Context = new HomeContext(_household.Id, _baby.Id);
         _summary = _baby.IsBorn
@@ -308,7 +314,7 @@ public sealed partial class TodayViewModel : ObservableObject
         Tick();
     }
 
-    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached);
+    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef);
 
     private Formats Formats() => new(_clock.Is24Hour, _household?.VolumeUnit ?? VolumeUnit.Millilitres);
 

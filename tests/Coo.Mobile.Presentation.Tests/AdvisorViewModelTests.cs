@@ -25,6 +25,16 @@ public sealed class AdvisorViewModelTests
             }
             return new AskAdvisorResponse { Answer = ResponseToReturn };
         }
+
+        public Task<GenerateAvatarResponse> GenerateAvatarAsync(GenerateAvatarRequest request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(new GenerateAvatarResponse { ImageBase64 = request.ImageBase64 });
+        }
+
+        public Task<bool> CheckEntitlementAsync(Guid householdId, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(true);
+        }
     }
 
     private sealed class InMemoryThreadStore : IAdvisorThreadStore
