@@ -34,6 +34,32 @@ internal static class AdvisorEndpoints
                 new System.Collections.Generic.Dictionary<string, string> { ["Answer"] = response.Answer, ["answer"] = response.Answer },
                 new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = null, DictionaryKeyPolicy = null });
         });
+
+        advisor.MapPost("/generate-avatar", async Task<IResult> (
+            HttpRequest http,
+            ClaimsPrincipal principal,
+            SyncAccess access,
+            IAdvisorService advisorService,
+            CancellationToken cancellationToken) =>
+        {
+            var request = await AuthEndpoints.TryReadJsonAsync<GenerateAvatarHttpRequest>(http, cancellationToken);
+            if (request is null || string.IsNullOrWhiteSpace(request.ImageBase64) || request.HouseholdId == Guid.Empty || request.BabyId == Guid.Empty)
+                return Results.BadRequest(new { Code = "avatar.malformed" });
+
+            var household = new HouseholdId(request.HouseholdId);
+            var allowed = await access.CheckAsync(AuthEndpoints.UserOf(principal), household, cancellationToken);
+            if (allowed.Denial != AccessDenial.None)
+                return Results.Forbid();
+
+            var genRequest = new GenerateAvatarRequest(request.BabyId, request.ImageBase64);
+            var response = await advisorService.GenerateAvatarAsync(household, genRequest, cancellationToken);
+            if (response.ErrorCode == "premium_required")
+                return Results.StatusCode(402); // Payment required
+            if (response.ErrorCode != null && response.ImageBase64 == null)
+                return Results.BadRequest(new { Code = response.ErrorCode });
+
+            return Results.Json(response);
+        });
     }
 }
 
@@ -44,4 +70,11 @@ public class AskAdvisorHttpRequest
     public string? Question { get; set; }
     public string? TimeZoneId { get; set; }
     public List<AdvisorMessageHistory>? History { get; set; }
+}
+
+public class GenerateAvatarHttpRequest
+{
+    public Guid HouseholdId { get; set; }
+    public Guid BabyId { get; set; }
+    public string? ImageBase64 { get; set; }
 }

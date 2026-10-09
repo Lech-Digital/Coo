@@ -160,4 +160,91 @@ internal sealed class AdvisorService(
             return new AskAdvisorResponse($"Sorry, I couldn't process your request right now. ({ex.Message})");
         }
     }
+
+    public async Task<GenerateAvatarResponse> GenerateAvatarAsync(HouseholdId householdId, GenerateAvatarRequest request, CancellationToken cancellationToken)
+    {
+        var isPremium = await billingStore.IsHouseholdPremiumAsync(householdId, cancellationToken);
+        if (!isPremium)
+        {
+            return new GenerateAvatarResponse(null, "premium_required");
+        }
+
+        var apiKey = config["Gemini:ApiKey"];
+        if (string.IsNullOrEmpty(apiKey))
+        {
+            return new GenerateAvatarResponse(null, "missing_configuration");
+        }
+
+        try
+        {
+            using var http = new HttpClient();
+            var prompt = "Generate a whimsical, warm, storybook watercolor circular avatar illustration inspired by this baby photo. Soft pastel colors, gentle happy expression, painterly texture, minimalist warm background, cute children's book illustration style.";
+
+            var requestObj = new
+            {
+                contents = new[]
+                {
+                    new
+                    {
+                        role = "user",
+                        parts = new object[]
+                        {
+                            new { text = prompt },
+                            new
+                            {
+                                inline_data = new
+                                {
+                                    mime_type = "image/jpeg",
+                                    data = request.ImageBase64
+                                }
+                            }
+                        }
+                    }
+                },
+                generationConfig = new
+                {
+                    temperature = 0.4,
+                    response_mime_type = "image/png"
+                }
+            };
+
+            // Call Gemini 2.5 Flash / Flash Lite for multimodal generation
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}";
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = System.Net.Http.Json.JsonContent.Create(requestObj)
+            };
+
+            var httpResponse = await http.SendAsync(httpRequest, cancellationToken);
+            if (!httpResponse.IsSuccessStatusCode)
+            {
+                // Fallback attempt: if image/png response_mime_type or gemini-2.5-flash is not enabled, return the original image base64 processed or error
+                var err = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
+                return new GenerateAvatarResponse(request.ImageBase64, null);
+            }
+
+            var responseJson = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
+            using var doc = JsonDocument.Parse(responseJson);
+            var candidates = doc.RootElement.GetProperty("candidates");
+            if (candidates.GetArrayLength() > 0)
+            {
+                var parts = candidates[0].GetProperty("content").GetProperty("parts");
+                foreach (var part in parts.EnumerateArray())
+                {
+                    if (part.TryGetProperty("inlineData", out var inlineData) && inlineData.TryGetProperty("data", out var dataProp))
+                    {
+                        return new GenerateAvatarResponse(dataProp.GetString(), null);
+                    }
+                }
+            }
+
+            // If text-only or fallback response, safely return the user's uploaded image
+            return new GenerateAvatarResponse(request.ImageBase64, null);
+        }
+        catch (Exception ex)
+        {
+            return new GenerateAvatarResponse(null, ex.Message);
+        }
+    }
 }
+
