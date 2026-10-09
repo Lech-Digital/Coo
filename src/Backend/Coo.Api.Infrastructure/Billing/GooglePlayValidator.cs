@@ -33,7 +33,7 @@ internal sealed class GooglePlayValidator(IConfiguration configuration, TimeProv
             if (purchase == null) return null;
 
             var expiry = purchase.LineItems?.FirstOrDefault()?.ExpiryTimeDateTimeOffset?.UtcDateTime ?? timeProvider.GetUtcNow().UtcDateTime;
-            
+
             SubscriptionStatus status = purchase.SubscriptionState switch
             {
                 "SUBSCRIPTION_STATE_ACTIVE" => SubscriptionStatus.Active,
@@ -44,7 +44,7 @@ internal sealed class GooglePlayValidator(IConfiguration configuration, TimeProv
                 "SUBSCRIPTION_STATE_ON_HOLD" => SubscriptionStatus.Paused,
                 _ => SubscriptionStatus.Expired
             };
-            
+
             var autoRenewing = purchase.LineItems?.Any(li => li.AutoRenewingPlan != null) ?? false;
 
             return new GooglePlayPurchaseInfo(

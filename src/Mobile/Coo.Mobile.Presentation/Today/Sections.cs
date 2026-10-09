@@ -122,7 +122,7 @@ public sealed partial class BabyHeaderSection : ObservableObject, IHomeSection
 
     [ObservableProperty]
     private string _age = "";
-    
+
     [ObservableProperty]
     private bool _isPremium;
 

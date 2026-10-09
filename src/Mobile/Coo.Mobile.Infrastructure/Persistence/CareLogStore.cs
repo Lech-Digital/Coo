@@ -230,11 +230,11 @@ internal sealed class CareLogStore(LocalDatabase database, TimeProvider time, Lo
     public async Task<int> CountAllEntriesAsync(Coo.Domain.Common.HouseholdId household, CancellationToken cancellationToken)
     {
         await using var connection = await database.OpenAsync(cancellationToken);
-        
+
         using var command = connection.CreateCommand();
         command.CommandText = "SELECT COUNT(*) FROM entries WHERE household = $household AND is_deleted = 0";
         command.Parameters.AddWithValue("$household", household.Value.ToByteArray());
-        
+
         var result = await command.ExecuteScalarAsync(cancellationToken);
         return Convert.ToInt32(result, System.Globalization.CultureInfo.InvariantCulture);
     }

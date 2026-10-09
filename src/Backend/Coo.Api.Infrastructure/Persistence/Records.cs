@@ -304,9 +304,9 @@ internal sealed class SubscriptionRecord
 internal sealed class AdvisorUsageRecord
 {
     public required Guid UserId { get; init; }
-    
+
     public required DateOnly Date { get; init; }
-    
+
     public required int QuestionCount { get; set; }
 }
 

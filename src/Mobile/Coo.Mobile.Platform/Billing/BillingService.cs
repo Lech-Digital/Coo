@@ -10,6 +10,17 @@ public class BillingService : IBillingService
 
     public bool IsPremiumCached { get; private set; }
 
+    public event Action? EntitlementChanged;
+
+    public void SetPremiumForDebug(bool isPremium)
+    {
+        if (IsPremiumCached != isPremium)
+        {
+            IsPremiumCached = isPremium;
+            EntitlementChanged?.Invoke();
+        }
+    }
+
     public async Task<string?> GetPremiumPriceAsync(CancellationToken cancellationToken)
     {
         var billing = CrossInAppBilling.Current;
@@ -55,7 +66,10 @@ public class BillingService : IBillingService
                 {
                     await billing.FinalizePurchaseAsync(new[] { purchase.PurchaseToken });
                 }
+                var wasPremium = IsPremiumCached;
                 IsPremiumCached = true;
+                if (!wasPremium)
+                    EntitlementChanged?.Invoke();
                 return true;
             }
 #pragma warning restore CA2016
@@ -85,14 +99,21 @@ public class BillingService : IBillingService
                 return IsPremiumCached;
 
             var purchases = await billing.GetPurchasesAsync(ItemType.Subscription);
+            var hadChange = false;
             if (purchases != null && purchases.Any(p => p.ProductId == SubscriptionId && p.State == PurchaseState.Purchased))
             {
+                hadChange = !IsPremiumCached;
                 IsPremiumCached = true;
+                if (hadChange)
+                    EntitlementChanged?.Invoke();
                 return true;
             }
 #pragma warning restore CA2016
             
+            hadChange = IsPremiumCached;
             IsPremiumCached = false;
+            if (hadChange)
+                EntitlementChanged?.Invoke();
             return false;
         }
         catch (Exception ex)

@@ -52,6 +52,8 @@ public sealed class LogPage : ContentPage
         _model.PropertyChanged -= OnChanged;
         _theme.PaletteChanged -= OnPaletteChanged;
         _language.Changed -= OnLanguageChanged;
+        var billing = _services.GetService<Coo.Mobile.Application.Billing.IBillingService>();
+        if (billing != null) billing.EntitlementChanged -= QueueRender;
     }
 
     // After an undo, or a delete that the window commits, the page shows what is now stored.
@@ -60,6 +62,8 @@ public sealed class LogPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        var billing = _services.GetService<Coo.Mobile.Application.Billing.IBillingService>();
+        if (billing != null) billing.EntitlementChanged += QueueRender;
         // Listening only while on screen: the view model outlives this page (owner's finding on the Pixel 10).
         _undo.DataChanged += OnDataChanged;
         _model.PropertyChanged += OnChanged;
@@ -196,11 +200,21 @@ public sealed class LogPage : ContentPage
         }
 
         _renderedLanguage = Strings.Language;
+        var billing = _services.GetService<Coo.Mobile.Application.Billing.IBillingService>();
+        var isPremium = billing?.IsPremiumCached ?? false;
+        var brandMark = CooBrand.CreateMark(isPremium, _theme.Current == PaletteKind.Night, fontSize: 24);
+        var topBar = new Grid
+        {
+            ColumnDefinitions = [new(GridLength.Star)],
+            Margin = new Thickness(0, 0, 0, 4),
+            Children = { brandMark }
+        };
+
         _body.Content = new VerticalStackLayout
         {
             Padding = new Thickness(24, 40, 24, 24),
             Spacing = 16,
-            Children = { header, _ribbon, legend, totals, timeline },
+            Children = { topBar, header, _ribbon, legend, totals, timeline },
         };
 
         if (_sheet.IsVisible)

@@ -48,7 +48,7 @@ public static class ServiceCollectionExtensions
         services.AddIdentityCore<CooUser>(options => options.User.AllowedUserNameCharacters += ":")
             .AddEntityFrameworkStores<CooDbContext>();
         services.AddScoped<IAccountStore, AccountStore>();
-        
+
         services.AddSingleton<Coo.Api.Application.Billing.IBillingStore, Coo.Api.Infrastructure.Persistence.BillingStore>();
         services.AddSingleton<Coo.Api.Application.Billing.IGooglePlayValidator, Coo.Api.Infrastructure.Billing.GooglePlayValidator>();
         services.AddSingleton<Coo.Api.Application.Advisor.IAdvisorService, Coo.Api.Infrastructure.Persistence.AdvisorService>();

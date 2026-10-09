@@ -1,15 +1,15 @@
 using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
 using Coo.Api.Application.Billing;
 using Coo.Domain.Common;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
-using System.Text;
 
 namespace Coo.Api.Hosting;
 
 public static class BillingEndpoints
 {
-    private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     public static void MapBillingEndpoints(this IEndpointRouteBuilder endpoints)
     {
@@ -26,7 +26,7 @@ public static class BillingEndpoints
                 return Results.BadRequest();
 
             var userId = AuthEndpoints.UserOf(user);
-            
+
             var success = await useCase.ExecuteAsync(new HouseholdId(request.HouseholdId), userId.Value, request.ProductId, request.PurchaseToken, cancellationToken);
             return success ? Results.Ok() : Results.BadRequest("Verification failed");
         }).RequireAuthorization();
@@ -49,11 +49,11 @@ public static class BillingEndpoints
         {
             var payload = await AuthEndpoints.TryReadJsonAsync<RtdnPayload>(http, cancellationToken);
             if (payload?.Message?.Data == null) return Results.Ok();
-            
+
             var base64EncodedBytes = Convert.FromBase64String(payload.Message.Data);
             var decodedData = Encoding.UTF8.GetString(base64EncodedBytes);
-            
-            var devNotification = JsonSerializer.Deserialize<DeveloperNotification>(decodedData, _jsonOptions);
+
+            var devNotification = JsonSerializer.Deserialize<DeveloperNotification>(decodedData, JsonOptions);
             if (devNotification?.SubscriptionNotification != null)
             {
                 var token = devNotification.SubscriptionNotification.PurchaseToken;

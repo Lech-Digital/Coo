@@ -28,7 +28,7 @@ internal static class AdvisorEndpoints
                 return Results.Forbid(); // simplified for now
 
             var advisorRequest = new AskAdvisorRequest(request.Question, request.BabyId, request.TimeZoneId ?? "UTC", request.History);
-            
+
             var response = await advisorService.AskAsync(household, advisorRequest, cancellationToken);
             return Results.Json(
                 new System.Collections.Generic.Dictionary<string, string> { ["Answer"] = response.Answer, ["answer"] = response.Answer },

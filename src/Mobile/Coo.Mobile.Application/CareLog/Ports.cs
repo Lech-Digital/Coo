@@ -27,7 +27,7 @@ public interface ICareLogStore
     Task<bool> WriteAllAsync(CareLogWrites changes, CancellationToken cancellationToken);
 
     Task<StoreCounts> CountsAsync(HouseholdId household, CancellationToken cancellationToken);
-    
+
     Task<int> CountAllEntriesAsync(HouseholdId household, CancellationToken cancellationToken);
 }
 

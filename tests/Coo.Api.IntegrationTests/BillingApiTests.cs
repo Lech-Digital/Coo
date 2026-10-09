@@ -25,11 +25,11 @@ public sealed class BillingApiTests(AuthApi api) : IClassFixture<AuthApi>
         });
 
         using var client = factory.CreateClient();
-        
+
         var session = await Coo.Api.IntegrationTests.SyncCalls.SignInWithConsentAsync(client, "billing-user1", Coo.Api.IntegrationTests.Calls.Id(9001), Coo.Api.IntegrationTests.Calls.Id(9002));
         var token = session.AccessToken;
         var householdId = session.HouseholdId;
-        
+
         // Ensure not premium initially
         var entitlementReq1 = await Coo.Api.IntegrationTests.Calls.SendAsync(client, HttpMethod.Get, new Uri($"/api/billing/entitlements/{householdId}", UriKind.Relative), token, null);
         var status1 = await entitlementReq1.Content.ReadFromJsonAsync<EntitlementResponse>();
@@ -45,7 +45,7 @@ public sealed class BillingApiTests(AuthApi api) : IClassFixture<AuthApi>
         var status2 = await entitlementReq2.Content.ReadFromJsonAsync<EntitlementResponse>();
         Assert.True(status2!.IsPremium);
     }
-    
+
     [Fact]
     public async Task RTDN_ValidPayload_UpdatesSubscription()
     {
@@ -59,31 +59,31 @@ public sealed class BillingApiTests(AuthApi api) : IClassFixture<AuthApi>
         });
 
         using var client = factory.CreateClient();
-        
+
         var session = await Coo.Api.IntegrationTests.SyncCalls.SignInWithConsentAsync(client, "billing-user2", Coo.Api.IntegrationTests.Calls.Id(9003), Coo.Api.IntegrationTests.Calls.Id(9004));
         var token = session.AccessToken;
         var householdId = session.HouseholdId;
-        
+
         // Verify receipt first to create the subscription in DB
         var req = new { HouseholdId = householdId, ProductId = "coo_premium", PurchaseToken = "token456" };
         await Coo.Api.IntegrationTests.Calls.SendAsync(client, HttpMethod.Post, new Uri("/api/billing/verify-receipt", UriKind.Relative), token, req);
-        
+
         // Now mock google play to return canceled status
         googlePlay.VerifyPurchaseAsync("coo_premium", "token456", Arg.Any<CancellationToken>())
             .Returns(new GooglePlayPurchaseInfo("token456", "coo_premium", api.Factory.Services.GetRequiredService<TimeProvider>().GetUtcNow().UtcDateTime.AddDays(-1), SubscriptionStatus.Expired, false));
-            
+
         // Send RTDN webhook (anonymous)
         var payload = new
         {
             Message = new
             {
-                Data = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new 
-                { 
+                Data = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new
+                {
                     SubscriptionNotification = new { PurchaseToken = "token456" }
                 })))
             }
         };
-        
+
         var rtdnRes = await client.PostAsJsonAsync("/api/billing/rtdn", payload);
         Assert.Equal(HttpStatusCode.OK, rtdnRes.StatusCode);
 

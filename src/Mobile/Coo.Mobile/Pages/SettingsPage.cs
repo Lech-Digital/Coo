@@ -60,6 +60,8 @@ public sealed class SettingsPage : ContentPage
         _account.BringOverRequested += OnBringOverRequested;
         _family.PropertyChanged += OnFamilyChanged;
         _undo.DataChanged += OnDataChanged;
+        var billing = _services.GetService<Coo.Mobile.Application.Billing.IBillingService>();
+        if (billing != null) billing.EntitlementChanged += QueueRender;
 
 #pragma warning disable CA1031 // async void: nothing may escape; the page keeps what it showed.
         try
@@ -102,6 +104,8 @@ public sealed class SettingsPage : ContentPage
         _account.BringOverRequested -= OnBringOverRequested;
         _family.PropertyChanged -= OnFamilyChanged;
         _undo.DataChanged -= OnDataChanged;
+        var billing = _services.GetService<Coo.Mobile.Application.Billing.IBillingService>();
+        if (billing != null) billing.EntitlementChanged -= QueueRender;
     }
 
     // A pull can change the baby's profile or the family settings (units, what you log) under this page.
@@ -240,6 +244,12 @@ public sealed class SettingsPage : ContentPage
         // The time pickers write back while the page is built; those writes are not edits.
         _rendering = true;
         var stack = new VerticalStackLayout { Spacing = 12, Padding = new Thickness(24, 32, 24, 96) };
+        var billing = _services.GetService<Coo.Mobile.Application.Billing.IBillingService>();
+        var isPremium = billing?.IsPremiumCached ?? false;
+        var theme = _services.GetService<ThemeController>();
+        var isNight = theme?.Current == PaletteKind.Night;
+        var brandMark = CooBrand.CreateMark(isPremium, isNight, fontSize: 24);
+        stack.Add(new Grid { Margin = new Thickness(0, 0, 0, 4), Children = { brandMark } });
         stack.Add(Ui.Text(Strings.Get("Tab.Settings"), "Title"));
 
         foreach (var view in AccountViews())

@@ -8,4 +8,6 @@ public interface IBillingService
     Task<bool> PurchasePremiumAsync(HouseholdId householdId, CancellationToken cancellationToken);
     Task<bool> CheckEntitlementAsync(HouseholdId householdId, CancellationToken cancellationToken);
     bool IsPremiumCached { get; }
+    event Action? EntitlementChanged;
+    void SetPremiumForDebug(bool isPremium);
 }

@@ -1,137 +1,61 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.Advisor;
-
+using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.Households;
 
 namespace Coo.Mobile.Presentation.Advisor;
 
-public partial class AdvisorViewModel(IAdvisorApi api, ISessionStore sessionStore, IHouseholdStore householdStore, TimeProvider timeProvider) : ObservableObject, IDisposable
+public partial class AdvisorViewModel(
+    IAdvisorApi api,
+    IAdvisorThreadStore threadStore,
+    ISessionStore sessionStore,
+    IHouseholdStore householdStore,
+    TimeProvider timeProvider) : ObservableObject, IDisposable
 {
+    private CancellationTokenSource? _cts;
+    private string? _activeRequestId;
+    private string[] _allQuestionsPool = [];
+    private int _poolRotationIndex;
+
     [ObservableProperty]
     private string _question = string.Empty;
 
     [ObservableProperty]
     private bool _isBusy;
 
-    public ObservableCollection<AdvisorMessage> Messages { get; } = new();
+    public ObservableCollection<AdvisorMessageItem> Messages { get; } = new();
+
+    public ObservableCollection<AdvisorThreadSummary> Threads { get; } = new();
 
     public ObservableCollection<string> SuggestedQuestions { get; } = new();
+
+    [ObservableProperty]
+    private string? _currentThreadId;
+
+    [ObservableProperty]
+    private string _currentThreadTitle = "New Conversation";
+
+    [ObservableProperty]
+    private bool _isHistoryOpen;
 
     [ObservableProperty]
     private string _developmentTitle = "Typical Development";
 
     [ObservableProperty]
-    private string _developmentText = "• Smiling & cooing\n• Tracking objects with eyes\n• Holding head up during tummy time";
+    private string _developmentSummary = "• Smiling & cooing\n• Tracking objects with eyes\n• Holding head up during tummy time";
 
-    public bool ShowSuggestedQuestions => Messages.Count == 0;
+    [ObservableProperty]
+    private string _developmentFullGuide = string.Empty;
+
+    [ObservableProperty]
+    private bool _isDevelopmentExpanded;
 
     [ObservableProperty]
     private bool _hasStartedChat;
-    
-    public async Task InitializeAsync()
-    {
-        SuggestedQuestions.Clear();
-        var session = await sessionStore.GetAsync(CancellationToken.None);
-        if (session != null)
-        {
-            var babies = await householdStore.ListBabiesAsync(session.AccountHousehold, CancellationToken.None);
-            var baby = babies.FirstOrDefault(b => !b.IsDeleted);
-            if (baby?.BirthDate is { } birthDate)
-            {
-                var today = DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
-                var daysOld = today.DayNumber - birthDate.DayNumber;
-                
-                string[] pool;
-                if (daysOld < 14)
-                {
-                    DevelopmentTitle = "0-2 Weeks (Newborn)";
-                    DevelopmentText = "• Startles to loud noises\n• Prefers looking at faces (8-12 inches away)\n• Keeps hands in tight fists\n• Reflexive smile (not social yet)\n• Moves head side to side on stomach";
-                    pool = [
-                        "Is it normal my newborn sleeps all day?",
-                        "How often should a 1-week-old feed?",
-                        "What is normal for newborn poop?",
-                        "How to soothe a crying newborn?",
-                        "When to do tummy time?",
-                        "Is my baby eating enough?",
-                        "How to safely swaddle?",
-                        "Tips for burping?"
-                    ];
-                }
-                else if (daysOld < 90)
-                {
-                    DevelopmentTitle = "1-3 Months";
-                    DevelopmentText = "• Social smiles begin (around 2 months)\n• Coos and makes gurgling sounds\n• Turns head toward sounds\n• Follows objects with eyes across midline\n• Holds head up steady during tummy time\n• Brings hands to mouth";
-                    pool = [
-                        "When will my baby smile?",
-                        "Is 4 hours between feeds normal?",
-                        "How much tummy time is needed?",
-                        "When do they sleep longer at night?",
-                        "Signs of a growth spurt?",
-                        "What are leap weeks?",
-                        "How to establish a bedtime routine?",
-                        "Why is my baby so fussy in the evening?"
-                    ];
-                }
-                else if (daysOld < 180)
-                {
-                    DevelopmentTitle = "3-6 Months";
-                    DevelopmentText = "• Laughs out loud and babbles ('ba-ba')\n• Rolls over (front to back, then back to front)\n• Reaches for and grabs objects\n• Passes toys from one hand to the other\n• Bears weight on legs when held standing\n• Begins to sit with support";
-                    pool = [
-                        "When do babies roll over?",
-                        "Signs of a sleep regression?",
-                        "Starting solid foods?",
-                        "How many naps are typical now?",
-                        "Signs of teething?",
-                        "When do they start babbling?",
-                        "Can they drink water yet?",
-                        "Best toys for this age?"
-                    ];
-                }
-                else
-                {
-                    DevelopmentTitle = "6-12 Months";
-                    DevelopmentText = "• Sits independently without support\n• Crawls or scoots\n• Pulls to a standing position\n• Uses pincer grasp (thumb and forefinger)\n• Understands 'no' and recognizes own name\n• Plays peek-a-boo and claps hands";
-                    pool = [
-                        "When will my baby sit up?",
-                        "Is it time for two naps?",
-                        "Signs of separation anxiety?",
-                        "When do babies crawl?",
-                        "Transitioning from breast/bottle to cup?",
-                        "Finger foods to try?",
-                        "When to drop the pacifier?",
-                        "Sleep training tips?"
-                    ];
-                }
-                
-                var ticks = timeProvider.GetUtcNow().Ticks;
-                foreach (var q in pool.OrderBy(x => (x.GetHashCode() ^ ticks)).Take(4))
-                {
-                    SuggestedQuestions.Add(q);
-                }
-                return;
-            }
-        }
-        
-        // Fallback questions
-        var fallbacks = new[] {
-            "Is 4 hours between feeds normal?",
-            "When will the baby sleep through the night?",
-            "How much tummy time is needed?",
-            "Signs of a growth spurt?",
-            "How to soothe a crying baby?",
-            "Starting solid foods?"
-        };
-        var fallbackTicks = timeProvider.GetUtcNow().Ticks;
-        foreach (var q in fallbacks.OrderBy(x => (x.GetHashCode() ^ fallbackTicks)).Take(4))
-        {
-            SuggestedQuestions.Add(q);
-        }
-    }
 
-    private CancellationTokenSource? _cts;
+    public bool ShowSuggestedQuestions => Messages.Count == 0 && !IsHistoryOpen;
 
     public void Dispose()
     {
@@ -140,15 +64,158 @@ public partial class AdvisorViewModel(IAdvisorApi api, ISessionStore sessionStor
         GC.SuppressFinalize(this);
     }
 
-    [RelayCommand]
-    private void ResetChat()
+    public async Task InitializeAsync()
     {
+        await RefreshThreadsAsync();
+
+        var session = await sessionStore.GetAsync(CancellationToken.None);
+        if (session != null)
+        {
+            var babies = await householdStore.ListBabiesAsync(session.AccountHousehold, CancellationToken.None);
+            var baby = babies.FirstOrDefault(b => !b.IsDeleted);
+            if (baby?.BirthDate is { } birthDate)
+            {
+                var today = DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
+                var daysOld = Math.Max(0, today.DayNumber - birthDate.DayNumber);
+
+                var stage = AdvisorKnowledgeBase.GetStage(daysOld);
+                DevelopmentTitle = stage.StageBadge;
+                DevelopmentSummary = stage.Summary;
+                DevelopmentFullGuide =
+                    $"🏃 Movement & Physical Skills\n{stage.MotorSkills}\n\n" +
+                    $"🧠 Cognitive & Senses\n{stage.CognitiveSensory}\n\n" +
+                    $"💬 Communication & Social\n{stage.SocialSpeech}\n\n" +
+                    $"💤 Rhythm, Sleep & Feeding\n{stage.RhythmSleep}\n\n" +
+                    $"💡 Pediatric Tip\n{stage.PediatricTip}";
+
+                _allQuestionsPool = AdvisorKnowledgeBase.GetQuestionPool(daysOld);
+                LoadQuestionBatch();
+                return;
+            }
+        }
+
+        // Fallback if no baby or birth date is configured
+        DevelopmentTitle = "Development & Milestone Guide";
+        DevelopmentSummary = "Track your baby's physical, sensory, and social milestones and ask any pediatric questions.";
+        DevelopmentFullGuide = "Explore age-appropriate insights on feeding, safe sleep rhythms, tummy time exercises, and growth milestones.";
+        _allQuestionsPool = AdvisorKnowledgeBase.GetFallbackQuestions();
+        LoadQuestionBatch();
+    }
+
+    private void LoadQuestionBatch()
+    {
+        SuggestedQuestions.Clear();
+        if (_allQuestionsPool.Length == 0) return;
+
+        var count = Math.Min(5, _allQuestionsPool.Length);
+        for (var i = 0; i < count; i++)
+        {
+            var idx = (_poolRotationIndex + i) % _allQuestionsPool.Length;
+            SuggestedQuestions.Add(_allQuestionsPool[idx]);
+        }
+    }
+
+    [RelayCommand]
+    private void ShuffleQuestions()
+    {
+        if (_allQuestionsPool.Length > 0)
+        {
+            _poolRotationIndex = (_poolRotationIndex + 4) % _allQuestionsPool.Length;
+            LoadQuestionBatch();
+        }
+    }
+
+    [RelayCommand]
+    private void ToggleDevelopmentExpanded()
+    {
+        IsDevelopmentExpanded = !IsDevelopmentExpanded;
+    }
+
+    [RelayCommand]
+    private async Task ToggleHistoryAsync()
+    {
+        IsHistoryOpen = !IsHistoryOpen;
+        if (IsHistoryOpen)
+        {
+            await RefreshThreadsAsync();
+        }
+    }
+
+    private async Task RefreshThreadsAsync()
+    {
+        try
+        {
+            var list = await threadStore.ListThreadsAsync(CancellationToken.None);
+            Threads.Clear();
+            foreach (var t in list)
+            {
+                Threads.Add(t);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to load threads: {ex}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task OpenThreadAsync(AdvisorThreadSummary? summary)
+    {
+        if (summary is null) return;
+
+        // Abort any active in-flight query
         _cts?.Cancel();
         _cts?.Dispose();
         _cts = null;
+        _activeRequestId = null;
         IsBusy = false;
+
+        var fullThread = await threadStore.GetThreadAsync(summary.Id, CancellationToken.None);
+        if (fullThread != null)
+        {
+            CurrentThreadId = fullThread.Id;
+            CurrentThreadTitle = fullThread.Title;
+            Messages.Clear();
+            foreach (var msg in fullThread.Messages)
+            {
+                Messages.Add(msg);
+            }
+            HasStartedChat = Messages.Count > 0;
+        }
+
+        IsHistoryOpen = false;
+    }
+
+    [RelayCommand]
+    private async Task DeleteThreadAsync(AdvisorThreadSummary? summary)
+    {
+        if (summary is null) return;
+
+        await threadStore.DeleteThreadAsync(summary.Id, CancellationToken.None);
+        Threads.Remove(summary);
+
+        if (CurrentThreadId == summary.Id)
+        {
+            ResetChat();
+        }
+    }
+
+    [RelayCommand]
+    private void ResetChat()
+    {
+        // Instantly cancel any ongoing API call
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = null;
+        _activeRequestId = null;
+
+        IsBusy = false;
+        CurrentThreadId = null;
+        CurrentThreadTitle = "New Conversation";
         Messages.Clear();
         HasStartedChat = false;
+        IsHistoryOpen = false;
+        Question = string.Empty;
     }
 
     [RelayCommand]
@@ -156,24 +223,67 @@ public partial class AdvisorViewModel(IAdvisorApi api, ISessionStore sessionStor
     {
         if (string.IsNullOrWhiteSpace(Question) || IsBusy) return;
 
-        var text = Question;
+        var text = Question.Trim();
         Question = string.Empty;
-        
-        Messages.Add(new AdvisorMessage { Text = text, IsUser = true });
-        HasStartedChat = true;
-        IsBusy = true;
 
+        // Immediately abort any previous request
         _cts?.Cancel();
         _cts?.Dispose();
         _cts = new CancellationTokenSource();
         var token = _cts.Token;
+
+        var requestId = Guid.CreateVersion7(timeProvider.GetUtcNow()).ToString("N");
+        _activeRequestId = requestId;
+
+        var now = timeProvider.GetUtcNow();
+        var userMsg = new AdvisorMessageItem
+        {
+            Id = Guid.CreateVersion7(now).ToString("N"),
+            Text = text,
+            IsUser = true,
+            Timestamp = now
+        };
+
+        // Determine thread
+        var threadId = CurrentThreadId;
+        var isNewThread = false;
+        if (string.IsNullOrWhiteSpace(threadId))
+        {
+            threadId = Guid.CreateVersion7(now).ToString("N");
+            CurrentThreadId = threadId;
+            var title = text.Length > 36 ? text[..36].Trim() + "…" : text;
+            CurrentThreadTitle = title;
+            isNewThread = true;
+        }
+
+        Messages.Add(userMsg);
+        HasStartedChat = true;
+        IsBusy = true;
+
+        // Persist user message to thread immediately
+        var currentThread = !isNewThread ? await threadStore.GetThreadAsync(threadId, CancellationToken.None) : null;
+        currentThread ??= new AdvisorThread
+        {
+            Id = threadId,
+            Title = CurrentThreadTitle,
+            CreatedAt = now,
+            LastUpdatedAt = now,
+            Messages = []
+        };
+        currentThread.Messages.Add(userMsg);
+        currentThread.LastUpdatedAt = now;
+        await threadStore.SaveThreadAsync(currentThread, CancellationToken.None);
+        await RefreshThreadsAsync();
 
         try
         {
             var session = await sessionStore.GetAsync(token);
             if (session == null)
             {
-                Messages.Add(new AdvisorMessage { Text = "You must be signed in.", IsUser = false });
+                if (_activeRequestId == requestId && CurrentThreadId == threadId && !token.IsCancellationRequested)
+                {
+                    Messages.Add(new AdvisorMessageItem { Text = "You must be signed in to ask questions.", IsUser = false, Timestamp = timeProvider.GetUtcNow() });
+                }
                 return;
             }
 
@@ -194,49 +304,63 @@ public partial class AdvisorViewModel(IAdvisorApi api, ISessionStore sessionStor
                 History = history
             };
 
-            try
+            var response = await api.AskAsync(request, token);
+
+            // Race-condition check: if the user clicked New or switched threads while loading, do NOT append to active screen!
+            if (token.IsCancellationRequested || _activeRequestId != requestId)
             {
-                var response = await api.AskAsync(request, token);
-                if (!token.IsCancellationRequested)
+                // Optionally save response to background thread
+                if (response?.Answer != null)
                 {
-                    Messages.Add(new AdvisorMessage { Text = response?.Answer ?? "Error parsing response.", IsUser = false });
+                    currentThread.Messages.Add(new AdvisorMessageItem { Text = response.Answer, IsUser = false, Timestamp = timeProvider.GetUtcNow() });
+                    currentThread.LastUpdatedAt = timeProvider.GetUtcNow();
+                    await threadStore.SaveThreadAsync(currentThread, CancellationToken.None);
                 }
+                return;
             }
-            catch (OperationCanceledException)
+
+            if (CurrentThreadId == threadId)
             {
-                // Ignore cancellation
-            }
-            catch (Exception ex)
-            {
-                if (!token.IsCancellationRequested)
+                var answerText = response?.Answer ?? "Sorry, no answer could be retrieved.";
+                var nowMsg = timeProvider.GetUtcNow();
+                var assistantMsg = new AdvisorMessageItem
                 {
-                    Messages.Add(new AdvisorMessage { Text = $"Error connecting to Advisor API: {ex.Message}", IsUser = false });
-                }
+                    Id = Guid.CreateVersion7(nowMsg).ToString("N"),
+                    Text = answerText,
+                    IsUser = false,
+                    Timestamp = nowMsg
+                };
+                Messages.Add(assistantMsg);
+
+                currentThread.Messages.Add(assistantMsg);
+                currentThread.LastUpdatedAt = timeProvider.GetUtcNow();
+                await threadStore.SaveThreadAsync(currentThread, CancellationToken.None);
+                await RefreshThreadsAsync();
             }
         }
         catch (OperationCanceledException)
         {
-            // Ignore cancellation
+            // Expected on cancellation: do nothing
         }
         catch (Exception ex)
         {
-            if (!token.IsCancellationRequested)
+            if (!token.IsCancellationRequested && _activeRequestId == requestId && CurrentThreadId == threadId)
             {
-                Messages.Add(new AdvisorMessage { Text = $"Error connecting to Advisor API: {ex.Message}", IsUser = false });
+                Messages.Add(new AdvisorMessageItem
+                {
+                    Text = $"Error connecting to Advisor API: {ex.Message}",
+                    IsUser = false,
+                    Timestamp = timeProvider.GetUtcNow()
+                });
             }
         }
         finally
         {
-            if (!token.IsCancellationRequested)
+            if (_activeRequestId == requestId)
             {
                 IsBusy = false;
+                _activeRequestId = null;
             }
         }
     }
-}
-
-public class AdvisorMessage
-{
-    public required string Text { get; init; }
-    public required bool IsUser { get; init; }
 }

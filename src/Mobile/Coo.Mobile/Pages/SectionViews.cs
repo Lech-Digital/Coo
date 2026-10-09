@@ -153,26 +153,7 @@ internal static class SectionViews
 
     private static View Header(BabyHeaderSection s, SectionHost host)
     {
-        var longPress = host.OpenDebug;
-        var formatted = new FormattedString();
-        if (s.IsPremium)
-        {
-            formatted.Spans.Add(new Span { Text = "co", FontFamily = "FigtreeBold", FontSize = 24 }.Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Ink")));
-            formatted.Spans.Add(new Span { Text = "o ", FontFamily = "FigtreeBold", FontSize = 24 }.Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Accent")));
-            formatted.Spans.Add(new Span { Text = "Premium", FontFamily = "FigtreeBold", FontSize = 24 }.Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Accent")));
-        }
-        else
-        {
-            formatted.Spans.Add(new Span { Text = "co", FontFamily = "FigtreeBold", FontSize = 24 }.Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Ink")));
-            formatted.Spans.Add(new Span { Text = "o", FontFamily = "FigtreeBold", FontSize = 24 }.Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Accent")));
-        }
-
-        var mark = new Label
-        {
-            FormattedText = formatted,
-            VerticalOptions = LayoutOptions.Center,
-        };
-        AttachLongPress(mark, longPress);
+        var mark = CooBrand.CreateMark(s.IsPremium, host.Today.IsNight, longPress: host.OpenDebug, fontSize: 24);
 
         var initial = Ui.Rounded(Ui.Text(s.Initial, "Meta", "CheekInk").Tap(l => { l.FontFamily = "FigtreeBold"; l.HorizontalOptions = LayoutOptions.Center; }), "Cheek", 999, new Thickness(0));
         initial.WidthRequest = 28;

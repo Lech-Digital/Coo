@@ -87,6 +87,7 @@ public sealed partial class TodayViewModel : ObservableObject
         WhoLabelsSource who, Coo.Mobile.Application.Preferences.IReviewPrompter reviewPrompter, Coo.Mobile.Application.Billing.IBillingService billing)
     {
         _billing = billing;
+        _billing.EntitlementChanged += () => Tick();
         (_attention, _undo, _whoSource) = (attention, undo, who);
         _all = [.. sections.OrderBy(s => s.Order)];
         (_households, _getToday, _actions, _theme, _clock, _recordBirth, _time) = (households, getToday, actions, theme, clock, recordBirth, time);

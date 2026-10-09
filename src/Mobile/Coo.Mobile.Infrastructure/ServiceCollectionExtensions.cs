@@ -1,15 +1,15 @@
+using Coo.Mobile.Application.Advisor;
 using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Preferences;
 using Coo.Mobile.Application.Sync;
+using Coo.Mobile.Infrastructure.Advisor;
 using Coo.Mobile.Infrastructure.AppVersion;
 using Coo.Mobile.Infrastructure.Auth;
 using Coo.Mobile.Infrastructure.Households;
 using Coo.Mobile.Infrastructure.Persistence;
 using Coo.Mobile.Infrastructure.Sync;
-using Coo.Mobile.Application.Advisor;
-using Coo.Mobile.Infrastructure.Advisor;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Coo.Mobile.Infrastructure;
@@ -78,10 +78,11 @@ public static class ServiceCollectionExtensions
 
         // Members and invitations (Spec 011b §10.1): the same refreshing handler.
         services.AddSingleton<IHouseholdApi>(sp => new HouseholdClient(Authenticated(sp)));
-        
+
         // Advisor
         services.AddSingleton<IAdvisorApi>(sp => new AdvisorClient(Authenticated(sp)));
-        
+        services.AddSingleton<IAdvisorThreadStore, AdvisorThreadStore>();
+
         return services;
     }
 }

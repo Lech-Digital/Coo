@@ -37,7 +37,7 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
     public DbSet<InvitationRecord> Invitations => Set<InvitationRecord>();
 
     public DbSet<SubscriptionRecord> Subscriptions => Set<SubscriptionRecord>();
-    
+
     public DbSet<AdvisorUsageRecord> AdvisorUsages => Set<AdvisorUsageRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

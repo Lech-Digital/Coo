@@ -51,9 +51,10 @@ public sealed partial class PremiumViewModel(
     private async Task PurchaseAsync()
     {
         if (IsPremium) return;
-        
+
 #if DEBUG
         IsPremium = true;
+        billing.SetPremiumForDebug(true);
         return;
 #else
         Loading = true;
@@ -92,6 +93,7 @@ public sealed partial class PremiumViewModel(
     private void DevExpire()
     {
         IsPremium = false;
+        billing.SetPremiumForDebug(false);
     }
 #endif
 }

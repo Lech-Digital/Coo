@@ -1,5 +1,8 @@
+using Coo.Mobile.Application.Advisor;
+using Coo.Mobile.Application.Billing;
 using Coo.Mobile.Components;
 using Coo.Mobile.Presentation.Advisor;
+using Coo.Mobile.Presentation.Theme;
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Layouts;
 
@@ -8,10 +11,15 @@ namespace Coo.Mobile.Pages;
 public sealed class AdvisorPage : ContentPage
 {
     private readonly AdvisorViewModel _model;
+    private readonly IBillingService _billing;
+    private readonly ThemeController _theme;
+    private readonly ContentView _brandContainer = new();
 
-    public AdvisorPage(AdvisorViewModel model)
+    public AdvisorPage(AdvisorViewModel model, IBillingService billing, ThemeController theme)
     {
         _model = model;
+        _billing = billing;
+        _theme = theme;
         BindingContext = model;
         Shell.SetNavBarIsVisible(this, false);
         SetupUi();
@@ -20,95 +28,159 @@ public sealed class AdvisorPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        _billing.EntitlementChanged += UpdateBrandMark;
+        _theme.PaletteChanged += OnPaletteChanged;
+        UpdateBrandMark();
         await _model.InitializeAsync();
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        _billing.EntitlementChanged -= UpdateBrandMark;
+        _theme.PaletteChanged -= OnPaletteChanged;
+    }
+
+    private void OnPaletteChanged(object? sender, PaletteKind e) => UpdateBrandMark();
+
+    private void UpdateBrandMark()
+    {
+        Dispatcher.Dispatch(() =>
+        {
+            var isNight = _theme.Current == PaletteKind.Night;
+            _brandContainer.Content = CooBrand.CreateMark(_billing.IsPremiumCached, isNight, fontSize: 24);
+        });
     }
 
     private void SetupUi()
     {
-        // Header
-        var titleLabel = new Label
+        UpdateBrandMark();
+
+        // 1. Top Header
+        var historyButton = new Button
         {
-            Text = "Baby Advisor",
+            Text = "History",
             FontFamily = "FigtreeBold",
-            FontSize = 24,
+            FontSize = 13,
+            Padding = new Thickness(12, 4),
+            HeightRequest = 36,
             VerticalOptions = LayoutOptions.Center
         };
-        titleLabel.SetDynamicResource(Label.TextColorProperty, "Ink");
+        historyButton.SetDynamicResource(Button.TextColorProperty, "Ink");
+        historyButton.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
+        historyButton.SetBinding(Button.CommandProperty, "ToggleHistoryCommand");
 
         var newChatButton = new Button
         {
-            Text = "New",
+            Text = "+ New",
             FontFamily = "FigtreeBold",
-            FontSize = 14,
+            FontSize = 13,
             Padding = new Thickness(12, 4),
-            VerticalOptions = LayoutOptions.Center,
-            HorizontalOptions = LayoutOptions.End
+            HeightRequest = 36,
+            VerticalOptions = LayoutOptions.Center
         };
         newChatButton.SetDynamicResource(Button.TextColorProperty, "Accent");
         newChatButton.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
         newChatButton.SetBinding(Button.CommandProperty, "ResetChatCommand");
 
-        var header = new Grid
+        var headerButtons = new HorizontalStackLayout
         {
-            ColumnDefinitions = { new ColumnDefinition(GridLength.Star) },
-            Margin = new Thickness(0, 0, 0, 8)
+            Spacing = 8,
+            VerticalOptions = LayoutOptions.Center,
+            Children = { historyButton, newChatButton }
         };
-        header.Add(titleLabel, 0);
 
-        var subtitle = new Label
+        var topBar = new Grid
         {
-            Text = "Powered by Google Gemini. Ask questions about your baby's development, sleep, or feeding.",
+            ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)],
+            Margin = new Thickness(0, 0, 0, 12)
+        };
+        topBar.Add(_brandContainer, 0);
+        topBar.Add(headerButtons, 1);
+
+        // 2. Subtitle
+        var titleLabel = new Label
+        {
+            FontFamily = "FigtreeBold",
+            FontSize = 20,
+            Margin = new Thickness(0, 0, 0, 2)
+        };
+        titleLabel.SetDynamicResource(Label.TextColorProperty, "Ink");
+        titleLabel.SetBinding(Label.TextProperty, new Binding("HasStartedChat", converter: new BoolToStringConverter("Conversation", "Baby Advisor")));
+
+        var subtitleLabel = new Label
+        {
+            Text = "Powered by Google Gemini · Pediatric & milestone guidance",
             FontFamily = "FigtreeRegular",
-            FontSize = 14,
-            Margin = new Thickness(0, 0, 0, 16)
+            FontSize = 13,
+            Margin = new Thickness(0, 0, 0, 12)
         };
-        subtitle.SetDynamicResource(Label.TextColorProperty, "Ink2");
+        subtitleLabel.SetDynamicResource(Label.TextColorProperty, "Ink2");
 
-        var devLabel = new Label { FontFamily = "FigtreeSemiBold", FontSize = 16 };
+        // 3. Milestones Card
+        var devLabel = new Label { FontFamily = "FigtreeBold", FontSize = 15 };
         devLabel.SetBinding(Label.TextProperty, "DevelopmentTitle");
         devLabel.SetDynamicResource(Label.TextColorProperty, "Ink");
-        
-        var devText = new Label { FontFamily = "FigtreeRegular", FontSize = 14 };
-        devText.SetBinding(Label.TextProperty, "DevelopmentText");
-        devText.SetDynamicResource(Label.TextColorProperty, "Ink");
 
-        // Development Milestones Placeholder
-        var milestonesFrame = Ui.Rounded(
+        var devSummary = new Label { FontFamily = "FigtreeRegular", FontSize = 14, LineHeight = 1.2 };
+        devSummary.SetBinding(Label.TextProperty, "DevelopmentSummary");
+        devSummary.SetDynamicResource(Label.TextColorProperty, "Ink");
+
+        var devFull = new Label { FontFamily = "FigtreeRegular", FontSize = 13, LineHeight = 1.3, Margin = new Thickness(0, 8, 0, 0) };
+        devFull.SetBinding(Label.TextProperty, "DevelopmentFullGuide");
+        devFull.SetBinding(VisualElement.IsVisibleProperty, "IsDevelopmentExpanded");
+        devFull.SetDynamicResource(Label.TextColorProperty, "Ink2");
+
+        var toggleGuideButton = new Button
+        {
+            FontFamily = "FigtreeSemiBold",
+            FontSize = 13,
+            Padding = new Thickness(8, 2),
+            HorizontalOptions = LayoutOptions.Start,
+            BackgroundColor = Colors.Transparent,
+            Margin = new Thickness(-8, 4, 0, -4)
+        };
+        toggleGuideButton.SetDynamicResource(Button.TextColorProperty, "Accent");
+        toggleGuideButton.SetBinding(Button.TextProperty, new Binding("IsDevelopmentExpanded", converter: new BoolToStringConverter("Hide full guide ▴", "Show full guide ▾")));
+        toggleGuideButton.SetBinding(Button.CommandProperty, "ToggleDevelopmentExpandedCommand");
+
+        var milestonesCard = Ui.Rounded(
             new VerticalStackLayout
             {
-                Spacing = 8,
-                Children = { devLabel, devText }
+                Spacing = 6,
+                Children = { devLabel, devSummary, devFull, toggleGuideButton }
             },
             "Surface", 16, new Thickness(16), "Line");
+        milestonesCard.SetBinding(VisualElement.IsVisibleProperty, new Binding("HasStartedChat", converter: new InverseBoolConverter()));
 
-        // Suggested Questions "Pills"
+        // 4. Suggested Questions "Pills"
         var pillsLayout = new FlexLayout
         {
             Wrap = FlexWrap.Wrap,
             Direction = FlexDirection.Row,
             JustifyContent = FlexJustify.Start,
-            Margin = new Thickness(0, 16, 0, 8)
+            Margin = new Thickness(0, 12, 0, 8)
         };
-        
+
         BindableLayout.SetItemsSource(pillsLayout, _model.SuggestedQuestions);
         BindableLayout.SetItemTemplate(pillsLayout, new DataTemplate(() =>
         {
             var pillLabel = new Label
             {
                 FontFamily = "FigtreeMedium",
-                FontSize = 14,
+                FontSize = 13,
                 VerticalOptions = LayoutOptions.Center
             };
             pillLabel.SetBinding(Label.TextProperty, ".");
             pillLabel.SetDynamicResource(Label.TextColorProperty, "Accent");
 
-            var pill = Ui.Rounded(pillLabel, "Surface", 16, new Thickness(12, 8), "Accent");
-            pill.Margin = new Thickness(0, 0, 8, 8);
-            
+            var pill = Ui.Rounded(pillLabel, "Surface", 16, new Thickness(12, 8), "Line");
+            pill.Margin = new Thickness(0, 0, 6, 8);
+
             var tap = new TapGestureRecognizer();
             tap.Tapped += (s, e) =>
             {
-                if (pillLabel.Text != null)
+                if (pillLabel.Text != null && !_model.IsBusy)
                 {
                     _model.Question = pillLabel.Text;
                     if (_model.AskCommand.CanExecute(null))
@@ -118,43 +190,194 @@ public sealed class AdvisorPage : ContentPage
                 }
             };
             pill.GestureRecognizers.Add(tap);
-
             return pill;
         }));
 
-        // Chat Messages
+        var shuffleLabel = new Label
+        {
+            Text = "🎲 More questions",
+            FontFamily = "FigtreeBold",
+            FontSize = 13,
+            VerticalOptions = LayoutOptions.Center
+        };
+        shuffleLabel.SetDynamicResource(Label.TextColorProperty, "AccentInk");
+
+        var shufflePill = Ui.Rounded(shuffleLabel, "AccentSoft", 16, new Thickness(12, 8), "Accent");
+        shufflePill.Margin = new Thickness(0, 0, 6, 8);
+        var shuffleTap = new TapGestureRecognizer();
+        shuffleTap.Tapped += (_, _) => _model.ShuffleQuestionsCommand.Execute(null);
+        shufflePill.GestureRecognizers.Add(shuffleTap);
+
+        var pillsContainer = new VerticalStackLayout
+        {
+            Spacing = 4,
+            Children = { pillsLayout, shufflePill }
+        };
+        pillsContainer.SetBinding(VisualElement.IsVisibleProperty, new Binding("HasStartedChat", converter: new InverseBoolConverter()));
+
+        // 5. Chat Messages List
         var messagesCollection = new CollectionView
         {
-            Margin = new Thickness(0, 16, 0, 0),
+            Margin = new Thickness(0, 8, 0, 0),
             ItemTemplate = new DataTemplate(() =>
             {
                 var textLabel = new Label
                 {
                     FontFamily = "FigtreeRegular",
                     FontSize = 14,
+                    LineHeight = 1.25
                 };
                 textLabel.SetBinding(Label.TextProperty, "Text");
-                textLabel.SetDynamicResource(Label.TextColorProperty, "Ink");
 
-                var bubble = Ui.Rounded(textLabel, "Surface", 12, new Thickness(12, 8), "Line");
+                var bubble = new Border
+                {
+                    StrokeShape = new RoundRectangle { CornerRadius = 14 },
+                    Padding = new Thickness(14, 10),
+                    Content = textLabel
+                };
+
                 bubble.SetBinding(View.HorizontalOptionsProperty, new Binding("IsUser", converter: new BoolToLayoutOptionsConverter()));
-                
-                var container = new ContentView
+                bubble.SetBinding(VisualElement.BackgroundColorProperty, new Binding("IsUser", converter: new BoolToDynamicResourceConverter("AccentSoft", "Surface")));
+                bubble.SetBinding(Border.StrokeProperty, new Binding("IsUser", converter: new BoolToDynamicResourceConverter("Accent", "Line")));
+                textLabel.SetBinding(Label.TextColorProperty, new Binding("IsUser", converter: new BoolToDynamicResourceConverter("AccentInk", "Ink")));
+
+                return new ContentView
                 {
                     Content = bubble,
-                    Margin = new Thickness(0, 0, 0, 8)
+                    Margin = new Thickness(0, 0, 0, 10)
                 };
-                return container;
             })
         };
         messagesCollection.SetBinding(ItemsView.ItemsSourceProperty, "Messages");
+        messagesCollection.SetBinding(VisualElement.IsVisibleProperty, "HasStartedChat");
 
-        // Input Area
+        // 6. History Drawer / Overlay
+        var historyCloseBtn = new Button
+        {
+            Text = "Done",
+            FontFamily = "FigtreeBold",
+            FontSize = 13,
+            Padding = new Thickness(12, 4),
+            HeightRequest = 36,
+            HorizontalOptions = LayoutOptions.End
+        };
+        historyCloseBtn.SetDynamicResource(Button.TextColorProperty, "Accent");
+        historyCloseBtn.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
+        historyCloseBtn.SetBinding(Button.CommandProperty, "ToggleHistoryCommand");
+
+        var historyTitle = new Label
+        {
+            Text = "Conversation History",
+            FontFamily = "FigtreeBold",
+            FontSize = 18,
+            VerticalOptions = LayoutOptions.Center
+        };
+        historyTitle.SetDynamicResource(Label.TextColorProperty, "Ink");
+
+        var historyHeader = new Grid
+        {
+            ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)],
+            Margin = new Thickness(0, 0, 0, 12),
+            Children = { historyTitle, historyCloseBtn }
+        };
+        Grid.SetColumn(historyCloseBtn, 1);
+
+        var startNewChatBtn = new Button
+        {
+            Text = "+ Start New Conversation",
+            FontFamily = "FigtreeBold",
+            FontSize = 14,
+            CornerRadius = 12,
+            HeightRequest = 44,
+            Margin = new Thickness(0, 0, 0, 12)
+        };
+        startNewChatBtn.SetDynamicResource(Button.TextColorProperty, "Surface");
+        startNewChatBtn.SetDynamicResource(VisualElement.BackgroundColorProperty, "Accent");
+        startNewChatBtn.SetBinding(Button.CommandProperty, "ResetChatCommand");
+
+        var threadsCollection = new CollectionView
+        {
+            ItemTemplate = new DataTemplate(() =>
+            {
+                var title = new Label { FontFamily = "FigtreeSemiBold", FontSize = 14 };
+                title.SetBinding(Label.TextProperty, "Title");
+                title.SetDynamicResource(Label.TextColorProperty, "Ink");
+
+                var meta = new Label { FontFamily = "FigtreeRegular", FontSize = 12 };
+                meta.SetBinding(Label.TextProperty, new Binding("LastUpdatedAt", stringFormat: "{0:MMM d, HH:mm}"));
+                meta.SetDynamicResource(Label.TextColorProperty, "Ink2");
+
+                var infoStack = new VerticalStackLayout { Spacing = 2, Children = { title, meta } };
+
+                var deleteBtn = new Button
+                {
+                    Text = "✕",
+                    FontFamily = "FigtreeBold",
+                    FontSize = 14,
+                    WidthRequest = 36,
+                    HeightRequest = 36,
+                    CornerRadius = 18,
+                    Padding = 0,
+                    VerticalOptions = LayoutOptions.Center,
+                    HorizontalOptions = LayoutOptions.End
+                };
+                deleteBtn.SetDynamicResource(Button.TextColorProperty, "Ink2");
+                deleteBtn.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
+                deleteBtn.SetBinding(Button.CommandParameterProperty, ".");
+                deleteBtn.SetBinding(Button.CommandProperty, new Binding("BindingContext.DeleteThreadCommand", source: this));
+
+                var rowGrid = new Grid
+                {
+                    ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)],
+                    Padding = new Thickness(14, 12),
+                    Children = { infoStack, deleteBtn }
+                };
+                Grid.SetColumn(deleteBtn, 1);
+
+                var card = Ui.Rounded(rowGrid, "Surface", 12, 0, "Line");
+                card.Margin = new Thickness(0, 0, 0, 8);
+
+                var tap = new TapGestureRecognizer();
+                tap.Tapped += (s, e) =>
+                {
+                    if (card.BindingContext is AdvisorThreadSummary summary)
+                    {
+                        _model.OpenThreadCommand.Execute(summary);
+                    }
+                };
+                card.GestureRecognizers.Add(tap);
+
+                return card;
+            })
+        };
+        threadsCollection.SetBinding(ItemsView.ItemsSourceProperty, "Threads");
+
+        var emptyHistoryLabel = new Label
+        {
+            Text = "No previous conversations yet.",
+            FontFamily = "FigtreeRegular",
+            FontSize = 14,
+            HorizontalOptions = LayoutOptions.Center,
+            Margin = new Thickness(0, 32, 0, 0)
+        };
+        emptyHistoryLabel.SetDynamicResource(Label.TextColorProperty, "Ink2");
+        emptyHistoryLabel.SetBinding(VisualElement.IsVisibleProperty, new Binding("Threads.Count", converter: new ZeroToBoolConverter()));
+
+        var historyLayout = new Grid
+        {
+            RowDefinitions = [new(GridLength.Auto), new(GridLength.Auto), new(GridLength.Star)],
+            Children = { historyHeader, startNewChatBtn, new Grid { Children = { threadsCollection, emptyHistoryLabel } } }
+        };
+        Grid.SetRow(startNewChatBtn, 1);
+        Grid.SetRow(threadsCollection.Parent as View ?? historyLayout.Children[2] as View, 2);
+        historyLayout.SetBinding(VisualElement.IsVisibleProperty, "IsHistoryOpen");
+
+        // 7. Bottom Input Area
         var inputEntry = new Entry
         {
             Placeholder = "Ask about your baby...",
             FontFamily = "FigtreeRegular",
-            FontSize = 16,
+            FontSize = 15,
             BackgroundColor = Colors.Transparent,
             HorizontalOptions = LayoutOptions.Fill,
             VerticalOptions = LayoutOptions.Center
@@ -170,6 +393,7 @@ public sealed class AdvisorPage : ContentPage
             FontSize = 14,
             CornerRadius = 12,
             HeightRequest = 44,
+            Padding = new Thickness(16, 0),
             VerticalOptions = LayoutOptions.Center
         };
         sendButton.SetBinding(Button.CommandProperty, "AskCommand");
@@ -178,63 +402,77 @@ public sealed class AdvisorPage : ContentPage
 
         var activityIndicator = new ActivityIndicator
         {
-            VerticalOptions = LayoutOptions.Center
+            VerticalOptions = LayoutOptions.Center,
+            WidthRequest = 36,
+            HeightRequest = 36
         };
         activityIndicator.SetBinding(ActivityIndicator.IsRunningProperty, "IsBusy");
         activityIndicator.SetBinding(ActivityIndicator.IsVisibleProperty, "IsBusy");
         activityIndicator.SetDynamicResource(ActivityIndicator.ColorProperty, "Accent");
-        
+
         sendButton.SetBinding(VisualElement.IsVisibleProperty, new Binding("IsBusy", converter: new InverseBoolConverter()));
 
         var inputRow = new Grid
         {
-            ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) },
+            ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)],
             ColumnSpacing = 8,
-            Margin = new Thickness(0, 16, 0, 0)
+            Margin = new Thickness(0, 10, 0, 0)
         };
-        
-        var inputRounded = Ui.Rounded(inputEntry, "Surface", 12, new Thickness(16, 4), "Line");
 
+        var inputRounded = Ui.Rounded(inputEntry, "Surface", 12, new Thickness(14, 2), "Line");
         inputRow.Add(inputRounded, 0);
-        
+
         var buttonContainer = new HorizontalStackLayout { Children = { sendButton, activityIndicator } };
         inputRow.Add(buttonContainer, 1);
 
-        pillsLayout.SetBinding(VisualElement.IsVisibleProperty, new Binding("HasStartedChat", converter: new InverseBoolConverter()));
-
-        var topLayout = new VerticalStackLayout
+        var bottomContainer = new ContentView
         {
-            Padding = new Thickness(24, 64, 24, 24),
-            Children = { header, subtitle, milestonesFrame, pillsLayout }
+            Content = inputRow
         };
+        bottomContainer.SetBinding(VisualElement.IsVisibleProperty, new Binding("IsHistoryOpen", converter: new InverseBoolConverter()));
 
-        messagesCollection.Header = topLayout;
-
-        var mainLayout = new Grid
+        // Content Scrollable Header
+        var scrollHeader = new VerticalStackLayout
         {
-            RowDefinitions = { new RowDefinition(GridLength.Star), new RowDefinition(GridLength.Auto) },
+            Children = { topBar, titleLabel, subtitleLabel, milestonesCard, pillsContainer }
+        };
+        messagesCollection.Header = scrollHeader;
+
+        // Main Layout
+        var chatLayout = new Grid
+        {
+            RowDefinitions = [new(GridLength.Star), new(GridLength.Auto)],
             RowSpacing = 0
         };
+        chatLayout.Add(messagesCollection, 0, 0);
+        chatLayout.Add(bottomContainer, 0, 1);
+        chatLayout.SetBinding(VisualElement.IsVisibleProperty, new Binding("IsHistoryOpen", converter: new InverseBoolConverter()));
 
-        mainLayout.Add(messagesCollection, 0, 0);
-        
-        newChatButton.SetBinding(VisualElement.IsVisibleProperty, "HasStartedChat");
-        newChatButton.HorizontalOptions = LayoutOptions.Center;
-        
-        var bottomLayout = new ContentView
+        var rootGrid = new Grid
         {
-            Padding = new Thickness(24, 0, 24, 24),
-            Content = new VerticalStackLayout
-            {
-                Spacing = 8,
-                Children = { newChatButton, inputRow }
-            }
+            Padding = new Thickness(24, 40, 24, 20),
+            Children = { chatLayout, historyLayout }
         };
-        mainLayout.Add(bottomLayout, 0, 1);
 
-        Content = mainLayout;
+        Content = rootGrid;
         this.SetDynamicResource(VisualElement.BackgroundColorProperty, "Ground");
     }
+}
+
+public class BoolToStringConverter(string trueValue, string falseValue) : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) =>
+        value is bool b && b ? trueValue : falseValue;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) => throw new NotImplementedException();
+}
+
+public class ZeroToBoolConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) =>
+        value is int count && count == 0;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) => throw new NotImplementedException();
 }
 
 public class BoolToLayoutOptionsConverter : IValueConverter
@@ -257,6 +495,23 @@ public class InverseBoolConverter : IValueConverter
     {
         if (value is bool b) return !b;
         return true;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) => throw new NotImplementedException();
+}
+
+public class BoolToDynamicResourceConverter(string trueKey, string falseKey) : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+    {
+        var key = value is bool b && b ? trueKey : falseKey;
+        if (Microsoft.Maui.Controls.Application.Current?.Resources.TryGetValue(key, out var resource) == true)
+        {
+            if (targetType == typeof(Brush) && resource is Color c)
+                return new SolidColorBrush(c);
+            return resource;
+        }
+        return null;
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) => throw new NotImplementedException();
