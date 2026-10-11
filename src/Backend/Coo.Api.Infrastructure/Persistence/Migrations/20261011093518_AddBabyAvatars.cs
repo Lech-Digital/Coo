@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Coo.Api.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class AddBabyAvatars : Migration
+    internal partial class AddBabyAvatars : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
