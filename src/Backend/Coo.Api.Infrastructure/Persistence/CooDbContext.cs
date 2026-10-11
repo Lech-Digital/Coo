@@ -335,6 +335,21 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
             e.HasOne<CooUser>().WithMany().HasForeignKey(a => a.UserId)
                 .HasConstraintName("fk_advisor_usages_users").OnDelete(DeleteBehavior.Cascade);
         });
+
+        modelBuilder.Entity<BabyAvatarRecord>(e =>
+        {
+            e.ToTable("baby_avatars");
+            e.HasKey(a => a.BabyId);
+            e.Property(a => a.BabyId).HasColumnName("baby_id").ValueGeneratedNever();
+            e.Property(a => a.HouseholdId).HasColumnName("household_id");
+            e.Property(a => a.AvatarType).HasColumnName("avatar_type");
+            e.Property(a => a.PresetKey).HasColumnName("preset_key");
+            e.Property(a => a.ImageData).HasColumnName("image_data");
+            e.Property(a => a.Version).HasColumnName("version");
+            e.Property(a => a.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz");
+            e.Property(a => a.UpdatedBy).HasColumnName("updated_by");
+            e.HasIndex(a => a.HouseholdId).HasDatabaseName("ix_baby_avatars_household");
+        });
     }
 
     /// <summary>The ADR 0002 sync columns every synced table carries.</summary>

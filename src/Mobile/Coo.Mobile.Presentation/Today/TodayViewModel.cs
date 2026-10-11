@@ -81,17 +81,30 @@ public sealed partial class TodayViewModel : ObservableObject
 
     private readonly Coo.Mobile.Application.Billing.IBillingService _billing;
     private readonly IDevicePreferences _preferences;
+    private readonly Coo.Mobile.Application.Households.BabyAvatarSyncService? _avatarSync;
     private string? _avatarRef;
 
     public TodayViewModel(
         IEnumerable<IHomeSection> sections, IHouseholdStore households, GetToday getToday, HomeActions actions,
         ThemeController theme, IClockFormat clock, RecordBirth recordBirth, TimeProvider time, GetAttention attention, UndoService undo,
         WhoLabelsSource who, Coo.Mobile.Application.Preferences.IReviewPrompter reviewPrompter, Coo.Mobile.Application.Billing.IBillingService billing,
-        IDevicePreferences preferences)
+        IDevicePreferences preferences, Coo.Mobile.Application.Households.BabyAvatarSyncService? avatarSync = null)
     {
         _billing = billing;
         _preferences = preferences;
+        _avatarSync = avatarSync;
         _billing.EntitlementChanged += () => Tick();
+        if (_avatarSync != null)
+        {
+            _avatarSync.AvatarChanged += async (_, _) =>
+            {
+                if (_baby != null)
+                {
+                    _avatarRef = await _preferences.GetBabyAvatarAsync(_baby.Id.Value, CancellationToken.None);
+                    Relayout();
+                }
+            };
+        }
         (_attention, _undo, _whoSource) = (attention, undo, who);
         _all = [.. sections.OrderBy(s => s.Order)];
         (_households, _getToday, _actions, _theme, _clock, _recordBirth, _time) = (households, getToday, actions, theme, clock, recordBirth, time);
@@ -153,6 +166,11 @@ public sealed partial class TodayViewModel : ObservableObject
             return;
 
         _avatarRef = await _preferences.GetBabyAvatarAsync(_baby.Id.Value, CancellationToken.None);
+
+        if (_avatarSync != null)
+        {
+            _ = _avatarSync.SyncBabyAvatarAsync(_household.Id.Value, _baby.Id.Value, CancellationToken.None);
+        }
 
         _actions.Context = new HomeContext(_household.Id, _baby.Id);
         _summary = _baby.IsBorn

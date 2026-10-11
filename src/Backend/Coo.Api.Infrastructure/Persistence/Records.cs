@@ -310,3 +310,23 @@ internal sealed class AdvisorUsageRecord
     public required int QuestionCount { get; set; }
 }
 
+/// <summary><c>baby_avatars</c>: tracks synced avatar/photo per baby across the family household.</summary>
+internal sealed class BabyAvatarRecord
+{
+    public required Guid BabyId { get; init; }
+
+    public required Guid HouseholdId { get; init; }
+
+    public required string AvatarType { get; set; }
+
+    public string? PresetKey { get; set; }
+
+    public byte[]? ImageData { get; set; }
+
+    public required long Version { get; set; }
+
+    public required DateTime UpdatedAt { get; set; }
+
+    public required Guid UpdatedBy { get; set; }
+}
+

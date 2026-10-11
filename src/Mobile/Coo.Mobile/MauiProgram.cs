@@ -69,6 +69,11 @@ public static class MauiProgram
         builder.Services.AddSingleton<Coo.Mobile.Presentation.Settings.IConsentPrompt, Joining.MauiConsentPrompt>();
         builder.Services.AddSingleton<Coo.Mobile.Presentation.Settings.IAboutInfo, Settings.MauiAboutInfo>();
         builder.Services.AddSingleton<Coo.Mobile.Presentation.Settings.IExternalLauncher, Settings.MauiExternalLauncher>();
+        builder.Services.AddSingleton<Coo.Mobile.Application.Households.BabyAvatarSyncService>(sp =>
+            new Coo.Mobile.Application.Households.BabyAvatarSyncService(
+                sp.GetRequiredService<Coo.Mobile.Application.Households.IBabyAvatarApi>(),
+                sp.GetRequiredService<Coo.Mobile.Application.Preferences.IDevicePreferences>(),
+                FileSystem.AppDataDirectory));
         builder.Services.AddTransient<AppShell>();
 #if DEBUG_SCREEN
         builder.Services.AddTransient<DebugScreen.DebugPage>();

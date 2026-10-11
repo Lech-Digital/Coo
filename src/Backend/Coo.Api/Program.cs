@@ -125,6 +125,7 @@ app.MapSyncEndpoints();
 app.MapHouseholdEndpoints();
 app.MapAppLinkEndpoints(fingerprints);
 app.MapAdvisorEndpoints();
+app.MapBabyAvatarEndpoints();
 app.MapAppUpdateEndpoints();
 app.MapBillingEndpoints();
 

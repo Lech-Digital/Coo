@@ -31,6 +31,21 @@ public sealed record InvitationPreviewResponse(
 /// <summary><see cref="Outcome"/> is one of <see cref="AcceptOutcomes"/>.</summary>
 public sealed record AcceptInvitationResponse(Guid HouseholdId, string Role, string Outcome);
 
+public sealed record BabyAvatarDto
+{
+    public string AvatarType { get; init; } = "none";
+    public string? PresetKey { get; init; }
+    public long Version { get; init; }
+    public bool HasImage { get; init; }
+}
+
+public sealed record SetBabyAvatarRequest
+{
+    public string AvatarType { get; init; } = "preset";
+    public string? PresetKey { get; init; }
+    public string? ImageBase64 { get; init; }
+}
+
 /// <summary>Spec 011b §10.1. Once released, a code is never renamed (ADR 0006).</summary>
 public static class HouseholdErrors
 {

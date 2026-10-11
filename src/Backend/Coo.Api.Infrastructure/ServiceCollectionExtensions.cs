@@ -52,6 +52,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Coo.Api.Application.Billing.IBillingStore, Coo.Api.Infrastructure.Persistence.BillingStore>();
         services.AddSingleton<Coo.Api.Application.Billing.IGooglePlayValidator, Coo.Api.Infrastructure.Billing.GooglePlayValidator>();
         services.AddSingleton<Coo.Api.Application.Advisor.IAdvisorService, Coo.Api.Infrastructure.Persistence.AdvisorService>();
+        services.AddSingleton<Coo.Api.Application.Households.IBabyAvatarStore, Coo.Api.Infrastructure.Persistence.BabyAvatarStore>();
 
         // Registered first, so it finishes before any other hosted service starts and before the server listens.
         services.AddHostedService<DatabaseStartup>();

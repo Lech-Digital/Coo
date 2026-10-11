@@ -18,6 +18,7 @@ public sealed partial class BabyProfileViewModel : ObservableObject
     private readonly IDevicePreferences? _preferences;
     private readonly IAdvisorApi? _advisorApi;
     private readonly IBillingService? _billing;
+    private readonly Coo.Mobile.Application.Households.BabyAvatarSyncService? _avatarSyncService;
 
     private BabyProfile? _baby;
 
@@ -64,7 +65,8 @@ public sealed partial class BabyProfileViewModel : ObservableObject
         TimeProvider time,
         IDevicePreferences? preferences = null,
         IAdvisorApi? advisorApi = null,
-        IBillingService? billing = null)
+        IBillingService? billing = null,
+        Coo.Mobile.Application.Households.BabyAvatarSyncService? avatarSyncService = null)
     {
         _households = households;
         _update = update;
@@ -72,6 +74,19 @@ public sealed partial class BabyProfileViewModel : ObservableObject
         _preferences = preferences;
         _advisorApi = advisorApi;
         _billing = billing;
+        _avatarSyncService = avatarSyncService;
+
+        if (_avatarSyncService != null)
+        {
+            _avatarSyncService.AvatarChanged += async (_, _) =>
+            {
+                if (_baby != null && _preferences != null)
+                {
+                    AvatarRef = await _preferences.GetBabyAvatarAsync(_baby.Id.Value, CancellationToken.None);
+                    AvatarChanged?.Invoke(this, EventArgs.Empty);
+                }
+            };
+        }
     }
 
     public async Task LoadAsync()
@@ -93,6 +108,11 @@ public sealed partial class BabyProfileViewModel : ObservableObject
         {
             AvatarRef = await _preferences.GetBabyAvatarAsync(_baby.Id.Value, CancellationToken.None);
         }
+
+        if (_avatarSyncService != null)
+        {
+            _ = _avatarSyncService.SyncBabyAvatarAsync(_baby.HouseholdId.Value, _baby.Id.Value, CancellationToken.None);
+        }
     }
 
     [RelayCommand]
@@ -103,6 +123,11 @@ public sealed partial class BabyProfileViewModel : ObservableObject
         AvatarRef = $"preset:{presetName}";
         await _preferences.SetBabyAvatarAsync(_baby.Id.Value, AvatarRef, CancellationToken.None);
         AvatarChanged?.Invoke(this, EventArgs.Empty);
+
+        if (_avatarSyncService != null)
+        {
+            await _avatarSyncService.SetPresetAvatarAsync(_baby.HouseholdId.Value, _baby.Id.Value, presetName, CancellationToken.None);
+        }
     }
 
     [RelayCommand]
@@ -113,6 +138,11 @@ public sealed partial class BabyProfileViewModel : ObservableObject
         AvatarRef = null;
         await _preferences.SetBabyAvatarAsync(_baby.Id.Value, null, CancellationToken.None);
         AvatarChanged?.Invoke(this, EventArgs.Empty);
+
+        if (_avatarSyncService != null)
+        {
+            await _avatarSyncService.ClearAvatarAsync(_baby.HouseholdId.Value, _baby.Id.Value, CancellationToken.None);
+        }
     }
 
     public async Task SetLocalAvatarFileAsync(string filePath)
@@ -122,6 +152,11 @@ public sealed partial class BabyProfileViewModel : ObservableObject
         AvatarRef = $"file:{filePath}";
         await _preferences.SetBabyAvatarAsync(_baby.Id.Value, AvatarRef, CancellationToken.None);
         AvatarChanged?.Invoke(this, EventArgs.Empty);
+
+        if (_avatarSyncService != null)
+        {
+            await _avatarSyncService.SetPhotoAvatarAsync(_baby.HouseholdId.Value, _baby.Id.Value, filePath, CancellationToken.None);
+        }
     }
 
     public async Task<bool> GenerateAiAvatarAsync(string imageBase64, string targetFilePath)

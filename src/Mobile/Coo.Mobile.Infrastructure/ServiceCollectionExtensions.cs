@@ -83,6 +83,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IAdvisorApi>(sp => new AdvisorClient(Authenticated(sp)));
         services.AddSingleton<IAdvisorThreadStore, AdvisorThreadStore>();
 
+        // Baby Avatar
+        services.AddSingleton<Coo.Mobile.Application.Households.IBabyAvatarApi>(sp => new Households.BabyAvatarClient(Authenticated(sp)));
+
         return services;
     }
 }

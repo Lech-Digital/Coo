@@ -23,6 +23,7 @@ public sealed class CooPageHeader : Grid
     private IBillingService? _billing;
     private ThemeController? _theme;
     private IHouseholdStore? _households;
+    private Coo.Mobile.Application.Households.BabyAvatarSyncService? _avatarSync;
     private Action? _longPressBrand;
 
     public CooPageHeader(IServiceProvider services, Action? longPressBrand = null, IEnumerable<View>? additionalActions = null)
@@ -72,12 +73,16 @@ public sealed class CooPageHeader : Grid
         _billing = _services.GetService<IBillingService>();
         _theme = _services.GetService<ThemeController>();
         _households = _services.GetService<IHouseholdStore>();
+        _avatarSync = _services.GetService<Coo.Mobile.Application.Households.BabyAvatarSyncService>();
 
         if (_billing != null)
             _billing.EntitlementChanged += OnEntitlementChanged;
 
         if (_theme != null)
             _theme.PaletteChanged += OnPaletteChanged;
+
+        if (_avatarSync != null)
+            _avatarSync.AvatarChanged += OnAvatarChanged;
 
         UpdateBrand();
         UpdateThemeSwitch();
@@ -91,7 +96,15 @@ public sealed class CooPageHeader : Grid
 
         if (_theme != null)
             _theme.PaletteChanged -= OnPaletteChanged;
+
+        if (_avatarSync != null)
+            _avatarSync.AvatarChanged -= OnAvatarChanged;
     }
+
+    private void OnAvatarChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(() =>
+    {
+        _ = UpdateBabyChipAsync();
+    });
 
     private void OnEntitlementChanged() => Dispatcher.Dispatch(() =>
     {
