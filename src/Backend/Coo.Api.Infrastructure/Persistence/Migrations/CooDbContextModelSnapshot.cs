@@ -94,6 +94,49 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("auth_nonces", (string)null);
                 });
 
+            modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.BabyAvatarRecord", b =>
+                {
+                    b.Property<Guid>("BabyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("baby_id");
+
+                    b.Property<string>("AvatarType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("avatar_type");
+
+                    b.Property<Guid>("HouseholdId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("household_id");
+
+                    b.Property<byte[]>("ImageData")
+                        .HasColumnType("bytea")
+                        .HasColumnName("image_data");
+
+                    b.Property<string>("PresetKey")
+                        .HasColumnType("text")
+                        .HasColumnName("preset_key");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<long>("Version")
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("BabyId");
+
+                    b.HasIndex("HouseholdId")
+                        .HasDatabaseName("ix_baby_avatars_household");
+
+                    b.ToTable("baby_avatars", (string)null);
+                });
+
             modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.BabyProfileRecord", b =>
                 {
                     b.Property<Guid>("Id")

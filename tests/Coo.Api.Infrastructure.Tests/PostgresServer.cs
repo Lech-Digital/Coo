@@ -21,7 +21,9 @@ namespace Coo.Api.Infrastructure.Tests;
 /// </summary>
 public sealed class PostgresServer : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17").Build();
+    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17")
+        .WithCommand("-c", "max_connections=500")
+        .Build();
 
     public string ConnectionString => _container.GetConnectionString();
 
