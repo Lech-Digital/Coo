@@ -13,6 +13,8 @@
     <PackageReference Include="Google.Apis.Auth" />
     <!-- Design time only: `dotnet ef migrations add`. Not shipped. -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
+    <PackageReference Include="Svg.Skia" />
   </ItemGroup>
 
   <ItemGroup>

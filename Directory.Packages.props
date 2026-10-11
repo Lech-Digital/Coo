@@ -16,10 +16,12 @@
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <!-- Phone storage: plain SQLite, no ORM (Spec 004 §13). The bundle ships its own SQLite with JSON built in. -->
     <PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="10.0.0" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.153.1" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.13" />
     <PackageVersion Include="Microsoft.Maui.Controls" Version="10.0.0" />
     <!-- Sign in with Google (Spec 010a §5): exactly these. Newer ones pull AndroidX libraries newer than MAUI 10.0.0 pins
          (NU1608) or need a newer GoogleId (NU1605), errors here. Revisit with the next MAUI upgrade. -->
+    <PackageVersion Include="Svg.Skia" Version="5.2.3" />
     <PackageVersion Include="Xamarin.AndroidX.Credentials" Version="1.5.0" />
     <PackageVersion Include="Xamarin.AndroidX.Credentials.PlayServicesAuth" Version="1.5.0" />
     <PackageVersion Include="Xamarin.GoogleAndroid.Libraries.Identity.GoogleId" Version="1.1.0.8" />

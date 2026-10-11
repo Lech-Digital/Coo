@@ -279,8 +279,32 @@ public sealed class BabyPage : ContentPage
     {
         try
         {
-            var photos = await MediaPicker.Default.PickPhotosAsync();
-            var photo = photos?.FirstOrDefault();
+            var sourceChoice = await DisplayActionSheetAsync(
+                "Select Baby Photo for AI Avatar",
+                "Cancel",
+                null,
+                "📷 Take Photo",
+                "🖼️ Choose from Gallery");
+
+            if (sourceChoice == "Cancel" || string.IsNullOrEmpty(sourceChoice))
+                return;
+
+            FileResult? photo = null;
+            if (sourceChoice == "📷 Take Photo")
+            {
+                if (!MediaPicker.Default.IsCaptureSupported)
+                {
+                    await DisplayAlertAsync("Camera", "Camera capture is not supported on this device.", "OK");
+                    return;
+                }
+                photo = await MediaPicker.Default.CapturePhotoAsync();
+            }
+            else
+            {
+                var photos = await MediaPicker.Default.PickPhotosAsync();
+                photo = photos?.FirstOrDefault();
+            }
+
             if (photo == null)
                 return;
 
@@ -294,9 +318,14 @@ public sealed class BabyPage : ContentPage
             var id = Guid.CreateVersion7(_model.Time.GetUtcNow()).ToString("N");
             var targetPath = Path.Combine(FileSystem.AppDataDirectory, $"ai_avatar_{id}.png");
             var success = await _model.GenerateAiAvatarAsync(base64, targetPath);
-            if (!success && !string.IsNullOrEmpty(_model.Error))
+            if (!success)
             {
-                await DisplayAlertAsync("AI Avatar", _model.Error, "OK");
+                var errorMsg = !string.IsNullOrEmpty(_model.Error) ? _model.Error : "Could not generate avatar from this photo.";
+                await DisplayAlertAsync("AI Avatar", errorMsg, "OK");
+            }
+            else
+            {
+                await DisplayAlertAsync("Magic AI Avatar", "Your baby's custom illustrated avatar has been generated and set!", "OK");
             }
         }
         catch (Exception ex)

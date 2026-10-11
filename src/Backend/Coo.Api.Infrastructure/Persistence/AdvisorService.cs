@@ -6,6 +6,8 @@ using Coo.Api.Infrastructure.Persistence;
 using Coo.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using SkiaSharp;
+using Svg.Skia;
 
 namespace Coo.Api.Infrastructure.Persistence;
 
@@ -178,7 +180,24 @@ internal sealed class AdvisorService(
         try
         {
             using var http = new HttpClient();
-            var prompt = "Generate a whimsical, warm, storybook watercolor circular avatar illustration inspired by this baby photo. Soft pastel colors, gentle happy expression, painterly texture, minimalist warm background, cute children's book illustration style.";
+            var prompt = """
+                You are an expert artist specializing in storybook baby illustrations.
+                Look closely at this baby photo. Analyze the baby's distinctive features:
+                - Skin tone and complexion
+                - Hair color and hairstyle (e.g. wispy swirl, soft curls, bald/fine hair, ponytail)
+                - Face shape and cute chubby cheeks
+                - Eye shape, eye color, and happy gentle expression
+                - Clothing color or collar
+                
+                Generate a beautiful, warm, minimalist circular SVG avatar illustration reflecting this specific baby.
+                Artistic requirements:
+                - Circular avatar composition with a soft pastel circular background (e.g. warm cream #FAF6F0 or soft sage #E8EFE9).
+                - Use cute rounded shapes, chubby cheeks, soft gentle smile, friendly eyes.
+                - Clean vector paths with solid fills and subtle outlines.
+                - The avatar must be framed within viewBox="0 0 200 200".
+                - Return ONLY the raw valid <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">...</svg> XML string.
+                - Do NOT include any explanations, markdown code blocks, or backticks. Return ONLY the <svg>...</svg> tag.
+                """;
 
             var requestObj = new
             {
@@ -203,13 +222,11 @@ internal sealed class AdvisorService(
                 },
                 generationConfig = new
                 {
-                    temperature = 0.4,
-                    response_mime_type = "image/png"
+                    temperature = 0.2
                 }
             };
 
-            // Call Gemini 2.5 Flash / Flash Lite for multimodal generation
-            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}";
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key={apiKey}";
             using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
             {
                 Content = System.Net.Http.Json.JsonContent.Create(requestObj)
@@ -218,9 +235,8 @@ internal sealed class AdvisorService(
             var httpResponse = await http.SendAsync(httpRequest, cancellationToken);
             if (!httpResponse.IsSuccessStatusCode)
             {
-                // Fallback attempt: if image/png response_mime_type or gemini-2.5-flash is not enabled, return the original image base64 processed or error
                 var err = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
-                return new GenerateAvatarResponse(request.ImageBase64, null);
+                return new GenerateAvatarResponse(null, $"Gemini API error: {httpResponse.StatusCode} - {err}");
             }
 
             var responseJson = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
@@ -228,22 +244,78 @@ internal sealed class AdvisorService(
             var candidates = doc.RootElement.GetProperty("candidates");
             if (candidates.GetArrayLength() > 0)
             {
-                var parts = candidates[0].GetProperty("content").GetProperty("parts");
-                foreach (var part in parts.EnumerateArray())
+                var content = candidates[0].GetProperty("content");
+                if (content.TryGetProperty("parts", out var parts))
                 {
-                    if (part.TryGetProperty("inlineData", out var inlineData) && inlineData.TryGetProperty("data", out var dataProp))
+                    foreach (var part in parts.EnumerateArray())
                     {
-                        return new GenerateAvatarResponse(dataProp.GetString(), null);
+                        if (part.TryGetProperty("text", out var textProp))
+                        {
+                            var text = textProp.GetString();
+                            if (!string.IsNullOrEmpty(text))
+                            {
+                                var svgStart = text.IndexOf("<svg", StringComparison.OrdinalIgnoreCase);
+                                var svgEnd = text.LastIndexOf("</svg>", StringComparison.OrdinalIgnoreCase);
+                                if (svgStart >= 0 && svgEnd > svgStart)
+                                {
+                                    var svgXml = text.Substring(svgStart, svgEnd + 6 - svgStart);
+                                    var pngBytes = RenderSvgToPng(svgXml, 512, 512);
+                                    if (pngBytes != null && pngBytes.Length > 0)
+                                    {
+                                        return new GenerateAvatarResponse(Convert.ToBase64String(pngBytes), null);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
 
-            // If text-only or fallback response, safely return the user's uploaded image
-            return new GenerateAvatarResponse(request.ImageBase64, null);
+            return new GenerateAvatarResponse(null, "Could not extract SVG illustration from AI response.");
         }
         catch (Exception ex)
         {
             return new GenerateAvatarResponse(null, ex.Message);
+        }
+    }
+
+    private static byte[]? RenderSvgToPng(string svgXml, int width, int height)
+    {
+        try
+        {
+            using var svg = new SKSvg();
+            svg.FromSvg(svgXml);
+            if (svg.Picture == null)
+                return null;
+
+            var info = new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
+            using var surface = SKSurface.Create(info);
+            if (surface == null)
+                return null;
+
+            using var canvas = surface.Canvas;
+            canvas.Clear(SKColors.Transparent);
+
+            var bounds = svg.Picture.CullRect;
+            if (bounds.Width > 0 && bounds.Height > 0)
+            {
+                var scale = Math.Min((float)width / bounds.Width, (float)height / bounds.Height);
+                var matrix = SKMatrix.CreateScale(scale, scale);
+                canvas.DrawPicture(svg.Picture, in matrix);
+            }
+            else
+            {
+                canvas.DrawPicture(svg.Picture);
+            }
+
+            canvas.Flush();
+            using var image = surface.Snapshot();
+            using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+            return data.ToArray();
+        }
+        catch
+        {
+            return null;
         }
     }
 }
