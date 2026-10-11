@@ -10,7 +10,7 @@ namespace Coo.Mobile.Pages;
 
 /// <summary>
 /// The Settings tab (Spec 009 §2–§3, Spec 010 §2, Spec 011b §2): account, family, baby, what you log, units, appearance, language, about.
-/// One scrolling page; it is rebuilt from the model whenever the model changes, like Log.
+/// One scrolling page; builds its UI tree once and updates dynamic labels and buttons in-place to prevent scroll jumping and lag.
 /// </summary>
 public sealed class SettingsPage : ContentPage
 {
@@ -22,13 +22,33 @@ public sealed class SettingsPage : ContentPage
     private readonly UndoService _undo;
     private readonly ContentView _body = new();
     private readonly LanguageController _language;
+    private readonly CooPageHeader _pageHeader;
+
+    private readonly VerticalStackLayout _accountContainer = new() { Spacing = 16 };
+    private readonly VerticalStackLayout _familyContainer = new() { Spacing = 16 };
+    private readonly Label _babyNameLabel = Ui.Text("", "BodyStrong");
+    private readonly Label _babyLineLabel = Ui.Text("", "Meta", "Ink2");
+    private readonly VerticalStackLayout _kindsContainer = new() { Spacing = 4 };
+    private readonly Dictionary<string, Switch> _kindSwitches = new(StringComparer.Ordinal);
+    private Button? _unitMlButton;
+    private Button? _unitOzButton;
+    private Button? _themeAutoButton;
+    private Button? _themeDayButton;
+    private Button? _themeNightButton;
+    private TimePicker? _quietStartPicker;
+    private TimePicker? _quietEndPicker;
+    private readonly Label _languageLabel = Ui.Text("", "Body");
+    private readonly Label _versionLabel = Ui.Text("", "Meta", "Ink2");
+
+    private (bool IsSignedIn, string Name, string Email, string StatusLine, string LineActionText)? _accountCache;
+    private (bool ShowsSwitcher, string ShowingTitle, string ShowingLine, bool ShowsMembers, string MembersLine, bool ShowsOnlyHere, bool ShowsInvite, bool ShowsBringOver)? _familyCache;
+
     private bool _confirming;
     private bool _rendering;
     private bool _renderQueued;
     private bool _familyRefreshQueued;
     private bool _opening;
     private string? _renderedLanguage;
-    private CooPageHeader? _pageHeader;
 
     public SettingsPage(
         SettingsViewModel model, AccountViewModel account, FamilySectionViewModel family, IClockFormat clock, UndoService undo, LanguageController language,
@@ -41,7 +61,9 @@ public sealed class SettingsPage : ContentPage
         _clock = clock;
         _undo = undo;
         _services = services;
+        _pageHeader = new CooPageHeader(services);
         Shell.SetNavBarIsVisible(this, false);
+
         var root = new Grid();
         root.Add(new ScrollView { Content = _body });
         root.Add(new UndoToastView(undo));
@@ -67,11 +89,12 @@ public sealed class SettingsPage : ContentPage
 #pragma warning disable CA1031 // async void: nothing may escape; the page keeps what it showed.
         try
         {
-            // The first visit draws at once from the data loaded at start-up, before the page's first frame: drawing after
-            // the refresh showed one blank frame (recorded on the Pixel 10).
-            if (_body.Content is null)
-                Render();
-            _pageHeader?.Refresh();
+            if (_body.Content is null || _renderedLanguage != Strings.Language)
+                BuildUi();
+            else
+                UpdateInPlace();
+
+            _pageHeader.Refresh();
             await _model.RefreshAsync();
             await RunTappedAsync(_family.RefreshAsync);
             if (_renderedLanguage != Strings.Language)
@@ -219,7 +242,7 @@ public sealed class SettingsPage : ContentPage
         });
     }
 
-    /// <summary>A refresh sets a dozen properties; they become one redraw, not twelve (review, owner's finding).</summary>
+    /// <summary>Coalesce property changes into a smooth in-place update without tearing down the view hierarchy.</summary>
     private void QueueRender()
     {
         if (_renderQueued)
@@ -228,10 +251,13 @@ public sealed class SettingsPage : ContentPage
         Dispatcher.Dispatch(() =>
         {
             _renderQueued = false;
-#pragma warning disable CA1031 // A dispatched redraw: nothing may escape; the page keeps what it showed.
+#pragma warning disable CA1031
             try
             {
-                Render();
+                if (_body.Content is null || _renderedLanguage != Strings.Language)
+                    BuildUi();
+                else
+                    UpdateInPlace();
             }
             catch (Exception)
             {
@@ -241,65 +267,47 @@ public sealed class SettingsPage : ContentPage
         });
     }
 
-    private void Render()
+    private void BuildUi()
     {
-        // The time pickers write back while the page is built; those writes are not edits.
         _rendering = true;
-        _pageHeader = new CooPageHeader(_services);
+        _accountCache = null;
+        _familyCache = null;
+        _kindSwitches.Clear();
+
         var titleRow = new Grid { HeightRequest = 48 };
         titleRow.Add(Ui.Text(Strings.Get("Tab.Settings"), "Title").Tap(l => l.VerticalOptions = LayoutOptions.Center));
 
         var contentStack = new VerticalStackLayout { Spacing = 16, Padding = new Thickness(24, 0, 24, 0) };
         contentStack.Add(titleRow);
-
-        var stack = new VerticalStackLayout
-        {
-            Padding = new Thickness(0, 0, 0, 96),
-            Spacing = 16,
-            Children = { _pageHeader, contentStack }
-        };
-
-        foreach (var view in AccountViews())
-            contentStack.Add(view);
-        foreach (var view in FamilyViews())
-            contentStack.Add(view);
+        contentStack.Add(_accountContainer);
+        contentStack.Add(_familyContainer);
 
         contentStack.Add(Header("Settings.Baby"));
         contentStack.Add(Row(
-            new VerticalStackLayout { Children = { Ui.Text(_model.BabyName, "BodyStrong"), Ui.Text(_model.BabyLine, "Meta", "Ink2") } },
+            new VerticalStackLayout { Children = { _babyNameLabel, _babyLineLabel } },
             async () => await Navigation.PushAsync(_services.GetRequiredService<BabyPage>())));
 
         contentStack.Add(Header("Settings.Kinds"));
-        var kinds = new VerticalStackLayout { Spacing = 4 };
-        foreach (var kind in _model.Kinds)
-        {
-            var toggle = new Switch { IsToggled = kind.IsShown, IsEnabled = kind.CanChange, VerticalOptions = LayoutOptions.Center };
-            toggle.SetDynamicResource(Switch.OnColorProperty, "Accent");
-            var code = kind.Code;
-            toggle.Toggled += (_, e) =>
-            {
-                if (!_rendering)
-                    _model.SetKindShownCommand.Execute(new KindChange(code, e.Value));
-            };
-            var line = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], MinimumHeightRequest = 48 };
-            line.Add(Ui.Text(kind.Name, "Body").Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
-            line.Add(toggle, 1);
-            kinds.Add(line);
-        }
-
-        contentStack.Add(new Card(kinds));
+        contentStack.Add(new Card(_kindsContainer));
         contentStack.Add(Hint("Settings.KindsHint"));
 
         contentStack.Add(Header("Settings.Units"));
+        _unitMlButton = new Button { Text = Strings.Get("Unit.Ml") };
+        _unitMlButton.Clicked += (_, _) => _model.SetUnitCommand.Execute(VolumeUnit.Millilitres);
+        _unitOzButton = new Button { Text = Strings.Get("Unit.Oz") };
+        _unitOzButton.Clicked += (_, _) => _model.SetUnitCommand.Execute(VolumeUnit.Ounces);
+
+        var unitsGrid = new Grid { ColumnSpacing = 8, ColumnDefinitions = [new(GridLength.Star), new(GridLength.Star)] };
+        unitsGrid.Add(_unitMlButton, 0);
+        unitsGrid.Add(_unitOzButton, 1);
+
         contentStack.Add(new Card(new VerticalStackLayout
         {
             Spacing = 10,
             Children =
             {
                 Ui.Text(Strings.Get("Settings.Volume"), "Label", "Ink2"),
-                Choices(
-                    (Strings.Get("Unit.Ml"), !_model.IsOunces, () => _model.SetUnitCommand.Execute(VolumeUnit.Millilitres)),
-                    (Strings.Get("Unit.Oz"), _model.IsOunces, () => _model.SetUnitCommand.Execute(VolumeUnit.Ounces))),
+                unitsGrid,
             },
         }));
         contentStack.Add(Hint("Settings.ClockHint"));
@@ -308,22 +316,32 @@ public sealed class SettingsPage : ContentPage
         contentStack.Add(Row(Ui.Text(Strings.Get("Premium.Title") ?? "Coo Premium", "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<PremiumPage>())));
 
         contentStack.Add(Header("Settings.Appearance"));
-        var start = TimePicker(_model.QuietStart, t => _model.QuietStart = t);
-        var end = TimePicker(_model.QuietEnd, t => _model.QuietEnd = t);
+        _themeAutoButton = new Button { Text = Strings.Get("Settings.Theme.Auto") };
+        _themeAutoButton.Clicked += (_, _) => _model.SetModeCommand.Execute(AppearanceMode.Auto);
+        _themeDayButton = new Button { Text = Strings.Get("Settings.Theme.Day") };
+        _themeDayButton.Clicked += (_, _) => _model.SetModeCommand.Execute(AppearanceMode.Day);
+        _themeNightButton = new Button { Text = Strings.Get("Settings.Theme.Night") };
+        _themeNightButton.Clicked += (_, _) => _model.SetModeCommand.Execute(AppearanceMode.Night);
+
+        var themeGrid = new Grid { ColumnSpacing = 8, ColumnDefinitions = [new(GridLength.Star), new(GridLength.Star), new(GridLength.Star)] };
+        themeGrid.Add(_themeAutoButton, 0);
+        themeGrid.Add(_themeDayButton, 1);
+        themeGrid.Add(_themeNightButton, 2);
+
+        _quietStartPicker = TimePicker(_model.QuietStart, t => _model.QuietStart = t);
+        _quietEndPicker = TimePicker(_model.QuietEnd, t => _model.QuietEnd = t);
         var quiet = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 10 };
         quiet.Add(Ui.Text(Strings.Get("Settings.QuietFrom"), "Label", "Ink2").Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
-        quiet.Add(Ui.Rounded(start, "Ground", 12, new Thickness(12, 4), "Line"), 1);
+        quiet.Add(Ui.Rounded(_quietStartPicker, "Ground", 12, new Thickness(12, 4), "Line"), 1);
         quiet.Add(Ui.Text(Strings.Get("Settings.QuietTo"), "Label", "Ink2").Tap(l => l.VerticalOptions = LayoutOptions.Center), 2);
-        quiet.Add(Ui.Rounded(end, "Ground", 12, new Thickness(12, 4), "Line"), 3);
+        quiet.Add(Ui.Rounded(_quietEndPicker, "Ground", 12, new Thickness(12, 4), "Line"), 3);
+
         contentStack.Add(new Card(new VerticalStackLayout
         {
             Spacing = 10,
             Children =
             {
-                Choices(
-                    (Strings.Get("Settings.Theme.Auto"), _model.Mode == AppearanceMode.Auto, () => _model.SetModeCommand.Execute(AppearanceMode.Auto)),
-                    (Strings.Get("Settings.Theme.Day"), _model.Mode == AppearanceMode.Day, () => _model.SetModeCommand.Execute(AppearanceMode.Day)),
-                    (Strings.Get("Settings.Theme.Night"), _model.Mode == AppearanceMode.Night, () => _model.SetModeCommand.Execute(AppearanceMode.Night))),
+                themeGrid,
                 Ui.Text(Strings.Get("Settings.AutoHint"), "Meta", "Ink2"),
                 Ui.Text(Strings.Get("Settings.QuietHours"), "BodyStrong").Tap(l => l.Margin = new Thickness(0, 8, 0, 0)),
                 quiet,
@@ -332,17 +350,129 @@ public sealed class SettingsPage : ContentPage
         }));
 
         contentStack.Add(Header("Settings.Language"));
-        contentStack.Add(Row(Ui.Text(_model.LanguageLabel, "Body"), ChooseLanguageAsync));
+        contentStack.Add(Row(_languageLabel, ChooseLanguageAsync));
 
         contentStack.Add(Header("Settings.About"));
-        contentStack.Add(Ui.Text(_model.VersionLine, "Meta", "Ink2"));
+        contentStack.Add(_versionLabel);
         contentStack.Add(Row(Ui.Text(Strings.Get("Settings.Licences"), "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<LicencesPage>())));
         contentStack.Add(Row(Ui.Text(Strings.Get("Settings.Feedback"), "Body"), () => _model.SendFeedbackCommand.ExecuteAsync(null)));
         contentStack.Add(Row(Ui.Text(Strings.Get("Settings.Privacy"), "Body"), () => _model.OpenPrivacyCommand.ExecuteAsync(null)));
 
+        var stack = new VerticalStackLayout
+        {
+            Padding = new Thickness(0, 0, 0, 96),
+            Spacing = 16,
+            Children = { _pageHeader, contentStack }
+        };
+
         _body.Content = stack;
         _renderedLanguage = Strings.Language;
         _rendering = false;
+
+        UpdateInPlace();
+    }
+
+    private void UpdateInPlace()
+    {
+        _rendering = true;
+        try
+        {
+            _babyNameLabel.Text = _model.BabyName;
+            _babyLineLabel.Text = _model.BabyLine;
+            _languageLabel.Text = _model.LanguageLabel;
+            _versionLabel.Text = _model.VersionLine;
+
+            UpdateAccountViews();
+            UpdateFamilyViews();
+            UpdateKinds();
+            UpdateUnits();
+            UpdateThemes();
+
+            if (_quietStartPicker != null && _quietStartPicker.Time != _model.QuietStart)
+                _quietStartPicker.Time = _model.QuietStart;
+            if (_quietEndPicker != null && _quietEndPicker.Time != _model.QuietEnd)
+                _quietEndPicker.Time = _model.QuietEnd;
+        }
+        finally
+        {
+            _rendering = false;
+        }
+    }
+
+    private void UpdateKinds()
+    {
+        if (_kindSwitches.Count != _model.Kinds.Count || !_model.Kinds.All(k => _kindSwitches.ContainsKey(k.Code)))
+        {
+            _kindSwitches.Clear();
+            _kindsContainer.Children.Clear();
+            foreach (var kind in _model.Kinds)
+            {
+                var toggle = new Switch { IsToggled = kind.IsShown, IsEnabled = kind.CanChange, VerticalOptions = LayoutOptions.Center };
+                toggle.SetDynamicResource(Switch.OnColorProperty, "Accent");
+                var code = kind.Code;
+                toggle.Toggled += (_, e) =>
+                {
+                    if (!_rendering)
+                        _model.SetKindShownCommand.Execute(new KindChange(code, e.Value));
+                };
+                var line = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], MinimumHeightRequest = 48 };
+                line.Add(Ui.Text(kind.Name, "Body").Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
+                line.Add(toggle, 1);
+                _kindSwitches[code] = toggle;
+                _kindsContainer.Add(line);
+            }
+            return;
+        }
+
+        foreach (var kind in _model.Kinds)
+        {
+            if (_kindSwitches.TryGetValue(kind.Code, out var sw))
+            {
+                if (sw.IsToggled != kind.IsShown)
+                    sw.IsToggled = kind.IsShown;
+                if (sw.IsEnabled != kind.CanChange)
+                    sw.IsEnabled = kind.CanChange;
+            }
+        }
+    }
+
+    private void UpdateUnits()
+    {
+        if (_unitMlButton == null || _unitOzButton == null)
+            return;
+        _unitMlButton.SetDynamicResource(VisualElement.StyleProperty, !_model.IsOunces ? "PrimaryButton" : "GhostButton");
+        _unitOzButton.SetDynamicResource(VisualElement.StyleProperty, _model.IsOunces ? "PrimaryButton" : "GhostButton");
+    }
+
+    private void UpdateThemes()
+    {
+        if (_themeAutoButton == null || _themeDayButton == null || _themeNightButton == null)
+            return;
+        _themeAutoButton.SetDynamicResource(VisualElement.StyleProperty, _model.Mode == AppearanceMode.Auto ? "PrimaryButton" : "GhostButton");
+        _themeDayButton.SetDynamicResource(VisualElement.StyleProperty, _model.Mode == AppearanceMode.Day ? "PrimaryButton" : "GhostButton");
+        _themeNightButton.SetDynamicResource(VisualElement.StyleProperty, _model.Mode == AppearanceMode.Night ? "PrimaryButton" : "GhostButton");
+    }
+
+    private void UpdateAccountViews()
+    {
+        var current = (_account.IsSignedIn, _account.Name, _account.Email, _account.StatusLine, _account.LineActionText);
+        if (_accountCache == current && _accountContainer.Children.Count > 0)
+            return;
+        _accountCache = current;
+        _accountContainer.Children.Clear();
+        foreach (var view in AccountViews())
+            _accountContainer.Add(view);
+    }
+
+    private void UpdateFamilyViews()
+    {
+        var current = (_family.ShowsSwitcher, _family.ShowingTitle, _family.ShowingLine, _family.ShowsMembers, _family.MembersLine, _family.ShowsOnlyHere, _family.ShowsInvite, _family.ShowsBringOver);
+        if (_familyCache == current && _familyContainer.Children.Count > 0)
+            return;
+        _familyCache = current;
+        _familyContainer.Children.Clear();
+        foreach (var view in FamilyViews())
+            _familyContainer.Add(view);
     }
 
     /// <summary>The Account section, first in Settings (Spec 010 §2).</summary>
@@ -543,22 +673,5 @@ public sealed class SettingsPage : ContentPage
         {
             _undo.Say(Strings.Get("Error.Generic"));
         }
-    }
-
-    /// <summary>A segmented choice: the selected one is the primary button, the others ghost buttons.</summary>
-    private static Grid Choices(params (string Text, bool Selected, Action Pick)[] choices)
-    {
-        var grid = new Grid { ColumnSpacing = 8 };
-        for (var i = 0; i < choices.Length; i++)
-        {
-            grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
-            var (text, selected, pick) = choices[i];
-            var button = new Button { Text = text };
-            button.SetDynamicResource(VisualElement.StyleProperty, selected ? "PrimaryButton" : "GhostButton");
-            button.Clicked += (_, _) => pick();
-            grid.Add(button, i);
-        }
-
-        return grid;
     }
 }

@@ -119,7 +119,7 @@ internal static class SectionViews
     {
         BabyHeaderSection s => Live(s, () => Header(s, host)),
         DueDateSection s => Live(s, () => DueDate(s)),
-        StatusHeroSection s => Live(s, () => Hero(s)),
+        StatusHeroSection s => Live(s, () => Hero(s), nameof(StatusHeroSection.Eyebrow), nameof(StatusHeroSection.Value), nameof(StatusHeroSection.Context)),
         RunningSection s => Live(s, () => RunningCards(s.Items, night: false, host)),
         AttentionSection s => Live(s, () => Attention(s, host)),
         LogTilesSection s => Live(s, () => Tiles(s, host)),
@@ -210,9 +210,9 @@ internal static class SectionViews
         Spacing = 6,
         Children =
         {
-            Ui.Text(s.Eyebrow.ToUpper(Strings.Culture), "Label"),
-            Ui.Text(s.Value, s.Eyebrow.Length == 0 ? "Section" : "Hero"),
-            Ui.Text(s.Context, "Body", "Ink2"),
+            Bound(s, nameof(StatusHeroSection.Eyebrow), "Label", upper: true),
+            Bound(s, nameof(StatusHeroSection.Value), s.Eyebrow.Length == 0 ? "Section" : "Hero"),
+            Bound(s, nameof(StatusHeroSection.Context), "Body"),
         },
     };
 
@@ -350,43 +350,48 @@ internal static class SectionViews
             label.VerticalOptions = LayoutOptions.Center;
 
             // Mini progress indicator bar
-            var barTrack = new BoxView
+            var barTrack = new Border
             {
                 HeightRequest = 6,
-                CornerRadius = 3,
+                StrokeShape = new RoundRectangle { CornerRadius = 3 },
+                StrokeThickness = 0,
+                Padding = 0,
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Center,
             };
-            barTrack.SetDynamicResource(BoxView.ColorProperty, "Line");
+            barTrack.SetDynamicResource(VisualElement.BackgroundColorProperty, "Line");
 
             var clampedRatio = Math.Clamp(ratio, 0.0, 1.0);
-            var barFill = new BoxView
+            var barFill = new Border
             {
                 HeightRequest = 6,
-                CornerRadius = 3,
+                StrokeShape = new RoundRectangle { CornerRadius = 3 },
+                StrokeThickness = 0,
+                Padding = 0,
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Center,
             };
-            barFill.SetDynamicResource(BoxView.ColorProperty, look.Mark);
+            barFill.SetDynamicResource(VisualElement.BackgroundColorProperty, look.Mark);
 
-            var fillWeight = clampedRatio > 0 ? Math.Max(0.04, clampedRatio) : 0.001;
-            var remainingWeight = Math.Max(0.001, 1.0 - clampedRatio);
+            var fillWeight = clampedRatio > 0.001 ? Math.Max(0.04, clampedRatio) : 0.0001;
+            var remainingWeight = Math.Max(0.0001, 1.0 - clampedRatio);
 
             var barGrid = new Grid
             {
                 HeightRequest = 6,
                 HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Center,
                 ColumnDefinitions =
                 [
                     new ColumnDefinition(new GridLength(fillWeight, GridUnitType.Star)),
                     new ColumnDefinition(new GridLength(remainingWeight, GridUnitType.Star))
                 ],
-                Children = { barTrack }
             };
+            barGrid.Add(barTrack, 0, 0);
             Grid.SetColumnSpan(barTrack, 2);
-            if (clampedRatio > 0)
+            if (clampedRatio > 0.01)
             {
-                barGrid.Add(barFill, 0);
+                barGrid.Add(barFill, 0, 0);
             }
 
             var rowGrid = new Grid

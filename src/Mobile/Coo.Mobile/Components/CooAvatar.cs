@@ -98,12 +98,21 @@ public static class CooAvatar
             FontSize = size * 0.46,
             HorizontalTextAlignment = TextAlignment.Center,
             VerticalTextAlignment = TextAlignment.Center,
-            HorizontalOptions = LayoutOptions.Fill,
-            VerticalOptions = LayoutOptions.Fill,
+            HorizontalOptions = LayoutOptions.Center,
+            VerticalOptions = LayoutOptions.Center,
         };
         initialLabel.SetDynamicResource(Label.TextColorProperty, "CheekInk");
 
-        var monogram = Ui.Rounded(initialLabel, "Cheek", 999, new Thickness(0));
+        var monogramGrid = new Grid
+        {
+            WidthRequest = size,
+            HeightRequest = size,
+            HorizontalOptions = LayoutOptions.Center,
+            VerticalOptions = LayoutOptions.Center,
+            Children = { initialLabel }
+        };
+
+        var monogram = Ui.Rounded(monogramGrid, "Cheek", 999, new Thickness(0));
         monogram.WidthRequest = monogram.HeightRequest = size;
         return monogram;
     }

@@ -26,6 +26,12 @@ public sealed class CooPageHeader : Grid
     private Coo.Mobile.Application.Households.BabyAvatarSyncService? _avatarSync;
     private Action? _longPressBrand;
 
+    private bool? _cachedIsPremium;
+    private PaletteKind? _cachedPalette;
+    private string? _cachedBabyName;
+    private string? _cachedAgeText;
+    private string? _cachedAvatarRef;
+
     public CooPageHeader(IServiceProvider services, Action? longPressBrand = null, IEnumerable<View>? additionalActions = null)
     {
         _services = services;
@@ -127,8 +133,12 @@ public sealed class CooPageHeader : Grid
     private void UpdateBrand()
     {
         var isPremium = _billing?.IsPremiumCached ?? false;
-        var isNight = _theme?.Current == PaletteKind.Night;
-        _brandContainer.Content = CooBrand.CreateMark(isPremium, isNight, _longPressBrand, fontSize: 24);
+        var palette = _theme?.Current ?? PaletteKind.Day;
+        if (_cachedIsPremium == isPremium && _cachedPalette == palette && _brandContainer.Content != null)
+            return;
+        _cachedIsPremium = isPremium;
+        _cachedPalette = palette;
+        _brandContainer.Content = CooBrand.CreateMark(isPremium, palette == PaletteKind.Night, _longPressBrand, fontSize: 24);
     }
 
     private void UpdateThemeSwitch()
@@ -137,12 +147,19 @@ public sealed class CooPageHeader : Grid
             return;
 
         var isNight = _theme.Current == PaletteKind.Night;
-        var icon = new Icon(isNight ? IconGeometry.Sun : IconGeometry.Sleep, "Ink2")
+        var newIcon = new Icon(isNight ? IconGeometry.Sun : IconGeometry.Sleep, "Ink2")
             .Tap(i => { i.HorizontalOptions = LayoutOptions.Center; i.VerticalOptions = LayoutOptions.Center; });
+
+        if (_themeSwitchContainer.Content is ContentView btn)
+        {
+            btn.Content = newIcon;
+            SemanticProperties.SetDescription(btn, Strings.Get(isNight ? "Theme.ToDay" : "Theme.ToNight"));
+            return;
+        }
 
         var button = new ContentView
         {
-            Content = icon,
+            Content = newIcon,
             WidthRequest = 44,
             HeightRequest = 44,
             VerticalOptions = LayoutOptions.Center,
@@ -166,6 +183,9 @@ public sealed class CooPageHeader : Grid
             var household = (await _households.ListHouseholdsAsync(CancellationToken.None)).FirstOrDefault(h => !h.IsDeleted);
             if (household == null)
             {
+                _cachedBabyName = null;
+                _cachedAgeText = null;
+                _cachedAvatarRef = null;
                 Dispatcher.Dispatch(() => _babyChipContainer.Content = null);
                 return;
             }
@@ -173,6 +193,9 @@ public sealed class CooPageHeader : Grid
             var babies = (await _households.ListBabiesAsync(household.Id, CancellationToken.None)).Where(b => !b.IsDeleted).ToList();
             if (babies.Count == 0)
             {
+                _cachedBabyName = null;
+                _cachedAgeText = null;
+                _cachedAvatarRef = null;
                 Dispatcher.Dispatch(() => _babyChipContainer.Content = null);
                 return;
             }
@@ -189,6 +212,13 @@ public sealed class CooPageHeader : Grid
             var avatarRef = preferences != null
                 ? await preferences.GetBabyAvatarAsync(baby.Id.Value, CancellationToken.None)
                 : null;
+
+            if (babyName == _cachedBabyName && ageText == _cachedAgeText && avatarRef == _cachedAvatarRef && _babyChipContainer.Content != null)
+                return;
+
+            _cachedBabyName = babyName;
+            _cachedAgeText = ageText;
+            _cachedAvatarRef = avatarRef;
 
             Dispatcher.Dispatch(() =>
             {

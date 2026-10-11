@@ -413,12 +413,16 @@ public sealed partial class DailyProgressSection : ObservableObject, IHomeSectio
             }
         }
 
-        // If a sleep session is currently in progress and started before today, include its duration
+        // If a session is currently in progress, include it in totals
         if (snapshot.Today?.Running != null)
         {
             foreach (var running in snapshot.Today.Running)
             {
-                if (running.KindCode.Value == "sleep" && running.Timing is SessionTiming { Range: var r })
+                if (running.KindCode.Value == "feeding" && !entries.Any(e => e.Id == running.Id))
+                {
+                    feedsCount++;
+                }
+                else if (running.KindCode.Value == "sleep" && running.Timing is SessionTiming { Range: var r })
                 {
                     if (!entries.Any(e => e.Id == running.Id))
                     {
@@ -434,15 +438,28 @@ public sealed partial class DailyProgressSection : ObservableObject, IHomeSectio
 
         var (targetFeeds, targetDiapers, targetSleepHours) = GetTargets(daysOld);
 
-        FeedsProgress = Strings.Format("Today.ProgressFeeds", feedsCount, targetFeeds);
-        FeedsRatio = Math.Clamp(feedsCount / (double)targetFeeds, 0.0, 1.0);
+        var nextFeeds = Strings.Format("Today.ProgressFeeds", feedsCount, targetFeeds);
+        var nextFeedsRatio = Math.Clamp(Math.Round(feedsCount / (double)targetFeeds, 3), 0.0, 1.0);
+        if (FeedsProgress != nextFeeds)
+            FeedsProgress = nextFeeds;
+        if (Math.Abs(FeedsRatio - nextFeedsRatio) >= 0.001)
+            FeedsRatio = nextFeedsRatio;
 
-        DiapersProgress = Strings.Format("Today.ProgressDiapers", diapersCount, targetDiapers);
-        DiapersRatio = Math.Clamp(diapersCount / (double)targetDiapers, 0.0, 1.0);
+        var nextDiapers = Strings.Format("Today.ProgressDiapers", diapersCount, targetDiapers);
+        var nextDiapersRatio = Math.Clamp(Math.Round(diapersCount / (double)targetDiapers, 3), 0.0, 1.0);
+        if (DiapersProgress != nextDiapers)
+            DiapersProgress = nextDiapers;
+        if (Math.Abs(DiapersRatio - nextDiapersRatio) >= 0.001)
+            DiapersRatio = nextDiapersRatio;
 
-        var sleepHoursFormatted = Formats.Duration(sleepSpan);
-        SleepProgress = Strings.Format("Today.ProgressSleep", sleepHoursFormatted, $"{targetSleepHours}h");
-        SleepRatio = Math.Clamp(sleepSpan.TotalHours / targetSleepHours, 0.0, 1.0);
+        var sleepMinutes = (int)Math.Floor(sleepSpan.TotalMinutes);
+        var sleepHoursFormatted = Formats.Duration(TimeSpan.FromMinutes(sleepMinutes));
+        var nextSleep = Strings.Format("Today.ProgressSleep", sleepHoursFormatted, $"{targetSleepHours}h");
+        var nextSleepRatio = Math.Clamp(Math.Round(sleepMinutes / (targetSleepHours * 60.0), 3), 0.0, 1.0);
+        if (SleepProgress != nextSleep)
+            SleepProgress = nextSleep;
+        if (Math.Abs(SleepRatio - nextSleepRatio) >= 0.005)
+            SleepRatio = nextSleepRatio;
     }
 
     internal static (int Feeds, int Diapers, double SleepHours) GetTargets(int daysOld) => daysOld switch

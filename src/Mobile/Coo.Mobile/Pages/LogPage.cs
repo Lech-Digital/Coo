@@ -19,9 +19,11 @@ public sealed class LogPage : ContentPage
     private bool _renderQueued;
     private string? _renderedLanguage;
     private RibbonView? _ribbon;
-    private CooPageHeader? _pageHeader;
+    private readonly CooPageHeader _pageHeader;
     private readonly Sheet _sheet = new();
     private readonly DayDetailView _detail = new();
+    private readonly ContentView _totalsContainer = new() { Padding = new Thickness(24, 0, 24, 0) };
+    private readonly VerticalStackLayout _logContentContainer = new() { Padding = new Thickness(24, 0, 24, 0), Spacing = 16 };
 
     public LogPage(LogViewModel model, ThemeController theme, UndoService undo, LanguageController language, IServiceProvider services)
     {
@@ -30,7 +32,17 @@ public sealed class LogPage : ContentPage
         _undo = undo;
         _theme = theme;
         _services = services;
+        _pageHeader = new CooPageHeader(services);
         Shell.SetNavBarIsVisible(this, false);
+
+        var outerStack = new VerticalStackLayout
+        {
+            Padding = new Thickness(0, 0, 0, 24),
+            Spacing = 16,
+            Children = { _pageHeader, _totalsContainer, _logContentContainer }
+        };
+        _body.Content = outerStack;
+
         var root = new Grid();
         root.Add(new ScrollView { Content = _body });
         root.Add(new UndoToastView(undo));
@@ -76,11 +88,11 @@ public sealed class LogPage : ContentPage
         // and then nothing is redrawn.
         // The band's colours are drawn, not resources: a palette change while Log was off screen (the moon on Today) left
         // it in the old colours (found on the Pixel 10). Redrawing the band alone is cheap.
-        if (_body.Content is null)
+        if (_logContentContainer.Children.Count == 0)
             Render();
         else
             ShowRibbon();
-        _pageHeader?.Refresh();
+        _pageHeader.Refresh();
         if (!_model.CanGoNext)
             _model.ResetToToday();
         await _model.RefreshAsync();
@@ -204,30 +216,12 @@ public sealed class LogPage : ContentPage
         }
 
         _renderedLanguage = Strings.Language;
-        _pageHeader = new CooPageHeader(_services);
-
-        var totalsContainer = new ContentView
-        {
-            Padding = new Thickness(24, 0, 24, 0),
-            Content = totals,
-        };
-
-        _body.Content = new VerticalStackLayout
-        {
-            Padding = new Thickness(0, 0, 0, 24),
-            Spacing = 16,
-            Children =
-            {
-                _pageHeader,
-                totalsContainer,
-                new VerticalStackLayout
-                {
-                    Padding = new Thickness(24, 0, 24, 0),
-                    Spacing = 16,
-                    Children = { header, _ribbon, legend, timeline }
-                }
-            },
-        };
+        _totalsContainer.Content = totals;
+        _logContentContainer.Children.Clear();
+        _logContentContainer.Add(header);
+        _logContentContainer.Add(_ribbon);
+        _logContentContainer.Add(legend);
+        _logContentContainer.Add(timeline);
 
         if (_sheet.IsVisible)
             _detail.Update(_model.ChartItems, _model.Hours, _model.NowAt, WashiPalette.For(_theme.Current));

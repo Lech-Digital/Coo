@@ -144,7 +144,8 @@ public sealed class TotalsCell : ContentView
             Children = { value, Ui.Text(unit, "Meta", look.Ink) }
         };
         var rounded = Ui.Rounded(stack, look.Tint, 20, new Thickness(10, 12));
-        rounded.MinimumHeightRequest = 96;
+        rounded.MinimumHeightRequest = 104;
+        rounded.HeightRequest = 104;
         Content = rounded;
     }
 }
