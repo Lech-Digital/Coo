@@ -308,12 +308,7 @@ public sealed class BabyPage : ContentPage
             if (photo == null)
                 return;
 
-            using var memStream = new MemoryStream();
-            await using (var stream = await photo.OpenReadAsync())
-            {
-                await stream.CopyToAsync(memStream);
-            }
-            var base64 = Convert.ToBase64String(memStream.ToArray());
+            var base64 = await PrepareImageForAiAsync(photo);
 
             var id = Guid.CreateVersion7(_model.Time.GetUtcNow()).ToString("N");
             var targetPath = Path.Combine(FileSystem.AppDataDirectory, $"ai_avatar_{id}.png");
@@ -332,6 +327,78 @@ public sealed class BabyPage : ContentPage
         {
             await DisplayAlertAsync("Error", $"Could not generate avatar: {ex.Message}", "OK");
         }
+    }
+
+    private static Task<string> PrepareImageForAiAsync(FileResult photo)
+    {
+        return Task.Run(async () =>
+        {
+            var tempPath = Path.Combine(FileSystem.CacheDirectory, $"temp_ai_{Guid.NewGuid():N}.jpg");
+            try
+            {
+                await using (var inStream = await photo.OpenReadAsync())
+                await using (var outStream = File.Create(tempPath))
+                {
+                    await inStream.CopyToAsync(outStream);
+                }
+
+                // 1. Read EXIF orientation
+                var exif = new Android.Media.ExifInterface(tempPath);
+                var orientation = exif.GetAttributeInt(Android.Media.ExifInterface.TagOrientation, (int)Android.Media.Orientation.Normal);
+                int degrees = orientation switch
+                {
+                    (int)Android.Media.Orientation.Rotate90 => 90,
+                    (int)Android.Media.Orientation.Rotate180 => 180,
+                    (int)Android.Media.Orientation.Rotate270 => 270,
+                    _ => 0
+                };
+
+                // 2. Decode bitmap
+                var original = Android.Graphics.BitmapFactory.DecodeFile(tempPath)
+                    ?? throw new InvalidOperationException("Could not decode selected photo.");
+
+                Android.Graphics.Bitmap oriented;
+                if (degrees != 0)
+                {
+                    var matrix = new Android.Graphics.Matrix();
+                    matrix.PostRotate(degrees);
+                    oriented = Android.Graphics.Bitmap.CreateBitmap(original, 0, 0, original.Width, original.Height, matrix, true)!;
+                    if (oriented != original) original.Recycle();
+                }
+                else
+                {
+                    oriented = original;
+                }
+
+                // 3. Downscale to max 768px on longest edge
+                int maxDim = 768;
+                int w = oriented.Width;
+                int h = oriented.Height;
+                if (w > maxDim || h > maxDim)
+                {
+                    float ratio = Math.Min((float)maxDim / w, (float)maxDim / h);
+                    int targetW = (int)(w * ratio);
+                    int targetH = (int)(h * ratio);
+                    var scaled = Android.Graphics.Bitmap.CreateScaledBitmap(oriented, targetW, targetH, true)!;
+                    if (scaled != oriented) oriented.Recycle();
+                    oriented = scaled;
+                }
+
+                // 4. Compress to clean JPEG quality 85
+                using var ms = new MemoryStream();
+                oriented.Compress(Android.Graphics.Bitmap.CompressFormat.Jpeg!, 85, ms);
+                oriented.Recycle();
+
+                return Convert.ToBase64String(ms.ToArray());
+            }
+            finally
+            {
+                if (File.Exists(tempPath))
+                {
+                    try { File.Delete(tempPath); } catch { }
+                }
+            }
+        });
     }
 
     private static View TextEntry(string property, string placeholder)

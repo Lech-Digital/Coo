@@ -199,6 +199,13 @@ internal sealed class AdvisorService(
                 - Do NOT include any explanations, markdown code blocks, or backticks. Return ONLY the <svg>...</svg> tag.
                 """;
 
+            var cleanBase64 = request.ImageBase64;
+            var commaIdx = cleanBase64.IndexOf(',');
+            if (commaIdx >= 0)
+            {
+                cleanBase64 = cleanBase64[(commaIdx + 1)..];
+            }
+
             var requestObj = new
             {
                 contents = new[]
@@ -214,7 +221,7 @@ internal sealed class AdvisorService(
                                 inline_data = new
                                 {
                                     mime_type = "image/jpeg",
-                                    data = request.ImageBase64
+                                    data = cleanBase64
                                 }
                             }
                         }

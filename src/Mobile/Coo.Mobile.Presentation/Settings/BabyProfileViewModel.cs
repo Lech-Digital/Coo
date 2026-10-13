@@ -187,6 +187,10 @@ public sealed partial class BabyProfileViewModel : ObservableObject
             {
                 Error = "Premium subscription required for AI avatar generation.";
             }
+            else if (!string.IsNullOrEmpty(response.ErrorCode))
+            {
+                Error = response.ErrorCode;
+            }
             return false;
         }
         catch (Exception ex)

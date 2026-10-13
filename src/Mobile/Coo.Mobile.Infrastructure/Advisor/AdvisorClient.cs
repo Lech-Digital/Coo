@@ -30,7 +30,12 @@ internal sealed class AdvisorClient(HttpClient http) : IAdvisorApi
         if (response.StatusCode == System.Net.HttpStatusCode.PaymentRequired)
             return new GenerateAvatarResponse { ErrorCode = "premium_required" };
 
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
+            return new GenerateAvatarResponse { ErrorCode = $"Server error ({(int)response.StatusCode}): {errorBody}" };
+        }
+
         var result = await response.Content.ReadFromJsonAsync(AdvisorJsonContext.Default.GenerateAvatarResponse, cancellationToken);
         return result ?? new GenerateAvatarResponse();
     }

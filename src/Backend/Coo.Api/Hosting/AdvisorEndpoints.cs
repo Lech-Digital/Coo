@@ -5,8 +5,11 @@ using Coo.Domain.Common;
 
 namespace Coo.Api.Hosting;
 
-internal static class AdvisorEndpoints
+internal static partial class AdvisorEndpoints
 {
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Generate avatar warning: {Reason}")]
+    private static partial void LogAvatarWarning(ILogger logger, string reason);
+
     public static void MapAdvisorEndpoints(this IEndpointRouteBuilder app)
     {
         var advisor = app.MapGroup("/api/advisor").RequireAuthorization();
@@ -40,23 +43,44 @@ internal static class AdvisorEndpoints
             ClaimsPrincipal principal,
             SyncAccess access,
             IAdvisorService advisorService,
+            ILoggerFactory loggerFactory,
             CancellationToken cancellationToken) =>
         {
+            var logger = loggerFactory.CreateLogger("AdvisorEndpoints");
             var request = await AuthEndpoints.TryReadJsonAsync<GenerateAvatarHttpRequest>(http, cancellationToken);
-            if (request is null || string.IsNullOrWhiteSpace(request.ImageBase64) || request.HouseholdId == Guid.Empty || request.BabyId == Guid.Empty)
-                return Results.BadRequest(new { Code = "avatar.malformed" });
+            if (request is null)
+            {
+                LogAvatarWarning(logger, "request is null / JSON deserialization failed.");
+                return Results.BadRequest(new { Code = "avatar.malformed_json" });
+            }
+            if (string.IsNullOrWhiteSpace(request.ImageBase64))
+            {
+                LogAvatarWarning(logger, "ImageBase64 is empty.");
+                return Results.BadRequest(new { Code = "avatar.empty_image" });
+            }
+            if (request.HouseholdId == Guid.Empty || request.BabyId == Guid.Empty)
+            {
+                LogAvatarWarning(logger, $"empty ids (household={request.HouseholdId}, baby={request.BabyId})");
+                return Results.BadRequest(new { Code = "avatar.empty_ids" });
+            }
 
             var household = new HouseholdId(request.HouseholdId);
             var allowed = await access.CheckAsync(AuthEndpoints.UserOf(principal), household, cancellationToken);
             if (allowed.Denial != AccessDenial.None)
+            {
+                LogAvatarWarning(logger, $"forbidden for household {household.Value} (denial={allowed.Denial})");
                 return Results.Forbid();
+            }
 
             var genRequest = new GenerateAvatarRequest(request.BabyId, request.ImageBase64);
             var response = await advisorService.GenerateAvatarAsync(household, genRequest, cancellationToken);
             if (response.ErrorCode == "premium_required")
                 return Results.StatusCode(402); // Payment required
             if (response.ErrorCode != null && response.ImageBase64 == null)
+            {
+                LogAvatarWarning(logger, $"service error: {response.ErrorCode}");
                 return Results.BadRequest(new { Code = response.ErrorCode });
+            }
 
             return Results.Json(response);
         });
