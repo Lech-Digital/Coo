@@ -15,7 +15,7 @@
     <!-- Matches the installed maui-android workload (10.0.0); see BUILD.md. -->
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <!-- Phone storage: plain SQLite, no ORM (Spec 004 §13). The bundle ships its own SQLite with JSON built in. -->
-    <PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="10.0.13" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.153.1" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.13" />
     <PackageVersion Include="Microsoft.Maui.Controls" Version="10.0.0" />
