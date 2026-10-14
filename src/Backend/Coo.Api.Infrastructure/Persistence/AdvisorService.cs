@@ -254,26 +254,33 @@ internal sealed class AdvisorService(
                 var content = candidates[0].GetProperty("content");
                 if (content.TryGetProperty("parts", out var parts))
                 {
+                    var fullText = new System.Text.StringBuilder();
                     foreach (var part in parts.EnumerateArray())
                     {
                         if (part.TryGetProperty("text", out var textProp))
                         {
-                            var text = textProp.GetString();
-                            if (!string.IsNullOrEmpty(text))
-                            {
-                                var svgStart = text.IndexOf("<svg", StringComparison.OrdinalIgnoreCase);
-                                var svgEnd = text.LastIndexOf("</svg>", StringComparison.OrdinalIgnoreCase);
-                                if (svgStart >= 0 && svgEnd > svgStart)
-                                {
-                                    var svgXml = text.Substring(svgStart, svgEnd + 6 - svgStart);
-                                    var pngBytes = RenderSvgToPng(svgXml, 512, 512);
-                                    if (pngBytes != null && pngBytes.Length > 0)
-                                    {
-                                        return new GenerateAvatarResponse(Convert.ToBase64String(pngBytes), null);
-                                    }
-                                }
-                            }
+                            fullText.Append(textProp.GetString());
                         }
+                    }
+
+                    var text = fullText.ToString();
+                    if (!string.IsNullOrEmpty(text))
+                    {
+                        var svgStart = text.IndexOf("<svg", StringComparison.OrdinalIgnoreCase);
+                        var svgEnd = text.LastIndexOf("</svg>", StringComparison.OrdinalIgnoreCase);
+                        if (svgStart >= 0 && svgEnd > svgStart)
+                        {
+                            var svgXml = text.Substring(svgStart, svgEnd + 6 - svgStart);
+                            var (pngBytes, renderError) = RenderSvgToPng(svgXml, 512, 512);
+                            if (pngBytes != null && pngBytes.Length > 0)
+                            {
+                                return new GenerateAvatarResponse(Convert.ToBase64String(pngBytes), null);
+                            }
+                            return new GenerateAvatarResponse(null, $"Rasterization failed: {renderError}");
+                        }
+
+                        var snippet = text.Length > 120 ? text[..120] + "..." : text;
+                        return new GenerateAvatarResponse(null, $"No <svg> tag in response: {snippet}");
                     }
                 }
             }
@@ -286,19 +293,19 @@ internal sealed class AdvisorService(
         }
     }
 
-    private static byte[]? RenderSvgToPng(string svgXml, int width, int height)
+    private static (byte[]? Bytes, string? Error) RenderSvgToPng(string svgXml, int width, int height)
     {
         try
         {
             using var svg = new SKSvg();
             svg.FromSvg(svgXml);
             if (svg.Picture == null)
-                return null;
+                return (null, "SKSvg.Picture was null after FromSvg.");
 
             var info = new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
             using var surface = SKSurface.Create(info);
             if (surface == null)
-                return null;
+                return (null, "SKSurface.Create returned null.");
 
             using var canvas = surface.Canvas;
             canvas.Clear(SKColors.Transparent);
@@ -318,11 +325,11 @@ internal sealed class AdvisorService(
             canvas.Flush();
             using var image = surface.Snapshot();
             using var data = image.Encode(SKEncodedImageFormat.Png, 100);
-            return data.ToArray();
+            return (data.ToArray(), null);
         }
-        catch
+        catch (Exception ex)
         {
-            return null;
+            return (null, ex.Message);
         }
     }
 }

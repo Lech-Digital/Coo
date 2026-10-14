@@ -36,12 +36,47 @@ public sealed class BabyPage : ContentPage
         base.OnAppearing();
         await _model.LoadAsync();
         _pickerSheet = new AvatarPickerSheet(_model);
+        var loadingIndicator = new ActivityIndicator
+        {
+            IsRunning = true,
+            Color = Color.FromArgb("#70C1B3"),
+            WidthRequest = 48,
+            HeightRequest = 48,
+            HorizontalOptions = LayoutOptions.Center,
+        };
+        var loadingText = Ui.Text("Creating Magic AI Avatar…", "Body", "Ink");
+        loadingText.HorizontalOptions = LayoutOptions.Center;
+        var loadingSubtext = Ui.Text("Analyzing photo and illustrating baby features", "Label", "Ink2");
+        loadingSubtext.HorizontalOptions = LayoutOptions.Center;
+
+        var loadingCard = Ui.Card(new VerticalStackLayout
+        {
+            Spacing = 12,
+            Padding = new Thickness(24, 20),
+            HorizontalOptions = LayoutOptions.Center,
+            VerticalOptions = LayoutOptions.Center,
+            Children = { loadingIndicator, loadingText, loadingSubtext }
+        });
+        loadingCard.HorizontalOptions = LayoutOptions.Center;
+        loadingCard.VerticalOptions = LayoutOptions.Center;
+
+        var loadingOverlay = new Grid
+        {
+            BackgroundColor = Color.FromRgba(0, 0, 0, 0.4),
+            HorizontalOptions = LayoutOptions.Fill,
+            VerticalOptions = LayoutOptions.Fill,
+            InputTransparent = false,
+            Children = { loadingCard }
+        };
+        loadingOverlay.SetBinding(VisualElement.IsVisibleProperty, new Binding(nameof(BabyProfileViewModel.IsGeneratingAvatar), source: _model));
+
         var pageRoot = new Grid
         {
             Children =
             {
                 new ScrollView { Content = Build() },
                 _pickerSheet,
+                loadingOverlay,
             }
         };
         Content = pageRoot;
@@ -308,7 +343,17 @@ public sealed class BabyPage : ContentPage
             if (photo == null)
                 return;
 
-            var base64 = await PrepareImageForAiAsync(photo);
+            _model.IsGeneratingAvatar = true;
+            string base64;
+            try
+            {
+                base64 = await PrepareImageForAiAsync(photo);
+            }
+            catch
+            {
+                _model.IsGeneratingAvatar = false;
+                throw;
+            }
 
             var id = Guid.CreateVersion7(_model.Time.GetUtcNow()).ToString("N");
             var targetPath = Path.Combine(FileSystem.AppDataDirectory, $"ai_avatar_{id}.png");
@@ -329,11 +374,12 @@ public sealed class BabyPage : ContentPage
         }
     }
 
-    private static Task<string> PrepareImageForAiAsync(FileResult photo)
+    private Task<string> PrepareImageForAiAsync(FileResult photo)
     {
         return Task.Run(async () =>
         {
-            var tempPath = Path.Combine(FileSystem.CacheDirectory, $"temp_ai_{Guid.NewGuid():N}.jpg");
+            var id = Guid.CreateVersion7(_model.Time.GetUtcNow()).ToString("N");
+            var tempPath = Path.Combine(FileSystem.CacheDirectory, $"temp_ai_{id}.jpg");
             try
             {
                 await using (var inStream = await photo.OpenReadAsync())
