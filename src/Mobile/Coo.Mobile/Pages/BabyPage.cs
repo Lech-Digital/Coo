@@ -49,7 +49,7 @@ public sealed class BabyPage : ContentPage
         var loadingSubtext = Ui.Text("Analyzing photo and illustrating baby features", "Label", "Ink2");
         loadingSubtext.HorizontalOptions = LayoutOptions.Center;
 
-        var loadingCard = Ui.Card(new VerticalStackLayout
+        var loadingCard = new Card(new VerticalStackLayout
         {
             Spacing = 12,
             Padding = new Thickness(24, 20),
