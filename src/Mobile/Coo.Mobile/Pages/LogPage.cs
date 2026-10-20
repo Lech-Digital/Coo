@@ -1,5 +1,7 @@
 using System.ComponentModel;
+using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Components;
+using Coo.Mobile.Presentation.Formatting;
 using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Log;
 using Coo.Mobile.Presentation.Theme;
@@ -93,8 +95,7 @@ public sealed class LogPage : ContentPage
         else
             ShowRibbon();
         _pageHeader.Refresh();
-        if (!_model.CanGoNext)
-            _model.ResetToToday();
+        _model.ResetToToday();
         await _model.RefreshAsync();
         if (_renderedLanguage != Strings.Language)
             QueueRender();
@@ -166,6 +167,12 @@ public sealed class LogPage : ContentPage
 
     private void Render()
     {
+        if (_model.IsStatsView)
+        {
+            RenderStatsContent();
+            return;
+        }
+
         // Chevron icons, not the ‹ › characters: Figtree has no glyphs for them (Increment 6 finding on the phone).
         View Nav(string icon, System.Windows.Input.ICommand command, bool enabled)
         {
@@ -177,10 +184,46 @@ public sealed class LogPage : ContentPage
             return circle;
         }
 
-        var header = new Grid { HeightRequest = 48, ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto)], ColumnSpacing = 8 };
-        header.Add(Ui.Text(_model.Title, "Title").Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
-        header.Add(Nav(IconGeometry.ChevronLeft, _model.PreviousCommand, true), 1);
-        header.Add(Nav(IconGeometry.ChevronRight, _model.NextCommand, _model.CanGoNext), 2);
+        var titleStack = new VerticalStackLayout
+        {
+            Spacing = 1,
+            VerticalOptions = LayoutOptions.Center,
+            Children =
+            {
+                Ui.Text(_model.Title, "Title").Tap(l =>
+                {
+                    l.LineBreakMode = LineBreakMode.TailTruncation;
+                    l.MaxLines = 1;
+                }),
+                Ui.Text(_model.Subtitle, "Meta", "Ink2").Tap(l =>
+                {
+                    l.LineBreakMode = LineBreakMode.TailTruncation;
+                    l.MaxLines = 1;
+                }),
+            },
+        };
+
+        var toggleBtn = new Button
+        {
+            Text = Strings.Get("Stats.SwitchView"),
+            Command = _model.ToggleViewCommand,
+            HeightRequest = 38,
+            Padding = new Thickness(12, 0),
+            VerticalOptions = LayoutOptions.Center,
+        };
+        toggleBtn.SetDynamicResource(VisualElement.StyleProperty, "GhostButton");
+
+        var header = new Grid
+        {
+            MinimumHeightRequest = 48,
+            ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto), new(GridLength.Auto)],
+            ColumnSpacing = 8,
+            VerticalOptions = LayoutOptions.Center,
+        };
+        header.Add(titleStack, 0);
+        header.Add(toggleBtn, 1);
+        header.Add(Nav(IconGeometry.ChevronLeft, _model.PreviousCommand, true), 2);
+        header.Add(Nav(IconGeometry.ChevronRight, _model.NextCommand, _model.CanGoNext), 3);
 
         _ribbon = new RibbonView();
         ShowRibbon();
@@ -211,6 +254,12 @@ public sealed class LogPage : ContentPage
             timeline.Add(Ui.Text(Strings.Get("Timeline.Empty"), "Body", "Ink2"));
         foreach (var row in _model.Rows)
         {
+            if (row.IsMidnight)
+            {
+                timeline.Add(new MidnightRow(row.Title));
+                continue;
+            }
+
             var id = row.Id;
             timeline.Add(new TimelineRow(row.Time, row.KindCode, row.Title, row.Who, () => OpenEntry(id)));
         }
@@ -225,5 +274,211 @@ public sealed class LogPage : ContentPage
 
         if (_sheet.IsVisible)
             _detail.Update(_model.ChartItems, _model.Hours, _model.NowAt, WashiPalette.For(_theme.Current));
+    }
+
+    private void RenderStatsContent()
+    {
+        _totalsContainer.Content = null;
+
+        var header = new Grid
+        {
+            MinimumHeightRequest = 48,
+            ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto), new(GridLength.Auto)],
+            ColumnSpacing = 8,
+            VerticalOptions = LayoutOptions.Center,
+        };
+
+        var titleStack = new VerticalStackLayout
+        {
+            Spacing = 1,
+            VerticalOptions = LayoutOptions.Center,
+            Children =
+            {
+                Ui.Text(Strings.Get("Stats.Title"), "Title"),
+                Ui.Text(_model.StatsPeriodTitle, "Meta", "Ink2"),
+            },
+        };
+
+        View Nav(string icon, System.Windows.Input.ICommand command, bool enabled)
+        {
+            var circle = Ui.Rounded(new Icon(icon, enabled ? "Ink" : "Line", 24).Tap(i => i.HorizontalOptions = LayoutOptions.Center), "Surface", 999, new Thickness(12), "Line");
+            circle.WidthRequest = 48;
+            circle.HeightRequest = 48;
+            if (enabled)
+                circle.GestureRecognizers.Add(new TapGestureRecognizer { Command = command });
+            return circle;
+        }
+
+        var toggleBtn = new Button
+        {
+            Text = Strings.Get("Stats.TimelineView"),
+            Command = _model.ToggleViewCommand,
+            HeightRequest = 38,
+            Padding = new Thickness(12, 0),
+            VerticalOptions = LayoutOptions.Center,
+        };
+        toggleBtn.SetDynamicResource(VisualElement.StyleProperty, "GhostButton");
+
+        header.Add(titleStack, 0);
+        header.Add(toggleBtn, 1);
+        header.Add(Nav(IconGeometry.ChevronLeft, _model.PreviousPeriodCommand, true), 2);
+        header.Add(Nav(IconGeometry.ChevronRight, _model.NextPeriodCommand, _model.CanGoNextPeriod), 3);
+
+        var periodBar = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Star), new(GridLength.Star)], ColumnSpacing = 8 };
+        View PeriodChip(string label, CarePeriod period)
+        {
+            var isSelected = _model.StatsPeriod == period;
+            var btn = new Button
+            {
+                Text = label,
+                Command = _model.SetPeriodCommand,
+                CommandParameter = period,
+                HeightRequest = 42,
+            };
+            btn.SetDynamicResource(VisualElement.StyleProperty, isSelected ? "PrimaryButton" : "GhostButton");
+            return btn;
+        }
+
+        periodBar.Add(PeriodChip(Strings.Get("Stats.Day"), CarePeriod.Day), 0);
+        periodBar.Add(PeriodChip(Strings.Get("Stats.Week"), CarePeriod.Week), 1);
+        periodBar.Add(PeriodChip(Strings.Get("Stats.Month"), CarePeriod.Month), 2);
+
+        var cards = new VerticalStackLayout { Spacing = 12 };
+
+        if (_model.Stats is { } stats)
+        {
+            var sleepLook = EventAppearance.For("sleep");
+            var sleepCard = new VerticalStackLayout
+            {
+                Spacing = 8,
+                Children =
+                {
+                    new HorizontalStackLayout
+                    {
+                        Spacing = 8,
+                        Children =
+                        {
+                            Ui.Rounded(new Icon(sleepLook.Icon, sleepLook.Ink, 20), sleepLook.Tint, 12, new Thickness(6)),
+                            Ui.Text(Strings.Get("Kind.Sleep"), "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center),
+                        }
+                    },
+                    new HorizontalStackLayout
+                    {
+                        Spacing = 8,
+                        Children =
+                        {
+                            Ui.Text(Formats.Duration(stats.Sleep.DailyAverage), "Title", sleepLook.Ink),
+                            Ui.Text("/ " + Strings.Get("Stats.Day").ToLower(Strings.Culture), "Meta", "Ink2").Tap(l => l.VerticalOptions = LayoutOptions.Center),
+                        }
+                    },
+                    Ui.Text($"{Strings.Get("Stats.TotalSleep")}: {Formats.Duration(stats.Sleep.TotalSleep)} · {stats.Sleep.TotalSessions} sleeps ({stats.Sleep.SessionsPerDay}/day)", "Meta", "Ink2"),
+                    Ui.Text($"{Strings.Get("Stats.AverageDuration")}: {Formats.Duration(stats.Sleep.AverageDuration)} · {Strings.Get("Stats.LongestStretch")}: {Formats.Duration(stats.Sleep.LongestStretch)}", "Meta", "Ink2"),
+                }
+            };
+            cards.Add(new Card(sleepCard));
+
+            var feedLook = EventAppearance.For("feeding");
+            var feedCard = new VerticalStackLayout
+            {
+                Spacing = 8,
+                Children =
+                {
+                    new HorizontalStackLayout
+                    {
+                        Spacing = 8,
+                        Children =
+                        {
+                            Ui.Rounded(new Icon(feedLook.Icon, feedLook.Ink, 20), feedLook.Tint, 12, new Thickness(6)),
+                            Ui.Text(Strings.Get("Kind.Feed"), "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center),
+                        }
+                    },
+                    new HorizontalStackLayout
+                    {
+                        Spacing = 8,
+                        Children =
+                        {
+                            Ui.Text(stats.Feeding.FeedsPerDay.ToString("0.#", Strings.Culture), "Title", feedLook.Ink),
+                            Ui.Text(Strings.Get("Stats.FeedsCount"), "Meta", "Ink2").Tap(l => l.VerticalOptions = LayoutOptions.Center),
+                        }
+                    },
+                    Ui.Text($"Total: {stats.Feeding.TotalFeeds} feeds ({stats.Feeding.BreastFeeds} breast, {stats.Feeding.BottleFeeds} bottle)", "Meta", "Ink2"),
+                }
+            };
+            if (stats.Feeding.BreastFeeds > 0)
+            {
+                feedCard.Add(Ui.Text($"{Strings.Get("Stats.AvgFeedDuration")}: {Formats.Duration(stats.Feeding.AverageBreastDuration)} (L: {Formats.Duration(stats.Feeding.AverageLeftDuration)} · R: {Formats.Duration(stats.Feeding.AverageRightDuration)})", "Meta", "Ink2"));
+            }
+            if (stats.Feeding.BottleFeeds > 0)
+            {
+                feedCard.Add(Ui.Text($"Avg bottle: {Math.Round(stats.Feeding.AverageBottleMl)} ml · Total: {Math.Round(stats.Feeding.TotalBottleMl)} ml", "Meta", "Ink2"));
+            }
+            cards.Add(new Card(feedCard));
+
+            var diaperLook = EventAppearance.For("diaper");
+            var diaperCard = new VerticalStackLayout
+            {
+                Spacing = 8,
+                Children =
+                {
+                    new HorizontalStackLayout
+                    {
+                        Spacing = 8,
+                        Children =
+                        {
+                            Ui.Rounded(new Icon(diaperLook.Icon, diaperLook.Ink, 20), diaperLook.Tint, 12, new Thickness(6)),
+                            Ui.Text(Strings.Get("Kind.Diaper"), "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center),
+                        }
+                    },
+                    new HorizontalStackLayout
+                    {
+                        Spacing = 8,
+                        Children =
+                        {
+                            Ui.Text(stats.Diapers.DiapersPerDay.ToString("0.#", Strings.Culture), "Title", diaperLook.Ink),
+                            Ui.Text(Strings.Get("Stats.DiapersCount"), "Meta", "Ink2").Tap(l => l.VerticalOptions = LayoutOptions.Center),
+                        }
+                    },
+                    Ui.Text($"Total: {stats.Diapers.TotalDiapers} ({stats.Diapers.WetCount} wet · {stats.Diapers.DirtyCount} dirty · {stats.Diapers.MixedCount} mixed)", "Meta", "Ink2"),
+                }
+            };
+            cards.Add(new Card(diaperCard));
+
+            if (stats.Pumping.TotalSessions > 0)
+            {
+                var pumpLook = EventAppearance.For("pump");
+                var pumpCard = new VerticalStackLayout
+                {
+                    Spacing = 8,
+                    Children =
+                    {
+                        new HorizontalStackLayout
+                        {
+                            Spacing = 8,
+                            Children =
+                            {
+                                Ui.Rounded(new Icon(pumpLook.Icon, pumpLook.Ink, 20), pumpLook.Tint, 12, new Thickness(6)),
+                                Ui.Text(Strings.Get("Kind.Pump"), "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center),
+                            }
+                        },
+                        new HorizontalStackLayout
+                        {
+                            Spacing = 8,
+                            Children =
+                            {
+                                Ui.Text($"{Math.Round(stats.Pumping.DailyAverageMl)} ml", "Title", pumpLook.Ink),
+                                Ui.Text(Strings.Get("Stats.PumpedVolume"), "Meta", "Ink2").Tap(l => l.VerticalOptions = LayoutOptions.Center),
+                            }
+                        },
+                        Ui.Text($"Total: {Math.Round(stats.Pumping.TotalMl)} ml · {stats.Pumping.TotalSessions} sessions (avg {Math.Round(stats.Pumping.AveragePerSessionMl)} ml)", "Meta", "Ink2"),
+                    }
+                };
+                cards.Add(new Card(pumpCard));
+            }
+        }
+
+        _logContentContainer.Children.Clear();
+        _logContentContainer.Add(header);
+        _logContentContainer.Add(periodBar);
+        _logContentContainer.Add(cards);
     }
 }

@@ -129,6 +129,34 @@ public sealed class TimelineRow : ContentView
     }
 }
 
+/// <summary>A midnight divider row separating consecutive days in the timeline.</summary>
+public sealed class MidnightRow : ContentView
+{
+    public MidnightRow(string label)
+    {
+        var lineLeft = new BoxView { HeightRequest = 1, HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center };
+        lineLeft.SetDynamicResource(BoxView.ColorProperty, "Line");
+
+        var text = Ui.Text(label, "Meta", "Ink2");
+        text.VerticalOptions = LayoutOptions.Center;
+        text.HorizontalTextAlignment = TextAlignment.Center;
+
+        var lineRight = new BoxView { HeightRequest = 1, HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Center };
+        lineRight.SetDynamicResource(BoxView.ColorProperty, "Line");
+
+        var grid = new Grid
+        {
+            ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Star)],
+            ColumnSpacing = 10,
+            Padding = new Thickness(0, 16, 0, 10),
+        };
+        grid.Add(lineLeft, 0);
+        grid.Add(text, 1);
+        grid.Add(lineRight, 2);
+        Content = grid;
+    }
+}
+
 /// <summary>A tint cell with a number and a unit, in the event ink.</summary>
 public sealed class TotalsCell : ContentView
 {

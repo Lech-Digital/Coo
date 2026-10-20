@@ -86,7 +86,6 @@ public sealed class BabyPage : ContentPage
     {
         var avatarHero = BuildAvatarHero();
         var name = TextEntry(nameof(BabyProfileViewModel.Name), Strings.Get("Setup.Name"));
-        var nicknames = TextEntry(nameof(BabyProfileViewModel.Nicknames), Strings.Get("Baby.NicknamesHint"));
 
         var birthLabel = Ui.Text(Strings.Get("Setup.BirthDate"), "Label");
         var birth = DatePicker(nameof(BabyProfileViewModel.BirthDate), max: _model.Today);
@@ -127,8 +126,6 @@ public sealed class BabyPage : ContentPage
                 avatarHero,
                 Ui.Text(Strings.Get("Setup.Name"), "Label").Tap(l => l.Margin = new Thickness(0, 8, 0, 0)),
                 name,
-                Ui.Text(Strings.Get("Baby.Nicknames"), "Label"),
-                nicknames,
                 birthLabel,
                 birth,
                 bornEarly,

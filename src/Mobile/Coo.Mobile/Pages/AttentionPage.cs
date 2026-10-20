@@ -108,9 +108,15 @@ public sealed class AttentionPage : ContentPage
         var back = Ui.Rounded(new Icon(IconGeometry.ChevronLeft, "Ink", 24).Tap(i => i.HorizontalOptions = LayoutOptions.Center), "Surface", 999, new Thickness(12), "Line");
         back.WidthRequest = back.HeightRequest = 48;
         back.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await Navigation.PopAsync()) });
-        var header = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 12 };
+        var header = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 12 };
         header.Add(back, 0);
         header.Add(Ui.Text(Strings.Get("Attention.Title"), "Title").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
+        if (_model.CanResolveAll)
+        {
+            var resolveBtn = Small(Strings.Get("Attention.ResolveAll"), _model.AutoResolveAllCommand, primary: true);
+            resolveBtn.VerticalOptions = LayoutOptions.Center;
+            header.Add(resolveBtn, 2);
+        }
 
         var stack = new VerticalStackLayout { Spacing = 14, Padding = new Thickness(24, 32, 24, 96) };
         stack.Add(header);
@@ -159,6 +165,7 @@ public sealed class AttentionPage : ContentPage
                         Ui.Text(item.Text, "BodyStrong"),
                         Ui.Text(item.Reason, "Meta"),
                         Small(Strings.Get("Edit.Title"), _model.EditRejectedCommand, primary: true, parameter: item.Id),
+                        Small(Strings.Get("Action.Dismiss"), _model.DismissRejectedCommand, parameter: item.Id),
                         Small(Strings.Get("Edit.Delete"), _model.DeleteRejectedCommand, parameter: item.Id),
                     },
                 }));

@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Coo.Contracts.Sync;
 using Coo.Domain.CareLog;
 using Coo.Domain.CareLog.Kinds.Feeding;
 using Coo.Domain.Common;
@@ -7,6 +8,7 @@ using Coo.Domain.Households;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Preferences;
+using Coo.Mobile.Application.Sync;
 using Coo.Mobile.Presentation.Formatting;
 using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Today;
@@ -26,7 +28,15 @@ public sealed record AttentionEntry(EntryId Id, string KindCode, string Text, st
 
 /// <summary>The Needs attention page (Spec 007 §6): groups in order, each with its own actions. Nothing interrupts.</summary>
 public sealed partial class AttentionViewModel(
-    IHouseholdStore households, GetAttention getAttention, DismissDuplicate dismiss, MergeFeeds merge, UndoService undo, IClockFormat clock, TimeProvider time)
+    IHouseholdStore households,
+    GetAttention getAttention,
+    DismissDuplicate dismiss,
+    MergeFeeds merge,
+    UndoService undo,
+    IClockFormat clock,
+    TimeProvider time,
+    AutoResolveAttention? autoResolve = null,
+    ISyncStore? sync = null)
     : ObservableObject
 {
     private HouseholdId? _household;
@@ -55,6 +65,9 @@ public sealed partial class AttentionViewModel(
 
     [ObservableProperty]
     private bool _isEmpty;
+
+    [ObservableProperty]
+    private bool _canResolveAll;
 
     public int RejectedTotal => _allRejected.Count;
 
@@ -87,6 +100,7 @@ public sealed partial class AttentionViewModel(
             .Select(r => new AttentionEntry(r.Entry.Id, r.Entry.KindCode, formats.Time(r.Entry.Start), Strings.Error(r.Reason)))];
         ShowRejected();
         IsEmpty = FeedGroups.Count + OtherGroups.Count + Unreadable.Count + Newer.Count + _allRejected.Count == 0;
+        CanResolveAll = FeedGroups.Any(g => g.Merge is not null) || OtherGroups.Count > 0;
     }
 
     private (bool Feeds, GroupItem Item) Card(AttentionGroup group, HouseholdId household, Formats formats, DateTimeOffset now, Func<CareEntry, string> line)
@@ -160,4 +174,36 @@ public sealed partial class AttentionViewModel(
 
     [RelayCommand]
     private Task DeleteEntry(EntryId id) => undo.DeleteWithUndoAsync(id, Strings.Get("Entry.Quarantined"));
+
+    [RelayCommand]
+    private async Task AutoResolveAll()
+    {
+        if (_household is not { } h)
+            return;
+
+        if (autoResolve is not null)
+        {
+            var now = time.GetLocalNow();
+            await autoResolve.ExecuteAsync(h, now, CancellationToken.None);
+        }
+        else
+        {
+            foreach (var group in FeedGroups.Where(g => g.Merge is not null))
+            {
+                if (group.Merge is not null)
+                    await group.Merge.ExecuteAsync(null);
+            }
+        }
+
+        await RefreshAsync();
+    }
+
+    [RelayCommand]
+    private async Task DismissRejected(EntryId id)
+    {
+        if (_household is { } h && sync is not null)
+            await sync.DeleteRejectionAsync(h, SyncEntityTypes.CareEntry, id.Value, CancellationToken.None);
+
+        await DeleteRejected(id);
+    }
 }

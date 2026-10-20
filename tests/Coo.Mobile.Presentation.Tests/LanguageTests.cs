@@ -150,7 +150,7 @@ public sealed class RunningItemLanguageTests : IDisposable
         section.Update(snapshot);
 
         // Assert
-        section.Items.Single().Actions.Select(a => a.Label).Should().Equal("Zmień stronę", "Stop");
+        section.Items.Single().Actions.Select(a => a.Label).Should().Equal("Pauza", "Zmień stronę", "Stop");
     }
 
     private static Coo.Mobile.Presentation.Today.HomeActions Actions()

@@ -182,17 +182,38 @@ public sealed partial class TodayViewModel : ObservableObject
             _summary = _summary with { TodayEntries = [.. _summary.TodayEntries.Where(e => !_undo.IsPendingDelete(e.Id))] };
         _attentionCount = (await _attention.ExecuteAsync(_household.Id, _time.GetLocalNow(), CancellationToken.None)).Count;
         _who = await _whoSource.ForAsync(_household.Id);
+        _currentLocalDay = _time.GetLocalNow().Date;
         Relayout();
     }
+
+    private DateTime? _currentLocalDay;
 
     /// <summary>Called each second by the page while visible: timers and "awake for" move on without a reload.</summary>
     public void Tick()
     {
         if (_household is null || _baby is null)
             return;
+        var today = _time.GetLocalNow().Date;
+        if (_currentLocalDay is not null && _currentLocalDay.Value != today)
+        {
+            _currentLocalDay = today;
+            _ = RefreshAsync();
+            return;
+        }
         var snapshot = Snapshot();
         foreach (var section in Sections)
             section.Update(snapshot);
+    }
+
+    /// <summary>Called on app resume to detect overnight day transition.</summary>
+    public void CheckDayChanged()
+    {
+        var today = _time.GetLocalNow().Date;
+        if (_currentLocalDay is not null && _currentLocalDay.Value != today)
+        {
+            _currentLocalDay = today;
+            _ = RefreshAsync();
+        }
     }
 
     /// <summary>Whether the night palette shows, for the Today switch's glyph (Spec 009 §3.7).</summary>

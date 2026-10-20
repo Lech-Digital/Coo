@@ -41,9 +41,9 @@ They are the contract between this document and the XAML.
 | `Line` | `#DDD6C9` | `#332D26` | Hairline borders and separators |
 | `Ink` | `#2A2823` | `#E9C9A0` | Primary text and icons |
 | `Ink2` | `#6B665C` | `#A88E70` | Secondary text, metadata |
-| `Accent` | `#5E7150` (matcha) | `#C9A46A` (amber) | Primary actions, links |
-| `AccentSoft` | `#E3E7D9` | `#37322B` | Pills, selected states |
-| `AccentInk` | `#46553B` | `#E9C9A0` | Text on `AccentSoft`; link text |
+| `Accent` | `#BA4F28` (terracotta) | `#C9A46A` (amber) | Primary actions, links |
+| `AccentSoft` | `#F2E8DC` | `#37322B` | Pills, selected states |
+| `AccentInk` | `#8A3516` | `#E9C9A0` | Text on `AccentSoft`; link text |
 | `OnAccent` | `#FAF8F3` | `#16130F` | Text on `Accent` |
 | `Cheek` | `#E8C4B8` | `#2E2820` | Baby avatar fill |
 | `CheekInk` | `#6E3F33` | `#E9C9A0` | Baby avatar initial |

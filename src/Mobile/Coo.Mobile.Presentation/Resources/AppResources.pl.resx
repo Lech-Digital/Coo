@@ -19,13 +19,22 @@
   <data name="Account.SignOutConfirm" xml:space="preserve"><value>Wylogować się na tym telefonie? Twój dziennik zostanie na tym telefonie.</value></data>
   <data name="Account.Title" xml:space="preserve"><value>Konto</value></data>
   <data name="Action.Cancel" xml:space="preserve"><value>Anuluj</value></data>
+  <data name="Action.Dismiss" xml:space="preserve"><value>Odrzuć</value></data>
   <data name="Action.LogBottle" xml:space="preserve"><value>Zapisz butelkę</value></data>
+  <data name="Action.Pause" xml:space="preserve"><value>Pauza</value></data>
+  <data name="Action.Resume" xml:space="preserve"><value>Wznów</value></data>
+  <data name="Action.ResumeOther" xml:space="preserve"><value>Zmień i wznów</value></data>
   <data name="Action.Save" xml:space="preserve"><value>Zapisz</value></data>
   <data name="Action.Skip" xml:space="preserve"><value>Pomiń</value></data>
   <data name="Action.Stop" xml:space="preserve"><value>Stop</value></data>
   <data name="Action.SwitchSide" xml:space="preserve"><value>Zmień stronę</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Cofnij</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Pobudka</value></data>
+  <data name="Earlier.BottleSubtitle" xml:space="preserve"><value>Mleko modyfikowane lub odciągnięte</value></data>
+  <data name="Earlier.DiaperSubtitle" xml:space="preserve"><value>Mokra, brudna lub mieszana</value></data>
+  <data name="Earlier.FeedSubtitle" xml:space="preserve"><value>Sesja karmienia piersią</value></data>
+  <data name="Earlier.PumpSubtitle" xml:space="preserve"><value>Odciągnięte mleko</value></data>
+  <data name="Earlier.SleepSubtitle" xml:space="preserve"><value>Drzemka lub sen nocny</value></data>
   <data name="Age.Corrected" xml:space="preserve"><value>{0} (korygowany)</value></data>
   <data name="Age.Days.few" xml:space="preserve"><value>{0} dni</value></data>
   <data name="Age.Days.many" xml:space="preserve"><value>{0} dni</value></data>
@@ -50,6 +59,7 @@
   <data name="Attention.NoteTooLong" xml:space="preserve"><value>Notatki są za długie, by połączyć je w jedną.</value></data>
   <data name="Attention.Overlap" xml:space="preserve"><value>Te karmienia nakładają się na siebie, więc nie można ich połączyć.</value></data>
   <data name="Attention.Rejected" xml:space="preserve"><value>Nie przyjęte przez serwer</value></data>
+  <data name="Attention.ResolveAll" xml:space="preserve"><value>Rozwiąż wszystkie</value></data>
   <data name="Attention.ShowMore" xml:space="preserve"><value>Pokaż więcej</value></data>
   <data name="Attention.Title" xml:space="preserve"><value>Do sprawdzenia</value></data>
   <data name="Attention.Unreadable" xml:space="preserve"><value>Nie udało się odczytać</value></data>
@@ -365,6 +375,21 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Tab.Log" xml:space="preserve"><value>Dziennik</value></data>
   <data name="Tab.Settings" xml:space="preserve"><value>Ustawienia</value></data>
   <data name="Tab.Today" xml:space="preserve"><value>Dziś</value></data>
+  <data name="Stats.AverageDuration" xml:space="preserve"><value>Średnia sesja</value></data>
+  <data name="Stats.AvgFeedDuration" xml:space="preserve"><value>Średnie karmienie</value></data>
+  <data name="Stats.DailyAverage" xml:space="preserve"><value>Średnia dzienna</value></data>
+  <data name="Stats.Day" xml:space="preserve"><value>Dzień</value></data>
+  <data name="Stats.DiapersCount" xml:space="preserve"><value>Pieluszek / dzień</value></data>
+  <data name="Stats.FeedsCount" xml:space="preserve"><value>Karmień / dzień</value></data>
+  <data name="Stats.LongestStretch" xml:space="preserve"><value>Najdłuższy sen</value></data>
+  <data name="Stats.Month" xml:space="preserve"><value>Miesiąc</value></data>
+  <data name="Stats.PumpedVolume" xml:space="preserve"><value>Odciągnięte / dzień</value></data>
+  <data name="Stats.SwitchView" xml:space="preserve"><value>Statystyki</value></data>
+  <data name="Stats.TimelineView" xml:space="preserve"><value>Oś czasu</value></data>
+  <data name="Stats.Title" xml:space="preserve"><value>Statystyki</value></data>
+  <data name="Stats.TotalSleep" xml:space="preserve"><value>Łączny sen</value></data>
+  <data name="Stats.Week" xml:space="preserve"><value>Tydzień</value></data>
+  <data name="Time.Midnight" xml:space="preserve"><value>Północ</value></data>
   <data name="Theme.ToDay" xml:space="preserve"><value>Przełącz na kolory dzienne</value></data>
   <data name="Theme.ToNight" xml:space="preserve"><value>Przełącz na kolory nocne</value></data>
   <data name="Tile.Asleep" xml:space="preserve"><value>śpi od {0}</value></data>

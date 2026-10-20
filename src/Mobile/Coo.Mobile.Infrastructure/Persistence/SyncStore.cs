@@ -240,6 +240,17 @@ internal sealed class SyncStore(LocalDatabase database) : ISyncStore
         return list;
     }
 
+    public async Task DeleteRejectionAsync(HouseholdId household, string entityType, Guid entityId, CancellationToken cancellationToken)
+    {
+        await using var connection = await database.OpenAsync(cancellationToken);
+        await connection.ExecuteAsync(
+            "DELETE FROM sync_rejections WHERE household_id = $h AND entity_type = $type AND entity_id = $id;",
+            cancellationToken, null,
+            ("$h", Columns.Id(household.Value)),
+            ("$type", entityType),
+            ("$id", Columns.Id(entityId)));
+    }
+
     private sealed record State(HlcStamp Version, bool IsDeleted, RecordPayload Payload);
 
     private static async Task<State?> ReadStateAsync(SqliteConnection connection, string type, string id, CancellationToken cancellationToken)

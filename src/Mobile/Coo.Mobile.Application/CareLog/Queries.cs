@@ -111,7 +111,7 @@ public sealed class GetDay(ICareLogStore store)
                     sleep += day.Overlap(start, end);
                     ribbon.Add(new RibbonMark(entry.KindCode.Value, day.Fraction(start), day.Fraction(end), IsBlock: true, entry.Id));
                     break;
-                case FeedingDetails when day.Contains(start):
+                case FeedingDetails:
                     feeds++;
                     ribbon.Add(new RibbonMark(entry.KindCode.Value, day.Fraction(start), day.Fraction(end), IsBlock: false, entry.Id));
                     break;

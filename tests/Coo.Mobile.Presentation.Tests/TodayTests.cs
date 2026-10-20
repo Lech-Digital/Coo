@@ -271,7 +271,7 @@ public sealed class NightTimersTests
 
         // Assert
         section.Timers.Select(t => t.KindCode).Should().Equal("feeding", "sleep");
-        section.Timers[0].Actions.Should().HaveCount(2, "the feed keeps Switch side and Stop at night");
+        section.Timers[0].Actions.Should().HaveCount(3, "the feed has Pause, Switch side and Stop at night");
     }
 
     [Fact]
@@ -299,6 +299,38 @@ public sealed class NightTimersTests
         // Assert
         section.Items[0].Should().BeSameAs(card, "the card stays put, so taps on its buttons are never lost");
         card.Started.Should().NotBe(before).And.Contain(new Formats(true, VolumeUnit.Millilitres).Time(Now.AddMinutes(-12)));
+    }
+
+    [Fact]
+    public void Update_FeedingPaused_UpdatesButtonsToResumeAndShowsPaused()
+    {
+        // Arrange
+        var feed = Entry(BreastFeed.Start(BreastSide.Left, Now.AddMinutes(-10)), null);
+        var time = new FixedTime(Now);
+        var store = Substitute.For<ICareLogStore>();
+        var clock = Substitute.For<IVersionClock>();
+        var section = new RunningSection(new HomeActions(new LogEntry(store, clock, time), new ReviseEntry(store, clock, time), time));
+        var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
+        HomeSnapshot Snapshot(CareEntry running) => new(settings, baby,
+            new TodaySummary([running], null, null, running, null, null, [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc)),
+            Now, PaletteKind.Day, new Formats(true, VolumeUnit.Millilitres));
+
+        section.Update(Snapshot(feed));
+        var card = section.Items[0];
+        card.IsPaused.Should().BeFalse();
+        card.ActiveSide.Should().Be(BreastSide.Left);
+        card.Actions.Select(a => a.Label).Should().Equal("Pause", "Switch side", "Stop");
+
+        // Act: pause the feed
+        feed.Revise<BreastFeed>(b => b.Pause(Now.AddMinutes(-2)), new HlcStamp(++_wall, 0, Device), Now);
+        section.Update(Snapshot(feed));
+
+        // Assert
+        card.IsPaused.Should().BeTrue();
+        card.ActiveSide.Should().BeNull();
+        card.Actions.Select(a => a.Label).Should().Equal("Resume", "Switch & resume", "Stop");
+        card.Actions[0].IsPrimary.Should().BeTrue("Resume is the primary action when paused");
     }
 
     [Fact]

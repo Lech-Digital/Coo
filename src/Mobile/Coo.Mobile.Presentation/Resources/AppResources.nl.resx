@@ -19,13 +19,22 @@
   <data name="Account.SignOutConfirm" xml:space="preserve"><value>Uitloggen op deze telefoon? Je logboek blijft op deze telefoon.</value></data>
   <data name="Account.Title" xml:space="preserve"><value>Account</value></data>
   <data name="Action.Cancel" xml:space="preserve"><value>Annuleren</value></data>
+  <data name="Action.Dismiss" xml:space="preserve"><value>Negeren</value></data>
   <data name="Action.LogBottle" xml:space="preserve"><value>Fles loggen</value></data>
+  <data name="Action.Pause" xml:space="preserve"><value>Pauze</value></data>
+  <data name="Action.Resume" xml:space="preserve"><value>Hervatten</value></data>
+  <data name="Action.ResumeOther" xml:space="preserve"><value>Wissel en hervat</value></data>
   <data name="Action.Save" xml:space="preserve"><value>Opslaan</value></data>
   <data name="Action.Skip" xml:space="preserve"><value>Overslaan</value></data>
   <data name="Action.Stop" xml:space="preserve"><value>Stop</value></data>
   <data name="Action.SwitchSide" xml:space="preserve"><value>Andere kant</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Ongedaan maken</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Wakker</value></data>
+  <data name="Earlier.BottleSubtitle" xml:space="preserve"><value>Flesvoeding of afgekolfde melk</value></data>
+  <data name="Earlier.DiaperSubtitle" xml:space="preserve"><value>Nat, vuil of beide</value></data>
+  <data name="Earlier.FeedSubtitle" xml:space="preserve"><value>Borstvoeding</value></data>
+  <data name="Earlier.PumpSubtitle" xml:space="preserve"><value>Afgekolfde melk</value></data>
+  <data name="Earlier.SleepSubtitle" xml:space="preserve"><value>Dutje of nachtrust</value></data>
   <data name="Age.Corrected" xml:space="preserve"><value>{0} (gecorrigeerd)</value></data>
   <data name="Age.Days.one" xml:space="preserve"><value>{0} dag</value></data>
   <data name="Age.Days.other" xml:space="preserve"><value>{0} dagen</value></data>
@@ -46,6 +55,7 @@
   <data name="Attention.NoteTooLong" xml:space="preserve"><value>De notities zijn te lang om samen te voegen tot één.</value></data>
   <data name="Attention.Overlap" xml:space="preserve"><value>Deze voedingen overlappen, dus ze kunnen niet worden samengevoegd.</value></data>
   <data name="Attention.Rejected" xml:space="preserve"><value>Niet geaccepteerd door de server</value></data>
+  <data name="Attention.ResolveAll" xml:space="preserve"><value>Alles oplossen</value></data>
   <data name="Attention.ShowMore" xml:space="preserve"><value>Meer tonen</value></data>
   <data name="Attention.Title" xml:space="preserve"><value>Vraagt aandacht</value></data>
   <data name="Attention.Unreadable" xml:space="preserve"><value>Kon niet worden gelezen</value></data>
@@ -347,6 +357,21 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Tab.Log" xml:space="preserve"><value>Logboek</value></data>
   <data name="Tab.Settings" xml:space="preserve"><value>Instellingen</value></data>
   <data name="Tab.Today" xml:space="preserve"><value>Vandaag</value></data>
+  <data name="Stats.AverageDuration" xml:space="preserve"><value>Gemiddelde sessie</value></data>
+  <data name="Stats.AvgFeedDuration" xml:space="preserve"><value>Gemiddelde voeding</value></data>
+  <data name="Stats.DailyAverage" xml:space="preserve"><value>Dagelijks gemiddelde</value></data>
+  <data name="Stats.Day" xml:space="preserve"><value>Dag</value></data>
+  <data name="Stats.DiapersCount" xml:space="preserve"><value>Luiers / dag</value></data>
+  <data name="Stats.FeedsCount" xml:space="preserve"><value>Voedingen / dag</value></data>
+  <data name="Stats.LongestStretch" xml:space="preserve"><value>Langste slaap</value></data>
+  <data name="Stats.Month" xml:space="preserve"><value>Maand</value></data>
+  <data name="Stats.PumpedVolume" xml:space="preserve"><value>Gekolfd / dag</value></data>
+  <data name="Stats.SwitchView" xml:space="preserve"><value>Statistieken</value></data>
+  <data name="Stats.TimelineView" xml:space="preserve"><value>Tijdlijn</value></data>
+  <data name="Stats.Title" xml:space="preserve"><value>Statistieken</value></data>
+  <data name="Stats.TotalSleep" xml:space="preserve"><value>Totale slaap</value></data>
+  <data name="Stats.Week" xml:space="preserve"><value>Week</value></data>
+  <data name="Time.Midnight" xml:space="preserve"><value>Middernacht</value></data>
   <data name="Theme.ToDay" xml:space="preserve"><value>Naar dagkleuren</value></data>
   <data name="Theme.ToNight" xml:space="preserve"><value>Naar nachtkleuren</value></data>
   <data name="Tile.Asleep" xml:space="preserve"><value>slaapt sinds {0}</value></data>

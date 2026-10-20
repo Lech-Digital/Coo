@@ -20,6 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<EnsureProvisionalHousehold>();
         services.AddTransient<GetToday>();
         services.AddTransient<GetDay>();
+        services.AddTransient<GetCareStatistics>();
         services.AddTransient<SetUpBaby>();
         services.AddTransient<RecordBirth>();
         services.AddTransient<UpdateBabyProfile>();
@@ -29,6 +30,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<DismissDuplicate>();
         services.AddTransient<MergeFeeds>();
         services.AddTransient<UndoFeedMerge>();
+        services.AddTransient<AutoResolveAttention>();
 
         // Sign-in and sessions (Spec 010 §6).
         services.AddSingleton<Account>();

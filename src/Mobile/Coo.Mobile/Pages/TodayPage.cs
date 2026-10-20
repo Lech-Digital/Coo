@@ -167,30 +167,114 @@ public sealed class TodayPage : ContentPage
     {
         _pageSheet = true;
         // Hidden kinds offer no "Earlier…" choice (Spec 009 §3.2).
-        var rows = new (string Kind, View Button)[]
+        var items = new (string Kind, View Item)[]
         {
-            ("feeding", EarlierButton("feeding", "Kind.Feed")),
-            ("feeding", EarlierButton("feeding", "Feed.Bottle", bottle: true)),
-            ("diaper", EarlierButton("diaper", "Kind.Diaper")),
-            ("sleep", EarlierButton("sleep", "Kind.Sleep")),
-            ("pump", EarlierButton("pump", "Kind.Pump")),
-        }.Where(b => _model.IsShown(b.Kind)).Select(b => b.Button).Chunk(2).Select(pair => (View)Row(pair)).ToArray();
-        await _sheet.ShowAsync(Panel(Strings.Get("Edit.Earlier"), rows));
+            ("feeding", EarlierItem("feeding", "Kind.Feed", "Earlier.FeedSubtitle")),
+            ("feeding", EarlierItem("feeding", "Feed.Bottle", "Earlier.BottleSubtitle", bottle: true)),
+            ("diaper", EarlierItem("diaper", "Kind.Diaper", "Earlier.DiaperSubtitle")),
+            ("sleep", EarlierItem("sleep", "Kind.Sleep", "Earlier.SleepSubtitle")),
+            ("pump", EarlierItem("pump", "Kind.Pump", "Earlier.PumpSubtitle")),
+        }.Where(b => _model.IsShown(b.Kind)).Select(b => b.Item).ToArray();
+        await _sheet.ShowAsync(Panel(Strings.Get("Edit.Earlier"), items));
     }
 
-    private Button EarlierButton(string kindCode, string key, bool bottle = false)
+    private View EarlierItem(string kindCode, string key, string subtitleKey, bool bottle = false)
     {
-        var button = Big(Strings.Get(key), new Command(async () => await OpenNewAsync(kindCode, bottle)), kindCode, kindCode);
-        return button;
+        var look = Coo.Mobile.Presentation.Theme.EventAppearance.For(kindCode);
+        var iconPath = kindCode switch
+        {
+            "feeding" when bottle => Coo.Mobile.Presentation.Theme.IconGeometry.Feed,
+            "feeding" => Coo.Mobile.Presentation.Theme.IconGeometry.SideLeft,
+            "diaper" => Coo.Mobile.Presentation.Theme.IconGeometry.Diaper,
+            "sleep" => Coo.Mobile.Presentation.Theme.IconGeometry.Sleep,
+            "pump" => Coo.Mobile.Presentation.Theme.IconGeometry.Pump,
+            _ => look.Icon,
+        };
+
+        var iconContainer = new Border
+        {
+            WidthRequest = 44,
+            HeightRequest = 44,
+            StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 22 },
+            StrokeThickness = 0,
+            HorizontalOptions = LayoutOptions.Start,
+            VerticalOptions = LayoutOptions.Center,
+            Content = new Icon(iconPath, look.Ink, 22).Tap(i =>
+            {
+                i.HorizontalOptions = LayoutOptions.Center;
+                i.VerticalOptions = LayoutOptions.Center;
+            }),
+        };
+        iconContainer.SetDynamicResource(VisualElement.BackgroundColorProperty, look.Tint);
+
+        var titleLabel = Ui.Text(Strings.Get(key), "BodyStrong");
+        var subtitleText = Strings.Get(subtitleKey);
+        var subtitleLabel = Ui.Text(string.IsNullOrEmpty(subtitleText) ? "" : subtitleText, "Meta", "Ink2");
+
+        var textStack = new VerticalStackLayout
+        {
+            Spacing = 2,
+            VerticalOptions = LayoutOptions.Center,
+            Children = { titleLabel, subtitleLabel },
+        };
+
+        var chevron = new Icon(Coo.Mobile.Presentation.Theme.IconGeometry.ChevronRight, "Ink2", 18).Tap(c =>
+        {
+            c.HorizontalOptions = LayoutOptions.End;
+            c.VerticalOptions = LayoutOptions.Center;
+        });
+
+        var rowGrid = new Grid
+        {
+            ColumnDefinitions =
+            [
+                new ColumnDefinition(GridLength.Auto),
+                new ColumnDefinition(GridLength.Star),
+                new ColumnDefinition(GridLength.Auto),
+            ],
+            ColumnSpacing = 14,
+            Padding = new Thickness(14, 12),
+        };
+        rowGrid.Add(iconContainer, 0);
+        rowGrid.Add(textStack, 1);
+        rowGrid.Add(chevron, 2);
+
+        var border = new Border
+        {
+            StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 16 },
+            StrokeThickness = 1,
+            Content = rowGrid,
+            Margin = new Thickness(0, 4),
+        };
+        border.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
+        border.SetDynamicResource(Border.StrokeProperty, "LineBrush");
+
+        var tap = new TapGestureRecognizer();
+        tap.Tapped += async (_, _) => await OpenNewAsync(kindCode, bottle);
+        border.GestureRecognizers.Add(tap);
+
+        return border;
     }
 
     private View EarlierLink(string kindCode, bool bottle = false)
     {
-        var link = Ui.Text(Strings.Get("Edit.Earlier"), "Label", "Ink2");
-        link.Padding = new Thickness(0, 8);
-        link.HorizontalOptions = LayoutOptions.End;
-        link.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await OpenNewAsync(kindCode, bottle)) });
-        return link;
+        var button = new Button
+        {
+            Text = $"🕒 {Strings.Get("Edit.Earlier")}",
+            HeightRequest = 36,
+            Padding = new Thickness(16, 0),
+            CornerRadius = 18,
+            FontFamily = "FigtreeMedium",
+            FontSize = 13,
+            HorizontalOptions = LayoutOptions.End,
+            Margin = new Thickness(0, 6, 0, 0),
+        };
+        button.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
+        button.SetDynamicResource(Button.TextColorProperty, "Ink2");
+        button.SetDynamicResource(Button.BorderColorProperty, "Line");
+        button.BorderWidth = 1;
+        button.Clicked += async (_, _) => await OpenNewAsync(kindCode, bottle);
+        return button;
     }
 
     private async Task OpenNewAsync(string kindCode, bool bottle)

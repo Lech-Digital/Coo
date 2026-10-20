@@ -86,7 +86,13 @@ public sealed class HomeActions(LogEntry log, ReviseEntry revise, TimeProvider t
         LogAsync(new PumpDetails(), EntryTiming.Session(TimeRange.Open(time.GetLocalNow())), EntrySource.Timer, Strings.Get("Hero.Pumping"), caregiver: true);
 
     public Task SwitchSideAsync(EntryId id) =>
-        ReviseAsync(id, (e, v, now) => e.Revise<BreastFeed>(d => d.SwitchSide(time.GetLocalNow()), v, now), "Switched side");
+        ReviseAsync(id, (e, v, now) => e.Revise<BreastFeed>(d => d.SwitchSide(time.GetLocalNow()), v, now), Strings.Get("Action.SwitchSide") ?? "Switched side");
+
+    public Task PauseBreastAsync(EntryId id) =>
+        ReviseAsync(id, (e, v, now) => e.Revise<BreastFeed>(d => d.Pause(time.GetLocalNow()), v, now), Strings.Get("Hero.FeedingPaused") ?? "Feeding paused");
+
+    public Task ResumeBreastAsync(EntryId id, BreastSide side) =>
+        ReviseAsync(id, (e, v, now) => e.Revise<BreastFeed>(d => d.Resume(side, time.GetLocalNow()), v, now), Strings.Get(side == BreastSide.Left ? "Hero.FeedingLeft" : "Hero.FeedingRight"));
 
     public Task StopBreastAsync(EntryId id) =>
         ReviseAsync(id, (e, v, now) => e.Revise<BreastFeed>(d => d.Complete(time.GetLocalNow()), v, now), Strings.Get("Kind.Feed"));

@@ -79,24 +79,24 @@
   <!-- Buttons (design system §6): pill, at least 48 dp, one primary per screen. -->
   <Style x:Key="PrimaryButton" TargetType="Button">
     <Setter Property="FontFamily" Value="FigtreeSemiBold" />
-    <Setter Property="FontSize" Value="15" />
+    <Setter Property="FontSize" Value="16" />
     <Setter Property="BackgroundColor" Value="{DynamicResource Accent}" />
     <Setter Property="TextColor" Value="{DynamicResource OnAccent}" />
     <Setter Property="CornerRadius" Value="999" />
-    <Setter Property="MinimumHeightRequest" Value="48" />
+    <Setter Property="MinimumHeightRequest" Value="52" />
     <Setter Property="Padding" Value="24,0" />
     <Setter Property="BorderWidth" Value="0" />
   </Style>
   <Style x:Key="GhostButton" TargetType="Button">
     <Setter Property="FontFamily" Value="FigtreeSemiBold" />
     <Setter Property="FontSize" Value="15" />
-    <Setter Property="BackgroundColor" Value="Transparent" />
+    <Setter Property="BackgroundColor" Value="{DynamicResource Surface}" />
     <Setter Property="TextColor" Value="{DynamicResource Ink}" />
     <Setter Property="BorderColor" Value="{DynamicResource Line}" />
     <Setter Property="BorderWidth" Value="1" />
     <Setter Property="CornerRadius" Value="999" />
     <Setter Property="MinimumHeightRequest" Value="48" />
-    <Setter Property="Padding" Value="24,0" />
+    <Setter Property="Padding" Value="20,0" />
   </Style>
   <Style x:Key="NightPrimaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
     <Setter Property="MinimumHeightRequest" Value="64" />

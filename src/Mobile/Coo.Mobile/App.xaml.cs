@@ -1,4 +1,7 @@
+using Coo.Mobile.Components;
+using Coo.Mobile.Presentation.Log;
 using Coo.Mobile.Presentation.Theme;
+using Coo.Mobile.Presentation.Today;
 using Coo.Mobile.Resources.Styles;
 
 namespace Coo.Mobile;
@@ -52,6 +55,15 @@ public partial class App : Microsoft.Maui.Controls.Application
         window.Resumed += (_, _) =>
         {
             IsForeground = true;
+            try
+            {
+                _services.GetService<TodayViewModel>()?.CheckDayChanged();
+                _services.GetService<LogViewModel>()?.ResetToToday();
+                _services.GetService<UndoService>()?.ExternalChange();
+            }
+            catch
+            {
+            }
             Lifecycle((engine, prompter) =>
             {
                 engine.Resumed();

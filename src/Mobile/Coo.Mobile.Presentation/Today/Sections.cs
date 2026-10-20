@@ -29,7 +29,8 @@ public sealed partial class RunningItem(EntryId id, string kindCode, string star
     [ObservableProperty]
     private string _started = started;
 
-    public IReadOnlyList<RunningAction> Actions { get; } = actions;
+    [ObservableProperty]
+    private IReadOnlyList<RunningAction> _actions = actions;
 
     /// <summary>The language its button labels were made in; another language means a new item (Spec 009 §3.5).</summary>
     public string Language { get; } = Strings.Language;
@@ -39,11 +40,26 @@ public sealed partial class RunningItem(EntryId id, string kindCode, string star
 
     [ObservableProperty]
     private string _digits = "";
+
+    [ObservableProperty]
+    private bool _isBreastFeed;
+
+    [ObservableProperty]
+    private bool _isPaused;
+
+    [ObservableProperty]
+    private BreastSide? _activeSide;
+
+    [ObservableProperty]
+    private string _leftDuration = "";
+
+    [ObservableProperty]
+    private string _rightDuration = "";
 }
 
 public sealed record TileItem(string KindCode, string Name, string LastAt, IRelayCommand Command);
 
-public sealed record TimelineItem(EntryId Id, string Time, string KindCode, string Title, string Who);
+public sealed record TimelineItem(EntryId Id, string Time, string KindCode, string Title, string Who, bool IsMidnight = false);
 
 public sealed record FactItem(string KindCode, string Label, string Value);
 
@@ -57,15 +73,61 @@ internal static class Running
     {
         var item = existing is not null && existing.Id == entry.Id && existing.Language == Strings.Language ? existing : Create(entry, s, actions);
         item.Started = Strings.Format("Hero.Started", s.Formats.Time(entry.Timing.OccurredAt));
-        (item.Title, item.Digits) = entry.Details switch
+        if (entry.Details is BreastFeed f)
         {
-            BreastFeed f => (
-                Strings.Get(f.Segments[^1].IsOpen ? (f.LastSide == BreastSide.Left ? "Hero.FeedingLeft" : "Hero.FeedingRight") : "Hero.FeedingPaused"),
-                Formats.Clock(f.Segments.Aggregate(TimeSpan.Zero, (t, seg) => t + ((seg.End ?? s.Now) - seg.Start)))),
-            SleepDetails => (Strings.Get("Hero.Sleeping"), Formats.Clock(s.Now - entry.Timing.OccurredAt)),
-            _ => (Strings.Get("Hero.Pumping"), Formats.Clock(s.Now - entry.Timing.OccurredAt)),
-        };
+            var isOpen = f.Segments[^1].IsOpen;
+            item.IsBreastFeed = true;
+            item.IsPaused = !isOpen;
+            item.ActiveSide = isOpen ? f.LastSide : null;
+
+            var left = f.Segments.Where(seg => seg.Side == BreastSide.Left)
+                .Aggregate(TimeSpan.Zero, (t, seg) => t + ((seg.End ?? s.Now) - seg.Start));
+            var right = f.Segments.Where(seg => seg.Side == BreastSide.Right)
+                .Aggregate(TimeSpan.Zero, (t, seg) => t + ((seg.End ?? s.Now) - seg.Start));
+
+            item.LeftDuration = Formats.Clock(left);
+            item.RightDuration = Formats.Clock(right);
+
+            item.Title = Strings.Get(isOpen ? (f.LastSide == BreastSide.Left ? "Hero.FeedingLeft" : "Hero.FeedingRight") : "Hero.FeedingPaused");
+            item.Digits = Formats.Clock(left + right);
+
+            var nextButtons = MakeBreastButtons(entry.Id, f, actions);
+            if (Running.Changed(item.Actions, nextButtons, a => a.Label + a.IsPrimary))
+                item.Actions = nextButtons;
+        }
+        else
+        {
+            item.IsBreastFeed = false;
+            (item.Title, item.Digits) = entry.Details switch
+            {
+                SleepDetails => (Strings.Get("Hero.Sleeping"), Formats.Clock(s.Now - entry.Timing.OccurredAt)),
+                _ => (Strings.Get("Hero.Pumping"), Formats.Clock(s.Now - entry.Timing.OccurredAt)),
+            };
+        }
+
         return item;
+    }
+
+    private static IReadOnlyList<RunningAction> MakeBreastButtons(EntryId id, BreastFeed f, HomeActions actions)
+    {
+        var isOpen = f.Segments[^1].IsOpen;
+        if (isOpen)
+        {
+            return
+            [
+                new(Strings.Get("Action.Pause") ?? "Pause", false, new AsyncRelayCommand(() => actions.PauseBreastAsync(id))),
+                new(Strings.Get("Action.SwitchSide") ?? "Switch side", false, new AsyncRelayCommand(() => actions.SwitchSideAsync(id))),
+                new(Strings.Get("Action.Stop") ?? "Stop", true, new AsyncRelayCommand(() => actions.StopBreastAsync(id))),
+            ];
+        }
+
+        var otherSide = f.LastSide == BreastSide.Left ? BreastSide.Right : BreastSide.Left;
+        return
+        [
+            new(Strings.Get("Action.Resume") ?? "Resume", true, new AsyncRelayCommand(() => actions.ResumeBreastAsync(id, f.LastSide))),
+            new(Strings.Get("Action.ResumeOther") ?? "Switch & resume", false, new AsyncRelayCommand(() => actions.ResumeBreastAsync(id, otherSide))),
+            new(Strings.Get("Action.Stop") ?? "Stop", false, new AsyncRelayCommand(() => actions.StopBreastAsync(id))),
+        ];
     }
 
     private static RunningItem Create(CareEntry entry, HomeSnapshot s, HomeActions actions)
@@ -73,11 +135,7 @@ internal static class Running
         var started = Strings.Format("Hero.Started", s.Formats.Time(entry.Timing.OccurredAt));
         IReadOnlyList<RunningAction> buttons = entry.Details switch
         {
-            BreastFeed f =>
-            [
-                new(Strings.Get("Action.SwitchSide") ?? "Switch side", false, new AsyncRelayCommand(() => actions.SwitchSideAsync(entry.Id))),
-                new(Strings.Get("Action.Stop") ?? "Stop", true, new AsyncRelayCommand(() => actions.StopBreastAsync(entry.Id))),
-            ],
+            BreastFeed f => MakeBreastButtons(entry.Id, f, actions),
             SleepDetails => [new(Strings.Get("Action.WokeUp") ?? "Woke up", true, new AsyncRelayCommand(() => actions.EndSessionAsync(entry.Id)))],
             _ => [new(Strings.Get("Action.Stop") ?? "Stop", true, new AsyncRelayCommand(() => { actions.RequestPumpYield(entry.Id); return Task.CompletedTask; }))],
         };

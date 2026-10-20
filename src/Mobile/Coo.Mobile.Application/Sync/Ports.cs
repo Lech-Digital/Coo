@@ -48,6 +48,8 @@ public interface ISyncStore
     Task<SyncCounts> CountsAsync(HouseholdId household, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<SyncRejection>> ListRejectionsAsync(HouseholdId household, CancellationToken cancellationToken);
+
+    Task DeleteRejectionAsync(HouseholdId household, string entityType, Guid entityId, CancellationToken cancellationToken);
 }
 
 /// <summary>Moving records between households on this phone (Spec 011 §4), each in one SQLite transaction.</summary>

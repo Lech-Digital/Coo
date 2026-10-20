@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Coo.Domain.CareLog.Kinds.Feeding;
 using Coo.Domain.Common;
 using Coo.Mobile.Components;
 using Coo.Mobile.Presentation.Localization;
@@ -225,19 +226,116 @@ internal static class SectionViews
             var dot = new Ellipse { WidthRequest = 8, HeightRequest = 8, VerticalOptions = LayoutOptions.Center };
             dot.SetDynamicResource(Shape.FillProperty, look.Mark + "Brush");
             var actions = new Grid { ColumnSpacing = 12 };
-            for (var i = 0; i < item.Actions.Count; i++)
+            void RebuildActions()
             {
-                actions.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
-                var a = item.Actions[i];
-                var button = new Button { Text = a.Label, Command = a.Command };
-                button.SetDynamicResource(VisualElement.StyleProperty, (night, a.IsPrimary) switch
+                actions.Children.Clear();
+                actions.ColumnDefinitions.Clear();
+                for (var i = 0; i < item.Actions.Count; i++)
                 {
-                    (true, true) => "NightPrimaryButton",
-                    (true, false) => "NightGhostButton",
-                    (false, true) => "PrimaryButton",
-                    _ => "GhostButton",
-                });
-                actions.Add(button, i);
+                    actions.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+                    var a = item.Actions[i];
+                    var button = new Button { Text = a.Label, Command = a.Command };
+                    button.SetDynamicResource(VisualElement.StyleProperty, (night, a.IsPrimary) switch
+                    {
+                        (true, true) => "NightPrimaryButton",
+                        (true, false) => "NightGhostButton",
+                        (false, true) => "PrimaryButton",
+                        _ => "GhostButton",
+                    });
+                    actions.Add(button, i);
+                }
+            }
+
+            RebuildActions();
+            item.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(RunningItem.Actions))
+                    RebuildActions();
+            };
+
+            View? sideIndicator = null;
+            if (item.IsBreastFeed)
+            {
+                var leftDot = new Ellipse { WidthRequest = 6, HeightRequest = 6, VerticalOptions = LayoutOptions.Center };
+                leftDot.SetDynamicResource(Shape.FillProperty, "FeedMarkBrush");
+                var leftText = Ui.Text($"{Strings.Get("Feed.Left")} {item.LeftDuration}", "BodyStrong");
+                var leftContent = new HorizontalStackLayout { Spacing = 6, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Center, Children = { leftDot, leftText } };
+                var leftBorder = new Border
+                {
+                    StrokeShape = new RoundRectangle { CornerRadius = 14 },
+                    Padding = new Thickness(12, 6),
+                    Content = leftContent,
+                };
+
+                var rightDot = new Ellipse { WidthRequest = 6, HeightRequest = 6, VerticalOptions = LayoutOptions.Center };
+                rightDot.SetDynamicResource(Shape.FillProperty, "FeedMarkBrush");
+                var rightText = Ui.Text($"{Strings.Get("Feed.Right")} {item.RightDuration}", "BodyStrong");
+                var rightContent = new HorizontalStackLayout { Spacing = 6, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Center, Children = { rightDot, rightText } };
+                var rightBorder = new Border
+                {
+                    StrokeShape = new RoundRectangle { CornerRadius = 14 },
+                    Padding = new Thickness(12, 6),
+                    Content = rightContent,
+                };
+
+                void UpdateSidePills()
+                {
+                    leftText.Text = $"{Strings.Get("Feed.Left")} {item.LeftDuration}";
+                    rightText.Text = $"{Strings.Get("Feed.Right")} {item.RightDuration}";
+
+                    var isLeftActive = item.ActiveSide == BreastSide.Left;
+                    var isRightActive = item.ActiveSide == BreastSide.Right;
+
+                    leftDot.IsVisible = isLeftActive;
+                    rightDot.IsVisible = isRightActive;
+
+                    if (isLeftActive)
+                    {
+                        leftBorder.SetDynamicResource(VisualElement.BackgroundColorProperty, "FeedTint");
+                        leftBorder.SetDynamicResource(Border.StrokeProperty, "FeedMarkBrush");
+                        leftBorder.StrokeThickness = 1.5;
+                        leftText.SetDynamicResource(Label.TextColorProperty, "FeedInk");
+                        leftText.FontFamily = "FigtreeSemiBold";
+                    }
+                    else
+                    {
+                        leftBorder.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
+                        leftBorder.SetDynamicResource(Border.StrokeProperty, "LineBrush");
+                        leftBorder.StrokeThickness = 1;
+                        leftText.SetDynamicResource(Label.TextColorProperty, "Ink2");
+                        leftText.FontFamily = "FigtreeMedium";
+                    }
+
+                    if (isRightActive)
+                    {
+                        rightBorder.SetDynamicResource(VisualElement.BackgroundColorProperty, "FeedTint");
+                        rightBorder.SetDynamicResource(Border.StrokeProperty, "FeedMarkBrush");
+                        rightBorder.StrokeThickness = 1.5;
+                        rightText.SetDynamicResource(Label.TextColorProperty, "FeedInk");
+                        rightText.FontFamily = "FigtreeSemiBold";
+                    }
+                    else
+                    {
+                        rightBorder.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
+                        rightBorder.SetDynamicResource(Border.StrokeProperty, "LineBrush");
+                        rightBorder.StrokeThickness = 1;
+                        rightText.SetDynamicResource(Label.TextColorProperty, "Ink2");
+                        rightText.FontFamily = "FigtreeMedium";
+                    }
+                }
+
+                UpdateSidePills();
+
+                item.PropertyChanged += (_, e) =>
+                {
+                    if (e.PropertyName is nameof(RunningItem.ActiveSide) or nameof(RunningItem.IsPaused)
+                        or nameof(RunningItem.LeftDuration) or nameof(RunningItem.RightDuration))
+                    {
+                        UpdateSidePills();
+                    }
+                };
+
+                sideIndicator = new HorizontalStackLayout { Spacing = 8, Children = { leftBorder, rightBorder }, Margin = new Thickness(0, 2, 0, 4) };
             }
 
             var body = new VerticalStackLayout
@@ -247,10 +345,12 @@ internal static class SectionViews
                 {
                     new HorizontalStackLayout { Spacing = 8, Children = { dot, Bound(item, nameof(RunningItem.Title), "Label", upper: true) } },
                     Bound(item, nameof(RunningItem.Digits), night ? "Timer" : "Window"),
-                    Bound(item, nameof(RunningItem.Started), "Meta"),
-                    actions,
                 },
             };
+            if (sideIndicator is not null)
+                body.Add(sideIndicator);
+            body.Add(Bound(item, nameof(RunningItem.Started), "Meta"));
+            body.Add(actions);
             // A tap on the card opens the entry, so a timer started late can have its start moved back (Spec 007 §2).
             View card = night ? body : new Card(body);
             var id = item.Id;
@@ -284,10 +384,22 @@ internal static class SectionViews
         }
 
         // "Earlier…" (Spec 007 §4): log something that already happened, of any kind.
-        var earlier = Ui.Text(Strings.Get("Edit.Earlier"), "Label", "Ink2");
-        earlier.Padding = new Thickness(0, 12);
-        earlier.HorizontalOptions = LayoutOptions.End;
-        earlier.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(host.OpenEarlier) });
+        var earlier = new Button
+        {
+            Text = $"🕒 {Strings.Get("Edit.Earlier")}",
+            HeightRequest = 36,
+            Padding = new Thickness(16, 0),
+            CornerRadius = 18,
+            FontFamily = "FigtreeMedium",
+            FontSize = 13,
+            HorizontalOptions = LayoutOptions.End,
+            Margin = new Thickness(0, 8, 0, 0),
+        };
+        earlier.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
+        earlier.SetDynamicResource(Button.TextColorProperty, "Ink2");
+        earlier.SetDynamicResource(Button.BorderColorProperty, "Line");
+        earlier.BorderWidth = 1;
+        earlier.Clicked += (_, _) => host.OpenEarlier();
         return new VerticalStackLayout { Children = { grid, new ContentView { Padding = new Thickness(24, 0), Content = earlier } } };
     }
 

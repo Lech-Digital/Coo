@@ -149,7 +149,12 @@ public sealed class EditPage : ContentPage
         form.Add(warnings);
         form.Add(error);
 
-        var save = new Button { Text = Strings.Get("Action.Save"), Command = _model.SaveCommand };
+        var save = new Button
+        {
+            Text = Strings.Get("Action.Save"),
+            Command = _model.SaveCommand,
+            Margin = new Thickness(0, 16, 0, 0),
+        };
         save.SetDynamicResource(VisualElement.StyleProperty, "PrimaryButton");
         form.Add(save);
         if (!_model.IsNew)
@@ -159,8 +164,14 @@ public sealed class EditPage : ContentPage
 
     private Button DeleteButton()
     {
-        var delete = new Button { Text = Strings.Get("Edit.Delete"), Command = _model.DeleteCommand };
+        var delete = new Button
+        {
+            Text = Strings.Get("Edit.Delete"),
+            Command = _model.DeleteCommand,
+            Margin = new Thickness(0, 6, 0, 0),
+        };
         delete.SetDynamicResource(VisualElement.StyleProperty, "GhostButton");
+        delete.SetDynamicResource(Button.TextColorProperty, "FeedInk");
         return delete;
     }
 
@@ -196,8 +207,28 @@ public sealed class EditPage : ContentPage
         var row = new HorizontalStackLayout { Spacing = 8 };
         foreach (var (text, choose, selected) in choices)
         {
-            var button = new Button { Text = text };
-            button.SetDynamicResource(VisualElement.StyleProperty, selected ? "PrimaryButton" : "GhostButton");
+            var button = new Button
+            {
+                Text = text,
+                HeightRequest = 42,
+                Padding = new Thickness(18, 0),
+                CornerRadius = 21,
+                FontFamily = "FigtreeSemiBold",
+                FontSize = 14,
+            };
+            if (selected)
+            {
+                button.SetDynamicResource(VisualElement.BackgroundColorProperty, "Accent");
+                button.SetDynamicResource(Button.TextColorProperty, "OnAccent");
+                button.BorderWidth = 0;
+            }
+            else
+            {
+                button.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
+                button.SetDynamicResource(Button.TextColorProperty, "Ink");
+                button.SetDynamicResource(Button.BorderColorProperty, "Line");
+                button.BorderWidth = 1;
+            }
             button.Clicked += (_, _) =>
             {
                 choose();

@@ -55,19 +55,19 @@ public sealed class GetAttention(ICareLogStore store, IDuplicateDismissalStore d
         var dismissed = await dismissals.ListAsync(household, cancellationToken);
         var rejections = (await sync.ListRejectionsAsync(household, cancellationToken))
             .Where(r => r.EntityType == SyncEntityTypes.CareEntry).ToList();
-        var rejectedIds = rejections.Select(r => new EntryId(r.EntityId)).ToHashSet();
-        var groups = AttentionGroups.Find(live, dismissed, e => rejectedIds.Contains(e.Id), now);
-
-        // Rejected care entries, whatever their date; deleted ones are done with. Other types are counted on the debug
-        // screen only (ruling 14).
         var rejected = new List<RejectedEntry>();
+        var activeRejectedIds = new HashSet<EntryId>();
         foreach (var rejection in rejections)
         {
             // An unreadable or newer-version entry already sits in its own group, with the action that fits it.
             if (await store.FindAsync(new EntryId(rejection.EntityId), cancellationToken) is LiveEntry { Entry.IsDeleted: false } entry)
+            {
                 rejected.Add(new RejectedEntry(entry, rejection.Reason));
+                activeRejectedIds.Add(entry.Id);
+            }
         }
 
+        var groups = AttentionGroups.Find(live, dismissed, e => activeRejectedIds.Contains(e.Id), now);
         return new AttentionSummary(groups, [.. stored.OfType<QuarantinedEntry>()], [.. stored.OfType<ReadOnlyEntry>()], rejected);
     }
 }

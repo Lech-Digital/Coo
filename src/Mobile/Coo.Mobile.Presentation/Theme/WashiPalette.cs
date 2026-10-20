@@ -58,7 +58,7 @@ public static class WashiPalette
     public static Palette Day { get; } = new(
         PaletteKind.Day,
         Ground: "#F1EDE5", Surface: "#FAF8F3", Line: "#DDD6C9", Ink: "#2A2823", Ink2: "#6B665C",
-        Accent: "#5E7150", AccentSoft: "#E3E7D9", AccentInk: "#46553B", OnAccent: "#FAF8F3",
+        Accent: "#BA4F28", AccentSoft: "#F2E8DC", AccentInk: "#8A3516", OnAccent: "#FAF8F3",
         Cheek: "#E8C4B8", CheekInk: "#6E3F33", VoiceBg: "#2A2823", VoiceInk: "#F1EDE5", VoiceHint: "#B8B1A4",
         FeedTint: "#F5DCCB", FeedMark: "#CC6F3B", FeedInk: "#7A3F20",
         DiaperTint: "#F3E6B3", DiaperMark: "#A08528", DiaperInk: "#6A5410",
