@@ -101,7 +101,7 @@ public sealed class DayChartTests : IDisposable
     }
 
     [Fact]
-    public async Task Build_SleepAcrossMidnight_IsCutAndLabelledWithTheDaysPart()
+    public async Task Build_SleepAcrossMidnight_IsLabelledWithFullDuration()
     {
         // Arrange: 22:00 yesterday to 02:00 today.
         var day = await Day(Sleep(At(22, 0).AddDays(-1), At(2, 0)));
@@ -112,7 +112,7 @@ public sealed class DayChartTests : IDisposable
         // Assert
         var sleep = items.Single();
         sleep.From.Should().Be(0);
-        sleep.Label.Should().Be("2 h 0 m");
+        sleep.Label.Should().Be("4 h 0 m");
     }
 
     [Fact]
