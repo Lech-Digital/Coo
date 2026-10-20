@@ -36,7 +36,7 @@ public static class DayChart
     /// The day's sleeps, feeds, diapers and pumps, and the awake stretches between consecutive sleeps (none before the
     /// first or after the last: the day before or after may hold the sleep that bounds them, Q6). Hidden kinds leave.
     /// </summary>
-    public static IReadOnlyList<ChartItem> Build(DaySummary day, Formats formats, TimeZoneInfo zone, Func<string, bool> isShown)
+    public static IReadOnlyList<ChartItem> Build(DaySummary day, Formats formats, TimeZoneInfo zone, Func<string, bool> isShown, DateTimeOffset? now = null)
     {
         ArgumentNullException.ThrowIfNull(day);
         ArgumentNullException.ThrowIfNull(formats);
@@ -51,7 +51,15 @@ public static class DayChart
             var time = formats.Time(entry.Timing.OccurredAt, zone);
             ChartItem? item = entry.Details switch
             {
-                SleepDetails => new(ChartShape.Sleep, mark.KindCode, mark.From, mark.To, mark.EntryId, Formats.Duration(Span(day.Day, mark.From, mark.To))),
+                SleepDetails => new(
+                    ChartShape.Sleep,
+                    mark.KindCode,
+                    mark.From,
+                    mark.To,
+                    mark.EntryId,
+                    entry.Timing is SessionTiming s
+                        ? Formats.Duration(s.Range.Duration(now ?? day.Day.End))
+                        : Formats.Duration(Span(day.Day, mark.From, mark.To))),
                 BreastFeed when entry.Timing.IsInProgress => new(ChartShape.Feed, mark.KindCode, mark.From, mark.To, mark.EntryId, $"{time} {Strings.Get("Entry.Running")}"),
                 BreastFeed { Parts: > 1 } f => new(ChartShape.Feed, mark.KindCode, mark.From, mark.To, mark.EntryId, $"{time} {Sides(f)} · {Formats.Parts(f)}"),
                 BreastFeed f => new(ChartShape.Feed, mark.KindCode, mark.From, mark.To, mark.EntryId, $"{time} {Sides(f)}"),

@@ -29,6 +29,7 @@ public sealed class Sheet : Grid
             StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(28, 28, 0, 0) },
         };
         _panel.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
+        _panel.GestureRecognizers.Add(new TapGestureRecognizer());
         Children.Add(_backdrop);
         Children.Add(_panel);
     }

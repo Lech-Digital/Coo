@@ -57,6 +57,20 @@ public sealed class LogPage : ContentPage
             await _sheet.HideAsync();
             OpenEntry(id);
         };
+        _detail.RequestPreviousDay = async () =>
+        {
+            await _model.PreviousCommand.ExecuteAsync(null);
+            _detail.ScrollToEnd();
+        };
+        _detail.RequestNextDay = async () =>
+        {
+            if (_model.CanGoNext)
+            {
+                await _model.NextCommand.ExecuteAsync(null);
+                _detail.ScrollToStart();
+            }
+        };
+        _detail.CanGoNext = () => _model.CanGoNext;
         Content = root;
     }
 

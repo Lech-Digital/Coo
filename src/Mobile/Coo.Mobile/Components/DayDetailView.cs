@@ -15,12 +15,19 @@ public sealed class DayDetailView : ContentView
     private readonly GraphicsView _canvas = new() { HeightRequest = 190 };
     private readonly GraphicsView _position = new() { HeightRequest = 6 };
     private readonly Label _title = Ui.Text("", "Section");
+    private readonly Border _prevBtn;
+    private readonly Border _nextBtn;
     private readonly DetailDrawable _drawable = new();
     private readonly PositionDrawable _bar = new();
     private Func<double, double, string> _rangeTitle = (_, _) => "";
     private double _openAt;
     private bool _scrollPending;
     private PointF? _down;
+    private bool _navigatingDay;
+
+    public Func<Task>? RequestPreviousDay { get; set; }
+    public Func<Task>? RequestNextDay { get; set; }
+    public Func<bool>? CanGoNext { get; set; }
 
     public DayDetailView()
     {
@@ -31,12 +38,89 @@ public sealed class DayDetailView : ContentView
         _scroll.SizeChanged += (_, _) => Fit();
         _canvas.SizeChanged += (_, _) => Fit();
         _canvas.StartInteraction += (_, e) => _down = e.Touches.FirstOrDefault();
-        _canvas.EndInteraction += OnTap;
-        Content = new VerticalStackLayout { Spacing = 12, Children = { _title, _scroll, _position } };
+        _canvas.EndInteraction += OnEndInteraction;
+
+        var prevIcon = new Icon(IconGeometry.ChevronLeft, "Ink", 20) { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
+        _prevBtn = Ui.Rounded(prevIcon, "Surface", 999, new Thickness(10), "Line");
+        _prevBtn.WidthRequest = 44;
+        _prevBtn.HeightRequest = 44;
+        _prevBtn.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => _ = GoPreviousDayAsync()) });
+
+        var nextIcon = new Icon(IconGeometry.ChevronRight, "Ink", 20) { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
+        _nextBtn = Ui.Rounded(nextIcon, "Surface", 999, new Thickness(10), "Line");
+        _nextBtn.WidthRequest = 44;
+        _nextBtn.HeightRequest = 44;
+        _nextBtn.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => _ = GoNextDayAsync()) });
+
+        _title.HorizontalTextAlignment = TextAlignment.Center;
+        _title.VerticalOptions = LayoutOptions.Center;
+
+        var header = new Grid
+        {
+            ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)],
+            ColumnSpacing = 8,
+            VerticalOptions = LayoutOptions.Center,
+        };
+        header.Add(_prevBtn, 0);
+        header.Add(_title, 1);
+        header.Add(_nextBtn, 2);
+
+        Content = new VerticalStackLayout { Spacing = 12, Children = { header, _scroll, _position } };
     }
 
     /// <summary>An item was tapped: its entry.</summary>
     public event EventHandler<EntryId>? EntryTapped;
+
+    public async Task GoPreviousDayAsync()
+    {
+        if (_navigatingDay || RequestPreviousDay is null)
+            return;
+        try
+        {
+            _navigatingDay = true;
+            await RequestPreviousDay();
+        }
+        finally
+        {
+            _navigatingDay = false;
+        }
+    }
+
+    public async Task GoNextDayAsync()
+    {
+        if (_navigatingDay || RequestNextDay is null || CanGoNext?.Invoke() != true)
+            return;
+        try
+        {
+            _navigatingDay = true;
+            await RequestNextDay();
+        }
+        finally
+        {
+            _navigatingDay = false;
+        }
+    }
+
+    public void ScrollToEnd()
+    {
+        if (_scroll.Width <= 0 || CanvasWidth <= 0)
+            return;
+        var x = Math.Max(0, CanvasWidth - _scroll.Width);
+        Dispatcher.Dispatch(async () =>
+        {
+            await _scroll.ScrollToAsync(x, 0, animated: false);
+            ShowRange();
+        });
+    }
+
+    public void ScrollToStart()
+    {
+        Dispatcher.Dispatch(async () =>
+        {
+            await _scroll.ScrollToAsync(0, 0, animated: false);
+            ShowRange();
+        });
+    }
 
     public void Show(IReadOnlyList<ChartItem> items, IReadOnlyList<HourTick> hours, double? now, Palette palette, Func<double, double, string> rangeTitle, double openAt)
     {
@@ -91,18 +175,45 @@ public sealed class DayDetailView : ContentView
         _bar.From = from;
         _bar.To = to;
         _position.Invalidate();
+
+        var canNext = CanGoNext?.Invoke() ?? false;
+        _nextBtn.Opacity = canNext ? 1.0 : 0.35;
+        _nextBtn.IsEnabled = canNext;
     }
 
-    private void OnTap(object? sender, TouchEventArgs e)
+    private async void OnEndInteraction(object? sender, TouchEventArgs e)
     {
         var up = e.Touches.FirstOrDefault();
         var down = _down;
         _down = null;
-        if (down is null || !e.IsInsideBounds || CanvasWidth <= 0 || Math.Abs(up.X - down.Value.X) > 12)
+        if (down is null || !e.IsInsideBounds || CanvasWidth <= 0)
             return;
+
+        var deltaX = up.X - down.Value.X;
+
+        // If at the left edge and dragged right (swiped towards earlier time/yesterday)
+        if (_scroll.ScrollX <= 12 && deltaX > 40)
+        {
+            await GoPreviousDayAsync();
+            return;
+        }
+
+        // If at the right edge and dragged left (swiped towards later time/tomorrow)
+        if (_scroll.ScrollX >= CanvasWidth - _scroll.Width - 12 && deltaX < -40)
+        {
+            if (CanGoNext?.Invoke() == true)
+            {
+                await GoNextDayAsync();
+                return;
+            }
+        }
+
         // A hit area at least 24 dp wide (Spec 009b §3): 12 dp either side of the finger.
-        if (DayChart.HitTest(_drawable.Items, up.X / CanvasWidth, 12 / CanvasWidth) is { EntryId: { } id })
-            EntryTapped?.Invoke(this, id);
+        if (Math.Abs(deltaX) <= 12)
+        {
+            if (DayChart.HitTest(_drawable.Items, up.X / CanvasWidth, 12 / CanvasWidth) is { EntryId: { } id })
+                EntryTapped?.Invoke(this, id);
+        }
     }
 
     private sealed class DetailDrawable : IDrawable
@@ -154,10 +265,15 @@ public sealed class DayDetailView : ContentView
                     case ChartShape.Sleep:
                         canvas.FillColor = C(Palette.SleepMark).WithAlpha(0.85f);
                         canvas.FillRoundedRectangle(x + 0.5f, Top + 3, Math.Max(3, w - 1), BandHeight - 6, 9);
-                        if (textWidth <= w - 12)
+                        if (textWidth <= w - 8)
                         {
                             canvas.FontColor = C(Palette.Surface);
-                            canvas.DrawString(item.Label, x + 6, Top + 12, w - 12, 16, HorizontalAlignment.Left, VerticalAlignment.Top);
+                            canvas.DrawString(item.Label, x + 4, Top + 12, w - 8, 16, HorizontalAlignment.Left, VerticalAlignment.Top);
+                        }
+                        else if (w >= 16)
+                        {
+                            canvas.FontColor = C(Palette.Surface);
+                            canvas.DrawString(item.Label, x + 2, Top + 12, textWidth + 4, 16, HorizontalAlignment.Left, VerticalAlignment.Top);
                         }
 
                         break;

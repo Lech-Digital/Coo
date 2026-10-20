@@ -115,7 +115,7 @@ public sealed partial class LogViewModel(
         bool IsShown(string kind) => KindVisibility.IsShown(household, kind);
         var isToday = Date == today;
         _shown = (day.Day, isToday, formats, zone);
-        var items = DayChart.Build(day, formats, zone, IsShown);
+        var items = DayChart.Build(day, formats, zone, IsShown, now);
         ChartItems = Same(ChartItems, items);
         QuietBands = Same(QuietBands, DayChart.QuietBands(theme.Settings.QuietHours, day.Day, zone));
         Hours = Same(Hours, DayChart.Hours(day.Day, zone, formats));
