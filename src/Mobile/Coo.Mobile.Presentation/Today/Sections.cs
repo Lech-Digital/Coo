@@ -59,7 +59,7 @@ public sealed partial class RunningItem(EntryId id, string kindCode, string star
 
 public sealed record TileItem(string KindCode, string Name, string LastAt, IRelayCommand Command);
 
-public sealed record TimelineItem(EntryId Id, string Time, string KindCode, string Title, string Who, bool IsMidnight = false);
+public sealed record TimelineItem(EntryId? Id, string Time, string KindCode, string Title, string Who, bool IsMidnight = false);
 
 public sealed record FactItem(string KindCode, string Label, string Value);
 

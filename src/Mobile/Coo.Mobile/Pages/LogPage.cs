@@ -260,8 +260,8 @@ public sealed class LogPage : ContentPage
                 continue;
             }
 
-            var id = row.Id;
-            timeline.Add(new TimelineRow(row.Time, row.KindCode, row.Title, row.Who, () => OpenEntry(id)));
+            if (row.Id is { } id)
+                timeline.Add(new TimelineRow(row.Time, row.KindCode, row.Title, row.Who, () => OpenEntry(id)));
         }
 
         _renderedLanguage = Strings.Language;

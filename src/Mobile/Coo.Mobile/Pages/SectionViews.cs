@@ -578,8 +578,8 @@ internal static class SectionViews
         {
             foreach (var item in s.Items)
             {
-                var id = item.Id;
-                stack.Add(new TimelineRow(item.Time, item.KindCode, item.Title, item.Who, () => host.OpenEntry(id)));
+                if (item.Id is { } id)
+                    stack.Add(new TimelineRow(item.Time, item.KindCode, item.Title, item.Who, () => host.OpenEntry(id)));
             }
 
             var link = Ui.Text(Strings.Get("Today.SeeAllInLog"), "BodyStrong", "AccentInk");
@@ -600,8 +600,8 @@ internal static class SectionViews
             stack.Add(Ui.Text(Strings.Get("Timeline.Empty"), "Body", "Ink2").Tap(l => l.Margin = new Thickness(0, 8)));
         foreach (var row in s.Items)
         {
-            var id = row.Id;
-            stack.Add(new TimelineRow(row.Time, row.KindCode, row.Title, row.Who, () => host.OpenEntry(id)));
+            if (row.Id is { } id)
+                stack.Add(new TimelineRow(row.Time, row.KindCode, row.Title, row.Who, () => host.OpenEntry(id)));
         }
 
         return stack;

@@ -152,7 +152,7 @@ public sealed partial class LogViewModel(
         if (prevEntries.Count > 0)
         {
             var midnightTitle = $"{Strings.Get("Time.Midnight")} · {prevDate.ToString("dddd, d MMMM", Strings.Culture)}";
-            rows.Add(new TimelineItem(new EntryId(Guid.Empty), "", "midnight", midnightTitle, "", IsMidnight: true));
+            rows.Add(new TimelineItem(null, "", "midnight", midnightTitle, "", IsMidnight: true));
             foreach (var e in prevEntries)
             {
                 var timeText = formats.Time(e.Start);
