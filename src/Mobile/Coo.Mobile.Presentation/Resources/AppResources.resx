@@ -31,6 +31,10 @@
   <data name="Action.Undo" xml:space="preserve"><value>Undo</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Woke up</value></data>
   <data name="Advisor.Ask" xml:space="preserve"><value>Ask</value></data>
+  <data name="Advisor.ConsentAgree" xml:space="preserve"><value>Agree</value></data>
+  <data name="Advisor.ConsentBody" xml:space="preserve"><value>To answer, Coo sends your question, this conversation, your baby’s first name and age, and a summary of the last 7 days of your log (times and amounts, no notes) to Google’s Gemini AI, which writes the answer. Coo’s server does not keep your questions or the answers; they stay on this phone. The answers are general information, not medical advice.</value></data>
+  <data name="Advisor.ConsentLater" xml:space="preserve"><value>Not now</value></data>
+  <data name="Advisor.ConsentTitle" xml:space="preserve"><value>Before your first question</value></data>
   <data name="Advisor.Conversation" xml:space="preserve"><value>Conversation</value></data>
   <data name="Advisor.Disclaimer" xml:space="preserve"><value>General information, not medical advice. If you are worried about your baby, call your doctor; in an emergency, call 112.</value></data>
   <data name="Advisor.Done" xml:space="preserve"><value>Done</value></data>

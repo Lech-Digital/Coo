@@ -31,6 +31,10 @@
   <data name="Action.Undo" xml:space="preserve"><value>Ongedaan maken</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Wakker</value></data>
   <data name="Advisor.Ask" xml:space="preserve"><value>Vragen</value></data>
+  <data name="Advisor.ConsentAgree" xml:space="preserve"><value>Akkoord</value></data>
+  <data name="Advisor.ConsentBody" xml:space="preserve"><value>Om te antwoorden stuurt Coo je vraag, dit gesprek, de voornaam en leeftijd van je baby en een samenvatting van de laatste 7 dagen (tijden en hoeveelheden, geen notities) naar de AI Gemini van Google, die het antwoord schrijft. De server van Coo bewaart je vragen en de antwoorden niet; ze blijven op deze telefoon. De antwoorden zijn algemene informatie, geen medisch advies.</value></data>
+  <data name="Advisor.ConsentLater" xml:space="preserve"><value>Niet nu</value></data>
+  <data name="Advisor.ConsentTitle" xml:space="preserve"><value>Voor je eerste vraag</value></data>
   <data name="Advisor.Conversation" xml:space="preserve"><value>Gesprek</value></data>
   <data name="Advisor.Disclaimer" xml:space="preserve"><value>Algemene informatie, geen medisch advies. Maak je je zorgen, bel je huisarts; bij nood 112.</value></data>
   <data name="Advisor.Done" xml:space="preserve"><value>Klaar</value></data>

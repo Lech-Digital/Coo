@@ -278,6 +278,11 @@ internal sealed class HouseholdMembershipStore(NpgsqlDataSource dataSource) : IH
 
         public async Task DeleteUserAsync(UserId user, CancellationToken cancellationToken)
         {
+            // The Advisor's daily question counts have no foreign key: they go explicitly, as the privacy policy says.
+            await using var usage = Command("DELETE FROM advisor_usages WHERE user_id = @u;");
+            usage.Parameters.AddWithValue("u", user.Value);
+            await usage.ExecuteNonQueryAsync(cancellationToken);
+
             // Logins, claims, tokens, device sessions, consents and invitations sent go with the user (ON DELETE CASCADE);
             // households.created_by and invitations.accepted_by become NULL.
             await using var command = Command("""DELETE FROM "AspNetUsers" WHERE "Id" = @u;""");

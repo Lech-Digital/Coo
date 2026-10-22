@@ -20,7 +20,8 @@ The first public release (open testing).
   ("13 h a day, +1 h vs the week before"). Chips switch between sleep, longest sleep, feeds, breastfeed length, bottle,
   diapers and pumping. Days nobody logged and days not over yet do not drag the average down.
 - **Baby Advisor** knows the last seven days of the log, answers in the app's language, and says plainly it is not
-  medical advice. Its own tab icon.
+  medical advice. Before the first question it asks for consent to send the question and a log summary to
+  Google's Gemini AI. Its own tab icon.
 - **Coo Premium** page lists what it adds and links to Google Play to manage the subscription; a purchase now gives
   Premium to the whole family.
 - In-app updates download in the background and ask for a restart; a review is asked for rarely, by day, after a week.
@@ -36,7 +37,8 @@ The first public release (open testing).
 - Purchases are verified on the server and bound to the family they were bought for; the Play notification webhook is
   authenticated; complimentary Premium for listed accounts (Play review).
 - Google Play libraries moved off the deprecated Play Core.
-- Account deletion page at https://api.coo.lechdigital.nl/delete-account.
+- Account deletion page at https://api.coo.lechdigital.nl/delete-account; deleting an account also deletes its
+  Advisor question counts.
 
 ## 0.13.0 (code 16) and earlier
 

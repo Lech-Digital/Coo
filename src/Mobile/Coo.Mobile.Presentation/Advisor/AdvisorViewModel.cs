@@ -227,10 +227,18 @@ public partial class AdvisorViewModel(
         Question = string.Empty;
     }
 
+    /// <summary>
+    /// Asks, once, for consent to send the question and a log summary to Google's Gemini (GDPR Art. 9(2)(a): health
+    /// data about a child, to a third party). Set by the page; true when given.
+    /// </summary>
+    public Func<Task<bool>>? EnsureConsentAsync { get; set; }
+
     [RelayCommand]
     private async Task AskAsync()
     {
         if (string.IsNullOrWhiteSpace(Question) || IsBusy) return;
+        if (EnsureConsentAsync is { } consent && !await consent())
+            return;
 
         var text = Question.Trim();
         Question = string.Empty;

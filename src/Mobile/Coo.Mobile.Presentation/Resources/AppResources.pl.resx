@@ -31,6 +31,10 @@
   <data name="Action.Undo" xml:space="preserve"><value>Cofnij</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Pobudka</value></data>
   <data name="Advisor.Ask" xml:space="preserve"><value>Zapytaj</value></data>
+  <data name="Advisor.ConsentAgree" xml:space="preserve"><value>Zgadzam się</value></data>
+  <data name="Advisor.ConsentBody" xml:space="preserve"><value>Aby odpowiedzieć, Coo wysyła Twoje pytanie, tę rozmowę, imię i wiek dziecka oraz podsumowanie ostatnich 7 dni dziennika (godziny i ilości, bez notatek) do sztucznej inteligencji Gemini od Google, która pisze odpowiedź. Serwer Coo nie przechowuje pytań ani odpowiedzi; zostają na tym telefonie. Odpowiedzi to ogólne informacje, nie porada lekarska.</value></data>
+  <data name="Advisor.ConsentLater" xml:space="preserve"><value>Nie teraz</value></data>
+  <data name="Advisor.ConsentTitle" xml:space="preserve"><value>Zanim zadasz pierwsze pytanie</value></data>
   <data name="Advisor.Conversation" xml:space="preserve"><value>Rozmowa</value></data>
   <data name="Advisor.Disclaimer" xml:space="preserve"><value>Ogólne informacje, nie porada lekarska. Jeśli martwisz się o dziecko, zadzwoń do lekarza; w nagłym wypadku na 112.</value></data>
   <data name="Advisor.Done" xml:space="preserve"><value>Gotowe</value></data>

@@ -18,10 +18,25 @@ public sealed class AdvisorPage : ContentPage
     public AdvisorPage(AdvisorViewModel model, IServiceProvider services)
     {
         _model = model;
+        _model.EnsureConsentAsync = EnsureConsentAsync;
         _services = services;
         BindingContext = model;
         Shell.SetNavBarIsVisible(this, false);
         SetupUi();
+    }
+
+    private const string ConsentKey = "advisor.consent.v1";
+
+    /// <summary>The Advisor's consent (Advisor.ConsentBody), asked before the first question and remembered on this phone.</summary>
+    private async Task<bool> EnsureConsentAsync()
+    {
+        if (Preferences.Default.Get(ConsentKey, false))
+            return true;
+        var agreed = await DisplayAlertAsync(
+            Strings.Get("Advisor.ConsentTitle"), Strings.Get("Advisor.ConsentBody"), Strings.Get("Advisor.ConsentAgree"), Strings.Get("Advisor.ConsentLater"));
+        if (agreed)
+            Preferences.Default.Set(ConsentKey, true);
+        return agreed;
     }
 
     protected override async void OnAppearing()

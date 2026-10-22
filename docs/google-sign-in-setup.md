@@ -106,9 +106,9 @@ Done on (date):                  2026-10-02
 Later, before Play (section 5):
 
 ```text
-Play app signing key SHA-1:      <paste>
-Upload key SHA-1:                <paste>
-Android client ID (Play signing): <paste>.apps.googleusercontent.com
+Play app signing key SHA-1:      8D:FB:51:C9:DB:9C:63:57:6C:11:33:84:51:EB:59:4A:80:AD:0A:71
+Upload key SHA-1:                32:D1:87:47:DF:E9:59:E1:0F:BE:D0:A7:45:55:29:8A:D2:09:1F:38 (~/keystores/coo-upload.jks)
+Android client ID (Play signing): "Coo Android (Play signing)", created 2026-10-22 (282211746968-gil8…)
 Android client ID (upload):      <paste>.apps.googleusercontent.com
 ```
 
