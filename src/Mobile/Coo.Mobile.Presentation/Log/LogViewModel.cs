@@ -15,7 +15,7 @@ namespace Coo.Mobile.Presentation.Log;
 
 public sealed record TotalItem(string KindCode, string Number, string Unit);
 
-/// <summary>The Log screen (Spec 006 §7): one local day, with ribbon, totals, timeline, and statistics.</summary>
+/// <summary>The Log screen (Spec 006 §7): one local day, with ribbon, totals and timeline.</summary>
 public sealed partial class LogViewModel(
     IHouseholdStore households,
     GetDay getDay,
@@ -23,26 +23,10 @@ public sealed partial class LogViewModel(
     UndoService undo,
     ThemeController theme,
     TimeProvider time,
-    WhoLabelsSource whoSource,
-    GetCareStatistics? getCareStats = null) : ObservableObject
+    WhoLabelsSource whoSource) : ObservableObject
 {
     [ObservableProperty]
     private DateOnly _date = DateOnly.FromDateTime(time.GetLocalNow().DateTime);
-
-    [ObservableProperty]
-    private bool _isStatsView;
-
-    [ObservableProperty]
-    private CarePeriod _statsPeriod = CarePeriod.Day;
-
-    [ObservableProperty]
-    private PeriodStats? _stats;
-
-    [ObservableProperty]
-    private string _statsPeriodTitle = "";
-
-    [ObservableProperty]
-    private bool _canGoNextPeriod;
 
     [ObservableProperty]
     private string _title = "";
@@ -164,96 +148,6 @@ public sealed partial class LogViewModel(
         }
 
         Rows = Same(Rows, rows);
-
-        if (IsStatsView && getCareStats is not null)
-            await RefreshStatsInternalAsync(household.Id, baby.Id, zone, now);
-    }
-
-    [RelayCommand]
-    private void ToggleView()
-    {
-        IsStatsView = !IsStatsView;
-        if (IsStatsView)
-            _ = RefreshStatsAsync();
-    }
-
-    [RelayCommand]
-    private Task SetPeriod(CarePeriod period)
-    {
-        StatsPeriod = period;
-        return RefreshStatsAsync();
-    }
-
-    [RelayCommand]
-    private Task PreviousPeriod()
-    {
-        Date = StatsPeriod switch
-        {
-            CarePeriod.Day => Date.AddDays(-1),
-            CarePeriod.Week => Date.AddDays(-7),
-            CarePeriod.Month => Date.AddMonths(-1),
-            _ => Date.AddDays(-1),
-        };
-        _explicitPastDate = true;
-        return RefreshStatsAsync();
-    }
-
-    [RelayCommand]
-    private Task NextPeriod()
-    {
-        if (!CanGoNextPeriod)
-            return Task.CompletedTask;
-
-        Date = StatsPeriod switch
-        {
-            CarePeriod.Day => Date.AddDays(1),
-            CarePeriod.Week => Date.AddDays(7),
-            CarePeriod.Month => Date.AddMonths(1),
-            _ => Date.AddDays(1),
-        };
-        var today = DateOnly.FromDateTime(time.GetLocalNow().DateTime);
-        if (Date >= today)
-            _explicitPastDate = false;
-        return RefreshStatsAsync();
-    }
-
-    public async Task RefreshStatsAsync()
-    {
-        var household = (await households.ListHouseholdsAsync(CancellationToken.None)).FirstOrDefault(h => !h.IsDeleted);
-        if (household is null)
-            return;
-        var babies = (await households.ListBabiesAsync(household.Id, CancellationToken.None)).Where(b => !b.IsDeleted).ToList();
-        if (babies.Count == 0)
-            return;
-
-        var zone = TimeZoneInfo.FindSystemTimeZoneById(household.TimeZoneId);
-        var now = time.GetLocalNow();
-        await RefreshStatsInternalAsync(household.Id, babies[0].Id, zone, now);
-    }
-
-    private async Task RefreshStatsInternalAsync(HouseholdId household, BabyId baby, TimeZoneInfo zone, DateTimeOffset now)
-    {
-        if (getCareStats is null)
-            return;
-
-        Stats = await getCareStats.ExecuteAsync(household, baby, Date, StatsPeriod, zone, now, CancellationToken.None);
-        var today = DateOnly.FromDateTime(time.GetLocalNow().DateTime);
-
-        StatsPeriodTitle = StatsPeriod switch
-        {
-            CarePeriod.Day => Date == today ? Strings.Get("Section.Today") : Date.ToString("d MMMM yyyy", Strings.Culture),
-            CarePeriod.Week => $"{Stats.StartDate:d MMM} – {Stats.EndDate:d MMM yyyy}",
-            CarePeriod.Month => Date.ToString("MMMM yyyy", Strings.Culture),
-            _ => "",
-        };
-
-        CanGoNextPeriod = StatsPeriod switch
-        {
-            CarePeriod.Day => Date < today,
-            CarePeriod.Week => Stats.EndDate < today,
-            CarePeriod.Month => Date.Year < today.Year || (Date.Year == today.Year && Date.Month < today.Month),
-            _ => false,
-        };
     }
 
     private bool _explicitPastDate;

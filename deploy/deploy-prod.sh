@@ -16,6 +16,8 @@ PUBLIC_URL="${COO_PUBLIC_URL:-https://api.coo.lechdigital.nl}"
 REMOTE_DIR="${COO_REMOTE_DIR:-/opt/coo}"
 GOOGLE_WEB_CLIENT_ID="${COO_GOOGLE_WEB_CLIENT_ID:-282211746968-l54aogbkec1gf1g0rp0n7bk2mhbg2c7r.apps.googleusercontent.com}"
 APPLINKS_SHA256_DEBUG="${COO_APPLINKS_SHA256_DEBUG:-6E:7E:3C:4E:88:95:35:CE:FE:90:1C:8C:D2:C5:37:D1:E4:2C:FB:91:4D:B7:2D:BB:F5:7A:C8:BD:15:3A:28:7C}"
+# Play App Signing's certificate (Play Console → Test and release → App signing), for invitation links in Play builds.
+APPLINKS_SHA256_PLAY="${COO_APPLINKS_SHA256_PLAY:-8A:25:D0:C0:11:DC:FA:8A:56:0B:7C:52:96:B7:31:4A:C2:30:F4:5A:26:2E:EE:3C:13:2A:72:9F:04:91:7F:40}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if [ "${1:-}" != "--confirm" ]; then
@@ -56,6 +58,11 @@ ssh "$HOST" "set -e; mkdir -p $REMOTE_DIR/deploy $REMOTE_DIR/backups $REMOTE_DIR
     sed -i '/^AUTH_SIGNING_KEY_K1=/d' $REMOTE_DIR/.env
     printf 'AUTH_SIGNING_KEY_K1=%s\n' \"\$(openssl rand -base64 32)\" >> $REMOTE_DIR/.env
     echo '    Added a new access-token signing key to .env.'
+  fi
+  if ! grep -q '^APPLINKS_SHA256_PLAY=.' $REMOTE_DIR/.env; then
+    sed -i '/^APPLINKS_SHA256_PLAY=/d' $REMOTE_DIR/.env
+    printf 'APPLINKS_SHA256_PLAY=%s\n' '$APPLINKS_SHA256_PLAY' >> $REMOTE_DIR/.env
+    echo '    Added the Play signing fingerprint to .env.'
   fi
   if ! grep -q '^APPLINKS_SHA256_DEBUG=.' $REMOTE_DIR/.env; then
     sed -i '/^APPLINKS_SHA256_DEBUG=/d' $REMOTE_DIR/.env

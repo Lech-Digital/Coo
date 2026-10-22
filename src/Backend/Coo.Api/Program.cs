@@ -127,6 +127,7 @@ app.MapAppLinkEndpoints(fingerprints);
 app.MapAdvisorEndpoints();
 app.MapBabyAvatarEndpoints();
 app.MapAppUpdateEndpoints();
+app.MapDeleteAccountPage();
 app.MapBillingEndpoints();
 
 await app.RunAsync();

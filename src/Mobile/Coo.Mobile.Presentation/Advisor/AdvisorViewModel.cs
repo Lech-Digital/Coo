@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Coo.Mobile.Application.Advisor;
 using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.Households;
+using Coo.Mobile.Presentation.Localization;
 
 namespace Coo.Mobile.Presentation.Advisor;
 
@@ -12,7 +13,8 @@ public partial class AdvisorViewModel(
     IAdvisorThreadStore threadStore,
     ISessionStore sessionStore,
     IHouseholdStore householdStore,
-    TimeProvider timeProvider) : ObservableObject, IDisposable
+    TimeProvider timeProvider,
+    BuildAdvisorContext? buildContext = null) : ObservableObject, IDisposable
 {
     private CancellationTokenSource? _cts;
     private string? _activeRequestId;
@@ -35,13 +37,13 @@ public partial class AdvisorViewModel(
     private string? _currentThreadId;
 
     [ObservableProperty]
-    private string _currentThreadTitle = "New Conversation";
+    private string _currentThreadTitle = Strings.Get("Advisor.NewConversation");
 
     [ObservableProperty]
     private bool _isHistoryOpen;
 
     [ObservableProperty]
-    private string _developmentTitle = "Typical Development";
+    private string _developmentTitle = Strings.Get("Advisor.GuideTitle");
 
     [ObservableProperty]
     private string _developmentSummary = "• Smiling & cooing\n• Tracking objects with eyes\n• Holding head up during tummy time";
@@ -102,9 +104,9 @@ public partial class AdvisorViewModel(
         }
 
         // Fallback if no baby or birth date is configured
-        DevelopmentTitle = "Development & Milestone Guide";
-        DevelopmentSummary = "Track your baby's physical, sensory, and social milestones and ask any pediatric questions.";
-        DevelopmentFullGuide = "Explore age-appropriate insights on feeding, safe sleep rhythms, tummy time exercises, and growth milestones.";
+        DevelopmentTitle = Strings.Get("Advisor.GuideTitle");
+        DevelopmentSummary = Strings.Get("Advisor.GuideSummary");
+        DevelopmentFullGuide = "";
         _allQuestionsPool = AdvisorKnowledgeBase.GetFallbackQuestions();
         LoadQuestionBatch();
     }
@@ -218,7 +220,7 @@ public partial class AdvisorViewModel(
 
         IsBusy = false;
         CurrentThreadId = null;
-        CurrentThreadTitle = "New Conversation";
+        CurrentThreadTitle = Strings.Get("Advisor.NewConversation");
         Messages.Clear();
         HasStartedChat = false;
         IsHistoryOpen = false;
@@ -285,30 +287,33 @@ public partial class AdvisorViewModel(
         try
         {
             var session = await sessionStore.GetAsync(token);
-            if (session == null)
+            // The family on screen, as on Today and Log: a member of someone else's family asks about that baby
+            // (owner's finding: it asked about his own empty family and was told nothing had been logged).
+            var household = (await householdStore.ListHouseholdsAsync(token)).FirstOrDefault(h => !h.IsDeleted);
+            var householdId = household?.Id ?? session?.AccountHousehold;
+            var baby = householdId is { } h ? (await householdStore.ListBabiesAsync(h, token)).FirstOrDefault(b => !b.IsDeleted) : null;
+            if (session == null || householdId is null || baby is null)
             {
                 if (_activeRequestId == requestId && CurrentThreadId == threadId && !token.IsCancellationRequested)
-                {
-                    Messages.Add(new AdvisorMessageItem { Text = "You must be signed in to ask questions.", IsUser = false, Timestamp = timeProvider.GetUtcNow() });
-                }
+                    Messages.Add(new AdvisorMessageItem { Text = Strings.Get("Advisor.SignIn"), IsUser = false, IsError = true, Timestamp = timeProvider.GetUtcNow() });
                 return;
             }
 
-            var babies = await householdStore.ListBabiesAsync(session.AccountHousehold, token);
-            var babyId = babies.FirstOrDefault(b => !b.IsDeleted)?.Id.Value ?? session.AccountHousehold.Value;
-
             var history = Messages.Take(Messages.Count - 1)
-                .Where(m => !m.Text.StartsWith("Error ", StringComparison.Ordinal))
+                .Where(m => !m.IsError)
                 .Select(m => new AdvisorMessageHistory { Text = m.Text, IsUser = m.IsUser })
                 .ToList();
 
+            var zone = household is null ? TimeZoneInfo.Local : TimeZoneInfo.FindSystemTimeZoneById(household.TimeZoneId);
             var request = new AskAdvisorRequest
             {
-                HouseholdId = session.AccountHousehold.Value,
-                BabyId = babyId,
+                HouseholdId = householdId.Value.Value,
+                BabyId = baby.Id.Value,
                 Question = text,
-                TimeZoneId = TimeZoneInfo.Local.Id,
-                History = history
+                TimeZoneId = zone.Id,
+                History = history,
+                Language = Strings.Language,
+                Context = buildContext is null ? null : await buildContext.ExecuteAsync(householdId.Value, baby.Id, zone, timeProvider.GetUtcNow(), token),
             };
 
             var response = await api.AskAsync(request, token);
@@ -317,7 +322,7 @@ public partial class AdvisorViewModel(
             if (token.IsCancellationRequested || _activeRequestId != requestId)
             {
                 // Optionally save response to background thread
-                if (response?.Answer != null)
+                if (response?.Answer != null && response.ErrorCode is null)
                 {
                     currentThread.Messages.Add(new AdvisorMessageItem { Text = response.Answer, IsUser = false, Timestamp = timeProvider.GetUtcNow() });
                     currentThread.LastUpdatedAt = timeProvider.GetUtcNow();
@@ -328,13 +333,15 @@ public partial class AdvisorViewModel(
 
             if (CurrentThreadId == threadId)
             {
-                var answerText = response?.Answer ?? "Sorry, no answer could be retrieved.";
+                var failed = response?.ErrorCode is not null || string.IsNullOrWhiteSpace(response?.Answer);
+                var answerText = failed ? ErrorText(response?.ErrorCode, response?.Limit) : response!.Answer!;
                 var nowMsg = timeProvider.GetUtcNow();
                 var assistantMsg = new AdvisorMessageItem
                 {
                     Id = Guid.CreateVersion7(nowMsg).ToString("N"),
                     Text = answerText,
                     IsUser = false,
+                    IsError = failed,
                     Timestamp = nowMsg
                 };
                 Messages.Add(assistantMsg);
@@ -353,10 +360,12 @@ public partial class AdvisorViewModel(
         {
             if (!token.IsCancellationRequested && _activeRequestId == requestId && CurrentThreadId == threadId)
             {
+                System.Diagnostics.Debug.WriteLine($"Advisor request failed: {ex}");
                 Messages.Add(new AdvisorMessageItem
                 {
-                    Text = $"Error connecting to Advisor API: {ex.Message}",
+                    Text = Strings.Get("Advisor.Error.offline"),
                     IsUser = false,
+                    IsError = true,
                     Timestamp = timeProvider.GetUtcNow()
                 });
             }
@@ -370,4 +379,11 @@ public partial class AdvisorViewModel(
             }
         }
     }
+
+    private static string ErrorText(string? code, int? limit) => code switch
+    {
+        "advisor.daily-limit" => Strings.Format("Advisor.Error.daily-limit", limit ?? 100),
+        "advisor.free-limit" => Strings.Format("Advisor.Error.free-limit", limit ?? 3),
+        _ => Strings.Get("Advisor.Error.unavailable"),
+    };
 }

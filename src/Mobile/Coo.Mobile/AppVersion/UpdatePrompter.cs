@@ -1,92 +1,142 @@
-using Xamarin.Google.Android.Play.Core.Tasks;
-using Microsoft.Maui.ApplicationModel;
+using Android.Gms.Extensions;
+using Coo.Mobile.Application.AppVersion;
+using Coo.Mobile.Presentation.Localization;
 using Xamarin.Google.Android.Play.Core.AppUpdate;
-using Xamarin.Google.Android.Play.Core.Install.Model;
-using Task = System.Threading.Tasks.Task;
+using Xamarin.Google.Android.Play.Core.AppUpdate.Install;
+using Xamarin.Google.Android.Play.Core.AppUpdate.Install.Model;
 
 namespace Coo.Mobile.AppVersion;
 
-public sealed class UpdatePrompter(TimeProvider timeProvider)
+/// <summary>
+/// Play's in-app updates (Increment 18): a normal release downloads in the background and asks for a restart once it
+/// is in; a release with Play priority 4–5, or below the server's minimum version, is the full-screen update. Checked on
+/// start and on every return to the app, at most once an hour.
+/// </summary>
+public sealed class UpdatePrompter(TimeProvider time, IAppVersionApi versions) : IDisposable
 {
+    private const int RequestCode = 1001;
+    private IAppUpdateManager? _manager;
+    private InstallListener? _listener;
     private DateTimeOffset _lastChecked = DateTimeOffset.MinValue;
-    private bool _hasShownPromptThisSession;
+    private bool _flexibleOffered;
+    private bool _restartAsked;
 
     public async Task CheckForUpdatesAsync()
     {
-        // Don't check more than once per hour in the same session
-        if (timeProvider.GetUtcNow() - _lastChecked < TimeSpan.FromHours(1))
-            return;
-
         try
         {
-            var appContext = Microsoft.Maui.ApplicationModel.Platform.AppContext;
-            if (appContext == null) return;
-
-            var appUpdateManager = AppUpdateManagerFactory.Create(appContext);
-            var appUpdateInfoTask = appUpdateManager.AppUpdateInfo;
-
-            dynamic info = await GetAppUpdateInfoAsync(appUpdateInfoTask);
-            if (info == null) return;
-
-            _lastChecked = timeProvider.GetUtcNow();
-
-            if (info.UpdateAvailability() == UpdateAvailability.UpdateAvailable)
+            var context = Microsoft.Maui.ApplicationModel.Platform.AppContext;
+            _manager ??= AppUpdateManagerFactory.Create(context);
+            if (_listener is null)
             {
-                int priority = info.UpdatePriority();
-                bool isImmediateAllowed = info.IsUpdateTypeAllowed(AppUpdateType.Immediate);
-                bool isFlexibleAllowed = info.IsUpdateTypeAllowed(AppUpdateType.Flexible);
-
-                var activity = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
-                if (activity == null) return;
-
-                if (priority >= 4 && isImmediateAllowed) // High priority
+                _listener = new InstallListener(state =>
                 {
-                    appUpdateManager.StartUpdateFlowForResult(
-                        info,
-                        AppUpdateType.Immediate,
-                        activity,
-                        1001);
-                }
-                else if (isFlexibleAllowed && !_hasShownPromptThisSession)
-                {
-                    _hasShownPromptThisSession = true;
-                    appUpdateManager.StartUpdateFlowForResult(
-                        info,
-                        AppUpdateType.Flexible,
-                        activity,
-                        1002);
-                }
+                    if (state.InstallStatus() == InstallStatus.Downloaded)
+                        PromptRestart();
+                });
+                _manager.RegisterListener(_listener);
+            }
+
+            var info = (AppUpdateInfo)await _manager.GetAppUpdateInfo().AsAsync<Java.Lang.Object>();
+
+            // Downloaded while the app was away: ask on every return until it is installed.
+            if (info.InstallStatus() == InstallStatus.Downloaded)
+            {
+                PromptRestart();
+                return;
+            }
+
+            var activity = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
+            if (activity is null)
+                return;
+
+            // A full-screen update that was left half-way goes on.
+            if (info.UpdateAvailability() == UpdateAvailability.DeveloperTriggeredUpdateInProgress)
+            {
+                _manager.StartUpdateFlowForResult(info, activity, AppUpdateOptions.NewBuilder(AppUpdateType.Immediate).Build(), RequestCode);
+                return;
+            }
+
+            if (time.GetUtcNow() - _lastChecked < TimeSpan.FromHours(1))
+                return;
+            _lastChecked = time.GetUtcNow();
+
+            var server = await versions.GetAsync(CancellationToken.None);
+            var action = UpdatePolicy.Decide(
+                int.TryParse(AppInfo.BuildString, out var code) ? code : int.MaxValue,
+                server,
+                info.UpdateAvailability() == UpdateAvailability.UpdateAvailable,
+                info.UpdatePriority(),
+                info.IsUpdateTypeAllowed(AppUpdateType.Immediate),
+                info.IsUpdateTypeAllowed(AppUpdateType.Flexible),
+                _flexibleOffered);
+
+            switch (action)
+            {
+                case UpdateAction.Immediate:
+                    _manager.StartUpdateFlowForResult(info, activity, AppUpdateOptions.NewBuilder(AppUpdateType.Immediate).Build(), RequestCode);
+                    break;
+                case UpdateAction.Flexible:
+                    _flexibleOffered = true;
+                    _manager.StartUpdateFlowForResult(info, activity, AppUpdateOptions.NewBuilder(AppUpdateType.Flexible).Build(), RequestCode);
+                    break;
+                case UpdateAction.OpenStore:
+                    await AskToOpenStoreAsync();
+                    break;
             }
         }
+#pragma warning disable CA1031 // An update check never breaks the app; the next return tries again.
         catch (Exception ex)
+#pragma warning restore CA1031
         {
-            // Ignore failure, we will check again later
             System.Diagnostics.Debug.WriteLine($"Update check failed: {ex}");
         }
     }
 
-    private static Task<object> GetAppUpdateInfoAsync(Xamarin.Google.Android.Play.Core.Tasks.Task task)
+    public void Dispose()
     {
-        var tcs = new TaskCompletionSource<object>();
-        task.AddOnSuccessListener(new SuccessListener(obj => tcs.TrySetResult(obj!)));
-        task.AddOnFailureListener(new FailureListener(ex => tcs.TrySetException(ex)));
-        return tcs.Task;
+        if (_listener is not null)
+            _manager?.UnregisterListener(_listener);
+        _listener?.Dispose();
+        _listener = null;
     }
 
-    private sealed class SuccessListener : Java.Lang.Object, IOnSuccessListener
-    {
-        private readonly Action<Java.Lang.Object?> _onSuccess;
-        public SuccessListener(Action<Java.Lang.Object?> onSuccess) => _onSuccess = onSuccess;
-        public void OnSuccess(Java.Lang.Object? result) => _onSuccess(result);
-    }
+    private static Page? CurrentPage() =>
+        Microsoft.Maui.Controls.Application.Current?.Windows is { Count: > 0 } windows ? windows[0].Page : null;
 
-    private sealed class FailureListener : Java.Lang.Object, IOnFailureListener
+    private void PromptRestart()
     {
-        private readonly Action<Java.Lang.Exception> _onFailure;
-        public FailureListener(Action<Java.Lang.Exception> onFailure) => _onFailure = onFailure;
-        public void OnFailure(Java.Lang.Exception? e)
+        if (_restartAsked)
+            return;
+        _restartAsked = true;
+        MainThread.BeginInvokeOnMainThread(async () =>
         {
-            if (e != null) _onFailure(e);
+            var page = CurrentPage();
+            if (page is null)
+                return;
+            var restart = await page.DisplayAlertAsync(
+                Strings.Get("Update.Title"), Strings.Get("Update.Downloaded"), Strings.Get("Update.Restart"), Strings.Get("Update.Later"));
+            _restartAsked = false;
+            if (restart)
+                _manager?.CompleteUpdate();
+        });
+    }
+
+    private static async Task AskToOpenStoreAsync()
+    {
+        var page = CurrentPage();
+        if (page is null)
+            return;
+        await page.DisplayAlertAsync(Strings.Get("Update.Title"), Strings.Get("Update.Forced"), Strings.Get("Update.Button"));
+        await Launcher.Default.OpenAsync(new Uri("https://play.google.com/store/apps/details?id=com.lechdigital.coo"));
+    }
+
+    private sealed class InstallListener(Action<InstallState> onState) : Java.Lang.Object, IInstallStateUpdatedListener
+    {
+        public void OnStateUpdate(InstallState? state)
+        {
+            if (state is not null)
+                onState(state);
         }
     }
 }

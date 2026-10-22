@@ -12,8 +12,9 @@
 
     <ApplicationTitle>Coo</ApplicationTitle>
     <ApplicationId>com.lechdigital.coo</ApplicationId>
-    <ApplicationDisplayVersion>0.13.0</ApplicationDisplayVersion>
-    <ApplicationVersion>16</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
+    <!-- Every build that leaves this machine bumps both (CHANGELOG.md): the name by SemVer, the code by one, never reused. -->
+    <ApplicationVersion>17</ApplicationVersion>
     <!-- The informational version is the display version plus the commit, e.g. 0.13.0+<commit> (SourceLink), shown in About like the API's /health. -->
     <Version>$(ApplicationDisplayVersion)</Version>
 
@@ -21,6 +22,13 @@
     <SupportedOSPlatformVersion>26.0</SupportedOSPlatformVersion>
     <!-- CA1859: UI trees are built in C# by methods that deliberately return View, so a page can swap what it shows. -->
     <NoWarn>$(NoWarn);CA1859</NoWarn>
+  </PropertyGroup>
+
+  <!-- The demo build for store screenshots (store-assets/PLAN.md §1): its own app, filled with a made-up baby on first
+       launch. Never uploaded, never on the owner's real install. -->
+  <PropertyGroup Condition="'$(CooDemo)' == 'true'">
+    <ApplicationId>com.lechdigital.coo.demo</ApplicationId>
+    <DefineConstants>$(DefineConstants);COO_DEMO</DefineConstants>
   </PropertyGroup>
 
   <!-- The debug screen (Spec 004 §8): in Debug builds, and in a Release build only when asked for with
@@ -35,7 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Placeholder artwork until the brand work; colours are Washi UX Ground and Accent. -->
+    <!-- Icon D2, "saying coo" (store-assets/icon-options): a baby in a speech bubble on peach. -->
     <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#F2B892" />
     <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#F1EDE5" BaseSize="128,128" />
     <!-- Figtree only (design system §3). eng/verify-apk-fonts.sh checks they reach the APK. -->
@@ -50,7 +58,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Maui.Controls" />
-    <PackageReference Include="Plugin.StoreReview" />
+    <PackageReference Include="Xamarin.Google.Android.Play.App.Update" />
+    <PackageReference Include="Xamarin.Google.Android.Play.Review" />
+    <PackageReference Include="Xamarin.AndroidX.Fragment.Ktx" />
     <PackageReference Include="Plugin.InAppBilling" />
   </ItemGroup>
 

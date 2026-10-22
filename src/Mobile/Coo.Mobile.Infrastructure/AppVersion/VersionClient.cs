@@ -1,20 +1,21 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Coo.Mobile.Application;
+using Coo.Mobile.Application.AppVersion;
 
 namespace Coo.Mobile.Infrastructure.AppVersion;
 
-internal sealed class VersionClient(HttpClient http) : IVersionApi
+internal sealed class VersionClient(HttpClient http) : IAppVersionApi
 {
-    public async Task<AppVersionInfo?> GetVersionInfoAsync(CancellationToken cancellationToken)
+    public async Task<AppVersionPolicy?> GetAsync(CancellationToken cancellationToken)
     {
         try
         {
-            var response = await http.GetAsync("/api/app-version", cancellationToken);
+            using var response = await http.GetAsync(new Uri("api/app-version", UriKind.Relative), cancellationToken);
             if (!response.IsSuccessStatusCode)
                 return null;
-            return await response.Content.ReadFromJsonAsync(VersionContext.Default.AppVersionInfo, cancellationToken);
+            var info = await response.Content.ReadFromJsonAsync(VersionContext.Default.AppVersionInfo, cancellationToken);
+            return info is null ? null : new AppVersionPolicy(info.Latest, info.Minimum);
         }
         catch (HttpRequestException)
         {

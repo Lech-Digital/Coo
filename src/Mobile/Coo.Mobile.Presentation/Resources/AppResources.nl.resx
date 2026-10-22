@@ -30,11 +30,29 @@
   <data name="Action.SwitchSide" xml:space="preserve"><value>Andere kant</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Ongedaan maken</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Wakker</value></data>
-  <data name="Earlier.BottleSubtitle" xml:space="preserve"><value>Flesvoeding of afgekolfde melk</value></data>
-  <data name="Earlier.DiaperSubtitle" xml:space="preserve"><value>Nat, vuil of beide</value></data>
-  <data name="Earlier.FeedSubtitle" xml:space="preserve"><value>Borstvoeding</value></data>
-  <data name="Earlier.PumpSubtitle" xml:space="preserve"><value>Afgekolfde melk</value></data>
-  <data name="Earlier.SleepSubtitle" xml:space="preserve"><value>Dutje of nachtrust</value></data>
+  <data name="Advisor.Ask" xml:space="preserve"><value>Vragen</value></data>
+  <data name="Advisor.Conversation" xml:space="preserve"><value>Gesprek</value></data>
+  <data name="Advisor.Disclaimer" xml:space="preserve"><value>Algemene informatie, geen medisch advies. Maak je je zorgen, bel je huisarts; bij nood 112.</value></data>
+  <data name="Advisor.Done" xml:space="preserve"><value>Klaar</value></data>
+  <data name="Advisor.Error.daily-limit" xml:space="preserve"><value>Dat waren de {0} vragen van vandaag. Vraag morgen weer.</value></data>
+  <data name="Advisor.Error.free-limit" xml:space="preserve"><value>Dat waren de {0} gratis vragen van vandaag. Met Coo Premium heb je er tot 100 per dag.</value></data>
+  <data name="Advisor.Error.offline" xml:space="preserve"><value>De Adviseur is niet bereikbaar. Controleer je verbinding en probeer het opnieuw.</value></data>
+  <data name="Advisor.Error.unavailable" xml:space="preserve"><value>De Adviseur kan nu niet antwoorden. Probeer het zo opnieuw.</value></data>
+  <data name="Advisor.GuideSummary" xml:space="preserve"><value>Voeg de geboortedatum toe in Instellingen om de mijlpalen voor die leeftijd te zien.</value></data>
+  <data name="Advisor.GuideTitle" xml:space="preserve"><value>Ontwikkeling en mijlpalen</value></data>
+  <data name="Advisor.HideGuide" xml:space="preserve"><value>Gids verbergen</value></data>
+  <data name="Advisor.History" xml:space="preserve"><value>Geschiedenis</value></data>
+  <data name="Advisor.HistoryTitle" xml:space="preserve"><value>Gesprekken</value></data>
+  <data name="Advisor.MoreQuestions" xml:space="preserve"><value>Meer vragen</value></data>
+  <data name="Advisor.New" xml:space="preserve"><value>Nieuw</value></data>
+  <data name="Advisor.NewConversation" xml:space="preserve"><value>Nieuw gesprek</value></data>
+  <data name="Advisor.NoHistory" xml:space="preserve"><value>Nog geen gesprekken.</value></data>
+  <data name="Advisor.Placeholder" xml:space="preserve"><value>Vraag iets over je baby…</value></data>
+  <data name="Advisor.ShowGuide" xml:space="preserve"><value>Hele gids tonen</value></data>
+  <data name="Advisor.SignIn" xml:space="preserve"><value>Log in met Google in Instellingen om de Adviseur iets te vragen.</value></data>
+  <data name="Advisor.StartNew" xml:space="preserve"><value>Nieuw gesprek beginnen</value></data>
+  <data name="Advisor.Subtitle" xml:space="preserve"><value>AI-antwoorden van Google Gemini · geen medisch advies</value></data>
+  <data name="Advisor.Title" xml:space="preserve"><value>Babyadviseur</value></data>
   <data name="Age.Corrected" xml:space="preserve"><value>{0} (gecorrigeerd)</value></data>
   <data name="Age.Days.one" xml:space="preserve"><value>{0} dag</value></data>
   <data name="Age.Days.other" xml:space="preserve"><value>{0} dagen</value></data>
@@ -45,6 +63,8 @@
   <data name="Attention.Badge.one" xml:space="preserve"><value>{0} vraagt aandacht</value></data>
   <data name="Attention.Badge.other" xml:space="preserve"><value>{0} vragen aandacht</value></data>
   <data name="Attention.Duplicates" xml:space="preserve"><value>Waarschijnlijk dubbel</value></data>
+  <data name="Attention.DuplicatesRemoved.one" xml:space="preserve"><value>{0} dubbel item verwijderd</value></data>
+  <data name="Attention.DuplicatesRemoved.other" xml:space="preserve"><value>{0} dubbele items verwijderd</value></data>
   <data name="Attention.Empty" xml:space="preserve"><value>Niets vraagt aandacht.</value></data>
   <data name="Attention.FeedsClose" xml:space="preserve"><value>Voedingen kort na elkaar</value></data>
   <data name="Attention.KeepAll" xml:space="preserve"><value>Alles houden</value></data>
@@ -108,6 +128,11 @@
   <data name="Due.Today" xml:space="preserve"><value>Vandaag uitgerekend</value></data>
   <data name="Duration.HoursMinutes" xml:space="preserve"><value>{0} u {1} min</value></data>
   <data name="Duration.Minutes" xml:space="preserve"><value>{0} min</value></data>
+  <data name="Earlier.BottleSubtitle" xml:space="preserve"><value>Flesvoeding of afgekolfde melk</value></data>
+  <data name="Earlier.DiaperSubtitle" xml:space="preserve"><value>Nat, vuil of beide</value></data>
+  <data name="Earlier.FeedSubtitle" xml:space="preserve"><value>Borstvoeding</value></data>
+  <data name="Earlier.PumpSubtitle" xml:space="preserve"><value>Afgekolfde melk</value></data>
+  <data name="Earlier.SleepSubtitle" xml:space="preserve"><value>Dutje of nachtrust</value></data>
   <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>Dit item is op een andere telefoon gewijzigd. Kijk ernaar en sla opnieuw op.</value></data>
   <data name="Edit.Delete" xml:space="preserve"><value>Verwijderen</value></data>
   <data name="Edit.Earlier" xml:space="preserve"><value>Eerder…</value></data>
@@ -282,11 +307,17 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Night.LastDiaper" xml:space="preserve"><value>Laatste luier</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Laatste voeding</value></data>
   <data name="Night.Title" xml:space="preserve"><value>{0} · Nachtmodus</value></data>
-  <data name="Premium.Active" xml:space="preserve"><value>You have an active Premium subscription. Thank you for your support!</value></data>
-  <data name="Premium.Loading" xml:space="preserve"><value>Loading...</value></data>
-  <data name="Premium.Pitch" xml:space="preserve"><value>Get Coo Premium to unlock advanced features and support the development.</value></data>
-  <data name="Premium.PurchaseFailed" xml:space="preserve"><value>Purchase failed. Please try again.</value></data>
-  <data name="Premium.Subscribe" xml:space="preserve"><value>Subscribe</value></data>
+  <data name="Premium.Active" xml:space="preserve"><value>Coo Premium is actief voor je hele gezin. Bedankt dat je Coo steunt!</value></data>
+  <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Tot 100 vragen per dag aan de Adviseur (3 zonder Premium), met antwoorden die je logboek kennen</value></data>
+  <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Een getekende avatar van je baby, gemaakt van een foto</value></data>
+  <data name="Premium.Benefit.Family" xml:space="preserve"><value>Eén abonnement geldt voor je hele gezin</value></data>
+  <data name="Premium.Benefit.Support" xml:space="preserve"><value>Houdt Coo onafhankelijk en reclamevrij</value></data>
+  <data name="Premium.Loading" xml:space="preserve"><value>Laden…</value></data>
+  <data name="Premium.Manage" xml:space="preserve"><value>Abonnement beheren</value></data>
+  <data name="Premium.Pitch" xml:space="preserve"><value>Loggen, synchroniseren en delen met je gezin blijven gratis. Premium voegt toe:</value></data>
+  <data name="Premium.Price" xml:space="preserve"><value>{0}, wordt automatisch verlengd. Op elk moment op te zeggen in Google Play.</value></data>
+  <data name="Premium.PurchaseFailed" xml:space="preserve"><value>De aankoop is niet gelukt. Probeer het opnieuw.</value></data>
+  <data name="Premium.Subscribe" xml:space="preserve"><value>Abonneren</value></data>
   <data name="Premium.Title" xml:space="preserve"><value>Coo Premium</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Hoeveel?</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>Je bent geen lid meer van het gezin dat het logboek van {0} bijhoudt, dus dat logboek wordt van deze telefoon verwijderd. Items die je al hebt gedeeld blijven bij het gezin.</value></data>
@@ -316,7 +347,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Settings.Licences" xml:space="preserve"><value>Opensourcelicenties</value></data>
   <data name="Settings.Privacy" xml:space="preserve"><value>Privacybeleid</value></data>
   <data name="Settings.QuietFrom" xml:space="preserve"><value>Van</value></data>
-  <data name="Settings.QuietHint" xml:space="preserve"><value>Nachtkleuren en stillere meldingen tijdens deze uren.</value></data>
+  <data name="Settings.QuietHint" xml:space="preserve"><value>Nachtkleuren tijdens deze uren.</value></data>
   <data name="Settings.QuietHours" xml:space="preserve"><value>Rustige uren</value></data>
   <data name="Settings.QuietTo" xml:space="preserve"><value>Tot</value></data>
   <data name="Settings.Theme.Auto" xml:space="preserve"><value>Auto</value></data>
@@ -342,6 +373,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.Left" xml:space="preserve"><value>links</value></data>
   <data name="Side.R" xml:space="preserve"><value>R</value></data>
   <data name="Side.Right" xml:space="preserve"><value>rechts</value></data>
+  <data name="Stats.Title" xml:space="preserve"><value>Statistieken</value></data>
   <data name="Sync.NotAMember" xml:space="preserve"><value>Delen is gestopt: dit gezin staat niet meer op de server van Coo. Je items zijn veilig op deze telefoon.</value></data>
   <data name="Sync.Off" xml:space="preserve"><value>Delen staat uit. Je logboek staat alleen op deze telefoon.</value></data>
   <data name="Sync.Paused" xml:space="preserve"><value>Delen is gepauzeerd. Je items zijn veilig op deze telefoon.</value></data>
@@ -354,30 +386,18 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Sync.Waiting.one" xml:space="preserve"><value>Wachten op verbinding. {0} wijziging is veilig op deze telefoon.</value></data>
   <data name="Sync.Waiting.other" xml:space="preserve"><value>Wachten op verbinding. {0} wijzigingen zijn veilig op deze telefoon.</value></data>
   <data name="Sync.WaitingNoChanges" xml:space="preserve"><value>Wachten op verbinding.</value></data>
+  <data name="Tab.Advisor" xml:space="preserve"><value>Adviseur</value></data>
   <data name="Tab.Log" xml:space="preserve"><value>Logboek</value></data>
   <data name="Tab.Settings" xml:space="preserve"><value>Instellingen</value></data>
+  <data name="Tab.Stats" xml:space="preserve"><value>Statistieken</value></data>
   <data name="Tab.Today" xml:space="preserve"><value>Vandaag</value></data>
-  <data name="Stats.AverageDuration" xml:space="preserve"><value>Gemiddelde sessie</value></data>
-  <data name="Stats.AvgFeedDuration" xml:space="preserve"><value>Gemiddelde voeding</value></data>
-  <data name="Stats.DailyAverage" xml:space="preserve"><value>Dagelijks gemiddelde</value></data>
-  <data name="Stats.Day" xml:space="preserve"><value>Dag</value></data>
-  <data name="Stats.DiapersCount" xml:space="preserve"><value>Luiers / dag</value></data>
-  <data name="Stats.FeedsCount" xml:space="preserve"><value>Voedingen / dag</value></data>
-  <data name="Stats.LongestStretch" xml:space="preserve"><value>Langste slaap</value></data>
-  <data name="Stats.Month" xml:space="preserve"><value>Maand</value></data>
-  <data name="Stats.PumpedVolume" xml:space="preserve"><value>Gekolfd / dag</value></data>
-  <data name="Stats.SwitchView" xml:space="preserve"><value>Statistieken</value></data>
-  <data name="Stats.TimelineView" xml:space="preserve"><value>Tijdlijn</value></data>
-  <data name="Stats.Title" xml:space="preserve"><value>Statistieken</value></data>
-  <data name="Stats.TotalSleep" xml:space="preserve"><value>Totale slaap</value></data>
-  <data name="Stats.Week" xml:space="preserve"><value>Week</value></data>
-  <data name="Time.Midnight" xml:space="preserve"><value>Middernacht</value></data>
   <data name="Theme.ToDay" xml:space="preserve"><value>Naar dagkleuren</value></data>
   <data name="Theme.ToNight" xml:space="preserve"><value>Naar nachtkleuren</value></data>
   <data name="Tile.Asleep" xml:space="preserve"><value>slaapt sinds {0}</value></data>
   <data name="Tile.Never" xml:space="preserve"><value>nog niet</value></data>
   <data name="Tile.Running" xml:space="preserve"><value>loopt</value></data>
   <data name="Tile.Woke" xml:space="preserve"><value>wakker {0}</value></data>
+  <data name="Time.Midnight" xml:space="preserve"><value>Middernacht</value></data>
   <data name="Timeline.Empty" xml:space="preserve"><value>Vandaag nog niets gelogd</value></data>
   <data name="Toast.Deleted" xml:space="preserve"><value>Verwijderd · {0}</value></data>
   <data name="Toast.DeletedMany.one" xml:space="preserve"><value>Verwijderd · {0} item</value></data>
@@ -388,6 +408,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Toast.Undone" xml:space="preserve"><value>Ongedaan gemaakt</value></data>
   <data name="Today.AdvisorTip" xml:space="preserve"><value>Tip van de dag</value></data>
   <data name="Today.DailyProgress" xml:space="preserve"><value>Dagelijkse voortgang</value></data>
+  <data name="Today.NapDue" xml:space="preserve"><value>Tijd voor een dutje</value></data>
   <data name="Today.NapWindow" xml:space="preserve"><value>{0}m waakvenster</value></data>
   <data name="Today.NextNap" xml:space="preserve"><value>Volgend dutje ~{0}</value></data>
   <data name="Today.NextSide" xml:space="preserve"><value>Volgende kant: {0}</value></data>
@@ -406,8 +427,44 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedMl" xml:space="preserve"><value>ml gekolfd</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz gekolfd</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>slaap</value></data>
+  <data name="Trend.Average" xml:space="preserve"><value>gemiddeld {0}</value></data>
+  <data name="Trend.Bottle" xml:space="preserve"><value>Fles per dag</value></data>
+  <data name="Trend.BreastFeed" xml:space="preserve"><value>Duur borstvoeding</value></data>
+  <data name="Trend.Chip.Bottle" xml:space="preserve"><value>Fles</value></data>
+  <data name="Trend.Chip.BreastFeed" xml:space="preserve"><value>Borst</value></data>
+  <data name="Trend.Chip.Diapers" xml:space="preserve"><value>Luiers</value></data>
+  <data name="Trend.Chip.Feeds" xml:space="preserve"><value>Voedingen</value></data>
+  <data name="Trend.Chip.LongestSleep" xml:space="preserve"><value>Langste</value></data>
+  <data name="Trend.Chip.Pumped" xml:space="preserve"><value>Gekolfd</value></data>
+  <data name="Trend.Chip.Sleep" xml:space="preserve"><value>Slaap</value></data>
+  <data name="Trend.Days" xml:space="preserve"><value>Dagen</value></data>
+  <data name="Trend.DaysCounted.one" xml:space="preserve"><value>{0} dag gelogd</value></data>
+  <data name="Trend.DaysCounted.other" xml:space="preserve"><value>{0} dagen gelogd</value></data>
+  <data name="Trend.Diapers" xml:space="preserve"><value>Luiers per dag</value></data>
+  <data name="Trend.Feeds" xml:space="preserve"><value>Voedingen per dag</value></data>
+  <data name="Trend.Hint" xml:space="preserve"><value>Tik op een balk om hem met de vorige te vergelijken.</value></data>
+  <data name="Trend.LongestSleep" xml:space="preserve"><value>Langste slaap</value></data>
+  <data name="Trend.Months" xml:space="preserve"><value>Maanden</value></data>
+  <data name="Trend.NoChange" xml:space="preserve"><value>Geen verandering</value></data>
+  <data name="Trend.NothingBefore" xml:space="preserve"><value>Daarvoor niets gelogd om mee te vergelijken</value></data>
+  <data name="Trend.NothingLogged" xml:space="preserve"><value>Niets gelogd</value></data>
+  <data name="Trend.Pumped" xml:space="preserve"><value>Gekolfd per dag</value></data>
+  <data name="Trend.Sleep" xml:space="preserve"><value>Slaap per dag</value></data>
+  <data name="Trend.SoFar" xml:space="preserve"><value>tot nu toe</value></data>
+  <data name="Trend.VsDay" xml:space="preserve"><value>t.o.v. de dag ervoor</value></data>
+  <data name="Trend.VsMonth" xml:space="preserve"><value>t.o.v. de maand ervoor</value></data>
+  <data name="Trend.VsWeek" xml:space="preserve"><value>t.o.v. de week ervoor</value></data>
+  <data name="Trend.WeekRange" xml:space="preserve"><value>{0} – {1}</value></data>
+  <data name="Trend.Weeks" xml:space="preserve"><value>Weken</value></data>
+  <data name="Trend.WetDirty" xml:space="preserve"><value>{0} nat · {1} vies</value></data>
   <data name="Unit.Ml" xml:space="preserve"><value>ml</value></data>
   <data name="Unit.Oz" xml:space="preserve"><value>oz</value></data>
+  <data name="Update.Button" xml:space="preserve"><value>Bijwerken</value></data>
+  <data name="Update.Downloaded" xml:space="preserve"><value>Er staat een nieuwe versie van Coo klaar. Herstart om hem te installeren; dat duurt een paar seconden.</value></data>
+  <data name="Update.Forced" xml:space="preserve"><value>Deze versie van Coo is te oud om je logboek te synchroniseren. Werk hem bij in Google Play.</value></data>
+  <data name="Update.Later" xml:space="preserve"><value>Later</value></data>
+  <data name="Update.Restart" xml:space="preserve"><value>Herstarten</value></data>
+  <data name="Update.Title" xml:space="preserve"><value>Update beschikbaar</value></data>
   <data name="Warn.before-birth" xml:space="preserve"><value>Dit is vóór de geboorte van {0}.</value></data>
   <data name="Warn.bottle-amount" xml:space="preserve"><value>Dat valt buiten de gebruikelijke hoeveelheid (5–400 ml).</value></data>
   <data name="Warn.breast-long" xml:space="preserve"><value>Dat is een lange voeding (meer dan 90 minuten).</value></data>

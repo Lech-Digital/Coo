@@ -39,23 +39,4 @@ internal sealed class AdvisorClient(HttpClient http) : IAdvisorApi
         var result = await response.Content.ReadFromJsonAsync(AdvisorJsonContext.Default.GenerateAvatarResponse, cancellationToken);
         return result ?? new GenerateAvatarResponse();
     }
-
-    public async Task<bool> CheckEntitlementAsync(Guid householdId, CancellationToken cancellationToken)
-    {
-        try
-        {
-            using var message = new HttpRequestMessage(HttpMethod.Get, $"api/billing/entitlements/{householdId}");
-            using var response = await http.SendAsync(message, cancellationToken);
-            if (!response.IsSuccessStatusCode)
-                return false;
-
-            var json = await response.Content.ReadAsStringAsync(cancellationToken);
-            using var doc = System.Text.Json.JsonDocument.Parse(json);
-            return doc.RootElement.TryGetProperty("isPremium", out var prop) && prop.GetBoolean();
-        }
-        catch
-        {
-            return false;
-        }
-    }
 }

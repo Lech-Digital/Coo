@@ -38,7 +38,7 @@ public sealed partial class PremiumViewModel(
         }
         catch (Exception ex)
         {
-            Error = Strings.Get("Error.General");
+            Error = Strings.Get("Error.Generic");
             System.Diagnostics.Debug.WriteLine($"Error initializing premium: {ex}");
         }
         finally
@@ -78,7 +78,7 @@ public sealed partial class PremiumViewModel(
         }
         catch (Exception ex)
         {
-            Error = Strings.Get("Error.General");
+            Error = Strings.Get("Error.Generic");
             System.Diagnostics.Debug.WriteLine($"Error purchasing premium: {ex}");
         }
         finally

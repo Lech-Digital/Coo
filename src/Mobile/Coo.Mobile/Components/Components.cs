@@ -102,7 +102,8 @@ public sealed class TimelineRow : ContentView
 
         var clock = Ui.Text(time, "Meta");
         clock.StyleClass = [Tabular.StyleClass];
-        clock.WidthRequest = 48;
+        // "14:05" fits 48; "1:21 PM" (12-hour phones) broke over two lines in it (seen on the demo build).
+        clock.WidthRequest = time.Length <= 5 ? 48 : 68;
         clock.VerticalOptions = LayoutOptions.Center;
 
         var titleLabel = Ui.Text(title, "BodyStrong");
@@ -165,6 +166,11 @@ public sealed class TotalsCell : ContentView
         var look = EventAppearance.For(kindCode);
         var value = Ui.Text(number, "Section", look.Ink);
         value.StyleClass = [Tabular.StyleClass];
+        // "8 h 14 m" broke over two lines in a quarter of the Pixel 10's width: a long value gets a smaller size.
+        value.MaxLines = 1;
+        value.LineBreakMode = LineBreakMode.NoWrap;
+        if (number.Length > 5)
+            value.FontSize = 17;
         var stack = new VerticalStackLayout
         {
             Spacing = 4,

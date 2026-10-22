@@ -45,6 +45,9 @@ public sealed class StartupPage : ContentPage
         }
 
         await _household.ExecuteAsync(CancellationToken.None);
+#if COO_DEMO
+        await _services.GetRequiredService<Coo.Mobile.Application.Demo.SeedDemoLog>().ExecuteAsync(CancellationToken.None);
+#endif
 
         // Who is signed in (Spec 010 §3.3), read once from SecureStorage. Signed in or not, Today opens the same way.
         try

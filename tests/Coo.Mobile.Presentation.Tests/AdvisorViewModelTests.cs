@@ -30,11 +30,6 @@ public sealed class AdvisorViewModelTests
         {
             return Task.FromResult(new GenerateAvatarResponse { ImageBase64 = request.ImageBase64 });
         }
-
-        public Task<bool> CheckEntitlementAsync(Guid householdId, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(true);
-        }
     }
 
     private sealed class InMemoryThreadStore : IAdvisorThreadStore

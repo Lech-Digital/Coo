@@ -74,13 +74,14 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ISyncApi>(sp => sp.GetRequiredService<SyncClient>());
         services.AddSingleton<IConsentApi>(sp => sp.GetRequiredService<SyncClient>());
 
-        services.AddSingleton<IVersionApi>(sp => new VersionClient(Authenticated(sp)));
+        services.AddSingleton<Coo.Mobile.Application.AppVersion.IAppVersionApi>(sp => new VersionClient(Authenticated(sp)));
 
         // Members and invitations (Spec 011b §10.1): the same refreshing handler.
         services.AddSingleton<IHouseholdApi>(sp => new HouseholdClient(Authenticated(sp)));
 
         // Advisor
         services.AddSingleton<IAdvisorApi>(sp => new AdvisorClient(Authenticated(sp)));
+        services.AddSingleton<Coo.Mobile.Application.Billing.IBillingApi>(sp => new Billing.BillingClient(Authenticated(sp)));
         services.AddSingleton<IAdvisorThreadStore, AdvisorThreadStore>();
 
         // Baby Avatar

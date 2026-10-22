@@ -9,7 +9,8 @@ namespace Coo.Mobile.Application.CareLog;
 /// <summary>
 /// Result of an auto-resolution pass.
 /// </summary>
-public sealed record AutoResolveResult(int MergedFeedGroups, int ResolvedDuplicates, int ClearedRejections);
+/// <param name="Duplicates">The duplicates found: deleted already, or left for the caller to delete with undo.</param>
+public sealed record AutoResolveResult(int MergedFeedGroups, int ResolvedDuplicates, int ClearedRejections, IReadOnlyList<EntryId> Duplicates);
 
 /// <summary>
 /// Automatically resolves attention items (merges consecutive feeds, removes exact duplicate entries, and cleans stale rejections).
@@ -21,7 +22,8 @@ public sealed class AutoResolveAttention(
     ISyncStore sync,
     IVersionClock clock)
 {
-    public async Task<AutoResolveResult> ExecuteAsync(HouseholdId household, DateTimeOffset now, CancellationToken cancellationToken)
+    /// <param name="deleteDuplicates">False leaves the duplicates for the caller, which deletes them with undo.</param>
+    public async Task<AutoResolveResult> ExecuteAsync(HouseholdId household, DateTimeOffset now, CancellationToken cancellationToken, bool deleteDuplicates = true)
     {
         var attention = await getAttention.ExecuteAsync(household, now, cancellationToken);
         var mergedFeeds = 0;
@@ -63,7 +65,7 @@ public sealed class AutoResolveAttention(
             }
         }
 
-        if (toDelete.Count > 0)
+        if (deleteDuplicates && toDelete.Count > 0)
         {
             var deletes = new List<EntryVersion>(toDelete.Count);
             foreach (var id in toDelete)
@@ -85,6 +87,6 @@ public sealed class AutoResolveAttention(
             }
         }
 
-        return new AutoResolveResult(mergedFeeds, resolvedDuplicates, clearedRejections);
+        return new AutoResolveResult(mergedFeeds, resolvedDuplicates, clearedRejections, toDelete);
     }
 }

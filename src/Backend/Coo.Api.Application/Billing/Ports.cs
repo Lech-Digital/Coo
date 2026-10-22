@@ -39,5 +39,6 @@ public sealed record GooglePlayPurchaseInfo(
     string ProductId,
     DateTime ExpiryDate,
     SubscriptionStatus Status,
-    bool AutoRenewing
+    bool AutoRenewing,
+    string? ObfuscatedAccountId = null
 );

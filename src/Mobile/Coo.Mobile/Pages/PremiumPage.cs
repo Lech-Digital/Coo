@@ -46,43 +46,56 @@ public sealed class PremiumPage : ContentPage
         Dispatcher.Dispatch(Render);
     }
 
+    /// <summary>Google Play's page for this subscription, where it is changed or cancelled (Play subscriptions policy).</summary>
+    private static readonly Uri ManageUri =
+        new("https://play.google.com/store/account/subscriptions?sku=premium_subscription&package=com.lechdigital.coo");
+
     private void Render()
     {
-        var stack = new VerticalStackLayout { Spacing = 12, Padding = new Thickness(24, 32, 24, 96) };
-        stack.Add(Ui.BackHeader(Strings.Get("Premium.Title") ?? "Coo Premium", () => Navigation.PopAsync()));
+        var stack = new VerticalStackLayout { Spacing = 14, Padding = new Thickness(24, 32, 24, 96) };
+        stack.Add(Ui.BackHeader(Strings.Get("Premium.Title"), () => Navigation.PopAsync()));
 
         if (_model.Loading)
         {
-            stack.Add(Ui.Text(Strings.Get("Premium.Loading") ?? "Loading...", "Body", "Ink2"));
+            stack.Add(Ui.Text(Strings.Get("Premium.Loading"), "Body", "Ink2"));
+            _body.Content = stack;
+            return;
         }
-        else if (_model.IsPremium)
+
+        stack.Add(Ui.Text(Strings.Get(_model.IsPremium ? "Premium.Active" : "Premium.Pitch"), _model.IsPremium ? "BodyStrong" : "Body"));
+        var benefits = new VerticalStackLayout { Spacing = 10 };
+        foreach (var key in new[] { "Premium.Benefit.Advisor", "Premium.Benefit.Avatar", "Premium.Benefit.Family", "Premium.Benefit.Support" })
         {
-            stack.Add(Ui.Text(Strings.Get("Premium.Active") ?? "You have an active Premium subscription. Thank you for your support!", "BodyStrong"));
+            var row = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 10 };
+            row.Add(Ui.Text("✓", "BodyStrong", "Accent"), 0);
+            row.Add(Ui.Text(Strings.Get(key), "Body"), 1);
+            benefits.Add(row);
+        }
+
+        stack.Add(new Card(benefits));
+
+        if (_model.IsPremium)
+        {
+            var manage = Ui.Rounded(Ui.Text(Strings.Get("Premium.Manage"), "BodyStrong").Tap(l => l.HorizontalOptions = LayoutOptions.Center), "Surface", 8, new Thickness(16), "Line");
+            manage.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await Launcher.Default.OpenAsync(ManageUri)) });
+            stack.Add(manage);
 #if DEBUG
-            var expireButton = Ui.Rounded(Ui.Text("DEV: Expire Premium", "BodyStrong", "Ground").Tap(l => l.HorizontalOptions = LayoutOptions.Center), "Error", 8, new Thickness(16));
+            var expireButton = Ui.Rounded(Ui.Text("DEV: Expire Premium", "BodyStrong", "Ground").Tap(l => l.HorizontalOptions = LayoutOptions.Center), "AccentInk", 8, new Thickness(16));
             expireButton.GestureRecognizers.Add(new TapGestureRecognizer { Command = _model.DevExpireCommand });
             stack.Add(expireButton);
 #endif
         }
         else
         {
-            stack.Add(Ui.Text(Strings.Get("Premium.Pitch") ?? "Get Coo Premium to unlock advanced features and support the development.", "Body"));
-            
-            var price = _model.Price;
-            if (!string.IsNullOrEmpty(price))
-            {
-                stack.Add(Ui.Text($"{price} / month", "BodyStrong", "Accent"));
-            }
-
-            var button = Ui.Rounded(Ui.Text(Strings.Get("Premium.Subscribe") ?? "Subscribe", "BodyStrong", "Ground").Tap(l => l.HorizontalOptions = LayoutOptions.Center), "Accent", 8, new Thickness(16));
+            var button = Ui.Rounded(Ui.Text(Strings.Get("Premium.Subscribe"), "BodyStrong", "Ground").Tap(l => l.HorizontalOptions = LayoutOptions.Center), "Accent", 8, new Thickness(16));
             button.GestureRecognizers.Add(new TapGestureRecognizer { Command = _model.PurchaseCommand });
             stack.Add(button);
+            if (!string.IsNullOrEmpty(_model.Price))
+                stack.Add(Ui.Text(Strings.Format("Premium.Price", _model.Price), "Meta", "Ink2"));
         }
-        
+
         if (!string.IsNullOrEmpty(_model.Error))
-        {
-            stack.Add(Ui.Text(_model.Error, "Body", "Error"));
-        }
+            stack.Add(Ui.Text(_model.Error, "Body", "AccentInk"));
 
         _body.Content = stack;
     }

@@ -26,16 +26,15 @@ internal static partial class AdvisorEndpoints
                 return Results.BadRequest(new { Code = "advisor.malformed" });
 
             var household = new HouseholdId(request.HouseholdId);
-            var allowed = await access.CheckAsync(AuthEndpoints.UserOf(principal), household, cancellationToken);
+            var user = AuthEndpoints.UserOf(principal);
+            var allowed = await access.CheckAsync(user, household, cancellationToken);
             if (allowed.Denial != AccessDenial.None)
-                return Results.Forbid(); // simplified for now
+                return Results.Forbid();
 
-            var advisorRequest = new AskAdvisorRequest(request.Question, request.BabyId, request.TimeZoneId ?? "UTC", request.History);
-
-            var response = await advisorService.AskAsync(household, advisorRequest, cancellationToken);
-            return Results.Json(
-                new System.Collections.Generic.Dictionary<string, string> { ["Answer"] = response.Answer, ["answer"] = response.Answer },
-                new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = null, DictionaryKeyPolicy = null });
+            var advisorRequest = new AskAdvisorRequest(
+                request.Question, request.BabyId, request.TimeZoneId ?? "UTC", request.History, request.Context, request.Language);
+            var response = await advisorService.AskAsync(household, user, advisorRequest, cancellationToken);
+            return Results.Ok(response);
         });
 
         advisor.MapPost("/generate-avatar", async Task<IResult> (
@@ -94,6 +93,8 @@ public class AskAdvisorHttpRequest
     public string? Question { get; set; }
     public string? TimeZoneId { get; set; }
     public List<AdvisorMessageHistory>? History { get; set; }
+    public string? Context { get; set; }
+    public string? Language { get; set; }
 }
 
 public class GenerateAvatarHttpRequest

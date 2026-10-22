@@ -184,7 +184,10 @@ public sealed partial class AttentionViewModel(
         if (autoResolve is not null)
         {
             var now = time.GetLocalNow();
-            await autoResolve.ExecuteAsync(h, now, CancellationToken.None);
+            var result = await autoResolve.ExecuteAsync(h, now, CancellationToken.None, deleteDuplicates: false);
+            // The duplicates go through the undo window like any delete, so a wrong guess can be taken back.
+            if (result.Duplicates.Count > 0)
+                await undo.DeleteWithUndoAsync(result.Duplicates, Strings.Plural("Attention.DuplicatesRemoved", result.Duplicates.Count));
         }
         else
         {

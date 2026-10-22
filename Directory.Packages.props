@@ -25,7 +25,9 @@
     <PackageVersion Include="Xamarin.AndroidX.Credentials" Version="1.5.0" />
     <PackageVersion Include="Xamarin.AndroidX.Credentials.PlayServicesAuth" Version="1.5.0" />
     <PackageVersion Include="Xamarin.GoogleAndroid.Libraries.Identity.GoogleId" Version="1.1.0.8" />
-    <PackageVersion Include="Plugin.StoreReview" Version="6.0.0" />
+    <PackageVersion Include="Xamarin.Google.Android.Play.Review" Version="2.0.2.10" />
+    <!-- The Play libraries bring Fragment 1.9.0, which absorbed fragment-ktx: the Ktx package must match or D8 finds its classes twice. -->
+    <PackageVersion Include="Xamarin.AndroidX.Fragment.Ktx" Version="1.9.0" />
     <PackageVersion Include="Plugin.InAppBilling" Version="10.0.0" />
     <PackageVersion Include="Xamarin.Google.Android.Play.App.Update" Version="2.1.0.20" />
     <!-- Server storage: PostgreSQL through EF Core, schema by migrations (ADR 0001 §4, Spec 008 §4). -->

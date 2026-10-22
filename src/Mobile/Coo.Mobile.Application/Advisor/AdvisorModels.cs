@@ -24,6 +24,9 @@ public sealed class AdvisorMessageItem
     public string Text { get; set; } = "";
     public bool IsUser { get; set; }
     public DateTimeOffset Timestamp { get; set; }
+
+    /// <summary>The app's own message (a refusal, no connection): shown, never sent back to the Advisor as history.</summary>
+    public bool IsError { get; set; }
 }
 
 public interface IAdvisorThreadStore

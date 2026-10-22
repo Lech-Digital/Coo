@@ -1,3 +1,4 @@
+using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Application.Advisor;
 using Coo.Mobile.Application.Billing;
 using Coo.Mobile.Components;
@@ -38,7 +39,7 @@ public sealed class AdvisorPage : ContentPage
         // Subheader action bar for Advisor (History drawer button + New chat button)
         var historyIcon = new Label
         {
-            Text = "📜 History",
+            Text = Strings.Get("Advisor.History"),
             FontFamily = "FigtreeMedium",
             FontSize = 13,
             VerticalOptions = LayoutOptions.Center
@@ -53,7 +54,7 @@ public sealed class AdvisorPage : ContentPage
 
         var newChatIcon = new Label
         {
-            Text = "+ New",
+            Text = "+ " + Strings.Get("Advisor.New"),
             FontFamily = "FigtreeBold",
             FontSize = 13,
             VerticalOptions = LayoutOptions.Center
@@ -83,11 +84,11 @@ public sealed class AdvisorPage : ContentPage
             Margin = new Thickness(0, 0, 0, 2)
         };
         titleLabel.SetDynamicResource(Label.TextColorProperty, "Ink");
-        titleLabel.SetBinding(Label.TextProperty, new Binding("HasStartedChat", converter: new BoolToStringConverter("Conversation", "Baby Advisor")));
+        titleLabel.SetBinding(Label.TextProperty, new Binding("HasStartedChat", converter: new BoolToStringConverter(Strings.Get("Advisor.Conversation"), Strings.Get("Advisor.Title"))));
 
         var subtitleLabel = new Label
         {
-            Text = "Powered by Google Gemini · Pediatric & milestone guidance",
+            Text = Strings.Get("Advisor.Subtitle"),
             FontFamily = "FigtreeRegular",
             FontSize = 13,
             Margin = new Thickness(0, 0, 0, 12)
@@ -118,7 +119,7 @@ public sealed class AdvisorPage : ContentPage
             Margin = new Thickness(-8, 4, 0, -4)
         };
         toggleGuideButton.SetDynamicResource(Button.TextColorProperty, "Accent");
-        toggleGuideButton.SetBinding(Button.TextProperty, new Binding("IsDevelopmentExpanded", converter: new BoolToStringConverter("Hide full guide ▴", "Show full guide ▾")));
+        toggleGuideButton.SetBinding(Button.TextProperty, new Binding("IsDevelopmentExpanded", converter: new BoolToStringConverter(Strings.Get("Advisor.HideGuide"), Strings.Get("Advisor.ShowGuide"))));
         toggleGuideButton.SetBinding(Button.CommandProperty, "ToggleDevelopmentExpandedCommand");
 
         var milestonesCard = Ui.Rounded(
@@ -146,12 +147,16 @@ public sealed class AdvisorPage : ContentPage
             {
                 FontFamily = "FigtreeMedium",
                 FontSize = 13,
-                VerticalOptions = LayoutOptions.Center
+                VerticalOptions = LayoutOptions.Center,
+                // A long question wraps instead of being cut off at the screen's edge (found on the Pixel 10).
+                LineBreakMode = LineBreakMode.WordWrap,
             };
             pillLabel.SetBinding(Label.TextProperty, ".");
             pillLabel.SetDynamicResource(Label.TextColorProperty, "Accent");
 
             var pill = Ui.Rounded(pillLabel, "Surface", 16, new Thickness(12, 8), "Line");
+            // A flex item is measured unconstrained, so a long question ran off the screen: cap it at the page's width.
+            pill.MaximumWidthRequest = (DeviceDisplay.Current.MainDisplayInfo.Width / DeviceDisplay.Current.MainDisplayInfo.Density) - 56;
             pill.Margin = new Thickness(0, 0, 6, 8);
 
             var tap = new TapGestureRecognizer();
@@ -172,7 +177,7 @@ public sealed class AdvisorPage : ContentPage
 
         var shuffleLabel = new Label
         {
-            Text = "🎲 More questions",
+            Text = Strings.Get("Advisor.MoreQuestions"),
             FontFamily = "FigtreeBold",
             FontSize = 13,
             VerticalOptions = LayoutOptions.Center
@@ -231,7 +236,7 @@ public sealed class AdvisorPage : ContentPage
         // 6. History Drawer / Overlay
         var historyCloseBtn = new Button
         {
-            Text = "Done",
+            Text = Strings.Get("Advisor.Done"),
             FontFamily = "FigtreeBold",
             FontSize = 13,
             Padding = new Thickness(12, 4),
@@ -244,7 +249,7 @@ public sealed class AdvisorPage : ContentPage
 
         var historyTitle = new Label
         {
-            Text = "Conversation History",
+            Text = Strings.Get("Advisor.HistoryTitle"),
             FontFamily = "FigtreeBold",
             FontSize = 18,
             VerticalOptions = LayoutOptions.Center
@@ -261,7 +266,7 @@ public sealed class AdvisorPage : ContentPage
 
         var startNewChatBtn = new Button
         {
-            Text = "+ Start New Conversation",
+            Text = "+ " + Strings.Get("Advisor.StartNew"),
             FontFamily = "FigtreeBold",
             FontSize = 14,
             CornerRadius = 12,
@@ -331,7 +336,7 @@ public sealed class AdvisorPage : ContentPage
 
         var emptyHistoryLabel = new Label
         {
-            Text = "No previous conversations yet.",
+            Text = Strings.Get("Advisor.NoHistory"),
             FontFamily = "FigtreeRegular",
             FontSize = 14,
             HorizontalOptions = LayoutOptions.Center,
@@ -352,7 +357,7 @@ public sealed class AdvisorPage : ContentPage
         // 7. Bottom Input Area
         var inputEntry = new Entry
         {
-            Placeholder = "Ask about your baby...",
+            Placeholder = Strings.Get("Advisor.Placeholder"),
             FontFamily = "FigtreeRegular",
             FontSize = 15,
             BackgroundColor = Colors.Transparent,
@@ -365,7 +370,7 @@ public sealed class AdvisorPage : ContentPage
 
         var sendButton = new Button
         {
-            Text = "Ask",
+            Text = Strings.Get("Advisor.Ask"),
             FontFamily = "FigtreeBold",
             FontSize = 14,
             CornerRadius = 12,
@@ -402,9 +407,11 @@ public sealed class AdvisorPage : ContentPage
         var buttonContainer = new HorizontalStackLayout { Children = { sendButton, activityIndicator } };
         inputRow.Add(buttonContainer, 1);
 
+        // Always in view under the question box (Play's health-content policy, and plain honesty).
+        var disclaimer = Ui.Text(Strings.Get("Advisor.Disclaimer"), "Meta", "Ink2").Tap(l => l.FontSize = 11);
         var bottomContainer = new ContentView
         {
-            Content = inputRow
+            Content = new VerticalStackLayout { Spacing = 4, Children = { inputRow, disclaimer } }
         };
         bottomContainer.SetBinding(VisualElement.IsVisibleProperty, new Binding("IsHistoryOpen", converter: new InverseBoolConverter()));
 
@@ -423,7 +430,7 @@ public sealed class AdvisorPage : ContentPage
         // Content Scrollable Header for active chat (only title & subtitle when chatting)
         var chatTitleLabel = new Label
         {
-            Text = "Conversation",
+            Text = Strings.Get("Advisor.Conversation"),
             FontFamily = "FigtreeBold",
             FontSize = 20,
             Margin = new Thickness(0, 0, 0, 2)
@@ -432,7 +439,7 @@ public sealed class AdvisorPage : ContentPage
 
         var chatSubtitleLabel = new Label
         {
-            Text = "Powered by Google Gemini · Pediatric & milestone guidance",
+            Text = Strings.Get("Advisor.Subtitle"),
             FontFamily = "FigtreeRegular",
             FontSize = 13,
             Margin = new Thickness(0, 0, 0, 12)

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Coo.Api.Application.Billing;
@@ -25,10 +26,16 @@ public static class BillingEndpoints
             if (request == null || request.HouseholdId == Guid.Empty || string.IsNullOrWhiteSpace(request.ProductId) || string.IsNullOrWhiteSpace(request.PurchaseToken))
                 return Results.BadRequest();
 
-            var userId = AuthEndpoints.UserOf(user);
-
-            var success = await useCase.ExecuteAsync(new HouseholdId(request.HouseholdId), userId.Value, request.ProductId, request.PurchaseToken, cancellationToken);
-            return success ? Results.Ok() : Results.BadRequest("Verification failed");
+            var outcome = await useCase.ExecuteAsync(
+                new HouseholdId(request.HouseholdId), AuthEndpoints.UserOf(user), request.ProductId, request.PurchaseToken, cancellationToken);
+            return outcome switch
+            {
+                VerifyReceiptOutcome.Verified => Results.Ok(),
+                VerifyReceiptOutcome.NotAMember => Results.Forbid(),
+                VerifyReceiptOutcome.OtherHousehold => Results.Conflict(new { Code = "billing.other-household" }),
+                VerifyReceiptOutcome.UnknownProduct => Results.BadRequest(new { Code = "billing.unknown-product" }),
+                _ => Results.BadRequest(new { Code = "billing.invalid-purchase" }),
+            };
         }).RequireAuthorization();
 
         group.MapGet("/entitlements/{householdId:guid}", async (
@@ -37,31 +44,40 @@ public static class BillingEndpoints
             [FromServices] GetEntitlementStatus useCase,
             CancellationToken cancellationToken) =>
         {
-            var userId = AuthEndpoints.UserOf(user);
-            var isPremium = await useCase.ExecuteAsync(new HouseholdId(householdId), cancellationToken);
-            return Results.Ok(new { IsPremium = isPremium });
+            var isPremium = await useCase.ExecuteAsync(new HouseholdId(householdId), AuthEndpoints.UserOf(user), cancellationToken);
+            return isPremium is { } premium ? Results.Ok(new { IsPremium = premium }) : Results.Forbid();
         }).RequireAuthorization();
 
+        // Google Pub/Sub pushes here (RTDN). The push subscription's URL carries ?token=<Billing:RtdnToken>, so nobody
+        // else can make the server ask Google about tokens. Without a configured token the webhook is off.
         group.MapPost("/rtdn", async (
             HttpRequest http,
+            [FromQuery] string? token,
+            [FromServices] IConfiguration configuration,
             [FromServices] HandleRTDN useCase,
             CancellationToken cancellationToken) =>
         {
+            var expected = configuration["Billing:RtdnToken"];
+            if (string.IsNullOrEmpty(expected) || token is null
+                || !CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(token), Encoding.UTF8.GetBytes(expected)))
+                return Results.Unauthorized();
+
             var payload = await AuthEndpoints.TryReadJsonAsync<RtdnPayload>(http, cancellationToken);
             if (payload?.Message?.Data == null) return Results.Ok();
 
-            var base64EncodedBytes = Convert.FromBase64String(payload.Message.Data);
-            var decodedData = Encoding.UTF8.GetString(base64EncodedBytes);
-
-            var devNotification = JsonSerializer.Deserialize<DeveloperNotification>(decodedData, JsonOptions);
-            if (devNotification?.SubscriptionNotification != null)
+            DeveloperNotification? notification;
+            try
             {
-                var token = devNotification.SubscriptionNotification.PurchaseToken;
-                if (!string.IsNullOrEmpty(token))
-                {
-                    await useCase.ExecuteAsync(token, cancellationToken);
-                }
+                notification = JsonSerializer.Deserialize<DeveloperNotification>(Encoding.UTF8.GetString(Convert.FromBase64String(payload.Message.Data)), JsonOptions);
             }
+            catch (Exception e) when (e is FormatException or JsonException)
+            {
+                // Acknowledged, so Pub/Sub does not retry a message that can never be read.
+                return Results.Ok();
+            }
+
+            if (notification?.SubscriptionNotification?.PurchaseToken is { Length: > 0 } purchaseToken)
+                await useCase.ExecuteAsync(purchaseToken, cancellationToken);
 
             return Results.Ok();
         });

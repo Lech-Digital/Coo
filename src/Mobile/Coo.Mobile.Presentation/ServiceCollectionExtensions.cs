@@ -41,6 +41,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<TodayViewModel>();
         services.AddTransient<SetupViewModel>();
         services.AddSingleton<LogViewModel>();
+        services.AddSingleton<TrendsViewModel>();
         services.AddSingleton<Settings.SettingsViewModel>();
         services.AddTransient<Settings.PremiumViewModel>();
         services.AddSingleton<Settings.AccountViewModel>();

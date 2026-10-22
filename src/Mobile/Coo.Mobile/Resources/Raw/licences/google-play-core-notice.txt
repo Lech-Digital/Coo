@@ -1,0 +1,8 @@
+Google Play In-App Updates and In-App Review libraries
+(com.google.android.play:app-update, com.google.android.play:review, com.google.android.play:core-common)
+
+Copyright Google LLC. Used under the Play Core Software Development Kit Terms of Service:
+https://developer.android.com/guide/playcore#license
+
+The .NET bindings (Xamarin.Google.Android.Play.App.Update, Xamarin.Google.Android.Play.Review) are
+Copyright (c) Microsoft Corporation and are licensed under the MIT License.

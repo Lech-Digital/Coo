@@ -1,5 +1,5 @@
-using Svg.Skia;
 using SkiaSharp;
+using Svg.Skia;
 using Xunit;
 
 namespace Coo.Api.Infrastructure.Tests.Advisor;

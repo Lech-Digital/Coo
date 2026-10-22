@@ -17,149 +17,86 @@ internal sealed class AdvisorService(
     TimeProvider timeProvider,
     IConfiguration config) : IAdvisorService
 {
-    public async Task<AskAdvisorResponse> AskAsync(HouseholdId householdId, AskAdvisorRequest request, CancellationToken cancellationToken)
+    // One client for the process: a new HttpClient per question exhausts sockets under load.
+    private static readonly HttpClient Gemini = new() { Timeout = TimeSpan.FromSeconds(60) };
+    private static readonly Uri AskUri = new("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent");
+
+    public async Task<AskAdvisorResponse> AskAsync(HouseholdId householdId, UserId user, AskAdvisorRequest request, CancellationToken cancellationToken)
     {
+        var apiKey = config["Gemini:ApiKey"];
+        if (string.IsNullOrEmpty(apiKey))
+            return new AskAdvisorResponse(null, "advisor.unavailable");
+
         await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
 
-        // Rate limiting
+        // Each member has their own daily allowance; the day is the family's, not the server's.
         var isPremium = await billingStore.IsHouseholdPremiumAsync(householdId, cancellationToken);
-        var limit = isPremium ? 100 : 3; // 100 for premium, 3 for free
-
-        // Find the user ID from the household members - just pick the first owner/parent for usage tracking
-        var member = await db.Memberships.FirstOrDefaultAsync(m => m.HouseholdId == householdId.Value && m.RevokedAt == null, cancellationToken);
-        var userId = member?.UserId ?? Guid.Empty;
-
-        var today = timeProvider.GetLocalNow().Date;
-        var dateOnly = DateOnly.FromDateTime(today);
-
-        var usage = await db.AdvisorUsages.FirstOrDefaultAsync(u => u.UserId == userId && u.Date == dateOnly, cancellationToken);
-        if (usage == null)
+        var limit = isPremium ? AdvisorPrompt.PremiumDailyQuestions : AdvisorPrompt.FreeDailyQuestions;
+        var zone = TimeZoneInfo.TryFindSystemTimeZoneById(request.TimeZoneId, out var found) ? found : TimeZoneInfo.Utc;
+        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(timeProvider.GetUtcNow(), zone).DateTime);
+        var usage = await db.AdvisorUsages.FirstOrDefaultAsync(u => u.UserId == user.Value && u.Date == today, cancellationToken);
+        if (usage is null)
         {
-            usage = new AdvisorUsageRecord { UserId = userId, Date = dateOnly, QuestionCount = 0 };
+            usage = new AdvisorUsageRecord { UserId = user.Value, Date = today, QuestionCount = 0 };
             db.AdvisorUsages.Add(usage);
         }
 
         if (usage.QuestionCount >= limit)
-        {
-            return new AskAdvisorResponse("You have reached your daily limit of questions. " + (isPremium ? "Please try again tomorrow." : "Upgrade to Premium for more questions!"));
-        }
+            return new AskAdvisorResponse(null, isPremium ? "advisor.daily-limit" : "advisor.free-limit", limit);
 
-        usage.QuestionCount++;
-        await db.SaveChangesAsync(cancellationToken);
+        var baby = await db.BabyProfiles.AsNoTracking()
+            .FirstOrDefaultAsync(b => b.Id == request.BabyId && b.HouseholdId == householdId.Value && !b.IsDeleted, cancellationToken);
+        int? weeks = baby?.BirthDate is { } born ? (today.DayNumber - born.DayNumber) / 7 : null;
+        var system = AdvisorPrompt.System(baby?.Name, weeks, request.Context, request.Language);
+
+        var contents = AdvisorPrompt.History(request.History)
+            .Select(m => (object)new { role = m.IsUser ? "user" : "model", parts = new[] { new { text = m.Text } } })
+            .Append(new { role = "user", parts = new[] { new { text = AdvisorPrompt.Truncate(request.Question, AdvisorPrompt.MaxQuestionLength) } } })
+            .ToArray();
+        var body = new
+        {
+            systemInstruction = new { parts = new[] { new { text = system } } },
+            contents,
+            generationConfig = new { temperature = 0.4 },
+        };
 
         try
         {
-            // Build context
-            var baby = await db.BabyProfiles.FirstOrDefaultAsync(b => b.Id == request.BabyId && !b.IsDeleted, cancellationToken);
-
-            var context = "You are an empathetic pediatric advisor. No medical diagnoses. You are advising the parents of a baby.";
-
-            if (baby?.BirthDate != null)
+            HttpResponseMessage? response = null;
+            for (var attempt = 1; attempt <= 3; attempt++)
             {
-                var ageDays = (today - baby.BirthDate.Value.ToDateTime(TimeOnly.MinValue)).TotalDays;
-                context += $" The baby is {Math.Floor(ageDays / 7)} weeks old.";
-            }
-
-            if (isPremium)
-            {
-                // Inject recent logs
-                var logs = await db.CareEntries
-                    .Where(e => e.HouseholdId == householdId.Value && e.SubjectBabyId == request.BabyId && !e.IsDeleted)
-                    .OrderByDescending(e => e.StartAt)
-                    .Take(20)
-                    .ToListAsync(cancellationToken);
-
-                if (logs.Count > 0)
-                {
-                    context += "\nHere are the recent care logs:\n";
-                    foreach (var log in logs)
-                    {
-                        context += $"- {log.StartAt:g}: {log.Kind}\n";
-                    }
-                }
-            }
-
-            var prompt = $"{context}\n\nPlease answer in plain text without any markdown formatting (no asterisks for bold, no hashes for headers, no bullet points - use simple dashes if needed). Keep it conversational.\n\nQuestion: {request.Question}";
-
-            var apiKey = config["Gemini:ApiKey"];
-            if (string.IsNullOrEmpty(apiKey))
-            {
-                return new AskAdvisorResponse("Advisor is currently unavailable (missing configuration).");
-            }
-
-            using var http = new HttpClient();
-            var contents = new List<object>();
-
-            if (request.History != null)
-            {
-                foreach (var msg in request.History)
-                {
-                    contents.Add(new
-                    {
-                        role = msg.IsUser ? "user" : "model",
-                        parts = new[] { new { text = msg.Text } }
-                    });
-                }
-            }
-
-            contents.Add(new
-            {
-                role = "user",
-                parts = new[] { new { text = prompt } }
-            });
-
-            var requestObj = new
-            {
-                contents = contents.ToArray(),
-                generationConfig = new { temperature = 0.7 }
-            };
-
-            var requestContent = System.Net.Http.Json.JsonContent.Create(requestObj);
-            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key={apiKey}";
-
-            HttpResponseMessage? httpResponse = null;
-            for (int attempt = 1; attempt <= 3; attempt++)
-            {
-                using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
-                {
-                    Content = System.Net.Http.Json.JsonContent.Create(requestObj)
-                };
-
-                httpResponse = await http.SendAsync(httpRequest, cancellationToken);
-                if (httpResponse.IsSuccessStatusCode)
+                response?.Dispose();
+                using var message = new HttpRequestMessage(HttpMethod.Post, AskUri) { Content = System.Net.Http.Json.JsonContent.Create(body) };
+                // In a header, not the URL, so the key never lands in a log line.
+                message.Headers.Add("x-goog-api-key", apiKey);
+                response = await Gemini.SendAsync(message, cancellationToken);
+                if (response.IsSuccessStatusCode
+                    || response.StatusCode is not (System.Net.HttpStatusCode.ServiceUnavailable or System.Net.HttpStatusCode.TooManyRequests)
+                    || attempt == 3)
                     break;
-
-                var isTransient = httpResponse.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable ||
-                                  httpResponse.StatusCode == System.Net.HttpStatusCode.TooManyRequests;
-
-                if (!isTransient || attempt == 3)
-                    break;
-
                 await Task.Delay(400 * attempt, cancellationToken);
             }
 
-            if (httpResponse == null || !httpResponse.IsSuccessStatusCode)
+            using (response)
             {
-                var err = httpResponse != null ? await httpResponse.Content.ReadAsStringAsync(cancellationToken) : "Unknown error";
-                var code = httpResponse?.StatusCode.ToString() ?? "Unknown";
-                return new AskAdvisorResponse($"Advisor API Error: {code} - {err}");
+                if (response is null || !response.IsSuccessStatusCode)
+                    return new AskAdvisorResponse(null, "advisor.unavailable");
+
+                using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+                var text = doc.RootElement.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString();
+                if (string.IsNullOrWhiteSpace(text))
+                    return new AskAdvisorResponse(null, "advisor.unavailable");
+
+                // Counted only once answered: a failure does not use up a question.
+                usage.QuestionCount++;
+                await db.SaveChangesAsync(cancellationToken);
+                return new AskAdvisorResponse(text.Trim());
             }
-
-            var responseJson = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
-            using var doc = JsonDocument.Parse(responseJson);
-
-            var text = doc.RootElement
-                .GetProperty("candidates")[0]
-                .GetProperty("content")
-                .GetProperty("parts")[0]
-                .GetProperty("text")
-                .GetString();
-
-            return new AskAdvisorResponse(text ?? "I'm not sure how to answer that.");
         }
-        catch (Exception ex)
+        catch (Exception e) when (e is HttpRequestException or JsonException or KeyNotFoundException or IndexOutOfRangeException or InvalidOperationException
+                                       or TaskCanceledException { InnerException: TimeoutException })
         {
-            return new AskAdvisorResponse($"Sorry, I couldn't process your request right now. ({ex.Message})");
+            return new AskAdvisorResponse(null, "advisor.unavailable");
         }
     }
 

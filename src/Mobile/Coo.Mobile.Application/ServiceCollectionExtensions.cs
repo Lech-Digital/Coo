@@ -20,7 +20,9 @@ public static class ServiceCollectionExtensions
         services.AddTransient<EnsureProvisionalHousehold>();
         services.AddTransient<GetToday>();
         services.AddTransient<GetDay>();
-        services.AddTransient<GetCareStatistics>();
+        services.AddTransient<GetCareTrends>();
+        services.AddTransient<Advisor.BuildAdvisorContext>();
+        services.AddTransient<Demo.SeedDemoLog>();
         services.AddTransient<SetUpBaby>();
         services.AddTransient<RecordBirth>();
         services.AddTransient<UpdateBabyProfile>();

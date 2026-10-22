@@ -3,10 +3,10 @@ using Coo.Mobile.Presentation.Localization;
 
 namespace Coo.Mobile;
 
-/// <summary>Three tabs: Today, Log and Settings (Spec 006 §2, Spec 009 §2), styled as the design system's bottom navigation.</summary>
+/// <summary>Five tabs: Today, Log, Stats, Advisor and Settings (Spec 006 §2, Spec 009 §2), styled as the design system's bottom navigation.</summary>
 public sealed class AppShell : Shell
 {
-    private static readonly string[] TitleKeys = ["Tab.Today", "Tab.Log", "Tab.Settings"];
+    private static readonly string[] TitleKeys = ["Tab.Today", "Tab.Log", "Tab.Stats", "Tab.Advisor", "Tab.Settings"];
 
     public AppShell(IServiceProvider services)
     {
@@ -37,17 +37,24 @@ public sealed class AppShell : Shell
                 },
                 new ShellContent
                 {
+                    Title = Strings.Get("Tab.Stats"),
+                    Icon = "tab_stats.png",
+                    Route = "stats",
+                    ContentTemplate = new DataTemplate(services.GetRequiredService<StatsPage>),
+                },
+                new ShellContent
+                {
+                    Title = Strings.Get("Tab.Advisor"),
+                    Icon = "tab_advisor.png",
+                    Route = "advisor",
+                    ContentTemplate = new DataTemplate(services.GetRequiredService<AdvisorPage>),
+                },
+                new ShellContent
+                {
                     Title = Strings.Get("Tab.Settings"),
                     Icon = "tab_settings.png",
                     Route = "settings",
                     ContentTemplate = new DataTemplate(services.GetRequiredService<SettingsPage>),
-                },
-                new ShellContent
-                {
-                    Title = "Advisor",
-                    Icon = "tab_log.png", // Placeholder
-                    Route = "advisor",
-                    ContentTemplate = new DataTemplate(services.GetRequiredService<AdvisorPage>),
                 },
             },
         });

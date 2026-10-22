@@ -387,8 +387,12 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
             var awakeSince = t?.AwakeSince;
             if (awakeSince is { } awake)
             {
+                // Past the end of the wake window the nap is due, not "next at" a time already gone (seen on the
+                // demo's Today at 2:15 PM: "Next nap ~1:36 PM").
                 var estNapTime = awake.AddMinutes(maxWakeMins);
-                NextNap = Strings.Format("Today.NextNap", snapshot.Formats.Time(estNapTime));
+                NextNap = estNapTime > snapshot.Now
+                    ? Strings.Format("Today.NextNap", snapshot.Formats.Time(estNapTime))
+                    : Strings.Get("Today.NapDue");
             }
             else
             {
@@ -510,9 +514,12 @@ public sealed partial class DailyProgressSection : ObservableObject, IHomeSectio
         if (Math.Abs(DiapersRatio - nextDiapersRatio) >= 0.001)
             DiapersRatio = nextDiapersRatio;
 
+        // The same midnight-cut total as the Log (owner's finding: Today said 7 h 58 m while Log said 8 h 14 m).
+        if (snapshot.Today?.SleepSoFar is { } soFar)
+            sleepSpan = soFar;
         var sleepMinutes = (int)Math.Floor(sleepSpan.TotalMinutes);
         var sleepHoursFormatted = Formats.Duration(TimeSpan.FromMinutes(sleepMinutes));
-        var nextSleep = Strings.Format("Today.ProgressSleep", sleepHoursFormatted, $"{targetSleepHours}h");
+        var nextSleep = Strings.Format("Today.ProgressSleep", sleepHoursFormatted, Formats.Duration(TimeSpan.FromHours(targetSleepHours)));
         var nextSleepRatio = Math.Clamp(Math.Round(sleepMinutes / (targetSleepHours * 60.0), 3), 0.0, 1.0);
         if (SleepProgress != nextSleep)
             SleepProgress = nextSleep;

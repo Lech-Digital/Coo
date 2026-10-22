@@ -8,7 +8,11 @@ using Coo.Domain.Households;
 
 namespace Coo.Mobile.Application.CareLog;
 
-/// <summary>What Today shows for one baby (Spec 006 §4). Read-only and quarantined entries appear in the timeline only.</summary>
+/// <summary>
+/// What Today shows for one baby (Spec 006 §4). Read-only and quarantined entries appear in the timeline only.
+/// <see cref="SleepSoFar"/> is today's sleep cut at midnight, as the Log counts it: last night's part after midnight in,
+/// tonight's part after midnight out.
+/// </summary>
 public sealed record TodaySummary(
     IReadOnlyList<CareEntry> Running,
     CareEntry? LastFeed,
@@ -17,7 +21,8 @@ public sealed record TodaySummary(
     CareEntry? LastPump,
     DateTimeOffset? AwakeSince,
     IReadOnlyList<StoredEntry> TodayEntries,
-    LocalDay Today);
+    LocalDay Today,
+    TimeSpan? SleepSoFar = null);
 
 /// <summary>
 /// One mark on the day chart, as fractions of the day (Spec 006 §7, Spec 009b §2): a sleep block, or a feed, diaper or
@@ -55,7 +60,11 @@ public sealed class GetToday(ICareLogStore store)
             Latest<PumpDetails>(live),
             awakeSince,
             mine.Where(e => today.Contains(e.Start)).ToList(),
-            today);
+            today,
+            TimeSpan.FromTicks(live
+                .Where(e => e.Details is SleepDetails)
+                .Select(e => e.Timing is SessionTiming s ? today.Overlap(s.Range.Start, s.Range.End ?? now) : TimeSpan.Zero)
+                .Sum(t => t.Ticks)));
     }
 
     internal static bool IsAbout(CareEntry entry, BabyId baby) =>

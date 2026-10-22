@@ -30,11 +30,29 @@
   <data name="Action.SwitchSide" xml:space="preserve"><value>Changer de côté</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Annuler</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Réveillé</value></data>
-  <data name="Earlier.BottleSubtitle" xml:space="preserve"><value>Lait infantile ou maternel</value></data>
-  <data name="Earlier.DiaperSubtitle" xml:space="preserve"><value>Mouillée, selle ou mixte</value></data>
-  <data name="Earlier.FeedSubtitle" xml:space="preserve"><value>Tétée au sein</value></data>
-  <data name="Earlier.PumpSubtitle" xml:space="preserve"><value>Tire-lait</value></data>
-  <data name="Earlier.SleepSubtitle" xml:space="preserve"><value>Sieste ou nuit</value></data>
+  <data name="Advisor.Ask" xml:space="preserve"><value>Demander</value></data>
+  <data name="Advisor.Conversation" xml:space="preserve"><value>Conversation</value></data>
+  <data name="Advisor.Disclaimer" xml:space="preserve"><value>Informations générales, pas un avis médical. Si vous êtes inquiet, appelez votre médecin ; en cas d’urgence, le 112.</value></data>
+  <data name="Advisor.Done" xml:space="preserve"><value>OK</value></data>
+  <data name="Advisor.Error.daily-limit" xml:space="preserve"><value>C’étaient les {0} questions du jour. Revenez demain.</value></data>
+  <data name="Advisor.Error.free-limit" xml:space="preserve"><value>C’étaient les {0} questions gratuites du jour. Coo Premium en offre jusqu’à 100 par jour.</value></data>
+  <data name="Advisor.Error.offline" xml:space="preserve"><value>Impossible de joindre le Conseiller. Vérifiez votre connexion et réessayez.</value></data>
+  <data name="Advisor.Error.unavailable" xml:space="preserve"><value>Le Conseiller ne peut pas répondre pour l’instant. Réessayez dans un moment.</value></data>
+  <data name="Advisor.GuideSummary" xml:space="preserve"><value>Ajoutez la date de naissance dans Réglages pour voir les étapes de son âge.</value></data>
+  <data name="Advisor.GuideTitle" xml:space="preserve"><value>Développement et étapes</value></data>
+  <data name="Advisor.HideGuide" xml:space="preserve"><value>Masquer le guide</value></data>
+  <data name="Advisor.History" xml:space="preserve"><value>Historique</value></data>
+  <data name="Advisor.HistoryTitle" xml:space="preserve"><value>Conversations</value></data>
+  <data name="Advisor.MoreQuestions" xml:space="preserve"><value>Autres questions</value></data>
+  <data name="Advisor.New" xml:space="preserve"><value>Nouveau</value></data>
+  <data name="Advisor.NewConversation" xml:space="preserve"><value>Nouvelle conversation</value></data>
+  <data name="Advisor.NoHistory" xml:space="preserve"><value>Aucune conversation pour l’instant.</value></data>
+  <data name="Advisor.Placeholder" xml:space="preserve"><value>Posez une question sur votre bébé…</value></data>
+  <data name="Advisor.ShowGuide" xml:space="preserve"><value>Voir le guide complet</value></data>
+  <data name="Advisor.SignIn" xml:space="preserve"><value>Connectez-vous avec Google dans Réglages pour interroger le Conseiller.</value></data>
+  <data name="Advisor.StartNew" xml:space="preserve"><value>Nouvelle conversation</value></data>
+  <data name="Advisor.Subtitle" xml:space="preserve"><value>Réponses IA par Google Gemini · pas un avis médical</value></data>
+  <data name="Advisor.Title" xml:space="preserve"><value>Conseiller bébé</value></data>
   <data name="Age.Corrected" xml:space="preserve"><value>{0} (corrigé)</value></data>
   <data name="Age.Days.one" xml:space="preserve"><value>{0} jour</value></data>
   <data name="Age.Days.other" xml:space="preserve"><value>{0} jours</value></data>
@@ -45,6 +63,8 @@
   <data name="Attention.Badge.one" xml:space="preserve"><value>{0} à vérifier</value></data>
   <data name="Attention.Badge.other" xml:space="preserve"><value>{0} à vérifier</value></data>
   <data name="Attention.Duplicates" xml:space="preserve"><value>Probablement en double</value></data>
+  <data name="Attention.DuplicatesRemoved.one" xml:space="preserve"><value>{0} doublon supprimé</value></data>
+  <data name="Attention.DuplicatesRemoved.other" xml:space="preserve"><value>{0} doublons supprimés</value></data>
   <data name="Attention.Empty" xml:space="preserve"><value>Rien à vérifier.</value></data>
   <data name="Attention.FeedsClose" xml:space="preserve"><value>Repas rapprochés</value></data>
   <data name="Attention.KeepAll" xml:space="preserve"><value>Tout garder</value></data>
@@ -108,6 +128,11 @@
   <data name="Due.Today" xml:space="preserve"><value>Prévu aujourd'hui</value></data>
   <data name="Duration.HoursMinutes" xml:space="preserve"><value>{0} h {1} min</value></data>
   <data name="Duration.Minutes" xml:space="preserve"><value>{0} min</value></data>
+  <data name="Earlier.BottleSubtitle" xml:space="preserve"><value>Lait infantile ou maternel</value></data>
+  <data name="Earlier.DiaperSubtitle" xml:space="preserve"><value>Mouillée, selle ou mixte</value></data>
+  <data name="Earlier.FeedSubtitle" xml:space="preserve"><value>Tétée au sein</value></data>
+  <data name="Earlier.PumpSubtitle" xml:space="preserve"><value>Tire-lait</value></data>
+  <data name="Earlier.SleepSubtitle" xml:space="preserve"><value>Sieste ou nuit</value></data>
   <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>Cette entrée a été modifiée sur un autre téléphone. Veuillez la vérifier et enregistrer à nouveau.</value></data>
   <data name="Edit.Delete" xml:space="preserve"><value>Supprimer</value></data>
   <data name="Edit.Earlier" xml:space="preserve"><value>Plus tôt…</value></data>
@@ -282,11 +307,17 @@ Si le lien n'ouvre pas Coo, va dans Réglages → Famille → Rejoindre une fami
   <data name="Night.LastDiaper" xml:space="preserve"><value>Dernière couche</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Dernier repas</value></data>
   <data name="Night.Title" xml:space="preserve"><value>{0} · Mode nuit</value></data>
-  <data name="Premium.Active" xml:space="preserve"><value>You have an active Premium subscription. Thank you for your support!</value></data>
-  <data name="Premium.Loading" xml:space="preserve"><value>Loading...</value></data>
-  <data name="Premium.Pitch" xml:space="preserve"><value>Get Coo Premium to unlock advanced features and support the development.</value></data>
-  <data name="Premium.PurchaseFailed" xml:space="preserve"><value>Purchase failed. Please try again.</value></data>
-  <data name="Premium.Subscribe" xml:space="preserve"><value>Subscribe</value></data>
+  <data name="Premium.Active" xml:space="preserve"><value>Coo Premium est actif pour toute votre famille. Merci de soutenir Coo !</value></data>
+  <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Jusqu’à 100 questions au Conseiller par jour (3 sans Premium), avec des réponses qui connaissent votre journal</value></data>
+  <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Un avatar illustré de votre bébé, dessiné à partir d’une photo</value></data>
+  <data name="Premium.Benefit.Family" xml:space="preserve"><value>Un abonnement couvre toute votre famille</value></data>
+  <data name="Premium.Benefit.Support" xml:space="preserve"><value>Garde Coo indépendant et sans publicité</value></data>
+  <data name="Premium.Loading" xml:space="preserve"><value>Chargement…</value></data>
+  <data name="Premium.Manage" xml:space="preserve"><value>Gérer l’abonnement</value></data>
+  <data name="Premium.Pitch" xml:space="preserve"><value>Le suivi, la synchro et le partage en famille restent gratuits. Premium ajoute :</value></data>
+  <data name="Premium.Price" xml:space="preserve"><value>{0}, renouvelé automatiquement. Résiliable à tout moment dans Google Play.</value></data>
+  <data name="Premium.PurchaseFailed" xml:space="preserve"><value>L’achat n’a pas abouti. Veuillez réessayer.</value></data>
+  <data name="Premium.Subscribe" xml:space="preserve"><value>S’abonner</value></data>
   <data name="Premium.Title" xml:space="preserve"><value>Coo Premium</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Combien ?</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>Vous n'êtes plus membre de la famille qui suit {0} : son journal va être supprimé de ce téléphone. Les entrées que vous avez déjà partagées restent dans la famille.</value></data>
@@ -316,7 +347,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Settings.Licences" xml:space="preserve"><value>Licences open source</value></data>
   <data name="Settings.Privacy" xml:space="preserve"><value>Politique de confidentialité</value></data>
   <data name="Settings.QuietFrom" xml:space="preserve"><value>De</value></data>
-  <data name="Settings.QuietHint" xml:space="preserve"><value>Couleurs de nuit et notifications plus discrètes pendant ces heures.</value></data>
+  <data name="Settings.QuietHint" xml:space="preserve"><value>Couleurs de nuit pendant ces heures.</value></data>
   <data name="Settings.QuietHours" xml:space="preserve"><value>Heures calmes</value></data>
   <data name="Settings.QuietTo" xml:space="preserve"><value>À</value></data>
   <data name="Settings.Theme.Auto" xml:space="preserve"><value>Auto</value></data>
@@ -342,6 +373,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.Left" xml:space="preserve"><value>gauche</value></data>
   <data name="Side.R" xml:space="preserve"><value>D</value></data>
   <data name="Side.Right" xml:space="preserve"><value>droit</value></data>
+  <data name="Stats.Title" xml:space="preserve"><value>Statistiques</value></data>
   <data name="Sync.NotAMember" xml:space="preserve"><value>Le partage est arrêté : cette famille n'est plus sur le serveur de Coo. Vos entrées sont en sécurité sur ce téléphone.</value></data>
   <data name="Sync.Off" xml:space="preserve"><value>Le partage est désactivé. Votre journal est uniquement sur ce téléphone.</value></data>
   <data name="Sync.Paused" xml:space="preserve"><value>Le partage est en pause. Vos entrées sont en sécurité sur ce téléphone.</value></data>
@@ -354,30 +386,18 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Sync.Waiting.one" xml:space="preserve"><value>En attente de connexion. {0} modification est en sécurité sur ce téléphone.</value></data>
   <data name="Sync.Waiting.other" xml:space="preserve"><value>En attente de connexion. {0} modifications sont en sécurité sur ce téléphone.</value></data>
   <data name="Sync.WaitingNoChanges" xml:space="preserve"><value>En attente de connexion.</value></data>
+  <data name="Tab.Advisor" xml:space="preserve"><value>Conseiller</value></data>
   <data name="Tab.Log" xml:space="preserve"><value>Journal</value></data>
   <data name="Tab.Settings" xml:space="preserve"><value>Réglages</value></data>
+  <data name="Tab.Stats" xml:space="preserve"><value>Stats</value></data>
   <data name="Tab.Today" xml:space="preserve"><value>Aujourd'hui</value></data>
-  <data name="Stats.AverageDuration" xml:space="preserve"><value>Durée moyenne</value></data>
-  <data name="Stats.AvgFeedDuration" xml:space="preserve"><value>Tétée moyenne</value></data>
-  <data name="Stats.DailyAverage" xml:space="preserve"><value>Moyenne quotidienne</value></data>
-  <data name="Stats.Day" xml:space="preserve"><value>Jour</value></data>
-  <data name="Stats.DiapersCount" xml:space="preserve"><value>Couches / jour</value></data>
-  <data name="Stats.FeedsCount" xml:space="preserve"><value>Repas / jour</value></data>
-  <data name="Stats.LongestStretch" xml:space="preserve"><value>Plus long sommeil</value></data>
-  <data name="Stats.Month" xml:space="preserve"><value>Mois</value></data>
-  <data name="Stats.PumpedVolume" xml:space="preserve"><value>Tiré / jour</value></data>
-  <data name="Stats.SwitchView" xml:space="preserve"><value>Stats</value></data>
-  <data name="Stats.TimelineView" xml:space="preserve"><value>Chronologie</value></data>
-  <data name="Stats.Title" xml:space="preserve"><value>Statistiques</value></data>
-  <data name="Stats.TotalSleep" xml:space="preserve"><value>Sommeil total</value></data>
-  <data name="Stats.Week" xml:space="preserve"><value>Semaine</value></data>
-  <data name="Time.Midnight" xml:space="preserve"><value>Minuit</value></data>
   <data name="Theme.ToDay" xml:space="preserve"><value>Passer aux couleurs de jour</value></data>
   <data name="Theme.ToNight" xml:space="preserve"><value>Passer aux couleurs de nuit</value></data>
   <data name="Tile.Asleep" xml:space="preserve"><value>dort depuis {0}</value></data>
   <data name="Tile.Never" xml:space="preserve"><value>pas encore</value></data>
   <data name="Tile.Running" xml:space="preserve"><value>en cours</value></data>
   <data name="Tile.Woke" xml:space="preserve"><value>réveil {0}</value></data>
+  <data name="Time.Midnight" xml:space="preserve"><value>Minuit</value></data>
   <data name="Timeline.Empty" xml:space="preserve"><value>Rien de noté aujourd'hui</value></data>
   <data name="Toast.Deleted" xml:space="preserve"><value>Supprimé · {0}</value></data>
   <data name="Toast.DeletedMany.one" xml:space="preserve"><value>Supprimé · {0} entrée</value></data>
@@ -388,6 +408,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Toast.Undone" xml:space="preserve"><value>Annulé</value></data>
   <data name="Today.AdvisorTip" xml:space="preserve"><value>Conseil du jour</value></data>
   <data name="Today.DailyProgress" xml:space="preserve"><value>Progression du jour</value></data>
+  <data name="Today.NapDue" xml:space="preserve"><value>Sieste à faire maintenant</value></data>
   <data name="Today.NapWindow" xml:space="preserve"><value>fenêtre d’éveil de {0}m</value></data>
   <data name="Today.NextNap" xml:space="preserve"><value>Prochaine sieste ~{0}</value></data>
   <data name="Today.NextSide" xml:space="preserve"><value>Prochain côté : {0}</value></data>
@@ -406,8 +427,44 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedMl" xml:space="preserve"><value>ml tirés</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz tirés</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>sommeil</value></data>
+  <data name="Trend.Average" xml:space="preserve"><value>moyenne {0}</value></data>
+  <data name="Trend.Bottle" xml:space="preserve"><value>Biberon par jour</value></data>
+  <data name="Trend.BreastFeed" xml:space="preserve"><value>Durée de tétée</value></data>
+  <data name="Trend.Chip.Bottle" xml:space="preserve"><value>Biberon</value></data>
+  <data name="Trend.Chip.BreastFeed" xml:space="preserve"><value>Sein</value></data>
+  <data name="Trend.Chip.Diapers" xml:space="preserve"><value>Couches</value></data>
+  <data name="Trend.Chip.Feeds" xml:space="preserve"><value>Repas</value></data>
+  <data name="Trend.Chip.LongestSleep" xml:space="preserve"><value>Plus long</value></data>
+  <data name="Trend.Chip.Pumped" xml:space="preserve"><value>Tiré</value></data>
+  <data name="Trend.Chip.Sleep" xml:space="preserve"><value>Sommeil</value></data>
+  <data name="Trend.Days" xml:space="preserve"><value>Jours</value></data>
+  <data name="Trend.DaysCounted.one" xml:space="preserve"><value>{0} jour noté</value></data>
+  <data name="Trend.DaysCounted.other" xml:space="preserve"><value>{0} jours notés</value></data>
+  <data name="Trend.Diapers" xml:space="preserve"><value>Couches par jour</value></data>
+  <data name="Trend.Feeds" xml:space="preserve"><value>Repas par jour</value></data>
+  <data name="Trend.Hint" xml:space="preserve"><value>Touchez une barre pour la comparer à la précédente.</value></data>
+  <data name="Trend.LongestSleep" xml:space="preserve"><value>Plus long sommeil</value></data>
+  <data name="Trend.Months" xml:space="preserve"><value>Mois</value></data>
+  <data name="Trend.NoChange" xml:space="preserve"><value>Pas de changement</value></data>
+  <data name="Trend.NothingBefore" xml:space="preserve"><value>Rien de noté avant pour comparer</value></data>
+  <data name="Trend.NothingLogged" xml:space="preserve"><value>Rien de noté</value></data>
+  <data name="Trend.Pumped" xml:space="preserve"><value>Tiré par jour</value></data>
+  <data name="Trend.Sleep" xml:space="preserve"><value>Sommeil par jour</value></data>
+  <data name="Trend.SoFar" xml:space="preserve"><value>pour l’instant</value></data>
+  <data name="Trend.VsDay" xml:space="preserve"><value>par rapport à la veille</value></data>
+  <data name="Trend.VsMonth" xml:space="preserve"><value>par rapport au mois précédent</value></data>
+  <data name="Trend.VsWeek" xml:space="preserve"><value>par rapport à la semaine précédente</value></data>
+  <data name="Trend.WeekRange" xml:space="preserve"><value>{0} – {1}</value></data>
+  <data name="Trend.Weeks" xml:space="preserve"><value>Semaines</value></data>
+  <data name="Trend.WetDirty" xml:space="preserve"><value>{0} mouillées · {1} sales</value></data>
   <data name="Unit.Ml" xml:space="preserve"><value>ml</value></data>
   <data name="Unit.Oz" xml:space="preserve"><value>oz</value></data>
+  <data name="Update.Button" xml:space="preserve"><value>Mettre à jour</value></data>
+  <data name="Update.Downloaded" xml:space="preserve"><value>Une nouvelle version de Coo est prête. Redémarrez pour l’installer, cela prend quelques secondes.</value></data>
+  <data name="Update.Forced" xml:space="preserve"><value>Cette version de Coo est trop ancienne pour synchroniser votre journal. Mettez-la à jour dans Google Play.</value></data>
+  <data name="Update.Later" xml:space="preserve"><value>Plus tard</value></data>
+  <data name="Update.Restart" xml:space="preserve"><value>Redémarrer</value></data>
+  <data name="Update.Title" xml:space="preserve"><value>Mise à jour disponible</value></data>
   <data name="Warn.before-birth" xml:space="preserve"><value>C’est avant la naissance de {0}.</value></data>
   <data name="Warn.bottle-amount" xml:space="preserve"><value>C’est hors de la quantité habituelle (5–400 ml).</value></data>
   <data name="Warn.breast-long" xml:space="preserve"><value>C’est une longue tétée (plus de 90 minutes).</value></data>
