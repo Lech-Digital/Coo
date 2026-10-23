@@ -65,6 +65,53 @@ public sealed class AdvisorContextTests
         text.Should().Contain("This week so far: nothing logged.");
     }
 
+    [Fact]
+    public async Task ExecuteAsync_FeverMedicineAndWeighIn_AreToldWithTheWhoPercentile()
+    {
+        // Arrange: born 20 August; 5.1 kg at two months is about the WHO median for a girl.
+        var store = Store([
+            Make(Coo.Domain.CareLog.Kinds.Health.TemperatureDetails.Create(38.6m).Value, EntryTiming.Point(At(21, 20, 0))),
+            Make(Coo.Domain.CareLog.Kinds.Health.MedicineDetails.Create("Paracetamol", "2.5 ml").Value, EntryTiming.Point(At(21, 20, 5))),
+            Make(Coo.Domain.CareLog.Kinds.Growth.GrowthDetails.Create(5_100, null, null).Value, EntryTiming.Point(At(20, 10, 0))),
+        ]);
+        var households = Substitute.For<Coo.Mobile.Application.Households.IHouseholdStore>();
+        households.ListBabiesAsync(Household, Arg.Any<CancellationToken>()).Returns(
+            [Coo.Domain.Households.BabyProfile.Create(Baby, Household, "Lena", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 22)).Value]);
+        var chart = Substitute.For<Coo.Mobile.Application.Growth.IGrowthChartPreference>();
+        chart.GetAsync(Arg.Any<CancellationToken>()).Returns(Coo.Mobile.Application.Growth.ChartSex.Girl);
+
+        // Act
+        var text = await new BuildAdvisorContext(new GetToday(store), new GetCareTrends(store), store, households, chart)
+            .ExecuteAsync(Household, Baby, Amsterdam, Now, CancellationToken.None);
+
+        // Assert
+        text.Should().Contain("Health, last 14 days:");
+        text.Should().Contain("temperature 38.6 °C (fever)");
+        text.Should().Contain("medicine Paracetamol, 2.5 ml");
+        text.Should().Contain("weight 5.1 kg (P48)");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_NoHealthOrGrowth_AddsNoSections()
+    {
+        // Arrange
+        var store = Store([]);
+
+        // Act
+        var text = await new BuildAdvisorContext(new GetToday(store), new GetCareTrends(store), store)
+            .ExecuteAsync(Household, Baby, Amsterdam, Now, CancellationToken.None);
+
+        // Assert
+        text.Should().NotContain("Health, last 14 days").And.NotContain("Growth measurements");
+    }
+
+    private static ICareLogStore Store(IReadOnlyList<CareEntry> entries)
+    {
+        var store = Substitute.For<ICareLogStore>();
+        store.ListAsync(default, default, default, default).ReturnsForAnyArgs(_ => entries.Select(e => (StoredEntry)new LiveEntry(e)).ToList());
+        return store;
+    }
+
     private static DateTimeOffset At(int day, int hour, int minute) => new(2026, 10, day, hour, minute, 0, TimeSpan.FromHours(2));
 
     private static BuildAdvisorContext Context(IReadOnlyList<CareEntry> entries)

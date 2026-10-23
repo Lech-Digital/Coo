@@ -3,10 +3,13 @@ using System.Text;
 using Coo.Domain.CareLog;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.CareLog.Kinds.Feeding;
+using Coo.Domain.CareLog.Kinds.Health;
 using Coo.Domain.CareLog.Kinds.Pump;
 using Coo.Domain.CareLog.Kinds.Sleep;
 using Coo.Domain.Common;
 using Coo.Mobile.Application.CareLog;
+using Coo.Mobile.Application.Growth;
+using Coo.Mobile.Application.Households;
 
 namespace Coo.Mobile.Application.Advisor;
 
@@ -15,8 +18,12 @@ namespace Coo.Mobile.Application.Advisor;
 /// of each kind, each of the last seven days, and this week against the week before. Facts only, in the family's time
 /// zone, so the answer can quote them instead of guessing.
 /// </summary>
-public sealed class BuildAdvisorContext(GetToday today, GetCareTrends trends)
+public sealed class BuildAdvisorContext(
+    GetToday today, GetCareTrends trends, ICareLogStore? store = null, IHouseholdStore? households = null, IGrowthChartPreference? chart = null)
 {
+    /// <summary>How far back medicines, temperatures, vaccines and visits are told.</summary>
+    public static readonly TimeSpan HealthWindow = TimeSpan.FromDays(14);
+
     private static readonly CultureInfo En = CultureInfo.InvariantCulture;
 
     public async Task<string> ExecuteAsync(
@@ -52,7 +59,54 @@ public sealed class BuildAdvisorContext(GetToday today, GetCareTrends trends)
             text.AppendLine(Week("Last week", before));
         }
 
+        if (store is not null)
+            await AppendHealthAndGrowthAsync(text, household, baby, zone, now, cancellationToken);
+
         return text.ToString();
+    }
+
+    /// <summary>Medicines, temperatures, vaccines and visits of the last two weeks; every growth measurement, with its WHO percentile.</summary>
+    private async Task AppendHealthAndGrowthAsync(
+        StringBuilder text, HouseholdId household, BabyId baby, TimeZoneInfo zone, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        string At(DateTimeOffset instant) => TimeZoneInfo.ConvertTime(instant, zone).ToString("ddd d MMM HH:mm", En);
+        var recent = (await store!.ListAsync(household, now - HealthWindow, now.AddMinutes(1), cancellationToken))
+            .OfType<LiveEntry>().Select(l => l.Entry)
+            .Where(e => e.Subject is BabySubject { BabyId: var id } && id == baby)
+            .Where(e => e.Details is MedicineDetails or TemperatureDetails or VaccineDetails or VisitDetails)
+            .OrderBy(e => e.Timing.OccurredAt)
+            .ToList();
+        if (recent.Count > 0)
+        {
+            text.AppendLine("Health, last 14 days:");
+            foreach (var e in recent)
+                text.AppendLine(CultureInfo.InvariantCulture, $"- {At(e.Timing.OccurredAt)}: {Describe(e, now)}{(e.Note is { } note ? $" (note: {note.Text})" : "")}");
+        }
+
+        var profile = households is null ? null
+            : (await households.ListBabiesAsync(household, cancellationToken)).FirstOrDefault(b => b.Id == baby);
+        if (profile?.BirthDate is not { } birth)
+            return;
+        var growth = await new GetGrowth(store).ExecuteAsync(household, baby, birth, now, cancellationToken);
+        if (growth.Count == 0)
+            return;
+        var sex = chart is null ? null : await chart.GetAsync(cancellationToken);
+        text.AppendLine(sex is null ? "Growth measurements:" : $"Growth measurements, with WHO percentiles ({sex.Value.ToString().ToLowerInvariant()}s' standard):");
+        foreach (var (entry, details) in growth)
+        {
+            var age = WhoGrowth.AgeMonths(birth, entry.Timing.OccurredAt);
+            string Part(GrowthMeasure measure, string label, string unit)
+            {
+                if (WhoGrowth.ValueOf(details, measure) is not { } value)
+                    return "";
+                var percentile = sex is { } chosen ? WhoGrowth.Percentile(measure, chosen, age, value) : null;
+                return string.Create(En, $"{label} {value:0.##} {unit}{(percentile is { } p ? $" (P{Math.Round(p):0})" : "")}; ");
+            }
+
+            var line = string.Create(En,
+                $"- {TimeZoneInfo.ConvertTime(entry.Timing.OccurredAt, zone).ToString("d MMM yyyy", En)} (age {age:0.0} months): {Part(GrowthMeasure.Weight, "weight", "kg")}{Part(GrowthMeasure.Length, "length", "cm")}{Part(GrowthMeasure.Head, "head", "cm")}");
+            text.AppendLine(line.TrimEnd(' ', ';'));
+        }
     }
 
     private static string Line(DayCare day, bool isToday)
@@ -81,6 +135,10 @@ public sealed class BuildAdvisorContext(GetToday today, GetCareTrends trends)
         SleepDetails when entry.Timing is SessionTiming s => $"sleep of {Duration((s.Range.End ?? now) - s.Range.Start)}",
         DiaperDetails d => $"diaper, {d.Contents.ToString().ToLowerInvariant()}",
         PumpDetails p => p.Yield is { } yield ? string.Create(En, $"pump, {yield.Total.Millilitres:0} ml") : "pump",
+        MedicineDetails m => m.Dose is { } dose ? $"medicine {m.Name}, {dose}" : $"medicine {m.Name}",
+        TemperatureDetails t => string.Create(En, $"temperature {t.Celsius:0.0} °C{(t.IsFever ? " (fever)" : "")}"),
+        VaccineDetails v => $"vaccine {v.Name}",
+        VisitDetails v => v.With is { } with ? $"doctor visit ({with})" : "doctor visit",
         _ => entry.KindCode.Value,
     };
 
