@@ -28,11 +28,14 @@ public sealed class AdvisorPage : ContentPage
     private const string ConsentKey = "advisor.consent.v1";
 
     /// <summary>The Advisor's consent (Advisor.ConsentBody), asked before the first question and remembered on this phone.</summary>
-    private async Task<bool> EnsureConsentAsync()
+    private Task<bool> EnsureConsentAsync() => AskConsentAsync(this);
+
+    /// <summary>The same consent from any page that sends the log to the Advisor (Stats' weekly summary too).</summary>
+    internal static async Task<bool> AskConsentAsync(Page page)
     {
         if (Preferences.Default.Get(ConsentKey, false))
             return true;
-        var agreed = await DisplayAlertAsync(
+        var agreed = await page.DisplayAlertAsync(
             Strings.Get("Advisor.ConsentTitle"), Strings.Get("Advisor.ConsentBody"), Strings.Get("Advisor.ConsentAgree"), Strings.Get("Advisor.ConsentLater"));
         if (agreed)
             Preferences.Default.Set(ConsentKey, true);

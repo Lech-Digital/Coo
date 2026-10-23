@@ -519,6 +519,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.R" xml:space="preserve"><value>P</value></data>
   <data name="Side.Right" xml:space="preserve"><value>prawa</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statystyki</value></data>
+  <data name="Summary.Hint" xml:space="preserve"><value>Doradca porównuje ten tydzień z poprzednim: sen, karmienia, pieluchy i to, co warto zauważyć.</value></data>
+  <data name="Summary.Prompt" xml:space="preserve"><value>Napisz krótkie podsumowanie tygodnia dziecka dla zmęczonego rodzica: jak ten tydzień wypada na tle poprzedniego pod względem snu, karmień i pieluch, co ważne w zdrowiu lub wzroście, oraz jedną łagodną, praktyczną wskazówkę. Cztery do sześciu zdań, ciepło i prosto, bez nagłówków i list. Korzystaj tylko z dziennika.</value></data>
+  <data name="Summary.Title" xml:space="preserve"><value>Ten tydzień w kilku słowach</value></data>
+  <data name="Summary.Write" xml:space="preserve"><value>Napisz</value></data>
+  <data name="Summary.Writing" xml:space="preserve"><value>Piszę…</value></data>
   <data name="Sync.NotAMember" xml:space="preserve"><value>Udostępnianie zatrzymane: tej rodziny nie ma już na serwerze Coo. Twoje wpisy są bezpieczne na tym telefonie.</value></data>
   <data name="Sync.Off" xml:space="preserve"><value>Udostępnianie jest wyłączone. Twój dziennik jest tylko na tym telefonie.</value></data>
   <data name="Sync.Paused" xml:space="preserve"><value>Udostępnianie jest wstrzymane. Twoje wpisy są bezpieczne na tym telefonie.</value></data>

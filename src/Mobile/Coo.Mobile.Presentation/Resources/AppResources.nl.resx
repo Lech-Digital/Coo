@@ -501,6 +501,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.R" xml:space="preserve"><value>R</value></data>
   <data name="Side.Right" xml:space="preserve"><value>rechts</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statistieken</value></data>
+  <data name="Summary.Hint" xml:space="preserve"><value>De Adviseur vergelijkt deze week met de vorige: slaap, voedingen, luiers en wat opvalt.</value></data>
+  <data name="Summary.Prompt" xml:space="preserve"><value>Schrijf een korte samenvatting van de week van de baby voor een moeie ouder: hoe deze week zich verhoudt tot vorige week qua slaap, voedingen en luiers, wat belangrijk is over gezondheid of groei, en één zachte, praktische tip. Vier tot zes zinnen, warm en eenvoudig, zonder kopjes of lijsten. Gebruik alleen het logboek.</value></data>
+  <data name="Summary.Title" xml:space="preserve"><value>Deze week, in woorden</value></data>
+  <data name="Summary.Write" xml:space="preserve"><value>Schrijven</value></data>
+  <data name="Summary.Writing" xml:space="preserve"><value>Bezig met schrijven…</value></data>
   <data name="Sync.NotAMember" xml:space="preserve"><value>Delen is gestopt: dit gezin staat niet meer op de server van Coo. Je items zijn veilig op deze telefoon.</value></data>
   <data name="Sync.Off" xml:space="preserve"><value>Delen staat uit. Je logboek staat alleen op deze telefoon.</value></data>
   <data name="Sync.Paused" xml:space="preserve"><value>Delen is gepauzeerd. Je items zijn veilig op deze telefoon.</value></data>

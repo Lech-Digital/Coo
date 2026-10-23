@@ -16,6 +16,7 @@ public sealed class StatsPage : ContentPage
     private readonly UndoService _undo;
     private readonly LanguageController _language;
     private readonly CooPageHeader _pageHeader;
+    private readonly WeeklySummaryViewModel _summary;
     private readonly VerticalStackLayout _content = new() { Padding = new Thickness(24, 0, 24, 0), Spacing = 16 };
     private bool _renderQueued;
     private string? _renderedLanguage;
@@ -27,6 +28,8 @@ public sealed class StatsPage : ContentPage
         _undo = undo;
         _language = language;
         _pageHeader = new CooPageHeader(services);
+        _summary = services.GetRequiredService<WeeklySummaryViewModel>();
+        _summary.EnsureConsentAsync = () => AdvisorPage.AskConsentAsync(this);
         Shell.SetNavBarIsVisible(this, false);
         Content = new ScrollView
         {
@@ -39,6 +42,7 @@ public sealed class StatsPage : ContentPage
         base.OnAppearing();
         // Listening only while on screen: the view model outlives this page.
         _trends.PropertyChanged += OnChanged;
+        _summary.PropertyChanged += OnChanged;
         _undo.DataChanged += OnDataChanged;
         _theme.PaletteChanged += OnPaletteChanged;
         _language.Changed += OnLanguageChanged;
@@ -52,6 +56,7 @@ public sealed class StatsPage : ContentPage
     {
         base.OnDisappearing();
         _trends.PropertyChanged -= OnChanged;
+        _summary.PropertyChanged -= OnChanged;
         _undo.DataChanged -= OnDataChanged;
         _theme.PaletteChanged -= OnPaletteChanged;
         _language.Changed -= OnLanguageChanged;
@@ -59,7 +64,11 @@ public sealed class StatsPage : ContentPage
 
     private void OnChanged(object? sender, PropertyChangedEventArgs e) => QueueRender();
 
-    private void OnDataChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () => await _trends.RefreshAsync());
+    private void OnDataChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
+    {
+        _summary.Invalidate();
+        await _trends.RefreshAsync();
+    });
 
     // The chart is drawn with the palette's colours, not resources.
     private void OnPaletteChanged(object? sender, PaletteKind e) => QueueRender();
@@ -69,6 +78,36 @@ public sealed class StatsPage : ContentPage
         await _trends.RefreshAsync();
         QueueRender();
     });
+
+    /// <summary>"This week, in words": a button until written, then the Advisor's few sentences.</summary>
+    private Card SummaryCard()
+    {
+        var stack = new VerticalStackLayout { Spacing = 8 };
+        stack.Add(new HorizontalStackLayout
+        {
+            Spacing = 8,
+            Children =
+            {
+                new Icon(IconGeometry.Sparkle, "Accent", 18).Tap(i => i.VerticalOptions = LayoutOptions.Center),
+                Ui.Text(Strings.Get("Summary.Title"), "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center),
+            },
+        });
+        if (_summary.IsWriting)
+            stack.Add(Ui.Text(Strings.Get("Summary.Writing"), "Body", "Ink2"));
+        else if (_summary.Text.Length > 0)
+            stack.Add(Ui.Text(_summary.Text, "Body", _summary.IsError ? "AccentInk" : "Ink"));
+        else
+            stack.Add(Ui.Text(Strings.Get("Summary.Hint"), "Meta", "Ink2"));
+
+        if (!_summary.IsWriting && (_summary.Text.Length == 0 || _summary.IsError))
+        {
+            var write = new Button { Text = Strings.Get("Summary.Write"), Command = _summary.WriteCommand, HorizontalOptions = LayoutOptions.Start };
+            write.SetDynamicResource(VisualElement.StyleProperty, "GhostButton");
+            stack.Add(write);
+        }
+
+        return new Card(stack);
+    }
 
     /// <summary>Several changes in a row become one redraw.</summary>
     private void QueueRender()
@@ -215,5 +254,6 @@ public sealed class StatsPage : ContentPage
         _content.Add(new ScrollView { Orientation = ScrollOrientation.Horizontal, HorizontalScrollBarVisibility = ScrollBarVisibility.Never, Content = chips, Margin = new Thickness(-24, 0), Padding = new Thickness(24, 0) });
         _content.Add(new Card(headline));
         _content.Add(new Card(rows));
+        _content.Add(SummaryCard());
     }
 }

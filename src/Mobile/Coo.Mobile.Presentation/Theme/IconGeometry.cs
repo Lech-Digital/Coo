@@ -19,6 +19,9 @@ public static class IconGeometry
     public const string Mic = "M9 6a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0zM5 11a7 7 0 0 0 14 0M12 18v3";
     public const string Today = "M4 11l8-7 8 7v9h-5v-6h-6v6H4z";
     public const string Log = "M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01";
+    /// <summary>Two four-point stars: something the AI wrote.</summary>
+    public const string Sparkle = "M10 3l1.8 4.7L16.5 9.5l-4.7 1.8L10 16l-1.8-4.7L3.5 9.5l4.7-1.8zM18 14l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z";
+
     public const string Insights = "M5 20V11M11 20V5M17 20v-6M3 20h18";
     public const string Family = "M6 8a3 3 0 1 0 6 0a3 3 0 1 0-6 0M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 6";
     /// <summary>The Today switch to day colours (Spec 009 §3.7); the switch to night uses <see cref="Sleep"/>, the moon.</summary>

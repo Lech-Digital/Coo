@@ -501,6 +501,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.R" xml:space="preserve"><value>D</value></data>
   <data name="Side.Right" xml:space="preserve"><value>droit</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statistiques</value></data>
+  <data name="Summary.Hint" xml:space="preserve"><value>Le Conseiller compare cette semaine à la précédente : sommeil, repas, couches, et ce qui mérite d’être noté.</value></data>
+  <data name="Summary.Prompt" xml:space="preserve"><value>Écris un court résumé de la semaine du bébé pour un parent fatigué : comment cette semaine se compare à la précédente pour le sommeil, les repas et les couches, ce qui compte côté santé ou croissance, et un conseil doux et pratique. Quatre à six phrases, chaleureuses et simples, sans titres ni listes. N’utilise que le journal.</value></data>
+  <data name="Summary.Title" xml:space="preserve"><value>Cette semaine, en quelques mots</value></data>
+  <data name="Summary.Write" xml:space="preserve"><value>Écrire</value></data>
+  <data name="Summary.Writing" xml:space="preserve"><value>Rédaction…</value></data>
   <data name="Sync.NotAMember" xml:space="preserve"><value>Le partage est arrêté : cette famille n'est plus sur le serveur de Coo. Vos entrées sont en sécurité sur ce téléphone.</value></data>
   <data name="Sync.Off" xml:space="preserve"><value>Le partage est désactivé. Votre journal est uniquement sur ce téléphone.</value></data>
   <data name="Sync.Paused" xml:space="preserve"><value>Le partage est en pause. Vos entrées sont en sécurité sur ce téléphone.</value></data>

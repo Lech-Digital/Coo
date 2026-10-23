@@ -501,6 +501,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.R" xml:space="preserve"><value>R</value></data>
   <data name="Side.Right" xml:space="preserve"><value>rechts</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statistiken</value></data>
+  <data name="Summary.Hint" xml:space="preserve"><value>Der Berater vergleicht diese Woche mit der letzten: Schlaf, Mahlzeiten, Windeln und was auffällt.</value></data>
+  <data name="Summary.Prompt" xml:space="preserve"><value>Schreib eine kurze Zusammenfassung der Woche des Babys für müde Eltern: wie diese Woche im Vergleich zur letzten bei Schlaf, Mahlzeiten und Windeln war, was bei Gesundheit oder Wachstum wichtig ist, und einen sanften, praktischen Tipp. Vier bis sechs Sätze, warm und einfach, ohne Überschriften oder Listen. Nutze nur die Einträge.</value></data>
+  <data name="Summary.Title" xml:space="preserve"><value>Diese Woche in Worten</value></data>
+  <data name="Summary.Write" xml:space="preserve"><value>Schreiben</value></data>
+  <data name="Summary.Writing" xml:space="preserve"><value>Wird geschrieben…</value></data>
   <data name="Sync.NotAMember" xml:space="preserve"><value>Teilen wurde angehalten: Diese Familie ist nicht mehr auf dem Server von Coo. Deine Einträge sind auf diesem Handy sicher.</value></data>
   <data name="Sync.Off" xml:space="preserve"><value>Teilen ist aus. Deine Einträge sind nur auf diesem Handy.</value></data>
   <data name="Sync.Paused" xml:space="preserve"><value>Teilen ist pausiert. Deine Einträge sind auf diesem Handy sicher.</value></data>

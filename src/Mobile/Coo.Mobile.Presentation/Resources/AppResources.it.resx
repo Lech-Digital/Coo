@@ -501,6 +501,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.R" xml:space="preserve"><value>D</value></data>
   <data name="Side.Right" xml:space="preserve"><value>destro</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statistiche</value></data>
+  <data name="Summary.Hint" xml:space="preserve"><value>Il Consulente confronta questa settimana con la precedente: sonno, poppate, pannolini e ciò che merita attenzione.</value></data>
+  <data name="Summary.Prompt" xml:space="preserve"><value>Scrivi un breve riassunto della settimana del bambino per un genitore stanco: come questa settimana si confronta con la precedente per sonno, poppate e pannolini, cosa conta per salute o crescita, e un consiglio pratico e gentile. Da quattro a sei frasi, calde e semplici, senza titoli né elenchi. Usa solo il registro.</value></data>
+  <data name="Summary.Title" xml:space="preserve"><value>Questa settimana, in parole</value></data>
+  <data name="Summary.Write" xml:space="preserve"><value>Scrivi</value></data>
+  <data name="Summary.Writing" xml:space="preserve"><value>Sto scrivendo…</value></data>
   <data name="Sync.NotAMember" xml:space="preserve"><value>La condivisione si è fermata: questa famiglia non è più sul server di Coo. Le tue voci sono al sicuro su questo telefono.</value></data>
   <data name="Sync.Off" xml:space="preserve"><value>La condivisione è disattivata. Il tuo registro è solo su questo telefono.</value></data>
   <data name="Sync.Paused" xml:space="preserve"><value>La condivisione è in pausa. Le tue voci sono al sicuro su questo telefono.</value></data>
