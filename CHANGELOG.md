@@ -11,6 +11,16 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 - Each release gets a section here, newest first, written for parents rather than developers where it ends up in
   Play's "What's new".
 
+## 1.2.0 (code 19) — 2026-10-23
+
+### New
+- **Yearly and lifetime Premium**: alongside monthly, a yearly plan (with how much it saves, and a 7-day free trial)
+  and a one-time lifetime purchase. Whichever you choose covers your whole family.
+- **Reminders** (Settings → Reminders): a nudge after 2–4 hours since the last feeding started (quiet at night unless
+  you want it), when a feeding or pumping timer has been running for 45 minutes, and shortly before the nap window
+  ends. Each parent chooses their own, and they work offline.
+- **Home-screen widget**: the last feeding, sleep and diaper with their times, and a Tell Coo button.
+
 ## 1.1.0 (code 18) — 2026-10-23
 
 ### New
