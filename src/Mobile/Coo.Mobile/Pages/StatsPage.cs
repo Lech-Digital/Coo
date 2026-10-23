@@ -140,6 +140,24 @@ public sealed class StatsPage : ContentPage
         }
 
         stack.Add(periods);
+
+        // The report's language: the app's by default, or the doctor's.
+        var languages = Coo.Mobile.Presentation.Reports.ReportViewModel.Languages;
+        var picker = new Picker { Title = Strings.Get("Report.Language"), FontSize = 15, FontFamily = "FigtreeRegular" };
+        foreach (var language in languages)
+            picker.Items.Add(Strings.NativeName(language));
+        picker.SelectedIndex = Math.Max(0, languages.ToList().IndexOf(_report.Language));
+        picker.SetDynamicResource(Picker.TextColorProperty, "Ink");
+        picker.SelectedIndexChanged += (_, _) =>
+        {
+            if (picker.SelectedIndex >= 0)
+                _report.SetLanguageCommand.Execute(languages[picker.SelectedIndex]);
+        };
+        var languageRow = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 12 };
+        languageRow.Add(Ui.Text(Strings.Get("Report.Language"), "Body", "Ink2").Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
+        languageRow.Add(Ui.Rounded(picker, "Surface", 12, new Thickness(12, 0), "Line"), 1);
+        stack.Add(languageRow);
+
         var make = new Button
         {
             Text = Strings.Get(_report.IsMaking ? "Report.Making" : "Report.Make"),

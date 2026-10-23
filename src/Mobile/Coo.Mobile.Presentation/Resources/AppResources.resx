@@ -303,6 +303,8 @@
   <data name="Growth.WhichChartHint" xml:space="preserve"><value>Girls and boys grow a little differently. This stays on this phone.</value></data>
   <data name="Health.GrowthSubtitle" xml:space="preserve"><value>Weight, length, head</value></data>
   <data name="Health.MedicineSubtitle" xml:space="preserve"><value>Vitamin D, fever medicine…</value></data>
+  <data name="Health.Photo" xml:space="preserve"><value>From a photo</value></data>
+  <data name="Health.PhotoSubtitle" xml:space="preserve"><value>A growth card or vaccination booklet</value></data>
   <data name="Health.Short" xml:space="preserve"><value>Health</value></data>
   <data name="Health.TemperatureSubtitle" xml:space="preserve"><value>A reading, in °C or °F</value></data>
   <data name="Health.Title" xml:space="preserve"><value>Health &amp; growth</value></data>
@@ -363,6 +365,11 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Night.LastDiaper" xml:space="preserve"><value>Last diaper</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Last feed</value></data>
   <data name="Night.Title" xml:space="preserve"><value>{0} · Night mode</value></data>
+  <data name="Photo.Choose" xml:space="preserve"><value>Choose from gallery</value></data>
+  <data name="Photo.Explain" xml:space="preserve"><value>Take a photo of a growth card, clinic leaflet or vaccination booklet. Coo reads the weights, lengths, head sizes and vaccinations with their dates, and you check each one before it is saved.</value></data>
+  <data name="Photo.Privacy" xml:space="preserve"><value>The photo is sent to our server and Google’s Gemini AI to be read, then deleted; it is never stored. Names on it can’t be hidden first, so cover them if you like.</value></data>
+  <data name="Photo.Take" xml:space="preserve"><value>Take a photo</value></data>
+  <data name="Photo.Title" xml:space="preserve"><value>Read a health record</value></data>
   <data name="Premium.Active" xml:space="preserve"><value>Coo Premium is active for your whole family. Thank you for supporting Coo!</value></data>
   <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Up to 100 Advisor questions a day (3 without Premium), with answers that know your baby’s log</value></data>
   <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>An illustrated avatar of your baby, drawn from a photo</value></data>
@@ -410,6 +417,8 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Quick.NothingFound" xml:space="preserve"><value>Coo didn’t find anything to log in that. Say what happened, and when.</value></data>
   <data name="Quick.Now" xml:space="preserve"><value>now</value></data>
   <data name="Quick.PendingTitle" xml:space="preserve"><value>Waiting to be understood</value></data>
+  <data name="Quick.PhotoNothing" xml:space="preserve"><value>Coo found no measurements or vaccinations with a date on that photo. Try a sharper photo of the page, or type them.</value></data>
+  <data name="Quick.PhotoUnavailable" xml:space="preserve"><value>Coo can’t read photos right now. Try again in a moment.</value></data>
   <data name="Quick.Privacy" xml:space="preserve"><value>Your baby’s and family’s names are hidden from the AI. Other names you say are sent as spoken.</value></data>
   <data name="Quick.ReviewNote" xml:space="preserve"><value>Review</value></data>
   <data name="Quick.Save" xml:space="preserve"><value>Save</value></data>
@@ -417,6 +426,8 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Quick.Saved.other" xml:space="preserve"><value>{0} entries saved</value></data>
   <data name="Quick.Send" xml:space="preserve"><value>Send</value></data>
   <data name="Quick.SomeFailed" xml:space="preserve"><value>Some of these could not be saved. Check the Log.</value></data>
+  <data name="Quick.SpeakIn" xml:space="preserve"><value>Speak in</value></data>
+  <data name="Quick.SpeechHints" xml:space="preserve"><value>left, right, left side, right side, breast, bottle, formula, breast milk, ml, ounces, diaper, nappy, wet, dirty, poo, pee, nap, asleep, woke up, pump, pumping, vitamin D, temperature, weighs, kilos, grams</value></data>
   <data name="Quick.Stop" xml:space="preserve"><value>Stop</value></data>
   <data name="Quick.Thinking" xml:space="preserve"><value>Understanding…</value></data>
   <data name="Quick.Title" xml:space="preserve"><value>Tell Coo</value></data>
@@ -493,6 +504,7 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Report.Growth" xml:space="preserve"><value>Growth</value></data>
   <data name="Report.Health" xml:space="preserve"><value>Health</value></data>
   <data name="Report.Hint" xml:space="preserve"><value>A PDF with daily averages, each day, growth and health, to share or print.</value></data>
+  <data name="Report.Language" xml:space="preserve"><value>Language</value></data>
   <data name="Report.Make" xml:space="preserve"><value>Create PDF</value></data>
   <data name="Report.Making" xml:space="preserve"><value>Creating…</value></data>
   <data name="Report.NoBirth" xml:space="preserve"><value>Add the birth date first: the report counts from it.</value></data>

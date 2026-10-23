@@ -11,6 +11,18 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 - Each release gets a section here, newest first, written for parents rather than developers where it ends up in
   Play's "What's new".
 
+## 1.5.0 (code 22) — 2026-10-24
+
+### New
+- **Health from a photo**: take or choose a photo of a growth card, clinic leaflet or vaccination booklet (Health →
+  From a photo). Coo reads the weights, lengths, head sizes and vaccinations with their dates or ages, and you check
+  each one before it is saved.
+- **The doctor's report in another language**: choose the PDF's language on Stats, whatever the app's language is.
+
+### Changed
+- **Tell Coo hears you better**: choose the language you speak to it ("Speak in"), even when the app is in another,
+  and it listens for your baby's name and the care words (left, bottle, wet…).
+
 ## 1.4.0 (code 21) — 2026-10-24
 
 ### New

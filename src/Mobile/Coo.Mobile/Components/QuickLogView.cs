@@ -80,7 +80,7 @@ public sealed class QuickLogView : ContentView
             return;
         var stays = _inputShown
                     && (_model.Stage is QuickLogStage.Input or QuickLogStage.Listening)
-                    && (e.PropertyName is nameof(QuickLogViewModel.Stage) or nameof(QuickLogViewModel.Message));
+                    && (e.PropertyName is nameof(QuickLogViewModel.Stage) or nameof(QuickLogViewModel.Message) or nameof(QuickLogViewModel.SpeechLanguage));
         if (stays)
         {
             Dispatcher.Dispatch(UpdateInput);
@@ -128,6 +128,7 @@ public sealed class QuickLogView : ContentView
         {
             _body.Add(_mic);
             _body.Add(_listeningLabel);
+            _body.Add(SpeakIn());
         }
 
         _body.Add(_inputRow);
@@ -191,6 +192,29 @@ public sealed class QuickLogView : ContentView
         buttons.Add(cancel, 0);
         buttons.Add(save, 1);
         _body.Add(buttons);
+    }
+
+    /// <summary>
+    /// "Speak in": Android hears the language it is told to, so a parent who talks Polish to an English app chooses Polish
+    /// here once; the phone remembers it.
+    /// </summary>
+    private Grid SpeakIn()
+    {
+        var languages = QuickLogViewModel.SpeechLanguages;
+        var picker = new Picker { FontSize = 15, FontFamily = "FigtreeRegular", Title = Strings.Get("Quick.SpeakIn") };
+        foreach (var language in languages)
+            picker.Items.Add(Strings.NativeName(language));
+        picker.SelectedIndex = Math.Max(0, languages.ToList().IndexOf(_model.SpeechLanguage));
+        picker.SetDynamicResource(Picker.TextColorProperty, "Ink");
+        picker.SelectedIndexChanged += (_, _) =>
+        {
+            if (picker.SelectedIndex >= 0)
+                _model.SetSpeechLanguageCommand.Execute(languages[picker.SelectedIndex]);
+        };
+        var row = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Auto)], ColumnSpacing = 10, HorizontalOptions = LayoutOptions.Center };
+        row.Add(Ui.Text(Strings.Get("Quick.SpeakIn"), "Meta", "Ink2").Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
+        row.Add(Ui.Rounded(picker, "Surface", 12, new Thickness(10, 0), "Line"), 1);
+        return row;
     }
 
     private void UpdateInput()

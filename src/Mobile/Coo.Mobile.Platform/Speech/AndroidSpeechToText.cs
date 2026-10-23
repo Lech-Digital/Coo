@@ -20,7 +20,7 @@ internal sealed class AndroidSpeechToText : ISpeechToText
 
     public bool IsAvailable => SpeechRecognizer.IsRecognitionAvailable(Context);
 
-    public async Task<string?> ListenAsync(string language, Action<string>? onHeard, CancellationToken cancellationToken)
+    public async Task<string?> ListenAsync(string language, Action<string>? onHeard, CancellationToken cancellationToken, IReadOnlyList<string>? hints = null)
     {
         if (!IsAvailable)
             return null;
@@ -33,7 +33,7 @@ internal sealed class AndroidSpeechToText : ISpeechToText
             if (status != PermissionStatus.Granted || cancellationToken.IsCancellationRequested)
                 return null;
 
-            var session = new ListeningSession(language, onHeard);
+            var session = new ListeningSession(language, onHeard, hints ?? []);
             _current = session;
             using var registration = cancellationToken.Register(session.Cancel);
             return await session.RunAsync();
@@ -55,7 +55,7 @@ internal sealed class AndroidSpeechToText : ISpeechToText
     /// does not start talking at once. A missing offline language pack fails at once on some phones: then Android's online
     /// recogniser is used. Everything runs on the main thread, where Android calls the listener.
     /// </summary>
-    private sealed class ListeningSession(string language, Action<string>? onHeard) : Java.Lang.Object, IRecognitionListener
+    private sealed class ListeningSession(string language, Action<string>? onHeard, IReadOnlyList<string> hints) : Java.Lang.Object, IRecognitionListener
     {
         private const long WaitForSpeech = 20_000;
         private const long LongestSession = 90_000;
@@ -128,6 +128,9 @@ internal sealed class AndroidSpeechToText : ISpeechToText
             intent.PutExtra(RecognizerIntent.ExtraPreferOffline, _offline);
             intent.PutExtra(RecognizerIntent.ExtraSpeechInputCompleteSilenceLengthMillis, 2500);
             intent.PutExtra(RecognizerIntent.ExtraSpeechInputPossiblyCompleteSilenceLengthMillis, 2000);
+            // Android 13+: the baby's name and the care words, so "Lena, left side" is not heard as "Lana lift side".
+            if (OperatingSystem.IsAndroidVersionAtLeast(33) && hints.Count > 0)
+                intent.PutStringArrayListExtra(RecognizerIntent.ExtraBiasingStrings, [.. hints]);
             try
             {
                 _recognizer.StartListening(intent);

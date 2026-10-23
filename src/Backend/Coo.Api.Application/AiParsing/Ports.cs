@@ -12,6 +12,9 @@ public sealed record ParsePrompt(string Text, string Context);
 /// <param name="Type">BreastStart, BreastSwitch, BreastStop, BreastFeeding, BottleFeeding, Diaper, SleepStart, SleepEnd, Sleep,
 /// PumpStart, PumpStop, Pumping, Medicine, Temperature, Growth, Vaccine or Visit.</param>
 /// <param name="Unit">"ml" or "oz" for <see cref="Amount"/>; null when not said.</param>
+/// <param name="Date">From a photo: the date written for this entry, which replaces <see cref="Time"/>'s day.</param>
+/// <param name="AgeDays">From a photo: the baby's age written instead of a date ("6 weeks" is 42).</param>
+/// <param name="AgeMonths">From a photo: an age in months ("4 months"), counted in calendar months from the birth.</param>
 public sealed record ParsedEntry(
     string Type,
     string? Side,
@@ -32,15 +35,25 @@ public sealed record ParsedEntry(
     string? WeightUnit = null,
     decimal? Length = null,
     decimal? Head = null,
-    string? LengthUnit = null);
+    string? LengthUnit = null,
+    DateOnly? Date = null,
+    int? AgeDays = null,
+    int? AgeMonths = null);
 
 public sealed record ParsedText(IReadOnlyList<ParsedEntry> Entries, IReadOnlyList<string> Unparsed, string PromptVersion);
+
+/// <summary>A photo of a health record and the facts that date it: today, the birth date, the app's language.</summary>
+public sealed record ImagePrompt(byte[] Image, string MimeType, string Context);
 
 /// <summary>The model behind AI logging (ADR 0005 §9): Gemini in production, a fake in development.</summary>
 public interface ICareLogTextParser
 {
     /// <returns>Null when the model could not be reached or answered with nothing usable.</returns>
     Task<ParsedText?> ParseAsync(ParsePrompt prompt, CancellationToken cancellationToken);
+
+    /// <summary>Measurements and vaccinations from a photo, each with its <see cref="ParsedEntry.Date"/> or age.</summary>
+    /// <returns>Null when the model could not be reached or answered with nothing usable.</returns>
+    Task<ParsedText?> ReadImageAsync(ImagePrompt prompt, CancellationToken cancellationToken);
 }
 
 /// <summary>The names that must not reach the model (ADR 0005 §4a), and the daily counts that bound its cost (§7).</summary>

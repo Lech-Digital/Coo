@@ -15,6 +15,8 @@ public static class Strings
     private static readonly ResourceManager Resources =
         new("Coo.Mobile.Presentation.Resources.AppResources", typeof(Strings).Assembly);
 
+    private static readonly AsyncLocal<CultureInfo?> Override = new();
+
     private static LanguagePreference _preference = LanguagePreference.System;
     private static CultureInfo? _system;
 
@@ -22,7 +24,31 @@ public static class Strings
     /// The language in effect (ADR 0006 §1, Spec 009 §3.5): the stored choice, else the OS language if Coo supports
     /// it, else English. Background code asks this rather than assuming the app has set a culture.
     /// </summary>
-    public static CultureInfo Culture => LanguageRule.Resolve(_preference, _system ?? CultureInfo.CurrentUICulture);
+    public static CultureInfo Culture => Override.Value ?? LanguageRule.Resolve(_preference, _system ?? CultureInfo.CurrentUICulture);
+
+    /// <summary>
+    /// Strings in another of the <see cref="Supported"/> languages until disposed, on this flow only: a report for a
+    /// doctor who reads another language, while the app stays in its own. An unsupported code changes nothing.
+    /// </summary>
+    public static IDisposable InLanguage(string language)
+    {
+        var previous = Override.Value;
+        if (Supported.Contains(language))
+            Override.Value = CultureInfo.GetCultureInfo(language);
+        return new Restore(previous);
+    }
+
+    /// <summary>The language's own name, capitalised: "Deutsch", "Polski".</summary>
+    public static string NativeName(string language)
+    {
+        var name = CultureInfo.GetCultureInfo(language).NativeName;
+        return name.Length == 0 ? language : char.ToUpper(name[0], CultureInfo.GetCultureInfo(language)) + name[1..];
+    }
+
+    private sealed class Restore(CultureInfo? previous) : IDisposable
+    {
+        public void Dispose() => Override.Value = previous;
+    }
 
     /// <summary>
     /// Set by <see cref="LanguageController"/> only. <paramref name="system"/> is Android's language as captured before

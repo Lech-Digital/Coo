@@ -303,6 +303,8 @@
   <data name="Growth.WhichChartHint" xml:space="preserve"><value>Meisjes en jongens groeien een beetje anders. Dit blijft op deze telefoon.</value></data>
   <data name="Health.GrowthSubtitle" xml:space="preserve"><value>Gewicht, lengte, hoofd</value></data>
   <data name="Health.MedicineSubtitle" xml:space="preserve"><value>Vitamine D, koortsremmer…</value></data>
+  <data name="Health.Photo" xml:space="preserve"><value>Van een foto</value></data>
+  <data name="Health.PhotoSubtitle" xml:space="preserve"><value>Een groeikaart of vaccinatieboekje</value></data>
   <data name="Health.Short" xml:space="preserve"><value>Gezondheid</value></data>
   <data name="Health.TemperatureSubtitle" xml:space="preserve"><value>Een meting, in °C of °F</value></data>
   <data name="Health.Title" xml:space="preserve"><value>Gezondheid en groei</value></data>
@@ -363,6 +365,11 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Night.LastDiaper" xml:space="preserve"><value>Laatste luier</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Laatste voeding</value></data>
   <data name="Night.Title" xml:space="preserve"><value>{0} · Nachtmodus</value></data>
+  <data name="Photo.Choose" xml:space="preserve"><value>Kiezen uit galerij</value></data>
+  <data name="Photo.Explain" xml:space="preserve"><value>Maak een foto van een groeikaart, een folder van het consultatiebureau of een vaccinatieboekje. Coo leest gewichten, lengtes, hoofdomtrek en vaccinaties met hun datum, en je controleert elk voor het wordt opgeslagen.</value></data>
+  <data name="Photo.Privacy" xml:space="preserve"><value>De foto gaat naar onze server en Googles Gemini-AI om gelezen te worden, en wordt daarna verwijderd; hij wordt nooit bewaard. Namen erop kunnen niet eerst verborgen worden, dus dek ze af als je wilt.</value></data>
+  <data name="Photo.Take" xml:space="preserve"><value>Foto maken</value></data>
+  <data name="Photo.Title" xml:space="preserve"><value>Gezondheidsgegevens lezen</value></data>
   <data name="Premium.Active" xml:space="preserve"><value>Coo Premium is actief voor je hele gezin. Bedankt dat je Coo steunt!</value></data>
   <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Tot 100 vragen per dag aan de Adviseur (3 zonder Premium), met antwoorden die je logboek kennen</value></data>
   <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Een getekende avatar van je baby, gemaakt van een foto</value></data>
@@ -410,6 +417,8 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Quick.NothingFound" xml:space="preserve"><value>Coo vond daar niets in om te loggen. Zeg wat er gebeurde, en wanneer.</value></data>
   <data name="Quick.Now" xml:space="preserve"><value>nu</value></data>
   <data name="Quick.PendingTitle" xml:space="preserve"><value>Wacht op begrip</value></data>
+  <data name="Quick.PhotoNothing" xml:space="preserve"><value>Coo vond op die foto geen metingen of vaccinaties met een datum. Probeer een scherpere foto van de pagina, of typ ze.</value></data>
+  <data name="Quick.PhotoUnavailable" xml:space="preserve"><value>Coo kan nu geen foto’s lezen. Probeer het zo opnieuw.</value></data>
   <data name="Quick.Privacy" xml:space="preserve"><value>De namen van je baby en gezin worden verborgen voor de AI. Andere namen worden verstuurd zoals je ze zegt.</value></data>
   <data name="Quick.ReviewNote" xml:space="preserve"><value>Bekijken</value></data>
   <data name="Quick.Save" xml:space="preserve"><value>Opslaan</value></data>
@@ -417,6 +426,8 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Quick.Saved.other" xml:space="preserve"><value>{0} items opgeslagen</value></data>
   <data name="Quick.Send" xml:space="preserve"><value>Versturen</value></data>
   <data name="Quick.SomeFailed" xml:space="preserve"><value>Een deel kon niet worden opgeslagen. Kijk in het logboek.</value></data>
+  <data name="Quick.SpeakIn" xml:space="preserve"><value>Spreek in</value></data>
+  <data name="Quick.SpeechHints" xml:space="preserve"><value>links, rechts, linkerkant, rechterkant, borst, fles, flesvoeding, moedermelk, ml, luier, nat, poep, plas, dutje, in slaap, wakker, gekolfd, vitamine D, temperatuur, weegt, kilo, gram</value></data>
   <data name="Quick.Stop" xml:space="preserve"><value>Stoppen</value></data>
   <data name="Quick.Thinking" xml:space="preserve"><value>Even begrijpen…</value></data>
   <data name="Quick.Title" xml:space="preserve"><value>Zeg het tegen Coo</value></data>
@@ -493,6 +504,7 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Report.Growth" xml:space="preserve"><value>Groei</value></data>
   <data name="Report.Health" xml:space="preserve"><value>Gezondheid</value></data>
   <data name="Report.Hint" xml:space="preserve"><value>Een pdf met gemiddelden, elke dag, groei en gezondheid, om te delen of te printen.</value></data>
+  <data name="Report.Language" xml:space="preserve"><value>Taal</value></data>
   <data name="Report.Make" xml:space="preserve"><value>Pdf maken</value></data>
   <data name="Report.Making" xml:space="preserve"><value>Bezig…</value></data>
   <data name="Report.NoBirth" xml:space="preserve"><value>Vul eerst de geboortedatum in: het verslag rekent ermee.</value></data>

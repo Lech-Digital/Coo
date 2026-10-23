@@ -19,6 +19,9 @@ public enum ParseRefusal
     None,
     NotAMember,
     TooLong,
+
+    /// <summary>Not a JPEG or PNG, or not one at all.</summary>
+    NotAnImage,
 }
 
 public sealed record ParseOutcome(ParseRefusal Refusal, AiParseResponse? Response);
@@ -46,12 +49,10 @@ public sealed class ParseCareLogText(
         if (string.IsNullOrWhiteSpace(request.Text) || request.Text.Length > AiParsingLimits.MaxTextLength)
             return new ParseOutcome(ParseRefusal.TooLong, null);
 
-        var zone = TimeZoneInfo.TryFindSystemTimeZoneById(request.TimeZoneId, out var found) ? found : TimeZoneInfo.Utc;
+        var zone = Zone(request.TimeZoneId);
         var day = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(time.GetUtcNow(), zone).DateTime);
-        var isPremium = await billing.IsHouseholdPremiumAsync(household, cancellationToken);
-        var limit = isPremium ? limits.PremiumPerDay : limits.FreePerDay;
-        if (await store.UsedAsync(household, day, cancellationToken) >= limit)
-            return Answer([], [], "", isPremium ? "ai.daily-limit" : "ai.free-limit", limit);
+        if (await RefusedAsync(household, day, cancellationToken) is { } refused)
+            return refused;
 
         var (babies, caregivers) = await store.NamesAsync(household, cancellationToken);
         var names = babies.Select(b => new KnownName(b, "Baby A"))
@@ -76,7 +77,7 @@ public sealed class ParseCareLogText(
         var understood = request.Actions ?? AiActions.Original;
         foreach (var entry in parsed.Entries)
         {
-            var proposal = Propose(entry, request, zone, names);
+            var proposal = Propose(entry, request.CapturedAt, request.Context, zone, names, null);
             // An action this phone cannot show goes back as words, never as something it would drop or misread.
             if (proposal is null || !understood.Contains(proposal.Action))
                 unparsed.Add(TextPseudonymiser.Restore(entry.SourceText, names));
@@ -85,6 +86,89 @@ public sealed class ParseCareLogText(
         }
 
         return Answer(proposals, unparsed, parsed.PromptVersion, null, null);
+    }
+
+    /// <summary>
+    /// The actions a photo can give: what health records carry. A photo of anything else gives nothing, never a feed.
+    /// </summary>
+    public static IReadOnlyList<string> ImageActions { get; } = [AiActions.GrowthLog, AiActions.VaccineLog];
+
+    /// <summary>
+    /// A photo of a health record to proposals: the measurements and vaccinations on it, each dated from the date or age
+    /// written next to it. Counted like a parse; the photo is sent to the model to read and kept nowhere. Names on it
+    /// cannot be replaced first, which the phone says before the photo is taken.
+    /// </summary>
+    public async Task<ParseOutcome> ExecuteImageAsync(UserId user, AiImageRequest request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var household = new HouseholdId(request.HouseholdId);
+        if ((await access.CheckAsync(user, household, cancellationToken)).Denial != AccessDenial.None)
+            return new ParseOutcome(ParseRefusal.NotAMember, null);
+        if (Decode(request) is not { } image)
+            return new ParseOutcome(ParseRefusal.NotAnImage, null);
+
+        var zone = Zone(request.TimeZoneId);
+        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(time.GetUtcNow(), zone).DateTime);
+        if (await RefusedAsync(household, today, cancellationToken) is { } refused)
+            return refused;
+
+        var context = new StringBuilder();
+        context.AppendLine(CultureInfo.InvariantCulture, $"Today is {today:yyyy-MM-dd}.");
+        if (request.BirthDate is { } born)
+            context.AppendLine(CultureInfo.InvariantCulture, $"The baby was born on {born:yyyy-MM-dd}.");
+        if (!string.IsNullOrWhiteSpace(request.Language))
+            context.AppendLine(CultureInfo.InvariantCulture, $"The app's language is \"{request.Language}\"; the record may be in any language.");
+        var parsed = await parser.ReadImageAsync(new ImagePrompt(image, request.MimeType, context.ToString()), cancellationToken);
+        if (parsed is null)
+            return Answer([], [], "", "ai.unavailable", null);
+        await store.CountAsync(household, today, cancellationToken);
+
+        var noContext = new AiParseContext([], null, "ml");
+        var proposals = new List<AiProposal>();
+        var unparsed = parsed.Unparsed.ToList();
+        foreach (var entry in parsed.Entries)
+        {
+            var proposal = Propose(entry, request.CapturedAt, noContext, zone, [], request.BirthDate ?? DateOnly.MinValue);
+            if (proposal is null || !ImageActions.Contains(proposal.Action))
+                unparsed.Add(entry.SourceText);
+            else
+                proposals.Add(proposal);
+        }
+
+        return Answer([.. proposals.OrderBy(p => p.At)], unparsed, parsed.PromptVersion, null, null);
+    }
+
+    // A JPEG or PNG by its first bytes, within the size limit; anything else is refused before the model sees it.
+    private static byte[]? Decode(AiImageRequest request)
+    {
+        if (request.MimeType is not ("image/jpeg" or "image/png") || string.IsNullOrEmpty(request.ImageBase64)
+            || request.ImageBase64.Length > (AiParsingLimits.MaxImageBytes / 3 * 4) + 4)
+            return null;
+        byte[] bytes;
+        try
+        {
+            bytes = Convert.FromBase64String(request.ImageBase64);
+        }
+        catch (FormatException)
+        {
+            return null;
+        }
+
+        var jpeg = bytes is [0xFF, 0xD8, 0xFF, ..];
+        var png = bytes is [0x89, 0x50, 0x4E, 0x47, ..];
+        return (jpeg && request.MimeType == "image/jpeg") || (png && request.MimeType == "image/png") ? bytes : null;
+    }
+
+    private static TimeZoneInfo Zone(string id) => TimeZoneInfo.TryFindSystemTimeZoneById(id, out var found) ? found : TimeZoneInfo.Utc;
+
+    // The day's allowance (ADR 0005 §7), shared by words and photos: null while some is left.
+    private async Task<ParseOutcome?> RefusedAsync(HouseholdId household, DateOnly day, CancellationToken cancellationToken)
+    {
+        var isPremium = await billing.IsHouseholdPremiumAsync(household, cancellationToken);
+        var limit = isPremium ? limits.PremiumPerDay : limits.FreePerDay;
+        return await store.UsedAsync(household, day, cancellationToken) >= limit
+            ? Answer([], [], "", isPremium ? "ai.daily-limit" : "ai.free-limit", limit)
+            : null;
     }
 
     private static ParseOutcome Answer(IReadOnlyList<AiProposal> proposals, IReadOnlyList<string> unparsed, string version, string? error, int? limit) =>
@@ -118,7 +202,9 @@ public sealed class ParseCareLogText(
         return context.ToString();
     }
 
-    private static AiProposal? Propose(ParsedEntry entry, AiParseRequest request, TimeZoneInfo zone, IReadOnlyList<KnownName> names)
+    /// <param name="born">From a photo: the birth date (MinValue when unknown); entries are dated, not timed. Null for words.</param>
+    private static AiProposal? Propose(
+        ParsedEntry entry, DateTimeOffset capturedAt, AiParseContext context, TimeZoneInfo zone, IReadOnlyList<KnownName> names, DateOnly? born)
     {
         var action = entry.Type switch
         {
@@ -144,34 +230,46 @@ public sealed class ParseCareLogText(
         if (action is null)
             return null;
 
-        var at = TimeExpressionResolver.Resolve(entry.Time, request.CapturedAt, zone);
+        var warnings = new List<string>();
+        Result<ResolvedTime> at;
+        if (born is { } birth)
+        {
+            if (Dated(entry, birth, zone) is not { } dated)
+                return null;
+            at = Result<ResolvedTime>.Ok(new ResolvedTime(dated, null));
+        }
+        else
+        {
+            at = TimeExpressionResolver.Resolve(entry.Time, capturedAt, zone);
+        }
+
         if (at.IsFailure)
             return null;
         DateTimeOffset? endAt = null;
-        if (entry.EndTime is { } endExpression and not UnspecifiedExpression)
+        if (born is null && entry.EndTime is { } endExpression and not UnspecifiedExpression)
         {
-            var end = TimeExpressionResolver.Resolve(endExpression, request.CapturedAt, zone);
+            var end = TimeExpressionResolver.Resolve(endExpression, capturedAt, zone);
             if (end.IsFailure)
                 return null;
             endAt = end.Value.At;
         }
 
-        var warnings = new List<string>();
         // "Now" is what a start or a stop means when no time is said; elsewhere an unstated time is worth a look.
         var isLiveAction = action is AiActions.BreastStart or AiActions.BreastSwitch or AiActions.BreastStop
             or AiActions.SleepStart or AiActions.SleepEnd or AiActions.PumpStart or AiActions.PumpStop;
         if (at.Value.Warning is not null && !isLiveAction)
             warnings.Add(AiWarnings.TimeNotStated);
-        if (at.Value.At > request.CapturedAt + FutureGrace || endAt > request.CapturedAt + FutureGrace)
+        if (at.Value.At > capturedAt + FutureGrace || endAt > capturedAt + FutureGrace)
             warnings.Add(AiWarnings.InTheFuture);
-        if (request.CapturedAt - at.Value.At > LongAgoLimit)
+        // A record on paper is about the past: only words are expected to be recent.
+        if (born is null && capturedAt - at.Value.At > LongAgoLimit)
             warnings.Add(AiWarnings.LongAgo);
         if (endAt is { } finish && finish - at.Value.At > LongSleepLimit)
             warnings.Add(AiWarnings.LongSleep);
         if (endAt is { } before && before < at.Value.At)
             return null;
 
-        var running = request.Context.Running;
+        var running = context.Running;
         var nothingRunning = action switch
         {
             AiActions.BreastSwitch or AiActions.BreastStop => !running.Any(r => r.StartsWith("breast", StringComparison.Ordinal)),
@@ -183,7 +281,7 @@ public sealed class ParseCareLogText(
             warnings.Add(AiWarnings.NothingRunning);
 
         decimal? millilitres = entry.Amount is { } amount && amount > 0
-            ? Math.Round((entry.Unit ?? request.Context.VolumeUnit) == "oz" ? amount * Volume.MillilitresPerUsFluidOunce : amount, 0)
+            ? Math.Round((entry.Unit ?? context.VolumeUnit) == "oz" ? amount * Volume.MillilitresPerUsFluidOunce : amount, 0)
             : null;
         if (action == AiActions.BottleLog)
         {
@@ -251,5 +349,21 @@ public sealed class ParseCareLogText(
             grams,
             lengthMm,
             headMm);
+    }
+
+    /// <summary>
+    /// A photo's entry as an instant: its written date, or the birth date plus its age, at noon local time (a record gives
+    /// the day, rarely the hour). Before the birth or with nothing to date it by: null, never a guess.
+    /// </summary>
+    private static DateTimeOffset? Dated(ParsedEntry entry, DateOnly born, TimeZoneInfo zone)
+    {
+        var known = born != DateOnly.MinValue;
+        DateOnly? date = entry.Date
+            ?? (known && entry.AgeDays is >= 0 and <= 1100 ? born.AddDays(entry.AgeDays.Value) : (DateOnly?)null)
+            ?? (known && entry.AgeMonths is >= 0 and <= 36 ? born.AddMonths(entry.AgeMonths.Value) : (DateOnly?)null);
+        if (date is not { } day || (known && day < born))
+            return null;
+        var local = day.ToDateTime(new TimeOnly(12, 0));
+        return new DateTimeOffset(local, zone.GetUtcOffset(local));
     }
 }

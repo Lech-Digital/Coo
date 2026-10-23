@@ -303,6 +303,8 @@
   <data name="Growth.WhichChartHint" xml:space="preserve"><value>Bambine e bambini crescono in modo un po’ diverso. La scelta resta su questo telefono.</value></data>
   <data name="Health.GrowthSubtitle" xml:space="preserve"><value>Peso, lunghezza, testa</value></data>
   <data name="Health.MedicineSubtitle" xml:space="preserve"><value>Vitamina D, antipiretico…</value></data>
+  <data name="Health.Photo" xml:space="preserve"><value>Da una foto</value></data>
+  <data name="Health.PhotoSubtitle" xml:space="preserve"><value>Un libretto della crescita o delle vaccinazioni</value></data>
   <data name="Health.Short" xml:space="preserve"><value>Salute</value></data>
   <data name="Health.TemperatureSubtitle" xml:space="preserve"><value>Una misurazione, in °C o °F</value></data>
   <data name="Health.Title" xml:space="preserve"><value>Salute e crescita</value></data>
@@ -363,6 +365,11 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Night.LastDiaper" xml:space="preserve"><value>Ultimo pannolino</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Ultima poppata</value></data>
   <data name="Night.Title" xml:space="preserve"><value>{0} · Modalità notte</value></data>
+  <data name="Photo.Choose" xml:space="preserve"><value>Scegli dalla galleria</value></data>
+  <data name="Photo.Explain" xml:space="preserve"><value>Fotografa un libretto della crescita, un foglio della clinica o un libretto delle vaccinazioni. Coo legge pesi, lunghezze, circonferenze craniche e vaccini con le date, e controlli ognuno prima di salvarlo.</value></data>
+  <data name="Photo.Privacy" xml:space="preserve"><value>La foto viene inviata al nostro server e all’IA Gemini di Google per essere letta, poi eliminata; non viene mai conservata. I nomi presenti non possono essere nascosti prima, quindi coprili se vuoi.</value></data>
+  <data name="Photo.Take" xml:space="preserve"><value>Scatta una foto</value></data>
+  <data name="Photo.Title" xml:space="preserve"><value>Leggi un libretto sanitario</value></data>
   <data name="Premium.Active" xml:space="preserve"><value>Coo Premium è attivo per tutta la famiglia. Grazie per sostenere Coo!</value></data>
   <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Fino a 100 domande al Consulente al giorno (3 senza Premium), con risposte che conoscono il tuo registro</value></data>
   <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Un avatar illustrato del tuo bambino, disegnato da una foto</value></data>
@@ -410,6 +417,8 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Quick.NothingFound" xml:space="preserve"><value>Coo non ha trovato nulla da registrare. Di’ cosa è successo e quando.</value></data>
   <data name="Quick.Now" xml:space="preserve"><value>ora</value></data>
   <data name="Quick.PendingTitle" xml:space="preserve"><value>In attesa</value></data>
+  <data name="Quick.PhotoNothing" xml:space="preserve"><value>Coo non ha trovato misure o vaccini con data nella foto. Prova una foto più nitida della pagina, o scrivili.</value></data>
+  <data name="Quick.PhotoUnavailable" xml:space="preserve"><value>Coo non riesce a leggere foto ora. Riprova tra poco.</value></data>
   <data name="Quick.Privacy" xml:space="preserve"><value>I nomi del tuo bambino e della famiglia sono nascosti all’IA. Altri nomi vengono inviati così come li dici.</value></data>
   <data name="Quick.ReviewNote" xml:space="preserve"><value>Controlla</value></data>
   <data name="Quick.Save" xml:space="preserve"><value>Salva</value></data>
@@ -417,6 +426,8 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Quick.Saved.other" xml:space="preserve"><value>{0} voci salvate</value></data>
   <data name="Quick.Send" xml:space="preserve"><value>Invia</value></data>
   <data name="Quick.SomeFailed" xml:space="preserve"><value>Alcuni non sono stati salvati. Controlla il registro.</value></data>
+  <data name="Quick.SpeakIn" xml:space="preserve"><value>Parla in</value></data>
+  <data name="Quick.SpeechHints" xml:space="preserve"><value>sinistra, destra, lato sinistro, lato destro, seno, biberon, latte artificiale, latte materno, ml, pannolino, bagnato, cacca, pisolino, addormentato, sveglio, tiralatte, vitamina D, temperatura, pesa, chili, grammi</value></data>
   <data name="Quick.Stop" xml:space="preserve"><value>Ferma</value></data>
   <data name="Quick.Thinking" xml:space="preserve"><value>Sto capendo…</value></data>
   <data name="Quick.Title" xml:space="preserve"><value>Dillo a Coo</value></data>
@@ -493,6 +504,7 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Report.Growth" xml:space="preserve"><value>Crescita</value></data>
   <data name="Report.Health" xml:space="preserve"><value>Salute</value></data>
   <data name="Report.Hint" xml:space="preserve"><value>Un PDF con medie, ogni giorno, crescita e salute, da condividere o stampare.</value></data>
+  <data name="Report.Language" xml:space="preserve"><value>Lingua</value></data>
   <data name="Report.Make" xml:space="preserve"><value>Crea PDF</value></data>
   <data name="Report.Making" xml:space="preserve"><value>Creazione…</value></data>
   <data name="Report.NoBirth" xml:space="preserve"><value>Aggiungi prima la data di nascita: il report parte da lì.</value></data>

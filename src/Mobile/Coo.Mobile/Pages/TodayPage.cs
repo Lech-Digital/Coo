@@ -255,9 +255,13 @@ public sealed class TodayPage : ContentPage
                 await Navigation.PushAsync(_services.GetRequiredService<GrowthPage>());
             }),
         });
+        var photo = EarlierItem("growth", "Health.Photo", "Health.PhotoSubtitle");
+        photo.GestureRecognizers.Clear();
+        photo.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(OpenPhoto) });
         View[] items =
         [
             chart,
+            photo,
             EarlierItem("growth", "Kind.Growth", "Health.GrowthSubtitle"),
             EarlierItem("medicine", "Kind.Medicine", "Health.MedicineSubtitle"),
             EarlierItem("temperature", "Kind.Temperature", "Health.TemperatureSubtitle"),
@@ -265,6 +269,66 @@ public sealed class TodayPage : ContentPage
             EarlierItem("visit", "Kind.Visit", "Health.VisitSubtitle"),
         ];
         await _sheet.ShowAsync(Panel(Strings.Get("Health.Title"), items));
+    }
+
+    /// <summary>
+    /// "From a photo": what Coo reads and where the photo goes, said before it is taken (the names on a record cannot be
+    /// hidden first), then the camera or the gallery.
+    /// </summary>
+    private async void OpenPhoto()
+    {
+        _pageSheet = true;
+        var take = new Button { Text = Strings.Get("Photo.Take") };
+        take.SetDynamicResource(VisualElement.StyleProperty, "PrimaryButton");
+        take.Clicked += async (_, _) => await ReadPhotoAsync(camera: true);
+        var choose = new Button { Text = Strings.Get("Photo.Choose") };
+        choose.SetDynamicResource(VisualElement.StyleProperty, "GhostButton");
+        choose.Clicked += async (_, _) => await ReadPhotoAsync(camera: false);
+        await _sheet.ShowAsync(Panel(
+            Strings.Get("Photo.Title"),
+            Ui.Text(Strings.Get("Photo.Explain"), "Body", "Ink2"),
+            Row(take, choose),
+            Ui.Text(Strings.Get("Photo.Privacy"), "Meta", "Ink2")));
+    }
+
+    private async Task ReadPhotoAsync(bool camera)
+    {
+        FileResult? photo;
+        try
+        {
+            photo = camera
+                ? await MediaPicker.Default.CapturePhotoAsync()
+                : (await MediaPicker.Default.PickPhotosAsync(new MediaPickerOptions { SelectionLimit = 1 }))?.FirstOrDefault();
+        }
+        catch (Exception e) when (e is PermissionException or FeatureNotSupportedException or InvalidOperationException)
+        {
+            photo = null;
+        }
+
+        if (photo is null)
+            return;
+
+        byte[] jpeg;
+        await using (var stream = await photo.OpenReadAsync())
+            jpeg = await Task.Run(() => Scaled(stream));
+
+        var model = _services.GetRequiredService<Coo.Mobile.Presentation.QuickLog.QuickLogViewModel>();
+        await model.OpenAsync();
+        model.Finished -= OnVoiceFinished;
+        model.Finished += OnVoiceFinished;
+        _voice?.Detach();
+        _voice = new Components.QuickLogView(model);
+        _pageSheet = true;
+        await _sheet.ShowAsync(_voice);
+        await model.ReadPhotoAsync(jpeg);
+    }
+
+    /// <summary>At most 1600 pixels on the long side, as a JPEG: sharp enough to read handwriting, a few hundred kilobytes.</summary>
+    private static byte[] Scaled(Stream stream)
+    {
+        var image = Microsoft.Maui.Graphics.Platform.PlatformImage.FromStream(stream);
+        var scaled = image.Width > 1600 || image.Height > 1600 ? image.Downsize(1600, disposeOriginal: true) : image;
+        return scaled.AsBytes(Microsoft.Maui.Graphics.ImageFormat.Jpeg, 0.85f);
     }
 
     private View EarlierItem(string kindCode, string key, string subtitleKey, bool bottle = false)

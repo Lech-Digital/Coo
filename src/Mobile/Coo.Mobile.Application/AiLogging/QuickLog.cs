@@ -79,6 +79,42 @@ public sealed class PrepareQuickLog(IHouseholdStore households, GetToday today, 
         return new QuickLogPrepared(new QuickLogReview(trimmed, capturedAt, items, response.Unparsed, response.PromptVersion), false, null, null);
     }
 
+    /// <summary>
+    /// A photo of a health record to a review: its measurements and vaccinations, dated as written, checked against what
+    /// is already logged on those days. Unlike words, a photo that cannot be read now is not kept: it can be taken again.
+    /// </summary>
+    /// <param name="image">A JPEG, already scaled down on the phone.</param>
+    public async Task<QuickLogPrepared> ExecuteImageAsync(byte[] image, DateTimeOffset capturedAt, string language, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        var (household, baby) = await ShownAsync(households, cancellationToken);
+        if (household is null || baby is null)
+            return new QuickLogPrepared(null, false, "ai.no-baby", null);
+
+        var request = new AiImageRequest(
+            household.Id.Value, baby.Id.Value, Convert.ToBase64String(image), "image/jpeg", capturedAt, household.TimeZoneId, language, baby.BirthDate);
+        AiParseResponse? response;
+        try
+        {
+            response = await api.ParseImageAsync(request, cancellationToken);
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            response = null;
+        }
+
+        if (response is null)
+            return new QuickLogPrepared(null, false, "ai.unavailable", null);
+        if (response.ErrorCode is { } refused)
+            return new QuickLogPrepared(null, false, refused, response.Limit);
+
+        var from = response.Proposals.Count == 0 ? capturedAt : response.Proposals.Min(p => p.At);
+        var existing = (await store.ListAsync(household.Id, from.AddDays(-1), capturedAt.AddHours(1), cancellationToken))
+            .OfType<LiveEntry>().Select(l => l.Entry).Where(e => !e.IsDeleted).ToList();
+        var items = response.Proposals.Select(p => Item(p, household.Id, baby.Id, response.PromptVersion, existing, capturedAt)).ToList();
+        return new QuickLogPrepared(new QuickLogReview("", capturedAt, items, response.Unparsed, response.PromptVersion), false, null, null);
+    }
+
     internal static async Task<(HouseholdSettings? Household, BabyProfile? Baby)> ShownAsync(IHouseholdStore households, CancellationToken cancellationToken)
     {
         var household = (await households.ListHouseholdsAsync(cancellationToken)).FirstOrDefault(h => !h.IsDeleted);

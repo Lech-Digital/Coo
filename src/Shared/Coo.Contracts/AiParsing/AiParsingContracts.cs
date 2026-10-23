@@ -19,6 +19,22 @@ public sealed record AiParseRequest(
     AiParseContext Context,
     IReadOnlyList<string>? Actions = null);
 
+/// <summary>
+/// A photo of a health record — a growth card, a clinic leaflet, a vaccination booklet — to read its measurements and
+/// vaccinations with their dates. The server sends it to the model to read and keeps nothing of it.
+/// </summary>
+/// <param name="ImageBase64">A JPEG or PNG, at most <see cref="AiParsingLimits.MaxImageBytes"/> bytes before encoding.</param>
+/// <param name="BirthDate">So "at birth" and "6 weeks" become dates.</param>
+public sealed record AiImageRequest(
+    Guid HouseholdId,
+    Guid BabyId,
+    string ImageBase64,
+    string MimeType,
+    DateTimeOffset CapturedAt,
+    string TimeZoneId,
+    string? Language,
+    DateOnly? BirthDate);
+
 /// <param name="Running">The sessions in progress, as <see cref="AiRunningKinds"/> codes.</param>
 /// <param name="LastBreastSide">"left" or "right": the side the last breast feed ended on.</param>
 /// <param name="VolumeUnit">"ml" or "oz": the unit an amount without one is in.</param>
@@ -67,6 +83,9 @@ public sealed record AiParseResponse(
 public static class AiParsingLimits
 {
     public const int MaxTextLength = 1000;
+
+    /// <summary>A phone photo scaled to about 1600 pixels is a few hundred kilobytes; this leaves room.</summary>
+    public const int MaxImageBytes = 4_000_000;
 }
 
 public static class AiRunningKinds

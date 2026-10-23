@@ -52,7 +52,8 @@ public sealed partial class QuickLogViewModel(
     IHouseholdStore households,
     IClockFormat clock,
     UndoService undo,
-    TimeProvider time) : ObservableObject, IDisposable
+    TimeProvider time,
+    ISpeechLanguagePreference speechLanguage) : ObservableObject, IDisposable
 {
     private QuickLogReview? _review;
     private Guid? _pendingNote;
@@ -76,7 +77,31 @@ public sealed partial class QuickLogViewModel(
     [ObservableProperty]
     private IReadOnlyList<PendingNote> _pendingNotes = [];
 
+    private IReadOnlyList<string> _babyNames = [];
+
     public bool CanListen => speech.IsAvailable;
+
+    /// <summary>The language Tell Coo listens in: the app's, unless this parent speaks another to it.</summary>
+    [ObservableProperty]
+    private string _speechLanguage = Strings.Language;
+
+    public static IReadOnlyList<string> SpeechLanguages => Strings.Supported;
+
+    [RelayCommand]
+    private async Task SetSpeechLanguage(string language)
+    {
+        if (!Strings.Supported.Contains(language))
+            return;
+        SpeechLanguage = language;
+        await speechLanguage.SetAsync(language == Strings.Language ? null : language, CancellationToken.None);
+    }
+
+    /// <summary>The words to expect, in the language spoken: the baby's names, then the care words.</summary>
+    public IReadOnlyList<string> Hints()
+    {
+        using var scope = Strings.InLanguage(SpeechLanguage);
+        return [.. _babyNames, .. Strings.Get("Quick.SpeechHints").Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)];
+    }
 
     /// <summary>The example under the title, with the family's own baby in it rather than a made-up name.</summary>
     [ObservableProperty]
@@ -98,6 +123,7 @@ public sealed partial class QuickLogViewModel(
         (Stage, Text, Message, Rows, Unparsed) = (QuickLogStage.Input, "", "", [], "");
         PendingNotes = await notes.ListAsync(CancellationToken.None);
         Hint = Strings.Format("Quick.Hint", await BabyNameAsync() ?? Strings.Get("Quick.Baby"));
+        SpeechLanguage = await speechLanguage.GetAsync(CancellationToken.None) is { } chosen && Strings.Supported.Contains(chosen) ? chosen : Strings.Language;
     }
 
     private async Task<string?> BabyNameAsync()
@@ -106,6 +132,7 @@ public sealed partial class QuickLogViewModel(
         if (household is null)
             return null;
         var baby = (await households.ListBabiesAsync(household.Id, CancellationToken.None)).FirstOrDefault(b => !b.IsDeleted);
+        _babyNames = baby is null ? [] : [baby.Name, .. baby.Nicknames];
         return string.IsNullOrWhiteSpace(baby?.Name) ? null : baby.Name;
     }
 
@@ -119,7 +146,7 @@ public sealed partial class QuickLogViewModel(
         _listening?.Dispose();
         _listening = new CancellationTokenSource();
         Text = "";
-        var heard = await speech.ListenAsync(Strings.Language, words => Text = words, _listening.Token);
+        var heard = await speech.ListenAsync(SpeechLanguage, words => Text = words, _listening.Token, Hints());
         if (Stage != QuickLogStage.Listening)
             return;
         if (string.IsNullOrWhiteSpace(heard))
@@ -206,11 +233,29 @@ public sealed partial class QuickLogViewModel(
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// A photo of a health record (a growth card, a vaccination booklet): what Coo read on it, to review like words.
+    /// </summary>
+    /// <param name="image">A JPEG, scaled down by the page.</param>
+    public async Task ReadPhotoAsync(byte[] image)
+    {
+        _listening?.Cancel();
+        (_review, _pendingNote) = (null, null);
+        (Stage, Text, Message, Rows, Unparsed) = (QuickLogStage.Thinking, "", "", [], "");
+        var prepared = await prepare.ExecuteImageAsync(image, time.GetUtcNow(), Strings.Language, CancellationToken.None);
+        await ShowAsync(prepared, null, nothingFound: "Quick.PhotoNothing", unavailable: "Quick.PhotoUnavailable");
+    }
+
     private async Task UnderstandAsync(string text, DateTimeOffset capturedAt, Guid? pendingNote)
     {
         Stage = QuickLogStage.Thinking;
         Message = "";
         var prepared = await prepare.ExecuteAsync(text, capturedAt, Strings.Language, CancellationToken.None);
+        await ShowAsync(prepared, pendingNote, nothingFound: "Quick.NothingFound", unavailable: "Quick.Error.unavailable");
+    }
+
+    private async Task ShowAsync(QuickLogPrepared prepared, Guid? pendingNote, string nothingFound, string unavailable)
+    {
         if (prepared.KeptAsPendingNote)
         {
             // A note re-parsed and still not understood stays once, not twice.
@@ -231,7 +276,7 @@ public sealed partial class QuickLogViewModel(
                 "ai.free-limit" => Strings.Format("Quick.Error.free-limit", prepared.Limit ?? 5),
                 "ai.daily-limit" => Strings.Format("Quick.Error.daily-limit", prepared.Limit ?? 100),
                 "ai.signed-out" => Strings.Get("Quick.Error.signed-out"),
-                _ => Strings.Get("Quick.Error.unavailable"),
+                _ => Strings.Get(unavailable),
             };
             return;
         }
@@ -239,13 +284,14 @@ public sealed partial class QuickLogViewModel(
         (_review, _pendingNote) = (review, pendingNote);
         var formats = await FormatsAsync();
         var zone = await ZoneAsync();
-        Rows = [.. review.Items.Select(i => Row(i, formats, zone, review.CapturedAt))];
+        Rows = [.. review.Items.Select(i => Row(i, formats, zone, review.CapturedAt, isPhoto: review.Text.Length == 0))];
         Unparsed = review.Unparsed.Count == 0 ? "" : Strings.Format("Quick.Unparsed", string.Join(" · ", review.Unparsed));
-        Message = Rows.Count == 0 ? Strings.Get("Quick.NothingFound") : "";
+        Message = Rows.Count == 0 ? Strings.Get(nothingFound) : "";
         Stage = Rows.Count == 0 ? QuickLogStage.Input : QuickLogStage.Review;
     }
 
-    private static QuickLogRow Row(QuickLogItem item, Formats formats, TimeZoneInfo zone, DateTimeOffset capturedAt)
+    /// <param name="isPhoto">From a record on paper: each row is dated (the day is what was written, not the hour).</param>
+    private static QuickLogRow Row(QuickLogItem item, Formats formats, TimeZoneInfo zone, DateTimeOffset capturedAt, bool isPhoto)
     {
         var p = item.Proposal;
         var title = item.Candidate is { } entry ? formats.Title(entry, capturedAt) : p.Action switch
@@ -259,7 +305,9 @@ public sealed partial class QuickLogViewModel(
             AiActions.PumpStop => Strings.Get("Quick.Action.PumpStop"),
             _ => p.SourceText,
         };
-        var when = Math.Abs((p.At - capturedAt).TotalMinutes) < 1 ? Strings.Get("Quick.Now") : formats.Time(p.At, zone);
+        var when = isPhoto ? TimeZoneInfo.ConvertTime(p.At, zone).ToString("d MMM yyyy", Strings.Culture)
+            : Math.Abs((p.At - capturedAt).TotalMinutes) < 1 ? Strings.Get("Quick.Now")
+            : formats.Time(p.At, zone);
         if (p.EndAt is { } end)
             when = $"{when} – {formats.Time(end, zone)}";
 

@@ -76,6 +76,35 @@ public sealed class ReportComposerTests : IDisposable
         document.Sections.Should().OnlyContain(s => s.Table == null && s.Paragraphs.Count == 1);
     }
 
+    [Fact]
+    public void Compose_InTheDoctorsLanguage_IsGermanWhileTheAppStaysEnglish()
+    {
+        // Arrange
+        Strings.Use(new LanguagePreference("en"), null);
+        ReportDocument document;
+
+        // Act
+        using (Strings.InLanguage("de"))
+            document = ReportComposer.Compose(Report(), new Formats(true, VolumeUnit.Millilitres));
+
+        // Assert
+        document.Sections.Select(s => s.Heading).Should().Contain("Tag für Tag");
+        Strings.Get("Report.Daily").Should().Be("Day by day", "the app's own language is untouched");
+    }
+
+    [Fact]
+    public void InLanguage_UnsupportedLanguage_ChangesNothing()
+    {
+        // Arrange
+        Strings.Use(new LanguagePreference("en"), null);
+
+        // Act
+        using var scope = Strings.InLanguage("tr");
+
+        // Assert
+        Strings.Language.Should().Be("en");
+    }
+
     [Theory]
     [InlineData("Lena", "coo-lena-2026-10-23.pdf")]
     [InlineData("Zoë-Łucja", "coo-zoeucja-2026-10-23.pdf")]

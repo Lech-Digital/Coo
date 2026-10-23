@@ -239,6 +239,65 @@ public sealed class ParseCareLogTextTests
         _store.Counted.Should().Be(0);
     }
 
+    [Fact]
+    public async Task ExecuteImageAsync_GrowthCardWithDatesAndAges_ProposesDatedMeasurements()
+    {
+        // Arrange: a leaflet with a birth weight, a dated weighing and one by age
+        await MemberAsync();
+        ParsedEntry Growth(decimal kg, DateOnly? date = null, int? ageDays = null) =>
+            new("Growth", null, null, null, null, null, null, null, TimeExpression.Unspecified, null, $"{kg} kg", Weight: kg, WeightUnit: "kg", Date: date, AgeDays: ageDays);
+        _parser.Next = Parsed(Growth(4.95m, ageDays: 42), Growth(3.41m, ageDays: 0), Growth(4.1m, date: new DateOnly(2026, 9, 25)));
+
+        // Act
+        var outcome = await Sut().ExecuteImageAsync(Parent, Image(), CancellationToken.None);
+
+        // Assert
+        _parser.SeenImage!.Context.Should().Contain("born on 2026-09-04");
+        var proposals = outcome.Response!.Proposals;
+        proposals.Select(p => p.WeightGrams).Should().Equal(3410, 4100, 4950);
+        proposals[0].At.Should().Be(new DateTimeOffset(2026, 9, 4, 12, 0, 0, TimeSpan.FromHours(2)));
+        proposals[2].At.Should().Be(new DateTimeOffset(2026, 10, 16, 12, 0, 0, TimeSpan.FromHours(2)));
+        proposals.Should().OnlyContain(p => p.Action == AiActions.GrowthLog && p.Warnings.Count == 0, "a record on paper is expected to be old");
+        _store.Counted.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ExecuteImageAsync_FeedOrUndatedOrBeforeBirth_IsNeverProposed()
+    {
+        // Arrange
+        await MemberAsync();
+        _parser.Next = Parsed(
+            new ParsedEntry("BottleFeeding", null, null, null, 120, "ml", null, null, TimeExpression.Unspecified, null, "120 ml", Date: new DateOnly(2026, 10, 1)),
+            new ParsedEntry("Growth", null, null, null, null, null, null, null, TimeExpression.Unspecified, null, "5 kg", Weight: 5, WeightUnit: "kg"),
+            new ParsedEntry("Growth", null, null, null, null, null, null, null, TimeExpression.Unspecified, null, "3 kg", Weight: 3, WeightUnit: "kg", Date: new DateOnly(2026, 8, 1)));
+
+        // Act
+        var outcome = await Sut().ExecuteImageAsync(Parent, Image(), CancellationToken.None);
+
+        // Assert
+        outcome.Response!.Proposals.Should().BeEmpty();
+        outcome.Response.Unparsed.Should().Equal("120 ml", "5 kg", "3 kg");
+    }
+
+    [Fact]
+    public async Task ExecuteImageAsync_NotAJpeg_IsRefusedBeforeTheModel()
+    {
+        // Arrange
+        await MemberAsync();
+        var request = Image() with { ImageBase64 = Convert.ToBase64String("not a photo"u8.ToArray()) };
+
+        // Act
+        var outcome = await Sut().ExecuteImageAsync(Parent, request, CancellationToken.None);
+
+        // Assert
+        outcome.Refusal.Should().Be(ParseRefusal.NotAnImage);
+        _parser.SeenImage.Should().BeNull();
+    }
+
+    private static AiImageRequest Image() =>
+        new(Household.Value, Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"), Convert.ToBase64String([0xFF, 0xD8, 0xFF, 0xE0, 1, 2, 3]), "image/jpeg",
+            Now, "Europe/Amsterdam", "en", new DateOnly(2026, 9, 4));
+
     private async Task MemberAsync()
     {
         _memberships.Rows[(Household, Parent)] = new MembershipLookup(Membership.Create(Household, Parent, Role.Owner, Now), IsRevoked: false);
@@ -259,9 +318,17 @@ public sealed class ParseCareLogTextTests
 
         public ParsePrompt? Seen { get; private set; }
 
+        public ImagePrompt? SeenImage { get; private set; }
+
         public Task<ParsedText?> ParseAsync(ParsePrompt prompt, CancellationToken cancellationToken)
         {
             Seen = prompt;
+            return Task.FromResult(Next);
+        }
+
+        public Task<ParsedText?> ReadImageAsync(ImagePrompt prompt, CancellationToken cancellationToken)
+        {
+            SeenImage = prompt;
             return Task.FromResult(Next);
         }
     }

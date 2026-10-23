@@ -30,6 +30,43 @@ public sealed class AiParsingApiTests(AuthApi api) : IClassFixture<AuthApi>
     }
 
     [Fact]
+    public async Task ParseImage_GrowthCardPhoto_ProposesDatedMeasurements()
+    {
+        // Arrange: the fake reads any photo as a birth weight and a six-week weighing
+        using var client = api.Factory.CreateClient();
+        var session = await SyncCalls.SignInWithConsentAsync(client, "ai-image1", Calls.Id(9121), Calls.Id(9122));
+        var request = new AiImageRequest(
+            session.HouseholdId, Calls.Id(9123), Convert.ToBase64String([0xFF, 0xD8, 0xFF, 0xE0, 0, 16]), "image/jpeg",
+            api.Factory.Services.GetRequiredService<TimeProvider>().GetUtcNow(), "Europe/Amsterdam", "en", new DateOnly(2026, 9, 4));
+
+        // Act
+        var response = await Calls.SendAsync(client, HttpMethod.Post, new Uri("/api/ai/parse-image", UriKind.Relative), session.AccessToken, request);
+        var body = await response.Content.ReadFromJsonAsync<AiParseResponse>();
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal([3410, 4950], body!.Proposals.Select(p => p.WeightGrams));
+        Assert.Equal(new DateTimeOffset(2026, 10, 16, 12, 0, 0, TimeSpan.FromHours(2)), body.Proposals[1].At);
+    }
+
+    [Fact]
+    public async Task ParseImage_NotAnImage_IsABadRequest()
+    {
+        // Arrange
+        using var client = api.Factory.CreateClient();
+        var session = await SyncCalls.SignInWithConsentAsync(client, "ai-image2", Calls.Id(9124), Calls.Id(9125));
+        var request = new AiImageRequest(
+            session.HouseholdId, Calls.Id(9126), Convert.ToBase64String("hello"u8.ToArray()), "image/jpeg",
+            api.Factory.Services.GetRequiredService<TimeProvider>().GetUtcNow(), "Europe/Amsterdam", "en", null);
+
+        // Act
+        var response = await Calls.SendAsync(client, HttpMethod.Post, new Uri("/api/ai/parse-image", UriKind.Relative), session.AccessToken, request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Parse_FreeAllowanceUsedUp_SaysSoAfterFiveParses()
     {
         // Arrange

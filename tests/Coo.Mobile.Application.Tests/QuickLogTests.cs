@@ -53,6 +53,43 @@ public sealed class QuickLogTests
     }
 
     [Fact]
+    public async Task PrepareImage_GrowthCard_ReviewsDatedWeighingsWithTheBirthDateSent()
+    {
+        // Arrange: a leaflet with the birth weight and a weighing at four weeks
+        AiImageRequest? sent = null;
+        var birth = new DateTimeOffset(2026, 8, 20, 12, 0, 0, TimeSpan.FromHours(2));
+        _api.ParseImageAsync(Arg.Do<AiImageRequest>(r => sent = r), Arg.Any<CancellationToken>()).Returns(new AiParseResponse(
+        [
+            new AiProposal(AiActions.GrowthLog, birth, null, null, null, null, null, null, null, "3410 g", [], WeightGrams: 3410),
+            new AiProposal(AiActions.GrowthLog, birth.AddDays(28), null, null, null, null, null, null, null, "4250 g", [], WeightGrams: 4250),
+        ], [], "coo-image-v1"));
+
+        // Act
+        var prepared = await Prepare().ExecuteImageAsync([0xFF, 0xD8, 0xFF], Now, "en", CancellationToken.None);
+
+        // Assert
+        sent!.BirthDate.Should().Be(new DateOnly(2026, 8, 20));
+        sent.MimeType.Should().Be("image/jpeg");
+        prepared.Review!.Items.Should().HaveCount(2).And.OnlyContain(i => i.IsSelectedByDefault && i.Candidate != null);
+        prepared.Review.Items[1].Candidate!.Timing.OccurredAt.Should().Be(birth.AddDays(28));
+    }
+
+    [Fact]
+    public async Task PrepareImage_ServerUnreachable_SaysSoAndKeepsNothing()
+    {
+        // Arrange
+        _api.ParseImageAsync(Arg.Any<AiImageRequest>(), Arg.Any<CancellationToken>()).Returns((AiParseResponse?)null);
+
+        // Act
+        var prepared = await Prepare().ExecuteImageAsync([0xFF, 0xD8, 0xFF], Now, "en", CancellationToken.None);
+
+        // Assert
+        prepared.ErrorCode.Should().Be("ai.unavailable");
+        prepared.KeptAsPendingNote.Should().BeFalse();
+        _notes.Notes.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task Prepare_DiaperThePartnerAlreadyLogged_IsShownButNotSelected()
     {
         // Arrange: the partner logged a wet diaper at 13:58; the dictation says the same.

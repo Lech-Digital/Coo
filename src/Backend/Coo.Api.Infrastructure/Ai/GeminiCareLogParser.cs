@@ -21,7 +21,13 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
     /// <summary>Pinned, never a "-latest" alias: an alias could change the model under a fixed prompt (ADR 0005 §6).</summary>
     public const string DefaultModel = "gemini-3.5-flash-lite";
 
+    /// <summary>The photo reader's version, reported like <see cref="PromptVersion"/>.</summary>
+    public const string ImagePromptVersion = "coo-image-v1";
+
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(10) };
+
+    // Reading a photo takes longer than a sentence, and still within the phone's 20 seconds.
+    private static readonly HttpClient ImageHttp = new() { Timeout = TimeSpan.FromSeconds(18) };
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Care-log parse failed: {Reason}")]
     private static partial void LogFailed(ILogger logger, string reason);
@@ -61,6 +67,62 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
         - sourceText: the exact words this entry came from.
         - Anything that is not a care event, or that you cannot map, goes to unparsed. Never invent entries.
         """;
+
+    internal const string ImageSystemPrompt = """
+        You read a photo of a baby's health record for the app Coo: a growth card, a clinic or midwife leaflet, a
+        vaccination booklet or a hospital discharge note, in any language and often handwritten.
+
+        Extract only:
+        - Growth: each measurement, with weight (weightUnit "kg", "g" or "lb"), length or height, and head circumference
+          (lengthUnit "cm" or "in"), as written. Several values on one row or date are one entry.
+        - Vaccine: each vaccination given, name as written.
+
+        Dates: for each entry give the date written next to it as date {y, m, d}. Read day-month order unless the record
+        is clearly American. A two-digit year is 20yy. If the record gives the baby's age instead of a date, give ageDays
+        (days or weeks times 7) or ageMonths; "at birth" is ageDays 0. Never compute a date from an age yourself, and
+        never invent a date: an entry without a date or an age goes to unparsed.
+        Use the context for the year when a date has none.
+
+        sourceText: the row or line as written (short). Anything else on the photo — names, addresses, notes, feeding
+        advice — is ignored and not repeated anywhere. A photo that is not a health record gives no entries.
+        """;
+
+    private static readonly object ImageSchema = new
+    {
+        type = "OBJECT",
+        properties = new
+        {
+            entries = new
+            {
+                type = "ARRAY",
+                items = new
+                {
+                    type = "OBJECT",
+                    properties = new
+                    {
+                        type = new { type = "STRING", @enum = new[] { "Growth", "Vaccine" } },
+                        date = new
+                        {
+                            type = "OBJECT",
+                            properties = new { y = new { type = "INTEGER" }, m = new { type = "INTEGER" }, d = new { type = "INTEGER" } },
+                        },
+                        ageDays = new { type = "INTEGER" },
+                        ageMonths = new { type = "INTEGER" },
+                        name = new { type = "STRING" },
+                        weight = new { type = "NUMBER" },
+                        weightUnit = new { type = "STRING", @enum = new[] { "kg", "g", "lb" } },
+                        length = new { type = "NUMBER" },
+                        head = new { type = "NUMBER" },
+                        lengthUnit = new { type = "STRING", @enum = new[] { "cm", "in" } },
+                        sourceText = new { type = "STRING" },
+                    },
+                    required = new[] { "type", "sourceText" },
+                },
+            },
+            unparsed = new { type = "ARRAY", items = new { type = "STRING" } },
+        },
+        required = new[] { "entries", "unparsed" },
+    };
 
     private static readonly object TimeSchema = new
     {
@@ -129,17 +191,44 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
     public async Task<ParsedText?> ParseAsync(ParsePrompt prompt, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(prompt);
-        var apiKey = configuration["Gemini:ApiKey"];
-        if (string.IsNullOrEmpty(apiKey))
-            return null;
-        var model = configuration["AiParsing:Model"] ?? DefaultModel;
-
         var body = new
         {
             systemInstruction = new { parts = new[] { new { text = SystemPrompt } } },
             contents = new[] { new { role = "user", parts = new[] { new { text = $"Context:\n{prompt.Context}\nText:\n{prompt.Text}" } } } },
             generationConfig = new { temperature = 0.0, seed = 7, responseMimeType = "application/json", responseSchema = ResponseSchema },
         };
+        return await SendAsync(body, Http, json => Read(json), cancellationToken);
+    }
+
+    public async Task<ParsedText?> ReadImageAsync(ImagePrompt prompt, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(prompt);
+        var body = new
+        {
+            systemInstruction = new { parts = new[] { new { text = ImageSystemPrompt } } },
+            contents = new[]
+            {
+                new
+                {
+                    role = "user",
+                    parts = new object[]
+                    {
+                        new { inline_data = new { mime_type = prompt.MimeType, data = Convert.ToBase64String(prompt.Image) } },
+                        new { text = $"Context:\n{prompt.Context}" },
+                    },
+                },
+            },
+            generationConfig = new { temperature = 0.0, seed = 7, responseMimeType = "application/json", responseSchema = ImageSchema },
+        };
+        return await SendAsync(body, ImageHttp, json => Read(json) with { PromptVersion = ImagePromptVersion }, cancellationToken);
+    }
+
+    private async Task<ParsedText?> SendAsync(object body, HttpClient http, Func<string, ParsedText> read, CancellationToken cancellationToken)
+    {
+        var apiKey = configuration["Gemini:ApiKey"];
+        if (string.IsNullOrEmpty(apiKey))
+            return null;
+        var model = configuration["AiParsing:Model"] ?? DefaultModel;
 
         try
         {
@@ -148,7 +237,7 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
                 Content = JsonContent.Create(body),
             };
             message.Headers.Add("x-goog-api-key", apiKey);
-            using var response = await Http.SendAsync(message, cancellationToken);
+            using var response = await http.SendAsync(message, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
                 LogFailed(logger, $"HTTP {(int)response.StatusCode}");
@@ -157,7 +246,7 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
 
             using var envelope = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             var text = envelope.RootElement.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString();
-            return text is null ? null : Read(text);
+            return text is null ? null : read(text);
         }
         catch (Exception e) when (e is HttpRequestException or JsonException or KeyNotFoundException or IndexOutOfRangeException or InvalidOperationException
                                        or TaskCanceledException { InnerException: TimeoutException })
@@ -178,7 +267,12 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
         {
             foreach (var e in list.EnumerateArray())
             {
-                if (e.ValueKind != JsonValueKind.Object || Str(e, "type") is not { } type || !e.TryGetProperty("time", out var time))
+                if (e.ValueKind != JsonValueKind.Object || Str(e, "type") is not { } type)
+                    continue;
+                // Words always carry a time; a photo's entries carry a date or an age instead.
+                var time = e.TryGetProperty("time", out var said) ? said : default;
+                var date = e.TryGetProperty("date", out var written) ? Date(written) : null;
+                if (time.ValueKind != JsonValueKind.Object && date is null && Int(e, "ageDays") is null && Int(e, "ageMonths") is null)
                     continue;
                 entries.Add(new ParsedEntry(
                     type,
@@ -200,7 +294,10 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
                     Str(e, "weightUnit"),
                     Dec(e, "length"),
                     Dec(e, "head"),
-                    Str(e, "lengthUnit")));
+                    Str(e, "lengthUnit"),
+                    date,
+                    Int(e, "ageDays"),
+                    Int(e, "ageMonths")));
             }
         }
 
@@ -210,7 +307,14 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
         return new ParsedText(entries, unparsed, PromptVersion);
     }
 
-    private static TimeExpression Time(JsonElement time) => Str(time, "kind") switch
+    // A date the model read: only a real calendar day counts.
+    private static DateOnly? Date(JsonElement date) =>
+        Int(date, "y") is { } y && Int(date, "m") is { } m && Int(date, "d") is { } d && y is >= 2000 and <= 2100 && m is >= 1 and <= 12
+        && d >= 1 && d <= DateTime.DaysInMonth(y, m)
+            ? new DateOnly(y, m, d)
+            : null;
+
+    private static TimeExpression Time(JsonElement time) => time.ValueKind != JsonValueKind.Object ? TimeExpression.Unspecified : Str(time, "kind") switch
     {
         "now" => TimeExpression.Now,
         "clock" when Int(time, "hh") is { } hh && Int(time, "mm") is var mm => TimeExpression.Clock(hh, mm ?? 0),
@@ -256,5 +360,16 @@ internal sealed class FakeCareLogParser : ICareLogTextParser
         return Task.FromResult<ParsedText?>(entry is null
             ? new ParsedText([], [prompt.Text], "fake")
             : new ParsedText([entry], [], "fake"));
+    }
+
+    /// <summary>Any photo reads as a little growth card: a weight at birth, and a weight and length at six weeks.</summary>
+    public Task<ParsedText?> ReadImageAsync(ImagePrompt prompt, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(prompt);
+        ParsedEntry Growth(int ageDays, decimal kg, decimal? cm, string source) =>
+            new("Growth", null, null, null, null, null, null, null, TimeExpression.Unspecified, null, source,
+                Weight: kg, WeightUnit: "kg", Length: cm, LengthUnit: cm is null ? null : "cm", AgeDays: ageDays);
+        return Task.FromResult<ParsedText?>(new ParsedText(
+            [Growth(0, 3.41m, null, "birth 3410 g"), Growth(42, 4.95m, 56m, "6 wk 4950 g 56 cm")], [], "fake-image"));
     }
 }
