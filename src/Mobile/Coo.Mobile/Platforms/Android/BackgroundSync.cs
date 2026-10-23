@@ -65,6 +65,7 @@ public sealed class BackgroundSyncJob : JobService
         {
             if (IPlatformApplication.Current?.Services is not { } services)
                 return;
+            await Background.PrepareAsync(services);
             await services.GetRequiredService<SyncEngine>().SyncNowAsync(cancellationToken);
             await services.GetRequiredService<ReminderRefresher>().RefreshAsync(cancellationToken);
         }

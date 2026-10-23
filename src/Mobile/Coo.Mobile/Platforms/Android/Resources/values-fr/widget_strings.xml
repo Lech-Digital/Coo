@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_label">Coo</string>
+    <string name="widget_description">Dernier repas, sommeil et couche en un coup d’œil, et Tell Coo.</string>
+    <string name="widget_quick_label">Coo saisie rapide</string>
+    <string name="widget_quick_description">Notez un repas, une couche ou un sommeil d’un geste, sans ouvrir Coo.</string>
+    <string name="widget_timer_label">Coo chronos</string>
+    <string name="widget_timer_description">Temps depuis le dernier repas, et durée d’éveil ou de sommeil.</string>
+</resources>

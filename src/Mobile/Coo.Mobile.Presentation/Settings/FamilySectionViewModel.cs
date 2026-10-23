@@ -223,7 +223,7 @@ public sealed partial class FamilySectionViewModel(
 
     /// <summary>§3: signed out, sign-in opens in place, then consent if the account has none, then the share sheet.</summary>
     [RelayCommand]
-    private async Task InviteAsync()
+    private async Task InviteAsync(Role role)
     {
         if (IsBusy)
             return;
@@ -258,7 +258,7 @@ public sealed partial class FamilySectionViewModel(
             if (!justSignedIn && shown is { IsShared: true, CanManage: false })
                 return;
             var target = !justSignedIn && shown is { IsShared: true } ? shown.Id : session.AccountHousehold;
-            var result = await invite.ExecuteAsync(target, CancellationToken.None);
+            var result = await invite.ExecuteAsync(target, role, CancellationToken.None);
             if (result.Invitation is { } invitation)
                 await launcher.ShareTextAsync(FamilyLabels.ShareText(invitation, clock.Is24Hour), Strings.Get("Family.Invite"));
             else

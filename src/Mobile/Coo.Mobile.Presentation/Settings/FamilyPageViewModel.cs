@@ -166,12 +166,13 @@ public sealed partial class FamilyPageViewModel(
         return await withdraw.ExecuteAsync(_household, invitation.Id, CancellationToken.None);
     });
 
+    /// <summary>A parent, a caregiver (a nanny, a daycare) or a viewer (family who follow along).</summary>
     [RelayCommand]
-    private Task InviteAsync() => RunAsync(async () =>
+    private Task InviteAsync(Role role) => RunAsync(async () =>
     {
         if (!ShowsInvite)
             return FamilyAction.Refused(HouseholdErrors.Forbidden);
-        var result = await invite.ExecuteAsync(_household, CancellationToken.None);
+        var result = await invite.ExecuteAsync(_household, role, CancellationToken.None);
         if (result.Invitation is { } created)
             await launcher.ShareTextAsync(FamilyLabels.ShareText(created, clock.Is24Hour), Strings.Get("Family.Invite"));
         return result.Action;

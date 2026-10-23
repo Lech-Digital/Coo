@@ -10,6 +10,7 @@
 
     <TextView
         android:id="@+id/widget_title"
+        android:text="Lena"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
@@ -20,6 +21,7 @@
 
     <TextView
         android:id="@+id/widget_feed"
+        android:text="Fed at 9:52"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
@@ -29,6 +31,7 @@
 
     <TextView
         android:id="@+id/widget_sleep"
+        android:text="Awake since 10:40"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="1"
@@ -37,20 +40,34 @@
 
     <TextView
         android:id="@+id/widget_diaper"
+        android:text="Diaper at 10:17"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="1"
         android:textColor="@color/widget_ink2"
         android:textSize="14sp" />
 
-    <!-- Takes the spare height, so Tell Coo stays at the bottom however tall the widget is made. -->
-    <View
+    <TextView
+        android:id="@+id/widget_next"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:maxLines="1"
+        android:textColor="@color/widget_sleep_ink"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <!-- Takes the spare height, so Tell Coo stays at the bottom however tall the widget is made. A FrameLayout, not a
+         View: widgets may only hold the layouts and views RemoteViews allows, and a plain View made the whole widget
+         fail with "Can't load widget". -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
 
     <TextView
         android:id="@+id/widget_tell"
+        android:text="Tell Coo"
         android:layout_width="wrap_content"
         android:layout_height="36dp"
         android:layout_marginTop="8dp"

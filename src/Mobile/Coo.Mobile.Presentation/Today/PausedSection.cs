@@ -13,7 +13,7 @@ namespace Coo.Mobile.Presentation.Today;
 /// family is shown; <see cref="Update"/> runs every second, so it does not ask the store each time. Text changes are raised on
 /// whichever thread the check finished on: the section's view dispatches to the main thread.
 /// </summary>
-public sealed partial class PausedSection : ObservableObject, IHomeSection, IDisposable
+public sealed partial class PausedSection : ObservableObject, IHomeSection, ILoggingSection, IDisposable
 {
     private readonly Families _families;
     private readonly SemaphoreSlim _one = new(1, 1);

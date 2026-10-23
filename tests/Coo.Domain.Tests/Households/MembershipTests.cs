@@ -14,6 +14,7 @@ public sealed class MembershipTests
     [InlineData(Role.Owner, true)]
     [InlineData(Role.Parent, true)]
     [InlineData(Role.Caregiver, false)]
+    [InlineData(Role.Viewer, false)]
     public void Create_EachRole_GrantsTheRightsOfTheAdrTable(Role role, bool parentRights)
     {
         // Arrange
@@ -27,6 +28,7 @@ public sealed class MembershipTests
         membership.CanInvite.Should().Be(parentRights);
         membership.CanManageBaby.Should().Be(parentRights);
         membership.CanManageBilling.Should().Be(parentRights);
+        membership.CanLog.Should().Be(role != Role.Viewer, "only a Viewer follows without logging");
     }
 
     [Fact]

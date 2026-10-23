@@ -22,9 +22,9 @@ internal static class HouseholdCalls
 
     public static Uri Leave(Guid household) => new($"/api/households/{household}/leave", UriKind.Relative);
 
-    public static async Task<InvitationCreatedResponse> InviteAsync(HttpClient client, string token, Guid household)
+    public static async Task<InvitationCreatedResponse> InviteAsync(HttpClient client, string token, Guid household, string role = AuthRoles.Parent)
     {
-        var response = await Calls.SendAsync(client, HttpMethod.Post, Invitations(household), token, new CreateInvitationRequest(AuthRoles.Parent));
+        var response = await Calls.SendAsync(client, HttpMethod.Post, Invitations(household), token, new CreateInvitationRequest(role));
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         return (await response.Content.ReadFromJsonAsync<InvitationCreatedResponse>())!;
     }
@@ -67,6 +67,31 @@ public sealed class HouseholdApiTests(AuthApi api) : IClassFixture<AuthApi>
         accepted.Should().Be(new AcceptInvitationResponse(family, AuthRoles.Parent, AcceptOutcomes.Joined));
         ownersView!.Records.Select(r => r.CareEntry!.Note).Should().BeEquivalentTo("his", "hers");
         joinersView!.Records.Select(r => r.CareEntry!.Note).Should().BeEquivalentTo("his", "hers");
+    }
+
+    [Fact]
+    public async Task Push_InvitedCaregiverAndViewer_TheNannyLogsTheGrandparentOnlyFollows()
+    {
+        // Arrange: the owner invites a nanny and a grandparent; each joins with their own account
+        using var client = api.Factory.CreateClient();
+        var (family, nannyPhone, grandmaPhone) = (Calls.Id(7641), Calls.Id(7642), Calls.Id(7643));
+        var owner = await SyncCalls.SignInWithConsentAsync(client, "viewer-owner", Calls.Id(7644), family);
+        var nanny = await SyncCalls.SignInWithConsentAsync(client, "viewer-nanny", nannyPhone, Calls.Id(7645));
+        var grandma = await SyncCalls.SignInWithConsentAsync(client, "viewer-grandma", grandmaPhone, Calls.Id(7646));
+        var asNanny = await HouseholdCalls.AcceptAsync(client, nanny.AccessToken, (await HouseholdCalls.InviteAsync(client, owner.AccessToken, family, AuthRoles.Caregiver)).Code);
+        var asGrandma = await HouseholdCalls.AcceptAsync(client, grandma.AccessToken, (await HouseholdCalls.InviteAsync(client, owner.AccessToken, family, AuthRoles.Viewer)).Code);
+
+        // Act
+        var nannyEntry = await ResultAsync(await SyncCalls.PushAsync(client, nanny.AccessToken, family, nannyPhone, SyncCalls.Diaper(Calls.Id(7647), Calls.Id(7648), SyncCalls.Wall, nannyPhone)));
+        var grandmaEntry = await ResultAsync(await SyncCalls.PushAsync(client, grandma.AccessToken, family, grandmaPhone, SyncCalls.Diaper(Calls.Id(7649), Calls.Id(7648), SyncCalls.Wall, grandmaPhone)));
+        var grandmasView = await (await Calls.SendAsync(client, HttpMethod.Get, SyncCalls.Pull(family, 0), grandma.AccessToken)).Content.ReadFromJsonAsync<PullResponse>();
+
+        // Assert
+        asNanny.Role.Should().Be(AuthRoles.Caregiver);
+        asGrandma.Role.Should().Be(AuthRoles.Viewer);
+        nannyEntry.Result.Should().Be(ChangeResults.Applied);
+        grandmaEntry.Should().Be(new ChangeResultDto(Calls.Id(7649), ChangeResults.Rejected, RejectionReasons.RoleForbidden));
+        grandmasView!.Records.Should().ContainSingle(r => r.CareEntry != null, "a viewer still sees the nanny's entry");
     }
 
     [Fact]

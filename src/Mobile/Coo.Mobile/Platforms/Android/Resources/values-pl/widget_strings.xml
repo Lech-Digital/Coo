@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_label">Coo</string>
+    <string name="widget_description">Ostatnie karmienie, sen i pieluszka w skrócie, oraz Tell Coo.</string>
+    <string name="widget_quick_label">Coo szybki wpis</string>
+    <string name="widget_quick_description">Zapisz karmienie, pieluszkę lub sen jednym dotknięciem, bez otwierania Coo.</string>
+    <string name="widget_timer_label">Coo zegary</string>
+    <string name="widget_timer_description">Czas od ostatniego karmienia oraz jak długo nie śpi lub śpi.</string>
+</resources>

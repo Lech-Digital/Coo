@@ -15,11 +15,11 @@ internal sealed class HouseholdClient(HttpClient http) : IHouseholdApi
     private static readonly Uri AcceptUri = new("api/invitations/accept", UriKind.Relative);
     private static readonly Uri HouseholdsUri = new("api/households", UriKind.Relative);
 
-    public async Task<CreatedInvitation> CreateInvitationAsync(HouseholdId household, CancellationToken cancellationToken)
+    public async Task<CreatedInvitation> CreateInvitationAsync(HouseholdId household, Role role, CancellationToken cancellationToken)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, Path(household, "invitations"))
         {
-            Content = JsonContent.Create(new CreateInvitationRequest(RoleNames.Text(Role.Parent)), HouseholdJsonContext.Default.CreateInvitationRequest),
+            Content = JsonContent.Create(new CreateInvitationRequest(RoleNames.Text(role)), HouseholdJsonContext.Default.CreateInvitationRequest),
         };
         using var response = await HouseholdHttp.SendAsync(http, request, cancellationToken);
         var created = await HouseholdHttp.ReadAsync(response, HouseholdJsonContext.Default.InvitationCreatedResponse, cancellationToken);

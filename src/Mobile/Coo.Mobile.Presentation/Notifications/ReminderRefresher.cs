@@ -26,6 +26,7 @@ public sealed class ReminderRefresher(
     IDevicePreferences preferences,
     IReminderScheduler scheduler,
     IHomeWidget widget,
+    ITimerNotifications timers,
     IClockFormat clock,
     TimeProvider time) : IDisposable
 {
@@ -59,10 +60,12 @@ public sealed class ReminderRefresher(
             var household = (await households.ListHouseholdsAsync(cancellationToken)).FirstOrDefault(h => !h.IsDeleted);
             var baby = household is null ? null
                 : (await households.ListBabiesAsync(household.Id, cancellationToken)).FirstOrDefault(b => !b.IsDeleted);
+            var labels = Labels();
             if (household is null || baby is null)
             {
                 await scheduler.ReplaceAllAsync([], cancellationToken);
-                widget.Show(new WidgetContent("Coo", Strings.Get("Widget.Open"), "", ""));
+                widget.Show(new WidgetContent("Coo", Strings.Get("Widget.Open"), "", "", Labels: labels, HasBaby: false));
+                timers.Show([], labels);
                 return;
             }
 
@@ -71,7 +74,23 @@ public sealed class ReminderRefresher(
             var formats = new Formats(clock.Is24Hour, household.VolumeUnit);
             var today = baby.IsBorn ? await getToday.ExecuteAsync(household.Id, baby.Id, zone, now, cancellationToken) : null;
 
-            widget.Show(Widget(baby, today, formats, zone));
+            // The personal prediction is Premium (ADR 0008 §7): the widget's next-sleep line and the nap reminder.
+            var sleep = baby.IsBorn && billing.IsPremiumCached
+                ? await getSleep.ExecuteAsync(household.Id, baby, zone, now, cancellationToken)
+                : null;
+            var running = Running(today, formats, zone);
+            widget.Show(Widget(baby, today, formats, zone) with
+            {
+                LastFeedAt = today?.LastFeed?.Timing.OccurredAt,
+                AwakeSince = today?.Running.Any(e => e.Details is SleepDetails) == true ? null : today?.AwakeSince,
+                AsleepSince = today?.Running.FirstOrDefault(e => e.Details is SleepDetails)?.Timing.OccurredAt,
+                Running = running,
+                NextSleep = sleep is { Confidence: Coo.Domain.Insights.PredictionConfidence.High }
+                    ? Strings.Format(sleep.IsBedtime ? "Today.BedLikely" : "Today.NapLikely", formats.Time(sleep.Earliest, zone), formats.Time(sleep.Latest, zone))
+                    : "",
+                Labels = labels,
+            });
+            timers.Show(running, labels);
 
             var chosen = await settings.GetAsync(cancellationToken);
             if (today is null || !chosen.AnyOn)
@@ -81,10 +100,8 @@ public sealed class ReminderRefresher(
             }
 
             var quiet = (await preferences.GetAppearanceAsync(cancellationToken)).QuietHours;
-            // The nap reminder follows the personal prediction, which is Premium (ADR 0008 §7).
-            var sleep = chosen.NapWindow && billing.IsPremiumCached
-                ? await getSleep.ExecuteAsync(household.Id, baby, zone, now, cancellationToken)
-                : null;
+            if (!chosen.NapWindow)
+                sleep = null;
             var planned = ReminderPlanner.Plan(today, sleep, chosen, quiet, zone, now);
             await scheduler.ReplaceAllAsync([.. planned.Select(p => Notice(p, baby.Name, formats, zone))], cancellationToken);
         }
@@ -119,6 +136,62 @@ public sealed class ReminderRefresher(
         };
         return new ReminderNotice(reminder.Id, reminder.At, title, body);
     }
+
+    /// <summary>What runs now, for the widgets' buttons and the timer notification, with its words in the app's language.</summary>
+    public static IReadOnlyList<RunningTimer> Running(TodaySummary? today, Formats formats, TimeZoneInfo zone)
+    {
+        ArgumentNullException.ThrowIfNull(formats);
+        if (today is null)
+            return [];
+        var timers = new List<RunningTimer>();
+        foreach (var entry in today.Running)
+        {
+            var since = entry.Timing.OccurredAt;
+            var started = Strings.Format("Timers.Since", formats.Time(since, zone));
+            switch (entry.Details)
+            {
+                case BreastFeed feed when feed.Segments[^1].End is not null:
+                    timers.Add(new RunningTimer(RunningKind.FeedPaused, since, Strings.Get("Hero.FeedingPaused"), started));
+                    break;
+                case BreastFeed feed:
+                    var left = feed.LastSide == BreastSide.Left;
+                    timers.Add(new RunningTimer(left ? RunningKind.FeedLeft : RunningKind.FeedRight, since,
+                        Strings.Get(left ? "Hero.FeedingLeft" : "Hero.FeedingRight"), started));
+                    break;
+                case SleepDetails:
+                    timers.Add(new RunningTimer(RunningKind.Sleep, since, Strings.Get("Hero.Sleeping"), started));
+                    break;
+                case Coo.Domain.CareLog.Kinds.Pump.PumpDetails:
+                    timers.Add(new RunningTimer(RunningKind.Pump, since, Strings.Get("Hero.Pumping"), started));
+                    break;
+            }
+        }
+
+        return timers;
+    }
+
+    /// <summary>Every widget and notification text, in the app's language at the time of the refresh.</summary>
+    public static IReadOnlyDictionary<string, string> Labels() => new Dictionary<string, string>
+    {
+        [WidgetLabels.FeedLeft] = Strings.Get("Feed.Left"),
+        [WidgetLabels.FeedRight] = Strings.Get("Feed.Right"),
+        [WidgetLabels.Switch] = Strings.Get("Widget.Switch"),
+        [WidgetLabels.Pause] = Strings.Get("Action.Pause"),
+        [WidgetLabels.Stop] = Strings.Get("Action.Stop"),
+        [WidgetLabels.Wet] = Strings.Get("Diaper.Wet"),
+        [WidgetLabels.Dirty] = Strings.Get("Diaper.Dirty"),
+        [WidgetLabels.Sleep] = Strings.Get("Kind.Sleep"),
+        [WidgetLabels.WokeUp] = Strings.Get("Action.WokeUp"),
+        [WidgetLabels.Pump] = Strings.Get("Kind.Pump"),
+        [WidgetLabels.StopPump] = Strings.Get("Widget.StopPump"),
+        [WidgetLabels.LastFeed] = Strings.Get("Widget.LastFeed"),
+        [WidgetLabels.Awake] = Strings.Get("Widget.Awake"),
+        [WidgetLabels.Asleep] = Strings.Get("Widget.Asleep"),
+        [WidgetLabels.Tell] = Strings.Get("Widget.Tell"),
+        [WidgetLabels.Open] = Strings.Get("Widget.Open"),
+        [WidgetLabels.Channel] = Strings.Get("Timers.Channel"),
+        [WidgetLabels.TimerHidden] = Strings.Get("Timers.Hidden"),
+    };
 
     /// <summary>The widget's lines: the last feeding, sleep or awake, the last diaper, each with its clock time.</summary>
     public static WidgetContent Widget(BabyProfile baby, TodaySummary? today, Formats formats, TimeZoneInfo zone)

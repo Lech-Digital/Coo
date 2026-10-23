@@ -124,10 +124,10 @@ public sealed class MemberUseCaseTests : IDisposable
     {
         // Arrange
         var created = new CreatedInvitation(InvitationId, InvitationCode.Parse("ABCDEFGH").Value, new Uri("https://api.coo.lechdigital.nl/i/ABCDEFGH"), Now.AddHours(72));
-        _api.CreateInvitationAsync(Joined, Arg.Any<CancellationToken>()).Returns(created);
+        _api.CreateInvitationAsync(Joined, Arg.Any<Role>(), Arg.Any<CancellationToken>()).Returns(created);
 
         // Act
-        var result = await new InviteParent(_api, _codes).ExecuteAsync(Joined, CancellationToken.None);
+        var result = await new InviteParent(_api, _codes).ExecuteAsync(Joined, Role.Parent, CancellationToken.None);
 
         // Assert
         result.Should().Be(new InviteResult(created, FamilyAction.Done));
@@ -138,11 +138,11 @@ public sealed class MemberUseCaseTests : IDisposable
     {
         // Arrange: walk fix F3, the phone that made an invitation shows its code.
         var code = InvitationCode.Parse("KAHNZ8FW").Value;
-        _api.CreateInvitationAsync(Joined, Arg.Any<CancellationToken>()).Returns(
+        _api.CreateInvitationAsync(Joined, Arg.Any<Role>(), Arg.Any<CancellationToken>()).Returns(
             new CreatedInvitation(InvitationId, code, new Uri("https://api.coo.lechdigital.nl/i/KAHNZ8FW"), Now.AddHours(72)));
 
         // Act
-        await new InviteParent(_api, _codes).ExecuteAsync(Joined, CancellationToken.None);
+        await new InviteParent(_api, _codes).ExecuteAsync(Joined, Role.Parent, CancellationToken.None);
 
         // Assert
         await _codes.Received(1).RememberAsync(Joined, InvitationId, code, Arg.Any<CancellationToken>());
@@ -153,11 +153,11 @@ public sealed class MemberUseCaseTests : IDisposable
     {
         // Arrange: the code on this phone is a convenience; the invitation exists and is shared anyway.
         var created = new CreatedInvitation(InvitationId, InvitationCode.Parse("KAHNZ8FW").Value, new Uri("https://api.coo.lechdigital.nl/i/KAHNZ8FW"), Now.AddHours(72));
-        _api.CreateInvitationAsync(Joined, Arg.Any<CancellationToken>()).Returns(created);
+        _api.CreateInvitationAsync(Joined, Arg.Any<Role>(), Arg.Any<CancellationToken>()).Returns(created);
         _codes.RememberAsync(default, default, default!, default).ThrowsAsyncForAnyArgs(new InvalidOperationException("disk"));
 
         // Act
-        var result = await new InviteParent(_api, _codes).ExecuteAsync(Joined, CancellationToken.None);
+        var result = await new InviteParent(_api, _codes).ExecuteAsync(Joined, Role.Parent, CancellationToken.None);
 
         // Assert
         result.Should().Be(new InviteResult(created, FamilyAction.Done));
@@ -234,10 +234,10 @@ public sealed class MemberUseCaseTests : IDisposable
     public async Task ExecuteAsync_InviteRefusedTooMany_ReportsTheCode()
     {
         // Arrange
-        _api.CreateInvitationAsync(Joined, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(HouseholdErrors.InvitationTooMany));
+        _api.CreateInvitationAsync(Joined, Arg.Any<Role>(), Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(HouseholdErrors.InvitationTooMany));
 
         // Act
-        var result = await new InviteParent(_api, _codes).ExecuteAsync(Joined, CancellationToken.None);
+        var result = await new InviteParent(_api, _codes).ExecuteAsync(Joined, Role.Parent, CancellationToken.None);
 
         // Assert
         result.Invitation.Should().BeNull();
@@ -248,10 +248,10 @@ public sealed class MemberUseCaseTests : IDisposable
     public async Task ExecuteAsync_InviteOffline_IsUnavailable()
     {
         // Arrange
-        _api.CreateInvitationAsync(Joined, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdUnavailableException("offline"));
+        _api.CreateInvitationAsync(Joined, Arg.Any<Role>(), Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdUnavailableException("offline"));
 
         // Act
-        var result = await new InviteParent(_api, _codes).ExecuteAsync(Joined, CancellationToken.None);
+        var result = await new InviteParent(_api, _codes).ExecuteAsync(Joined, Role.Parent, CancellationToken.None);
 
         // Assert
         result.Should().Be(new InviteResult(null, FamilyAction.Unavailable));

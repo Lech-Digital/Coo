@@ -17,7 +17,14 @@ public enum HomeStage
 /// <summary>Everything a section may show, computed once per refresh or tick.</summary>
 public sealed record HomeSnapshot(
     HouseholdSettings Household, BabyProfile Baby, TodaySummary? Today, DateTimeOffset Now, PaletteKind Palette, Formats Formats,
-    int AttentionCount = 0, WhoLabels? Who = null, bool IsPremium = false, string? AvatarRef = null, SleepPrediction? Sleep = null);
+    int AttentionCount = 0, WhoLabels? Who = null, bool IsPremium = false, string? AvatarRef = null, SleepPrediction? Sleep = null,
+    bool ViewOnly = false);
+
+/// <summary>
+/// The sections that write to the log (the tiles, running timers and their buttons): not laid out for someone who
+/// follows the family without logging (a Viewer).
+/// </summary>
+public interface ILoggingSection;
 
 /// <summary>
 /// One block of Today (Spec 006 §3a, ADR 0010 §5). Today only lays out the sections that apply to the current stage and

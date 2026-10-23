@@ -195,6 +195,122 @@ public sealed class QuickLogTests
         logged.Source.Kind.Should().Be(EntrySourceKind.AiParsed);
     }
 
+    [Fact]
+    public async Task QuickAction_FeedLeftWhileAsleep_EndsTheSleepAndStartsTheFeed()
+    {
+        // Arrange: asleep since 13:00
+        _store.Add(Make(new SleepDetails(), EntryTiming.Session(TimeRange.Open(Now.AddHours(-1)))));
+
+        // Act
+        var result = await Quick().ExecuteAsync(QuickAction.FeedLeft, CancellationToken.None);
+
+        // Assert
+        result.Should().Be(new QuickActionResult(QuickAction.FeedLeft, null, BreastSide.Left));
+        _store.Entries.Single(e => e.Details is SleepDetails).Timing.Should().Match<SessionTiming>(t => t.Range.End == Now);
+        _store.Entries.Single(e => e.Details is BreastFeed).Details.Should().Match<BreastFeed>(f => f.LastSide == BreastSide.Left);
+    }
+
+    [Fact]
+    public async Task QuickAction_FeedRightWhileFeedingLeft_SwitchesSide()
+    {
+        // Arrange
+        _store.Add(Make(BreastFeed.Start(BreastSide.Left, Now.AddMinutes(-10)), null));
+
+        // Act
+        var result = await Quick().ExecuteAsync(QuickAction.FeedRight, CancellationToken.None);
+
+        // Assert
+        result.Succeeded.Should().BeTrue();
+        _store.Entries.Should().ContainSingle().Which.Details.Should().Match<BreastFeed>(f => f.LastSide == BreastSide.Right && f.Segments.Count == 2);
+    }
+
+    [Fact]
+    public async Task QuickAction_WokeUpWithNoSleepRunning_WritesNothing()
+    {
+        // Act
+        var result = await Quick().ExecuteAsync(QuickAction.WokeUp, CancellationToken.None);
+
+        // Assert
+        result.Error.Should().Be(QuickActions.NothingRunning);
+        _store.Entries.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task QuickAction_NoFamilyYet_SaysSo()
+    {
+        // Arrange
+        _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([]);
+
+        // Act
+        var result = await Quick().ExecuteAsync(QuickAction.Wet, CancellationToken.None);
+
+        // Assert
+        result.Error.Should().Be(QuickActions.NoBaby);
+    }
+
+    [Fact]
+    public async Task QuickAction_ViewerFollowingTheFamily_WritesNothing()
+    {
+        // Arrange: a grandparent's phone
+        var access = Substitute.For<ILogAccess>();
+        access.CanLogAsync(Household, Arg.Any<CancellationToken>()).Returns(false);
+
+        // Act
+        var result = await Quick(access).ExecuteAsync(QuickAction.Wet, CancellationToken.None);
+
+        // Assert
+        result.Error.Should().Be(ApplicationErrors.ViewOnly);
+        _store.Entries.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Import_DiaperAlreadyLogged_IsNotWrittenTwice()
+    {
+        // Arrange: the 13:00 diaper is in Coo already (logged at 13:01); the 12:00 one is not
+        _store.Add(Make(new DiaperDetails(DiaperContents.Wet), EntryTiming.Point(Now.AddMinutes(-59))));
+        var clock = Substitute.For<IVersionClock>();
+        clock.NextAsync(Arg.Any<CancellationToken>()).Returns(_ => new HlcStamp(++_wall, 0, Device));
+        var import = new Coo.Mobile.Application.Import.ImportLog(_households, _store, new LogEntry(_store, clock, _time));
+        var preview = await import.PreviewAsync("Type,Start,End Condition\nDiaper,2026-10-23 12:00,Pee\nDiaper,2026-10-23 13:00,Poo\n",
+            System.Globalization.CultureInfo.InvariantCulture, CancellationToken.None);
+
+        // Act
+        var result = await import.ExecuteAsync(preview!, CancellationToken.None);
+
+        // Assert
+        result.Should().Be(new Coo.Mobile.Application.Import.ImportResult(1, 1, 0));
+        _store.Entries.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task Export_ThenImport_GivesTheSameEntriesBack()
+    {
+        // Arrange: a breastfeed in two sides, a bottle, a diaper and a nap
+        _store.Add(Make(BreastFeed.FromSideDurations(Now.AddHours(-5), [(BreastSide.Left, 12), (BreastSide.Right, 8)]).Value, null));
+        _store.Add(Make(BottleFeed.Of(Milk.Formula, Volume.FromMillilitres(120).Value).Value, EntryTiming.Point(Now.AddHours(-3))));
+        _store.Add(Make(new DiaperDetails(DiaperContents.Mixed), EntryTiming.Point(Now.AddHours(-2))));
+        _store.Add(Make(new SleepDetails(), EntryTiming.Session(TimeRange.Create(Now.AddHours(-2), Now.AddMinutes(-35)).Value)));
+
+        // Act
+        var csv = await new Coo.Mobile.Application.Import.ExportLog(_households, _store).ExecuteAsync(CancellationToken.None);
+        var preview = Coo.Mobile.Application.Import.LogFileReader.Read(csv!, TimeZoneInfo.FindSystemTimeZoneById("Europe/Amsterdam"), System.Globalization.CultureInfo.InvariantCulture);
+
+        // Assert
+        (preview.Feeds, preview.Diapers, preview.Sleeps, preview.Skipped).Should().Be((2, 1, 1, 0));
+        var breast = preview.Entries.Single(e => e.Action == AiActions.BreastLog);
+        (breast.LeftMinutes, breast.RightMinutes, breast.At).Should().Be((12, 8, Now.AddHours(-5)));
+        preview.Entries.Single(e => e.Action == AiActions.BottleLog).Should().Match<AiProposal>(b => b.Millilitres == 120 && b.Milk == "formula");
+        preview.Entries.Single(e => e.Action == AiActions.DiaperLog).Contents.Should().Be("mixed");
+        preview.Entries.Single(e => e.Action == AiActions.SleepLog).EndAt.Should().Be(Now.AddMinutes(-35));
+    }
+
+    private QuickActions Quick(ILogAccess? access = null)
+    {
+        var clock = Substitute.For<IVersionClock>();
+        clock.NextAsync(Arg.Any<CancellationToken>()).Returns(_ => new HlcStamp(++_wall, 0, Device));
+        return new QuickActions(_households, new GetToday(_store), new LogEntry(_store, clock, _time, access), new ReviseEntry(_store, clock, _time, access), _time);
+    }
+
     private PrepareQuickLog Prepare() => new(_households, new GetToday(_store), _store, _api, _notes, _time);
 
     private ApplyQuickLog Apply()

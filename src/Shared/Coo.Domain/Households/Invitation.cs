@@ -60,9 +60,9 @@ public sealed class Invitation
     public bool IsOpen => AcceptedAt is null && RevokedAt is null;
 
     public static Invitation Create(InvitationId id, HouseholdId household, Role role, UserId createdBy, DateTimeOffset now) =>
-        role is Role.Parent or Role.Caregiver
+        role is Role.Parent or Role.Caregiver or Role.Viewer
             ? new Invitation(id, household, role, createdBy, now, now + Lifetime, null, null, null)
-            : throw new ArgumentOutOfRangeException(nameof(role), role, "An invitation is for a Parent or a Caregiver.");
+            : throw new ArgumentOutOfRangeException(nameof(role), role, "An invitation is for a Parent, a Caregiver or a Viewer.");
 
     internal static Invitation Rehydrate(
         InvitationId id, HouseholdId household, Role role, UserId createdBy, DateTimeOffset createdAt, DateTimeOffset expiresAt,

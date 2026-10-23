@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The home-screen widget in Washi day (Ground, Ink, Ink2, Accent, OnAccent); values-night has the night palette. -->
+<!-- The home-screen widgets in Washi day (Ground, Ink, Ink2, Accent, OnAccent, the kinds' tints and inks);
+     values-night has the night palette. -->
 <resources>
     <color name="widget_ground">#FAF8F3</color>
     <color name="widget_ink">#2A2823</color>
     <color name="widget_ink2">#6B665C</color>
     <color name="widget_accent">#BA4F28</color>
     <color name="widget_on_accent">#FAF8F3</color>
+    <color name="widget_feed_tint">#F5DCCB</color>
+    <color name="widget_feed_ink">#7A3F20</color>
+    <color name="widget_diaper_tint">#F3E6B3</color>
+    <color name="widget_diaper_ink">#6A5410</color>
+    <color name="widget_sleep_tint">#E2DCEF</color>
+    <color name="widget_sleep_ink">#473A78</color>
+    <color name="widget_pump_tint">#D6E9E2</color>
+    <color name="widget_pump_ink">#2D5A4C</color>
 </resources>

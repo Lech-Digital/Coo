@@ -46,4 +46,7 @@ public static class AuthRoles
     public const string Owner = "owner";
     public const string Parent = "parent";
     public const string Caregiver = "caregiver";
+
+    /// <summary>Follows the log and logs nothing (a grandparent). Phones before 1.6 do not know it.</summary>
+    public const string Viewer = "viewer";
 }

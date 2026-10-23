@@ -10,8 +10,11 @@ public enum Role
 
     Parent,
 
-    /// <summary>For example a nanny: logs and views, nothing else.</summary>
+    /// <summary>For example a nanny or a daycare: logs and views, nothing else.</summary>
     Caregiver,
+
+    /// <summary>For example a grandparent: follows the log, logs nothing.</summary>
+    Viewer,
 }
 
 /// <summary>
@@ -38,6 +41,9 @@ public sealed class Membership
 
     /// <summary>An Owner or a Parent: "a parent" in ADR 0003 §8's deletion rules.</summary>
     public bool IsParent => Role is Role.Owner or Role.Parent;
+
+    /// <summary>Writes to the care log: everyone but a <see cref="Role.Viewer"/>.</summary>
+    public bool CanLog => Role != Role.Viewer;
 
     public bool CanInvite => IsParent;
 

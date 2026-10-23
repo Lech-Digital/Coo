@@ -27,7 +27,14 @@ public sealed class CreateInvitation(IHouseholdMembershipStore store, TimeProvid
             if (me.Membership is not { CanInvite: true } || me.IsRevoked)
                 return Result<CreatedInvitation>.Failure(HouseholdErrors.Forbidden);
             // After the membership check: a non-member always gets 403, whatever role they ask for (spec §10.1).
-            if (role != AuthRoles.Parent)
+            Role? invited = role switch
+            {
+                AuthRoles.Parent => Role.Parent,
+                AuthRoles.Caregiver => Role.Caregiver,
+                AuthRoles.Viewer => Role.Viewer,
+                _ => null,
+            };
+            if (invited is not { } asked)
                 return Result<CreatedInvitation>.Failure(HouseholdErrors.InvitationRoleUnsupported);
 
             var now = time.GetUtcNow();
@@ -35,7 +42,7 @@ public sealed class CreateInvitation(IHouseholdMembershipStore store, TimeProvid
                 return Result<CreatedInvitation>.Failure(HouseholdErrors.InvitationTooMany);
 
             var code = InvitationCode.FromRandom(nextIndex);
-            var invitation = Invitation.Create(new InvitationId(Guid.CreateVersion7(now)), household, Role.Parent, user, now);
+            var invitation = Invitation.Create(new InvitationId(Guid.CreateVersion7(now)), household, asked, user, now);
             await tx.AddInvitationAsync(invitation, hasher.Hash(code.Value), cancellationToken);
             return Result<CreatedInvitation>.Ok(new CreatedInvitation(invitation.Id, code, invitation.ExpiresAt));
         }, cancellationToken);

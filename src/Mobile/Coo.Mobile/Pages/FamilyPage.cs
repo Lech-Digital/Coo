@@ -189,7 +189,11 @@ public sealed class FamilyPage : ContentPage
         }
 
         if (_model.ShowsInvite)
-            stack.Add(Styled(Strings.Get("Family.Invite"), "PrimaryButton", () => _model.InviteCommand.ExecuteAsync(null)));
+            stack.Add(Styled(Strings.Get("Family.InviteSomeone"), "PrimaryButton", async () =>
+            {
+                if (await InviteRole.AskAsync(this) is { } role)
+                    await _model.InviteCommand.ExecuteAsync(role);
+            }));
         if (_model.ShowsLeave)
             stack.Add(Styled(Strings.Get("Family.Leave"), "GhostButton", () => ConfirmAsync(_model.LeavePromptAsync, () => _model.LeaveCommand.ExecuteAsync(null))));
 

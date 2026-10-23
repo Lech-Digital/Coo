@@ -25,6 +25,9 @@ public static class ChangeValidator
             return Reject(RejectionReasons.StampInFuture);
         if (change.EntityType is null || !SyncEntityTypes.All.Contains(change.EntityType) || change.EntityId == Guid.Empty)
             return Reject(RejectionReasons.ChangeMalformed);
+        // A Viewer follows the log and changes nothing in it.
+        if (!member.CanLog)
+            return Reject(RejectionReasons.RoleForbidden);
         if ((change.EntityType is SyncEntityTypes.BabyProfile or SyncEntityTypes.HouseholdSettings) && !member.CanManageBaby)
             return Reject(RejectionReasons.RoleForbidden);
         if (change.EntityType == SyncEntityTypes.HouseholdSettings && change.EntityId != household.Value)

@@ -85,14 +85,21 @@ public sealed partial class TodayViewModel : ObservableObject
     private string? _avatarRef;
     private readonly Coo.Mobile.Application.Insights.GetSleepPrediction? _getSleep;
     private Coo.Domain.Insights.SleepPrediction? _sleep;
+    private readonly Coo.Mobile.Application.CareLog.ILogAccess? _logAccess;
+
+    /// <summary>This person follows the family without logging (a Viewer): Today shows the day, without its buttons.</summary>
+    public bool IsViewOnly { get; private set; }
 
     public TodayViewModel(
         IEnumerable<IHomeSection> sections, IHouseholdStore households, GetToday getToday, HomeActions actions,
         ThemeController theme, IClockFormat clock, RecordBirth recordBirth, TimeProvider time, GetAttention attention, UndoService undo,
         WhoLabelsSource who, Coo.Mobile.Application.Preferences.IReviewPrompter reviewPrompter, Coo.Mobile.Application.Billing.IBillingService billing,
         IDevicePreferences preferences, Coo.Mobile.Application.Households.BabyAvatarSyncService? avatarSync = null,
-        Coo.Mobile.Application.Insights.GetSleepPrediction? getSleep = null)
+        Coo.Mobile.Application.Insights.GetSleepPrediction? getSleep = null,
+        Coo.Mobile.Application.Notifications.IReminderScheduler? notifications = null,
+        Coo.Mobile.Application.CareLog.ILogAccess? logAccess = null)
     {
+        _logAccess = logAccess;
         _billing = billing;
         _getSleep = getSleep;
         _preferences = preferences;
@@ -119,6 +126,10 @@ public sealed partial class TodayViewModel : ObservableObject
             if (outcome.Succeeded)
                 _ = reviewPrompter.CheckAndPromptAsync(CancellationToken.None);
             await RefreshAsync();
+
+            // A timer just started: its clock and buttons go in the notification bar, which needs the permission (Android 13+).
+            if (outcome.Succeeded && _summary?.Running.Count > 0 && notifications is not null)
+                _ = notifications.EnsurePermissionAsync();
         };
         _actions.SheetRequested += (_, request) => OpenSheet(request.Sheet, request.Entry);
         _actions.IsPump = id => _summary?.Running.Any(e => e.Id == id && e.Details is PumpDetails) == true;
@@ -187,6 +198,7 @@ public sealed partial class TodayViewModel : ObservableObject
         _sleep = _baby.IsBorn && _getSleep is not null
             ? await _getSleep.ExecuteAsync(_household.Id, _baby, Zone(), _time.GetLocalNow(), CancellationToken.None)
             : null;
+        IsViewOnly = _logAccess is not null && !await _logAccess.CanLogAsync(_household.Id, CancellationToken.None);
         _attentionCount = (await _attention.ExecuteAsync(_household.Id, _time.GetLocalNow(), CancellationToken.None)).Count;
         _who = await _whoSource.ForAsync(_household.Id);
         _currentLocalDay = _time.GetLocalNow().Date;
@@ -347,7 +359,7 @@ public sealed partial class TodayViewModel : ObservableObject
     {
         if (_household is null || _baby is null)
             return;
-        var visible = _all.Where(s => s.AppliesTo(Stage, _theme.Current)).ToList();
+        var visible = _all.Where(s => s.AppliesTo(Stage, _theme.Current) && !(IsViewOnly && s is ILoggingSection)).ToList();
         if (!visible.SequenceEqual(Sections))
         {
             Sections.Clear();
@@ -360,7 +372,7 @@ public sealed partial class TodayViewModel : ObservableObject
         Tick();
     }
 
-    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep);
+    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep, IsViewOnly);
 
     private Formats Formats() => new(_clock.Is24Hour, _household?.VolumeUnit ?? VolumeUnit.Millilitres);
 

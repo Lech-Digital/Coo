@@ -139,6 +139,7 @@ internal static class AuthEndpoints
         Role.Owner => AuthRoles.Owner,
         Role.Parent => AuthRoles.Parent,
         Role.Caregiver => AuthRoles.Caregiver,
+        Role.Viewer => AuthRoles.Viewer,
         _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Unknown role."),
     };
 }

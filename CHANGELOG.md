@@ -11,6 +11,20 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 - Each release gets a section here, newest first, written for parents rather than developers where it ends up in
   Play's "What's new".
 
+## 1.6.0 (code 23) — 2026-10-24
+
+### New
+- **Widgets that work, and two more**: the glance widget (it showed "Can't load widget"), a quick-log widget with
+  one-tap Left, Right, Wet, Dirty, Sleep and Pump (Switch, Pause and Stop while feeding), and clocks since the last
+  feed and awake or asleep.
+- **Timers in the notification bar**: a running feed, sleep or pump shows its clock there, with Switch, Pause, Stop
+  or Woke up, from the lock screen.
+- **Invite a nanny, daycare or grandparents**: a caregiver logs feeds, sleep and diapers; family who follow along see
+  the day and change nothing.
+- **Import from another app** (Settings → Your data): a CSV export from another baby app, previewed before anything
+  is saved; entries already in Coo are skipped.
+- **Export your log** as a CSV file, which Coo can import again.
+
 ## 1.5.0 (code 22) — 2026-10-24
 
 ### New

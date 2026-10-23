@@ -315,6 +315,11 @@ public sealed class SettingsPage : ContentPage
         contentStack.Add(Header("Reminders.Title"));
         contentStack.Add(Row(Ui.Text(Strings.Get("Reminders.Title"), "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<RemindersPage>())));
 
+        contentStack.Add(Header("Import.Header"));
+        contentStack.Add(Row(Ui.Text(Strings.Get("Import.Title"), "Body"), ImportAsync));
+        contentStack.Add(Row(Ui.Text(Strings.Get("Export.Title"), "Body"), ExportAsync));
+        contentStack.Add(Hint("Import.Hint"));
+
         contentStack.Add(Header("Premium"));
         contentStack.Add(Row(Ui.Text(Strings.Get("Premium.Title") ?? "Coo Premium", "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<PremiumPage>())));
 
@@ -527,7 +532,11 @@ public sealed class SettingsPage : ContentPage
         if (_family.ShowsOnlyHere)
             yield return Ui.Text(Strings.Get("Family.OnlyHere"), "Meta", "Ink2");
         if (_family.ShowsInvite)
-            yield return Row(Ui.Text(Strings.Get("Family.Invite"), "Body"), () => _family.InviteCommand.ExecuteAsync(null));
+            yield return Row(Ui.Text(Strings.Get("Family.InviteSomeone"), "Body"), async () =>
+            {
+                if (await InviteRole.AskAsync(this) is { } role)
+                    await _family.InviteCommand.ExecuteAsync(role);
+            });
         yield return Row(Ui.Text(Strings.Get("Family.Join"), "Body"), () => _services.GetRequiredService<Sync.SyncPrompter>().ShowEnterCodeAsync());
         if (_family.ShowsBringOver)
         {
@@ -675,6 +684,64 @@ public sealed class SettingsPage : ContentPage
         catch (Exception)
         {
             _undo.Say(Strings.Get("Error.Generic"));
+        }
+    }
+
+    /// <summary>The whole log as a CSV file, to the share sheet: made on the phone, sent only where the parent chooses.</summary>
+    private async Task ExportAsync()
+    {
+        try
+        {
+            var csv = await _services.GetRequiredService<Coo.Mobile.Application.Import.ExportLog>().ExecuteAsync(CancellationToken.None);
+            if (csv is null)
+                return;
+            var path = System.IO.Path.Combine(FileSystem.CacheDirectory, $"coo-log-{_services.GetRequiredService<TimeProvider>().GetLocalNow():yyyy-MM-dd}.csv");
+            await File.WriteAllTextAsync(path, csv, new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+            await Share.Default.RequestAsync(new ShareFileRequest { Title = Strings.Get("Export.Title"), File = new ShareFile(path, "text/csv") });
+        }
+#pragma warning disable CA1031 // A failed export says so; it never takes Settings down.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+            await DisplayAlertAsync(Strings.Get("Export.Title"), Strings.Get("Report.Failed"), Strings.Get("Join.OK"));
+        }
+    }
+
+    /// <summary>Another app's export: pick the file, see what Coo found, and only then save it.</summary>
+    private async Task ImportAsync()
+    {
+        try
+        {
+            var file = await FilePicker.Default.PickAsync(new PickOptions { PickerTitle = Strings.Get("Import.Title") });
+            if (file is null)
+                return;
+            await using var stream = await file.OpenReadAsync();
+            if (stream.CanSeek && stream.Length > Coo.Mobile.Presentation.Settings.ImportViewModel.MaxFileBytes)
+            {
+                await DisplayAlertAsync(Strings.Get("Import.Title"), Strings.Get("Import.Nothing"), Strings.Get("Join.OK"));
+                return;
+            }
+
+            using var reader = new StreamReader(stream);
+            var text = await reader.ReadToEndAsync();
+            var model = _services.GetRequiredService<Coo.Mobile.Presentation.Settings.ImportViewModel>();
+            if (await model.PreviewAsync(text) is not { } preview || preview.Entries.Count == 0)
+            {
+                await DisplayAlertAsync(Strings.Get("Import.Title"), Strings.Get("Import.Nothing"), Strings.Get("Join.OK"));
+                return;
+            }
+
+            var describe = Coo.Mobile.Presentation.Settings.ImportViewModel.Describe(preview);
+            if (!await DisplayAlertAsync(Strings.Get("Import.Title"), describe, Strings.Get("Import.Go"), Strings.Get("Action.Cancel")))
+                return;
+            var result = await model.ImportAsync(preview);
+            await DisplayAlertAsync(Strings.Get("Import.Title"), Coo.Mobile.Presentation.Settings.ImportViewModel.Describe(result), Strings.Get("Join.OK"));
+        }
+#pragma warning disable CA1031 // An unreadable file says so; it never takes Settings down.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+            await DisplayAlertAsync(Strings.Get("Import.Title"), Strings.Get("Import.Nothing"), Strings.Get("Join.OK"));
         }
     }
 }

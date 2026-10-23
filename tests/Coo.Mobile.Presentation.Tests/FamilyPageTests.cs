@@ -141,13 +141,13 @@ public sealed class FamilyPageTests : IDisposable
         // Arrange
         var page = await PageAsync(Role.Parent, 2);
         var created = Guid.Parse("7a1c0000-0000-7000-8000-0000000000e9");
-        _api.CreateInvitationAsync(Joined, Arg.Any<CancellationToken>()).Returns(new CreatedInvitation(
+        _api.CreateInvitationAsync(Joined, Arg.Any<Role>(), Arg.Any<CancellationToken>()).Returns(new CreatedInvitation(
             created, InvitationCode.Parse("KAHNZ8FW").Value, new Uri("https://api.coo.lechdigital.nl/i/KAHNZ8FW"), Now.AddHours(72)));
         _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(new FamilyMembers(
             [new FamilyMember(Me, "Kasia", "k@example.com", Role.Parent, Now, true)], [new FamilyInvitation(created, Role.Parent, Me, Now, Now.AddHours(72))]));
 
         // Act
-        await page.InviteCommand.ExecuteAsync(null);
+        await page.InviteCommand.ExecuteAsync(Role.Parent);
 
         // Assert
         page.Invitations.Single().Detail.Should().StartWith("Code KAHN-Z8FW · made ");
@@ -494,10 +494,10 @@ public sealed class FamilyPageTests : IDisposable
         // Arrange
         var page = await PageAsync(Role.Parent, 2);
         var created = new CreatedInvitation(InvitationId, InvitationCode.Parse("ABCDEFGH").Value, new Uri("https://api.coo.lechdigital.nl/i/ABCDEFGH"), Now.AddHours(72));
-        _api.CreateInvitationAsync(Joined, Arg.Any<CancellationToken>()).Returns(created);
+        _api.CreateInvitationAsync(Joined, Arg.Any<Role>(), Arg.Any<CancellationToken>()).Returns(created);
 
         // Act
-        await page.InviteCommand.ExecuteAsync(null);
+        await page.InviteCommand.ExecuteAsync(Role.Parent);
 
         // Assert
         await _launcher.Received(1).ShareTextAsync(Arg.Is<string>(t => t.Contains("ABCD-EFGH") && t.Contains("ABCDEFGH")), "Invite a parent");
@@ -508,10 +508,10 @@ public sealed class FamilyPageTests : IDisposable
     {
         // Arrange
         var page = await PageAsync(Role.Parent, 2);
-        _api.CreateInvitationAsync(Joined, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(HouseholdErrors.InvitationTooMany));
+        _api.CreateInvitationAsync(Joined, Arg.Any<Role>(), Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(HouseholdErrors.InvitationTooMany));
 
         // Act
-        await page.InviteCommand.ExecuteAsync(null);
+        await page.InviteCommand.ExecuteAsync(Role.Parent);
 
         // Assert
         page.Toast.Should().StartWith("This family already has 5 open invitations");
@@ -524,11 +524,11 @@ public sealed class FamilyPageTests : IDisposable
         // Arrange
         var page = await PageAsync(Role.Parent, 2);
         var created = new CreatedInvitation(InvitationId, InvitationCode.Parse("ABCDEFGH").Value, new Uri("https://api.coo.lechdigital.nl/i/ABCDEFGH"), Now.AddHours(72));
-        _api.CreateInvitationAsync(Joined, Arg.Any<CancellationToken>()).Returns(created);
+        _api.CreateInvitationAsync(Joined, Arg.Any<Role>(), Arg.Any<CancellationToken>()).Returns(created);
         _launcher.ShareTextAsync(default!, default!).ReturnsForAnyArgs(Task.FromException(new InvalidOperationException("no sheet")));
 
         // Act
-        Func<Task> act = async () => await page.InviteCommand.ExecuteAsync(null);
+        Func<Task> act = async () => await page.InviteCommand.ExecuteAsync(Role.Parent);
 
         // Assert
         await act.Should().NotThrowAsync();
@@ -542,10 +542,10 @@ public sealed class FamilyPageTests : IDisposable
         var page = await PageAsync(Role.Caregiver, 2);
 
         // Act
-        await page.InviteCommand.ExecuteAsync(null);
+        await page.InviteCommand.ExecuteAsync(Role.Parent);
 
         // Assert
-        await _api.DidNotReceiveWithAnyArgs().CreateInvitationAsync(default, default);
+        await _api.DidNotReceiveWithAnyArgs().CreateInvitationAsync(default, default, default);
     }
 
     [Fact]
@@ -664,11 +664,11 @@ public sealed class FamilyPageTests : IDisposable
         var page = await PageAsync(Role.Parent, 2);
 
         // Act
-        await page.InviteCommand.ExecuteAsync(null);
+        await page.InviteCommand.ExecuteAsync(Role.Parent);
 
         // Assert
         page.ShowsInvite.Should().BeFalse();
-        await _api.DidNotReceiveWithAnyArgs().CreateInvitationAsync(default, default);
+        await _api.DidNotReceiveWithAnyArgs().CreateInvitationAsync(default, default, default);
     }
 
     [Fact]

@@ -144,7 +144,7 @@ public enum LeaveOutcome
 /// </summary>
 public interface IHouseholdApi
 {
-    Task<CreatedInvitation> CreateInvitationAsync(HouseholdId household, CancellationToken cancellationToken);
+    Task<CreatedInvitation> CreateInvitationAsync(HouseholdId household, Role role, CancellationToken cancellationToken);
 
     Task WithdrawInvitationAsync(HouseholdId household, Guid invitationId, CancellationToken cancellationToken);
 

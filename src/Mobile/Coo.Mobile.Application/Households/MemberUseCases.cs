@@ -78,17 +78,17 @@ public sealed class LoadFamilyMembers(IHouseholdApi api, IInvitationCodes codes)
 public sealed record InviteResult(CreatedInvitation? Invitation, FamilyAction Action);
 
 /// <summary>
-/// Invite a parent (spec §3): the code exists only in this answer, on the share sheet, and on this phone's Family page (walk fix
+/// Invite a parent, a caregiver (a nanny, a daycare) or a viewer (family who follow along) (spec §3): the code exists only in this answer, on the share sheet, and on this phone's Family page (walk fix
 /// F3), which remembers it by invitation.
 /// </summary>
 public sealed class InviteParent(IHouseholdApi api, IInvitationCodes codes)
 {
-    public async Task<InviteResult> ExecuteAsync(HouseholdId household, CancellationToken cancellationToken)
+    public async Task<InviteResult> ExecuteAsync(HouseholdId household, Role role, CancellationToken cancellationToken)
     {
         CreatedInvitation created;
         try
         {
-            created = await api.CreateInvitationAsync(household, cancellationToken);
+            created = await api.CreateInvitationAsync(household, role, cancellationToken);
         }
         catch (Exception e) when (e is HouseholdUnavailableException or HouseholdRefusedException)
         {

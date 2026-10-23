@@ -272,7 +272,7 @@ public sealed partial class StatusHeroSection : ObservableObject, IHomeSection
 }
 
 /// <summary>One card per running timer (Spec 006 §4.3).</summary>
-public sealed partial class RunningSection(HomeActions actions) : ObservableObject, IHomeSection
+public sealed partial class RunningSection(HomeActions actions) : ObservableObject, IHomeSection, ILoggingSection
 {
     public int Order => 30;
 
@@ -291,7 +291,7 @@ public sealed partial class RunningSection(HomeActions actions) : ObservableObje
 }
 
 /// <summary>Feed, Diaper, Sleep and Pump, with their "last at" lines (Spec 006 §4.4).</summary>
-public sealed partial class LogTilesSection(HomeActions actions) : ObservableObject, IHomeSection
+public sealed partial class LogTilesSection(HomeActions actions) : ObservableObject, IHomeSection, ILoggingSection
 {
     public int Order => 10;
 
@@ -679,7 +679,7 @@ public sealed partial class AttentionSection : ObservableObject, IHomeSection
 /// Today at night: the 03:12 layout (Spec 006 §6). Big timer, three facts, the quick row: diapers, then feeds (left,
 /// right, bottle: Spec 009 §3.8), then sleep.
 /// </summary>
-public sealed partial class NightSection(HomeActions actions) : ObservableObject, IHomeSection
+public sealed partial class NightSection(HomeActions actions) : ObservableObject, IHomeSection, ILoggingSection
 {
     public int Order => 20;
 
@@ -775,5 +775,22 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
         quick = [.. quick.Where(q => KindVisibility.IsShown(s.Household, q.KindCode))];
         if (Running.Changed(Quick, quick, q => q.Label))
             Quick = quick;
+    }
+}
+
+/// <summary>For a Viewer (a grandparent following along): whose day this is, and that parents and caregivers add to it.</summary>
+public sealed partial class ViewOnlySection : ObservableObject, IHomeSection
+{
+    public int Order => 8;
+
+    [ObservableProperty]
+    private string _text = "";
+
+    public bool AppliesTo(HomeStage stage, PaletteKind palette) => true;
+
+    public void Update(HomeSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        Text = snapshot.ViewOnly ? Strings.Format("Today.ViewOnly", snapshot.Baby.Name) : "";
     }
 }

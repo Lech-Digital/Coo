@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="widget_label">Coo</string>
     <string name="widget_description">Last feeding, sleep and diaper at a glance, and Tell Coo.</string>
+    <string name="widget_quick_label">Coo quick log</string>
+    <string name="widget_quick_description">Log a feed, a diaper or a sleep in one tap, without opening Coo.</string>
+    <string name="widget_timer_label">Coo clocks</string>
+    <string name="widget_timer_description">Time since the last feed, and how long awake or asleep.</string>
 </resources>

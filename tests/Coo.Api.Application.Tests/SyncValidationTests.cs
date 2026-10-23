@@ -210,6 +210,29 @@ public sealed class SyncValidationTests
     }
 
     [Fact]
+    public void Validate_ViewerLoggingADiaper_IsRejectedByTheRoleRule()
+    {
+        // Arrange: a grandparent follows along and writes nothing
+        var grandma = Membership.Create(Household, Parent, Role.Viewer, Now);
+
+        // Act
+        var result = ChangeValidator.Validate(Upsert(Id(3), Diaper(Now, "user:7a1c0000-0000-7000-8000-0000000000c1")), Household, grandma, SchemaVersions.Current, Now);
+
+        // Assert
+        result.Error!.Code.Should().Be(RejectionReasons.RoleForbidden);
+    }
+
+    [Fact]
+    public void Validate_CaregiverLoggingADiaper_IsAccepted()
+    {
+        // Act
+        var result = ChangeValidator.Validate(Upsert(Id(4), Diaper(Now, "user:7a1c0000-0000-7000-8000-0000000000c1")), Household, Nanny, SchemaVersions.Current, Now);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact]
     public void Validate_CaregiverChangingTheBaby_IsRejectedByTheRoleRule()
     {
         // Arrange

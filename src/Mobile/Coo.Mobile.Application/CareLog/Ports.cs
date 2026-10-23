@@ -84,6 +84,9 @@ public static class ApplicationErrors
 {
     public const string EntryNotFound = "entry.not-found";
     public const string EntryNotEditable = "entry.not-editable";
+
+    /// <summary>This person follows the family's log and does not write to it (a Viewer).</summary>
+    public const string ViewOnly = "family.view-only";
 }
 
 /// <summary>The "keep both" decisions (Spec 007 §6). Each one syncs, so no phone asks about the pair again.</summary>
@@ -92,4 +95,10 @@ public interface IDuplicateDismissalStore
     Task SaveAsync(Coo.Domain.CareLog.Duplicates.DuplicateDismissal dismissal, CancellationToken cancellationToken);
 
     Task<IReadOnlySet<Coo.Domain.CareLog.Duplicates.EntryPair>> ListAsync(HouseholdId household, CancellationToken cancellationToken);
+}
+
+/// <summary>Whether this phone's person may write to a family's log: a Viewer follows along and may not.</summary>
+public interface ILogAccess
+{
+    Task<bool> CanLogAsync(HouseholdId household, CancellationToken cancellationToken);
 }

@@ -204,6 +204,7 @@
   <data name="Error.entry.not-editable" xml:space="preserve"><value>Cette entrée ne peut pas être modifiée dans cette version de Coo.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>Cette entrée n’existe plus.</value></data>
   <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>Les heures de cette entrée ne sont pas autorisées.</value></data>
+  <data name="Error.family.view-only" xml:space="preserve"><value>Vous suivez le journal de cette famille : seuls les parents et la garde peuvent y noter.</value></data>
   <data name="Error.growth.empty" xml:space="preserve"><value>Saisissez au moins une mesure.</value></data>
   <data name="Error.growth.head-out-of-range" xml:space="preserve"><value>Ce périmètre crânien semble faux : vérifiez l’unité.</value></data>
   <data name="Error.growth.length-out-of-range" xml:space="preserve"><value>Cette taille semble fausse : vérifiez l’unité.</value></data>
@@ -223,6 +224,9 @@
   <data name="Error.invitation.too-many" xml:space="preserve"><value>Cette famille a déjà 5 invitations en attente. Retirez-en une pour en créer une nouvelle.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>Une note fait au plus 500 caractères.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Le tire-lait dure au plus 4 heures. Vérifiez les heures.</value></data>
+  <data name="Error.quick.already-running" xml:space="preserve"><value>Déjà en cours.</value></data>
+  <data name="Error.quick.no-baby" xml:space="preserve"><value>Ouvrez Coo et ajoutez d’abord votre bébé.</value></data>
+  <data name="Error.quick.nothing-running" xml:space="preserve"><value>Rien n’est en cours.</value></data>
   <data name="Error.settings.all-kinds-hidden" xml:space="preserve"><value>Gardez au moins un type visible.</value></data>
   <data name="Error.sleep.too-long" xml:space="preserve"><value>Un sommeil dure au plus 24 heures. Vérifiez les heures.</value></data>
   <data name="Error.sync.change-malformed" xml:space="preserve"><value>Le serveur n’a pas pu lire cette modification.</value></data>
@@ -237,6 +241,7 @@
   <data name="Error.time.too-far-in-future" xml:space="preserve"><value>Cette heure est trop loin dans le futur.</value></data>
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Saisissez une quantité supérieure à 0 et jusqu’à 1 000 ml.</value></data>
   <data name="Expecting.Eyebrow" xml:space="preserve"><value>Bientôt</value></data>
+  <data name="Export.Title" xml:space="preserve"><value>Exporter votre journal (CSV)</value></data>
   <data name="Family.ActionFailed" xml:space="preserve"><value>Cela n'a pas fonctionné. Vérifiez votre connexion et réessayez.</value></data>
   <data name="Family.BringHere" xml:space="preserve"><value>Transférer ses entrées ici</value></data>
   <data name="Family.BringOver" xml:space="preserve"><value>Transférer des entrées</value></data>
@@ -251,6 +256,7 @@
   <data name="Family.InvitationMade" xml:space="preserve"><value>Créée le {0}</value></data>
   <data name="Family.Invitations" xml:space="preserve"><value>Invitations en attente</value></data>
   <data name="Family.Invite" xml:space="preserve"><value>Inviter un parent</value></data>
+  <data name="Family.InviteSomeone" xml:space="preserve"><value>Inviter quelqu’un</value></data>
   <data name="Family.Join" xml:space="preserve"><value>Rejoindre une famille</value></data>
   <data name="Family.Leave" xml:space="preserve"><value>Quitter cette famille</value></data>
   <data name="Family.LeaveConfirm" xml:space="preserve"><value>Quitter cette famille ? Son journal sera supprimé de ce téléphone. Les entrées que vous avez ajoutées restent dans la famille.</value></data>
@@ -273,6 +279,7 @@
   <data name="Family.RoleCaregiver" xml:space="preserve"><value>Personne de garde</value></data>
   <data name="Family.RoleOwner" xml:space="preserve"><value>Parent · a créé la famille</value></data>
   <data name="Family.RoleParent" xml:space="preserve"><value>Parent</value></data>
+  <data name="Family.RoleViewer" xml:space="preserve"><value>Famille · suit</value></data>
   <data name="Family.Showing" xml:space="preserve"><value>Affichée : {0}</value></data>
   <data name="Family.Switch" xml:space="preserve"><value>Afficher quelle famille ?</value></data>
   <data name="Family.Title" xml:space="preserve"><value>Famille</value></data>
@@ -320,9 +327,30 @@
   <data name="Hero.SinceAfterNap" xml:space="preserve"><value>depuis {0}, après une sieste de {1}</value></data>
   <data name="Hero.Sleeping" xml:space="preserve"><value>Dort</value></data>
   <data name="Hero.Started" xml:space="preserve"><value>commencé à {0}</value></data>
+  <data name="Import.Added.one" xml:space="preserve"><value>{0} entrée ajoutée.</value></data>
+  <data name="Import.Added.other" xml:space="preserve"><value>{0} entrées ajoutées.</value></data>
+  <data name="Import.AlreadyThere.one" xml:space="preserve"><value>{0} était déjà dans Coo.</value></data>
+  <data name="Import.AlreadyThere.other" xml:space="preserve"><value>{0} étaient déjà dans Coo.</value></data>
+  <data name="Import.Found" xml:space="preserve"><value>{0} entrées trouvées, du {2} au {3}.</value></data>
+  <data name="Import.FoundFrom" xml:space="preserve"><value>{0} entrées trouvées dans {1}, du {2} au {3}.</value></data>
+  <data name="Import.Go" xml:space="preserve"><value>Importer</value></data>
+  <data name="Import.Header" xml:space="preserve"><value>Vos données</value></data>
+  <data name="Import.Hint" xml:space="preserve"><value>Exportez votre journal depuis Huckleberry ou une autre app bébé en fichier CSV, puis choisissez-le ici. Vous voyez ce que Coo a trouvé avant tout enregistrement.</value></data>
+  <data name="Import.Kinds" xml:space="preserve"><value>Repas : {0} · Couches : {1} · Sommeils : {2} · Tire-lait : {3}</value></data>
+  <data name="Import.NoSide.one" xml:space="preserve"><value>{0} tétée n’a pas de côté : elle est notée à gauche.</value></data>
+  <data name="Import.NoSide.other" xml:space="preserve"><value>{0} tétées n’ont pas de côté : elles sont notées à gauche.</value></data>
+  <data name="Import.Nothing" xml:space="preserve"><value>Coo n’a rien trouvé à importer dans ce fichier. Choisissez un export CSV avec une colonne de date ou d’heure.</value></data>
+  <data name="Import.Skipped.one" xml:space="preserve"><value>{0} ligne n’a pas pu être utilisée (autre type d’entrée, ou sans heure).</value></data>
+  <data name="Import.Skipped.other" xml:space="preserve"><value>{0} lignes n’ont pas pu être utilisées (autres types d’entrées, ou sans heure).</value></data>
+  <data name="Import.Title" xml:space="preserve"><value>Importer depuis une autre app</value></data>
+  <data name="Import.Twice" xml:space="preserve"><value>Les entrées déjà dans Coo sont ignorées : importer deux fois n’ajoute rien en double.</value></data>
+  <data name="Invite.AsCaregiver" xml:space="preserve"><value>Une nounou ou une crèche : note repas, sommeil et couches</value></data>
+  <data name="Invite.AsParent" xml:space="preserve"><value>Un parent : note et gère tout</value></data>
+  <data name="Invite.AsViewer" xml:space="preserve"><value>La famille : suit, sans rien noter</value></data>
   <data name="Invite.ShareText" xml:space="preserve"><value>Rejoins ma famille sur Coo pour que nous tenions ensemble le journal de notre bébé : {0}
 
 Si le lien n'ouvre pas Coo, va dans Réglages → Famille → Rejoindre une famille dans Coo et saisis le code {1}. Il peut servir une fois, jusqu'au {2}.</value></data>
+  <data name="Invite.Who" xml:space="preserve"><value>Qui invitez-vous ?</value></data>
   <data name="Join.AlreadyMember" xml:space="preserve"><value>Vous faites déjà partie de cette famille.</value></data>
   <data name="Join.Babies" xml:space="preserve"><value>Le journal de cette famille contient : {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} vous invite à rejoindre la famille en tant que parent. Vous verrez tous les deux le journal de la famille et pourrez le compléter.</value></data>
@@ -592,6 +620,9 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Tile.Woke" xml:space="preserve"><value>réveil {0}</value></data>
   <data name="Time.Midnight" xml:space="preserve"><value>Minuit</value></data>
   <data name="Timeline.Empty" xml:space="preserve"><value>Rien de noté aujourd'hui</value></data>
+  <data name="Timers.Channel" xml:space="preserve"><value>Minuteurs en cours</value></data>
+  <data name="Timers.Hidden" xml:space="preserve"><value>Minuteur en cours</value></data>
+  <data name="Timers.Since" xml:space="preserve"><value>Commencé à {0}</value></data>
   <data name="Toast.Deleted" xml:space="preserve"><value>Supprimé · {0}</value></data>
   <data name="Toast.DeletedMany.one" xml:space="preserve"><value>Supprimé · {0} entrée</value></data>
   <data name="Toast.DeletedMany.other" xml:space="preserve"><value>Supprimé · {0} entrées</value></data>
@@ -620,6 +651,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Today.RecentActivity" xml:space="preserve"><value>Activité récente</value></data>
   <data name="Today.SeeAllInLog" xml:space="preserve"><value>Voir tout le journal →</value></data>
   <data name="Today.SinceFeed" xml:space="preserve"><value>depuis {0} sans tétée</value></data>
+  <data name="Today.ViewOnly" xml:space="preserve"><value>Vous suivez la journée de {0}. Les parents et la garde la notent.</value></data>
   <data name="Totals.Diapers.one" xml:space="preserve"><value>couche</value></data>
   <data name="Totals.Diapers.other" xml:space="preserve"><value>couches</value></data>
   <data name="Totals.Feeds.one" xml:space="preserve"><value>repas</value></data>
@@ -685,13 +717,19 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>La dernière sieste a été courte : la fenêtre arrive un peu plus tôt.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Coucher</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Prochaine sieste</value></data>
+  <data name="Widget.Asleep" xml:space="preserve"><value>Endormi</value></data>
   <data name="Widget.AsleepSince" xml:space="preserve"><value>Dort depuis {0}</value></data>
+  <data name="Widget.Awake" xml:space="preserve"><value>Éveillé</value></data>
   <data name="Widget.AwakeSince" xml:space="preserve"><value>Éveillé depuis {0}</value></data>
   <data name="Widget.DiaperAt" xml:space="preserve"><value>Couche à {0}</value></data>
   <data name="Widget.FedAt" xml:space="preserve"><value>Nourri à {0}</value></data>
   <data name="Widget.FeedingSince" xml:space="preserve"><value>Repas depuis {0}</value></data>
+  <data name="Widget.LastFeed" xml:space="preserve"><value>Dernier repas</value></data>
+  <data name="Widget.Logged" xml:space="preserve"><value>Coo : {0}</value></data>
   <data name="Widget.NoDiaper" xml:space="preserve"><value>Pas encore de couche</value></data>
   <data name="Widget.NoFeed" xml:space="preserve"><value>Pas encore de repas</value></data>
   <data name="Widget.Open" xml:space="preserve"><value>Ouvrez Coo pour commencer</value></data>
+  <data name="Widget.StopPump" xml:space="preserve"><value>Arrêter</value></data>
+  <data name="Widget.Switch" xml:space="preserve"><value>Changer</value></data>
   <data name="Widget.Tell" xml:space="preserve"><value>Dire à Coo</value></data>
 </root>

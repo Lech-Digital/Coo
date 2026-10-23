@@ -159,7 +159,7 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
 
         modelBuilder.Entity<MembershipRecord>(e =>
         {
-            e.ToTable("memberships", t => t.HasCheckConstraint("ck_memberships_role", "role IN ('owner', 'parent', 'caregiver')"));
+            e.ToTable("memberships", t => t.HasCheckConstraint("ck_memberships_role", "role IN ('owner', 'parent', 'caregiver', 'viewer')"));
             e.HasKey(m => new { m.HouseholdId, m.UserId });
             e.Property(m => m.HouseholdId).HasColumnName("household_id");
             e.Property(m => m.UserId).HasColumnName("user_id");
@@ -285,7 +285,7 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
 
         modelBuilder.Entity<InvitationRecord>(e =>
         {
-            e.ToTable("invitations", t => t.HasCheckConstraint("ck_invitations_role", "role IN ('parent', 'caregiver')"));
+            e.ToTable("invitations", t => t.HasCheckConstraint("ck_invitations_role", "role IN ('parent', 'caregiver', 'viewer')"));
             e.HasKey(i => i.Id);
             e.Property(i => i.Id).HasColumnName("id").ValueGeneratedNever();
             e.Property(i => i.HouseholdId).HasColumnName("household_id");

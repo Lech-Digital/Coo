@@ -16,12 +16,16 @@ public sealed class LanguageController(IDevicePreferences preferences)
 
     public event EventHandler? Changed;
 
+    /// <summary>Applied once in this process: the app's start, or a widget, notification or background job that came first.</summary>
+    public bool IsStarted { get; private set; }
+
     /// <summary>Call before the first page is built, with the OS culture captured at process start.</summary>
     public async Task StartAsync(CultureInfo system, CancellationToken cancellationToken)
     {
         SystemCulture = system ?? throw new ArgumentNullException(nameof(system));
         Preference = await preferences.GetLanguageAsync(cancellationToken);
         Strings.Use(Preference, SystemCulture);
+        IsStarted = true;
     }
 
     public async Task SetAsync(LanguagePreference preference, CancellationToken cancellationToken)

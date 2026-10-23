@@ -667,7 +667,7 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
 
                     b.ToTable("invitations", null, t =>
                         {
-                            t.HasCheckConstraint("ck_invitations_role", "role IN ('parent', 'caregiver')");
+                            t.HasCheckConstraint("ck_invitations_role", "role IN ('parent', 'caregiver', 'viewer')");
                         });
                 });
 
@@ -724,7 +724,7 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
 
                     b.ToTable("memberships", null, t =>
                         {
-                            t.HasCheckConstraint("ck_memberships_role", "role IN ('owner', 'parent', 'caregiver')");
+                            t.HasCheckConstraint("ck_memberships_role", "role IN ('owner', 'parent', 'caregiver', 'viewer')");
                         });
                 });
 

@@ -29,11 +29,24 @@ public sealed class InvitationUseCaseTests
     }
 
     [Theory]
-    [InlineData("caregiver")]
+    [InlineData("caregiver", Role.Caregiver)]
+    [InlineData("viewer", Role.Viewer)]
+    public async Task ExecuteAsync_CaregiverOrViewer_CreatesAnInvitationForThatRole(string role, Role expected)
+    {
+        // Act
+        var created = await _kit.Create().ExecuteAsync(Owner, Family, role, CancellationToken.None);
+
+        // Assert
+        created.IsSuccess.Should().BeTrue();
+        _kit.Store.Invitations.Should().ContainSingle().Which.Invitation.Role.Should().Be(expected);
+    }
+
+    [Theory]
     [InlineData("owner")]
+    [InlineData("admin")]
     [InlineData("")]
     [InlineData(null)]
-    public async Task ExecuteAsync_AnyRoleButParent_IsRoleUnsupported(string? role)
+    public async Task ExecuteAsync_OwnerOrUnknownRole_IsRoleUnsupported(string? role)
     {
         // Act
         var created = await _kit.Create().ExecuteAsync(Owner, Family, role, CancellationToken.None);

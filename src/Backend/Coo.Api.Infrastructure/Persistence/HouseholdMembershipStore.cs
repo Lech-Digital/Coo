@@ -103,6 +103,7 @@ internal sealed class HouseholdMembershipStore(NpgsqlDataSource dataSource) : IH
         Role.Owner => RoleText.Owner,
         Role.Parent => RoleText.Parent,
         Role.Caregiver => RoleText.Caregiver,
+        Role.Viewer => RoleText.Viewer,
         _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Unknown role."),
     };
 

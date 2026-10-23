@@ -15,12 +15,17 @@ public sealed record LogEntryCommand(
     EntrySource Source,
     Note? Note = null);
 
-/// <summary>Logs a new entry (Spec 004 §3). A Domain error comes back unchanged, and nothing is written.</summary>
-public sealed class LogEntry(ICareLogStore store, IVersionClock clock, TimeProvider time)
+/// <summary>
+/// Logs a new entry (Spec 004 §3). A Domain error comes back unchanged, and nothing is written; so does a family this
+/// person only follows (<see cref="ILogAccess"/>), whichever button or widget asked.
+/// </summary>
+public sealed class LogEntry(ICareLogStore store, IVersionClock clock, TimeProvider time, ILogAccess? permission = null)
 {
     public async Task<Result<CareEntry>> ExecuteAsync(LogEntryCommand command, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);
+        if (permission is not null && !await permission.CanLogAsync(command.Household, cancellationToken))
+            return Result<CareEntry>.Failure(ApplicationErrors.ViewOnly);
 
         var now = time.GetUtcNow();
         var version = await clock.NextAsync(cancellationToken);
@@ -39,7 +44,7 @@ public sealed class LogEntry(ICareLogStore store, IVersionClock clock, TimeProvi
 /// Changes a live entry: <c>(entry, version, now) =&gt; entry.Revise&lt;BreastFeed&gt;(d =&gt; d.SwitchSide(now), version, now)</c>.
 /// Read-only and quarantined entries cannot be revised.
 /// </summary>
-public sealed class ReviseEntry(ICareLogStore store, IVersionClock clock, TimeProvider time)
+public sealed class ReviseEntry(ICareLogStore store, IVersionClock clock, TimeProvider time, ILogAccess? permission = null)
 {
     public async Task<Result<CareEntry>> ExecuteAsync(
         EntryId id, Func<CareEntry, HlcStamp, DateTimeOffset, Result> change, CancellationToken cancellationToken)
@@ -51,6 +56,8 @@ public sealed class ReviseEntry(ICareLogStore store, IVersionClock clock, TimePr
             return Result<CareEntry>.Failure(ApplicationErrors.EntryNotFound);
         if (stored is not LiveEntry { Entry: var entry })
             return Result<CareEntry>.Failure(ApplicationErrors.EntryNotEditable);
+        if (permission is not null && !await permission.CanLogAsync(entry.HouseholdId, cancellationToken))
+            return Result<CareEntry>.Failure(ApplicationErrors.ViewOnly);
 
         var result = change(entry, await clock.NextAsync(cancellationToken), time.GetUtcNow());
         if (result.IsFailure)
@@ -84,13 +91,15 @@ public sealed class ResubmitRejectedEntry(ICareLogStore store, ISyncStore sync, 
 }
 
 /// <summary>Deletes any stored entry: live, read-only or quarantined. Nothing gets stuck (Spec 004 §5).</summary>
-public sealed class DeleteEntry(ICareLogStore store, IVersionClock clock)
+public sealed class DeleteEntry(ICareLogStore store, IVersionClock clock, ILogAccess? permission = null)
 {
     public async Task<Result> ExecuteAsync(EntryId id, CancellationToken cancellationToken)
     {
         var stored = await store.FindAsync(id, cancellationToken);
         if (stored is null)
             return Result.Failure(ApplicationErrors.EntryNotFound);
+        if (permission is not null && stored is LiveEntry { Entry: var live } && !await permission.CanLogAsync(live.HouseholdId, cancellationToken))
+            return Result.Failure(ApplicationErrors.ViewOnly);
         if (stored is LiveEntry { Entry.IsDeleted: true })
             return Result.Failure(RecordErrors.AlreadyDeleted);
 

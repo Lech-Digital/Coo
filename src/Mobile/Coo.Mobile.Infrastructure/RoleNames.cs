@@ -12,6 +12,7 @@ internal static class RoleNames
         AuthRoles.Owner => Role.Owner,
         AuthRoles.Parent => Role.Parent,
         AuthRoles.Caregiver => Role.Caregiver,
+        AuthRoles.Viewer => Role.Viewer,
         _ => null,
     };
 
@@ -20,6 +21,7 @@ internal static class RoleNames
         Role.Owner => AuthRoles.Owner,
         Role.Parent => AuthRoles.Parent,
         Role.Caregiver => AuthRoles.Caregiver,
+        Role.Viewer => AuthRoles.Viewer,
         _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Unknown role."),
     };
 }

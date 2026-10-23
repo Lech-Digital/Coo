@@ -29,64 +29,61 @@ Coo: Baby Feed & Sleep Tracker
 ```
 Coo: Newborn & Baby Tracker
 ```
-### Short description — 79 / 80
+### Short description — 77 / 80
 
 ```
-Log breastfeeding, sleep and diapers on a calm timeline. Private & family sync.
+Baby tracker for the whole family: nap times, widgets, voice logging, growth.
 ```
-### Full description — 3,582 / 4,000
+### Full description — 3,008 / 4,000
 
 ```
-Your baby’s day, without the noise.
+Your baby’s day, calm and shared.
 
-Coo is a calm, private baby tracker designed for real life – especially at 3 a.m. Follow breastfeeding, bottles, sleep, diapers, and pumping on a continuous 24-hour visual timeline. No blinding neon screens, no intrusive ads, and no mandatory account.
+Coo is a private baby tracker for the whole family – two parents, a nanny and the grandparents – built for real life, especially at 3 a.m. Log feeds, sleep, diapers, pumping and health in one tap, by voice, from a home-screen widget or from the lock screen. Made in the EU. Free core, no ads.
 
-Free, private by design, and built for exhausted parents.
+KNOWS WHEN THE NEXT NAP IS LIKELY
+• Personal nap times (Premium): Coo learns your baby’s own wake windows and shows when the next nap or bedtime is likely – with the reason one tap away.
+• Until then, the typical wake window for your baby’s age.
+• A gentle reminder before the window opens, on the minute.
 
-ONE CALM 24-HOUR TIMELINE
-• A single visual rhythm: see feeds, sleep sessions, and diaper changes as a clear, continuous band throughout the day.
-• Sleep that flows past midnight: baby fell asleep at 10 p.m. and woke at 3 a.m.? Coo shows the full 5-hour continuous stretch, never cutting your night in half at midnight.
-• Zoom in on any hour: tap the timeline to inspect the rhythm up close, and glide smoothly between days.
+LOG WITHOUT OPENING THE APP
+• Home-screen widgets: one-tap buttons for left, right, wet, dirty, sleep and pump; a glance at the last feed, sleep and diaper; live clocks since the last feed.
+• A running feed in the notification bar: switch side, pause or stop from the lock screen, one-handed.
+• Tell Coo: say “she started on the left” or “120 ml formula at two, then a wet diaper”, and check what Coo understood before anything is saved. Your baby’s and family’s names are hidden from the AI.
 
-SMART BREASTFEEDING & NURSING TIMER
-• Left and right timers with clear active side indicator so you always know where you left off.
-• Pause and resume: baby took a short break to burp or look around? Pause and resume without starting a whole new session.
-• Fast side switch: switch breasts with one tap while keeping the total feeding duration accurate.
-• Intelligent feed merging: split sessions (e.g. 5 minutes left, a 3-minute burp pause, 10 minutes right) combine into one clean nursing event.
+ONE FAMILY, ONE LOG
+• Invite your partner, a nanny or daycare who can log, and grandparents who follow along without changing anything.
+• New entries reach everyone within seconds. Background sync keeps reminders and widgets right, even with the app closed.
+• “Needs attention” spots double entries when two people log the same feed.
 
-SLEEP, NAPS & WAKE WINDOWS
-• Track daytime naps and nighttime sleep with a single tap.
-• Live sleep timer with fell asleep and woke up actions.
-• Clear sleep durations calculated accurately across midnight transitions.
+FEEDS, SLEEP, DIAPERS AND PUMPING
+• Breastfeeding timer with side switching and pauses; bottles in ml or oz; wet, dirty or mixed diapers; pumping with yield.
+• A sleep that runs past midnight stays one sleep.
+• A calm 24-hour rhythm band for every day.
 
-BOTTLES, DIAPERS & PUMPING
-• Bottle feeding: record formula or expressed breast milk in milliliters (ml) or ounces (oz).
-• Diaper tracker: log wet, dirty, or mixed diapers with a single touch.
-• Expressed milk pumping: track milk yield per side or total session volume.
-• Add notes to any event to remember medicines, tummy time, or mood.
+HEALTH AND GROWTH
+• Weight, length and head circumference on the WHO growth charts, with percentiles.
+• Medicines, temperatures, vaccinations and doctor visits.
+• Read a growth card or vaccination booklet from a photo.
+• A PDF report for the doctor, in any of seven languages.
 
-SMART FAMILY SYNC & CONFLICT MERGE
-• Keep your log safe and share with your partner, grandparents, or babysitter via Google Sign-In.
-• Real-time updates so both caregivers always know when baby last fed or slept.
-• "Needs attention" smart resolver: if both parents log at the same time or entries overlap, Coo flags them and lets you merge or resolve them in one tap.
+STATS AND THE WEEK IN WORDS
+• Daily and weekly trends for sleep, feeds and diapers.
+• This week, in words: a short summary of how the week went.
+• Ask the Baby Advisor about sleep, feeding and development.
 
-STATISTICS & PEDIATRICIAN SUMMARIES
-• Daily, weekly, and monthly summaries: total sleep, average nap length, feed count, average nursing duration, diaper counts, and pumped milk volume.
-• Have exact answers ready when your pediatrician asks "How many wet diapers today?" or "How long are the wake windows?"
-• Compare patterns across days to discover emerging routines naturally.
+PRIVATE BY DESIGN
+• Works offline, no account needed. Sign in only to share.
+• No ads, no trackers, no data selling. Shared logs are stored in the EU (Germany).
+• Import your history from other baby apps, and export your whole log as a CSV file at any time.
 
-GENTLE ON TIRED EYES AT 3 A.M.
-• Designed with warm terracotta and calming paper tones – no harsh glaring white screens.
-• Automatic Quiet Hours mode adapts to nighttime feedings so your screen never blinds you or wakes your baby.
+GENTLE AT 3 A.M.
+• Warm night colours that switch on during your quiet hours, so the screen never wakes the baby.
 
-PRIVATE BY DESIGN: LOCAL-FIRST
-• Works completely offline: your baby log lives on your device and opens instantly without an internet connection.
-• No account required: start tracking the moment you open the app.
-• No ads, no trackers, no third-party data broker SDKs. Intimate baby health data should never be monetized.
-• Export or delete your data at any time in Settings.
+Coo speaks English, Deutsch, Français, Español, Italiano, Polski and Nederlands.
 
 WHY I BUILT COO
-When our newborn arrived, night feeds were stressful enough without loud ads, clunky subscriptions, and apps that reset sleep logs at midnight. I built Coo to give parents a calm, reliable, and private companion for the newborn journey. If you have feedback or ideas, write to me directly: andrzej@lechdigital.nl
+When our newborn arrived, night feeds were stressful enough without loud ads, clunky subscriptions and apps that cut the night in half at midnight. I built Coo to give parents a calm, reliable and private companion. Feedback and ideas are welcome: andrzej@lechdigital.nl
 
 Privacy policy: https://lechdigital.nl/projects/coo/privacy/
 ```
@@ -111,64 +108,61 @@ Coo: Dziennik noworodka i sen
 ```
 Coo: Karmienie piersią i sen
 ```
-### Short description — 80 / 80
+### Short description — 73 / 80
 
 ```
-Karmienie piersią, sen i pieluszki na osi czasu. Bez reklam, synchronizacja par.
+Dziennik dziecka dla całej rodziny: pory drzemek, widżety, głos i rozwój.
 ```
-### Full description — 3,658 / 4,000
+### Full description — 3,195 / 4,000
 
 ```
-Dzień Twojego maluszka, bez zbędnego szumu.
+Dzień Twojego dziecka – spokojnie i wspólnie.
 
-Coo to spokojny, prywatny dziennik opieki nad noworodkiem i niemowlakiem, stworzony z myślą o prawdziwym życiu – zwłaszcza o 3 w nocy. Zapisuj karmienie piersią, butelkę, sen, pieluszki i odciąganie pokarmu na czytelnej, 24-godzinnej osi czasu. Bez rażących ekranów, bez reklam i bez wymuszonego zakładania konta.
+Coo to prywatny dziennik dziecka dla całej rodziny – dwojga rodziców, niani i dziadków – stworzony do prawdziwego życia, zwłaszcza o 3 w nocy. Zapisuj karmienia, sen, pieluszki, odciąganie i zdrowie jednym dotknięciem, głosem, z widżetu na ekranie głównym albo z ekranu blokady. Stworzone w UE. Podstawy za darmo, bez reklam.
 
-Prywatny, bezpłatny i stworzony dla niewyspanych rodziców.
+WIE, KIEDY PRAWDOPODOBNIE BĘDZIE DRZEMKA
+• Osobiste pory drzemek (Premium): Coo uczy się okien czuwania Twojego dziecka i pokazuje, kiedy prawdopodobnie będzie drzemka lub pora spania – z wyjaśnieniem pod jednym dotknięciem.
+• Do tego czasu: typowe okno czuwania dla wieku dziecka.
+• Delikatne przypomnienie przed otwarciem okna, co do minuty.
 
-CZYTELNA 24-GODZINNA OŚ CZASU
-• Rytm dnia maluszka: karmienia, drzemki i pieluszki ułożone w ciągły, przejrzysty pas wydarzeń.
-• Sen przechodzący przez północ: maluszek zasnął o 22:00 i obudził się o 3:00? Coo pokazuje pełne 5 godzin ciągłego snu, zamiast ucinać noc w połowie.
-• Przybliżenie osi czasu: stuknij w wykres, by przyjrzeć się szczegółom i płynnie przechodzić między dniami.
+ZAPISUJ BEZ OTWIERANIA APLIKACJI
+• Widżety: przyciski lewa, prawa, mokra, kupka, sen i odciąganie; rzut oka na ostatnie karmienie, sen i pieluszkę; zegary od ostatniego karmienia.
+• Trwające karmienie na pasku powiadomień: zmień stronę, wstrzymaj lub zakończ z ekranu blokady, jedną ręką.
+• Tell Coo: powiedz „zaczęła z lewej” albo „120 ml mleka modyfikowanego o drugiej, potem mokra pieluszka” i sprawdź, co Coo zrozumiało, zanim cokolwiek zostanie zapisane. Imiona dziecka i rodziny są ukryte przed AI.
 
-INTELIGENTNY STOPER KARMIENIA PIERSIĄ
-• Pomiary dla lewej i prawej piersi z wyraźnym wskaźnikiem aktywnej strony.
-• Pauza i wznowienie: maluszek potrzebuje chwili na odbicie lub przerwę? Wstrzymaj stoper i wznów go bez tworzenia nowego wpisu.
-• Szybka zmiana piersi: przełącz stronę jednym dotknięciem, zachowując dokładny łączny czas karmienia.
-• Automatyczne łączenie karmień: krótkie serie (np. 5 minut lewa pierś, 3 minuty przerwy, 10 minut prawa) Coo łączy w jedno spójne karmienie.
+JEDNA RODZINA, JEDEN DZIENNIK
+• Zaproś partnera, nianię lub żłobek, którzy mogą zapisywać, oraz dziadków, którzy tylko obserwują.
+• Nowe wpisy docierają do wszystkich w kilka sekund. Synchronizacja w tle utrzymuje przypomnienia i widżety aktualne, nawet przy zamkniętej aplikacji.
+• „Wymaga uwagi” wykrywa podwójne wpisy, gdy dwie osoby zapiszą to samo karmienie.
 
-SEN, DRZEMKI I OKNA AKTYWNOŚCI
-• Zapisuj drzemki w ciągu dnia i sen nocny jednym dotknięciem.
-• Bieżący licznik snu z opcjami „Zasnął” oraz „Obudził się”.
-• Rzeczywisty czas snu bez przekłamań na przełomie dób.
+KARMIENIE, SEN, PIELUSZKI I ODCIĄGANIE
+• Stoper karmienia piersią ze zmianą strony i przerwami; butelki w ml lub oz; mokre, brudne lub mieszane pieluszki; odciąganie z ilością.
+• Sen trwający po północy pozostaje jednym snem.
+• Spokojny 24-godzinny pasek rytmu dla każdego dnia.
 
-BUTELKA, PIELUSZKI I ODCIĄGANIE POKARMU
-• Karmienie butelką: mleko modyfikowane lub odciągnięte w mililitrach (ml) lub uncjach (oz).
-• Pieluszki: mokra, brudna lub obie (mieszana) za jednym dotknięciem.
-• Laktator: zapisuj ilość odciągniętego mleka z podziałem na strony lub łącznie.
-• Notatki do wpisów: zapisuj leki, witaminy, czas na brzuszku czy nastrój.
+ZDROWIE I ROZWÓJ
+• Waga, długość i obwód głowy na siatkach centylowych WHO.
+• Leki, temperatura, szczepienia i wizyty u lekarza.
+• Odczytaj kartę wzrostu lub książeczkę szczepień ze zdjęcia.
+• Raport PDF dla lekarza w jednym z siedmiu języków.
 
-SYNCHRONIZACJA RODZINY I ROZWIĄZYWANIE KONFLIKTÓW
-• Bezpieczna kopia i współdzielenie z partnerem lub opiekunem przez Logowanie Google.
-• Aktualizacje na żywo: oboje rodzice natychmiast wiedzą, kiedy maluch ostatnio jadł lub spał.
-• „Do sprawdzenia”: gdy oboje rodzice zapiszą wpis w tym samym momencie, Coo wyróżnia duplikaty i pozwala połączyć je jednym dotknięciem.
+STATYSTYKI I TYDZIEŃ W SŁOWACH
+• Dzienne i tygodniowe trendy snu, karmień i pieluszek.
+• Ten tydzień w słowach: krótkie podsumowanie tygodnia.
+• Zapytaj Doradcę o sen, karmienie i rozwój.
 
-STATYSTYKI NA WIZYTY U PEDIATRY
-• Podsumowania dnia, tygodnia i miesiąca: łączny czas snu, średnia długość drzemki, liczba karmień, średni czas przy piersi, liczba pieluszek i objętość odciągniętego mleka.
-• Gotowe odpowiedzi, gdy lekarz pyta: „Ile mokrych pieluszek było dzisiaj?” lub „Jak długie są przerwy między karmieniami?”.
-• Porównuj dni i obserwuj, jak naturalnie kształtuje się rytm Twojego dziecka.
+PRYWATNOŚĆ OD PODSTAW
+• Działa offline, bez konta. Logujesz się tylko, by udostępnić dziennik.
+• Bez reklam, bez trackerów, bez sprzedaży danych. Wspólne dzienniki przechowywane w UE (Niemcy).
+• Zaimportuj historię z innych aplikacji dla dzieci i w każdej chwili wyeksportuj cały dziennik jako plik CSV.
 
-ŁAGODNY DLA ZMĘCZONYCH OCZU O 3 W NOCY
-• Ciepła paleta barw papieru i terakoty – żadnych jaskrawych, oślepiających neonów.
-• Automatyczny tryb nocny dostosowany do nocnych karmień, by nie rozbudzać maluszka ani rodziców.
+ŁAGODNE O 3 W NOCY
+• Ciepłe nocne kolory włączane w godzinach ciszy, by ekran nigdy nie obudził dziecka.
 
-PRYWATNOŚĆ I DZIAŁANIE OFFLINE
-• Działa w 100% offline: dane dziecka są zapisane w telefonie i otwierają się natychmiast bez zasięgu sieci.
-• Bez konieczności logowania: korzystaj od razu po zainstalowaniu.
-• Zero reklam, zero trackerów i brokerów danych. Wrażliwe dane zdrowotne Twojego dziecka nie są towarem.
-• Eksport i usuwanie danych w każdej chwili w Ustawieniach.
+Coo mówi po polsku, angielsku, niemiecku, francusku, hiszpańsku, włosku i niderlandzku.
 
 DLACZEGO STWORZYŁEM COO
-Kiedy na świecie pojawiła się nasza córka, nocne karmienia były wystarczająco trudne bez wyskakujących reklam, drogich subskrypcji i aplikacji ucinających sen o północy. Stworzyłem Coo, by dać rodzicom spokojne, niezawodne i w pełni prywatne narzędzie. Jeśli masz uwagi lub pomysły, napisz do mnie: andrzej@lechdigital.nl
+Gdy na świat przyszło nasze dziecko, nocne karmienia były wystarczająco stresujące bez głośnych reklam, nieporęcznych subskrypcji i aplikacji, które o północy dzielą noc na pół. Stworzyłem Coo, by dać rodzicom spokojnego, niezawodnego i prywatnego towarzysza. Uwagi i pomysły: andrzej@lechdigital.nl
 
 Polityka prywatności: https://lechdigital.nl/projects/coo/privacy/
 ```
@@ -193,64 +187,61 @@ Coo: Stillen & Baby-Tagebuch
 ```
 Coo: Still-App & Babyschlaf
 ```
-### Short description — 79 / 80
+### Short description — 78 / 80
 
 ```
-Stillen, Babyschlaf und Windeln im ruhigen Tagesverlauf. Privat & Familiensync.
+Baby-Tagebuch für die ganze Familie: Schlafzeiten, Widgets, Sprache, Wachstum.
 ```
-### Full description — 3,431 / 4,000
+### Full description — 3,398 / 4,000
 
 ```
-Der Tag deines Babys, ganz ohne Hektik.
+Der Tag deines Babys – ruhig und gemeinsam.
 
-Coo ist ein ruhiger, privater Baby-Tracker für den echten Familienalltag – besonders um 3 Uhr nachts. Verfolge Stillen, Fläschchen, Schlaf, Windeln und Abpumpen auf einem übersichtlichen, fortlaufenden 24-Stunden-Zeitstrahl. Ohne grelle Displays, ohne störende Werbung und ohne Zwangskonto.
+Coo ist ein privates Baby-Tagebuch für die ganze Familie – zwei Eltern, die Kinderbetreuung und die Großeltern – gemacht für das echte Leben, besonders um 3 Uhr nachts. Trag Mahlzeiten, Schlaf, Windeln, Abpumpen und Gesundheit mit einem Tipp ein, per Sprache, mit einem Widget oder vom Sperrbildschirm. Aus der EU. Kern kostenlos, ohne Werbung.
 
-Kostenlos, datensparsam und für müde Eltern entwickelt.
+WEISS, WANN DAS NÄCHSTE SCHLÄFCHEN WAHRSCHEINLICH IST
+• Persönliche Schlafzeiten (Premium): Coo lernt die Wachfenster deines Babys und zeigt, wann das nächste Schläfchen oder die Schlafenszeit wahrscheinlich ist – mit der Begründung einen Tipp entfernt.
+• Bis dahin: das typische Wachfenster für das Alter deines Babys.
+• Eine sanfte Erinnerung, bevor das Fenster beginnt, auf die Minute genau.
 
-EIN RUHIGER 24-STUNDEN-ZEITSTRAHL
-• Ein klarer Tagesrhythmus: Stillmahlzeiten, Schläfchen und Windeln als zusammenhängendes Band über den Tag.
-• Schlaf über Mitternacht hinweg: Baby ist um 22:00 Uhr eingeschlafen und um 3:00 Uhr aufgewacht? Coo zeigt die vollen 5 Stunden Schlaf am Stück, anstatt die Nacht um 00:00 Uhr abzuschneiden.
-• Detailansicht: Tippe auf den Zeitstrahl, um einzelne Abschnitte zu vergrößern und nahtlos zwischen Tagen zu wechseln.
+EINTRAGEN, OHNE DIE APP ZU ÖFFNEN
+• Widgets: Ein-Tipp-Tasten für links, rechts, nass, voll, Schlaf und Abpumpen; ein Blick auf letzte Mahlzeit, Schlaf und Windel; laufende Uhren seit der letzten Mahlzeit.
+• Die laufende Mahlzeit in der Benachrichtigungsleiste: Seite wechseln, pausieren oder beenden vom Sperrbildschirm, mit einer Hand.
+• Tell Coo: Sag „sie hat links angefangen“ oder „120 ml Pre-Milch um zwei, dann eine nasse Windel“ und prüfe, was Coo verstanden hat, bevor etwas gespeichert wird. Die Namen deines Babys und deiner Familie werden vor der KI verborgen.
 
-INTELLIGENTER STILL-TIMER
-• Getrennte Zeiten für linke und rechte Brust mit klarer Anzeige der aktiven Seite.
-• Pause und Fortsetzen: Das Baby macht ein Bäuerchen oder eine kurze Pause? Pausiere einfach, ohne eine neue Mahlzeit anlegen zu müssen.
-• Schneller Seitenwechsel: Wechsle die Brust mit einem Fingertipp bei exakter Gesamtdauer.
-• Automatisches Zusammenführen: Kurze aufeinanderfolgende Mahlzeiten fasst Coo übersichtlich zusammen.
+EINE FAMILIE, EIN TAGEBUCH
+• Lade deinen Partner ein, eine Tagesmutter oder Kita, die eintragen darf, und Großeltern, die nur zuschauen.
+• Neue Einträge sind in Sekunden bei allen. Die Synchronisation im Hintergrund hält Erinnerungen und Widgets aktuell, auch bei geschlossener App.
+• „Braucht Aufmerksamkeit“ erkennt doppelte Einträge, wenn zwei dieselbe Mahlzeit eintragen.
 
-SCHLAF, NICKERCHEN & WACHPHASEN
-• Tagesschläfchen und Nachtschlaf mit einem Tippen erfassen.
-• Live-Schlaftimer mit „Eingeschlafen“ und „Aufgewacht“.
-• Exakt berechnete Schlafdauer auch über Tagesgrenzen hinweg.
+MAHLZEITEN, SCHLAF, WINDELN UND ABPUMPEN
+• Still-Timer mit Seitenwechsel und Pausen; Fläschchen in ml oder oz; nasse, volle oder gemischte Windeln; Abpumpen mit Menge.
+• Ein Schlaf über Mitternacht bleibt ein Schlaf.
+• Ein ruhiges 24-Stunden-Rhythmusband für jeden Tag.
 
-FLÄSCHCHEN, WINDELN & ABPUMPEN
-• Fläschchen: Pre-Nahrung oder abgepumpte Muttermilch in Millilitern (ml) oder Unzen (oz).
-• Windeln: Nass, voll oder beides mit einer einzigen Berührung.
-• Abpumpen: Erfasse die Milchmenge pro Seite oder als Gesamtergebnis.
-• Notizen hinzufügen: Für Medikamente, Bauchlage oder Beobachtungen.
+GESUNDHEIT UND WACHSTUM
+• Gewicht, Länge und Kopfumfang auf den WHO-Wachstumskurven, mit Perzentilen.
+• Medikamente, Temperatur, Impfungen und Arztbesuche.
+• Lies eine Wachstumskarte oder ein Impfheft von einem Foto.
+• Ein PDF-Bericht für die Ärztin oder den Arzt, in sieben Sprachen.
 
-FAMILIENSYNCHRONISATION & ABGLEICH
-• Sicher synchronisieren mit Partner oder Betreuungsperson via Google-Anmeldung.
-• Live-Abgleich: Beide Eltern wissen sofort, wann das Baby zuletzt getrunken oder geschlafen hat.
-• „Zu prüfen“: Haben beide gleichzeitig etwas eingetragen, erkennt Coo Überschneidungen und führt sie sauber zusammen.
+STATISTIK UND DIE WOCHE IN WORTEN
+• Tages- und Wochentrends für Schlaf, Mahlzeiten und Windeln.
+• Diese Woche in Worten: eine kurze Zusammenfassung der Woche.
+• Frag den Baby-Berater zu Schlaf, Ernährung und Entwicklung.
 
-STATISTIKEN FÜR DIE U-UNTERSUCHUNG
-• Übersichten für Tag, Woche und Monat: Gesamtschlaf, durchschnittliche Schlafdauer, Mahlzeiten, Windelanzahl und Abpumpmengen.
-• Sofort auskunftsfähig bei der Kinderärztin: „Wie viele nasse Windeln heute?“ oder „Wie lange sind die Wachphasen?“.
-• Erkenne den natürlichen Rhythmus deines Kindes.
+PRIVAT VON GRUND AUF
+• Funktioniert offline, ohne Konto. Anmelden nur zum Teilen.
+• Keine Werbung, keine Tracker, kein Datenverkauf. Geteilte Tagebücher liegen in der EU (Deutschland).
+• Importiere deine Daten aus anderen Baby-Apps und exportiere dein ganzes Tagebuch jederzeit als CSV-Datei.
 
-ANGENEHM FÜR MÜDE AUGEN UM 3 UHR NACHTS
-• Warme Terrakotta- und Papiertöne – kein grellweißes Licht.
-• Automatischer Nachtmodus für nächtliches Stillen, der weder dich noch dein Baby blendet.
+SANFT UM 3 UHR NACHTS
+• Warme Nachtfarben während deiner Ruhezeiten, damit der Bildschirm das Baby nie weckt.
 
-ECHTER DATENSCHUTZ: LOCAL-FIRST
-• Funktioniert komplett offline: Alle Daten bleiben auf deinem Smartphone und öffnen sich ohne Internet sofort.
-• Kein Account nötig: Direkt nach der Installation startklar.
-• Keine Werbung, keine Tracker, kein Weiterverkauf von Daten.
-• Exportiere oder lösche deine Einträge jederzeit in den Einstellungen.
+Coo spricht Deutsch, Englisch, Französisch, Spanisch, Italienisch, Polnisch und Niederländisch.
 
-WARUM ICH COO ENTWICKELT HABE
-Als unsere Tochter geboren wurde, waren die Nächte fordernd genug – laute Werbebanner, teure Abos und Apps, die den Schlaf um Mitternacht trennten, halfen nicht. Ich habe Coo gebaut, um Eltern einen ruhigen, zuverlässigen Begleiter zu geben. Bei Fragen oder Ideen schreibe mir gerne: andrzej@lechdigital.nl
+WARUM ICH COO GEBAUT HABE
+Als unser Baby kam, waren die Nachtmahlzeiten stressig genug – ohne laute Werbung, umständliche Abos und Apps, die die Nacht um Mitternacht halbieren. Ich habe Coo gebaut, um Eltern einen ruhigen, verlässlichen und privaten Begleiter zu geben. Feedback und Ideen: andrzej@lechdigital.nl
 
 Datenschutzerklärung: https://lechdigital.nl/projects/coo/privacy/
 ```
@@ -275,64 +266,61 @@ Coo: Suivi de bébé & sommeil
 ```
 Coo: Carnet et suivi de bébé
 ```
-### Short description — 80 / 80
+### Short description — 79 / 80
 
 ```
-Allaitement, sommeil et couches sur une frise claire. Nuits sereines et synchro.
+Suivi bébé pour toute la famille : siestes, widgets, saisie vocale, croissance.
 ```
-### Full description — 3,686 / 4,000
+### Full description — 3,444 / 4,000
 
 ```
-La journée de votre bébé, sans superflu.
+La journée de bébé, sereine et partagée.
 
-Coo est un carnet de suivi pour bébé apaisant et privé, pensé pour la vraie vie – surtout à 3 heures du matin. Suivez l'allaitement, les biberons, le sommeil, les couches et le tire-lait sur une frise chronologique fluide de 24 heures. Sans écran agressif, sans publicité et sans compte obligatoire.
+Coo est un suivi bébé privé pour toute la famille – deux parents, la nounou et les grands-parents – pensé pour la vraie vie, surtout à 3 h du matin. Notez repas, sommeil, couches, tire-lait et santé d’un geste, à la voix, depuis un widget ou l’écran verrouillé. Conçu dans l’UE. L’essentiel est gratuit, sans publicité.
 
-Privé, gratuit et conçu pour les parents fatigués.
+SAIT QUAND LA PROCHAINE SIESTE EST PROBABLE
+• Heures de sieste personnelles (Premium) : Coo apprend les fenêtres d’éveil de votre bébé et indique quand la prochaine sieste ou le coucher est probable – avec l’explication à portée de doigt.
+• En attendant : la fenêtre d’éveil typique pour son âge.
+• Un rappel doux avant l’ouverture de la fenêtre, à la minute près.
 
-UNE FRISE DE 24 HEURES CLAIRE ET APAISANTE
-• Un aperçu continu du rythme : visualisez les tétées, les siestes et les changes sous forme de bande continue tout au long de la journée.
-• Sommeil continu après minuit : bébé s'est endormi à 22h et s'est réveillé à 3h ? Coo affiche les 5 heures complètes, sans couper la nuit en deux à minuit.
-• Vue détaillée : touchez la frise pour examiner les heures de près et passez d'un jour à l'autre en douceur.
+NOTER SANS OUVRIR L’APP
+• Widgets : boutons gauche, droite, mouillée, selles, sommeil et tire-lait ; un coup d’œil au dernier repas, sommeil et couche ; des chronos depuis le dernier repas.
+• La tétée en cours dans la barre de notifications : changez de côté, mettez en pause ou arrêtez depuis l’écran verrouillé, d’une main.
+• Tell Coo : dites « elle a commencé à gauche » ou « 120 ml de lait infantile à deux heures, puis une couche mouillée », et vérifiez ce que Coo a compris avant tout enregistrement. Les prénoms de bébé et de la famille sont cachés à l’IA.
 
-CHRONOMÈTRE D'ALLAITEMENT INTELLIGENT
-• Minuteurs distincts pour le sein gauche et droit avec indicateur clair du dernier côté utilisé.
-• Pause et reprise : bébé s'interrompt pour un rot ou un câlin ? Mettez en pause sans créer une nouvelle tétée.
-• Changement de sein rapide : alternez d'un geste tout en conservant la durée totale exacte.
-• Fusion intelligente : les tétées fractionnées rapprochées se regroupent automatiquement en une seule session claire.
+UNE FAMILLE, UN JOURNAL
+• Invitez votre partenaire, une nounou ou une crèche qui peut noter, et les grands-parents qui suivent sans rien modifier.
+• Les nouvelles entrées arrivent chez tous en quelques secondes. La synchronisation en arrière-plan garde rappels et widgets à jour, même app fermée.
+• « À vérifier » repère les doublons quand deux personnes notent le même repas.
 
-SOMMEIL, SIESTES ET TEMPS D'ÉVEIL
-• Enregistrez les siestes de la journée et le sommeil nocturne en un seul geste.
-• Minuteur de sommeil en direct avec actions rapides « Endormi » et « Réveillé ».
-• Durées réelles calculées sans coupure à minuit.
+REPAS, SOMMEIL, COUCHES ET TIRE-LAIT
+• Minuteur d’allaitement avec changement de côté et pauses ; biberons en ml ou oz ; couches mouillées, sales ou mixtes ; tire-lait avec quantité.
+• Un sommeil qui passe minuit reste un seul sommeil.
+• Une bande de rythme de 24 heures, sereine, pour chaque jour.
 
-BIBERONS, COUCHES ET TIRE-LAIT
-• Biberons : lait infantile ou lait maternel exprimé en millilitres (ml) ou en onces (oz).
-• Couches : mouillée, selle ou mixte d'un simple toucher.
-• Tire-lait : notez la quantité de lait tirée par côté ou au total.
-• Ajoutez des notes pour suivre les médicaments, l'éveil ou l'humeur.
+SANTÉ ET CROISSANCE
+• Poids, taille et périmètre crânien sur les courbes de l’OMS, avec percentiles.
+• Médicaments, température, vaccins et visites chez le médecin.
+• Lisez un carnet de croissance ou de vaccination depuis une photo.
+• Un rapport PDF pour le pédiatre, dans l’une des sept langues.
 
-SYNCHRONISATION EN FAMILLE ET RÉSOLUTION DE CONFLITS
-• Sauvegardez et partagez en temps réel avec votre partenaire ou la nounou via la connexion Google.
-• Mises à jour instantanées pour savoir immédiatement quand bébé a mangé ou dormi.
-• « À vérifier » : si les deux parents notent un événement en même temps, Coo détecte les doublons et permet de les fusionner en un geste.
+STATISTIQUES ET LA SEMAINE EN MOTS
+• Tendances par jour et par semaine pour le sommeil, les repas et les couches.
+• Cette semaine en mots : un court résumé de la semaine.
+• Posez vos questions au Conseiller sur le sommeil, l’alimentation et le développement.
 
-STATISTIQUES PRÊTES POUR LE PÉDIATRE
-• Bilans quotidiens, hebdomadaires et mensuels : sommeil total, durée moyenne des siestes, nombre de tétées, temps moyen au sein, nombre de couches et volumes tirés.
-• Répondez en un coup d'œil aux questions du médecin : « Combien de couches mouillées aujourd'hui ? » ou « Quelle est la durée des phases d'éveil ? ».
-• Suivez l'évolution naturelle des rythmes de votre enfant.
+PRIVÉ PAR CONCEPTION
+• Fonctionne hors ligne, sans compte. Connexion seulement pour partager.
+• Pas de publicité, pas de traceurs, aucune revente de données. Journaux partagés stockés dans l’UE (Allemagne).
+• Importez votre historique depuis d’autres apps bébé et exportez tout votre journal en CSV à tout moment.
 
-DOUX POUR LES YEUX FATIGUÉS À 3H DU MATIN
-• Couleurs douces inspirées du papier chaud et de la terre cuite – aucun écran blanc éblouissant.
-• Mode Heures Calmes automatique pour les tétées de nuit afin de ne réveiller ni bébé ni vos yeux.
+DOUX À 3 H DU MATIN
+• Des couleurs de nuit chaudes pendant vos heures calmes, pour que l’écran ne réveille jamais bébé.
 
-CONFIDENTIALITÉ TOTALE : LOCAL D'ABORD
-• Fonctionne 100 % hors ligne : le carnet de votre bébé reste sur votre téléphone et s'ouvre instantanément sans réseau.
-• Aucun compte exigé : commencez dès l'ouverture de l'application.
-• Sans pub, sans traceurs, sans revente de données personnelles.
-• Exportez ou supprimez l'intégralité de vos données quand vous le souhaitez.
+Coo parle français, anglais, allemand, espagnol, italien, polonais et néerlandais.
 
-POURQUOI J'AI CRÉÉ COO
-À la naissance de notre fille, les nuits étaient déjà assez éprouvantes sans avoir à subir des publicités agressives ou des applications qui coupent le sommeil à minuit. J'ai créé Coo pour offrir aux parents un outil serein, fiable et respectueux de leur intimité. Pour toute suggestion : andrzej@lechdigital.nl
+POURQUOI J’AI CRÉÉ COO
+À l’arrivée de notre bébé, les tétées de nuit étaient déjà assez stressantes sans publicités bruyantes, abonnements compliqués et apps qui coupent la nuit en deux à minuit. J’ai créé Coo pour offrir aux parents un compagnon serein, fiable et privé. Vos retours et idées : andrzej@lechdigital.nl
 
 Politique de confidentialité : https://lechdigital.nl/projects/coo/privacy/
 ```
@@ -357,64 +345,61 @@ Coo: Lactancia y registro bebé
 ```
 Coo: Diario del recién nacido
 ```
-### Short description — 80 / 80
+### Short description — 75 / 80
 
 ```
-Lactancia, sueño y pañales en una línea de tiempo clara. Privado y sincronizado.
+Registro de bebé para toda la familia: siestas, widgets, voz y crecimiento.
 ```
-### Full description — 3,554 / 4,000
+### Full description — 3,340 / 4,000
 
 ```
-El día de tu bebé, sin distracciones.
+El día de tu bebé, con calma y en familia.
 
-Coo es un diario de bebé sereno y privado, pensado para la vida real, especialmente a las 3 de la madrugada. Registra lactancia materna, biberones, sueño, pañales y extractor de leche en una línea de tiempo visual continua de 24 horas. Sin pantallas deslumbrantes, sin anuncios molestos y sin cuenta obligatoria.
+Coo es un registro de bebé privado para toda la familia – dos padres, la niñera y los abuelos – hecho para la vida real, sobre todo a las 3 de la madrugada. Registra tomas, sueño, pañales, extracciones y salud con un toque, con la voz, desde un widget o desde la pantalla de bloqueo. Hecho en la UE. Lo esencial es gratis, sin anuncios.
 
-Privado, sin publicidad y pensado para padres cansados.
+SABE CUÁNDO ES PROBABLE LA PRÓXIMA SIESTA
+• Horarios de siesta personales (Premium): Coo aprende las ventanas de vigilia de tu bebé y muestra cuándo es probable la próxima siesta o la hora de dormir, con el motivo a un toque.
+• Mientras tanto: la ventana de vigilia típica para su edad.
+• Un aviso suave antes de que se abra la ventana, puntual al minuto.
 
-UNA LÍNEA DE TIEMPO VISUAL DE 24 HORAS
-• Todo el ritmo de un vistazo: tomas, sueño y cambios de pañal en una franja continua a lo largo del día.
-• Sueño continuo que pasa de medianoche: ¿el bebé se durmió a las 22:00 y despertó a las 3:00? Coo muestra las 5 horas completas de descanso, sin partir la noche por la mitad a las 00:00.
-• Vista detallada: toca la línea de tiempo para ampliar las horas y deslízate suavemente de un día a otro.
+REGISTRA SIN ABRIR LA APP
+• Widgets: botones de izquierda, derecha, mojado, caca, sueño y extracción; un vistazo a la última toma, sueño y pañal; relojes en marcha desde la última toma.
+• La toma en curso en la barra de notificaciones: cambia de lado, pausa o termina desde la pantalla de bloqueo, con una mano.
+• Tell Coo: di «empezó por la izquierda» o «120 ml de fórmula a las dos, luego un pañal mojado» y revisa lo que Coo entendió antes de guardar nada. Los nombres de tu bebé y tu familia se ocultan a la IA.
 
-TEMPORIZADOR INTELIGENTE DE LACTANCIA
-• Cronómetros para pecho izquierdo y derecho con indicación clara del último lado utilizado.
-• Pausa y reanudación: ¿el bebé necesita una pausa para eructar o descansar? Pausa y reanuda sin tener que iniciar una nueva toma.
-• Cambio de pecho con un toque: alterna el pecho al instante manteniendo el tiempo total exacto.
-• Fusión inteligente de tomas: si das un pecho, haces una pausa corta y continúas, Coo puede unirlos en una sola toma ordenada.
+UNA FAMILIA, UN REGISTRO
+• Invita a tu pareja, a una niñera o guardería que puede registrar, y a los abuelos, que siguen el día sin cambiar nada.
+• Las nuevas entradas llegan a todos en segundos. La sincronización en segundo plano mantiene avisos y widgets al día, incluso con la app cerrada.
+• «Necesita atención» detecta entradas dobles cuando dos personas registran la misma toma.
 
-SUEÑO, SIESTAS Y VENTANAS DE VIGILIA
-• Registra siestas y sueño nocturno con un solo toque.
-• Temporizador de sueño en directo con acciones de «Se durmió» y «Despertó».
-• Duración real calculada con precisión sin cortes a medianoche.
+TOMAS, SUEÑO, PAÑALES Y EXTRACCIONES
+• Temporizador de lactancia con cambio de lado y pausas; biberones en ml u oz; pañales mojados, sucios o mixtos; extracciones con cantidad.
+• Un sueño que pasa de medianoche sigue siendo un solo sueño.
+• Una banda de ritmo de 24 horas, tranquila, para cada día.
 
-BIBERÓN, PAÑALES Y SACALECHES
-• Biberón: leche de fórmula o leche materna extraída en mililitros (ml) u onzas (oz).
-• Pañales: mojado, sucio o ambos con un solo toque.
-• Sacaleches: registra la cantidad de leche extraída por pecho o en total.
-• Añade notas para medicinas, tiempo boca abajo o cualquier observación.
+SALUD Y CRECIMIENTO
+• Peso, talla y perímetro craneal en las curvas de la OMS, con percentiles.
+• Medicinas, temperatura, vacunas y visitas al médico.
+• Lee una cartilla de crecimiento o de vacunas desde una foto.
+• Un informe PDF para el pediatra, en cualquiera de siete idiomas.
 
-SINCRONIZACIÓN FAMILIAR Y RESOLUCIÓN DE CONFLICTOS
-• Comparte en tiempo real con tu pareja o cuidadores iniciando sesión con Google.
-• Información al instante para saber cuándo comió o durmió el bebé por última vez.
-• «Para revisar»: si ambos progenitores anotan algo a la vez, Coo detecta duplicados y permite unirlos con un toque.
+ESTADÍSTICAS Y LA SEMANA EN PALABRAS
+• Tendencias diarias y semanales de sueño, tomas y pañales.
+• Esta semana, en palabras: un breve resumen de la semana.
+• Pregunta al Asesor sobre sueño, alimentación y desarrollo.
 
-ESTADÍSTICAS LISTAS PARA EL PEDIATRA
-• Resúmenes por día, semana y mes: sueño total, duración media de siestas, número de tomas, tiempo de lactancia, pañales y leche extraída.
-• Responde al instante a las preguntas del médico: «¿Cuántos pañales mojados hoy?» o «¿Cuánto duran sus siestas?».
-• Observa cómo madura el ritmo natural de tu bebé.
+PRIVADO DESDE EL DISEÑO
+• Funciona sin conexión y sin cuenta. Solo inicias sesión para compartir.
+• Sin anuncios, sin rastreadores, sin venta de datos. Los registros compartidos se guardan en la UE (Alemania).
+• Importa tu historial desde otras apps de bebés y exporta todo tu registro como CSV cuando quieras.
 
-SUAVE PARA OJOS CANSADOS A LAS 3 A.M.
-• Tonos cálidos de papel y terracota – nada de pantallas blancas deslumbrantes.
-• Modo Noche silencioso automático para tomas nocturnas, pensado para no desvelarte ni despertar al bebé.
+SUAVE A LAS 3 DE LA MADRUGADA
+• Colores nocturnos cálidos durante tus horas de silencio, para que la pantalla nunca despierte al bebé.
 
-MÁXIMA PRIVACIDAD: LOCAL FIRST
-• Funciona 100 % sin conexión: los datos del bebé viven en tu teléfono y abren al instante sin internet.
-• Sin cuenta obligatoria: úsalo desde el primer segundo tras instalarlo.
-• Sin anuncios, sin rastreadores ni venta de datos personales a terceros.
-• Exporta o borra tus datos en cualquier momento desde Ajustes.
+Coo habla español, inglés, alemán, francés, italiano, polaco y neerlandés.
 
 POR QUÉ CREÉ COO
-Cuando nació nuestra hija, las tomas nocturnas ya eran bastante duras sin tener que lidiar con publicidad invasiva, suscripciones caras y aplicaciones que cortaban el sueño a medianoche. Diseñé Coo para ofrecer un apoyo tranquilo, fiable y respetuoso con la intimidad familiar. Para sugerencias o dudas: andrzej@lechdigital.nl
+Cuando llegó nuestro bebé, las tomas nocturnas ya eran bastante estresantes sin anuncios ruidosos, suscripciones engorrosas y apps que parten la noche en dos a medianoche. Creé Coo para dar a los padres un compañero tranquilo, fiable y privado. Comentarios e ideas: andrzej@lechdigital.nl
 
 Política de privacidad: https://lechdigital.nl/projects/coo/privacy/
 ```
@@ -439,64 +424,61 @@ Coo: Diario neonato e sonno
 ```
 Coo: Allattamento e sonno bebè
 ```
-### Short description — 80 / 80
+### Short description — 76 / 80
 
 ```
-Allattamento, sonno e pannolini su una linea del tempo chiara. Privato e sereno.
+Diario del bambino per tutta la famiglia: pisolini, widget, voce e crescita.
 ```
-### Full description — 3,621 / 4,000
+### Full description — 3,331 / 4,000
 
 ```
-La giornata del tuo bebè, senza complicazioni.
+La giornata del tuo bambino, serena e condivisa.
 
-Coo è un diario per neonati calmo e privato, creato per la vita reale – soprattutto alle 3 di notte. Monitora allattamento al seno, biberon, sonno, pannolini e tiralatte su una linea temporale continua di 24 ore. Niente schermate accecanti, nessuna pubblicità e nessun account obbligatorio.
+Coo è un diario del bambino privato per tutta la famiglia – due genitori, la tata e i nonni – pensato per la vita vera, soprattutto alle 3 di notte. Registra poppate, sonno, pannolini, tiralatte e salute con un tocco, a voce, da un widget o dalla schermata di blocco. Fatto nell’UE. L’essenziale è gratuito, senza pubblicità.
 
-Privato, gratuito e pensato per genitori stanchi.
+SA QUANDO È PROBABILE IL PROSSIMO PISOLINO
+• Orari dei pisolini personali (Premium): Coo impara le finestre di veglia del tuo bambino e mostra quando è probabile il prossimo pisolino o la nanna, con il motivo a un tocco.
+• Nel frattempo: la finestra di veglia tipica per la sua età.
+• Un promemoria gentile prima che la finestra si apra, puntuale al minuto.
 
-UNA LINEA TEMPORALE CONTINUA DI 24 ORE
-• Il ritmo della giornata a colpo d'occhio: poppate, sonno e cambi di pannolino visualizzati in una barra fluida e continua.
-• Sonno che supera la mezzanotte: il bebè si è addormentato alle 22:00 e si è svegliato alle 3:00? Coo mostra le 5 ore piene di sonno consecutivo, senza spezzare la notte a mezzanotte.
-• Vista dettagliata: tocca la linea temporale per ingrandire ogni ora e passare da un giorno all'altro con facilità.
+REGISTRA SENZA APRIRE L’APP
+• Widget: pulsanti sinistro, destro, bagnato, cacca, sonno e tiralatte; uno sguardo all’ultima poppata, al sonno e al pannolino; orologi dall’ultima poppata.
+• La poppata in corso nella barra delle notifiche: cambia lato, metti in pausa o termina dalla schermata di blocco, con una mano.
+• Tell Coo: di’ «ha iniziato a sinistra» o «120 ml di latte artificiale alle due, poi un pannolino bagnato» e controlla cosa ha capito Coo prima che venga salvato qualcosa. I nomi del bambino e della famiglia sono nascosti all’IA.
 
-CRONOMETRO ALLATTAMENTO INTELLIGENTE
-• Timer separati per seno sinistro e destro con indicazione visiva dell'ultimo lato usato.
-• Pausa e ripresa: il bebè fa una pausa per il ruttino? Metti in pausa e riprendi senza dover creare una nuova poppata.
-• Cambio lato rapido: passa all'altro seno con un tocco mantenendo la durata complessiva esatta.
-• Unione automatica delle poppate: sessioni ravvicinate vengono raggruppate in un unico evento pulito.
+UNA FAMIGLIA, UN DIARIO
+• Invita il partner, una tata o un nido che può registrare, e i nonni che seguono senza modificare nulla.
+• Le nuove voci arrivano a tutti in pochi secondi. La sincronizzazione in background tiene aggiornati promemoria e widget, anche ad app chiusa.
+• «Da controllare» trova i doppioni quando due persone registrano la stessa poppata.
 
-SONNO, PISOLINI E FINESTRE DI VEGLIA
-• Registra i pisolini diurni e il sonno notturno con un solo tocco.
-• Timer del sonno in tempo reale con comandi «Addormentato» e «Svegliato».
-• Durata effettiva calcolata con precisione oltre la mezzanotte.
+POPPATE, SONNO, PANNOLINI E TIRALATTE
+• Timer dell’allattamento con cambio lato e pause; biberon in ml o oz; pannolini bagnati, sporchi o misti; tiralatte con quantità.
+• Un sonno oltre la mezzanotte resta un unico sonno.
+• Una banda del ritmo di 24 ore, tranquilla, per ogni giorno.
 
-BIBERON, PANNOLINI E TIRALATTE
-• Biberon: latte artificiale o latte materno spremuto in millilitri (ml) o once (oz).
-• Pannolini: bagnato, sporco o entrambi con un solo tocco.
-• Tiralatte: annota il volume di latte estratto per lato o totale.
-• Aggiungi note per farmaci, bagnetto o momenti sul pancino.
+SALUTE E CRESCITA
+• Peso, lunghezza e circonferenza cranica sulle curve dell’OMS, con percentili.
+• Medicine, temperatura, vaccini e visite dal medico.
+• Leggi un libretto della crescita o delle vaccinazioni da una foto.
+• Un report PDF per il pediatra, in una delle sette lingue.
 
-SINCRONIZZAZIONE FAMILIARE E GESTIONE CONFLITTI
-• Condividi in tempo reale con partner o nonni effettuando l'accesso con Google.
-• Aggiornamenti immediati: entrambi i genitori sanno subito quando il bimbo ha mangiato o dormito.
-• «Da controllare»: se entrambi inserite un evento nello stesso momento, Coo segnala i duplicati e vi permette di unirli con un tocco.
+STATISTICHE E LA SETTIMANA IN PAROLE
+• Andamenti giornalieri e settimanali di sonno, poppate e pannolini.
+• Questa settimana, in parole: un breve riassunto della settimana.
+• Chiedi al Consulente di sonno, alimentazione e sviluppo.
 
-STATISTICHE PRONTE PER IL PEDIATRA
-• Riepiloghi giornalieri, settimanali e mensili: sonno totale, durata media dei pisolini, numero di poppate, tempo al seno, cambi di pannolino e latte estratto.
-• Rispondi all'istante al pediatra: «Quanti pannolini bagnati oggi?» o «Quanto durano i pisolini?».
-• Scopri i ritmi naturali del tuo bambino nel corso dei giorni.
+PRIVATO PER SCELTA
+• Funziona offline, senza account. Accedi solo per condividere.
+• Niente pubblicità, niente tracker, nessuna vendita di dati. I diari condivisi restano nell’UE (Germania).
+• Importa la cronologia da altre app per neonati ed esporta tutto il diario in CSV quando vuoi.
 
-DELICATO SUGLI OCCHI ALLE 3 DI NOTTE
-• Tonalità calde ispirate alla carta e alla terracotta – niente luci bianche abbaglianti.
-• Modalità Notte silenziosa automatica per le poppate notturne, per non disturbare né te né il bambino.
+DELICATO ALLE 3 DI NOTTE
+• Colori notturni caldi durante le ore di quiete, perché lo schermo non svegli mai il bambino.
 
-MASSIMA PRIVACY: PRIMA DI TUTTO IN LOCALE
-• Funziona al 100% offline: i dati del tuo bambino restano sul telefono e sono subito accessibili senza rete.
-• Nessun account necessario: inizia a registrare subito dopo l'installazione.
-• Senza pubblicità, senza tracciamento e senza rivendita di dati sanitari sensibili.
-• Esporta o elimina tutti i dati in qualsiasi momento dalle Impostazioni.
+Coo parla italiano, inglese, tedesco, francese, spagnolo, polacco e olandese.
 
 PERCHÉ HO CREATO COO
-Quando è nata la nostra bimba, le notti erano già abbastanza faticose senza dover sopportare pubblicità invadenti e app che azzeravano il sonno a mezzanotte. Ho creato Coo per offrire ai genitori uno strumento sereno, affidabile e rispettoso della privacy. Se hai suggerimenti o domande, scrivimi a: andrzej@lechdigital.nl
+Quando è arrivato il nostro bambino, le poppate notturne erano già abbastanza stressanti senza pubblicità invadenti, abbonamenti complicati e app che a mezzanotte spezzano la notte in due. Ho creato Coo per dare ai genitori un compagno sereno, affidabile e privato. Commenti e idee: andrzej@lechdigital.nl
 
 Informativa sulla privacy: https://lechdigital.nl/projects/coo/privacy/
 ```
@@ -521,64 +503,61 @@ Coo: Borstvoeding & Babyslaap
 ```
 Coo: Baby Dagboek & Slaaplog
 ```
-### Short description — 79 / 80
+### Short description — 72 / 80
 
 ```
-Borstvoeding, slaap en luiers op een tijdlijn. Geen advertenties, geen account.
+Babylogboek voor het hele gezin: dutjestijden, widgets, spraak en groei.
 ```
-### Full description — 3,479 / 4,000
+### Full description — 3,241 / 4,000
 
 ```
-De dag van je baby, zonder de drukte.
+De dag van je baby, rustig en samen.
 
-Coo is een rustige, privacy-vriendelijke baby tracker voor het echte leven – vooral om 3 uur 's nachts. Volg borstvoeding, flesjes, slaap, luiers en kolven op een doorlopende 24-uurs tijdlijn. Zonder fel wit licht, zonder advertenties en zonder verplicht account.
+Coo is een privé babylogboek voor het hele gezin – twee ouders, de oppas en de opa’s en oma’s – gemaakt voor het echte leven, vooral om 3 uur ’s nachts. Log voedingen, slaap, luiers, kolven en gezondheid met één tik, met je stem, vanaf een widget of vanaf het vergrendelscherm. Gemaakt in de EU. De basis is gratis, zonder reclame.
 
-Gratis, ontworpen voor privacy en gemaakt voor vermoeide ouders.
+WEET WANNEER HET VOLGENDE DUTJE WAARSCHIJNLIJK IS
+• Persoonlijke dutjestijden (Premium): Coo leert de wakkervensters van je baby en laat zien wanneer het volgende dutje of bedtijd waarschijnlijk is – met de uitleg één tik verder.
+• Tot die tijd: het gebruikelijke wakkervenster voor de leeftijd van je baby.
+• Een zachte herinnering voordat het venster opent, precies op tijd.
 
-EEN RUSTIGE 24-UURS TIJDLIJN
-• Het dagritme in één oogopslag: voedingen, dutjes en luiers overzichtelijk weergegeven in een doorlopende band.
-• Slaap over middernacht heen: sliep je baby om 22:00 uur en werd hij om 03:00 uur wakker? Coo toont de volledige 5 uur aaneengesloten slaap, zonder de nacht om middernacht doormidden te knippen.
-• Detailweergave: tik op de tijdlijn om in te zoomen op specifieke uren en wissel soepel tussen dagen.
+LOGGEN ZONDER DE APP TE OPENEN
+• Widgets: knoppen voor links, rechts, nat, poep, slaap en kolven; in één oogopslag de laatste voeding, slaap en luier; lopende klokken sinds de laatste voeding.
+• De lopende voeding in de meldingenbalk: wissel van kant, pauzeer of stop vanaf het vergrendelscherm, met één hand.
+• Tell Coo: zeg „ze begon links” of „120 ml flesvoeding om twee uur, daarna een natte luier” en controleer wat Coo begreep voordat er iets wordt opgeslagen. De namen van je baby en gezin blijven verborgen voor de AI.
 
-SLIMME BORSTVOEDINGSTIMER
-• Aparte timers voor linker- en rechterborst met duidelijke weergave van de actieve zijde.
-• Pauzeren en hervatten: stopt je baby even voor een boertje? Pauzeer en hervat zonder een nieuwe voeding te starten.
-• Snel wisselen van borst: wissel van kant met één tik terwijl de totale voedingstijd nauwkeurig blijft.
-• Slim samenvoegen: korte opeenvolgende voedingen voegt Coo netjes samen tot één overzichtelijke sessie.
+ÉÉN GEZIN, ÉÉN LOGBOEK
+• Nodig je partner uit, een oppas of kinderopvang die mag loggen, en opa en oma die alleen meekijken.
+• Nieuwe items zijn binnen seconden bij iedereen. Synchronisatie op de achtergrond houdt herinneringen en widgets actueel, ook als de app dicht is.
+• „Vraagt aandacht” ziet dubbele items als twee mensen dezelfde voeding loggen.
 
-SLAAP, DUTJES EN WAAKTIJDEN
-• Leg dutjes overdag en de nachtslaap vast met één tik.
-• Live slaaptimer met snelle acties voor „In slaap gevallen” en „Wakker geworden”.
-• Exacte slaapduur berekend over de middernachtgrens heen.
+VOEDINGEN, SLAAP, LUIERS EN KOLVEN
+• Borstvoedingstimer met kant wisselen en pauzes; flessen in ml of oz; natte, vieze of gemengde luiers; kolven met hoeveelheid.
+• Een slaap over middernacht blijft één slaap.
+• Een rustige ritmeband van 24 uur voor elke dag.
 
-FLESJES, LUIERS EN KOLVEN
-• Flesvoeding: melkpoeder of afgekolfde moedermelk in milliliters (ml) of ounces (oz).
-• Luiers: nat, vies of beide met één simpele aanraking.
-• Kolven: houd de opbrengst per borst of het totale kolfvolume bij.
-• Notities toevoegen: handig voor medicijnen, buiktijd of algemene waarnemingen.
+GEZONDHEID EN GROEI
+• Gewicht, lengte en hoofdomtrek op de groeicurven van de WHO, met percentielen.
+• Medicijnen, temperatuur, vaccinaties en doktersbezoeken.
+• Lees een groeikaart of vaccinatieboekje uit een foto.
+• Een pdf-verslag voor de dokter of het consultatiebureau, in zeven talen.
 
-GEZINSSYNCHRONISATIE & CONFLICTEN OPLOSSEN
-• Deel veilig in realtime met je partner of oppas via Google Login.
-• Altijd up-to-date: beide ouders zien direct wanneer de baby voor het laatst heeft gedronken of geslapen.
-• „Aandacht nodig”: voeren beide ouders tegelijk iets in, dan herkent Coo dubbele invoer en voeg je ze met één tik samen.
+STATISTIEKEN EN DE WEEK IN WOORDEN
+• Trends per dag en per week voor slaap, voedingen en luiers.
+• Deze week in woorden: een korte samenvatting van de week.
+• Vraag de Babyadviseur over slaap, voeding en ontwikkeling.
 
-STATISTIEKEN VOOR HET CONSULTATIEBUREAU
-• Overzichten per dag, week en maand: totale slaapduur, gemiddelde dutjestijd, aantal voedingen, gemiddelde drinkduur, luiers en kolfopbrengst.
-• Direct antwoord op vragen van de arts: „Hoeveel plasluiers vandaag?” of „Hoe lang zijn de wakkertijden?”.
-• Volg het natuurlijke ritme van je kindje over de tijd.
+PRIVÉ VAN OPZET
+• Werkt offline, zonder account. Alleen inloggen om te delen.
+• Geen reclame, geen trackers, geen verkoop van gegevens. Gedeelde logboeken staan in de EU (Duitsland).
+• Importeer je geschiedenis uit andere baby-apps en exporteer je hele logboek altijd als CSV-bestand.
 
-ZACHT VOOR VERMOEIDE OGEN OM 3 UUR 'S NACHTS
-• Warme terracotta- en papiertinten – geen oogverblindende witte schermen.
-• Automatische Stille Uren-modus voor nachtvoedingen, zodat jij en je baby rustig blijven.
+ZACHT OM 3 UUR ’S NACHTS
+• Warme nachtkleuren tijdens je stille uren, zodat het scherm de baby nooit wekt.
 
-EERLIJKE PRIVACY: LOCAL-FIRST
-• Werkt 100% offline: alle gegevens blijven veilig op je telefoon en openen direct zonder internetverbinding.
-• Geen account verplicht: direct te gebruiken na installatie.
-• Geen advertenties, geen trackers en geen verkoop van gevoelige gezondheidsdata.
-• Exporteer of verwijder al je gegevens wanneer je maar wilt in Instellingen.
+Coo spreekt Nederlands, Engels, Duits, Frans, Spaans, Italiaans en Pools.
 
-WAAROM IK COO HEB GEBOUWD
-Toen onze dochter werd geboren, waren de nachten al vermoeiend genoeg zonder schreeuwerige reclames, dure abonnementen en apps die de nacht om middernacht afbraken. Ik bouwde Coo om ouders een rustig, betrouwbaar en privacy-vriendelijk hulpmiddel te geven. Heb je feedback of ideeën? Mail me gerust: andrzej@lechdigital.nl
+WAAROM IK COO MAAKTE
+Toen onze baby kwam, waren de nachtvoedingen al stressvol genoeg zonder luide reclame, omslachtige abonnementen en apps die de nacht om middernacht doormidden knippen. Ik maakte Coo om ouders een rustige, betrouwbare en privé metgezel te geven. Feedback en ideeën: andrzej@lechdigital.nl
 
 Privacybeleid: https://lechdigital.nl/projects/coo/privacy/
 ```

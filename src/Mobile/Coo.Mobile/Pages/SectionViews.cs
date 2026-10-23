@@ -135,6 +135,7 @@ internal static class SectionViews
         TimelineSection s => Live(s, () => Timeline(s, host)),
         NightSection s => Live(s, () => Night(s, host), nameof(NightSection.Title)),
         PausedSection s => Live(s, () => Paused(s)),
+        ViewOnlySection s => Live(s, () => ViewOnly(s)),
         _ => new ContentView(),
     };
 
@@ -504,6 +505,15 @@ internal static class SectionViews
         var card = new Card(stack);
         card.Margin = new Thickness(24, 12, 24, 0);
         return card;
+    }
+
+    private static View ViewOnly(ViewOnlySection s)
+    {
+        if (string.IsNullOrEmpty(s.Text))
+            return new ContentView();
+        var note = Ui.Rounded(Ui.Text(s.Text, "Body", "Ink2"), "Surface", 16, new Thickness(16, 12), "Line");
+        note.Margin = new Thickness(24, 12, 24, 0);
+        return note;
     }
 
     private static View DailyProgress(DailyProgressSection s)

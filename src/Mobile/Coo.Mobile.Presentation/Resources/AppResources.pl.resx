@@ -214,6 +214,7 @@
   <data name="Error.entry.not-editable" xml:space="preserve"><value>Tego wpisu nie można edytować w tej wersji Coo.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>Ten wpis już nie istnieje.</value></data>
   <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>Godziny tego wpisu są niedozwolone.</value></data>
+  <data name="Error.family.view-only" xml:space="preserve"><value>Obserwujesz dziennik tej rodziny: wpisy mogą dodawać tylko rodzice i opiekunowie.</value></data>
   <data name="Error.growth.empty" xml:space="preserve"><value>Wpisz przynajmniej jeden pomiar.</value></data>
   <data name="Error.growth.head-out-of-range" xml:space="preserve"><value>Ten obwód głowy wygląda na błędny: sprawdź jednostkę.</value></data>
   <data name="Error.growth.length-out-of-range" xml:space="preserve"><value>Ta długość wygląda na błędną: sprawdź jednostkę.</value></data>
@@ -233,6 +234,9 @@
   <data name="Error.invitation.too-many" xml:space="preserve"><value>Ta rodzina ma już 5 otwartych zaproszeń. Wycofaj jedno, aby utworzyć nowe.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>Notatka może mieć najwyżej 500 znaków.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Odciąganie trwa najwyżej 4 godziny. Sprawdź godziny.</value></data>
+  <data name="Error.quick.already-running" xml:space="preserve"><value>Już działa.</value></data>
+  <data name="Error.quick.no-baby" xml:space="preserve"><value>Otwórz Coo i najpierw dodaj dziecko.</value></data>
+  <data name="Error.quick.nothing-running" xml:space="preserve"><value>Nic nie jest uruchomione.</value></data>
   <data name="Error.settings.all-kinds-hidden" xml:space="preserve"><value>Zostaw widoczny co najmniej jeden rodzaj.</value></data>
   <data name="Error.sleep.too-long" xml:space="preserve"><value>Sen trwa najwyżej 24 godziny. Sprawdź godziny.</value></data>
   <data name="Error.sync.change-malformed" xml:space="preserve"><value>Serwer nie mógł odczytać tej zmiany.</value></data>
@@ -247,6 +251,7 @@
   <data name="Error.time.too-far-in-future" xml:space="preserve"><value>Ta godzina jest zbyt daleko w przyszłości.</value></data>
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Podaj ilość powyżej 0 i do 1000 ml.</value></data>
   <data name="Expecting.Eyebrow" xml:space="preserve"><value>Czekamy</value></data>
+  <data name="Export.Title" xml:space="preserve"><value>Eksportuj dziennik (CSV)</value></data>
   <data name="Family.ActionFailed" xml:space="preserve"><value>Nie udało się. Sprawdź połączenie i spróbuj ponownie.</value></data>
   <data name="Family.BringHere" xml:space="preserve"><value>Przenieś jej wpisy tutaj</value></data>
   <data name="Family.BringOver" xml:space="preserve"><value>Przenieś wpisy</value></data>
@@ -263,6 +268,7 @@
   <data name="Family.InvitationMade" xml:space="preserve"><value>Utworzone {0}</value></data>
   <data name="Family.Invitations" xml:space="preserve"><value>Otwarte zaproszenia</value></data>
   <data name="Family.Invite" xml:space="preserve"><value>Zaproś rodzica</value></data>
+  <data name="Family.InviteSomeone" xml:space="preserve"><value>Zaproś kogoś</value></data>
   <data name="Family.Join" xml:space="preserve"><value>Dołącz do rodziny</value></data>
   <data name="Family.Leave" xml:space="preserve"><value>Opuść tę rodzinę</value></data>
   <data name="Family.LeaveConfirm" xml:space="preserve"><value>Opuścić tę rodzinę? Jej dziennik zostanie usunięty z tego telefonu. Dodane przez Ciebie wpisy zostaną w rodzinie.</value></data>
@@ -286,6 +292,7 @@
   <data name="Family.RoleCaregiver" xml:space="preserve"><value>Opiekun</value></data>
   <data name="Family.RoleOwner" xml:space="preserve"><value>Rodzic · twórca rodziny</value></data>
   <data name="Family.RoleParent" xml:space="preserve"><value>Rodzic</value></data>
+  <data name="Family.RoleViewer" xml:space="preserve"><value>Rodzina · obserwuje</value></data>
   <data name="Family.Showing" xml:space="preserve"><value>Wyświetlana: {0}</value></data>
   <data name="Family.Switch" xml:space="preserve"><value>Którą rodzinę pokazać?</value></data>
   <data name="Family.Title" xml:space="preserve"><value>Rodzina</value></data>
@@ -334,9 +341,34 @@
   <data name="Hero.SinceAfterNap" xml:space="preserve"><value>od {0}, po drzemce {1}</value></data>
   <data name="Hero.Sleeping" xml:space="preserve"><value>Śpi</value></data>
   <data name="Hero.Started" xml:space="preserve"><value>od {0}</value></data>
+  <data name="Import.Added.few" xml:space="preserve"><value>Dodano {0} wpisy.</value></data>
+  <data name="Import.Added.many" xml:space="preserve"><value>Dodano {0} wpisów.</value></data>
+  <data name="Import.Added.one" xml:space="preserve"><value>Dodano {0} wpis.</value></data>
+  <data name="Import.AlreadyThere.few" xml:space="preserve"><value>{0} były już w Coo.</value></data>
+  <data name="Import.AlreadyThere.many" xml:space="preserve"><value>{0} było już w Coo.</value></data>
+  <data name="Import.AlreadyThere.one" xml:space="preserve"><value>{0} był już w Coo.</value></data>
+  <data name="Import.Found" xml:space="preserve"><value>Znaleziono wpisów: {0}, od {2} do {3}.</value></data>
+  <data name="Import.FoundFrom" xml:space="preserve"><value>Znaleziono wpisów z {1}: {0}, od {2} do {3}.</value></data>
+  <data name="Import.Go" xml:space="preserve"><value>Importuj</value></data>
+  <data name="Import.Header" xml:space="preserve"><value>Twoje dane</value></data>
+  <data name="Import.Hint" xml:space="preserve"><value>Wyeksportuj dziennik z Huckleberry lub innej aplikacji jako plik CSV i wybierz go tutaj. Zobaczysz, co Coo znalazło, zanim cokolwiek zostanie zapisane.</value></data>
+  <data name="Import.Kinds" xml:space="preserve"><value>Karmienia: {0} · Pieluszki: {1} · Sen: {2} · Odciąganie: {3}</value></data>
+  <data name="Import.NoSide.few" xml:space="preserve"><value>{0} karmienia piersią nie mają strony: zapisano jako lewa.</value></data>
+  <data name="Import.NoSide.many" xml:space="preserve"><value>{0} karmień piersią nie ma strony: zapisano jako lewa.</value></data>
+  <data name="Import.NoSide.one" xml:space="preserve"><value>{0} karmienie piersią nie ma strony: zapisano jako lewa.</value></data>
+  <data name="Import.Nothing" xml:space="preserve"><value>Coo nie znalazło w tym pliku nic do zaimportowania. Wybierz eksport CSV z kolumną daty lub godziny.</value></data>
+  <data name="Import.Skipped.few" xml:space="preserve"><value>Nie udało się użyć {0} wierszy (inne rodzaje wpisów lub brak godziny).</value></data>
+  <data name="Import.Skipped.many" xml:space="preserve"><value>Nie udało się użyć {0} wierszy (inne rodzaje wpisów lub brak godziny).</value></data>
+  <data name="Import.Skipped.one" xml:space="preserve"><value>Nie udało się użyć {0} wiersza (inny rodzaj wpisu lub brak godziny).</value></data>
+  <data name="Import.Title" xml:space="preserve"><value>Importuj z innej aplikacji</value></data>
+  <data name="Import.Twice" xml:space="preserve"><value>Wpisy, które Coo już ma, są pomijane, więc ponowny import niczego nie podwoi.</value></data>
+  <data name="Invite.AsCaregiver" xml:space="preserve"><value>Nianię lub żłobek: zapisuje karmienia, sen i pieluszki</value></data>
+  <data name="Invite.AsParent" xml:space="preserve"><value>Rodzica: zapisuje i zarządza wszystkim</value></data>
+  <data name="Invite.AsViewer" xml:space="preserve"><value>Rodzinę: obserwuje, niczego nie zapisuje</value></data>
   <data name="Invite.ShareText" xml:space="preserve"><value>Dołącz do mojej rodziny w Coo, żebyśmy razem prowadzili dziennik naszego dziecka: {0}
 
 Jeśli link nie otworzy Coo, przejdź w Coo do Ustawienia → Rodzina → Dołącz do rodziny i wpisz kod {1}. Można go użyć raz, do {2}.</value></data>
+  <data name="Invite.Who" xml:space="preserve"><value>Kogo zapraszasz?</value></data>
   <data name="Join.AlreadyMember" xml:space="preserve"><value>Już należysz do tej rodziny.</value></data>
   <data name="Join.Babies" xml:space="preserve"><value>W dzienniku tej rodziny: {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} zaprasza Cię do rodziny jako rodzica. Będziecie razem widzieć dziennik rodziny i dodawać do niego wpisy.</value></data>
@@ -613,6 +645,9 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Tile.Woke" xml:space="preserve"><value>pobudka {0}</value></data>
   <data name="Time.Midnight" xml:space="preserve"><value>Północ</value></data>
   <data name="Timeline.Empty" xml:space="preserve"><value>Dziś jeszcze nic nie zapisano</value></data>
+  <data name="Timers.Channel" xml:space="preserve"><value>Działające liczniki</value></data>
+  <data name="Timers.Hidden" xml:space="preserve"><value>Licznik działa</value></data>
+  <data name="Timers.Since" xml:space="preserve"><value>Start o {0}</value></data>
   <data name="Toast.Deleted" xml:space="preserve"><value>Usunięto · {0}</value></data>
   <data name="Toast.DeletedMany.few" xml:space="preserve"><value>Usunięto · {0} wpisy</value></data>
   <data name="Toast.DeletedMany.many" xml:space="preserve"><value>Usunięto · {0} wpisów</value></data>
@@ -642,6 +677,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Today.RecentActivity" xml:space="preserve"><value>Ostatnia aktywność</value></data>
   <data name="Today.SeeAllInLog" xml:space="preserve"><value>Zobacz wszystko w Dzienniku →</value></data>
   <data name="Today.SinceFeed" xml:space="preserve"><value>{0} od karmienia</value></data>
+  <data name="Today.ViewOnly" xml:space="preserve"><value>Obserwujesz dzień: {0}. Wpisy dodają rodzice i opiekunowie.</value></data>
   <data name="Totals.Diapers.few" xml:space="preserve"><value>pieluchy</value></data>
   <data name="Totals.Diapers.many" xml:space="preserve"><value>pieluch</value></data>
   <data name="Totals.Diapers.one" xml:space="preserve"><value>pielucha</value></data>
@@ -710,13 +746,19 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>Ostatnia drzemka była krótka, więc okno przychodzi trochę wcześniej.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Pora spania</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Następna drzemka</value></data>
+  <data name="Widget.Asleep" xml:space="preserve"><value>Śpi</value></data>
   <data name="Widget.AsleepSince" xml:space="preserve"><value>Śpi od {0}</value></data>
+  <data name="Widget.Awake" xml:space="preserve"><value>Nie śpi</value></data>
   <data name="Widget.AwakeSince" xml:space="preserve"><value>Nie śpi od {0}</value></data>
   <data name="Widget.DiaperAt" xml:space="preserve"><value>Pieluszka o {0}</value></data>
   <data name="Widget.FedAt" xml:space="preserve"><value>Karmienie o {0}</value></data>
   <data name="Widget.FeedingSince" xml:space="preserve"><value>Karmienie od {0}</value></data>
+  <data name="Widget.LastFeed" xml:space="preserve"><value>Ostatnie karmienie</value></data>
+  <data name="Widget.Logged" xml:space="preserve"><value>Coo: {0}</value></data>
   <data name="Widget.NoDiaper" xml:space="preserve"><value>Brak pieluszek</value></data>
   <data name="Widget.NoFeed" xml:space="preserve"><value>Brak karmień</value></data>
   <data name="Widget.Open" xml:space="preserve"><value>Otwórz Coo, aby zacząć</value></data>
+  <data name="Widget.StopPump" xml:space="preserve"><value>Koniec</value></data>
+  <data name="Widget.Switch" xml:space="preserve"><value>Zmień</value></data>
   <data name="Widget.Tell" xml:space="preserve"><value>Powiedz Coo</value></data>
 </root>

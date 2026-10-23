@@ -19,6 +19,10 @@ public static class ServiceCollectionExtensions
         services.AddTransient<GetEntries>();
         services.AddTransient<EnsureProvisionalHousehold>();
         services.AddTransient<GetToday>();
+        services.AddTransient<QuickActions>();
+        services.AddTransient<Import.ImportLog>();
+        services.AddTransient<Import.ExportLog>();
+        services.AddSingleton<ILogAccess, Households.FamilyLogAccess>();
         services.AddTransient<Insights.GetSleepPrediction>();
         services.AddTransient<Growth.GetGrowth>();
         services.AddTransient<Reports.BuildCareReport>();

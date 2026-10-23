@@ -37,6 +37,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IHomeSection, RecentActivitySection>();
         services.AddSingleton<IHomeSection, TimelineSection>();
         services.AddSingleton<IHomeSection, PausedSection>();
+        services.AddSingleton<IHomeSection, ViewOnlySection>();
+        services.AddTransient<Settings.ImportViewModel>();
         services.AddSingleton<WhoLabelsSource>();
         services.AddSingleton<TodayViewModel>();
         services.AddTransient<SetupViewModel>();

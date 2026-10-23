@@ -53,6 +53,7 @@ public static class MauiProgram
         builder.Services.AddTransient<RemindersPage>();
         builder.Services.AddTransient<GrowthPage>();
         builder.Services.AddSingleton<Coo.Mobile.Application.Notifications.IHomeWidget, HomeWidget>();
+        builder.Services.AddSingleton<Coo.Mobile.Application.Notifications.ITimerNotifications, TimerNotifications>();
         builder.Services.AddTransient<BabyPage>();
         builder.Services.AddTransient<LicencesPage>();
         builder.Services.AddTransient<ConsentPage>();

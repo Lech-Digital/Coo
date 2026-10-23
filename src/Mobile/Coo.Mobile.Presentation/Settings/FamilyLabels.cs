@@ -58,6 +58,7 @@ public static class FamilyLabels
     {
         Role.Owner => "Family.RoleOwner",
         Role.Parent => "Family.RoleParent",
+        Role.Viewer => "Family.RoleViewer",
         _ => "Family.RoleCaregiver",
     });
 

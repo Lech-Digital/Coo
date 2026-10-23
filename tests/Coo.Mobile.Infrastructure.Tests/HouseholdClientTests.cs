@@ -95,7 +95,7 @@ public sealed class HouseholdClientTests
         });
 
         // Act
-        var created = await client.CreateInvitationAsync(Family, CancellationToken.None);
+        var created = await client.CreateInvitationAsync(Family, Role.Parent, CancellationToken.None);
 
         // Assert
         body.Should().Be("""{"role":"parent"}""");
@@ -345,7 +345,7 @@ public sealed class HouseholdClientTests
 
         // Act
         await client.LeaveAsync(Family, confirm: false, CancellationToken.None);
-        await client.CreateInvitationAsync(Family, CancellationToken.None);
+        await client.CreateInvitationAsync(Family, Role.Parent, CancellationToken.None);
 
         // Assert
         uris.Should().Equal(
