@@ -324,6 +324,43 @@ Wenn der Link Coo nicht öffnet, geh in Coo zu Einstellungen → Familie → Ein
   <data name="Premium.Subscribe" xml:space="preserve"><value>Abonnieren</value></data>
   <data name="Premium.Title" xml:space="preserve"><value>Coo Premium</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Wie viel?</value></data>
+  <data name="Quick.Action.BreastStop" xml:space="preserve"><value>Stillen beendet</value></data>
+  <data name="Quick.Action.PumpStop" xml:space="preserve"><value>Abpumpen beendet</value></data>
+  <data name="Quick.Action.SleepStart" xml:space="preserve"><value>Eingeschlafen</value></data>
+  <data name="Quick.AlreadyLogged" xml:space="preserve"><value>Schon eingetragen um {0}</value></data>
+  <data name="Quick.Cancel" xml:space="preserve"><value>Abbrechen</value></data>
+  <data name="Quick.ConsentBody" xml:space="preserve"><value>Um dich zu verstehen, sendet Coo die Worte (nie die Aufnahme) an unseren Server und weiter an die KI Gemini von Google, zusammen mit dem, was gerade läuft. Die Namen deines Babys und deiner Familie werden vorher ersetzt. Nichts davon wird gespeichert; du prüfst jeden Eintrag, bevor er gespeichert wird.</value></data>
+  <data name="Quick.ConsentTitle" xml:space="preserve"><value>Bevor du es Coo sagst</value></data>
+  <data name="Quick.DropNote" xml:space="preserve"><value>Verwerfen</value></data>
+  <data name="Quick.Error.daily-limit" xml:space="preserve"><value>Das waren die {0} für heute. Trag den Rest mit den Knöpfen ein oder versuch es morgen.</value></data>
+  <data name="Quick.Error.free-limit" xml:space="preserve"><value>Das waren die {0} kostenlosen Versuche für heute. Mit Coo Premium sind es bis zu 100 am Tag.</value></data>
+  <data name="Quick.Error.signed-out" xml:space="preserve"><value>Sag es Coo funktioniert, sobald du angemeldet bist und deine Einträge teilst (Einstellungen → Konto). Bis dahin nutze die Knöpfe.</value></data>
+  <data name="Quick.Error.unavailable" xml:space="preserve"><value>Coo kann gerade nicht verstehen. Deine Worte bleiben für später.</value></data>
+  <data name="Quick.Hint" xml:space="preserve"><value>Sag oder tippe, was passiert ist, z. B. „Maja trinkt links“ oder „120 ml Pre-Milch um zwei, dann eine nasse Windel“.</value></data>
+  <data name="Quick.KeptForLater" xml:space="preserve"><value>Keine Verbindung: Coo hat deine Worte gespeichert und fragt später nach.</value></data>
+  <data name="Quick.Listening" xml:space="preserve"><value>Ich höre zu…</value></data>
+  <data name="Quick.NotHeard" xml:space="preserve"><value>Das habe ich nicht verstanden. Versuch es noch einmal oder tippe es.</value></data>
+  <data name="Quick.NothingFound" xml:space="preserve"><value>Coo hat darin nichts zum Eintragen gefunden. Sag, was wann passiert ist.</value></data>
+  <data name="Quick.Now" xml:space="preserve"><value>jetzt</value></data>
+  <data name="Quick.PendingTitle" xml:space="preserve"><value>Wartet aufs Verstehen</value></data>
+  <data name="Quick.Privacy" xml:space="preserve"><value>Die Namen deines Babys und deiner Familie werden vor der KI verborgen. Andere Namen werden so gesendet, wie du sie sagst.</value></data>
+  <data name="Quick.ReviewNote" xml:space="preserve"><value>Ansehen</value></data>
+  <data name="Quick.Save" xml:space="preserve"><value>Speichern</value></data>
+  <data name="Quick.Saved.one" xml:space="preserve"><value>{0} Eintrag gespeichert</value></data>
+  <data name="Quick.Saved.other" xml:space="preserve"><value>{0} Einträge gespeichert</value></data>
+  <data name="Quick.Send" xml:space="preserve"><value>Senden</value></data>
+  <data name="Quick.SomeFailed" xml:space="preserve"><value>Einiges davon konnte nicht gespeichert werden. Schau im Verlauf nach.</value></data>
+  <data name="Quick.Stop" xml:space="preserve"><value>Stopp</value></data>
+  <data name="Quick.Thinking" xml:space="preserve"><value>Verstehe…</value></data>
+  <data name="Quick.Title" xml:space="preserve"><value>Sag es Coo</value></data>
+  <data name="Quick.TypeHere" xml:space="preserve"><value>Oder tippe es…</value></data>
+  <data name="Quick.Unparsed" xml:space="preserve"><value>Nicht verstanden: {0}</value></data>
+  <data name="Quick.Warn.ai.in-the-future" xml:space="preserve"><value>In der Zukunft?</value></data>
+  <data name="Quick.Warn.ai.long-ago" xml:space="preserve"><value>Vor mehr als 2 Tagen</value></data>
+  <data name="Quick.Warn.ai.long-sleep" xml:space="preserve"><value>Länger als 16 Stunden</value></data>
+  <data name="Quick.Warn.ai.nothing-running" xml:space="preserve"><value>Gerade läuft nichts</value></data>
+  <data name="Quick.Warn.ai.time-not-stated" xml:space="preserve"><value>Keine Zeit genannt: jetzt</value></data>
+  <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Ungewöhnliche Menge: bitte prüfen</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>Du gehörst nicht mehr zu der Familie, die die Einträge für {0} führt. Diese Einträge werden deshalb von diesem Handy entfernt. Einträge, die du schon geteilt hast, bleiben bei der Familie.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Du bist nicht mehr Mitglied dieser Familie. Die Einträge dieser Familie werden deshalb von diesem Handy entfernt. Einträge, die du schon geteilt hast, bleiben bei der Familie.</value></data>
   <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>

@@ -324,6 +324,43 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Premium.Subscribe" xml:space="preserve"><value>Subscribe</value></data>
   <data name="Premium.Title" xml:space="preserve"><value>Coo Premium</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>How much?</value></data>
+  <data name="Quick.Action.BreastStop" xml:space="preserve"><value>Feeding finished</value></data>
+  <data name="Quick.Action.PumpStop" xml:space="preserve"><value>Pumping finished</value></data>
+  <data name="Quick.Action.SleepStart" xml:space="preserve"><value>Fell asleep</value></data>
+  <data name="Quick.AlreadyLogged" xml:space="preserve"><value>Already logged at {0}</value></data>
+  <data name="Quick.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Quick.ConsentBody" xml:space="preserve"><value>To understand you, Coo sends the words (never the audio) to our server and on to Google’s Gemini AI, with what is running now. Your baby’s and family’s names are replaced first. Nothing you say is stored; you check every entry before it is saved.</value></data>
+  <data name="Quick.ConsentTitle" xml:space="preserve"><value>Before you tell Coo</value></data>
+  <data name="Quick.DropNote" xml:space="preserve"><value>Drop</value></data>
+  <data name="Quick.Error.daily-limit" xml:space="preserve"><value>That’s today’s {0}. Log the rest with the buttons, or try again tomorrow.</value></data>
+  <data name="Quick.Error.free-limit" xml:space="preserve"><value>That’s today’s {0} free tries. Coo Premium gives you up to 100 a day.</value></data>
+  <data name="Quick.Error.signed-out" xml:space="preserve"><value>Tell Coo works once you sign in and share your log (Settings → Account). Until then, use the buttons.</value></data>
+  <data name="Quick.Error.unavailable" xml:space="preserve"><value>Coo can’t understand right now. Your words are kept for later.</value></data>
+  <data name="Quick.Hint" xml:space="preserve"><value>Say or type what happened, like “Maja started on the left” or “120 ml formula at two, then a wet diaper”.</value></data>
+  <data name="Quick.KeptForLater" xml:space="preserve"><value>No connection: Coo kept your words and will ask you to review them later.</value></data>
+  <data name="Quick.Listening" xml:space="preserve"><value>Listening…</value></data>
+  <data name="Quick.NotHeard" xml:space="preserve"><value>Didn’t catch that. Try again, or type it.</value></data>
+  <data name="Quick.NothingFound" xml:space="preserve"><value>Coo didn’t find anything to log in that. Say what happened, and when.</value></data>
+  <data name="Quick.Now" xml:space="preserve"><value>now</value></data>
+  <data name="Quick.PendingTitle" xml:space="preserve"><value>Waiting to be understood</value></data>
+  <data name="Quick.Privacy" xml:space="preserve"><value>Your baby’s and family’s names are hidden from the AI. Other names you say are sent as spoken.</value></data>
+  <data name="Quick.ReviewNote" xml:space="preserve"><value>Review</value></data>
+  <data name="Quick.Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Quick.Saved.one" xml:space="preserve"><value>{0} entry saved</value></data>
+  <data name="Quick.Saved.other" xml:space="preserve"><value>{0} entries saved</value></data>
+  <data name="Quick.Send" xml:space="preserve"><value>Send</value></data>
+  <data name="Quick.SomeFailed" xml:space="preserve"><value>Some of these could not be saved. Check the Log.</value></data>
+  <data name="Quick.Stop" xml:space="preserve"><value>Stop</value></data>
+  <data name="Quick.Thinking" xml:space="preserve"><value>Understanding…</value></data>
+  <data name="Quick.Title" xml:space="preserve"><value>Tell Coo</value></data>
+  <data name="Quick.TypeHere" xml:space="preserve"><value>Or type it…</value></data>
+  <data name="Quick.Unparsed" xml:space="preserve"><value>Not understood: {0}</value></data>
+  <data name="Quick.Warn.ai.in-the-future" xml:space="preserve"><value>In the future?</value></data>
+  <data name="Quick.Warn.ai.long-ago" xml:space="preserve"><value>More than 2 days ago</value></data>
+  <data name="Quick.Warn.ai.long-sleep" xml:space="preserve"><value>Longer than 16 hours</value></data>
+  <data name="Quick.Warn.ai.nothing-running" xml:space="preserve"><value>Nothing is running to change</value></data>
+  <data name="Quick.Warn.ai.time-not-stated" xml:space="preserve"><value>No time said: saved as now</value></data>
+  <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Unusual amount: check it</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>You're no longer a member of the family that logs {0}, so its log will be removed from this phone. Entries you already shared stay with the family.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>You're no longer a member of this family, so its log will be removed from this phone. Entries you already shared stay with the family.</value></data>
   <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>

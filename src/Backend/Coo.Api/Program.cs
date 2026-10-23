@@ -76,6 +76,10 @@ builder.Services.AddSingleton<DeleteAccount>();
 
 // Billing (Increment 12)
 builder.Services.AddSingleton<Coo.Api.Application.Billing.VerifyReceipt>();
+// AI logging (ADR 0005 §7): the daily allowances are configuration.
+builder.Services.AddSingleton(new Coo.Api.Application.AiParsing.AiParsingLimitsOptions(
+    builder.Configuration.GetValue("AiParsing:PremiumPerDay", 100), builder.Configuration.GetValue("AiParsing:FreePerDay", 5)));
+builder.Services.AddSingleton<Coo.Api.Application.AiParsing.ParseCareLogText>();
 builder.Services.AddSingleton<Coo.Api.Application.Billing.HandleRTDN>();
 builder.Services.AddSingleton<Coo.Api.Application.Billing.GetEntitlementStatus>();
 
@@ -128,6 +132,7 @@ app.MapAdvisorEndpoints();
 app.MapBabyAvatarEndpoints();
 app.MapAppUpdateEndpoints();
 app.MapDeleteAccountPage();
+app.MapAiParsingEndpoints();
 app.MapBillingEndpoints();
 
 await app.RunAsync();

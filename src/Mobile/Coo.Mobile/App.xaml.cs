@@ -17,6 +17,12 @@ public partial class App : Microsoft.Maui.Controls.Application
         _ = SystemCulture;
         InitializeComponent();
         _services = services;
+        // "Tell Coo" from the launcher while another tab is open: bring Today forward, where the request is taken.
+        VoiceShortcut.Requested += (_, _) => MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            if (Windows.Count > 0 && Windows[0].Page is AppShell shell && shell.CurrentState.Location.OriginalString.Contains("today", StringComparison.Ordinal) is false)
+                await shell.GoToAsync("//today");
+        });
     }
 
     /// <summary>Android's language at process start, before Coo set a culture of its own (Spec 009 §3.5).</summary>

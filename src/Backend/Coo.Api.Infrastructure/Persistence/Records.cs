@@ -301,6 +301,16 @@ internal sealed class SubscriptionRecord
 }
 
 /// <summary><c>advisor_usages</c>: tracks daily question counts per user for rate limiting (Increment 15c).</summary>
+/// <summary>How many AI-logging parses a household made in a day (ADR 0005 §7). Counts only: no text is stored (§8).</summary>
+internal sealed class AiParseUsageRecord
+{
+    public required Guid HouseholdId { get; init; }
+
+    public required DateOnly Date { get; init; }
+
+    public required int ParseCount { get; set; }
+}
+
 internal sealed class AdvisorUsageRecord
 {
     public required Guid UserId { get; init; }

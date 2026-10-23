@@ -44,6 +44,8 @@ public class MainActivity : MauiAppCompatActivity
         if (Window?.DecorView.FindViewById(Android.Resource.Id.Content) is { } content)
             ViewCompat.SetOnApplyWindowInsetsListener(content, new SystemBarsInsets());
 
+        PublishShortcuts();
+
         // Only a fresh start: a recreated activity, or one reopened from Recents, carries the link it was first opened with.
         if (savedInstanceState is null && (Intent?.Flags & ActivityFlags.LaunchedFromHistory) == 0)
             Offer(Intent);
@@ -55,12 +57,40 @@ public class MainActivity : MauiAppCompatActivity
         Offer(intent);
     }
 
+    /// <summary>"Tell Coo" on a long-press of the icon (ADR 0005): one tap from the launcher to talking.</summary>
+    private void PublishShortcuts()
+    {
+        try
+        {
+            var intent = new Intent(this, typeof(MainActivity)).SetAction(VoiceShortcut.Action);
+            // The binding marks every builder step nullable; each returns the same builder.
+            var builder = new AndroidX.Core.Content.PM.ShortcutInfoCompat.Builder(this, "tell");
+            builder.SetShortLabel(Coo.Mobile.Presentation.Localization.Strings.Get("Quick.Title"));
+            builder.SetIcon(AndroidX.Core.Graphics.Drawable.IconCompat.CreateWithResource(this, Resource.Mipmap.appicon));
+            builder.SetIntent(intent);
+            var tell = builder.Build();
+            AndroidX.Core.Content.PM.ShortcutManagerCompat.PushDynamicShortcut(this, tell);
+        }
+#pragma warning disable CA1031 // A launcher without shortcuts must not stop Coo from starting.
+        catch (Exception e)
+#pragma warning restore CA1031
+        {
+            global::Android.Util.Log.Warn("Coo", $"Shortcut not published: {e.GetType().Name}");
+        }
+    }
+
     /// <summary>
     /// An invitation link (spec §4.1) goes to the inbox; nothing here may escape into Android (Increment 10 lesson). The
     /// link holds a code, so it is never logged.
     /// </summary>
     private static void Offer(Intent? intent)
     {
+        if (intent?.Action == VoiceShortcut.Action)
+        {
+            VoiceShortcut.Request();
+            return;
+        }
+
         try
         {
             if (intent?.Action != Intent.ActionView || intent.Data?.ToString() is not { } text || !Uri.TryCreate(text, UriKind.Absolute, out var link))

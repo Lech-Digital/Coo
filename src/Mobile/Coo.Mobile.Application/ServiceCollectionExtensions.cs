@@ -23,6 +23,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient<GetCareTrends>();
         services.AddTransient<Advisor.BuildAdvisorContext>();
         services.AddTransient<Demo.SeedDemoLog>();
+        services.AddTransient<AiLogging.PrepareQuickLog>();
+        services.AddTransient<AiLogging.ApplyQuickLog>();
         services.AddTransient<SetUpBaby>();
         services.AddTransient<RecordBirth>();
         services.AddTransient<UpdateBabyProfile>();

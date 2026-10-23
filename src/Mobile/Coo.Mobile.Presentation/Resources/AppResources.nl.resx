@@ -324,6 +324,43 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Premium.Subscribe" xml:space="preserve"><value>Abonneren</value></data>
   <data name="Premium.Title" xml:space="preserve"><value>Coo Premium</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Hoeveel?</value></data>
+  <data name="Quick.Action.BreastStop" xml:space="preserve"><value>Voeding klaar</value></data>
+  <data name="Quick.Action.PumpStop" xml:space="preserve"><value>Kolven klaar</value></data>
+  <data name="Quick.Action.SleepStart" xml:space="preserve"><value>In slaap gevallen</value></data>
+  <data name="Quick.AlreadyLogged" xml:space="preserve"><value>Al gelogd om {0}</value></data>
+  <data name="Quick.Cancel" xml:space="preserve"><value>Annuleren</value></data>
+  <data name="Quick.ConsentBody" xml:space="preserve"><value>Om je te begrijpen stuurt Coo de woorden (nooit de opname) naar onze server en door naar de AI Gemini van Google, samen met wat er nu loopt. De namen van je baby en gezin worden eerst vervangen. Niets wordt bewaard; je controleert elk item voordat het wordt opgeslagen.</value></data>
+  <data name="Quick.ConsentTitle" xml:space="preserve"><value>Voordat je het Coo vertelt</value></data>
+  <data name="Quick.DropNote" xml:space="preserve"><value>Weggooien</value></data>
+  <data name="Quick.Error.daily-limit" xml:space="preserve"><value>Dat waren de {0} van vandaag. Log de rest met de knoppen of probeer het morgen.</value></data>
+  <data name="Quick.Error.free-limit" xml:space="preserve"><value>Dat waren de {0} gratis pogingen van vandaag. Met Coo Premium heb je er tot 100 per dag.</value></data>
+  <data name="Quick.Error.signed-out" xml:space="preserve"><value>Zeg het tegen Coo werkt zodra je bent ingelogd en je logboek deelt (Instellingen → Account). Gebruik tot die tijd de knoppen.</value></data>
+  <data name="Quick.Error.unavailable" xml:space="preserve"><value>Coo kan het nu niet begrijpen. Je woorden blijven bewaard voor later.</value></data>
+  <data name="Quick.Hint" xml:space="preserve"><value>Zeg of typ wat er gebeurde, zoals ‘Maja begon links’ of ‘120 ml flesvoeding om twee uur, daarna een natte luier’.</value></data>
+  <data name="Quick.KeptForLater" xml:space="preserve"><value>Geen verbinding: Coo heeft je woorden bewaard en vraagt je later ze na te kijken.</value></data>
+  <data name="Quick.Listening" xml:space="preserve"><value>Ik luister…</value></data>
+  <data name="Quick.NotHeard" xml:space="preserve"><value>Dat verstond ik niet. Probeer het opnieuw of typ het.</value></data>
+  <data name="Quick.NothingFound" xml:space="preserve"><value>Coo vond daar niets in om te loggen. Zeg wat er gebeurde, en wanneer.</value></data>
+  <data name="Quick.Now" xml:space="preserve"><value>nu</value></data>
+  <data name="Quick.PendingTitle" xml:space="preserve"><value>Wacht op begrip</value></data>
+  <data name="Quick.Privacy" xml:space="preserve"><value>De namen van je baby en gezin worden verborgen voor de AI. Andere namen worden verstuurd zoals je ze zegt.</value></data>
+  <data name="Quick.ReviewNote" xml:space="preserve"><value>Bekijken</value></data>
+  <data name="Quick.Save" xml:space="preserve"><value>Opslaan</value></data>
+  <data name="Quick.Saved.one" xml:space="preserve"><value>{0} item opgeslagen</value></data>
+  <data name="Quick.Saved.other" xml:space="preserve"><value>{0} items opgeslagen</value></data>
+  <data name="Quick.Send" xml:space="preserve"><value>Versturen</value></data>
+  <data name="Quick.SomeFailed" xml:space="preserve"><value>Een deel kon niet worden opgeslagen. Kijk in het logboek.</value></data>
+  <data name="Quick.Stop" xml:space="preserve"><value>Stoppen</value></data>
+  <data name="Quick.Thinking" xml:space="preserve"><value>Even begrijpen…</value></data>
+  <data name="Quick.Title" xml:space="preserve"><value>Zeg het tegen Coo</value></data>
+  <data name="Quick.TypeHere" xml:space="preserve"><value>Of typ het…</value></data>
+  <data name="Quick.Unparsed" xml:space="preserve"><value>Niet begrepen: {0}</value></data>
+  <data name="Quick.Warn.ai.in-the-future" xml:space="preserve"><value>In de toekomst?</value></data>
+  <data name="Quick.Warn.ai.long-ago" xml:space="preserve"><value>Meer dan 2 dagen geleden</value></data>
+  <data name="Quick.Warn.ai.long-sleep" xml:space="preserve"><value>Langer dan 16 uur</value></data>
+  <data name="Quick.Warn.ai.nothing-running" xml:space="preserve"><value>Er loopt nu niets</value></data>
+  <data name="Quick.Warn.ai.time-not-stated" xml:space="preserve"><value>Geen tijd genoemd: nu</value></data>
+  <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Ongebruikelijke hoeveelheid: controleer</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>Je bent geen lid meer van het gezin dat het logboek van {0} bijhoudt, dus dat logboek wordt van deze telefoon verwijderd. Items die je al hebt gedeeld blijven bij het gezin.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Je bent geen lid meer van dit gezin, dus het logboek wordt van deze telefoon verwijderd. Items die je al hebt gedeeld blijven bij het gezin.</value></data>
   <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>

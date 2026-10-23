@@ -72,6 +72,10 @@ public sealed class TodayPage : ContentPage
         _tick.Interval = TimeSpan.FromSeconds(1);
         _tick.Tick += OnTick;
         _tick.Start();
+
+        VoiceShortcut.Requested += OnVoiceShortcut;
+        if (VoiceShortcut.TryTake())
+            await OpenVoiceAsync(listen: true);
     }
 
     protected override void OnDisappearing()
@@ -81,6 +85,7 @@ public sealed class TodayPage : ContentPage
         _model.Sections.CollectionChanged -= OnSectionsChanged;
         _model.PropertyChanged -= OnModelChanged;
         _language.Changed -= OnLanguageChanged;
+        VoiceShortcut.Requested -= OnVoiceShortcut;
         if (_tick is not null)
         {
             _tick.Stop();
@@ -144,7 +149,7 @@ public sealed class TodayPage : ContentPage
             LiveView.Release(old as IVisualTreeElement);
         _sections.Children.Clear();
         foreach (var section in _model.Sections)
-            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model, SwitchToLog, SwitchToAdvisor)));
+            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model, SwitchToLog, SwitchToAdvisor, OpenVoice)));
         _built = [.. _model.Sections];
         _builtLanguage = Strings.Language;
     }
@@ -161,6 +166,52 @@ public sealed class TodayPage : ContentPage
     }
 
     private async void OpenAttention() => await Navigation.PushAsync(_services.GetRequiredService<AttentionPage>());
+
+    private const string QuickLogConsentKey = "ai.logging.consent.v1";
+    private Components.QuickLogView? _voice;
+
+    /// <summary>
+    /// "Tell Coo" (ADR 0005): asks once for consent to send the words to Gemini, then opens the sheet listening, so one
+    /// tap is enough to start talking. The sheet closes itself after Save or Cancel.
+    /// </summary>
+    public async void OpenVoice() => await OpenVoiceAsync(listen: true);
+
+    internal async Task OpenVoiceAsync(bool listen)
+    {
+        if (!Preferences.Default.Get(QuickLogConsentKey, false))
+        {
+            var agreed = await DisplayAlertAsync(
+                Strings.Get("Quick.ConsentTitle"), Strings.Get("Quick.ConsentBody"), Strings.Get("Advisor.ConsentAgree"), Strings.Get("Advisor.ConsentLater"));
+            if (!agreed)
+                return;
+            Preferences.Default.Set(QuickLogConsentKey, true);
+        }
+
+        var model = _services.GetRequiredService<Coo.Mobile.Presentation.QuickLog.QuickLogViewModel>();
+        await model.OpenAsync();
+        model.Finished -= OnVoiceFinished;
+        model.Finished += OnVoiceFinished;
+        _voice?.Detach();
+        _voice = new Components.QuickLogView(model);
+        _pageSheet = true;
+        await _sheet.ShowAsync(_voice);
+        if (listen && model.CanListen && model.PendingNotes.Count == 0)
+            model.ListenCommand.Execute(null);
+    }
+
+    // The "Tell Coo" shortcut while Today is on screen; when it is not, App brings Today forward and OnAppearing takes it.
+    private void OnVoiceShortcut(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
+    {
+        if (VoiceShortcut.TryTake())
+            await OpenVoiceAsync(listen: true);
+    });
+
+    private void OnVoiceFinished(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
+    {
+        _pageSheet = false;
+        await _sheet.HideAsync();
+        await _model.RefreshAsync();
+    });
 
     /// <summary>"Earlier…" below the tiles: which kind, then the form (Spec 007 §4).</summary>
     private async void OpenEarlier()

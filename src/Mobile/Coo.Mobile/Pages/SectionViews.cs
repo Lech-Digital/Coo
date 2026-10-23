@@ -21,7 +21,8 @@ internal sealed record SectionHost(
     Action OpenEarlier,
     TodayViewModel Today,
     Action SwitchToLog,
-    Action SwitchToAdvisor);
+    Action SwitchToAdvisor,
+    Action OpenVoice);
 
 /// <summary>
 /// A view that redraws when its source changes, coalesced to one redraw per change burst. Off screen it only notes the
@@ -400,7 +401,35 @@ internal static class SectionViews
         earlier.SetDynamicResource(Button.BorderColorProperty, "Line");
         earlier.BorderWidth = 1;
         earlier.Clicked += (_, _) => host.OpenEarlier();
-        return new VerticalStackLayout { Children = { grid, new ContentView { Padding = new Thickness(24, 0), Content = earlier } } };
+
+        // "Tell Coo" (ADR 0005): say or type it; the accent marks it as the quickest way in.
+        var voice = new Border
+        {
+            HeightRequest = 36,
+            Padding = new Thickness(14, 0),
+            StrokeThickness = 0,
+            StrokeShape = new RoundRectangle { CornerRadius = 18 },
+            Margin = new Thickness(0, 8, 0, 0),
+            HorizontalOptions = LayoutOptions.Start,
+            Content = new HorizontalStackLayout
+            {
+                Spacing = 6,
+                VerticalOptions = LayoutOptions.Center,
+                Children =
+                {
+                    new Icon(IconGeometry.Mic, "OnAccent", 18) { VerticalOptions = LayoutOptions.Center },
+                    Ui.Text(Strings.Get("Quick.Title"), "BodyStrong", "OnAccent").Tap(l => { l.FontSize = 13; l.VerticalOptions = LayoutOptions.Center; }),
+                },
+            },
+        };
+        voice.SetDynamicResource(VisualElement.BackgroundColorProperty, "Accent");
+        voice.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(host.OpenVoice) });
+        SemanticProperties.SetDescription(voice, Strings.Get("Quick.Title"));
+
+        var actions = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], Padding = new Thickness(24, 0) };
+        actions.Add(voice, 0);
+        actions.Add(earlier, 1);
+        return new VerticalStackLayout { Children = { grid, actions } };
     }
 
     private static View NextUp(NextUpSection s, SectionHost host)

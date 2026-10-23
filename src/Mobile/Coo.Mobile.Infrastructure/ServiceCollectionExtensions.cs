@@ -82,6 +82,10 @@ public static class ServiceCollectionExtensions
         // Advisor
         services.AddSingleton<IAdvisorApi>(sp => new AdvisorClient(Authenticated(sp)));
         services.AddSingleton<Coo.Mobile.Application.Billing.IBillingApi>(sp => new Billing.BillingClient(Authenticated(sp)));
+
+        // AI logging (ADR 0005): the parse endpoint, and words kept on the phone until they can be parsed.
+        services.AddSingleton<Coo.Mobile.Application.AiLogging.IAiParseApi>(sp => new AiLogging.AiParseClient(Authenticated(sp)));
+        services.AddSingleton<Coo.Mobile.Application.AiLogging.IPendingNoteStore, Persistence.PendingNoteStore>();
         services.AddSingleton<IAdvisorThreadStore, AdvisorThreadStore>();
 
         // Baby Avatar

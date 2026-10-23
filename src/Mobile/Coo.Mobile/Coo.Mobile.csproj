@@ -12,9 +12,9 @@
 
     <ApplicationTitle>Coo</ApplicationTitle>
     <ApplicationId>com.lechdigital.coo</ApplicationId>
-    <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>1.1.0</ApplicationDisplayVersion>
     <!-- Every build that leaves this machine bumps both (CHANGELOG.md): the name by SemVer, the code by one, never reused. -->
-    <ApplicationVersion>17</ApplicationVersion>
+    <ApplicationVersion>18</ApplicationVersion>
     <!-- The informational version is the display version plus the commit, e.g. 0.13.0+<commit> (SourceLink), shown in About like the API's /health. -->
     <Version>$(ApplicationDisplayVersion)</Version>
 

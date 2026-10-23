@@ -340,6 +340,44 @@ Jeśli link nie otworzy Coo, przejdź w Coo do Ustawienia → Rodzina → Dołą
   <data name="Premium.Subscribe" xml:space="preserve"><value>Subskrybuj</value></data>
   <data name="Premium.Title" xml:space="preserve"><value>Coo Premium</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Ile?</value></data>
+  <data name="Quick.Action.BreastStop" xml:space="preserve"><value>Karmienie zakończone</value></data>
+  <data name="Quick.Action.PumpStop" xml:space="preserve"><value>Odciąganie zakończone</value></data>
+  <data name="Quick.Action.SleepStart" xml:space="preserve"><value>Zasnęło</value></data>
+  <data name="Quick.AlreadyLogged" xml:space="preserve"><value>Już zapisane o {0}</value></data>
+  <data name="Quick.Cancel" xml:space="preserve"><value>Anuluj</value></data>
+  <data name="Quick.ConsentBody" xml:space="preserve"><value>Aby Cię zrozumieć, Coo wysyła słowa (nigdy nagranie) na nasz serwer i dalej do sztucznej inteligencji Gemini od Google, razem z tym, co teraz trwa. Imiona dziecka i rodziny są wcześniej zastępowane. Nic z tego nie jest przechowywane; każdy wpis sprawdzasz przed zapisaniem.</value></data>
+  <data name="Quick.ConsentTitle" xml:space="preserve"><value>Zanim powiesz Coo</value></data>
+  <data name="Quick.DropNote" xml:space="preserve"><value>Odrzuć</value></data>
+  <data name="Quick.Error.daily-limit" xml:space="preserve"><value>To już {0} na dziś. Resztę zapisz przyciskami albo spróbuj jutro.</value></data>
+  <data name="Quick.Error.free-limit" xml:space="preserve"><value>To już {0} darmowe próby na dziś. Coo Premium daje do 100 dziennie.</value></data>
+  <data name="Quick.Error.signed-out" xml:space="preserve"><value>Powiedz Coo działa po zalogowaniu i udostępnieniu dziennika (Ustawienia → Konto). Do tego czasu używaj przycisków.</value></data>
+  <data name="Quick.Error.unavailable" xml:space="preserve"><value>Coo nie może teraz zrozumieć. Twoje słowa zostają na później.</value></data>
+  <data name="Quick.Hint" xml:space="preserve"><value>Powiedz lub wpisz, co się stało, np. „Maja zaczęła z lewej piersi” albo „120 ml mleka modyfikowanego o drugiej, potem mokra pielucha”.</value></data>
+  <data name="Quick.KeptForLater" xml:space="preserve"><value>Brak połączenia: Coo zachowało Twoje słowa i poprosi o ich sprawdzenie później.</value></data>
+  <data name="Quick.Listening" xml:space="preserve"><value>Słucham…</value></data>
+  <data name="Quick.NotHeard" xml:space="preserve"><value>Nie usłyszałem. Spróbuj jeszcze raz albo wpisz.</value></data>
+  <data name="Quick.NothingFound" xml:space="preserve"><value>Coo nie znalazło w tym nic do zapisania. Powiedz, co się stało i kiedy.</value></data>
+  <data name="Quick.Now" xml:space="preserve"><value>teraz</value></data>
+  <data name="Quick.PendingTitle" xml:space="preserve"><value>Czeka na zrozumienie</value></data>
+  <data name="Quick.Privacy" xml:space="preserve"><value>Imiona dziecka i rodziny są ukryte przed AI. Inne imiona są wysyłane tak, jak je wypowiesz.</value></data>
+  <data name="Quick.ReviewNote" xml:space="preserve"><value>Sprawdź</value></data>
+  <data name="Quick.Save" xml:space="preserve"><value>Zapisz</value></data>
+  <data name="Quick.Saved.few" xml:space="preserve"><value>Zapisano {0} wpisy</value></data>
+  <data name="Quick.Saved.many" xml:space="preserve"><value>Zapisano {0} wpisów</value></data>
+  <data name="Quick.Saved.one" xml:space="preserve"><value>Zapisano {0} wpis</value></data>
+  <data name="Quick.Send" xml:space="preserve"><value>Wyślij</value></data>
+  <data name="Quick.SomeFailed" xml:space="preserve"><value>Części nie udało się zapisać. Sprawdź dziennik.</value></data>
+  <data name="Quick.Stop" xml:space="preserve"><value>Zatrzymaj</value></data>
+  <data name="Quick.Thinking" xml:space="preserve"><value>Rozumiem…</value></data>
+  <data name="Quick.Title" xml:space="preserve"><value>Powiedz Coo</value></data>
+  <data name="Quick.TypeHere" xml:space="preserve"><value>Albo wpisz…</value></data>
+  <data name="Quick.Unparsed" xml:space="preserve"><value>Nie zrozumiano: {0}</value></data>
+  <data name="Quick.Warn.ai.in-the-future" xml:space="preserve"><value>W przyszłości?</value></data>
+  <data name="Quick.Warn.ai.long-ago" xml:space="preserve"><value>Ponad 2 dni temu</value></data>
+  <data name="Quick.Warn.ai.long-sleep" xml:space="preserve"><value>Ponad 16 godzin</value></data>
+  <data name="Quick.Warn.ai.nothing-running" xml:space="preserve"><value>Nic teraz nie trwa</value></data>
+  <data name="Quick.Warn.ai.time-not-stated" xml:space="preserve"><value>Bez godziny: teraz</value></data>
+  <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Nietypowa ilość: sprawdź</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>Nie należysz już do rodziny prowadzącej dziennik: {0}, więc jej dziennik zostanie usunięty z tego telefonu. Udostępnione przez Ciebie wpisy zostaną w rodzinie.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Nie należysz już do tej rodziny, więc jej dziennik zostanie usunięty z tego telefonu. Udostępnione przez Ciebie wpisy zostaną w rodzinie.</value></data>
   <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>

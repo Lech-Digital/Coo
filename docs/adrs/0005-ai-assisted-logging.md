@@ -312,3 +312,22 @@ are other sources of text.
 - The eval corpus is real work to build and keep current, and it is the only defence against a
   prompt change quietly degrading one language while the others still pass. Every supported
   language needs its own cases, not a translation of the English ones.
+
+## Implementation notes (Coo 1.1.0, 2026-10-23)
+
+Built as "Tell Coo": a mic button on Today next to "Earlier…", and a launcher shortcut (long-press the icon). Where the
+first version differs from the decision above, and why:
+
+- **Live actions as well as entries.** Besides finished entries, the model can return `BreastStart`, `BreastSwitch`,
+  `BreastStop`, `SleepStart`, `SleepEnd`, `PumpStart` and `PumpStop`, so "Maja started on the left" starts the timer
+  and "she woke up" ends the running sleep, as the buttons do. The context therefore carries what is running.
+- **Access.** Premium families get 100 parses a day; others get 5 a day to try it (`AiParsing:FreePerDay`, `0` makes it
+  Premium-only). The per-minute limit of §7 is not built yet; the daily count bounds the cost.
+- **Prompt and model.** The prompt is a versioned constant (`coo-parse-v1`) in `GeminiCareLogParser`, not a database
+  row; the model is pinned to `gemini-3.5-flash-lite` (`AiParsing:Model`). `Coo.Ai.Evals` does not exist yet: the
+  first prompt was checked by hand against the real model on English, Polish and Dutch inputs, three events in one
+  sentence, a self-correction and small talk.
+- **Not yet built:** the outcome report (§8), the salted-hash usage metrics, and the background re-parse of pending
+  notes after a sync; pending notes are offered for review when "Tell Coo" is opened.
+- **Consent.** Besides the sharing consent the server already requires, the app asks once before the first use, in the
+  words of the privacy policy, that the text (never the audio) goes to Google's Gemini.

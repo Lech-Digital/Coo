@@ -54,6 +54,13 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Coo.Api.Application.Advisor.IAdvisorService, Coo.Api.Infrastructure.Persistence.AdvisorService>();
         services.AddSingleton<Coo.Api.Application.Households.IBabyAvatarStore, Coo.Api.Infrastructure.Persistence.BabyAvatarStore>();
 
+        // AI logging (ADR 0005): Gemini when a key is configured, otherwise the fake, so the flow runs without one.
+        services.AddSingleton<Coo.Api.Application.AiParsing.IAiParsingStore, Coo.Api.Infrastructure.Persistence.AiParsingStore>();
+        services.AddSingleton<Coo.Api.Application.AiParsing.ICareLogTextParser>(sp =>
+            string.IsNullOrEmpty(sp.GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>()["Gemini:ApiKey"])
+                ? new Coo.Api.Infrastructure.Ai.FakeCareLogParser()
+                : ActivatorUtilities.CreateInstance<Coo.Api.Infrastructure.Ai.GeminiCareLogParser>(sp));
+
         // Registered first, so it finishes before any other hosted service starts and before the server listens.
         services.AddHostedService<DatabaseStartup>();
         return services;

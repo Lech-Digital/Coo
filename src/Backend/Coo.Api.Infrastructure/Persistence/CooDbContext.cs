@@ -40,6 +40,8 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
 
     public DbSet<AdvisorUsageRecord> AdvisorUsages => Set<AdvisorUsageRecord>();
 
+    public DbSet<AiParseUsageRecord> AiParseUsages => Set<AiParseUsageRecord>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -325,6 +327,17 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
             e.HasIndex(s => s.HouseholdId).HasDatabaseName("ix_subscriptions_household_id");
         });
 
+        modelBuilder.Entity<AiParseUsageRecord>(e =>
+        {
+            e.ToTable("ai_parse_usages");
+            e.HasKey(a => new { a.HouseholdId, a.Date });
+            e.Property(a => a.HouseholdId).HasColumnName("household_id");
+            e.Property(a => a.Date).HasColumnName("date");
+            e.Property(a => a.ParseCount).HasColumnName("parse_count");
+            // Goes with its household, like everything a household owns.
+            e.HasOne<HouseholdRecord>().WithMany().HasForeignKey(a => a.HouseholdId)
+                .HasConstraintName("fk_ai_parse_usages_households").OnDelete(DeleteBehavior.Cascade);
+        });
         modelBuilder.Entity<AdvisorUsageRecord>(e =>
         {
             e.ToTable("advisor_usages");

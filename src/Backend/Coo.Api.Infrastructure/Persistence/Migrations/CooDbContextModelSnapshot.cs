@@ -42,6 +42,25 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("advisor_usages", (string)null);
                 });
 
+            modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.AiParseUsageRecord", b =>
+                {
+                    b.Property<Guid>("HouseholdId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("household_id");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<int>("ParseCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("parse_count");
+
+                    b.HasKey("HouseholdId", "Date");
+
+                    b.ToTable("ai_parse_usages", (string)null);
+                });
+
             modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.AppliedChangeRecord", b =>
                 {
                     b.Property<Guid>("ChangeId")
@@ -924,6 +943,16 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_advisor_usages_users");
+                });
+
+            modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.AiParseUsageRecord", b =>
+                {
+                    b.HasOne("Coo.Api.Infrastructure.Persistence.HouseholdRecord", null)
+                        .WithMany()
+                        .HasForeignKey("HouseholdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_ai_parse_usages_households");
                 });
 
             modelBuilder.Entity("Coo.Api.Infrastructure.Persistence.BabyProfileRecord", b =>

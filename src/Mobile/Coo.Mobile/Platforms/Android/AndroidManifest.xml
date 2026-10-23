@@ -9,7 +9,13 @@
       <action android:name="android.intent.action.SENDTO" />
       <data android:scheme="mailto" />
     </intent>
+    <!-- Voice logging (ADR 0005 §2) needs to see the speech recogniser. -->
+    <intent>
+      <action android:name="android.speech.RecognitionService" />
+    </intent>
   </queries>
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <!-- Voice logging only, asked for on first use (ADR 0005 §2). Audio stays with Android's recogniser. -->
+  <uses-permission android:name="android.permission.RECORD_AUDIO" />
 </manifest>
