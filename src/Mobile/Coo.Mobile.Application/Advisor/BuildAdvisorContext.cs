@@ -80,7 +80,8 @@ public sealed class BuildAdvisorContext(
         {
             text.AppendLine("Health, last 14 days:");
             foreach (var e in recent)
-                text.AppendLine(CultureInfo.InvariantCulture, $"- {At(e.Timing.OccurredAt)}: {Describe(e, now)}{(e.Note is { } note ? $" (note: {note.Text})" : "")}");
+                // Never the note: the privacy policy promises the Advisor gets the log without notes.
+                text.AppendLine(CultureInfo.InvariantCulture, $"- {At(e.Timing.OccurredAt)}: {Describe(e, now)}");
         }
 
         var profile = households is null ? null

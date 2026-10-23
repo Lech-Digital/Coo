@@ -454,6 +454,46 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Removal.Title" xml:space="preserve"><value>Je hoort niet meer bij dit gezin</value></data>
   <data name="Removal.Unshared.one" xml:space="preserve"><value>{0} item dat je hebt gelogd is nog niet gedeeld.</value></data>
   <data name="Removal.Unshared.other" xml:space="preserve"><value>{0} items die je hebt gelogd zijn nog niet gedeeld.</value></data>
+  <data name="Report.AgeMonths" xml:space="preserve"><value>{0} mnd</value></data>
+  <data name="Report.Averages" xml:space="preserve"><value>Daggemiddelden</value></data>
+  <data name="Report.AvgBottle" xml:space="preserve"><value>Fles: {0} per dag.</value></data>
+  <data name="Report.AvgDiapers" xml:space="preserve"><value>Luiers: {0} per dag ({1} nat, {2} vuil).</value></data>
+  <data name="Report.AvgFeeds" xml:space="preserve"><value>Voedingen: {0} per dag.</value></data>
+  <data name="Report.AvgPumped" xml:space="preserve"><value>Gekolfd: {0} per dag.</value></data>
+  <data name="Report.AvgSleep" xml:space="preserve"><value>Slaap: {0} per dag in {1} keer; langste {2}.</value></data>
+  <data name="Report.Born" xml:space="preserve"><value>Geboren {0} · {1}</value></data>
+  <data name="Report.Button" xml:space="preserve"><value>Verslag voor de arts</value></data>
+  <data name="Report.Col.Age" xml:space="preserve"><value>Leeftijd</value></data>
+  <data name="Report.Col.Bottle" xml:space="preserve"><value>Fles</value></data>
+  <data name="Report.Col.Breast" xml:space="preserve"><value>Borst</value></data>
+  <data name="Report.Col.Date" xml:space="preserve"><value>Datum</value></data>
+  <data name="Report.Col.Diapers" xml:space="preserve"><value>Luiers (nat/vuil)</value></data>
+  <data name="Report.Col.Feeds" xml:space="preserve"><value>Voed.</value></data>
+  <data name="Report.Col.Note" xml:space="preserve"><value>Notitie</value></data>
+  <data name="Report.Col.Pumped" xml:space="preserve"><value>Gekolfd</value></data>
+  <data name="Report.Col.Sleep" xml:space="preserve"><value>Slaap</value></data>
+  <data name="Report.Col.Sleeps" xml:space="preserve"><value>Keer</value></data>
+  <data name="Report.Col.Time" xml:space="preserve"><value>Wanneer</value></data>
+  <data name="Report.Col.What" xml:space="preserve"><value>Wat</value></data>
+  <data name="Report.Daily" xml:space="preserve"><value>Per dag</value></data>
+  <data name="Report.Days" xml:space="preserve"><value>{0} dagen</value></data>
+  <data name="Report.DaysCounted.one" xml:space="preserve"><value>Gemiddeld over {0} dag met gegevens.</value></data>
+  <data name="Report.DaysCounted.other" xml:space="preserve"><value>Gemiddeld over {0} dagen met gegevens.</value></data>
+  <data name="Report.Failed" xml:space="preserve"><value>Het verslag kon niet gemaakt worden. Probeer het opnieuw.</value></data>
+  <data name="Report.Footer" xml:space="preserve"><value>Gemaakt met Coo op {0} uit wat het gezin logde. * Vandaag, nog bezig. Geen medisch dossier.</value></data>
+  <data name="Report.Growth" xml:space="preserve"><value>Groei</value></data>
+  <data name="Report.Health" xml:space="preserve"><value>Gezondheid</value></data>
+  <data name="Report.Hint" xml:space="preserve"><value>Een pdf met gemiddelden, elke dag, groei en gezondheid, om te delen of te printen.</value></data>
+  <data name="Report.Make" xml:space="preserve"><value>Pdf maken</value></data>
+  <data name="Report.Making" xml:space="preserve"><value>Bezig…</value></data>
+  <data name="Report.NoBirth" xml:space="preserve"><value>Vul eerst de geboortedatum in: het verslag rekent ermee.</value></data>
+  <data name="Report.NoGrowth" xml:space="preserve"><value>Geen metingen gelogd.</value></data>
+  <data name="Report.NoHealth" xml:space="preserve"><value>Geen medicijnen, temperaturen, vaccinaties of bezoeken in deze periode.</value></data>
+  <data name="Report.NothingLogged" xml:space="preserve"><value>Niets gelogd in deze periode.</value></data>
+  <data name="Report.Period" xml:space="preserve"><value>Periode: {0} – {1}</value></data>
+  <data name="Report.Title" xml:space="preserve"><value>Zorgverslag: {0}</value></data>
+  <data name="Report.WhoBoys" xml:space="preserve"><value>Percentielen (P) volgens de WHO-groeistandaarden voor jongens.</value></data>
+  <data name="Report.WhoGirls" xml:space="preserve"><value>Percentielen (P) volgens de WHO-groeistandaarden voor meisjes.</value></data>
   <data name="Section.Today" xml:space="preserve"><value>Vandaag</value></data>
   <data name="Settings.About" xml:space="preserve"><value>Over Coo</value></data>
   <data name="Settings.Appearance" xml:space="preserve"><value>Weergave</value></data>

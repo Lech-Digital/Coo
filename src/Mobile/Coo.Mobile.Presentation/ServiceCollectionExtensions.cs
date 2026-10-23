@@ -48,6 +48,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<Settings.RemindersViewModel>();
         services.AddTransient<Growth.GrowthViewModel>();
         services.AddSingleton<Log.WeeklySummaryViewModel>();
+        services.AddSingleton<Reports.ReportViewModel>();
         services.AddSingleton<Notifications.ReminderRefresher>();
         services.AddSingleton<Settings.AccountViewModel>();
         services.AddSingleton<Settings.FamilySectionViewModel>();

@@ -454,6 +454,46 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Removal.Title" xml:space="preserve"><value>Non fai più parte di questa famiglia</value></data>
   <data name="Removal.Unshared.one" xml:space="preserve"><value>{0} voce che hai registrato non è ancora stata condivisa.</value></data>
   <data name="Removal.Unshared.other" xml:space="preserve"><value>{0} voci che hai registrato non sono ancora state condivise.</value></data>
+  <data name="Report.AgeMonths" xml:space="preserve"><value>{0} mesi</value></data>
+  <data name="Report.Averages" xml:space="preserve"><value>Medie giornaliere</value></data>
+  <data name="Report.AvgBottle" xml:space="preserve"><value>Biberon: {0} al giorno.</value></data>
+  <data name="Report.AvgDiapers" xml:space="preserve"><value>Pannolini: {0} al giorno ({1} bagnati, {2} sporchi).</value></data>
+  <data name="Report.AvgFeeds" xml:space="preserve"><value>Poppate: {0} al giorno.</value></data>
+  <data name="Report.AvgPumped" xml:space="preserve"><value>Tirato: {0} al giorno.</value></data>
+  <data name="Report.AvgSleep" xml:space="preserve"><value>Sonno: {0} al giorno in {1} sonni; il più lungo {2}.</value></data>
+  <data name="Report.Born" xml:space="preserve"><value>Nato/a il {0} · {1}</value></data>
+  <data name="Report.Button" xml:space="preserve"><value>Report per il medico</value></data>
+  <data name="Report.Col.Age" xml:space="preserve"><value>Età</value></data>
+  <data name="Report.Col.Bottle" xml:space="preserve"><value>Biberon</value></data>
+  <data name="Report.Col.Breast" xml:space="preserve"><value>Seno</value></data>
+  <data name="Report.Col.Date" xml:space="preserve"><value>Data</value></data>
+  <data name="Report.Col.Diapers" xml:space="preserve"><value>Pannolini (bagn./sporchi)</value></data>
+  <data name="Report.Col.Feeds" xml:space="preserve"><value>Poppate</value></data>
+  <data name="Report.Col.Note" xml:space="preserve"><value>Nota</value></data>
+  <data name="Report.Col.Pumped" xml:space="preserve"><value>Tirato</value></data>
+  <data name="Report.Col.Sleep" xml:space="preserve"><value>Sonno</value></data>
+  <data name="Report.Col.Sleeps" xml:space="preserve"><value>Volte</value></data>
+  <data name="Report.Col.Time" xml:space="preserve"><value>Quando</value></data>
+  <data name="Report.Col.What" xml:space="preserve"><value>Cosa</value></data>
+  <data name="Report.Daily" xml:space="preserve"><value>Giorno per giorno</value></data>
+  <data name="Report.Days" xml:space="preserve"><value>{0} giorni</value></data>
+  <data name="Report.DaysCounted.one" xml:space="preserve"><value>Media su {0} giorno con registrazioni.</value></data>
+  <data name="Report.DaysCounted.other" xml:space="preserve"><value>Media su {0} giorni con registrazioni.</value></data>
+  <data name="Report.Failed" xml:space="preserve"><value>Impossibile creare il report. Riprova.</value></data>
+  <data name="Report.Footer" xml:space="preserve"><value>Creato con Coo il {0} da ciò che la famiglia ha registrato. * Oggi, ancora in corso. Non è una cartella clinica.</value></data>
+  <data name="Report.Growth" xml:space="preserve"><value>Crescita</value></data>
+  <data name="Report.Health" xml:space="preserve"><value>Salute</value></data>
+  <data name="Report.Hint" xml:space="preserve"><value>Un PDF con medie, ogni giorno, crescita e salute, da condividere o stampare.</value></data>
+  <data name="Report.Make" xml:space="preserve"><value>Crea PDF</value></data>
+  <data name="Report.Making" xml:space="preserve"><value>Creazione…</value></data>
+  <data name="Report.NoBirth" xml:space="preserve"><value>Aggiungi prima la data di nascita: il report parte da lì.</value></data>
+  <data name="Report.NoGrowth" xml:space="preserve"><value>Nessuna misura registrata.</value></data>
+  <data name="Report.NoHealth" xml:space="preserve"><value>Nessun farmaco, temperatura, vaccino o visita in questo periodo.</value></data>
+  <data name="Report.NothingLogged" xml:space="preserve"><value>Nulla registrato in questo periodo.</value></data>
+  <data name="Report.Period" xml:space="preserve"><value>Periodo: {0} – {1}</value></data>
+  <data name="Report.Title" xml:space="preserve"><value>Report di cura: {0}</value></data>
+  <data name="Report.WhoBoys" xml:space="preserve"><value>Percentili (P) secondo gli standard di crescita OMS per i bambini.</value></data>
+  <data name="Report.WhoGirls" xml:space="preserve"><value>Percentili (P) secondo gli standard di crescita OMS per le bambine.</value></data>
   <data name="Section.Today" xml:space="preserve"><value>Oggi</value></data>
   <data name="Settings.About" xml:space="preserve"><value>Informazioni</value></data>
   <data name="Settings.Appearance" xml:space="preserve"><value>Aspetto</value></data>

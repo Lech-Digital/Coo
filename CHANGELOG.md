@@ -11,6 +11,22 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 - Each release gets a section here, newest first, written for parents rather than developers where it ends up in
   Play's "What's new".
 
+## 1.3.0 (code 20) — 2026-10-23
+
+### New
+- **Health and growth**: log weight, length and head circumference, medicines and vitamins, temperatures,
+  vaccinations and doctor visits from the new Health button on Today, in kg/cm/°C or lb/in/°F.
+- **Growth chart**: weight, length and head against the WHO Child Growth Standards (3rd–97th percentile) for the first
+  two years, with your baby's percentile at each measurement.
+- **Report for the doctor**: a PDF of the last 7, 14 or 30 days (daily averages, each day, growth with percentiles,
+  health) to share or print, from the Stats tab. Made on your phone.
+- **This week, in words**: the Advisor writes a short summary of the week compared with the last, on Stats.
+- **Tell Coo** understands health and growth too: "gave her vitamin D", "temperature 38.4", "she weighs 5.1 kg".
+- The Advisor knows about recent medicines, fevers, vaccinations and growth percentiles.
+
+### Changed
+- The Tell Coo example uses your own baby's name.
+
 ## 1.2.0 (code 19) — 2026-10-23
 
 ### New

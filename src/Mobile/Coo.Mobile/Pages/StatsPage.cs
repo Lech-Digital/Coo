@@ -17,6 +17,7 @@ public sealed class StatsPage : ContentPage
     private readonly LanguageController _language;
     private readonly CooPageHeader _pageHeader;
     private readonly WeeklySummaryViewModel _summary;
+    private readonly Coo.Mobile.Presentation.Reports.ReportViewModel _report;
     private readonly VerticalStackLayout _content = new() { Padding = new Thickness(24, 0, 24, 0), Spacing = 16 };
     private bool _renderQueued;
     private string? _renderedLanguage;
@@ -30,6 +31,7 @@ public sealed class StatsPage : ContentPage
         _pageHeader = new CooPageHeader(services);
         _summary = services.GetRequiredService<WeeklySummaryViewModel>();
         _summary.EnsureConsentAsync = () => AdvisorPage.AskConsentAsync(this);
+        _report = services.GetRequiredService<Coo.Mobile.Presentation.Reports.ReportViewModel>();
         Shell.SetNavBarIsVisible(this, false);
         Content = new ScrollView
         {
@@ -43,6 +45,7 @@ public sealed class StatsPage : ContentPage
         // Listening only while on screen: the view model outlives this page.
         _trends.PropertyChanged += OnChanged;
         _summary.PropertyChanged += OnChanged;
+        _report.PropertyChanged += OnChanged;
         _undo.DataChanged += OnDataChanged;
         _theme.PaletteChanged += OnPaletteChanged;
         _language.Changed += OnLanguageChanged;
@@ -57,6 +60,7 @@ public sealed class StatsPage : ContentPage
         base.OnDisappearing();
         _trends.PropertyChanged -= OnChanged;
         _summary.PropertyChanged -= OnChanged;
+        _report.PropertyChanged -= OnChanged;
         _undo.DataChanged -= OnDataChanged;
         _theme.PaletteChanged -= OnPaletteChanged;
         _language.Changed -= OnLanguageChanged;
@@ -106,6 +110,46 @@ public sealed class StatsPage : ContentPage
             stack.Add(write);
         }
 
+        return new Card(stack);
+    }
+
+    /// <summary>"Report for the doctor": 7, 14 or 30 days, then the PDF in the share sheet.</summary>
+    private Card ReportCard()
+    {
+        var stack = new VerticalStackLayout { Spacing = 8 };
+        stack.Add(new HorizontalStackLayout
+        {
+            Spacing = 8,
+            Children =
+            {
+                new Icon(IconGeometry.Health, "Accent", 18).Tap(i => i.VerticalOptions = LayoutOptions.Center),
+                Ui.Text(Strings.Get("Report.Button"), "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center),
+            },
+        });
+        stack.Add(Ui.Text(Strings.Get("Report.Hint"), "Meta", "Ink2"));
+
+        var periods = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Star), new(GridLength.Star)], ColumnSpacing = 8 };
+        for (var i = 0; i < Coo.Mobile.Presentation.Reports.ReportViewModel.Periods.Count; i++)
+        {
+            var days = Coo.Mobile.Presentation.Reports.ReportViewModel.Periods[i];
+            var chip = new Button { Text = Strings.Format("Report.Days", days), Command = _report.SetDaysCommand, CommandParameter = days, HeightRequest = 40 };
+            chip.SetDynamicResource(VisualElement.StyleProperty, _report.Days == days ? "PrimaryButton" : "GhostButton");
+            // Set after the style, whose padding is for wide buttons: "14 days" must fit a third of the card.
+            chip.Padding = new Thickness(4, 0);
+            periods.Add(chip, i);
+        }
+
+        stack.Add(periods);
+        var make = new Button
+        {
+            Text = Strings.Get(_report.IsMaking ? "Report.Making" : "Report.Make"),
+            Command = _report.MakeCommand,
+            IsEnabled = !_report.IsMaking,
+        };
+        make.SetDynamicResource(VisualElement.StyleProperty, "GhostButton");
+        stack.Add(make);
+        if (!string.IsNullOrEmpty(_report.Message))
+            stack.Add(Ui.Text(_report.Message, "Body", "AccentInk"));
         return new Card(stack);
     }
 
@@ -255,5 +299,6 @@ public sealed class StatsPage : ContentPage
         _content.Add(new Card(headline));
         _content.Add(new Card(rows));
         _content.Add(SummaryCard());
+        _content.Add(ReportCard());
     }
 }
