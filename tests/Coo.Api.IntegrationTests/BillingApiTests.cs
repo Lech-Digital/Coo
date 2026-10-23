@@ -153,6 +153,40 @@ public sealed class BillingApiTests(AuthApi api) : IClassFixture<AuthApi>
     }
 
     [Fact]
+    public async Task VerifyReceipt_LifetimePurchaseThenRefund_GrantsPremiumUntilVoided()
+    {
+        // Arrange: lifetime is a one-time product that never expires, until Google reports it refunded.
+        var time = api.Factory.Services.GetRequiredService<TimeProvider>();
+        var googlePlay = Substitute.For<IGooglePlayValidator>();
+        googlePlay.VerifyPurchaseAsync(Products.Lifetime, "token-life", Arg.Any<CancellationToken>())
+            .Returns(new GooglePlayPurchaseInfo("token-life", Products.Lifetime, Products.NeverExpires, SubscriptionStatus.Active, false));
+        var factory = api.Factory.WithWebHostBuilder(host =>
+        {
+            host.UseSetting("Billing:RtdnToken", "push-secret");
+            host.ConfigureTestServices(services => services.AddSingleton(googlePlay));
+        });
+        using var client = factory.CreateClient();
+        var session = await SyncCalls.SignInWithConsentAsync(client, "billing-lifetime", Calls.Id(9031), Calls.Id(9032));
+        var entitlements = new Uri($"/api/billing/entitlements/{session.HouseholdId}", UriKind.Relative);
+
+        // Act
+        var verified = await Calls.SendAsync(client, HttpMethod.Post, new Uri("/api/billing/verify-receipt", UriKind.Relative), session.AccessToken,
+            new { HouseholdId = session.HouseholdId, ProductId = Products.Lifetime, PurchaseToken = "token-life" });
+        var bought = await (await Calls.SendAsync(client, HttpMethod.Get, entitlements, session.AccessToken, null)).Content.ReadFromJsonAsync<EntitlementResponse>();
+
+        googlePlay.VerifyPurchaseAsync(Products.Lifetime, "token-life", Arg.Any<CancellationToken>())
+            .Returns(new GooglePlayPurchaseInfo("token-life", Products.Lifetime, time.GetUtcNow().UtcDateTime, SubscriptionStatus.Expired, false));
+        var voided = new { Message = new { Data = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new { VoidedPurchaseNotification = new { PurchaseToken = "token-life" } }))) } };
+        await client.PostAsJsonAsync("/api/billing/rtdn?token=push-secret", voided);
+        var refunded = await (await Calls.SendAsync(client, HttpMethod.Get, entitlements, session.AccessToken, null)).Content.ReadFromJsonAsync<EntitlementResponse>();
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, verified.StatusCode);
+        Assert.True(bought!.IsPremium);
+        Assert.False(refunded!.IsPremium);
+    }
+
+    [Fact]
     public async Task Entitlements_FamilyOfAComplimentaryAccount_IsPremiumWithoutAPurchase()
     {
         // Arrange: the Play reviewers' test account gets Premium from configuration, not a fake purchase.

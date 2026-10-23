@@ -314,15 +314,27 @@ Wenn der Link Coo nicht öffnet, geh in Coo zu Einstellungen → Familie → Ein
   <data name="Premium.Active" xml:space="preserve"><value>Coo Premium ist für deine ganze Familie aktiv. Danke, dass du Coo unterstützt!</value></data>
   <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Bis zu 100 Fragen an den Berater pro Tag (3 ohne Premium), mit Antworten, die eure Einträge kennen</value></data>
   <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Ein gezeichneter Avatar deines Babys, nach einem Foto</value></data>
-  <data name="Premium.Benefit.Family" xml:space="preserve"><value>Ein Abo gilt für alle in deiner Familie</value></data>
+  <data name="Premium.Benefit.Family" xml:space="preserve"><value>Ein Kauf gilt für alle in deiner Familie</value></data>
   <data name="Premium.Benefit.Support" xml:space="preserve"><value>Hält Coo unabhängig und werbefrei</value></data>
+  <data name="Premium.BuyLifetime" xml:space="preserve"><value>Einmal kaufen</value></data>
+  <data name="Premium.LifetimeActive" xml:space="preserve"><value>Du hast Coo Premium dauerhaft. Danke!</value></data>
+  <data name="Premium.LifetimeTerms" xml:space="preserve"><value>Eine Zahlung, nichts verlängert sich. Premium bleibt für immer bei deiner Familie.</value></data>
   <data name="Premium.Loading" xml:space="preserve"><value>Wird geladen…</value></data>
   <data name="Premium.Manage" xml:space="preserve"><value>Abo verwalten</value></data>
+  <data name="Premium.Once" xml:space="preserve"><value>{0}, einmalig</value></data>
+  <data name="Premium.PerMonth" xml:space="preserve"><value>{0} / Monat</value></data>
+  <data name="Premium.PerYear" xml:space="preserve"><value>{0} / Jahr</value></data>
   <data name="Premium.Pitch" xml:space="preserve"><value>Einträge, Synchronisierung und Teilen mit der Familie bleiben kostenlos. Premium bietet zusätzlich:</value></data>
+  <data name="Premium.Plan.Lifetime" xml:space="preserve"><value>Dauerhaft</value></data>
+  <data name="Premium.Plan.Monthly" xml:space="preserve"><value>Monatlich</value></data>
+  <data name="Premium.Plan.Yearly" xml:space="preserve"><value>Jährlich</value></data>
   <data name="Premium.Price" xml:space="preserve"><value>{0}, verlängert sich automatisch. Jederzeit in Google Play kündbar.</value></data>
   <data name="Premium.PurchaseFailed" xml:space="preserve"><value>Der Kauf hat nicht geklappt. Bitte versuche es noch einmal.</value></data>
+  <data name="Premium.Save" xml:space="preserve"><value>{0} % sparen</value></data>
+  <data name="Premium.StartTrial" xml:space="preserve"><value>7 Tage kostenlos testen</value></data>
   <data name="Premium.Subscribe" xml:space="preserve"><value>Abonnieren</value></data>
   <data name="Premium.Title" xml:space="preserve"><value>Coo Premium</value></data>
+  <data name="Premium.TrialTerms" xml:space="preserve"><value>7 Tage kostenlos, danach {0}. Verlängert sich automatisch; kündige vor Ende des Tests in Google Play und du zahlst nichts.</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Wie viel?</value></data>
   <data name="Quick.Action.BreastStop" xml:space="preserve"><value>Stillen beendet</value></data>
   <data name="Quick.Action.PumpStop" xml:space="preserve"><value>Abpumpen beendet</value></data>

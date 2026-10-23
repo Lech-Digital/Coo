@@ -76,7 +76,12 @@ public static class BillingEndpoints
                 return Results.Ok();
             }
 
-            if (notification?.SubscriptionNotification?.PurchaseToken is { Length: > 0 } purchaseToken)
+            // A subscription change, a one-time (lifetime) purchase, or a refund of either: each names its token, and
+            // the purchase is read again from Google.
+            var changed = notification?.SubscriptionNotification?.PurchaseToken
+                ?? notification?.OneTimeProductNotification?.PurchaseToken
+                ?? notification?.VoidedPurchaseNotification?.PurchaseToken;
+            if (changed is { Length: > 0 } purchaseToken)
                 await useCase.ExecuteAsync(purchaseToken, cancellationToken);
 
             return Results.Ok();
@@ -87,5 +92,8 @@ public static class BillingEndpoints
 public sealed record VerifyReceiptRequest(Guid HouseholdId, string ProductId, string PurchaseToken);
 public sealed record RtdnPayload(RtdnMessage? Message);
 public sealed record RtdnMessage(string? Data);
-public sealed record DeveloperNotification(SubscriptionNotification? SubscriptionNotification);
+public sealed record DeveloperNotification(
+    SubscriptionNotification? SubscriptionNotification,
+    SubscriptionNotification? OneTimeProductNotification = null,
+    SubscriptionNotification? VoidedPurchaseNotification = null);
 public sealed record SubscriptionNotification(string? PurchaseToken);

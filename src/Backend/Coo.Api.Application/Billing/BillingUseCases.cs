@@ -6,9 +6,18 @@ namespace Coo.Api.Application.Billing;
 /// <summary>The Play products Coo sells. A receipt for anything else is refused.</summary>
 public static class Products
 {
+    /// <summary>The subscription, with a monthly and a yearly base plan.</summary>
     public const string Premium = "premium_subscription";
 
-    public static bool IsKnown(string productId) => productId == Premium;
+    /// <summary>Premium bought once, for good: a one-time product, not a subscription.</summary>
+    public const string Lifetime = "premium_lifetime";
+
+    /// <summary>The expiry recorded for a purchase that never runs out.</summary>
+    public static readonly DateTime NeverExpires = new(9999, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+
+    public static bool IsKnown(string productId) => productId is Premium or Lifetime;
+
+    public static bool IsOneTime(string productId) => productId == Lifetime;
 }
 
 public enum VerifyReceiptOutcome

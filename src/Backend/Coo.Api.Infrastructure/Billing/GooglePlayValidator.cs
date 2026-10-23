@@ -39,6 +39,9 @@ internal sealed partial class GooglePlayValidator(IConfiguration configuration, 
 
         try
         {
+            if (Products.IsOneTime(productId))
+                return await VerifyOneTimeAsync(service, productId, purchaseToken, cancellationToken);
+
             var purchase = await service.Purchases.Subscriptionsv2.Get(_packageName, purchaseToken).ExecuteAsync(cancellationToken);
             if (purchase == null) return null;
 
@@ -70,5 +73,31 @@ internal sealed partial class GooglePlayValidator(IConfiguration configuration, 
             LogVerifyFailed(logger, productId, e);
             return null;
         }
+    }
+
+    /// <summary>
+    /// Lifetime is a one-time product: purchases.products, not subscriptionsv2. A completed purchase never expires; a
+    /// refunded or voided one (purchase state 1) is over, and a pending one (2, cash payments) is not Premium yet.
+    /// </summary>
+    private async Task<GooglePlayPurchaseInfo?> VerifyOneTimeAsync(AndroidPublisherService service, string productId, string purchaseToken, CancellationToken cancellationToken)
+    {
+        var purchase = await service.Purchases.Products.Get(_packageName, productId, purchaseToken).ExecuteAsync(cancellationToken);
+        if (purchase is null)
+            return null;
+
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+        var (status, expiry) = purchase.PurchaseState switch
+        {
+            0 => (SubscriptionStatus.Active, Products.NeverExpires),
+            2 => (SubscriptionStatus.Paused, now),
+            _ => (SubscriptionStatus.Expired, now),
+        };
+        return new GooglePlayPurchaseInfo(
+            purchaseToken,
+            purchase.ProductId ?? productId,
+            expiry,
+            status,
+            false,
+            purchase.ObfuscatedExternalAccountId);
     }
 }
