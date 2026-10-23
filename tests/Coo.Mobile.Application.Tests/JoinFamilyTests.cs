@@ -17,7 +17,7 @@ namespace Coo.Mobile.Application.Tests;
 public sealed class JoinFamilyTests : IDisposable
 {
     private static readonly InvitationCode Code = InvitationCode.Parse("ABCDEFGH").Value;
-    private static readonly BabyId MyMaja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
+    private static readonly BabyId MyLena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
 
     private readonly MemorySessions _sessions = new();
     private readonly Account _account;
@@ -80,7 +80,7 @@ public sealed class JoinFamilyTests : IDisposable
         _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1)]);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]));
         _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, []));
     }
 
@@ -201,7 +201,7 @@ public sealed class JoinFamilyTests : IDisposable
         // Arrange
         await SignInAsync();
         Pending();
-        var invitation = new InvitationPreview(Joined, "Andrzej", ["Maja"], Role.Parent, Now.AddHours(72), false);
+        var invitation = new InvitationPreview(Joined, "Andrzej", ["Lena"], Role.Parent, Now.AddHours(72), false);
         _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(invitation);
 
         // Act
@@ -218,7 +218,7 @@ public sealed class JoinFamilyTests : IDisposable
         // Arrange
         await SignInAsync();
         Pending();
-        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Maja"], Role.Parent, Now.AddHours(72), true));
+        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Lena"], Role.Parent, Now.AddHours(72), true));
         _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.AlreadyMember));
 
         // Act
@@ -255,7 +255,7 @@ public sealed class JoinFamilyTests : IDisposable
         // "already a member". The same code's accept answers joined again (idempotent), so the join goes on to the choice.
         await SignInAsync();
         Pending();
-        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Maja"], Role.Parent, Now.AddHours(72), true));
+        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Lena"], Role.Parent, Now.AddHours(72), true));
         _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.Joined));
 
         // Act
@@ -751,7 +751,7 @@ public sealed class JoinFamilyTests : IDisposable
         Joining(Home);
         _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(false);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, [new LocalBaby(MyMaja, "Maja")]));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, [new LocalBaby(MyLena, "Lena")]));
         _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, []));
 
         // Act
@@ -827,7 +827,7 @@ public sealed class JoinFamilyTests : IDisposable
         await SignInAsync();
         Joining(Home);
         _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(false);
-        _households.ListBabiesAsync(Home, Arg.Any<CancellationToken>()).Returns([Baby(Home, "Maja")]);
+        _households.ListBabiesAsync(Home, Arg.Any<CancellationToken>()).Returns([Baby(Home, "Lena")]);
 
         // Act
         var choice = await Join().DecideAsync(CancellationToken.None);
@@ -948,7 +948,7 @@ public sealed class JoinFamilyTests : IDisposable
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(false);
         _moves.BringOverAsync(default!, default, default).ReturnsForAnyArgs(true);
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1)]);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]), new LocalSummary(0, []));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]), new LocalSummary(0, []));
         _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, []));
         _api.LeaveAsync(Home, false, Arg.Any<CancellationToken>()).Returns(async _ =>
         {

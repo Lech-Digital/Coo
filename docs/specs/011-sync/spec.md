@@ -95,7 +95,7 @@ second phone does not ask; the phone caches it in `app_state`.
 **`JoinPending`** (Spec 010 §3.2 and its Q1): after consent, the phone bootstraps the account's household (§6.2)
 beside its provisional one, then asks:
 
-> **This phone has 42 entries for Maja.** Your family's log has: Maja.
+> **This phone has 42 entries for Lena.** Your family's log has: Lena.
 >
 > **Bring my entries over** · **Keep them separate**
 
@@ -294,7 +294,7 @@ Trimmed Release build with the debug screen (0 IL warnings), signed with the deb
 | 2 | Convergence | **PASS.** A Mixed diaper on the Pixel reached the emulator; a bottle on the emulator reached the Pixel. A timed round, Wet on the emulator to the Pixel, took 23 s. |
 | 3 | Offline edits | **PASS.** Both phones offline: the emulator edited a bottle to 100 ml and deleted the Mixed diaper; the Pixel, later, edited the bottle to 150 ml. Online: 150 ml on both, the Mixed diaper gone on both. |
 | 4 | Same event twice | **PASS.** Wet on the Pixel at 13:17 and on the emulator at 13:18: "Probably the same" on both. Keep both on the Pixel cleared the pair there and, after the next pull, on the emulator (7 to 6 entries). |
-| 5 | Second phone's entries | **PASS.** The emulator signed in with no consent sheet (the account had consented); the bring-over sheet said "This phone has 2 entries for Maja. Your family's log has: Maja." Bring my entries over, Maja to Maja, Bring them over: the emulator showed the family's log, and its 2 diapers (23:07 the day before) reached the Pixel within about 30 s. This also closes Spec 010 deliverable 3. |
+| 5 | Second phone's entries | **PASS.** The emulator signed in with no consent sheet (the account had consented); the bring-over sheet said "This phone has 2 entries for Lena. Your family's log has: Lena." Bring my entries over, Lena to Lena, Bring them over: the emulator showed the family's log, and its 2 diapers (23:07 the day before) reached the Pixel within about 30 s. This also closes Spec 010 deliverable 3. |
 | 6 | Fresh phone | **FINDING, then PASS.** Fresh bootstrap opened the first-launch setup before the pull had returned (the baby was wiped; a duplicate baby was possible). Fixed in `a9f6469`: the wipe deletes the cursor row, and setup routing skips the account's household until its first full pull (test red, then green). Re-run: no setup, the log came back, the counts matched the Pixel, the deleted diaper stayed absent. |
 | 7 | Honest status | **PASS.** Pixel offline, two diapers: "Waiting for a connection. 2 changes are safe on this phone." Online: "Up to date · 13:05" after 9 s, including the Wi-Fi reconnect. |
 | 8 | Sessions under sync | **PASS.** After more than 20 minutes (the emulator signed in at 13:06, checked at 13:27) both phones were still signed in; `/api/me` answered as owner, with the devices Pixel 10 (13:27) and the emulator (13:20). |

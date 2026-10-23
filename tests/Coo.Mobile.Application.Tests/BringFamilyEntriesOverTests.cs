@@ -18,8 +18,8 @@ namespace Coo.Mobile.Application.Tests;
 /// <summary>Spec 011b §6.1–§6.2: move a never-synced source, copy a synced one, then the question about the old family.</summary>
 public sealed class BringFamilyEntriesOverTests : IDisposable
 {
-    private static readonly BabyId MyMaja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
-    private static readonly BabyId TheirMaja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
+    private static readonly BabyId MyLena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
+    private static readonly BabyId TheirLena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
     private static readonly DeviceId Phone = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1"));
 
     private readonly MemorySessions _sessions = new();
@@ -35,8 +35,8 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
     public BringFamilyEntriesOverTests()
     {
         _account = new Account(_sessions);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new LocalBaby(TheirLena, "Lena")]));
         _clock.NextAsync(Arg.Any<CancellationToken>()).Returns(new HlcStamp(1_790_000_000_000, 4, Phone));
         _records.CountRecordsAsync(Home, Arg.Any<CancellationToken>()).Returns(45);
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([Settings(Home), Settings(Joined)]);
@@ -61,7 +61,7 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(false);
         _moves.BringOverAsync(default!, default, default).ReturnsForAnyArgs(true);
         MemberOf(Home, Role.Owner, 1);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]), new LocalSummary(0, []));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]), new LocalSummary(0, []));
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
 
         // Assert
         choice.Local.EntryCount.Should().Be(42);
-        choice.Family.Should().ContainSingle().Which.Id.Should().Be(TheirMaja);
+        choice.Family.Should().ContainSingle().Which.Id.Should().Be(TheirLena);
     }
 
     [Fact]
@@ -83,11 +83,11 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
         MovableAdoptedFamily();
 
         // Act
-        var outcome = await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?> { [MyMaja] = TheirMaja }, CancellationToken.None);
+        var outcome = await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?> { [MyLena] = TheirLena }, CancellationToken.None);
 
         // Assert
         outcome.Should().Be(new BringOutcome(BringPath.Moved, 0, 0, OldFamilyQuestion.None));
-        await _moves.Received(1).BringOverAsync(Arg.Is<BringOverPlan>(p => p.From == Home && p.To == Joined && p.Babies[MyMaja] == TheirMaja), Me, Arg.Any<CancellationToken>());
+        await _moves.Received(1).BringOverAsync(Arg.Is<BringOverPlan>(p => p.From == Home && p.To == Joined && p.Babies[MyLena] == TheirLena), Me, Arg.Any<CancellationToken>());
         await _api.Received(1).LeaveAsync(Home, false, Arg.Any<CancellationToken>());
         await _moves.Received(1).DeleteHouseholdAsync(Home, Arg.Any<CancellationToken>());
         await _records.DidNotReceiveWithAnyArgs().CopyAsync(default!, default, default, default, default);
@@ -170,7 +170,7 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
         // Arrange: a baby stayed behind (not empty): nothing is left, nothing discarded.
         await SignInAsync();
         MovableAdoptedFamily();
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]), new LocalSummary(0, [new LocalBaby(MyMaja, "Maja")]));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]), new LocalSummary(0, [new LocalBaby(MyLena, "Lena")]));
 
         // Act
         await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?>(), CancellationToken.None);
@@ -189,7 +189,7 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
         {
             await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
             await SignInAsync();
-            return new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]);
+            return new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]);
         });
 
         // Act
@@ -240,7 +240,7 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
         _records.CopyAsync(default!, default, default, default, default).ReturnsForAnyArgs(new CopyResult(40, 2));
 
         // Act
-        var outcome = await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?> { [MyMaja] = TheirMaja }, CancellationToken.None);
+        var outcome = await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?> { [MyLena] = TheirLena }, CancellationToken.None);
 
         // Assert
         outcome.Should().Be(new BringOutcome(BringPath.Copied, 40, 2, OldFamilyQuestion.DeleteOld));
@@ -402,11 +402,11 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
         _records.CopyAsync(default!, default, default, default, default).ReturnsForAnyArgs(new CopyResult(1, 0));
 
         // Act
-        await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?> { [MyMaja] = new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b7")) },
+        await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?> { [MyLena] = new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b7")) },
             CancellationToken.None);
 
         // Assert
-        await _records.Received(1).CopyAsync(Arg.Is<BringOverPlan>(p => p.Babies[MyMaja] == null), Me, Arg.Any<HlcStamp>(), Arg.Any<int>(), Arg.Any<CancellationToken>());
+        await _records.Received(1).CopyAsync(Arg.Is<BringOverPlan>(p => p.Babies[MyLena] == null), Me, Arg.Any<HlcStamp>(), Arg.Any<int>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]

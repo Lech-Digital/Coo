@@ -16,8 +16,8 @@ public sealed class ConsentAndBringOverTests : IDisposable
     private static readonly AccountProfile Profile = new(new UserId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c1")), "Andrzej", "andrzej@example.com");
     private static readonly HouseholdId Family = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a9"));
     private static readonly HouseholdId Mine = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a1"));
-    private static readonly BabyId MyMaja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
-    private static readonly BabyId FamilyMaja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
+    private static readonly BabyId MyLena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
+    private static readonly BabyId FamilyLena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
 
     private readonly ISessionStore _sessions = Substitute.For<ISessionStore>();
     private readonly ISyncState _state = Substitute.For<ISyncState>();
@@ -34,8 +34,8 @@ public sealed class ConsentAndBringOverTests : IDisposable
         _sessions.GetAsync(Arg.Any<CancellationToken>()).Returns(new StoredSession("a", DateTimeOffset.UnixEpoch, "r", Profile, Family, JoinPending: true));
         _about.Informational.Returns("0.11.0+abcdef1234");
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Mine);
-        _moves.SummaryAsync(Mine, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
-        _moves.SummaryAsync(Family, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new LocalBaby(FamilyMaja, "Maja")]));
+        _moves.SummaryAsync(Mine, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]));
+        _moves.SummaryAsync(Family, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new LocalBaby(FamilyLena, "Lena")]));
         _state.GetConsentAsync(Profile.UserId, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
         _store.HasPulledAsync(Family, Arg.Any<CancellationToken>()).Returns(true);
     }
@@ -135,11 +135,11 @@ public sealed class ConsentAndBringOverTests : IDisposable
         await model.LoadAsync();
 
         // Assert
-        model.Summary.Should().Be("This phone has 42 entries for Maja.");
-        model.Family.Should().Be("Your family's log has: Maja.");
+        model.Summary.Should().Be("This phone has 42 entries for Lena.");
+        model.Family.Should().Be("Your family's log has: Lena.");
         var mapping = model.Mappings.Should().ContainSingle().Subject;
-        mapping.Prompt.Should().Be("Maja on this phone is");
-        mapping.Options.Select(o => o.Label).Should().Equal("Maja", "Add as a new baby");
+        mapping.Prompt.Should().Be("Lena on this phone is");
+        mapping.Options.Select(o => o.Label).Should().Equal("Lena", "Add as a new baby");
         mapping.Selected.Should().Be(0, "the same name is the same baby by default");
     }
 
@@ -159,7 +159,7 @@ public sealed class ConsentAndBringOverTests : IDisposable
         await model.ConfirmCommand.ExecuteAsync(null);
 
         // Assert
-        await _moves.Received(1).BringOverAsync(Arg.Is<BringOverPlan>(p => p.Babies[MyMaja] == FamilyMaja), Profile.UserId, Arg.Any<CancellationToken>());
+        await _moves.Received(1).BringOverAsync(Arg.Is<BringOverPlan>(p => p.Babies[MyLena] == FamilyLena), Profile.UserId, Arg.Any<CancellationToken>());
         closed.Should().Be(1);
     }
 
@@ -202,7 +202,7 @@ public sealed class ConsentAndBringOverTests : IDisposable
     public async Task LoadAsync_DifferentNamesOneBabyEach_DefaultsToTheFamilysBaby()
     {
         // Arrange: the phone's setup used the default name "Baby".
-        _moves.SummaryAsync(Mine, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(MyMaja, "Baby")]));
+        _moves.SummaryAsync(Mine, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(MyLena, "Baby")]));
         using var account = new Account(_sessions);
         var model = BringOver(account);
 
@@ -255,8 +255,8 @@ public sealed class ConsentAndBringOverTests : IDisposable
     public async Task LoadAsync_NoMatchingNameAndSeveralBabies_DefaultsToAddAsNew()
     {
         // Arrange
-        _moves.SummaryAsync(Family, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new LocalBaby(FamilyMaja, "Maja"), new LocalBaby(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b8")), "Jan")]));
-        _moves.SummaryAsync(Mine, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(MyMaja, "Baby")]));
+        _moves.SummaryAsync(Family, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new LocalBaby(FamilyLena, "Lena"), new LocalBaby(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b8")), "Jan")]));
+        _moves.SummaryAsync(Mine, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(MyLena, "Baby")]));
         using var account = new Account(_sessions);
         var model = BringOver(account);
 
@@ -299,7 +299,7 @@ public sealed class ConsentAndBringOverTests : IDisposable
         _moves.SummaryAsync(Mine, Arg.Any<CancellationToken>()).Returns(async _ =>
         {
             await account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
-            return new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]);
+            return new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]);
         });
         var closed = 0;
         model.Closed += (_, _) => closed++;

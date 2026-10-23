@@ -340,6 +340,7 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Quick.Action.PumpStop" xml:space="preserve"><value>Kolven klaar</value></data>
   <data name="Quick.Action.SleepStart" xml:space="preserve"><value>In slaap gevallen</value></data>
   <data name="Quick.AlreadyLogged" xml:space="preserve"><value>Al gelogd om {0}</value></data>
+  <data name="Quick.Baby" xml:space="preserve"><value>Baby</value></data>
   <data name="Quick.Cancel" xml:space="preserve"><value>Annuleren</value></data>
   <data name="Quick.ConsentBody" xml:space="preserve"><value>Om je te begrijpen stuurt Coo de woorden (nooit de opname) naar onze server en door naar de AI Gemini van Google, samen met wat er nu loopt. De namen van je baby en gezin worden eerst vervangen. Niets wordt bewaard; je controleert elk item voordat het wordt opgeslagen.</value></data>
   <data name="Quick.ConsentTitle" xml:space="preserve"><value>Voordat je het Coo vertelt</value></data>
@@ -348,7 +349,7 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Quick.Error.free-limit" xml:space="preserve"><value>Dat waren de {0} gratis pogingen van vandaag. Met Coo Premium heb je er tot 100 per dag.</value></data>
   <data name="Quick.Error.signed-out" xml:space="preserve"><value>Zeg het tegen Coo werkt zodra je bent ingelogd en je logboek deelt (Instellingen → Account). Gebruik tot die tijd de knoppen.</value></data>
   <data name="Quick.Error.unavailable" xml:space="preserve"><value>Coo kan het nu niet begrijpen. Je woorden blijven bewaard voor later.</value></data>
-  <data name="Quick.Hint" xml:space="preserve"><value>Zeg of typ wat er gebeurde, zoals ‘Maja begon links’ of ‘120 ml flesvoeding om twee uur, daarna een natte luier’.</value></data>
+  <data name="Quick.Hint" xml:space="preserve"><value>Zeg of typ wat er gebeurde, zoals ‘{0} begon links’ of ‘120 ml flesvoeding om twee uur, daarna een natte luier’.</value></data>
   <data name="Quick.KeptForLater" xml:space="preserve"><value>Geen verbinding: Coo heeft je woorden bewaard en vraagt je later ze na te kijken.</value></data>
   <data name="Quick.Listening" xml:space="preserve"><value>Ik luister…</value></data>
   <data name="Quick.NotHeard" xml:space="preserve"><value>Dat verstond ik niet. Probeer het opnieuw of typ het.</value></data>

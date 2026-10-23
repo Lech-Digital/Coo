@@ -66,7 +66,7 @@ public static partial class TextPseudonymiser
     }
 
     /// <summary>
-    /// The part of a name every inflected form shares: "Zosia" → "Zos", "Maja" → "Maj", "Leon" → "Leon". Never shorter than
+    /// The part of a name every inflected form shares: "Zosia" → "Zos", "Lena" → "Len", "Leon" → "Leon". Never shorter than
     /// three letters ("Ania" → "Ani", not "An", which would catch "and").
     /// </summary>
     private static string Stem(string name)

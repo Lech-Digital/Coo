@@ -7,7 +7,7 @@ namespace Coo.Mobile.Presentation.Settings;
 /// <summary>What every bring-over sheet shows of a <see cref="BringOverChoice"/>: the summary line and where each baby goes by default.</summary>
 internal static class BabyMappings
 {
-    /// <summary>"This phone has 42 entries for Maja."</summary>
+    /// <summary>"This phone has 42 entries for Lena."</summary>
     public static string Summary(BringOverChoice choice)
     {
         ArgumentNullException.ThrowIfNull(choice);

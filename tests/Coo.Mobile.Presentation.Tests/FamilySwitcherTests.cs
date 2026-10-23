@@ -93,7 +93,7 @@ public sealed class FamilySwitcherTests : IDisposable
         // Arrange
         await SignInAsync();
         OnPhone(Joined, Home);
-        Baby(Home, "Maja");
+        Baby(Home, "Lena");
         Memberships(new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1), new FamilyMembership(Joined, Role.Parent, Now.AddDays(1), "Andrzej", 2));
 
         // Act
@@ -101,7 +101,7 @@ public sealed class FamilySwitcherTests : IDisposable
         await section.RefreshAsync();
 
         // Assert
-        section.Rows.Select(r => r.Label).Should().Equal("Maja · Your family", "No baby yet · Family of Andrzej");
+        section.Rows.Select(r => r.Label).Should().Equal("Lena · Your family", "No baby yet · Family of Andrzej");
         var mine = section.Rows.Single(r => r.Id == Home);
         mine.IsShown.Should().BeFalse();
         mine.Actions.Should().Equal(FamilyRowAction.BringHere, FamilyRowAction.Delete);
@@ -198,7 +198,7 @@ public sealed class FamilySwitcherTests : IDisposable
         // Arrange
         await SignInAsync();
         OnPhone(Home, Local);
-        Baby(Local, "Maja");
+        Baby(Local, "Lena");
         var section = Section();
         await section.RefreshAsync();
 
@@ -207,7 +207,7 @@ public sealed class FamilySwitcherTests : IDisposable
 
         // Assert
         prompt.Title.Should().Be("Remove from this phone");
-        prompt.Message.Should().Be("Remove Maja's log from this phone? It isn't shared, so it will be gone.");
+        prompt.Message.Should().Be("Remove Lena's log from this phone? It isn't shared, so it will be gone.");
         prompt.Accept.Should().Be("Remove");
         prompt.Cancel.Should().Be("Cancel");
     }

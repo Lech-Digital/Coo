@@ -154,7 +154,7 @@ in the repository. The deploy (owner, with `!`) adds them.
 ADR 0003 §8 and Google Play's rule (an in-app path and a web path).
 
 - **In the app:** Settings → Account → Delete account. The confirmation names what goes: "This deletes your Coo
-  account and, because you are the only parent, your family's shared log for Maja. The entries on this phone stay
+  account and, because you are the only parent, your family's shared log for Lena. The entries on this phone stay
   here." Two buttons: **Delete account**, **Cancel**. The app calls `DELETE /api/account` with `{ "confirm": true }`.
 - **On the server:** the user, their Google login, their device sessions and their memberships go. If they were the
   last parent, the household and all its care data go too. Until 11b nobody else can be a member, so the household

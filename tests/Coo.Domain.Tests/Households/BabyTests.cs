@@ -44,7 +44,7 @@ public sealed class BabyTests
         var birth = Today.AddDays(2);
 
         // Act
-        var result = BabyProfile.Create(A.Baby, A.Household, "Maja", [], birth, null, A.Stamp(), Today);
+        var result = BabyProfile.Create(A.Baby, A.Household, "Lena", [], birth, null, A.Stamp(), Today);
 
         // Assert
         result.Error!.Code.Should().Be(BabyErrors.BirthInFuture);
@@ -57,7 +57,7 @@ public sealed class BabyTests
         var birth = Today.AddMonths(-2);
 
         // Act
-        var result = BabyProfile.Create(A.Baby, A.Household, "Maja", [], birth, birth.AddDays(25 * 7), A.Stamp(), Today);
+        var result = BabyProfile.Create(A.Baby, A.Household, "Lena", [], birth, birth.AddDays(25 * 7), A.Stamp(), Today);
 
         // Assert
         result.Error!.Code.Should().Be(BabyErrors.DueDateOutOfRange);
@@ -68,7 +68,7 @@ public sealed class BabyTests
     {
         // Arrange: born 8 weeks early, 20 weeks ago.
         var birth = Today.AddDays(-140);
-        var baby = BabyProfile.Create(A.Baby, A.Household, "Maja", [], birth, birth.AddDays(56), A.Stamp(), Today).Value;
+        var baby = BabyProfile.Create(A.Baby, A.Household, "Lena", [], birth, birth.AddDays(56), A.Stamp(), Today).Value;
 
         // Act
         var age = BabyAge.On(baby, Today);
@@ -84,7 +84,7 @@ public sealed class BabyTests
     {
         // Arrange
         var birth = Today.AddMonths(-25);
-        var baby = BabyProfile.Create(A.Baby, A.Household, "Maja", [], birth, birth.AddDays(56), A.Stamp(), Today).Value;
+        var baby = BabyProfile.Create(A.Baby, A.Household, "Lena", [], birth, birth.AddDays(56), A.Stamp(), Today).Value;
 
         // Act
         var age = BabyAge.On(baby, Today);
@@ -99,7 +99,7 @@ public sealed class BabyTests
     {
         // Arrange: born 8 weeks early, 3 weeks ago.
         var birth = Today.AddDays(-21);
-        var baby = BabyProfile.Create(A.Baby, A.Household, "Maja", [], birth, birth.AddDays(56), A.Stamp(), Today).Value;
+        var baby = BabyProfile.Create(A.Baby, A.Household, "Lena", [], birth, birth.AddDays(56), A.Stamp(), Today).Value;
 
         // Act
         var age = BabyAge.On(baby, Today);
@@ -178,7 +178,7 @@ public sealed class ExpectedBabyTests
     public void RecordBirth_AlreadyBorn_FailsWithAlreadyBorn()
     {
         // Arrange
-        var baby = BabyProfile.Create(A.Baby, A.Household, "Maja", [], Today.AddDays(-10), null, A.Stamp(), Today).Value;
+        var baby = BabyProfile.Create(A.Baby, A.Household, "Lena", [], Today.AddDays(-10), null, A.Stamp(), Today).Value;
 
         // Act
         var result = baby.RecordBirth(Today, A.Stamp(), Today);

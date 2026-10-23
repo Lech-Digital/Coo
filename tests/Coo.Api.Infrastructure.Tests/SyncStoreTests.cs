@@ -60,7 +60,7 @@ public sealed class SyncStoreTests(PostgresServer server)
         await using var db = await DatabaseAsync(server);
         var a = db.NewId();
         var b = db.NewId();
-        var baby = BabyProfile.Create(new BabyId(db.NewId()), Household, "Maja", ["Majka"], new DateOnly(2026, 8, 20), null, db.NextStamp(), new DateOnly(2026, 10, 1)).Value;
+        var baby = BabyProfile.Create(new BabyId(db.NewId()), Household, "Lena", ["Lenka"], new DateOnly(2026, 8, 20), null, db.NextStamp(), new DateOnly(2026, 10, 1)).Value;
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Ounces, "Europe/Amsterdam", db.NextStamp(), [EntryKindCode.From("pump").Value]).Value;
 
         // Act
@@ -219,7 +219,7 @@ public sealed class SyncStoreTests(PostgresServer server)
         await using var db = await DatabaseAsync(server);
         for (var i = 0; i < 5; i++)
             await ApplyAsync(db, Diaper(db, db.NewId(), db.NextStamp()));
-        await ApplyAsync(db, new BabyProfileWrite(BabyProfile.Create(new BabyId(db.NewId()), Household, "Maja", [], new DateOnly(2026, 8, 20), null, db.NextStamp(), new DateOnly(2026, 10, 1)).Value));
+        await ApplyAsync(db, new BabyProfileWrite(BabyProfile.Create(new BabyId(db.NewId()), Household, "Lena", [], new DateOnly(2026, 8, 20), null, db.NextStamp(), new DateOnly(2026, 10, 1)).Value));
         await ApplyAsync(db, new HouseholdSettingsWrite(HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", db.NextStamp()).Value));
 
         // Act
@@ -510,7 +510,7 @@ public sealed class SyncStoreTests(PostgresServer server)
         // Arrange
         await using var db = await DatabaseAsync(server);
         var other = new HouseholdId(db.NewId());
-        var baby = BabyProfile.Create(new BabyId(db.NewId()), other, "Maja", [], new DateOnly(2026, 8, 20), null, db.NextStamp(), new DateOnly(2026, 10, 1)).Value;
+        var baby = BabyProfile.Create(new BabyId(db.NewId()), other, "Lena", [], new DateOnly(2026, 8, 20), null, db.NextStamp(), new DateOnly(2026, 10, 1)).Value;
 
         // Act
         Func<Task> act = async () => await ApplyAsync(db, new BabyProfileWrite(baby));
@@ -584,7 +584,7 @@ public sealed class SyncStoreTests(PostgresServer server)
         for (var i = 0; i < 3; i++)
         {
             writes.Add(Diaper(db, db.NewId(), db.NextStamp()));
-            writes.Add(new BabyProfileWrite(BabyProfile.Create(new BabyId(db.NewId()), Household, "Maja", [], new DateOnly(2026, 8, 20), null, db.NextStamp(), new DateOnly(2026, 10, 1)).Value));
+            writes.Add(new BabyProfileWrite(BabyProfile.Create(new BabyId(db.NewId()), Household, "Lena", [], new DateOnly(2026, 8, 20), null, db.NextStamp(), new DateOnly(2026, 10, 1)).Value));
             writes.Add(new DismissalWrite(DuplicateDismissal.Create(new DismissalId(db.NewId()), Household,
                 new EntryPair(new EntryId(db.NewId()), new EntryId(db.NewId())), db.NextStamp())));
         }

@@ -340,6 +340,7 @@ Si le lien n'ouvre pas Coo, va dans Réglages → Famille → Rejoindre une fami
   <data name="Quick.Action.PumpStop" xml:space="preserve"><value>Tire-lait terminé</value></data>
   <data name="Quick.Action.SleepStart" xml:space="preserve"><value>Endormi</value></data>
   <data name="Quick.AlreadyLogged" xml:space="preserve"><value>Déjà noté à {0}</value></data>
+  <data name="Quick.Baby" xml:space="preserve"><value>Bébé</value></data>
   <data name="Quick.Cancel" xml:space="preserve"><value>Annuler</value></data>
   <data name="Quick.ConsentBody" xml:space="preserve"><value>Pour vous comprendre, Coo envoie les mots (jamais l’audio) à notre serveur puis à l’IA Gemini de Google, avec ce qui est en cours. Les prénoms de votre bébé et de votre famille sont remplacés avant. Rien n’est conservé ; vous vérifiez chaque entrée avant l’enregistrement.</value></data>
   <data name="Quick.ConsentTitle" xml:space="preserve"><value>Avant de le dire à Coo</value></data>
@@ -348,7 +349,7 @@ Si le lien n'ouvre pas Coo, va dans Réglages → Famille → Rejoindre une fami
   <data name="Quick.Error.free-limit" xml:space="preserve"><value>C’étaient les {0} essais gratuits du jour. Coo Premium en offre jusqu’à 100 par jour.</value></data>
   <data name="Quick.Error.signed-out" xml:space="preserve"><value>Dites-le à Coo fonctionne une fois connecté et le partage activé (Réglages → Compte). En attendant, utilisez les boutons.</value></data>
   <data name="Quick.Error.unavailable" xml:space="preserve"><value>Coo ne peut pas comprendre pour l’instant. Vos mots sont gardés pour plus tard.</value></data>
-  <data name="Quick.Hint" xml:space="preserve"><value>Dites ou tapez ce qui s’est passé, par ex. « Maja a commencé à gauche » ou « 120 ml de lait infantile à 14 h, puis une couche mouillée ».</value></data>
+  <data name="Quick.Hint" xml:space="preserve"><value>Dites ou tapez ce qui s’est passé, par ex. « {0} a commencé à gauche » ou « 120 ml de lait infantile à 14 h, puis une couche mouillée ».</value></data>
   <data name="Quick.KeptForLater" xml:space="preserve"><value>Pas de connexion : Coo a gardé vos mots et vous les fera vérifier plus tard.</value></data>
   <data name="Quick.Listening" xml:space="preserve"><value>J’écoute…</value></data>
   <data name="Quick.NotHeard" xml:space="preserve"><value>Je n’ai pas compris. Réessayez ou tapez-le.</value></data>

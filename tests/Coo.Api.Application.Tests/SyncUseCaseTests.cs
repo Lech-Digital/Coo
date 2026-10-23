@@ -155,7 +155,7 @@ public sealed class SyncUseCaseTests
             RejectionReasons.SchemaUnsupported => (Upsert(Id(1), Diaper(Now)), Owner, SchemaVersions.Current + 1),
             RejectionReasons.StampInFuture => (Upsert(Id(1), Diaper(Now), offsetMs: (long)TimeSpan.FromDays(2).TotalMilliseconds), Owner, SchemaVersions.Current),
             RejectionReasons.PersonUnresolved => (Upsert(Id(1), Diaper(Now, "this-device")), Owner, SchemaVersions.Current),
-            RejectionReasons.RoleForbidden => (Upsert(Id(2), new BabyProfilePayload("Maja", [], new DateOnly(2026, 8, 20), null), SyncEntityTypes.BabyProfile),
+            RejectionReasons.RoleForbidden => (Upsert(Id(2), new BabyProfilePayload("Lena", [], new DateOnly(2026, 8, 20), null), SyncEntityTypes.BabyProfile),
                 Membership.Create(Household, Parent, Role.Caregiver, Now), SchemaVersions.Current),
             RejectionReasons.ChangeMalformed => (Upsert(Id(1), Diaper(Now), "Medication"), Owner, SchemaVersions.Current),
             _ => (Upsert(Id(1), new CareEntryPayload("sleep", Baby, null, true, Now, Now.AddMinutes(-5), "user:7a1c0000-0000-7000-8000-0000000000c1",

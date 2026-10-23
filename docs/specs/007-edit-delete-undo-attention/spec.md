@@ -53,7 +53,7 @@ delete and a new entry.
   per change. A Domain error appears inline, under the field it concerns, in the user's language. Nothing is saved
   until every rule passes.
 - **Plausibility warnings** (Spec 001 §8) appear inline under the field, as quiet text. Examples: "That's more than
-  most bottles (over 400 ml)", "This is in the future", "Before Maja's birth". They never block Save. One-tap quick
+  most bottles (over 400 ml)", "This is in the future", "Before Lena's birth". They never block Save. One-tap quick
   logs show none, because they are always "now" with sensible values.
 
 ## 4. Logging something earlier

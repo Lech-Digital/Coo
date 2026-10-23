@@ -397,7 +397,7 @@ public sealed class HouseholdMembershipStoreTests(PostgresServer server)
         await db.ExecuteAsync($"INSERT INTO households (id, next_seq, created_at, created_by) VALUES ('{other.Value}', 1, now(), '{Owner.Value}');");
         string Seed(HouseholdId h) => $$"""
             INSERT INTO baby_profiles (id, household_id, name, nicknames, birth_date, version_wall_ms, version_counter, version_device, is_deleted, seq)
-            VALUES ('{{db.NewId()}}', '{{h.Value}}', 'Maja', '{}', '2026-08-20', 1, 0, '{{ServerDatabase.Device.Value}}', false, 1);
+            VALUES ('{{db.NewId()}}', '{{h.Value}}', 'Lena', '{}', '2026-08-20', 1, 0, '{{ServerDatabase.Device.Value}}', false, 1);
             INSERT INTO household_settings (household_id, volume_unit, time_zone_id, hidden_kinds, version_wall_ms, version_counter, version_device, is_deleted, seq)
             VALUES ('{{h.Value}}', 'ml', 'Europe/Amsterdam', '{}', 1, 0, '{{ServerDatabase.Device.Value}}', false, 2);
             INSERT INTO duplicate_dismissals (id, household_id, entry_a, entry_b, version_wall_ms, version_counter, version_device, is_deleted, seq)
@@ -450,7 +450,7 @@ public sealed class HouseholdMembershipStoreTests(PostgresServer server)
         await db.ExecuteAsync(
             $$"""
             INSERT INTO baby_profiles (id, household_id, name, nicknames, birth_date, version_wall_ms, version_counter, version_device, is_deleted, seq)
-            VALUES ('{{db.NewId()}}', '{{Family.Value}}', 'Maja', '{}', '2026-08-20', 1, 0, '{{ServerDatabase.Device.Value}}', false, 1),
+            VALUES ('{{db.NewId()}}', '{{Family.Value}}', 'Lena', '{}', '2026-08-20', 1, 0, '{{ServerDatabase.Device.Value}}', false, 1),
                    ('{{db.NewId()}}', '{{Family.Value}}', 'Old', '{}', '2026-08-20', 1, 0, '{{ServerDatabase.Device.Value}}', true, 2);
             """);
 
@@ -458,7 +458,7 @@ public sealed class HouseholdMembershipStoreTests(PostgresServer server)
         var names = await db.Invitations.ListBabyNamesAsync(Family, CancellationToken.None);
 
         // Assert
-        names.Should().Equal("Maja");
+        names.Should().Equal("Lena");
     }
 
     [Fact]

@@ -18,7 +18,7 @@ public sealed class ReminderPlannerTests
     private static readonly DeviceId Device = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1"));
     private static readonly TimeZoneInfo Zone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Amsterdam");
 
-    // Friday 23 October 2026, 14:00 in Amsterdam; Maja is 64 days old (wake window up to 90 minutes).
+    // Friday 23 October 2026, 14:00 in Amsterdam; Lena is 64 days old (wake window up to 90 minutes).
     private static readonly DateTimeOffset Now = new(2026, 10, 23, 14, 0, 0, TimeSpan.FromHours(2));
     private static readonly DateOnly Born = new(2026, 8, 20);
     private long _wall = 1;

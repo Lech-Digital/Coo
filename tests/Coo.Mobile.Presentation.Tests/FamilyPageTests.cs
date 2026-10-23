@@ -47,7 +47,7 @@ public sealed class FamilyPageTests : IDisposable
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([Settings(Joined), Settings(Home)]);
         _households.ListBabiesAsync(default, default).ReturnsForAnyArgs([]);
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Joined);
-        _moves.SummaryAsync(default, default).ReturnsForAnyArgs(new LocalSummary(42, [new LocalBaby(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), "Maja")]));
+        _moves.SummaryAsync(default, default).ReturnsForAnyArgs(new LocalSummary(42, [new LocalBaby(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), "Lena")]));
         _records.ListUnsharedEntriesAsync(default, default).ReturnsForAnyArgs([]);
         _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(new FamilyMembers(
             [new FamilyMember(Andrzej, "Andrzej", "a@example.com", Role.Owner, Now, false), new FamilyMember(Me, "Kasia", "k@example.com", Role.Parent, Now.AddDays(1), true)],
@@ -228,7 +228,7 @@ public sealed class FamilyPageTests : IDisposable
         // Assert
         page.ShowsDelete.Should().BeTrue();
         prompt.Message.Should().Be(
-            "Delete this family? Its log of Maja, 42 entries, is deleted from Coo's server and this phone. This can't be undone.\n\n"
+            "Delete this family? Its log of Lena, 42 entries, is deleted from Coo's server and this phone. This can't be undone.\n\n"
             + "3 entries on this phone weren't shared yet and will be lost.");
     }
 

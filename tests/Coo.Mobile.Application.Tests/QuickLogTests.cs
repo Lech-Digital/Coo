@@ -34,7 +34,7 @@ public sealed class QuickLogTests
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns(
             [HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value]);
         _households.ListBabiesAsync(Household, Arg.Any<CancellationToken>()).Returns(
-            [BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 23)).Value]);
+            [BabyProfile.Create(Baby, Household, "Lena", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 23)).Value]);
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public sealed class QuickLogTests
     {
         // Arrange
         Answer(Proposal(AiActions.BreastStart, Now, side: "left"));
-        var review = (await Prepare().ExecuteAsync("Maja started on the left", Now, "en", CancellationToken.None)).Review!;
+        var review = (await Prepare().ExecuteAsync("Lena started on the left", Now, "en", CancellationToken.None)).Review!;
 
         // Act
         var results = await Apply().ExecuteAsync(review, review.Items, null, CancellationToken.None);

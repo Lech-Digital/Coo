@@ -91,7 +91,7 @@ public sealed class SyncSchemaTests(PostgresServer server)
         await db.Households.EnsureAsync(ServerDatabase.Household, CancellationToken.None);
         string Insert() => $"""
             INSERT INTO baby_profiles (id, household_id, name, nicknames, birth_date, version_wall_ms, version_counter, version_device, is_deleted, seq)
-            VALUES ('{db.NewId()}', '{ServerDatabase.Household.Value}', 'Maja', '{"{}"}', '2026-08-20', 1, 0, '{ServerDatabase.Device.Value}', false, 7);
+            VALUES ('{db.NewId()}', '{ServerDatabase.Household.Value}', 'Lena', '{"{}"}', '2026-08-20', 1, 0, '{ServerDatabase.Device.Value}', false, 7);
             """;
         await db.ExecuteAsync(Insert());
 
@@ -158,7 +158,7 @@ public sealed class SyncSchemaTests(PostgresServer server)
             WHERE (t.version_wall_ms, t.version_counter, t.version_device)
                 < (excluded.version_wall_ms, excluded.version_counter, excluded.version_device);
             """;
-        await db.ExecuteAsync(Upsert("Maja", 2, 1));
+        await db.ExecuteAsync(Upsert("Lena", 2, 1));
 
         // Act
         var older = await db.ExecuteAsync(Upsert("Old", 1, 2));

@@ -195,14 +195,14 @@ public sealed class InvitationUseCaseTests
     public async Task ExecuteAsync_PreviewAValidCode_NamesTheInviterAndTheBabies()
     {
         // Arrange
-        _kit.Store.Babies[Family] = ["Maja"];
+        _kit.Store.Babies[Family] = ["Lena"];
         var code = await InviteAsync();
 
         // Act
         var preview = await _kit.Preview().ExecuteAsync(Partner, code.ToLowerInvariant(), CancellationToken.None);
 
         // Assert
-        preview.Value.Should().BeEquivalentTo(new InvitationPreview(Family, "Andrzej", ["Maja"], Role.Parent, Start.AddHours(72), AlreadyMember: false));
+        preview.Value.Should().BeEquivalentTo(new InvitationPreview(Family, "Andrzej", ["Lena"], Role.Parent, Start.AddHours(72), AlreadyMember: false));
     }
 
     [Theory]

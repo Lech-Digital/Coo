@@ -78,7 +78,7 @@ public sealed class QuickLogView : ContentView
     private void RenderInput()
     {
         var listening = _model.Stage == QuickLogStage.Listening;
-        _body.Add(Ui.Text(Strings.Get("Quick.Hint"), "Body", "Ink2"));
+        _body.Add(Ui.Text(_model.Hint, "Body", "Ink2"));
 
         if (_model.CanListen)
         {

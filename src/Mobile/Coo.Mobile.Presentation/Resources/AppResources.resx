@@ -340,6 +340,7 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Quick.Action.PumpStop" xml:space="preserve"><value>Pumping finished</value></data>
   <data name="Quick.Action.SleepStart" xml:space="preserve"><value>Fell asleep</value></data>
   <data name="Quick.AlreadyLogged" xml:space="preserve"><value>Already logged at {0}</value></data>
+  <data name="Quick.Baby" xml:space="preserve"><value>Baby</value></data>
   <data name="Quick.Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Quick.ConsentBody" xml:space="preserve"><value>To understand you, Coo sends the words (never the audio) to our server and on to Google’s Gemini AI, with what is running now. Your baby’s and family’s names are replaced first. Nothing you say is stored; you check every entry before it is saved.</value></data>
   <data name="Quick.ConsentTitle" xml:space="preserve"><value>Before you tell Coo</value></data>
@@ -348,7 +349,7 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Quick.Error.free-limit" xml:space="preserve"><value>That’s today’s {0} free tries. Coo Premium gives you up to 100 a day.</value></data>
   <data name="Quick.Error.signed-out" xml:space="preserve"><value>Tell Coo works once you sign in and share your log (Settings → Account). Until then, use the buttons.</value></data>
   <data name="Quick.Error.unavailable" xml:space="preserve"><value>Coo can’t understand right now. Your words are kept for later.</value></data>
-  <data name="Quick.Hint" xml:space="preserve"><value>Say or type what happened, like “Maja started on the left” or “120 ml formula at two, then a wet diaper”.</value></data>
+  <data name="Quick.Hint" xml:space="preserve"><value>Say or type what happened, like “{0} started on the left” or “120 ml formula at two, then a wet diaper”.</value></data>
   <data name="Quick.KeptForLater" xml:space="preserve"><value>No connection: Coo kept your words and will ask you to review them later.</value></data>
   <data name="Quick.Listening" xml:space="preserve"><value>Listening…</value></data>
   <data name="Quick.NotHeard" xml:space="preserve"><value>Didn’t catch that. Try again, or type it.</value></data>

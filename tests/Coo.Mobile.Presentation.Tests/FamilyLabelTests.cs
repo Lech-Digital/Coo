@@ -21,8 +21,8 @@ public sealed class FamilyLabelTests : IDisposable
     private static FamilyOnPhone Family(string[] babies, FamilyMembership? membership) => new(Id, babies, membership, true, false, false, true);
 
     [Theory]
-    [InlineData(new[] { "Maja" }, "Maja")]
-    [InlineData(new[] { "Maja", "Leo" }, "Maja, Leo")]
+    [InlineData(new[] { "Lena" }, "Lena")]
+    [InlineData(new[] { "Lena", "Leo" }, "Lena, Leo")]
     [InlineData(new string[0], "No baby yet")]
     public void Title_Babies_NamesThemOrSaysNoBabyYet(string[] babies, string expected)
     {
@@ -37,9 +37,9 @@ public sealed class FamilyLabelTests : IDisposable
     public void Second_OwnParentOtherAndLocal_ReadAsTheSpecSays()
     {
         // Act
-        var own = FamilyLabels.Second(Family(["Maja"], new FamilyMembership(Id, Role.Owner, Now, "Kasia", 1)));
-        var theirs = FamilyLabels.Second(Family(["Maja"], new FamilyMembership(Id, Role.Parent, Now, "Andrzej", 2)));
-        var local = FamilyLabels.Second(Family(["Maja"], null));
+        var own = FamilyLabels.Second(Family(["Lena"], new FamilyMembership(Id, Role.Owner, Now, "Kasia", 1)));
+        var theirs = FamilyLabels.Second(Family(["Lena"], new FamilyMembership(Id, Role.Parent, Now, "Andrzej", 2)));
+        var local = FamilyLabels.Second(Family(["Lena"], null));
 
         // Assert
         own.Should().Be("Your family");
@@ -54,7 +54,7 @@ public sealed class FamilyLabelTests : IDisposable
         Strings.Use(new LanguagePreference("pl"), null);
 
         // Act
-        var theirs = FamilyLabels.Second(Family(["Maja"], new FamilyMembership(Id, Role.Parent, Now, "Andrzej", 2)));
+        var theirs = FamilyLabels.Second(Family(["Lena"], new FamilyMembership(Id, Role.Parent, Now, "Andrzej", 2)));
 
         // Assert
         theirs.Should().Be("Rodzina: Andrzej");

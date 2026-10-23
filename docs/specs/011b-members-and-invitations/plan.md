@@ -1907,14 +1907,14 @@ Append to `InvitationUseCaseTests` (the constructor's family: `Owner` owns `Fami
     public async Task ExecuteAsync_PreviewAValidCode_NamesTheInviterAndTheBabies()
     {
         // Arrange
-        _kit.Store.Babies[Family] = ["Maja"];
+        _kit.Store.Babies[Family] = ["Lena"];
         var code = await InviteAsync();
 
         // Act
         var preview = await _kit.Preview().ExecuteAsync(Partner, code.ToLowerInvariant(), CancellationToken.None);
 
         // Assert
-        preview.Value.Should().BeEquivalentTo(new InvitationPreview(Family, "Andrzej", ["Maja"], Role.Parent, Start.AddHours(72), AlreadyMember: false));
+        preview.Value.Should().BeEquivalentTo(new InvitationPreview(Family, "Andrzej", ["Lena"], Role.Parent, Start.AddHours(72), AlreadyMember: false));
     }
 
     [Theory]
@@ -2638,7 +2638,7 @@ public sealed class HouseholdMembershipStoreTests(PostgresServer server)
         await db.ExecuteAsync(
             $$"""
             INSERT INTO baby_profiles (id, household_id, name, nicknames, birth_date, version_wall_ms, version_counter, version_device, is_deleted, seq)
-            VALUES ('{{db.NewId()}}', '{{Family.Value}}', 'Maja', '{}', '2026-08-20', 1, 0, '{{ServerDatabase.Device.Value}}', false, 1),
+            VALUES ('{{db.NewId()}}', '{{Family.Value}}', 'Lena', '{}', '2026-08-20', 1, 0, '{{ServerDatabase.Device.Value}}', false, 1),
                    ('{{db.NewId()}}', '{{Family.Value}}', 'Old', '{}', '2026-08-20', 1, 0, '{{ServerDatabase.Device.Value}}', true, 2);
             """);
 
@@ -2646,7 +2646,7 @@ public sealed class HouseholdMembershipStoreTests(PostgresServer server)
         var names = await db.Invitations.ListBabyNamesAsync(Family, CancellationToken.None);
 
         // Assert
-        names.Should().Equal("Maja");
+        names.Should().Equal("Lena");
     }
 
     internal static async Task AddUserAsync(ServerDatabase db, UserId user, string name) => await db.ExecuteAsync(
@@ -3959,7 +3959,7 @@ public sealed class HouseholdApiTests(AuthApi api) : IClassFixture<AuthApi>
 
     private static SyncChangeDto Baby(Guid change, Guid baby, Guid device) => new(
         change, SyncEntityTypes.BabyProfile, baby, SyncOperations.Upsert, new HlcStampDto(SyncCalls.Wall, 0, device),
-        BabyProfile: new BabyProfileDto("Maja", [], new DateOnly(2026, 8, 20), null));
+        BabyProfile: new BabyProfileDto("Lena", [], new DateOnly(2026, 8, 20), null));
 
     private static SyncChangeDto Settings(Guid change, Guid household, Guid device, long wall = SyncCalls.Wall) => new(
         change, SyncEntityTypes.HouseholdSettings, household, SyncOperations.Upsert, new HlcStampDto(wall, 0, device),
@@ -5025,7 +5025,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange
         await SignInAsync();
-        OnPhone((Local, ["Maja"]), (Joined, ["Maja"]), (Home, []));
+        OnPhone((Local, ["Lena"]), (Joined, ["Lena"]), (Home, []));
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([
             new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1), new FamilyMembership(Joined, Role.Parent, Now.AddDays(1), "Andrzej", 2)]);
         _state.IsSoftLockedAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
@@ -5036,7 +5036,7 @@ public sealed class FamiliesTests : IDisposable
         // Assert
         families.Select(f => f.Id).Should().Equal(Home, Joined, Local);
         families[0].Should().Match<FamilyOnPhone>(f => f.IsHome && f.IsOwner && f.BabyNames.Count == 0 && !f.IsShown);
-        families[1].Should().Match<FamilyOnPhone>(f => f.IsSoftLocked && f.CanManage && !f.IsOwner && f.BabyNames.Single() == "Maja");
+        families[1].Should().Match<FamilyOnPhone>(f => f.IsSoftLocked && f.CanManage && !f.IsOwner && f.BabyNames.Single() == "Lena");
         families[2].Should().Match<FamilyOnPhone>(f => f.IsShown && !f.IsShared);
     }
 
@@ -5045,7 +5045,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange: spec §8.2, ruling 13 of Spec 011.
         await SignInAsync();
-        OnPhone((Joined, ["Maja"]), (Local, ["Leo"]), (Home, ["Maja"]));
+        OnPhone((Joined, ["Lena"]), (Local, ["Leo"]), (Home, ["Lena"]));
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([
             new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1), new FamilyMembership(Joined, Role.Parent, Now.AddDays(1), "Andrzej", 2)]);
         _state.IsSoftLockedAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
@@ -5063,7 +5063,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange: spec §15.2 Q6, logging carries on.
         await SignInAsync();
-        OnPhone((Home, ["Maja"]));
+        OnPhone((Home, ["Lena"]));
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Parent, Now, "Andrzej", 2)]);
         _state.IsSoftLockedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
         var families = Families();
@@ -5083,7 +5083,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange: spec §8.4, ActiveHouseholdAsync must never throw after a removal.
         await SignInAsync();
-        OnPhone((Joined, ["Maja"]));
+        OnPhone((Joined, ["Lena"]));
 
         // Act
         await Families().RemoveFromPhoneAsync(Joined, CancellationToken.None);
@@ -5099,7 +5099,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange
         await SignInAsync();
-        OnPhone((Joined, ["Maja"]), (Home, ["Leo"]));
+        OnPhone((Joined, ["Lena"]), (Home, ["Leo"]));
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1)]);
         _moves.When(m => m.DeleteHouseholdAsync(Joined, Arg.Any<CancellationToken>())).Do(_ => OnPhone((Home, ["Leo"])));
 
@@ -5131,7 +5131,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange
         await SignInAsync();
-        OnPhone((Local, ["Maja"]), (Joined, ["Maja"]), (Home, []));
+        OnPhone((Local, ["Lena"]), (Joined, ["Lena"]), (Home, []));
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([
             new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1), new FamilyMembership(Joined, Role.Parent, Now.AddDays(1), "Andrzej", 2)]);
         _state.IsSoftLockedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
@@ -6186,8 +6186,8 @@ public sealed class CopyEntriesTests
         await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(plan, User, First, CancellationToken.None);
 
         // Assert
-        (await db.ScalarAsync($"SELECT count(*) FROM baby_profiles WHERE household_id = '{Account.Value}' AND name = 'Maja' AND id <> '{TestDatabase.Baby.Value}';"))
-            .Should().Be(2, "the family's own Maja and the new one");
+        (await db.ScalarAsync($"SELECT count(*) FROM baby_profiles WHERE household_id = '{Account.Value}' AND name = 'Lena' AND id <> '{TestDatabase.Baby.Value}';"))
+            .Should().Be(2, "the family's own Lena and the new one");
         (await db.ScalarAsync("SELECT count(*) FROM outbox WHERE entity_type = 'BabyProfile';")).Should().Be(1);
         (await db.ScalarAsync($"SELECT count(*) FROM care_entries WHERE household_id = '{Account.Value}' AND subject_baby_id = '{FamilyBaby.Value}';")).Should().Be(0);
     }
@@ -6615,7 +6615,7 @@ public sealed class HouseholdClientTests
         {
             (sent, body) = (r, await r.Content!.ReadAsStringAsync());
             return await Json(HttpStatusCode.OK,
-                $$"""{"householdId":"{{Family.Value}}","inviterName":"Andrzej","babyNames":["Maja"],"role":"parent","expiresAt":"2026-10-09T12:02:00+00:00","alreadyMember":false}""");
+                $$"""{"householdId":"{{Family.Value}}","inviterName":"Andrzej","babyNames":["Lena"],"role":"parent","expiresAt":"2026-10-09T12:02:00+00:00","alreadyMember":false}""");
         });
 
         // Act
@@ -6624,7 +6624,7 @@ public sealed class HouseholdClientTests
         // Assert
         sent!.RequestUri!.ToString().Should().Be("https://api.test/api/invitations/preview", "the code never travels in a path or query");
         body.Should().Be("""{"code":"ABCDEFGH"}""");
-        preview.Should().BeEquivalentTo(new InvitationPreview(Family, "Andrzej", ["Maja"], Role.Parent, new DateTimeOffset(2026, 10, 9, 12, 2, 0, TimeSpan.Zero), false));
+        preview.Should().BeEquivalentTo(new InvitationPreview(Family, "Andrzej", ["Lena"], Role.Parent, new DateTimeOffset(2026, 10, 9, 12, 2, 0, TimeSpan.Zero), false));
     }
 
     [Theory]
@@ -8412,8 +8412,8 @@ namespace Coo.Mobile.Application.Tests;
 /// <summary>Spec 011b §6.1–§6.2: move a never-synced source, copy a synced one, then the question about the old family.</summary>
 public sealed class BringFamilyEntriesOverTests : IDisposable
 {
-    private static readonly BabyId MyMaja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
-    private static readonly BabyId TheirMaja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
+    private static readonly BabyId MyLena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
+    private static readonly BabyId TheirLena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
     private static readonly DeviceId Phone = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1"));
 
     private readonly MemorySessions _sessions = new();
@@ -8428,8 +8428,8 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
     public BringFamilyEntriesOverTests()
     {
         _account = new Account(_sessions);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new LocalBaby(TheirLena, "Lena")]));
         _clock.NextAsync(Arg.Any<CancellationToken>()).Returns(new HlcStamp(1_790_000_000_000, 4, Phone));
         _records.CountRecordsAsync(Home, Arg.Any<CancellationToken>()).Returns(45);
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([Settings(Home), Settings(Joined)]);
@@ -8455,14 +8455,14 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(false);
         _moves.BringOverAsync(default!, default, default).ReturnsForAnyArgs(true);
         MemberOf(Home, Role.Owner, 1);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]), new LocalSummary(0, []));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]), new LocalSummary(0, []));
 
         // Act
-        var outcome = await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?> { [MyMaja] = TheirMaja }, CancellationToken.None);
+        var outcome = await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?> { [MyLena] = TheirLena }, CancellationToken.None);
 
         // Assert
         outcome.Path.Should().Be(BringPath.Moved);
-        await _moves.Received(1).BringOverAsync(Arg.Is<BringOverPlan>(p => p.From == Home && p.To == Joined && p.Babies[MyMaja] == TheirMaja), Me, Arg.Any<CancellationToken>());
+        await _moves.Received(1).BringOverAsync(Arg.Is<BringOverPlan>(p => p.From == Home && p.To == Joined && p.Babies[MyLena] == TheirLena), Me, Arg.Any<CancellationToken>());
         await _api.Received(1).LeaveAsync(Home, false, Arg.Any<CancellationToken>());
         await _records.DidNotReceiveWithAnyArgs().CopyAsync(default!, default, default, default);
     }
@@ -8475,7 +8475,7 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(false);
         _moves.BringOverAsync(default!, default, default).ReturnsForAnyArgs(true);
         MemberOf(Home, Role.Owner, 1);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]), new LocalSummary(0, []));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]), new LocalSummary(0, []));
         _api.LeaveAsync(Home, false, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdRefusedException(Contracts.Households.HouseholdErrors.ConfirmationRequired));
 
         // Act
@@ -8496,7 +8496,7 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
         _records.CopyAsync(default!, default, default, default).ReturnsForAnyArgs(new CopyResult(40, 2));
 
         // Act
-        var outcome = await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?> { [MyMaja] = TheirMaja }, CancellationToken.None);
+        var outcome = await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?> { [MyLena] = TheirLena }, CancellationToken.None);
 
         // Assert
         outcome.Should().Be(new BringOutcome(BringPath.Copied, 40, 2, OldFamilyQuestion.DeleteOld));
@@ -8551,11 +8551,11 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
         _records.CopyAsync(default!, default, default, default).ReturnsForAnyArgs(new CopyResult(1, 0));
 
         // Act
-        await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?> { [MyMaja] = new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b7")) },
+        await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?> { [MyLena] = new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b7")) },
             CancellationToken.None);
 
         // Assert
-        await _records.Received(1).CopyAsync(Arg.Is<BringOverPlan>(p => p.Babies[MyMaja] == null), Me, Arg.Any<HlcStamp>(), Arg.Any<CancellationToken>());
+        await _records.Received(1).CopyAsync(Arg.Is<BringOverPlan>(p => p.Babies[MyLena] == null), Me, Arg.Any<HlcStamp>(), Arg.Any<CancellationToken>());
     }
 }
 ```
@@ -8685,7 +8685,7 @@ public sealed class JoinFamilyTests : IDisposable
         // Arrange
         await SignInAsync();
         Pending();
-        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Maja"], Role.Parent, Now.AddHours(72), true));
+        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Lena"], Role.Parent, Now.AddHours(72), true));
 
         // Act
         var preview = await Join().PreviewAsync(CancellationToken.None);
@@ -8812,7 +8812,7 @@ public sealed class JoinFamilyTests : IDisposable
         _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1)]);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), "Maja")]));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), "Lena")]));
         _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, []));
 
         // Act
@@ -8834,7 +8834,7 @@ public sealed class JoinFamilyTests : IDisposable
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(new JoiningMarker(Joined, Home, "Andrzej"));
         _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(false);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, [new LocalBaby(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), "Maja")]));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, [new LocalBaby(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), "Lena")]));
         _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, []));
 
         // Act
@@ -9898,7 +9898,7 @@ git commit -m "Strings: members and invitations in seven languages; the app says
 - Produces:
   - `IExternalLauncher.ShareTextAsync(string text, string title) → Task`; `public interface IConsentPrompt { Task<bool> AskAsync(); }`
     (the host shows Spec 011 §3's sheet and answers whether consent is now given).
-  - `FamilyLabels`: `Title(FamilyOnPhone)`, `Second(FamilyOnPhone)`, `Choice(FamilyOnPhone)` ("Maja · Your family"),
+  - `FamilyLabels`: `Title(FamilyOnPhone)`, `Second(FamilyOnPhone)`, `Choice(FamilyOnPhone)` ("Lena · Your family"),
     `RoleText(Role)`, `MemberName(FamilyMember)`, `Until(DateTimeOffset, bool is24Hour)` ("Thu 9 Oct, 14:02"),
     `ShareText(CreatedInvitation, bool is24Hour)`.
   - `FamilyChoice(HouseholdId Id, string Label)`.
@@ -9935,8 +9935,8 @@ public sealed class FamilyLabelTests : IDisposable
     private static FamilyOnPhone Family(string[] babies, FamilyMembership? membership) => new(Id, babies, membership, true, false, false, true);
 
     [Theory]
-    [InlineData(new[] { "Maja" }, "Maja")]
-    [InlineData(new[] { "Maja", "Leo" }, "Maja, Leo")]
+    [InlineData(new[] { "Lena" }, "Lena")]
+    [InlineData(new[] { "Lena", "Leo" }, "Lena, Leo")]
     [InlineData(new string[0], "No baby yet")]
     public void Title_Babies_NamesThemOrSaysNoBabyYet(string[] babies, string expected)
     {
@@ -9951,9 +9951,9 @@ public sealed class FamilyLabelTests : IDisposable
     public void Second_OwnParentOtherAndLocal_ReadAsTheSpecSays()
     {
         // Act
-        var own = FamilyLabels.Second(Family(["Maja"], new FamilyMembership(Id, Role.Owner, Now, "Kasia", 1)));
-        var theirs = FamilyLabels.Second(Family(["Maja"], new FamilyMembership(Id, Role.Parent, Now, "Andrzej", 2)));
-        var local = FamilyLabels.Second(Family(["Maja"], null));
+        var own = FamilyLabels.Second(Family(["Lena"], new FamilyMembership(Id, Role.Owner, Now, "Kasia", 1)));
+        var theirs = FamilyLabels.Second(Family(["Lena"], new FamilyMembership(Id, Role.Parent, Now, "Andrzej", 2)));
+        var local = FamilyLabels.Second(Family(["Lena"], null));
 
         // Assert
         own.Should().Be("Your family");
@@ -9968,7 +9968,7 @@ public sealed class FamilyLabelTests : IDisposable
         Strings.Use(new LanguagePreference("pl"), null);
 
         // Act
-        var theirs = FamilyLabels.Second(Family(["Maja"], new FamilyMembership(Id, Role.Parent, Now, "Andrzej", 2)));
+        var theirs = FamilyLabels.Second(Family(["Lena"], new FamilyMembership(Id, Role.Parent, Now, "Andrzej", 2)));
 
         // Assert
         theirs.Should().Be("Rodzina: Andrzej");
@@ -10207,7 +10207,7 @@ public sealed class FamilySectionTests : IDisposable
         var section = Section();
 
         // Act
-        await section.SwitchCommand.ExecuteAsync(new FamilyChoice(Home, "Maja · Your family"));
+        await section.SwitchCommand.ExecuteAsync(new FamilyChoice(Home, "Lena · Your family"));
 
         // Assert
         await _moves.Received(1).ActivateAsync(Home, Arg.Any<CancellationToken>());
@@ -10316,7 +10316,7 @@ public static class FamilyLabels
         };
     }
 
-    /// <summary>"Maja · Family of Andrzej": one line for the switcher's action sheet.</summary>
+    /// <summary>"Lena · Family of Andrzej": one line for the switcher's action sheet.</summary>
     public static string Choice(FamilyOnPhone family) => $"{Title(family)} · {Second(family)}";
 
     public static string RoleText(Role role) => Strings.Get(role switch
@@ -10576,7 +10576,7 @@ public sealed class FamilyPageTests : IDisposable
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([Settings(Joined), Settings(Home)]);
         _households.ListBabiesAsync(default, default).ReturnsForAnyArgs([]);
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Joined);
-        _moves.SummaryAsync(default, default).ReturnsForAnyArgs(new LocalSummary(42, [new LocalBaby(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), "Maja")]));
+        _moves.SummaryAsync(default, default).ReturnsForAnyArgs(new LocalSummary(42, [new LocalBaby(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), "Lena")]));
         _records.ListUnsharedEntriesAsync(default, default).ReturnsForAnyArgs([]);
         _api.ListMembersAsync(Joined, Arg.Any<CancellationToken>()).Returns(new FamilyMembers(
             [new FamilyMember(Andrzej, "Andrzej", "a@example.com", Role.Owner, Now, false), new FamilyMember(Me, "Kasia", "k@example.com", Role.Parent, Now.AddDays(1), true)],
@@ -10679,7 +10679,7 @@ public sealed class FamilyPageTests : IDisposable
         // Assert
         page.ShowsDelete.Should().BeTrue();
         prompt.Message.Should().Be(
-            "Delete this family? Its log of Maja, 42 entries, is deleted from Coo's server and this phone. This can't be undone.\n\n"
+            "Delete this family? Its log of Lena, 42 entries, is deleted from Coo's server and this phone. This can't be undone.\n\n"
             + "3 entries on this phone weren't shared yet and will be lost.");
     }
 
@@ -10986,8 +10986,8 @@ public sealed class JoinViewModelTests : IDisposable
     private static readonly DateTimeOffset Now = new(2026, 10, 6, 12, 0, 0, TimeSpan.Zero);
     private static readonly DeviceId Phone = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1"));
     private static readonly InvitationCode Code = InvitationCode.Parse("ABCDEFGH").Value;
-    private static readonly BabyId MyMaja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
-    private static readonly BabyId TheirMaja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
+    private static readonly BabyId MyLena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
+    private static readonly BabyId TheirLena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
 
     private readonly MemorySessions _sessions = new();
     private readonly Account _account;
@@ -11011,7 +11011,7 @@ public sealed class JoinViewModelTests : IDisposable
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1)]);
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([Settings(Home), Settings(Joined)]);
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Home);
-        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Maja"], Role.Parent, Now.AddHours(72), false));
+        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Lena"], Role.Parent, Now.AddHours(72), false));
         _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.Joined));
         _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
         _versions.NextAsync(Arg.Any<CancellationToken>()).Returns(new HlcStamp(1_790_000_000_000, 0, Phone));
@@ -11067,7 +11067,7 @@ public sealed class JoinViewModelTests : IDisposable
         model.Step.Should().Be(JoinStep.Invitation);
         model.Title.Should().Be("Join Andrzej's family?");
         model.Body.Should().Be("Andrzej invited you to join as a parent. You'll both see the family's log and add to it.");
-        model.Babies.Should().Be("Their family's log has: Maja.");
+        model.Babies.Should().Be("Their family's log has: Lena.");
     }
 
     [Fact]
@@ -11099,7 +11099,7 @@ public sealed class JoinViewModelTests : IDisposable
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, new JoiningMarker(Joined, Home, "Andrzej"));
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
         _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, []));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
         var model = Join();
         string? toast = null;
         model.Finished += (_, t) => toast = t;
@@ -11156,8 +11156,8 @@ public sealed class JoinViewModelTests : IDisposable
         _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, new JoiningMarker(Joined, Home, "Andrzej"));
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
         _records.CopyAsync(default!, default, default, default).ReturnsForAnyArgs(new CopyResult(40, 2));
         var model = Join();
         await model.StartAsync();
@@ -11170,9 +11170,9 @@ public sealed class JoinViewModelTests : IDisposable
 
         // Assert
         model.Step.Should().Be(JoinStep.Choice);
-        summary.Should().Be("This phone has 42 entries for Maja.");
+        summary.Should().Be("This phone has 42 entries for Lena.");
         model.BringOver.Step.Should().Be(BringOverStep.OldFamily);
-        model.BringOver.Question.Should().Be("Your entries are now in Andrzej's family too. Delete your old family? Its 42 entries for Maja are deleted from Coo's server and this phone. The copies stay.");
+        model.BringOver.Question.Should().Be("Your entries are now in Andrzej's family too. Delete your old family? Its 42 entries for Lena are deleted from Coo's server and this phone. The copies stay.");
         model.BringOver.QuestionNote.Should().Be("2 entries can't be brought over and are deleted with it.");
         model.BringOver.AnswerText.Should().Be("Delete old family");
     }
@@ -11233,7 +11233,7 @@ public enum BringOverStep
 }
 
 /// <summary>
-/// "This phone has 42 entries for Maja." → Bring my entries over (each baby mapped) or Keep them separate → after a copy,
+/// "This phone has 42 entries for Lena." → Bring my entries over (each baby mapped) or Keep them separate → after a copy,
 /// the question about the old family (Spec 011b §6). Confirm is busy-guarded; the copy's marker makes a second one a no-op.
 /// </summary>
 public sealed partial class FamilyBringOverViewModel(LeaveFamily leave) : ObservableObject
@@ -11858,7 +11858,7 @@ public sealed class RemovalTests : IDisposable
         _status.Status.Returns(SyncStatus.Initial with { Removal = Joined });
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([
             HouseholdSettings.Create(Joined, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1_790_000_000_000, 0, Phone)).Value]);
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(10, [new LocalBaby(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), "Maja")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(10, [new LocalBaby(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), "Lena")]));
         _records.ListUnsharedEntriesAsync(Joined, Arg.Any<CancellationToken>()).Returns([]);
     }
 
@@ -11888,7 +11888,7 @@ public sealed class RemovalTests : IDisposable
 
         // Assert
         RemovalViewModel.Title.Should().Be("You were removed from this family");
-        model.Body.Should().Be("Someone in the family that logs Maja removed you, so its log will be removed from this phone. Entries you already shared stay with the family.");
+        model.Body.Should().Be("Someone in the family that logs Lena removed you, so its log will be removed from this phone. Entries you already shared stay with the family.");
         model.Unshared.Should().BeEmpty();
     }
 
@@ -13683,18 +13683,18 @@ that the installed APK is signed with it (`apksigner verify --print-certs $APK`)
 |---|---|---|
 | 1 | Agent | `curl -s https://api.coo.lechdigital.nl/health` → `0.12.0+…`; assetlinks lists the fingerprint; Task 26's live checks pass |
 | 2 | Agent | Step 3 above |
-| 3 | Agent | Pixel: Sign out; Sign in → the second account → `created`; the consent sheet → Agree; H2 shown, the baby step → Maja, two diapers. Debug screen Families block: H2 "Owner · home · synced", X "not an account family"; the switcher: "Maja · Your family", "Maja · On this phone only" |
+| 3 | Agent | Pixel: Sign out; Sign in → the second account → `created`; the consent sheet → Agree; H2 shown, the baby step → Lena, two diapers. Debug screen Families block: H2 "Owner · home · synced", X "not an account family"; the switcher: "Lena · Your family", "Lena · On this phone only" |
 | 4 | Agent | Emulator: Settings → Family → Invite a parent → the share sheet (read the link from `uiautomator dump`), Back; Family page lists it with "until …". A second invitation, withdrawn (confirmed); its code typed on the Pixel (Join a family) → "This invitation can't be used…" |
 | 5 | Agent | `curl -s https://api.coo.lechdigital.nl/i/<code>` shows the page with the hyphenated code, the Play link and no names; `/i/abc` shows it without a code |
-| 6 | Agent | Pixel showing H2: `adb -s 5B130DLCR00011 shell am start -a android.intent.action.VIEW -d <link>` → Coo opens the join sheet: "Join Andrzej's family?", "Their family's log has: Maja." → Join → "This phone has 2 entries for Maja…" → **Keep them separate** → X shown, the toast |
+| 6 | Agent | Pixel showing H2: `adb -s 5B130DLCR00011 shell am start -a android.intent.action.VIEW -d <link>` → Coo opens the join sheet: "Join Andrzej's family?", "Their family's log has: Lena." → Join → "This phone has 2 entries for Lena…" → **Keep them separate** → X shown, the toast |
 | 7 | Agent (owner toggles airplane mode if `adb shell cmd connectivity airplane-mode enable` is refused) | A bottle on the Pixel (X) appears on the emulator within 30 s; a diaper on the emulator appears on the Pixel; an offline edit on each converges |
 | 8 | Agent | Pixel: Showing → H2: Today and Log show H2's; a diaper in H2 never reaches the emulator; back to X, one does |
 | 9 | Agent | Emulator Family page: Andrzej "Parent · created the family (you)", the second account "Parent" with Remove; no Leave/Delete. Pixel Family page (X): Remove beside nobody; Leave this family shown |
 | 10 | Agent | Emulator: a fresh invitation; Pixel: Join a family → its code → "You're already in this family."; the invitation still listed on the emulator |
 | 11 | Agent | Pixel (X): Leave this family → confirmed → H2 shown; emulator's Family page lists only Andrzej |
-| 12 | Agent | Emulator: new invitation; Pixel (H2) opens it → Join → `rejoined` (debug/`psql`: `revoked_at` NULL again) → the sheet → Bring my entries over → Maja → Maja → the copies on the emulator within 30 s → "Delete old family?" → **Delete old family** → H2 gone from the Pixel; read-only: `ssh coldstart-prod "docker exec coo-postgres psql -U coo -d coo -tAc \"SELECT count(*) FROM households WHERE id = '<H2>'\""` → `0` |
+| 12 | Agent | Emulator: new invitation; Pixel (H2) opens it → Join → `rejoined` (debug/`psql`: `revoked_at` NULL again) → the sheet → Bring my entries over → Lena → Lena → the copies on the emulator within 30 s → "Delete old family?" → **Delete old family** → H2 gone from the Pixel; read-only: `ssh coldstart-prod "docker exec coo-postgres psql -U coo -d coo -tAc \"SELECT count(*) FROM households WHERE id = '<H2>'\""` → `0` |
 | 13 | Agent | Pixel airplane mode on, a diaper in X; emulator: remove the second account (confirmed); Pixel airplane mode off: within 30 s the removal sheet, "1 entry you logged wasn't shared yet", Share them as text shows one line; airplane mode on again; **OK** → X gone, the baby step opens (a new family, §8.4). The sync line never said "Waiting for a connection" before the sheet |
-| 14 | Agent | Still offline: baby Maja, two diapers; Sign out; airplane mode off. Emulator: a new invitation; Pixel opens it → "Sign in to join a family" → the second account (adopts the new family) → Join → `rejoined` → the sheet → Bring my entries over → they reach the emulator within 30 s; read-only: the adopted family's ID is not in `households`, and `SELECT count(*) FROM memberships WHERE user_id = '<second>' AND revoked_at IS NULL` → `1` |
+| 14 | Agent | Still offline: baby Lena, two diapers; Sign out; airplane mode off. Emulator: a new invitation; Pixel opens it → "Sign in to join a family" → the second account (adopts the new family) → Join → `rejoined` → the sheet → Bring my entries over → they reach the emulator within 30 s; read-only: the adopted family's ID is not in `households`, and `SELECT count(*) FROM memberships WHERE user_id = '<second>' AND revoked_at IS NULL` → `1` |
 | 15 | Agent | Step 7 below |
 
 Every finding becomes a fix with a test where one is possible, in its own commit ("Fix: … (Pixel 10 / emulator)"), and a

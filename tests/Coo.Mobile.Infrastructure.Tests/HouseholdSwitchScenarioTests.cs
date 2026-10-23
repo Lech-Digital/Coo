@@ -43,7 +43,7 @@ public sealed class HouseholdSwitchScenarioTests : IAsyncLifetime, IDisposable
         // This phone's household: settings, a baby and an entry; both accounts agreed to share.
         await _db.Households.SaveSettingsAsync(HouseholdSettings.Create(HouseholdA, VolumeUnit.Millilitres, "Europe/Amsterdam",
             await _db.Device.NextAsync(CancellationToken.None)).Value, CancellationToken.None);
-        await _db.Households.SaveBabyAsync(BabyProfile.Create(TestDatabase.Baby, HouseholdA, "Maja", [], new DateOnly(2026, 8, 20), null,
+        await _db.Households.SaveBabyAsync(BabyProfile.Create(TestDatabase.Baby, HouseholdA, "Lena", [], new DateOnly(2026, 8, 20), null,
             await _db.Device.NextAsync(CancellationToken.None), new DateOnly(2026, 10, 1)).Value, CancellationToken.None);
         _entry = (await _db.DiaperAsync(_db.Time.GetLocalNow(), DiaperContents.Wet)).Id;
         await _state.SetConsentAsync(AccountA.UserId, ConsentState.Given, CancellationToken.None);

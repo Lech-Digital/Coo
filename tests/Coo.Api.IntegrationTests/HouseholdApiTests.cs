@@ -356,7 +356,7 @@ public sealed class HouseholdApiTests(AuthApi api) : IClassFixture<AuthApi>
 
     private static SyncChangeDto Baby(Guid change, Guid baby, Guid device) => new(
         change, SyncEntityTypes.BabyProfile, baby, SyncOperations.Upsert, new HlcStampDto(SyncCalls.Wall, 0, device),
-        BabyProfile: new BabyProfileDto("Maja", [], new DateOnly(2026, 8, 20), null));
+        BabyProfile: new BabyProfileDto("Lena", [], new DateOnly(2026, 8, 20), null));
 
     private static SyncChangeDto Settings(Guid change, Guid household, Guid device, long wall = SyncCalls.Wall) => new(
         change, SyncEntityTypes.HouseholdSettings, household, SyncOperations.Upsert, new HlcStampDto(wall, 0, device),

@@ -26,7 +26,7 @@ public enum FamilyRowAction
     Delete,
 }
 
-/// <summary>A row of the family switcher: the label as before ("Maja · Your family"), the shown one marked and not tappable.</summary>
+/// <summary>A row of the family switcher: the label as before ("Lena · Your family"), the shown one marked and not tappable.</summary>
 public sealed record FamilyRow(HouseholdId Id, string Label, bool IsShown, IReadOnlyList<FamilyRowAction> Actions);
 
 /// <summary>
@@ -140,7 +140,7 @@ public sealed partial class FamilySectionViewModel(
     }
 
     /// <summary>
-    /// "Remove Maja's log from this phone?": gone for a family that never synced; kept with the account it was shared from
+    /// "Remove Lena's log from this phone?": gone for a family that never synced; kept with the account it was shared from
     /// otherwise, with what was not shared yet.
     /// </summary>
     public async Task<ConfirmPrompt> RemovePromptAsync(FamilyRow row)

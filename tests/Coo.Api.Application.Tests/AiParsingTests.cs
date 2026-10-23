@@ -86,7 +86,7 @@ public sealed class ParseCareLogTextTests
         _parser.Next = Parsed(new ParsedEntry("BreastStart", "left", null, null, null, null, null, null, TimeExpression.Now, null, "Baby A started on the left"));
 
         // Act
-        var outcome = await Sut().ExecuteAsync(Parent, Request("Maja started drinking from left breast"), CancellationToken.None);
+        var outcome = await Sut().ExecuteAsync(Parent, Request("Lena started drinking from left breast"), CancellationToken.None);
 
         // Assert
         _parser.Seen!.Text.Should().Be("Baby A started drinking from left breast");
@@ -95,7 +95,7 @@ public sealed class ParseCareLogTextTests
         proposal.Side.Should().Be("left");
         proposal.At.Should().Be(Now);
         proposal.Warnings.Should().BeEmpty();
-        proposal.SourceText.Should().Be("Maja started on the left");
+        proposal.SourceText.Should().Be("Lena started on the left");
     }
 
     [Fact]
@@ -141,11 +141,11 @@ public sealed class ParseCareLogTextTests
         _parser.Next = Parsed(new ParsedEntry("BreastStart", null, null, null, null, null, null, null, TimeExpression.Now, null, "Baby A feeding"));
 
         // Act
-        var outcome = await Sut().ExecuteAsync(Parent, Request("Maja feeding"), CancellationToken.None);
+        var outcome = await Sut().ExecuteAsync(Parent, Request("Lena feeding"), CancellationToken.None);
 
         // Assert
         outcome.Response!.Proposals.Should().BeEmpty();
-        outcome.Response.Unparsed.Should().Equal("Maja feeding");
+        outcome.Response.Unparsed.Should().Equal("Lena feeding");
     }
 
     [Fact]
@@ -224,7 +224,7 @@ public sealed class ParseCareLogTextTests
         public int Counted { get; private set; }
 
         public Task<(IReadOnlyList<string> Babies, IReadOnlyList<string> Caregivers)> NamesAsync(HouseholdId household, CancellationToken cancellationToken) =>
-            Task.FromResult<(IReadOnlyList<string>, IReadOnlyList<string>)>((["Maja"], ["Andrzej Lech"]));
+            Task.FromResult<(IReadOnlyList<string>, IReadOnlyList<string>)>((["Lena"], ["Andrzej Lech"]));
 
         public Task<int> CountAsync(HouseholdId household, DateOnly day, CancellationToken cancellationToken) => Task.FromResult(++Counted + Used);
 

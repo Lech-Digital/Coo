@@ -29,7 +29,7 @@ public sealed record BringOverRequest(
         return new BringOverRequest(source, choice, FamilyLineFor(choice), inTarget, execute, Keep: null, Strings.Format("BringOver.Moved", inTarget));
     }
 
-    /// <summary>"Their family's log has: Maja." or "…has no baby yet."</summary>
+    /// <summary>"Their family's log has: Lena." or "…has no baby yet."</summary>
     public static string FamilyLineFor(BringOverChoice choice)
     {
         ArgumentNullException.ThrowIfNull(choice);
@@ -45,7 +45,7 @@ public enum BringOverStep
 }
 
 /// <summary>
-/// "This phone has 42 entries for Maja." → Bring my entries over (each baby mapped) or Keep them separate → after a copy,
+/// "This phone has 42 entries for Lena." → Bring my entries over (each baby mapped) or Keep them separate → after a copy,
 /// the question about the old family (Spec 011b §6). Confirm is busy-guarded; the copy's marker makes a second one a no-op.
 /// </summary>
 public sealed partial class FamilyBringOverViewModel(LeaveFamily leave) : ObservableObject

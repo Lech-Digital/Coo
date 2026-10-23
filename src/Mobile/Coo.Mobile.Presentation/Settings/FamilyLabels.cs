@@ -51,7 +51,7 @@ public static class FamilyLabels
         };
     }
 
-    /// <summary>"Maja · Family of Andrzej": one line for the switcher's action sheet.</summary>
+    /// <summary>"Lena · Family of Andrzej": one line for the switcher's action sheet.</summary>
     public static string Choice(FamilyOnPhone family) => $"{Title(family)} · {Second(family)}";
 
     public static string RoleText(Role role) => Strings.Get(role switch

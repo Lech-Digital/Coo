@@ -78,6 +78,10 @@ public sealed partial class QuickLogViewModel(
 
     public bool CanListen => speech.IsAvailable;
 
+    /// <summary>The example under the title, with the family's own baby in it rather than a made-up name.</summary>
+    [ObservableProperty]
+    private string _hint = Strings.Format("Quick.Hint", Strings.Get("Quick.Baby"));
+
     /// <summary>Raised when the sheet should close: saved, or cancelled.</summary>
     public event EventHandler? Finished;
 
@@ -93,6 +97,16 @@ public sealed partial class QuickLogViewModel(
         (_review, _pendingNote) = (null, null);
         (Stage, Text, Message, Rows, Unparsed) = (QuickLogStage.Input, "", "", [], "");
         PendingNotes = await notes.ListAsync(CancellationToken.None);
+        Hint = Strings.Format("Quick.Hint", await BabyNameAsync() ?? Strings.Get("Quick.Baby"));
+    }
+
+    private async Task<string?> BabyNameAsync()
+    {
+        var household = (await households.ListHouseholdsAsync(CancellationToken.None)).FirstOrDefault(h => !h.IsDeleted);
+        if (household is null)
+            return null;
+        var baby = (await households.ListBabiesAsync(household.Id, CancellationToken.None)).FirstOrDefault(b => !b.IsDeleted);
+        return string.IsNullOrWhiteSpace(baby?.Name) ? null : baby.Name;
     }
 
     [RelayCommand]

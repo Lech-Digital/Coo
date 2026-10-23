@@ -263,7 +263,7 @@ public sealed class NightTimersTests
         var store = Substitute.For<ICareLogStore>();
         var clock = Substitute.For<IVersionClock>();
         var section = new NightSection(new HomeActions(new LogEntry(store, clock, time), new ReviseEntry(store, clock, time), time));
-        var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var baby = BabyProfile.Create(Baby, Household, "Lena", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
 
         // Act
@@ -283,7 +283,7 @@ public sealed class NightTimersTests
         var store = Substitute.For<ICareLogStore>();
         var clock = Substitute.For<IVersionClock>();
         var section = new RunningSection(new HomeActions(new LogEntry(store, clock, time), new ReviseEntry(store, clock, time), time));
-        var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var baby = BabyProfile.Create(Baby, Household, "Lena", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
         HomeSnapshot Snapshot(CareEntry running) => new(settings, baby,
             new TodaySummary([running], null, null, running, null, null, [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc)),
@@ -310,7 +310,7 @@ public sealed class NightTimersTests
         var store = Substitute.For<ICareLogStore>();
         var clock = Substitute.For<IVersionClock>();
         var section = new RunningSection(new HomeActions(new LogEntry(store, clock, time), new ReviseEntry(store, clock, time), time));
-        var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var baby = BabyProfile.Create(Baby, Household, "Lena", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
         HomeSnapshot Snapshot(CareEntry running) => new(settings, baby,
             new TodaySummary([running], null, null, running, null, null, [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc)),
@@ -337,7 +337,7 @@ public sealed class NightTimersTests
     public void NextUpSection_AlternatesBreastSideAndCalculatesNapEstimate()
     {
         // Arrange
-        var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var baby = BabyProfile.Create(Baby, Household, "Lena", [], new DateOnly(2026, 8, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
 
         // Last feed was on Left side 45 minutes ago
@@ -363,7 +363,7 @@ public sealed class NightTimersTests
     public void DailyProgressSection_CalculatesMetricsAndRatiosAgainstAgeNorms()
     {
         // Arrange: 2-month-old baby (born 2026-08-01, tested at 2026-10-01)
-        var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var baby = BabyProfile.Create(Baby, Household, "Lena", [], new DateOnly(2026, 8, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
 
         var feed1 = Entry(BreastFeed.Start(BreastSide.Left, Now.AddHours(-6)), null);
@@ -398,7 +398,7 @@ public sealed class NightTimersTests
     public void RecentActivitySection_CapsAtThreeItems()
     {
         // Arrange
-        var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var baby = BabyProfile.Create(Baby, Household, "Lena", [], new DateOnly(2026, 8, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
 
         var entries = Enumerable.Range(1, 5).Select(i =>
@@ -421,7 +421,7 @@ public sealed class NightTimersTests
     public void AdvisorTipSection_LoadsStageBadgeAndPediatricTip()
     {
         // Arrange
-        var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var baby = BabyProfile.Create(Baby, Household, "Lena", [], new DateOnly(2026, 8, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
         var snapshot = new HomeSnapshot(settings, baby, null, Now, PaletteKind.Day, new Formats(true, VolumeUnit.Millilitres));
 

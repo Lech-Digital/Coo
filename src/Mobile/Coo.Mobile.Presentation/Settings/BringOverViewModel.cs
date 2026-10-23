@@ -23,7 +23,7 @@ public sealed partial class BabyMapping(LocalBaby local, IReadOnlyList<BabyOptio
 }
 
 /// <summary>
-/// "This phone has 42 entries for Maja. Your family's log has: Maja." (Spec 011 §4). Bring my entries over asks where
+/// "This phone has 42 entries for Lena. Your family's log has: Lena." (Spec 011 §4). Bring my entries over asks where
 /// each local baby goes, then one transaction moves everything; Keep them separate closes and changes nothing (Q4).
 /// </summary>
 public sealed partial class BringOverViewModel(BringEntriesOver bringOver) : ObservableObject

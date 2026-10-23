@@ -553,7 +553,7 @@ public sealed class SyncStoreTests
         await using var db = await TestDatabase.CreateAsync();
         var baby = (await db.NewIdAsync()).Value;
         await InsertPendingAsync(db, "baby_profiles", "id, household_id, name, nicknames, birth_date, version_wall_ms, version_counter, version_device",
-            $"'{baby}', '{TestDatabase.Household.Value}', 'Maja', '[]', '0000-01-01', 5, 0, '{Remote.Value}'", SyncEntityTypes.BabyProfile, baby);
+            $"'{baby}', '{TestDatabase.Household.Value}', 'Lena', '[]', '0000-01-01', 5, 0, '{Remote.Value}'", SyncEntityTypes.BabyProfile, baby);
         await db.DiaperAsync(db.Time.GetLocalNow());
 
         // Act

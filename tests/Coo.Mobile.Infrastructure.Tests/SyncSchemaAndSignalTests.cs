@@ -37,7 +37,7 @@ public sealed class SyncSchemaAndSignalTests
             HouseholdSettings.Create(TestDatabase.Household, VolumeUnit.Millilitres, "Europe/Amsterdam", await db.Device.NextAsync(CancellationToken.None)).Value,
             CancellationToken.None);
         await db.Households.SaveBabyAsync(
-            BabyProfile.Create(TestDatabase.Baby, TestDatabase.Household, "Maja", [], new DateOnly(2026, 8, 20), null,
+            BabyProfile.Create(TestDatabase.Baby, TestDatabase.Household, "Lena", [], new DateOnly(2026, 8, 20), null,
                 await db.Device.NextAsync(CancellationToken.None), new DateOnly(2026, 10, 1)).Value,
             CancellationToken.None);
         await new DuplicateDismissalStore(db.Database, db.Time, db.Writes).SaveAsync(
@@ -195,7 +195,7 @@ public sealed class SyncSchemaAndSignalTests
         var signals = 0;
         db.Writes.Written += (_, _) => signals++;
         var settings = HouseholdSettings.Create(TestDatabase.Household, VolumeUnit.Millilitres, "Europe/Amsterdam", await db.Device.NextAsync(CancellationToken.None)).Value;
-        var baby = BabyProfile.Create(TestDatabase.Baby, TestDatabase.Household, "Maja", [], new DateOnly(2026, 8, 20), null,
+        var baby = BabyProfile.Create(TestDatabase.Baby, TestDatabase.Household, "Lena", [], new DateOnly(2026, 8, 20), null,
             await db.Device.NextAsync(CancellationToken.None), new DateOnly(2026, 10, 1)).Value;
         var dismissal = DuplicateDismissal.Create(new DismissalId(Guid.CreateVersion7(db.Time.GetUtcNow())), TestDatabase.Household,
             new EntryPair(await db.NewIdAsync(), await db.NewIdAsync()), await db.Device.NextAsync(CancellationToken.None));

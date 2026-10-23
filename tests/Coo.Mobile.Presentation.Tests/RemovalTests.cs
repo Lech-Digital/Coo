@@ -27,7 +27,7 @@ public sealed class RemovalTests : IDisposable
     private static readonly HouseholdId Joined = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a2"));
     private static readonly HouseholdId Other = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a3"));
     private static readonly DeviceId Phone = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1"));
-    private static readonly BabyId Maja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
+    private static readonly BabyId Lena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
     private static readonly DateTimeOffset Now = new(2026, 10, 6, 1, 12, 0, TimeSpan.Zero);
 
     private readonly ISyncStatus _status = Substitute.For<ISyncStatus>();
@@ -51,7 +51,7 @@ public sealed class RemovalTests : IDisposable
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([Settings(Joined)]);
         _households.ListBabiesAsync(default, default).ReturnsForAnyArgs([]);
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Joined);
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(10, [new LocalBaby(Maja, "Maja")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(10, [new LocalBaby(Lena, "Lena")]));
         _records.ListUnsharedEntriesAsync(Joined, Arg.Any<CancellationToken>()).Returns([]);
     }
 
@@ -79,7 +79,7 @@ public sealed class RemovalTests : IDisposable
 
     private static LiveEntry Bottle(int id, DateTimeOffset at, string? note)
     {
-        var entry = CareEntry.Create(new EntryId(Guid.Parse($"7a1c0000-0000-7000-8000-0000000000f{id}")), Joined, EntrySubject.Baby(Maja),
+        var entry = CareEntry.Create(new EntryId(Guid.Parse($"7a1c0000-0000-7000-8000-0000000000f{id}")), Joined, EntrySubject.Baby(Lena),
             BottleFeed.Of(Milk.Formula, Volume.FromMillilitres(120).Value).Value, EntryTiming.Point(at), PersonRef.ThisDevicesPerson, EntrySource.Manual,
             new HlcStamp(1_790_000_000_000, 1, Phone), at).Value;
         if (note is not null)
@@ -102,7 +102,7 @@ public sealed class RemovalTests : IDisposable
 
         // Assert
         RemovalViewModel.Title.Should().Be("You're no longer in this family");
-        model.Body.Should().Be("You're no longer a member of the family that logs Maja, so its log will be removed from this phone. Entries you already shared stay with the family.");
+        model.Body.Should().Be("You're no longer a member of the family that logs Lena, so its log will be removed from this phone. Entries you already shared stay with the family.");
         model.Unshared.Should().BeEmpty();
         model.Lines.Should().BeEmpty();
     }
@@ -415,7 +415,7 @@ public sealed class RemovalTests : IDisposable
             if (e.PropertyName == nameof(PausedSection.Text))
                 shown.TrySetResult();
         };
-        var baby = BabyProfile.Create(Maja, Joined, "Maja", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Phone), new DateOnly(2026, 10, 1)).Value;
+        var baby = BabyProfile.Create(Lena, Joined, "Lena", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Phone), new DateOnly(2026, 10, 1)).Value;
 
         // Act
         section.Update(new HomeSnapshot(Settings(Joined), baby, null, Now, PaletteKind.Day, new Formats(true, VolumeUnit.Millilitres)));

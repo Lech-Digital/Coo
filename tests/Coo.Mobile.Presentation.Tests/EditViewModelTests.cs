@@ -39,7 +39,7 @@ public sealed class EditViewModelTests : IDisposable
         _time.SetLocalTimeZone(TimeZoneInfo.CreateCustomTimeZone("plus2", TimeSpan.FromHours(2), "plus2", "plus2"));
         _clock.NextAsync(Arg.Any<CancellationToken>()).Returns(_ => new HlcStamp(++_wall, 0, Device));
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
-        var baby = BabyProfile.Create(Baby, Household, "Maja", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var baby = BabyProfile.Create(Baby, Household, "Lena", [], new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([settings]);
         _households.ListBabiesAsync(Household, Arg.Any<CancellationToken>()).Returns([baby]);
         _sync.ListRejectionsAsync(Arg.Any<HouseholdId>(), Arg.Any<CancellationToken>()).Returns([]);

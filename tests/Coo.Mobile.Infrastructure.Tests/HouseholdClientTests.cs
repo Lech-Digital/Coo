@@ -24,7 +24,7 @@ public sealed class HouseholdClientTests
         {
             (sent, body) = (r, await r.Content!.ReadAsStringAsync());
             return await Json(HttpStatusCode.OK,
-                $$"""{"householdId":"{{Family.Value}}","inviterName":"Andrzej","babyNames":["Maja"],"role":"parent","expiresAt":"2026-10-09T12:02:00+00:00","alreadyMember":false}""");
+                $$"""{"householdId":"{{Family.Value}}","inviterName":"Andrzej","babyNames":["Lena"],"role":"parent","expiresAt":"2026-10-09T12:02:00+00:00","alreadyMember":false}""");
         });
 
         // Act
@@ -33,7 +33,7 @@ public sealed class HouseholdClientTests
         // Assert
         sent!.RequestUri!.ToString().Should().Be("https://api.test/api/invitations/preview", "the code never travels in a path or query");
         body.Should().Be("""{"code":"ABCDEFGH"}""");
-        preview.Should().BeEquivalentTo(new InvitationPreview(Family, "Andrzej", ["Maja"], Role.Parent, new DateTimeOffset(2026, 10, 9, 12, 2, 0, TimeSpan.Zero), false));
+        preview.Should().BeEquivalentTo(new InvitationPreview(Family, "Andrzej", ["Lena"], Role.Parent, new DateTimeOffset(2026, 10, 9, 12, 2, 0, TimeSpan.Zero), false));
     }
 
     [Theory]

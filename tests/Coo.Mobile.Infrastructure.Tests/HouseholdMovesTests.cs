@@ -22,7 +22,7 @@ public sealed class HouseholdMovesTests
         var db = await TestDatabase.CreateAsync();
         await db.Households.SaveSettingsAsync(HouseholdSettings.Create(TestDatabase.Household, VolumeUnit.Millilitres, "Europe/Amsterdam",
             await db.Device.NextAsync(CancellationToken.None)).Value, CancellationToken.None);
-        await db.Households.SaveBabyAsync(BabyProfile.Create(TestDatabase.Baby, TestDatabase.Household, "Maja", [], new DateOnly(2026, 8, 20), null,
+        await db.Households.SaveBabyAsync(BabyProfile.Create(TestDatabase.Baby, TestDatabase.Household, "Lena", [], new DateOnly(2026, 8, 20), null,
             await db.Device.NextAsync(CancellationToken.None), new DateOnly(2026, 10, 1)).Value, CancellationToken.None);
         var entry = CareEntry.Create(await db.NewIdAsync(), TestDatabase.Household, EntrySubject.Baby(TestDatabase.Baby),
             new Coo.Domain.CareLog.Kinds.Diaper.DiaperDetails(Coo.Domain.CareLog.Kinds.Diaper.DiaperContents.Wet), EntryTiming.Point(db.Time.GetLocalNow()),
@@ -43,7 +43,7 @@ public sealed class HouseholdMovesTests
             INSERT INTO household_settings (household_id, volume_unit, time_zone_id, hidden_kinds, version_wall_ms, version_counter, version_device)
             VALUES ('{Account.Value}', 'oz', 'Europe/Warsaw', '[]', 1, 0, '{TestDatabase.Baby.Value}');
             INSERT INTO baby_profiles (id, household_id, name, nicknames, birth_date, version_wall_ms, version_counter, version_device)
-            VALUES ('{FamilyBaby.Value}', '{Account.Value}', 'Maja', '[]', '2026-08-20', 1, 0, '{TestDatabase.Baby.Value}');
+            VALUES ('{FamilyBaby.Value}', '{Account.Value}', 'Lena', '[]', '2026-08-20', 1, 0, '{TestDatabase.Baby.Value}');
             """, CancellationToken.None);
     }
 

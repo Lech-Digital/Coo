@@ -30,8 +30,8 @@ public sealed class BringEntriesOverTests : IDisposable
         _state.GetConsentAsync(User, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
         _store.HasPulledAsync(Household, Arg.Any<CancellationToken>()).Returns(true);
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
-        _moves.SummaryAsync(Provisional, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new(LocalBaby, "Maja")]));
-        _moves.SummaryAsync(Household, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new(FamilyBaby, "Maja")]));
+        _moves.SummaryAsync(Provisional, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new(LocalBaby, "Lena")]));
+        _moves.SummaryAsync(Household, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new(FamilyBaby, "Lena")]));
         _sync.RunExclusiveAsync(default!, default).ReturnsForAnyArgs(c => c.Arg<Func<CancellationToken, Task>>()(c.Arg<CancellationToken>()));
     }
 
@@ -171,7 +171,7 @@ public sealed class BringEntriesOverTests : IDisposable
         _moves.SummaryAsync(Provisional, Arg.Any<CancellationToken>()).Returns(async _ =>
         {
             await _account.SignedOutAsync(sessionExpired: false, CancellationToken.None);
-            return new LocalSummary(42, [new(LocalBaby, "Maja")]);
+            return new LocalSummary(42, [new(LocalBaby, "Lena")]);
         });
 
         // Act
@@ -317,7 +317,7 @@ public sealed class BringEntriesOverTests : IDisposable
     {
         // Arrange (final review M7)
         await JoinPendingAsync();
-        _moves.SummaryAsync(Provisional, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, [new(LocalBaby, "Maja")]));
+        _moves.SummaryAsync(Provisional, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, [new(LocalBaby, "Lena")]));
 
         // Act
         var choice = await UseCase().PrepareAsync(CancellationToken.None);
@@ -335,7 +335,7 @@ public sealed class BringEntriesOverTests : IDisposable
     {
         // Arrange
         await JoinPendingAsync();
-        _moves.SummaryAsync(Provisional, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, [new(LocalBaby, "Maja")]));
+        _moves.SummaryAsync(Provisional, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, [new(LocalBaby, "Lena")]));
         _moves.SummaryAsync(Household, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, []));
 
         // Act

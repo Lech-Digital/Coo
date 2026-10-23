@@ -120,10 +120,10 @@ public sealed partial class LocalizationTests
         try
         {
             // Act
-            var few = Strings.Plural("BringOver.Entries", 3, "Maja");
+            var few = Strings.Plural("BringOver.Entries", 3, "Lena");
 
             // Assert
-            few.Should().Be("Na tym telefonie są 3 wpisy dla: Maja.");
+            few.Should().Be("Na tym telefonie są 3 wpisy dla: Lena.");
         }
         finally
         {

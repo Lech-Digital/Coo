@@ -81,7 +81,7 @@ lost with it. That is accepted, because a note is a draft, not a log entry.
 ### 3a. Proposals are checked against what is already logged
 
 A voice note parsed an hour late is the most common source of duplicates. For example, a parent
-dictates "Maja ate 120 ml at 14:00" on a walk with no signal, while a partner at home logs the same
+dictates "Lena ate 120 ml at 14:00" on a walk with no signal, while a partner at home logs the same
 feeding manually. The proposal gets a fresh UUIDv7, so last-writer-wins cannot see that the two
 are the same feeding.
 
@@ -319,7 +319,7 @@ Built as "Tell Coo": a mic button on Today next to "Earlier…", and a launcher 
 first version differs from the decision above, and why:
 
 - **Live actions as well as entries.** Besides finished entries, the model can return `BreastStart`, `BreastSwitch`,
-  `BreastStop`, `SleepStart`, `SleepEnd`, `PumpStart` and `PumpStop`, so "Maja started on the left" starts the timer
+  `BreastStop`, `SleepStart`, `SleepEnd`, `PumpStart` and `PumpStop`, so "Lena started on the left" starts the timer
   and "she woke up" ends the running sleep, as the buttons do. The context therefore carries what is running.
 - **Access.** Premium families get 100 parses a day; others get 5 a day to try it (`AiParsing:FreePerDay`, `0` makes it
   Premium-only). The per-minute limit of §7 is not built yet; the daily count bounds the cost.

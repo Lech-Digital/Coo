@@ -23,9 +23,9 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
     private static readonly HouseholdId Other = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a2"));
     private static readonly DateTimeOffset Now = new(2026, 10, 6, 12, 0, 0, TimeSpan.Zero);
     private static readonly DeviceId Phone = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1"));
-    private static readonly BabyId MyMaja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
+    private static readonly BabyId MyLena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
     private static readonly BabyId MyLeo = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b2"));
-    private static readonly BabyId TheirMaja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
+    private static readonly BabyId TheirLena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
     private static readonly BabyId TheirOla = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b8"));
 
     private readonly MemorySessions _sessions = new();
@@ -61,19 +61,19 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
     private static BringOverRequest Request(
         BringOverChoice choice, Func<IReadOnlyDictionary<BabyId, BabyId?>, CancellationToken, Task<BringOutcome>> execute,
         Func<CancellationToken, Task>? keep = null) =>
-        new(Old, choice, "Their family's log has: Maja.", "in Andrzej's family", execute, keep, "You've joined Andrzej's family.");
+        new(Old, choice, "Their family's log has: Lena.", "in Andrzej's family", execute, keep, "You've joined Andrzej's family.");
 
     private static Task<BringOutcome> Outcome(BringPath path, OldFamilyQuestion question, int skipped = 0) =>
         Task.FromResult(new BringOutcome(path, 40, skipped, question));
 
     private static BringOverRequest Copying(OldFamilyQuestion question, int skipped = 0) =>
-        Request(Offer([new LocalBaby(MyMaja, "Maja")], [new LocalBaby(TheirMaja, "Maja")]), (_, _) => Outcome(BringPath.Copied, question, skipped));
+        Request(Offer([new LocalBaby(MyLena, "Lena")], [new LocalBaby(TheirLena, "Lena")]), (_, _) => Outcome(BringPath.Copied, question, skipped));
 
     private static FamilyOnPhone Target(Role role, string ownerName) =>
-        new(Other, ["Maja"], new FamilyMembership(Other, role, Now, ownerName, 2), false, false, false, true);
+        new(Other, ["Lena"], new FamilyMembership(Other, role, Now, ownerName, 2), false, false, false, true);
 
     private static BringOverRequest FromSettings(FamilyOnPhone target, BringPath path, OldFamilyQuestion question) =>
-        BringOverRequest.ForSettings(Old, Offer([new LocalBaby(MyMaja, "Maja")], []), target, (_, _) => Outcome(path, question));
+        BringOverRequest.ForSettings(Old, Offer([new LocalBaby(MyLena, "Lena")], []), target, (_, _) => Outcome(path, question));
 
     [Theory]
     [InlineData(Role.Parent, "Andrzej", "Your entries are now in Andrzej's family.")]
@@ -139,7 +139,7 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
 
         // Assert
         model.Question.Should().Be(
-            "Your entries are now in the other family too. Delete your old family? Its 42 entries for Maja are deleted from Coo's server and this phone. The copies stay.");
+            "Your entries are now in the other family too. Delete your old family? Its 42 entries for Lena are deleted from Coo's server and this phone. The copies stay.");
     }
 
     [Fact]
@@ -190,13 +190,13 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
 
         // Act
         model.Start(Request(
-            Offer([new LocalBaby(MyMaja, " maja "), new LocalBaby(MyLeo, "Leo")], [new LocalBaby(TheirOla, "Ola"), new LocalBaby(TheirMaja, "Maja")]),
+            Offer([new LocalBaby(MyLena, " lena "), new LocalBaby(MyLeo, "Leo")], [new LocalBaby(TheirOla, "Ola"), new LocalBaby(TheirLena, "Lena")]),
             (_, _) => Outcome(BringPath.Moved, OldFamilyQuestion.None)));
 
         // Assert
-        model.Summary.Should().Be("This phone has 42 entries for  maja , Leo.");
+        model.Summary.Should().Be("This phone has 42 entries for  lena , Leo.");
         model.Mappings.Select(m => m.Selected).Should().Equal(1, 2);
-        model.Mappings[0].Options.Select(o => o.Target).Should().Equal(TheirOla, TheirMaja, null);
+        model.Mappings[0].Options.Select(o => o.Target).Should().Equal(TheirOla, TheirLena, null);
         model.Step.Should().Be(BringOverStep.Choice);
     }
 
@@ -207,7 +207,7 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
         var model = Model();
 
         // Act
-        model.Start(Request(Offer([new LocalBaby(MyLeo, "Leo")], [new LocalBaby(TheirMaja, "Maja")]), (_, _) => Outcome(BringPath.Moved, OldFamilyQuestion.None)));
+        model.Start(Request(Offer([new LocalBaby(MyLeo, "Leo")], [new LocalBaby(TheirLena, "Lena")]), (_, _) => Outcome(BringPath.Moved, OldFamilyQuestion.None)));
 
         // Assert
         model.Mappings.Single().Selected.Should().Be(0);
@@ -220,7 +220,7 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
         var model = Model();
 
         // Act
-        model.Start(Request(Offer([new LocalBaby(MyMaja, "Maja")], []), (_, _) => Outcome(BringPath.Moved, OldFamilyQuestion.None)));
+        model.Start(Request(Offer([new LocalBaby(MyLena, "Lena")], []), (_, _) => Outcome(BringPath.Moved, OldFamilyQuestion.None)));
 
         // Assert
         model.CanKeep.Should().BeFalse();
@@ -232,7 +232,7 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
         // Arrange
         var model = Model();
         var executed = 0;
-        model.Start(Request(Offer([new LocalBaby(MyMaja, "Maja")], [new LocalBaby(TheirMaja, "Maja")]), (_, _) =>
+        model.Start(Request(Offer([new LocalBaby(MyLena, "Lena")], [new LocalBaby(TheirLena, "Lena")]), (_, _) =>
         {
             executed++;
             return Outcome(BringPath.Moved, OldFamilyQuestion.None);
@@ -268,7 +268,7 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
         // Arrange
         var model = Model();
         IReadOnlyDictionary<BabyId, BabyId?>? received = null;
-        model.Start(Request(Offer([new LocalBaby(MyMaja, "Maja"), new LocalBaby(MyLeo, "Leo")], [new LocalBaby(TheirMaja, "Maja")]), (mapping, _) =>
+        model.Start(Request(Offer([new LocalBaby(MyLena, "Lena"), new LocalBaby(MyLeo, "Leo")], [new LocalBaby(TheirLena, "Lena")]), (mapping, _) =>
         {
             received = mapping;
             return Outcome(BringPath.Moved, OldFamilyQuestion.None);
@@ -279,7 +279,7 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
         await model.ConfirmCommand.ExecuteAsync(null);
 
         // Assert
-        received.Should().BeEquivalentTo(new Dictionary<BabyId, BabyId?> { [MyMaja] = TheirMaja, [MyLeo] = TheirMaja });
+        received.Should().BeEquivalentTo(new Dictionary<BabyId, BabyId?> { [MyLena] = TheirLena, [MyLeo] = TheirLena });
     }
 
     [Fact]
@@ -288,7 +288,7 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
         // Arrange
         var model = Model();
         IReadOnlyDictionary<BabyId, BabyId?>? received = null;
-        model.Start(Request(Offer([new LocalBaby(MyLeo, "Leo")], [new LocalBaby(TheirMaja, "Maja"), new LocalBaby(TheirOla, "Ola")]), (mapping, _) =>
+        model.Start(Request(Offer([new LocalBaby(MyLeo, "Leo")], [new LocalBaby(TheirLena, "Lena"), new LocalBaby(TheirOla, "Ola")]), (mapping, _) =>
         {
             received = mapping;
             return Outcome(BringPath.Moved, OldFamilyQuestion.None);
@@ -308,7 +308,7 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
         var model = Model();
         string? toast = null;
         model.Finished += (_, t) => toast = t;
-        model.Start(Request(Offer([new LocalBaby(MyMaja, "Maja")], [new LocalBaby(TheirMaja, "Maja")]), (_, _) => Outcome(BringPath.AlreadyCopied, OldFamilyQuestion.None)));
+        model.Start(Request(Offer([new LocalBaby(MyLena, "Lena")], [new LocalBaby(TheirLena, "Lena")]), (_, _) => Outcome(BringPath.AlreadyCopied, OldFamilyQuestion.None)));
 
         // Act
         await model.ConfirmCommand.ExecuteAsync(null);
@@ -484,7 +484,7 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
         var model = Model();
         var finished = 0;
         model.Finished += (_, _) => finished++;
-        model.Start(Request(Offer([new LocalBaby(MyMaja, "Maja")], [new LocalBaby(TheirMaja, "Maja")]), (_, _) => throw new InvalidOperationException("rolled back")));
+        model.Start(Request(Offer([new LocalBaby(MyLena, "Lena")], [new LocalBaby(TheirLena, "Lena")]), (_, _) => throw new InvalidOperationException("rolled back")));
 
         // Act
         await model.ConfirmCommand.ExecuteAsync(null);
@@ -502,7 +502,7 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
         var model = Model();
         var gate = new TaskCompletionSource<BringOutcome>();
         var executed = 0;
-        model.Start(Request(Offer([new LocalBaby(MyMaja, "Maja")], [new LocalBaby(TheirMaja, "Maja")]), (_, _) =>
+        model.Start(Request(Offer([new LocalBaby(MyLena, "Lena")], [new LocalBaby(TheirLena, "Lena")]), (_, _) =>
         {
             executed++;
             return gate.Task;
@@ -526,7 +526,7 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
         string? toast = null;
         model.Finished += (_, t) => toast = t;
         var kept = 0;
-        model.Start(Request(Offer([new LocalBaby(MyMaja, "Maja")], [new LocalBaby(TheirMaja, "Maja")]), (_, _) => Outcome(BringPath.Moved, OldFamilyQuestion.None),
+        model.Start(Request(Offer([new LocalBaby(MyLena, "Lena")], [new LocalBaby(TheirLena, "Lena")]), (_, _) => Outcome(BringPath.Moved, OldFamilyQuestion.None),
             _ =>
             {
                 kept++;
@@ -548,7 +548,7 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
         var model = Model();
         var finished = 0;
         model.Finished += (_, _) => finished++;
-        model.Start(Request(Offer([new LocalBaby(MyMaja, "Maja")], [new LocalBaby(TheirMaja, "Maja")]), (_, _) => Outcome(BringPath.Moved, OldFamilyQuestion.None),
+        model.Start(Request(Offer([new LocalBaby(MyLena, "Lena")], [new LocalBaby(TheirLena, "Lena")]), (_, _) => Outcome(BringPath.Moved, OldFamilyQuestion.None),
             _ => throw new IOException("disk")));
 
         // Act

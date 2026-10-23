@@ -26,8 +26,8 @@ public sealed class JoinViewModelTests : IDisposable
     private static readonly DateTimeOffset Now = new(2026, 10, 6, 12, 0, 0, TimeSpan.Zero);
     private static readonly DeviceId Phone = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1"));
     private static readonly InvitationCode Code = InvitationCode.Parse("ABCDEFGH").Value;
-    private static readonly BabyId MyMaja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
-    private static readonly BabyId TheirMaja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
+    private static readonly BabyId MyLena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
+    private static readonly BabyId TheirLena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
 
     private readonly MemorySessions _sessions = new();
     private readonly Account _account;
@@ -55,12 +55,12 @@ public sealed class JoinViewModelTests : IDisposable
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1)]);
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([Settings(Home), Settings(Joined)]);
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Home);
-        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Maja"], Role.Parent, Now.AddHours(72), false));
+        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Lena"], Role.Parent, Now.AddHours(72), false));
         _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.Joined));
         _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
         _device.GetAsync(Arg.Any<CancellationToken>()).Returns(Phone);
         _versions.NextAsync(Arg.Any<CancellationToken>()).Returns(new HlcStamp(1_790_000_000_000, 0, Phone));
-        _households.ListBabiesAsync(Home, Arg.Any<CancellationToken>()).Returns([Baby(Home, "Maja")]);
+        _households.ListBabiesAsync(Home, Arg.Any<CancellationToken>()).Returns([Baby(Home, "Lena")]);
     }
 
     public void Dispose()
@@ -75,7 +75,7 @@ public sealed class JoinViewModelTests : IDisposable
         HouseholdSettings.Create(id, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1_790_000_000_000, 0, Phone)).Value;
 
     private static BabyProfile Baby(HouseholdId household, string name) =>
-        BabyProfile.Create(MyMaja, household, name, [], new DateOnly(2026, 8, 20), null, new HlcStamp(1_790_000_000_000, 0, Phone), new DateOnly(2026, 10, 6)).Value;
+        BabyProfile.Create(MyLena, household, name, [], new DateOnly(2026, 8, 20), null, new HlcStamp(1_790_000_000_000, 0, Phone), new DateOnly(2026, 10, 6)).Value;
 
     private Task SignInAsync() => _account.SignedInAsync(
         new StoredSession("a", Now, "r", new AccountProfile(Me, "Kasia", "k@example.com"), Home, JoinPending: false), CancellationToken.None);
@@ -120,7 +120,7 @@ public sealed class JoinViewModelTests : IDisposable
         model.Step.Should().Be(JoinStep.Invitation);
         model.Title.Should().Be("Join Andrzej's family?");
         model.Body.Should().Be("Andrzej invited you to join as a parent. You'll both see the family's log and add to it.");
-        model.Babies.Should().Be("Their family's log has: Maja.");
+        model.Babies.Should().Be("Their family's log has: Lena.");
     }
 
     [Fact]
@@ -152,7 +152,7 @@ public sealed class JoinViewModelTests : IDisposable
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, new JoiningMarker(Joined, Home, "Andrzej"));
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
         _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, []));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
         var model = Join();
         string? toast = null;
         model.Finished += (_, t) => toast = t;
@@ -209,8 +209,8 @@ public sealed class JoinViewModelTests : IDisposable
         _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, new JoiningMarker(Joined, Home, "Andrzej"));
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
         _records.CopyAsync(default!, default, default, default, default).ReturnsForAnyArgs(new CopyResult(40, 2));
         var model = Join();
         await model.StartAsync();
@@ -223,9 +223,9 @@ public sealed class JoinViewModelTests : IDisposable
 
         // Assert
         model.Step.Should().Be(JoinStep.Choice);
-        summary.Should().Be("This phone has 42 entries for Maja.");
+        summary.Should().Be("This phone has 42 entries for Lena.");
         model.BringOver.Step.Should().Be(BringOverStep.OldFamily);
-        model.BringOver.Question.Should().Be("Your entries are now in Andrzej's family too. Delete your old family? Its 42 entries for Maja are deleted from Coo's server and this phone. The copies stay.");
+        model.BringOver.Question.Should().Be("Your entries are now in Andrzej's family too. Delete your old family? Its 42 entries for Lena are deleted from Coo's server and this phone. The copies stay.");
         model.BringOver.QuestionNote.Should().Be("2 entries can't be brought over and are deleted with it.");
         model.BringOver.AnswerText.Should().Be("Delete old family");
     }
@@ -258,8 +258,8 @@ public sealed class JoinViewModelTests : IDisposable
         _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
     }
 
     private void Granted() =>
@@ -414,7 +414,7 @@ public sealed class JoinViewModelTests : IDisposable
     {
         // Arrange
         await SignInAsync();
-        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Maja"], Role.Parent, Now.AddHours(72), true));
+        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Lena"], Role.Parent, Now.AddHours(72), true));
         _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.AlreadyMember));
 
         // Act
@@ -566,7 +566,7 @@ public sealed class JoinViewModelTests : IDisposable
             _ => new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.Joined));
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
         _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, []));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
         var model = Join();
         string? toast = null;
@@ -613,7 +613,7 @@ public sealed class JoinViewModelTests : IDisposable
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
         _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, []));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
         var model = Join();
         string? toast = null;
         model.Finished += (_, t) => toast = t;
@@ -683,7 +683,7 @@ public sealed class JoinViewModelTests : IDisposable
         _consent.AskAsync().Returns(ConsentAnswer.Given);
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
         _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, []));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
         var model = Join();
         string? toast = null;
@@ -726,8 +726,8 @@ public sealed class JoinViewModelTests : IDisposable
         await SignInAsync();
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(Marker);
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
 
         // Act
         var model = Join();
@@ -736,7 +736,7 @@ public sealed class JoinViewModelTests : IDisposable
         // Assert
         model.Step.Should().Be(JoinStep.Choice);
         model.BringOver.Step.Should().Be(BringOverStep.Choice);
-        model.BringOver.FamilyLine.Should().Be("Their family's log has: Maja.");
+        model.BringOver.FamilyLine.Should().Be("Their family's log has: Lena.");
         model.BringOver.CanKeep.Should().BeTrue();
         await _api.DidNotReceiveWithAnyArgs().AcceptAsync(default!, default);
     }
@@ -812,8 +812,8 @@ public sealed class JoinViewModelTests : IDisposable
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(Marker);
         _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(false, false, true);
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
         var model = Join();
         await model.StartAsync();
 
@@ -862,8 +862,8 @@ public sealed class JoinViewModelTests : IDisposable
         _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
         var model = Join();
         string? toast = null;
         model.Finished += (_, t) => toast = t;
@@ -940,7 +940,7 @@ public sealed class JoinViewModelTests : IDisposable
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
         _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, []));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
         var model = Join();
         string? toast = null;
         model.Finished += (_, t) => toast = t;
@@ -1024,8 +1024,8 @@ public sealed class JoinViewModelTests : IDisposable
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
         _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).ThrowsAsync(new IOException("disk"));
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
         var model = Join();
         await model.StartAsync();
 
@@ -1049,11 +1049,11 @@ public sealed class JoinViewModelTests : IDisposable
     {
         // Arrange: final review C2, the accept's answer was lost; the preview says already a member and the retried accept joined.
         await SignInAsync();
-        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Maja"], Role.Parent, Now.AddHours(72), true));
+        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Lena"], Role.Parent, Now.AddHours(72), true));
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
-        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
-        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirMaja, "Maja")]));
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
         var finished = 0;
 
         // Act
@@ -1063,7 +1063,7 @@ public sealed class JoinViewModelTests : IDisposable
 
         // Assert
         model.Step.Should().Be(JoinStep.Choice);
-        model.BringOver.Summary.Should().Be("This phone has 42 entries for Maja.");
+        model.BringOver.Summary.Should().Be("This phone has 42 entries for Lena.");
         finished.Should().Be(0);
     }
 
@@ -1072,7 +1072,7 @@ public sealed class JoinViewModelTests : IDisposable
     {
         // Arrange: the join is stored, so a failed choice is not a failed join.
         await SignInAsync();
-        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Maja"], Role.Parent, Now.AddHours(72), true));
+        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Lena"], Role.Parent, Now.AddHours(72), true));
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, Marker);
         _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).ThrowsAsync(new IOException("disk"));
 

@@ -124,8 +124,8 @@ public sealed class CopyEntriesTests
         await new FamilyRecords(db.Database, db.Time, db.Writes).CopyAsync(plan, User, First, 100, CancellationToken.None);
 
         // Assert
-        (await db.ScalarAsync($"SELECT count(*) FROM baby_profiles WHERE household_id = '{Account.Value}' AND name = 'Maja' AND id <> '{TestDatabase.Baby.Value}';"))
-            .Should().Be(2, "the family's own Maja and the new one");
+        (await db.ScalarAsync($"SELECT count(*) FROM baby_profiles WHERE household_id = '{Account.Value}' AND name = 'Lena' AND id <> '{TestDatabase.Baby.Value}';"))
+            .Should().Be(2, "the family's own Lena and the new one");
         (await db.ScalarAsync("SELECT count(*) FROM outbox WHERE entity_type = 'BabyProfile';")).Should().Be(1);
         (await db.ScalarAsync($"SELECT count(*) FROM care_entries WHERE household_id = '{Account.Value}' AND subject_baby_id = '{FamilyBaby.Value}';")).Should().Be(0);
     }

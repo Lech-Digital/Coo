@@ -513,7 +513,7 @@ public sealed class SyncValidationTests
     public void Validate_CaregiverChangingTheBaby_IsRejectedByTheRoleRule()
     {
         // Arrange
-        var payload = new BabyProfilePayload("Maja", [], new DateOnly(2026, 8, 20), null);
+        var payload = new BabyProfilePayload("Lena", [], new DateOnly(2026, 8, 20), null);
 
         // Act
         var result = ChangeValidator.Validate(Upsert(Id(2), payload, SyncEntityTypes.BabyProfile), Household, Nanny, SchemaVersions.Current, Now);
@@ -1260,7 +1260,7 @@ public sealed class SyncUseCaseTests
             RejectionReasons.SchemaUnsupported => (Upsert(Id(1), Diaper(Now)), Owner, SchemaVersions.Current + 1),
             RejectionReasons.StampInFuture => (Upsert(Id(1), Diaper(Now), offsetMs: (long)TimeSpan.FromDays(2).TotalMilliseconds), Owner, SchemaVersions.Current),
             RejectionReasons.PersonUnresolved => (Upsert(Id(1), Diaper(Now, "this-device")), Owner, SchemaVersions.Current),
-            RejectionReasons.RoleForbidden => (Upsert(Id(2), new BabyProfilePayload("Maja", [], new DateOnly(2026, 8, 20), null), SyncEntityTypes.BabyProfile),
+            RejectionReasons.RoleForbidden => (Upsert(Id(2), new BabyProfilePayload("Lena", [], new DateOnly(2026, 8, 20), null), SyncEntityTypes.BabyProfile),
                 Membership.Create(Household, Parent, Role.Caregiver, Now), SchemaVersions.Current),
             RejectionReasons.ChangeMalformed => (Upsert(Id(1), Diaper(Now), "Medication"), Owner, SchemaVersions.Current),
             _ => (Upsert(Id(1), new CareEntryPayload("sleep", Baby, null, true, Now, Now.AddMinutes(-5), "user:7a1c0000-0000-7000-8000-0000000000c1",
@@ -2072,7 +2072,7 @@ public sealed class SyncSchemaTests(PostgresServer server)
         await db.Households.EnsureAsync(ServerDatabase.Household, CancellationToken.None);
         string Insert() => $"""
             INSERT INTO baby_profiles (id, household_id, name, nicknames, birth_date, version_wall_ms, version_counter, version_device, is_deleted, seq)
-            VALUES ('{db.NewId()}', '{ServerDatabase.Household.Value}', 'Maja', '{"{}"}', '2026-08-20', 1, 0, '{ServerDatabase.Device.Value}', false, 7);
+            VALUES ('{db.NewId()}', '{ServerDatabase.Household.Value}', 'Lena', '{"{}"}', '2026-08-20', 1, 0, '{ServerDatabase.Device.Value}', false, 7);
             """;
         await db.ExecuteAsync(Insert());
 
@@ -2506,7 +2506,7 @@ public sealed class SyncStoreTests(PostgresServer server)
         await using var db = await DatabaseAsync(server);
         var a = db.NewId();
         var b = db.NewId();
-        var baby = BabyProfile.Create(new BabyId(db.NewId()), Household, "Maja", ["Majka"], new DateOnly(2026, 8, 20), null, db.NextStamp(), new DateOnly(2026, 10, 1)).Value;
+        var baby = BabyProfile.Create(new BabyId(db.NewId()), Household, "Lena", ["Majka"], new DateOnly(2026, 8, 20), null, db.NextStamp(), new DateOnly(2026, 10, 1)).Value;
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Ounces, "Europe/Amsterdam", db.NextStamp(), [EntryKindCode.From("pump").Value]).Value;
 
         // Act
@@ -2665,7 +2665,7 @@ public sealed class SyncStoreTests(PostgresServer server)
         await using var db = await DatabaseAsync(server);
         for (var i = 0; i < 5; i++)
             await ApplyAsync(db, Diaper(db, db.NewId(), db.NextStamp()));
-        await ApplyAsync(db, new BabyProfileWrite(BabyProfile.Create(new BabyId(db.NewId()), Household, "Maja", [], new DateOnly(2026, 8, 20), null, db.NextStamp(), new DateOnly(2026, 10, 1)).Value));
+        await ApplyAsync(db, new BabyProfileWrite(BabyProfile.Create(new BabyId(db.NewId()), Household, "Lena", [], new DateOnly(2026, 8, 20), null, db.NextStamp(), new DateOnly(2026, 10, 1)).Value));
         await ApplyAsync(db, new HouseholdSettingsWrite(HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", db.NextStamp()).Value));
 
         // Act
@@ -5087,7 +5087,7 @@ public sealed class SyncSchemaAndSignalTests
         var signals = 0;
         db.Writes.Written += (_, _) => signals++;
         var settings = HouseholdSettings.Create(TestDatabase.Household, VolumeUnit.Millilitres, "Europe/Amsterdam", await db.Device.NextAsync(CancellationToken.None)).Value;
-        var baby = BabyProfile.Create(TestDatabase.Baby, TestDatabase.Household, "Maja", [], new DateOnly(2026, 8, 20), null,
+        var baby = BabyProfile.Create(TestDatabase.Baby, TestDatabase.Household, "Lena", [], new DateOnly(2026, 8, 20), null,
             await db.Device.NextAsync(CancellationToken.None), new DateOnly(2026, 10, 1)).Value;
         var dismissal = DuplicateDismissal.Create(new DismissalId(Guid.CreateVersion7(db.Time.GetUtcNow())), TestDatabase.Household,
             new EntryPair(await db.NewIdAsync(), await db.NewIdAsync()), await db.Device.NextAsync(CancellationToken.None));
@@ -8173,7 +8173,7 @@ public sealed class HouseholdMovesTests
         var db = await TestDatabase.CreateAsync();
         await db.Households.SaveSettingsAsync(HouseholdSettings.Create(TestDatabase.Household, VolumeUnit.Millilitres, "Europe/Amsterdam",
             await db.Device.NextAsync(CancellationToken.None)).Value, CancellationToken.None);
-        await db.Households.SaveBabyAsync(BabyProfile.Create(TestDatabase.Baby, TestDatabase.Household, "Maja", [], new DateOnly(2026, 8, 20), null,
+        await db.Households.SaveBabyAsync(BabyProfile.Create(TestDatabase.Baby, TestDatabase.Household, "Lena", [], new DateOnly(2026, 8, 20), null,
             await db.Device.NextAsync(CancellationToken.None), new DateOnly(2026, 10, 1)).Value, CancellationToken.None);
         var entry = CareEntry.Create(await db.NewIdAsync(), TestDatabase.Household, EntrySubject.Baby(TestDatabase.Baby),
             new Coo.Domain.CareLog.Kinds.Diaper.DiaperDetails(Coo.Domain.CareLog.Kinds.Diaper.DiaperContents.Wet), EntryTiming.Point(db.Time.GetLocalNow()),
@@ -8194,7 +8194,7 @@ public sealed class HouseholdMovesTests
             INSERT INTO household_settings (household_id, volume_unit, time_zone_id, hidden_kinds, version_wall_ms, version_counter, version_device)
             VALUES ('{Account.Value}', 'oz', 'Europe/Warsaw', '[]', 1, 0, '{TestDatabase.Baby.Value}');
             INSERT INTO baby_profiles (id, household_id, name, nicknames, birth_date, version_wall_ms, version_counter, version_device)
-            VALUES ('{FamilyBaby.Value}', '{Account.Value}', 'Maja', '[]', '2026-08-20', 1, 0, '{TestDatabase.Baby.Value}');
+            VALUES ('{FamilyBaby.Value}', '{Account.Value}', 'Lena', '[]', '2026-08-20', 1, 0, '{TestDatabase.Baby.Value}');
             """, CancellationToken.None);
     }
 
@@ -8441,8 +8441,8 @@ public sealed class BringEntriesOverTests : IDisposable
     {
         _account = new Account(_sessions);
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Provisional);
-        _moves.SummaryAsync(Provisional, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new(LocalBaby, "Maja")]));
-        _moves.SummaryAsync(Household, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new(FamilyBaby, "Maja")]));
+        _moves.SummaryAsync(Provisional, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new(LocalBaby, "Lena")]));
+        _moves.SummaryAsync(Household, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new(FamilyBaby, "Lena")]));
     }
 
     public void Dispose() => _account.Dispose();
@@ -9877,8 +9877,8 @@ public sealed class ConsentAndBringOverTests : IDisposable
     private static readonly AccountProfile Profile = new(new UserId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c1")), "Andrzej", "andrzej@example.com");
     private static readonly HouseholdId Family = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a9"));
     private static readonly HouseholdId Mine = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a1"));
-    private static readonly BabyId MyMaja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
-    private static readonly BabyId FamilyMaja = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
+    private static readonly BabyId MyLena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"));
+    private static readonly BabyId FamilyLena = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
 
     private readonly ISessionStore _sessions = Substitute.For<ISessionStore>();
     private readonly ISyncState _state = Substitute.For<ISyncState>();
@@ -9894,8 +9894,8 @@ public sealed class ConsentAndBringOverTests : IDisposable
         _sessions.GetAsync(Arg.Any<CancellationToken>()).Returns(new StoredSession("a", DateTimeOffset.UnixEpoch, "r", Profile, Family, JoinPending: true));
         _about.Informational.Returns("0.11.0+abcdef1234");
         _moves.ActiveHouseholdAsync(Arg.Any<CancellationToken>()).Returns(Mine);
-        _moves.SummaryAsync(Mine, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyMaja, "Maja")]));
-        _moves.SummaryAsync(Family, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new LocalBaby(FamilyMaja, "Maja")]));
+        _moves.SummaryAsync(Mine, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]));
+        _moves.SummaryAsync(Family, Arg.Any<CancellationToken>()).Returns(new LocalSummary(300, [new LocalBaby(FamilyLena, "Lena")]));
     }
 
     public void Dispose() => Strings.Use(LanguagePreference.System, null);
@@ -9992,11 +9992,11 @@ public sealed class ConsentAndBringOverTests : IDisposable
         await model.LoadAsync();
 
         // Assert
-        model.Summary.Should().Be("This phone has 42 entries for Maja.");
-        model.Family.Should().Be("Your family's log has: Maja.");
+        model.Summary.Should().Be("This phone has 42 entries for Lena.");
+        model.Family.Should().Be("Your family's log has: Lena.");
         var mapping = model.Mappings.Should().ContainSingle().Subject;
-        mapping.Prompt.Should().Be("Maja on this phone is");
-        mapping.Options.Select(o => o.Label).Should().Equal("Maja", "Add as a new baby");
+        mapping.Prompt.Should().Be("Lena on this phone is");
+        mapping.Options.Select(o => o.Label).Should().Equal("Lena", "Add as a new baby");
         mapping.Selected.Should().Be(0, "the same name is the same baby by default");
     }
 
@@ -10016,7 +10016,7 @@ public sealed class ConsentAndBringOverTests : IDisposable
         await model.ConfirmCommand.ExecuteAsync(null);
 
         // Assert
-        await _moves.Received(1).BringOverAsync(Arg.Is<BringOverPlan>(p => p.Babies[MyMaja] == FamilyMaja), Profile.UserId, Arg.Any<CancellationToken>());
+        await _moves.Received(1).BringOverAsync(Arg.Is<BringOverPlan>(p => p.Babies[MyLena] == FamilyLena), Profile.UserId, Arg.Any<CancellationToken>());
         closed.Should().Be(1);
     }
 
@@ -10059,7 +10059,7 @@ public sealed class ConsentAndBringOverTests : IDisposable
     public async Task LoadAsync_DifferentNamesOneBabyEach_DefaultsToTheFamilysBaby()
     {
         // Arrange: the phone's setup used the default name "Baby".
-        _moves.SummaryAsync(Mine, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(MyMaja, "Baby")]));
+        _moves.SummaryAsync(Mine, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(MyLena, "Baby")]));
         using var account = new Account(_sessions);
         var model = BringOver(account);
 
@@ -10176,7 +10176,7 @@ public sealed partial class BabyMapping(LocalBaby local, IReadOnlyList<BabyOptio
 }
 
 /// <summary>
-/// "This phone has 42 entries for Maja. Your family's log has: Maja." (Spec 011 §4). Bring my entries over asks where
+/// "This phone has 42 entries for Lena. Your family's log has: Lena." (Spec 011 §4). Bring my entries over asks where
 /// each local baby goes, then one transaction moves everything; Keep them separate closes and changes nothing (Q4).
 /// </summary>
 public sealed partial class BringOverViewModel(BringEntriesOver bringOver) : ObservableObject
@@ -11329,7 +11329,7 @@ $SDK/platform-tools/adb -e shell monkey -p com.lechdigital.coo -c android.intent
 ```
 
 On the emulator (agent with `adb -e shell input tap …` and `uiautomator dump`, or the owner): complete setup with a baby
-named **Maja** (the same name as on the Pixel) and log two diapers. Do **not** sign in yet (deliverable 5 needs the
+named **Lena** (the same name as on the Pixel) and log two diapers. Do **not** sign in yet (deliverable 5 needs the
 emulator join-pending with its own entries).
 
 - [ ] **Step 6: `BUILD.md`**
@@ -11474,7 +11474,7 @@ and keep their data.
 | # | Who | How |
 |---|---|---|
 | 1 | Agent | Pixel: Settings → **Turn on sharing** → the sheet; **Not now** → debug screen: outbox unchanged, last `ConsentDeclined`. Again **Turn on sharing** → **Agree and share** → within seconds the debug screen shows outbox 0 and a cursor > 0; read-only check: `ssh coldstart-prod "docker exec coo-postgres psql -U coo -d coo -tAc 'SELECT (SELECT count(*) FROM care_entries), (SELECT count(*) FROM consents)'"` → entries > 0, consents 1 |
-| 5 | Agent; owner if Google's sheet needs a tap the agent cannot make | Emulator (two diapers, baby "Maja", signed out): Settings → Sign in with Google → **adzius.lech@gmail.com**. No consent sheet (the account has one, Spec 011 §3); the bring-over sheet: "This phone has 2 entries for Maja. Your family's log has: Maja." → **Bring my entries over** → "Maja on this phone is" **Maja** → **Bring them over** → the emulator shows the family's log with its two diapers in it; within 30 s they are on the Pixel |
+| 5 | Agent; owner if Google's sheet needs a tap the agent cannot make | Emulator (two diapers, baby "Lena", signed out): Settings → Sign in with Google → **adzius.lech@gmail.com**. No consent sheet (the account has one, Spec 011 §3); the bring-over sheet: "This phone has 2 entries for Lena. Your family's log has: Lena." → **Bring my entries over** → "Lena on this phone is" **Lena** → **Bring them over** → the emulator shows the family's log with its two diapers in it; within 30 s they are on the Pixel |
 | 2 | Agent | Log a diaper on the Pixel: on the emulator within 30 s; log a bottle on the emulator: on the Pixel within 30 s |
 | 3 | Agent (owner toggles airplane mode on the Pixel if `adb shell cmd connectivity airplane-mode enable` is refused) | Both offline (emulator: `adb -e shell cmd connectivity airplane-mode enable`): edit one feed on each (the Pixel second, so later), delete a diaper on the emulator. Both online: the Pixel's edit on both, the diaper gone on both |
 | 4 | Agent | A diaper on each phone a minute apart: after the next pull, "Probably the same" in Needs attention on both; **Keep both** on one: gone from both after the next pull |

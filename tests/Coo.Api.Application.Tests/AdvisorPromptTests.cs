@@ -8,10 +8,10 @@ public sealed class AdvisorPromptTests
     public void System_WithLogAndPolish_GroundsTheAnswerInTheLogAndTheLanguage()
     {
         // Act
-        var system = AdvisorPrompt.System("Maja", 9, "- Thu 22 Oct: sleep 13 h 05 m", "pl");
+        var system = AdvisorPrompt.System("Lena", 9, "- Thu 22 Oct: sleep 13 h 05 m", "pl");
 
         // Assert
-        system.Should().Contain("Maja, is 9 weeks old");
+        system.Should().Contain("Lena, is 9 weeks old");
         system.Should().Contain("sleep 13 h 05 m");
         system.Should().Contain("Always answer in Polish.");
         system.Should().Contain("not a doctor");

@@ -213,7 +213,7 @@ public sealed class SyncValidationTests
     public void Validate_CaregiverChangingTheBaby_IsRejectedByTheRoleRule()
     {
         // Arrange
-        var payload = new BabyProfilePayload("Maja", [], new DateOnly(2026, 8, 20), null);
+        var payload = new BabyProfilePayload("Lena", [], new DateOnly(2026, 8, 20), null);
 
         // Act
         var result = ChangeValidator.Validate(Upsert(Id(2), payload, SyncEntityTypes.BabyProfile), Household, Nanny, SchemaVersions.Current, Now);

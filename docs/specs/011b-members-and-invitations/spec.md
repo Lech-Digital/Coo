@@ -17,7 +17,7 @@ Delivered by: **Increment 11b** (`docs/ROADMAP.md`). The app is version **0.12.0
 ## 1. Purpose
 
 A second person joins a family with **their own Google account**, as a Parent, and both log the same baby. The owner's
-test: he and his girlfriend, each signed in with their own account on their own phone, log Maja and see each other's
+test: he and his girlfriend, each signed in with their own account on their own phone, log Lena and see each other's
 entries.
 
 What this increment adds:
@@ -51,7 +51,7 @@ The app says **family**, never "household", in every language (§15.1 R10).
 
 | Row | Shown when | Opens |
 |---|---|---|
-| **Showing: Maja** (second line: "Your family" or "Family of Andrzej") | More than one family is on this phone | The family switcher (§7.3) |
+| **Showing: Lena** (second line: "Your family" or "Family of Andrzej") | More than one family is on this phone | The family switcher (§7.3) |
 | **Members** (second line: "2 people") | The shown family is shared (on the server) | The Family page |
 | "This family's log is only on this phone." | The shown family is not shared (provisional, or kept local by Spec 011 Q4) | — |
 | **Invite a parent** | Signed out (§3), or the shown family is shared, not soft-locked, and you are its Owner or a Parent | §3; signs in first if needed |
@@ -202,7 +202,7 @@ sequenceDiagram
    Google account to see the invitation." · **Sign in with Google** · **Not now**. It is the same `SignIn` as everywhere
    (Spec 010), so a first sign-in creates her account and adopts her provisional family as usual.
 2. **The invitation:** "Join Andrzej's family?" · "Andrzej invited you to join as a parent. You'll both see the family's
-   log and add to it." · "Their family's log has: Maja." (or "Their family's log has no baby yet.") · **Join** · **Not
+   log and add to it." · "Their family's log has: Lena." (or "Their family's log has no baby yet.") · **Join** · **Not
    now**. When the preview says she is already a member: "You're already in this family." · **OK**, the family is shown,
    and nothing is accepted.
 3. **Consent**, only if her account has none for the current wording: Spec 011 §3's sheet, unchanged (§15.1 R4). **Not
@@ -256,7 +256,7 @@ when the source has no entries, unless it has a baby and the target has none (Sp
 the baby. When nothing is asked, an empty source that is her account's never-synced family is still left as in §6.1.
 Otherwise:
 
-> **This phone has 42 entries for Maja.** Their family's log has: Maja.
+> **This phone has 42 entries for Lena.** Their family's log has: Lena.
 >
 > **Bring my entries over** · **Keep them separate**
 
@@ -298,7 +298,7 @@ Then, in place, about the old family:
 
 | She is, in the source family | She is asked |
 |---|---|
-| The Owner and its only member | "Your entries are now in Andrzej's family too. Delete your old family? Its 42 entries for Maja are deleted from Coo's server and this phone. The copies stay." (and, if any were not copied, "3 entries can't be brought over and are deleted with it.") · **Delete old family** · **Keep it** |
+| The Owner and its only member | "Your entries are now in Andrzej's family too. Delete your old family? Its 42 entries for Lena are deleted from Coo's server and this phone. The copies stay." (and, if any were not copied, "3 entries can't be brought over and are deleted with it.") · **Delete old family** · **Keep it** |
 | A Parent or Caregiver | "Your entries are now in Andrzej's family too. Leave your old family? Its log is removed from this phone. Entries you added stay with that family." · **Leave** · **Keep it** |
 | The Owner, with other members | Nothing (the Owner cannot leave while others are in it, §8.3); the toast "Your entries are now in Andrzej's family too." |
 
@@ -345,7 +345,7 @@ hold is bootstrapped (pulled from 0) once consent is given: a fresh phone signed
 
 ### 7.3 Showing one family, and switching
 
-- **Labels:** a family is named by its babies' names ("Maja", or "Maja, Leo" with the culture's list separator), with a
+- **Labels:** a family is named by its babies' names ("Lena", or "Lena, Leo" with the culture's list separator), with a
   second line: "Your family" when the signed-in person is its Owner, otherwise "Family of Andrzej" (the Owner's display
   name). A family with no baby yet: "No baby yet". A local family of no account: "On this phone only".
 - **The switcher** (§15.1 R6): Settings → Family → **Showing: …** opens an action sheet, "Show which family?", listing
@@ -376,7 +376,7 @@ Spec 011 §6.5 already soft-locks on the exact signal and confirms through `/mem
 
   > **You were removed from this family**
   >
-  > Someone in the family that logs Maja removed you, so its log will be removed from this phone. Entries you already
+  > Someone in the family that logs Lena removed you, so its log will be removed from this phone. Entries you already
   > shared stay with the family.
   >
   > 3 entries you logged weren't shared yet. **Share them as text**
@@ -410,7 +410,7 @@ Spec 011 §6.5 already soft-locks on the exact signal and confirms through `/mem
   when allowed, and §6.2 offers them after a copy.
   - Leave: "Leave this family? Its log is removed from this phone. Entries you added stay with the family." · **Leave** ·
     **Cancel**.
-  - Delete: "Delete this family? Its log of Maja, 42 entries, is deleted from Coo's server and this phone. This can't be
+  - Delete: "Delete this family? Its log of Lena, 42 entries, is deleted from Coo's server and this phone. This can't be
     undone." · **Delete** · **Cancel**.
   - Either way, if that family's outbox holds care entries: "3 entries on this phone weren't shared yet and will be
     lost." is added to the confirmation.
@@ -610,7 +610,7 @@ All builds are trimmed Release with the debug screen, signed with the debug key.
 **andrzej.lech.andrzej@gmail.com** on the Pixel. Phone data is test data.
 
 **What the Pixel holds before 11b, and its first sign-in as the second account.** The Pixel is signed in as
-adzius.lech@gmail.com with consent given, and holds that account's family (call it **X**: Maja, synced, with a cursor).
+adzius.lech@gmail.com with consent given, and holds that account's family (call it **X**: Lena, synced, with a cursor).
 What the spec says happens, step by step:
 
 1. **Sign out** (Settings → Account → Sign out): the tokens go; X's log, outbox and cursor stay on the phone (Spec 010
@@ -627,7 +627,7 @@ What the spec says happens, step by step:
    nothing of X is uploaded anywhere. Once H2's first pull completes with no baby, the first-launch baby step opens
    (Spec 011, final review I1), with this increment's **Have an invitation? Enter a code** link.
 5. **X stays on the phone as a family of another account:** never synced (the second account is not a member of it),
-   never offered for bring-over (Spec 011's Task 14 ruling, §6.3), and listed in the switcher as **"Maja · On this phone
+   never offered for bring-over (Spec 011's Task 14 ruling, §6.3), and listed in the switcher as **"Lena · On this phone
    only"** (§7.3's label for a family on the phone that is not one of the signed-in account's families).
 
 **The walk** (each step names the deliverable it proves):
@@ -636,18 +636,18 @@ What the spec says happens, step by step:
 |---|---|---|
 | 1 | Deployed | `/health` shows `0.12.0+<sha>`; `https://api.coo.lechdigital.nl/.well-known/assetlinks.json` lists the debug key's SHA-256; the policy and deletion page are live with §13's text |
 | 2 | App Link verified | On the Pixel and the emulator, `adb shell pm get-app-links com.lechdigital.coo` shows `api.coo.lechdigital.nl: verified` |
-| 3 | The Pixel's first sign-in as the second account | Steps 1–5 above. Then the baby step for H2: baby **Maja**, two diapers. The debug screen lists two families: H2 (Owner) and X (not an account family); the switcher shows "Maja · Your family" and "Maja · On this phone only" |
+| 3 | The Pixel's first sign-in as the second account | Steps 1–5 above. Then the baby step for H2: baby **Lena**, two diapers. The debug screen lists two families: H2 (Owner) and X (not an account family); the switcher shows "Lena · Your family" and "Lena · On this phone only" |
 | 4 | Invite and withdraw | Emulator: Settings → Family → Invite a parent: the share sheet with link and code; the Family page lists it with its expiry. A second invitation, withdrawn: its code then gives "This invitation can't be used…" on the Pixel (Join a family → enter it) |
 | 5 | The fallback page | The link opened in a laptop browser: §4.3's page with the code, the Play link, no names; a malformed code: the page without a code |
-| 6 | Join, keep separate | Pixel, showing H2: open the first invitation's link (read from the emulator's share sheet, opened on the Pixel with `adb shell am start -a android.intent.action.VIEW -d <link>`): Coo opens; the invitation names Andrzej and Maja; Join (consent exists, so no consent step). H2 has synced and has entries: the sheet "This phone has 2 entries for Maja. Their family's log has: Maja." → **Keep them separate**: X is shown, the toast "Both families are on this phone…" |
+| 6 | Join, keep separate | Pixel, showing H2: open the first invitation's link (read from the emulator's share sheet, opened on the Pixel with `adb shell am start -a android.intent.action.VIEW -d <link>`): Coo opens; the invitation names Andrzej and Lena; Join (consent exists, so no consent step). H2 has synced and has entries: the sheet "This phone has 2 entries for Lena. Their family's log has: Lena." → **Keep them separate**: X is shown, the toast "Both families are on this phone…" |
 | 7 | Each other's entries | A bottle on the Pixel (in X) appears on the emulator within 30 s; a diaper on the emulator appears on the Pixel. An offline edit on each converges (Spec 011 deliverable 3, across accounts) |
 | 8 | Two families and the switcher | Pixel: Settings → Family → Showing: X and H2 (not the soft-locked, none here): switching changes Today and Log; a diaper logged in H2 never reaches the emulator, one logged in X does |
 | 9 | Members | Emulator: Andrzej "Parent · created the family (you)", the second account "Parent", Remove beside the second account only; no Leave or Delete for the Owner. Pixel: Remove beside nobody (the Owner cannot be removed), Leave this family shown |
 | 10 | Enter a code | Pixel: Join a family → a fresh code for X: "You're already in this family."; the invitation stays open on the emulator's Family page |
 | 11 | Leave | Pixel, showing X: Leave this family (confirmed): X is gone from the Pixel, H2 is shown; the emulator's Family page lists only Andrzej |
-| 12 | Re-join, copy, delete the old family | Emulator: a new invitation; Pixel (showing H2) accepts: `rejoined`; X returns in full. H2 has synced, so the sheet → **Bring my entries over** → Maja to Maja → the two copies reach the emulator within 30 s, H2 untouched → "Delete old family?" → **Delete old family**: H2 is gone from the Pixel and from the server (`households` count) |
+| 12 | Re-join, copy, delete the old family | Emulator: a new invitation; Pixel (showing H2) accepts: `rejoined`; X returns in full. H2 has synced, so the sheet → **Bring my entries over** → Lena to Lena → the two copies reach the emulator within 30 s, H2 untouched → "Delete old family?" → **Delete old family**: H2 is gone from the Pixel and from the server (`households` count) |
 | 13 | Removal | Pixel offline (airplane mode), log one diaper in X; emulator: remove the second account (confirmed); Pixel online: within 30 s the removal sheet, "1 entry you logged wasn't shared yet", Share them as text shows the line. Turn airplane mode on again, then **OK**: X is gone, and as it was the Pixel's only family a new family is made and the first-launch baby step opens (§8.4). Never "Waiting for a connection" before the sheet |
-| 14 | Join with entries never synced (move) | Still offline, on the new family: baby Maja, two diapers; Settings → Sign out; airplane mode off. Emulator: a new invitation; Pixel taps it: "Sign in to join a family" → the second account (it has no active family, so its sign-in adopts this phone's family, Spec 010 §3.2) → Join: `rejoined` → the sheet → Bring my entries over, Maja to Maja: they appear on the emulator within 30 s, and the empty adopted family is gone from the server (its ID is not in `households`; the second account's only active membership is X) |
+| 14 | Join with entries never synced (move) | Still offline, on the new family: baby Lena, two diapers; Settings → Sign out; airplane mode off. Emulator: a new invitation; Pixel taps it: "Sign in to join a family" → the second account (it has no active family, so its sign-in adopts this phone's family, Spec 010 §3.2) → Join: `rejoined` → the sheet → Bring my entries over, Lena to Lena: they appear on the emulator within 30 s, and the empty adopted family is gone from the server (its ID is not in `households`; the second account's only active membership is X) |
 | 15 | CI green | GitHub Actions |
 
 Paths no device walks are covered by tests (§12): a join with nothing to ask, a Caregiver's push, a Parent leaving a

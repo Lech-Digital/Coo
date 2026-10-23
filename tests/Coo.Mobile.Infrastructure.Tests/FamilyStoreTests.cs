@@ -183,7 +183,7 @@ public sealed class FamilyStoreTests
         await db.DiaperAsync(new DateTimeOffset(2026, 10, 1, 9, 0, 0, TimeSpan.FromHours(2)));
         await db.DiaperAsync(new DateTimeOffset(2026, 10, 1, 9, 5, 0, TimeSpan.FromHours(2)));
         await db.Households.SaveSettingsAsync(HouseholdSettings.Create(Home, VolumeUnit.Millilitres, "Europe/Amsterdam", await db.Device.NextAsync(CancellationToken.None)).Value, CancellationToken.None);
-        await db.Households.SaveBabyAsync(BabyProfile.Create(TestDatabase.Baby, Home, "Maja", [], new DateOnly(2026, 8, 20), null,
+        await db.Households.SaveBabyAsync(BabyProfile.Create(TestDatabase.Baby, Home, "Lena", [], new DateOnly(2026, 8, 20), null,
             await db.Device.NextAsync(CancellationToken.None), new DateOnly(2026, 10, 1)).Value, CancellationToken.None);
         await db.ExecuteAsync("INSERT INTO app_state (key, value) VALUES ('active_household', 'h');");
         var tables = new[] { "care_entries", "outbox", "app_state", "sync_cursors", "sync_rejections", "baby_profiles", "household_settings", "duplicate_dismissals" };

@@ -257,7 +257,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange
         await SignInAsync();
-        OnPhone((Local, ["Maja"]), (Joined, ["Maja"]), (Home, []));
+        OnPhone((Local, ["Lena"]), (Joined, ["Lena"]), (Home, []));
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([
             new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1), new FamilyMembership(Joined, Role.Parent, Now.AddDays(1), "Andrzej", 2)]);
         _state.IsSoftLockedAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
@@ -268,7 +268,7 @@ public sealed class FamiliesTests : IDisposable
         // Assert
         families.Select(f => f.Id).Should().Equal(Home, Joined, Local);
         families[0].Should().Match<FamilyOnPhone>(f => f.IsHome && f.IsOwner && f.BabyNames.Count == 0 && !f.IsShown);
-        families[1].Should().Match<FamilyOnPhone>(f => f.IsSoftLocked && f.CanManage && !f.IsOwner && f.BabyNames.Single() == "Maja");
+        families[1].Should().Match<FamilyOnPhone>(f => f.IsSoftLocked && f.CanManage && !f.IsOwner && f.BabyNames.Single() == "Lena");
         families[2].Should().Match<FamilyOnPhone>(f => f.IsShown && !f.IsShared);
     }
 
@@ -277,7 +277,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange: spec §8.2, ruling 13 of Spec 011.
         await SignInAsync();
-        OnPhone((Joined, ["Maja"]), (Local, ["Leo"]), (Home, ["Maja"]));
+        OnPhone((Joined, ["Lena"]), (Local, ["Leo"]), (Home, ["Lena"]));
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([
             new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1), new FamilyMembership(Joined, Role.Parent, Now.AddDays(1), "Andrzej", 2)]);
         _state.IsSoftLockedAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
@@ -295,7 +295,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange: spec §15.2 Q6, logging carries on.
         await SignInAsync();
-        OnPhone((Home, ["Maja"]));
+        OnPhone((Home, ["Lena"]));
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Parent, Now, "Andrzej", 2)]);
         _state.IsSoftLockedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
         var families = Families();
@@ -315,7 +315,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange: spec §8.4, ActiveHouseholdAsync must never throw after a removal.
         await SignInAsync();
-        OnPhone((Joined, ["Maja"]));
+        OnPhone((Joined, ["Lena"]));
 
         // Act
         await Families().RemoveFromPhoneAsync(Joined, CancellationToken.None);
@@ -331,7 +331,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange
         await SignInAsync();
-        OnPhone((Joined, ["Maja"]), (Home, ["Leo"]));
+        OnPhone((Joined, ["Lena"]), (Home, ["Leo"]));
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1)]);
         _moves.When(m => m.DeleteHouseholdAsync(Joined, Arg.Any<CancellationToken>())).Do(_ => OnPhone((Home, ["Leo"])));
 
@@ -377,7 +377,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange
         await SignInAsync();
-        OnPhone((Local, ["Maja"]), (Joined, ["Maja"]), (Home, []));
+        OnPhone((Local, ["Lena"]), (Joined, ["Lena"]), (Home, []));
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([
             new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1), new FamilyMembership(Joined, Role.Parent, Now.AddDays(1), "Andrzej", 2)]);
         _state.IsSoftLockedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
@@ -554,27 +554,27 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange
         await SignInAsync();
-        OnPhone((Local, ["Maja"]));
+        OnPhone((Local, ["Lena"]));
         var gone = Settings(Joined);
         gone.Delete(Later);
         var goneBaby = Baby(Local, "Leo");
         goneBaby.Delete(Later);
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([Settings(Local), gone]);
-        _households.ListBabiesAsync(Local, Arg.Any<CancellationToken>()).Returns([Baby(Local, "Maja"), goneBaby]);
+        _households.ListBabiesAsync(Local, Arg.Any<CancellationToken>()).Returns([Baby(Local, "Lena"), goneBaby]);
 
         // Act
         var families = await Families().ListAsync(CancellationToken.None);
 
         // Assert
         families.Single().Id.Should().Be(Local);
-        families.Single().BabyNames.Should().Equal("Maja");
+        families.Single().BabyNames.Should().Equal("Lena");
     }
 
     [Fact]
     public async Task ListAsync_SignedOut_ListsTheFamiliesAsLocalOnesWithNoHome()
     {
         // Arrange
-        OnPhone((Local, ["Maja"]), (Home, []));
+        OnPhone((Local, ["Lena"]), (Home, []));
         _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
 
         // Act
@@ -640,7 +640,7 @@ public sealed class FamiliesTests : IDisposable
     public async Task ShownAsync_ReturnsTheShownFamily_AndNullWithNoFamilies()
     {
         // Arrange
-        OnPhone((Local, ["Maja"]), (Home, []));
+        OnPhone((Local, ["Lena"]), (Home, []));
         var families = Families();
         var shown = await families.ShownAsync(CancellationToken.None);
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([]);
@@ -671,7 +671,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange
         await SignInAsync();
-        OnPhone((Home, ["Maja"]), (Joined, []));
+        OnPhone((Home, ["Lena"]), (Joined, []));
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([HomeMembership, JoinedMembership]);
         _state.IsSoftLockedAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
 
@@ -688,7 +688,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange
         await SignInAsync();
-        OnPhone((Joined, ["Maja"]), (Home, []));
+        OnPhone((Joined, ["Lena"]), (Home, []));
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([HomeMembership, JoinedMembership]);
         _state.IsSoftLockedAsync(Arg.Any<HouseholdId>(), Arg.Any<CancellationToken>()).Returns(true);
         var families = Families();
@@ -708,7 +708,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange
         await SignInAsync();
-        OnPhone((Home, ["Maja"]));
+        OnPhone((Home, ["Lena"]));
 
         // Act
         var paused = await Families().IsShownPausedAloneAsync(CancellationToken.None);
@@ -722,7 +722,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange
         await SignInAsync();
-        OnPhone((Home, ["Leo"]), (Joined, ["Maja"]));
+        OnPhone((Home, ["Leo"]), (Joined, ["Lena"]));
 
         // Act
         await Families().RemoveFromPhoneAsync(Joined, CancellationToken.None);
@@ -737,7 +737,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange
         await SignInAsync();
-        OnPhone((Joined, ["Maja"]), (Home, ["Leo"]));
+        OnPhone((Joined, ["Lena"]), (Home, ["Leo"]));
         _moves.When(m => m.DeleteHouseholdAsync(Joined, Arg.Any<CancellationToken>())).Do(_ => OnPhone((Home, ["Leo"])));
         _state.IsSoftLockedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
 
@@ -796,7 +796,7 @@ public sealed class FamiliesTests : IDisposable
     {
         // Arrange
         await SignInAsync();
-        OnPhone((Local, ["Maja"]), (Joined, ["Maja"]), (Home, []));
+        OnPhone((Local, ["Lena"]), (Joined, ["Lena"]), (Home, []));
         _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([HomeMembership, JoinedMembership]);
 
         // Act
@@ -812,7 +812,7 @@ public sealed class FamiliesTests : IDisposable
         // Arrange
         var ounces = HouseholdSettings.Create(Local, VolumeUnit.Ounces, "Europe/Amsterdam", new HlcStamp(1_790_000_000_000, 0, Phone)).Value;
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([Settings(Home), ounces]);
-        _moves.SummaryAsync(Local, Arg.Any<CancellationToken>()).Returns(new LocalSummary(7, [new LocalBaby(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), "Maja")]));
+        _moves.SummaryAsync(Local, Arg.Any<CancellationToken>()).Returns(new LocalSummary(7, [new LocalBaby(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), "Lena")]));
         IReadOnlyList<StoredEntry> unshared = [];
         _records.ListUnsharedEntriesAsync(Local, Arg.Any<CancellationToken>()).Returns(unshared);
 
@@ -820,7 +820,7 @@ public sealed class FamiliesTests : IDisposable
         var contents = await Families().ContentsAsync(Local, CancellationToken.None);
 
         // Assert
-        contents.Should().Match<FamilyContents>(c => c.EntryCount == 7 && c.BabyNames.Single() == "Maja" && c.Unit == VolumeUnit.Ounces);
+        contents.Should().Match<FamilyContents>(c => c.EntryCount == 7 && c.BabyNames.Single() == "Lena" && c.Unit == VolumeUnit.Ounces);
         contents.Unshared.Should().BeSameAs(unshared);
     }
 

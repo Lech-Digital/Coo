@@ -221,7 +221,7 @@ public sealed class FamilySectionTests : IDisposable
         var section = Section();
 
         // Act
-        await section.SwitchCommand.ExecuteAsync(new FamilyChoice(Home, "Maja · Your family"));
+        await section.SwitchCommand.ExecuteAsync(new FamilyChoice(Home, "Lena · Your family"));
 
         // Assert
         await _moves.Received(1).ActivateAsync(Home, Arg.Any<CancellationToken>());
@@ -258,7 +258,7 @@ public sealed class FamilySectionTests : IDisposable
         var section = Section();
 
         // Act
-        Func<Task> act = async () => await section.SwitchCommand.ExecuteAsync(new FamilyChoice(Home, "Maja · Your family"));
+        Func<Task> act = async () => await section.SwitchCommand.ExecuteAsync(new FamilyChoice(Home, "Lena · Your family"));
 
         // Assert
         await act.Should().NotThrowAsync();

@@ -5995,7 +5995,7 @@ public sealed class AccountViewModelTests : IDisposable
         Strings.Use(new LanguagePreference("en"), null);
         _account = new Account(_sessions);
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
-        var baby = BabyProfile.Create(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), Household, "Maja", [],
+        var baby = BabyProfile.Create(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), Household, "Lena", [],
             new DateOnly(2026, 8, 20), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 2)).Value;
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([settings]);
         _households.ListBabiesAsync(Household, Arg.Any<CancellationToken>()).Returns([baby]);
@@ -6112,7 +6112,7 @@ public sealed class AccountViewModelTests : IDisposable
 
         // Assert
         prompt.Message.Should().Be(
-            "This deletes your Coo account and, because you are the only parent, your family's shared log for Maja. The entries on this phone stay here.");
+            "This deletes your Coo account and, because you are the only parent, your family's shared log for Lena. The entries on this phone stay here.");
         prompt.Accept.Should().Be("Delete account");
         prompt.Cancel.Should().Be("Cancel");
     }
@@ -6120,7 +6120,7 @@ public sealed class AccountViewModelTests : IDisposable
     [Fact]
     public async Task DeletePromptAsync_JoinPending_DoesNotNameThisPhonesBaby()
     {
-        // Arrange: this phone's Maja is not in the account's household, which is the one that goes.
+        // Arrange: this phone's Lena is not in the account's household, which is the one that goes.
         await _account.SignedInAsync(new StoredSession("a", Expires, "r", Profile, AccountsHousehold, JoinPending: true), CancellationToken.None);
         using var model = Model();
 
@@ -6128,7 +6128,7 @@ public sealed class AccountViewModelTests : IDisposable
         var prompt = await model.DeletePromptAsync();
 
         // Assert
-        prompt.Message.Should().NotContain("Maja").And.EndWith("The entries on this phone stay here.");
+        prompt.Message.Should().NotContain("Lena").And.EndWith("The entries on this phone stay here.");
     }
 
     [Fact]

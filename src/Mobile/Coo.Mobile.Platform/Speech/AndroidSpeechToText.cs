@@ -81,7 +81,7 @@ internal sealed class AndroidSpeechToText : ISpeechToText
                 intent.PutExtra(RecognizerIntent.ExtraLanguage, Java.Util.Locale.ForLanguageTag(language).ToLanguageTag());
                 // On the device where it can be (ADR 0005 §2); Android falls back to its online service otherwise.
                 intent.PutExtra(RecognizerIntent.ExtraPreferOffline, true);
-                // A pause in a tired sentence ("Maja ate… 120 ml") should not end it.
+                // A pause in a tired sentence ("Lena ate… 120 ml") should not end it.
                 intent.PutExtra(RecognizerIntent.ExtraSpeechInputCompleteSilenceLengthMillis, 2500);
                 recognizer.StartListening(intent);
             }
