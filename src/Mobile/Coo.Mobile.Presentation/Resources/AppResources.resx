@@ -373,6 +373,27 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Quick.Warn.ai.nothing-running" xml:space="preserve"><value>Nothing is running to change</value></data>
   <data name="Quick.Warn.ai.time-not-stated" xml:space="preserve"><value>No time said: saved as now</value></data>
   <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Unusual amount: check it</value></data>
+  <data name="Reminder.Feed.Body" xml:space="preserve"><value>The last feeding started at {0}.</value></data>
+  <data name="Reminder.Feed.Title" xml:space="preserve"><value>Time to feed {0}?</value></data>
+  <data name="Reminder.Nap.Body" xml:space="preserve"><value>Awake since {0}: the wake window is nearly over.</value></data>
+  <data name="Reminder.Nap.Title" xml:space="preserve"><value>Nap time soon for {0}</value></data>
+  <data name="Reminder.Timer.Body" xml:space="preserve"><value>Started at {0}. If you are done, open Coo to stop it.</value></data>
+  <data name="Reminder.Timer.Feeding" xml:space="preserve"><value>Feeding timer still running</value></data>
+  <data name="Reminder.Timer.Pumping" xml:space="preserve"><value>Pumping timer still running</value></data>
+  <data name="Reminders.Denied" xml:space="preserve"><value>Notifications are off for Coo. Turn them on in Android’s settings to get reminders.</value></data>
+  <data name="Reminders.Feed" xml:space="preserve"><value>Feeding</value></data>
+  <data name="Reminders.FeedAtNight" xml:space="preserve"><value>Also at night</value></data>
+  <data name="Reminders.FeedAtNightHint" xml:space="preserve"><value>Otherwise quiet between {0} and {1}.</value></data>
+  <data name="Reminders.FeedHint" xml:space="preserve"><value>After this long since the last feeding started</value></data>
+  <data name="Reminders.Hours" xml:space="preserve"><value>{0} h</value></data>
+  <data name="Reminders.Intro" xml:space="preserve"><value>Coo reminds you from this phone, even offline. Each parent chooses their own.</value></data>
+  <data name="Reminders.MayBeLate" xml:space="preserve"><value>Android may deliver reminders a few minutes late when the phone is idle.</value></data>
+  <data name="Reminders.Nap" xml:space="preserve"><value>Nap window</value></data>
+  <data name="Reminders.NapHint" xml:space="preserve"><value>15 minutes before the typical wake window for this age ends</value></data>
+  <data name="Reminders.Off" xml:space="preserve"><value>Off</value></data>
+  <data name="Reminders.Timer" xml:space="preserve"><value>Timer left running</value></data>
+  <data name="Reminders.TimerHint" xml:space="preserve"><value>When a feeding or pumping timer runs for 45 minutes</value></data>
+  <data name="Reminders.Title" xml:space="preserve"><value>Reminders</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>You're no longer a member of the family that logs {0}, so its log will be removed from this phone. Entries you already shared stay with the family.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>You're no longer a member of this family, so its log will be removed from this phone. Entries you already shared stay with the family.</value></data>
   <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>
@@ -527,4 +548,13 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>That is a long sleep (over 16 hours).</value></data>
   <data name="Who.Other" xml:space="preserve"><value>Another parent</value></data>
   <data name="Who.You" xml:space="preserve"><value>You</value></data>
+  <data name="Widget.AsleepSince" xml:space="preserve"><value>Asleep since {0}</value></data>
+  <data name="Widget.AwakeSince" xml:space="preserve"><value>Awake since {0}</value></data>
+  <data name="Widget.DiaperAt" xml:space="preserve"><value>Diaper at {0}</value></data>
+  <data name="Widget.FedAt" xml:space="preserve"><value>Fed at {0}</value></data>
+  <data name="Widget.FeedingSince" xml:space="preserve"><value>Feeding since {0}</value></data>
+  <data name="Widget.NoDiaper" xml:space="preserve"><value>No diaper yet</value></data>
+  <data name="Widget.NoFeed" xml:space="preserve"><value>No feeding yet</value></data>
+  <data name="Widget.Open" xml:space="preserve"><value>Open Coo to start</value></data>
+  <data name="Widget.Tell" xml:space="preserve"><value>Tell Coo</value></data>
 </root>

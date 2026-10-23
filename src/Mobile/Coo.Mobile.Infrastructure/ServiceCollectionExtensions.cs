@@ -38,6 +38,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IDeviceLocale, SystemDeviceLocale>();
         services.AddSingleton<IStorageDiagnostics, StorageDiagnostics>();
         services.AddSingleton<IDevicePreferences, DevicePreferences>();
+        services.AddSingleton<Coo.Mobile.Application.Notifications.IReminderSettingsStore, ReminderSettingsStore>();
         services.AddSingleton<IDuplicateDismissalStore, DuplicateDismissalStore>();
 
         // Sync (Spec 011 §6).

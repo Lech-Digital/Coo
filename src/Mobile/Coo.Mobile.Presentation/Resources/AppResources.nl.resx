@@ -373,6 +373,27 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Quick.Warn.ai.nothing-running" xml:space="preserve"><value>Er loopt nu niets</value></data>
   <data name="Quick.Warn.ai.time-not-stated" xml:space="preserve"><value>Geen tijd genoemd: nu</value></data>
   <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Ongebruikelijke hoeveelheid: controleer</value></data>
+  <data name="Reminder.Feed.Body" xml:space="preserve"><value>De laatste voeding begon om {0}.</value></data>
+  <data name="Reminder.Feed.Title" xml:space="preserve"><value>Tijd om {0} te voeden?</value></data>
+  <data name="Reminder.Nap.Body" xml:space="preserve"><value>Wakker sinds {0}: het wakkervenster is bijna voorbij.</value></data>
+  <data name="Reminder.Nap.Title" xml:space="preserve"><value>Bijna tijd voor een dutje voor {0}</value></data>
+  <data name="Reminder.Timer.Body" xml:space="preserve"><value>Gestart om {0}. Klaar? Open Coo om hem te stoppen.</value></data>
+  <data name="Reminder.Timer.Feeding" xml:space="preserve"><value>Voedingstimer loopt nog</value></data>
+  <data name="Reminder.Timer.Pumping" xml:space="preserve"><value>Kolftimer loopt nog</value></data>
+  <data name="Reminders.Denied" xml:space="preserve"><value>Meldingen staan uit voor Coo. Zet ze aan in de Android-instellingen om herinneringen te krijgen.</value></data>
+  <data name="Reminders.Feed" xml:space="preserve"><value>Voeding</value></data>
+  <data name="Reminders.FeedAtNight" xml:space="preserve"><value>Ook ’s nachts</value></data>
+  <data name="Reminders.FeedAtNightHint" xml:space="preserve"><value>Anders stil tussen {0} en {1}.</value></data>
+  <data name="Reminders.FeedHint" xml:space="preserve"><value>Zo lang na het begin van de laatste voeding</value></data>
+  <data name="Reminders.Hours" xml:space="preserve"><value>{0} u</value></data>
+  <data name="Reminders.Intro" xml:space="preserve"><value>Coo herinnert je vanaf deze telefoon, ook offline. Elke ouder kiest zelf.</value></data>
+  <data name="Reminders.MayBeLate" xml:space="preserve"><value>Android kan herinneringen een paar minuten later bezorgen als de telefoon niet in gebruik is.</value></data>
+  <data name="Reminders.Nap" xml:space="preserve"><value>Dutjesvenster</value></data>
+  <data name="Reminders.NapHint" xml:space="preserve"><value>15 minuten voor het einde van het gebruikelijke wakkervenster voor deze leeftijd</value></data>
+  <data name="Reminders.Off" xml:space="preserve"><value>Uit</value></data>
+  <data name="Reminders.Timer" xml:space="preserve"><value>Vergeten timer</value></data>
+  <data name="Reminders.TimerHint" xml:space="preserve"><value>Als een voedings- of kolftimer 45 minuten loopt</value></data>
+  <data name="Reminders.Title" xml:space="preserve"><value>Herinneringen</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>Je bent geen lid meer van het gezin dat het logboek van {0} bijhoudt, dus dat logboek wordt van deze telefoon verwijderd. Items die je al hebt gedeeld blijven bij het gezin.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Je bent geen lid meer van dit gezin, dus het logboek wordt van deze telefoon verwijderd. Items die je al hebt gedeeld blijven bij het gezin.</value></data>
   <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>
@@ -527,4 +548,13 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>Dat is een lange slaap (meer dan 16 uur).</value></data>
   <data name="Who.Other" xml:space="preserve"><value>Andere ouder</value></data>
   <data name="Who.You" xml:space="preserve"><value>Jij</value></data>
+  <data name="Widget.AsleepSince" xml:space="preserve"><value>Slaapt sinds {0}</value></data>
+  <data name="Widget.AwakeSince" xml:space="preserve"><value>Wakker sinds {0}</value></data>
+  <data name="Widget.DiaperAt" xml:space="preserve"><value>Luier om {0}</value></data>
+  <data name="Widget.FedAt" xml:space="preserve"><value>Gevoed om {0}</value></data>
+  <data name="Widget.FeedingSince" xml:space="preserve"><value>Voeding sinds {0}</value></data>
+  <data name="Widget.NoDiaper" xml:space="preserve"><value>Nog geen luier</value></data>
+  <data name="Widget.NoFeed" xml:space="preserve"><value>Nog geen voeding</value></data>
+  <data name="Widget.Open" xml:space="preserve"><value>Open Coo om te beginnen</value></data>
+  <data name="Widget.Tell" xml:space="preserve"><value>Vertel Coo</value></data>
 </root>

@@ -312,6 +312,9 @@ public sealed class SettingsPage : ContentPage
         }));
         contentStack.Add(Hint("Settings.ClockHint"));
 
+        contentStack.Add(Header("Reminders.Title"));
+        contentStack.Add(Row(Ui.Text(Strings.Get("Reminders.Title"), "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<RemindersPage>())));
+
         contentStack.Add(Header("Premium"));
         contentStack.Add(Row(Ui.Text(Strings.Get("Premium.Title") ?? "Coo Premium", "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<PremiumPage>())));
 

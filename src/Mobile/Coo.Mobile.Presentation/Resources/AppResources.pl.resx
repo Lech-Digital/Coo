@@ -390,6 +390,27 @@ Jeśli link nie otworzy Coo, przejdź w Coo do Ustawienia → Rodzina → Dołą
   <data name="Quick.Warn.ai.nothing-running" xml:space="preserve"><value>Nic teraz nie trwa</value></data>
   <data name="Quick.Warn.ai.time-not-stated" xml:space="preserve"><value>Bez godziny: teraz</value></data>
   <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Nietypowa ilość: sprawdź</value></data>
+  <data name="Reminder.Feed.Body" xml:space="preserve"><value>Ostatnie karmienie zaczęło się o {0}.</value></data>
+  <data name="Reminder.Feed.Title" xml:space="preserve"><value>Czas nakarmić: {0}?</value></data>
+  <data name="Reminder.Nap.Body" xml:space="preserve"><value>Nie śpi od {0}: okno aktywności zaraz się skończy.</value></data>
+  <data name="Reminder.Nap.Title" xml:space="preserve"><value>Niedługo drzemka: {0}</value></data>
+  <data name="Reminder.Timer.Body" xml:space="preserve"><value>Start o {0}. Jeśli już skończyliście, otwórz Coo i zatrzymaj go.</value></data>
+  <data name="Reminder.Timer.Feeding" xml:space="preserve"><value>Licznik karmienia nadal działa</value></data>
+  <data name="Reminder.Timer.Pumping" xml:space="preserve"><value>Licznik odciągania nadal działa</value></data>
+  <data name="Reminders.Denied" xml:space="preserve"><value>Powiadomienia Coo są wyłączone. Włącz je w ustawieniach Androida, aby dostawać przypomnienia.</value></data>
+  <data name="Reminders.Feed" xml:space="preserve"><value>Karmienie</value></data>
+  <data name="Reminders.FeedAtNight" xml:space="preserve"><value>Także w nocy</value></data>
+  <data name="Reminders.FeedAtNightHint" xml:space="preserve"><value>W przeciwnym razie cisza od {0} do {1}.</value></data>
+  <data name="Reminders.FeedHint" xml:space="preserve"><value>Tyle czasu od początku ostatniego karmienia</value></data>
+  <data name="Reminders.Hours" xml:space="preserve"><value>{0} godz.</value></data>
+  <data name="Reminders.Intro" xml:space="preserve"><value>Coo przypomina z tego telefonu, nawet offline. Każdy rodzic wybiera własne.</value></data>
+  <data name="Reminders.MayBeLate" xml:space="preserve"><value>Android może dostarczać przypomnienia z kilkuminutowym opóźnieniem, gdy telefon jest bezczynny.</value></data>
+  <data name="Reminders.Nap" xml:space="preserve"><value>Okno drzemki</value></data>
+  <data name="Reminders.NapHint" xml:space="preserve"><value>15 minut przed końcem typowego okna aktywności dla tego wieku</value></data>
+  <data name="Reminders.Off" xml:space="preserve"><value>Wyłączone</value></data>
+  <data name="Reminders.Timer" xml:space="preserve"><value>Zapomniany licznik</value></data>
+  <data name="Reminders.TimerHint" xml:space="preserve"><value>Gdy licznik karmienia lub odciągania działa 45 minut</value></data>
+  <data name="Reminders.Title" xml:space="preserve"><value>Przypomnienia</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>Nie należysz już do rodziny prowadzącej dziennik: {0}, więc jej dziennik zostanie usunięty z tego telefonu. Udostępnione przez Ciebie wpisy zostaną w rodzinie.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Nie należysz już do tej rodziny, więc jej dziennik zostanie usunięty z tego telefonu. Udostępnione przez Ciebie wpisy zostaną w rodzinie.</value></data>
   <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>
@@ -551,4 +572,13 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>To długi sen (ponad 16 godzin).</value></data>
   <data name="Who.Other" xml:space="preserve"><value>Drugi rodzic</value></data>
   <data name="Who.You" xml:space="preserve"><value>Ty</value></data>
+  <data name="Widget.AsleepSince" xml:space="preserve"><value>Śpi od {0}</value></data>
+  <data name="Widget.AwakeSince" xml:space="preserve"><value>Nie śpi od {0}</value></data>
+  <data name="Widget.DiaperAt" xml:space="preserve"><value>Pieluszka o {0}</value></data>
+  <data name="Widget.FedAt" xml:space="preserve"><value>Karmienie o {0}</value></data>
+  <data name="Widget.FeedingSince" xml:space="preserve"><value>Karmienie od {0}</value></data>
+  <data name="Widget.NoDiaper" xml:space="preserve"><value>Brak pieluszek</value></data>
+  <data name="Widget.NoFeed" xml:space="preserve"><value>Brak karmień</value></data>
+  <data name="Widget.Open" xml:space="preserve"><value>Otwórz Coo, aby zacząć</value></data>
+  <data name="Widget.Tell" xml:space="preserve"><value>Powiedz Coo</value></data>
 </root>

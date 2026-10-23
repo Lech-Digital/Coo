@@ -381,7 +381,7 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
         if (snapshot.Baby.IsBorn && snapshot.Baby.BirthDate is { } birthDate)
         {
             var daysOld = Math.Max(0, DateOnly.FromDateTime(snapshot.Now.LocalDateTime).DayNumber - birthDate.DayNumber);
-            var (minWakeMins, maxWakeMins) = GetWakeWindowMinutes(daysOld);
+            var (minWakeMins, maxWakeMins) = Coo.Mobile.Application.Notifications.WakeWindows.For(daysOld);
             NapWindow = Strings.Format("Today.NapWindow", $"{minWakeMins}–{maxWakeMins}");
 
             var awakeSince = t?.AwakeSince;
@@ -407,18 +407,6 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
 
         HasContent = !string.IsNullOrEmpty(NextSide) || !string.IsNullOrEmpty(SinceFeed) || !string.IsNullOrEmpty(NextNap);
     }
-
-    internal static (int MinMinutes, int MaxMinutes) GetWakeWindowMinutes(int daysOld) => daysOld switch
-    {
-        < 14 => (30, 45),
-        < 45 => (45, 60),
-        < 90 => (60, 90),
-        < 150 => (90, 120),
-        < 240 => (120, 150),
-        < 365 => (150, 210),
-        < 545 => (240, 300),
-        _ => (300, 360)
-    };
 }
 
 /// <summary>Daily progress card: Feeds, Diapers, and Sleep totals vs age ranges.</summary>

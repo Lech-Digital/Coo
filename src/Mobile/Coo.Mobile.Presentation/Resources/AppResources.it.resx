@@ -373,6 +373,27 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Quick.Warn.ai.nothing-running" xml:space="preserve"><value>Non c’è nulla in corso</value></data>
   <data name="Quick.Warn.ai.time-not-stated" xml:space="preserve"><value>Nessun orario: adesso</value></data>
   <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Quantità insolita: controlla</value></data>
+  <data name="Reminder.Feed.Body" xml:space="preserve"><value>L’ultima poppata è iniziata alle {0}.</value></data>
+  <data name="Reminder.Feed.Title" xml:space="preserve"><value>È ora di nutrire {0}?</value></data>
+  <data name="Reminder.Nap.Body" xml:space="preserve"><value>Sveglio dalle {0}: la finestra di veglia sta per finire.</value></data>
+  <data name="Reminder.Nap.Title" xml:space="preserve"><value>Presto sarà ora del pisolino per {0}</value></data>
+  <data name="Reminder.Timer.Body" xml:space="preserve"><value>Avviato alle {0}. Se avete finito, apri Coo per fermarlo.</value></data>
+  <data name="Reminder.Timer.Feeding" xml:space="preserve"><value>Il timer della poppata è ancora attivo</value></data>
+  <data name="Reminder.Timer.Pumping" xml:space="preserve"><value>Il timer del tiralatte è ancora attivo</value></data>
+  <data name="Reminders.Denied" xml:space="preserve"><value>Le notifiche di Coo sono disattivate. Attivale nelle impostazioni di Android per ricevere i promemoria.</value></data>
+  <data name="Reminders.Feed" xml:space="preserve"><value>Poppata</value></data>
+  <data name="Reminders.FeedAtNight" xml:space="preserve"><value>Anche di notte</value></data>
+  <data name="Reminders.FeedAtNightHint" xml:space="preserve"><value>Altrimenti silenzioso tra le {0} e le {1}.</value></data>
+  <data name="Reminders.FeedHint" xml:space="preserve"><value>Questo tempo dopo l’inizio dell’ultima poppata</value></data>
+  <data name="Reminders.Hours" xml:space="preserve"><value>{0} h</value></data>
+  <data name="Reminders.Intro" xml:space="preserve"><value>Coo ti ricorda dal telefono, anche offline. Ogni genitore sceglie i propri.</value></data>
+  <data name="Reminders.MayBeLate" xml:space="preserve"><value>Android può consegnare i promemoria con qualche minuto di ritardo quando il telefono è inattivo.</value></data>
+  <data name="Reminders.Nap" xml:space="preserve"><value>Finestra del pisolino</value></data>
+  <data name="Reminders.NapHint" xml:space="preserve"><value>15 minuti prima della fine della tipica finestra di veglia per questa età</value></data>
+  <data name="Reminders.Off" xml:space="preserve"><value>Disattivato</value></data>
+  <data name="Reminders.Timer" xml:space="preserve"><value>Timer dimenticato</value></data>
+  <data name="Reminders.TimerHint" xml:space="preserve"><value>Quando un timer di poppata o tiralatte è attivo da 45 minuti</value></data>
+  <data name="Reminders.Title" xml:space="preserve"><value>Promemoria</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>Non sei più membro della famiglia che tiene il registro di {0}, quindi quel registro verrà rimosso da questo telefono. Le voci che hai già condiviso restano nella famiglia.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Non sei più membro di questa famiglia, quindi il suo registro verrà rimosso da questo telefono. Le voci che hai già condiviso restano nella famiglia.</value></data>
   <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>
@@ -527,4 +548,13 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>È un sonno lungo (oltre 16 ore).</value></data>
   <data name="Who.Other" xml:space="preserve"><value>Altro genitore</value></data>
   <data name="Who.You" xml:space="preserve"><value>Tu</value></data>
+  <data name="Widget.AsleepSince" xml:space="preserve"><value>Dorme dalle {0}</value></data>
+  <data name="Widget.AwakeSince" xml:space="preserve"><value>Sveglio dalle {0}</value></data>
+  <data name="Widget.DiaperAt" xml:space="preserve"><value>Pannolino alle {0}</value></data>
+  <data name="Widget.FedAt" xml:space="preserve"><value>Nutrito alle {0}</value></data>
+  <data name="Widget.FeedingSince" xml:space="preserve"><value>Mangia dalle {0}</value></data>
+  <data name="Widget.NoDiaper" xml:space="preserve"><value>Nessun pannolino ancora</value></data>
+  <data name="Widget.NoFeed" xml:space="preserve"><value>Nessuna poppata ancora</value></data>
+  <data name="Widget.Open" xml:space="preserve"><value>Apri Coo per iniziare</value></data>
+  <data name="Widget.Tell" xml:space="preserve"><value>Dillo a Coo</value></data>
 </root>

@@ -18,4 +18,7 @@
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <!-- Voice logging only, asked for on first use (ADR 0005 §2). Audio stays with Android's recogniser. -->
   <uses-permission android:name="android.permission.RECORD_AUDIO" />
+  <!-- Reminders (ADR 0007): asked for when the first reminder is turned on; alarms come back after a reboot. -->
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 </manifest>

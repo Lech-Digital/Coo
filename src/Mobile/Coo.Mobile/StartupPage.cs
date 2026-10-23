@@ -348,6 +348,13 @@ public sealed class StartupPage : ContentPage
             connectivity.Start();
             engine.Start();
 
+            // Reminders and the widget follow the log (ADR 0007 §3): every local write, every sync that changed data.
+            Coo.Mobile.Platform.Notifications.ChannelName.Value = Coo.Mobile.Presentation.Localization.Strings.Get("Reminders.Title");
+            var reminders = _services.GetRequiredService<Coo.Mobile.Presentation.Notifications.ReminderRefresher>();
+            _services.GetRequiredService<Coo.Mobile.Application.Sync.LocalWrites>().Written += (_, _) => reminders.RequestSoon();
+            engine.DataChanged += (_, _) => reminders.RequestSoon();
+            reminders.RequestSoon();
+
             // Started while Coo is not on screen (a Stopped that came before this page finished): no 30-second pull then.
             if (!App.IsForeground)
                 engine.Backgrounded();
