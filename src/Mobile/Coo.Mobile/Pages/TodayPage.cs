@@ -149,7 +149,7 @@ public sealed class TodayPage : ContentPage
             LiveView.Release(old as IVisualTreeElement);
         _sections.Children.Clear();
         foreach (var section in _model.Sections)
-            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model, SwitchToLog, SwitchToAdvisor, OpenVoice)));
+            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model, SwitchToLog, SwitchToAdvisor, OpenVoice, OpenHealth)));
         _built = [.. _model.Sections];
         _builtLanguage = Strings.Language;
     }
@@ -227,6 +227,33 @@ public sealed class TodayPage : ContentPage
             ("pump", EarlierItem("pump", "Kind.Pump", "Earlier.PumpSubtitle")),
         }.Where(b => _model.IsShown(b.Kind)).Select(b => b.Item).ToArray();
         await _sheet.ShowAsync(Panel(Strings.Get("Edit.Earlier"), items));
+    }
+
+    /// <summary>"Health": the growth chart, then a measurement, medicine, temperature, vaccine or visit, each a form set to now.</summary>
+    private async void OpenHealth()
+    {
+        _pageSheet = true;
+        var chart = EarlierItem("growth", "Growth.Chart", "Growth.ChartSubtitle");
+        chart.GestureRecognizers.Clear();
+        chart.GestureRecognizers.Add(new TapGestureRecognizer
+        {
+            Command = new Command(async () =>
+            {
+                _pageSheet = false;
+                await _sheet.HideAsync();
+                await Navigation.PushAsync(_services.GetRequiredService<GrowthPage>());
+            }),
+        });
+        View[] items =
+        [
+            chart,
+            EarlierItem("growth", "Kind.Growth", "Health.GrowthSubtitle"),
+            EarlierItem("medicine", "Kind.Medicine", "Health.MedicineSubtitle"),
+            EarlierItem("temperature", "Kind.Temperature", "Health.TemperatureSubtitle"),
+            EarlierItem("vaccine", "Kind.Vaccine", "Health.VaccineSubtitle"),
+            EarlierItem("visit", "Kind.Visit", "Health.VisitSubtitle"),
+        ];
+        await _sheet.ShowAsync(Panel(Strings.Get("Health.Title"), items));
     }
 
     private View EarlierItem(string kindCode, string key, string subtitleKey, bool bottle = false)

@@ -46,6 +46,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Settings.SettingsViewModel>();
         services.AddTransient<Settings.PremiumViewModel>();
         services.AddTransient<Settings.RemindersViewModel>();
+        services.AddTransient<Growth.GrowthViewModel>();
         services.AddSingleton<Notifications.ReminderRefresher>();
         services.AddSingleton<Settings.AccountViewModel>();
         services.AddSingleton<Settings.FamilySectionViewModel>();

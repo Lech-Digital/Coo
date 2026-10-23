@@ -9,6 +9,12 @@ public static class IconGeometry
     public const string Feed = "M9 3h6M10 3v3l-2 3v10a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9l-2-3V3M8 13h8";
     public const string Diaper = "M12 3.5c3 4 6 7.2 6 10.5a6 6 0 0 1-12 0c0-3.3 3-6.5 6-10.5z";
     public const string Sleep = "M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z";
+    /// <summary>A ruler: growth measurements.</summary>
+    public const string Growth = "M4 17L17 4l3 3L7 20zM8 13l2 2M11 10l2 2M14 7l2 2";
+
+    /// <summary>A cross in a rounded square: medicine, temperature, vaccines and visits.</summary>
+    public const string Health = "M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zM12 8v8M8 12h8";
+
     public const string Pump = "M5 5h14l-5 5v3h-4v-3zM10 13v6a2 2 0 0 0 4 0v-6";
     public const string Mic = "M9 6a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0zM5 11a7 7 0 0 0 14 0M12 18v3";
     public const string Today = "M4 11l8-7 8 7v9h-5v-6h-6v6H4z";

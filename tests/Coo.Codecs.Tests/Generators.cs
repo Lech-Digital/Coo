@@ -1,6 +1,8 @@
 using Coo.Domain.CareLog;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.CareLog.Kinds.Feeding;
+using Coo.Domain.CareLog.Kinds.Growth;
+using Coo.Domain.CareLog.Kinds.Health;
 using Coo.Domain.CareLog.Kinds.Pump;
 using Coo.Domain.CareLog.Kinds.Sleep;
 using FsCheck;
@@ -24,6 +26,19 @@ internal static class Generators
         ["sleep"] = Gen.Elements<SleepKindOverride?>(null, SleepKindOverride.Nap, SleepKindOverride.Night)
             .Select(k => (EntryDetails)new SleepDetails(k)),
         ["pump"] = PumpYields().Select(y => (EntryDetails)new PumpDetails(y)),
+        ["growth"] =
+            (from weight in Gen.Elements<int?>(null, 300, 3_420, 7_015, 30_000)
+             from length in Gen.Elements<int?>(null, 200, 512, 1_300)
+             from head in Gen.Elements<int?>(null, 200, 345, 600)
+             where weight is not null || length is not null || head is not null
+             select (EntryDetails)GrowthDetails.Create(weight, length, head).Value),
+        ["medicine"] =
+            from name in Gen.Elements("Vitamin D", "Paracetamol", "Ibuprofen", "Żelazo", "Amoxicillin")
+            from dose in Gen.Elements<string?>(null, "400 IU", "2.5 ml", "1 drop")
+            select (EntryDetails)MedicineDetails.Create(name, dose).Value,
+        ["temperature"] = Gen.Choose(340, 430).Select(t => (EntryDetails)TemperatureDetails.Create(t / 10m).Value),
+        ["vaccine"] = Gen.Elements("DTaP-IPV-Hib-HepB", "MMR", "Rotavirus", "Pneumococcal").Select(n => (EntryDetails)VaccineDetails.Create(n).Value),
+        ["visit"] = Gen.Elements<string?>(null, "Paediatrician", "Midwife", "Consultatiebureau").Select(w => (EntryDetails)VisitDetails.Create(w).Value),
     };
 
     /// <summary>Instants across a year, at offsets from UTC−12 to UTC+14, including half and quarter hours.</summary>

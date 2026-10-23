@@ -135,6 +135,26 @@ public sealed class EditPage : ContentPage
                 }
 
                 break;
+            case "growth":
+                form.Add(Ui.Text(Strings.Get("Edit.GrowthHint"), "Meta", "Ink2"));
+                form.Add(Field($"{Strings.Get("Edit.Weight")} ({_model.WeightUnit})", Number(nameof(EditViewModel.Weight))));
+                form.Add(Field($"{Strings.Get("Edit.Length")} ({_model.LengthUnit})", Number(nameof(EditViewModel.Length))));
+                form.Add(Field($"{Strings.Get("Edit.Head")} ({_model.LengthUnit})", Number(nameof(EditViewModel.Head))));
+                break;
+            case "medicine":
+                form.Add(Field(Strings.Get("Edit.MedicineName"), Text(nameof(EditViewModel.HealthName), Strings.Get("Edit.MedicinePlaceholder"))));
+                form.Add(Field(Strings.Get("Edit.Dose"), Text(nameof(EditViewModel.HealthDetail), "")));
+                break;
+            case "temperature":
+                form.Add(Field($"{Strings.Get("Edit.Temperature")} ({_model.TemperatureUnit})", Number(nameof(EditViewModel.Temperature))));
+                break;
+            case "vaccine":
+                form.Add(Field(Strings.Get("Edit.VaccineName"), Text(nameof(EditViewModel.HealthName), "")));
+                break;
+            case "visit":
+                form.Add(Field(Strings.Get("Edit.VisitWith"), Text(nameof(EditViewModel.HealthDetail), Strings.Get("Edit.VisitPlaceholder"))));
+                form.Add(Ui.Text(Strings.Get("Edit.VisitNoteHint"), "Meta", "Ink2"));
+                break;
         }
 
         var note = new Entry { Placeholder = Strings.Get("Edit.Note"), FontFamily = "FigtreeRegular", FontSize = 16 };
@@ -202,6 +222,15 @@ public sealed class EditPage : ContentPage
         return Ui.Rounded(entry, "Surface", 12, new Thickness(16, 4), "Line");
     }
 
+    private static View Text(string property, string placeholder)
+    {
+        var entry = new Entry { Placeholder = placeholder, FontFamily = "FigtreeRegular", FontSize = 16, MaxLength = 60 };
+        entry.SetDynamicResource(Entry.TextColorProperty, "Ink");
+        entry.SetDynamicResource(Entry.PlaceholderColorProperty, "Ink2");
+        entry.SetBinding(Entry.TextProperty, property);
+        return Ui.Rounded(entry, "Surface", 12, new Thickness(16, 4), "Line");
+    }
+
     private HorizontalStackLayout Choices((string Text, Action Choose, bool Selected)[] choices)
     {
         var row = new HorizontalStackLayout { Spacing = 8 };
@@ -248,6 +277,11 @@ public sealed class EditPage : ContentPage
         "feeding" => "Kind.Feed",
         "diaper" => "Kind.Diaper",
         "sleep" => "Kind.Sleep",
+        "growth" => "Kind.Growth",
+        "medicine" => "Kind.Medicine",
+        "temperature" => "Kind.Temperature",
+        "vaccine" => "Kind.Vaccine",
+        "visit" => "Kind.Visit",
         _ => "Kind.Pump",
     };
 }

@@ -7,6 +7,10 @@ feeding/v1/breast-completed-two-sides.json
 feeding/v1/breast-non-utc-offset.json
 feeding/v1/breast-paused.json
 feeding/v1/breast-running.json
+growth/v1/all.json
+growth/v1/weight-only.json
+medicine/v1/no-dose.json
+medicine/v1/with-dose.json
 pump/v1/both-sides.json
 pump/v1/left-only.json
 pump/v1/no-yield.json
@@ -14,3 +18,7 @@ pump/v1/total.json
 sleep/v1/nap.json
 sleep/v1/night.json
 sleep/v1/no-override.json
+temperature/v1/fever.json
+vaccine/v1/name.json
+visit/v1/empty.json
+visit/v1/with.json

@@ -3,6 +3,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Coo.Contracts.CareLog.Kinds.Diaper;
 using Coo.Contracts.CareLog.Kinds.Feeding;
+using Coo.Contracts.CareLog.Kinds.Growth;
+using Coo.Contracts.CareLog.Kinds.Health;
 using Coo.Contracts.CareLog.Kinds.Pump;
 using Coo.Contracts.CareLog.Kinds.Sleep;
 
@@ -20,6 +22,11 @@ namespace Coo.Codecs;
 [JsonSerializable(typeof(DiaperDetailsV1))]
 [JsonSerializable(typeof(SleepDetailsV1))]
 [JsonSerializable(typeof(PumpDetailsV1))]
+[JsonSerializable(typeof(GrowthDetailsV1))]
+[JsonSerializable(typeof(MedicineDetailsV1))]
+[JsonSerializable(typeof(TemperatureDetailsV1))]
+[JsonSerializable(typeof(VaccineDetailsV1))]
+[JsonSerializable(typeof(VisitDetailsV1))]
 internal sealed partial class CodecJsonContext : JsonSerializerContext;
 
 internal static class CodecJson

@@ -15,6 +15,11 @@ public static class EntryDetailsCodecs
         DiaperCodec.Instance,
         SleepCodec.Instance,
         PumpCodec.Instance,
+        GrowthCodec.Instance,
+        MedicineCodec.Instance,
+        TemperatureCodec.Instance,
+        VaccineCodec.Instance,
+        VisitCodec.Instance,
     ];
 
     public static IEntryDetailsCodec? For(EntryKindCode kind) => All.FirstOrDefault(c => c.Kind == kind);

@@ -1,6 +1,8 @@
 using Coo.Domain.CareLog;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.CareLog.Kinds.Feeding;
+using Coo.Domain.CareLog.Kinds.Growth;
+using Coo.Domain.CareLog.Kinds.Health;
 using Coo.Domain.CareLog.Kinds.Pump;
 using Coo.Domain.CareLog.Kinds.Sleep;
 using Coo.Domain.Common;
@@ -56,6 +58,15 @@ public sealed class SeedDemoLog(EnsureProvisionalHousehold households, IHousehol
         return true;
     }
 
+    /// <summary>Check-ups by days back from today: a healthy girl a little above the WHO median.</summary>
+    private static readonly Dictionary<int, (int Grams, int? LengthMm, int? HeadMm)> Measured = new()
+    {
+        [40] = (3_450, 508, 350),
+        [27] = (4_050, 535, 364),
+        [13] = (4_620, 558, 376),
+        [1] = (5_050, null, null),
+    };
+
     internal sealed record Planned(DateTimeOffset At, EntryDetails Details, EntryTiming? Timing);
 
     /// <summary>The demo's entries, oldest first, all before <paramref name="now"/>. Seeded, so every run looks the same.</summary>
@@ -98,6 +109,15 @@ public sealed class SeedDemoLog(EnsureProvisionalHousehold households, IHousehol
             var evening = t > At(date, 18) ? t.AddMinutes(30) : At(date, 18.5);
             day.Add(new Planned(evening, BottleFeed.Of(Milk.ExpressedBreastMilk, Volume.FromMillilitres(70 + (random.Next(4) * 10)).Value).Value, PointOf(evening)));
             day.Add(Diaper(evening.AddMinutes(40), DiaperContents.Wet));
+
+            // Vitamin D every morning, and the check-ups' measurements for the growth chart (a visit with each).
+            if (back <= 13)
+                day.Add(new Planned(At(date, 9), MedicineDetails.Create("Vitamin D", "400 IU").Value, PointOf(At(date, 9))));
+            if (Measured.TryGetValue(back, out var measured))
+            {
+                day.Add(new Planned(At(date, 10.5), GrowthDetails.Create(measured.Grams, measured.LengthMm, measured.HeadMm).Value, PointOf(At(date, 10.5))));
+                day.Add(new Planned(At(date, 10.4), VisitDetails.Create("Paediatrician").Value, PointOf(At(date, 10.4))));
+            }
 
             // Only what has happened: today stops at now, and a sleep not over by then is still going.
             foreach (var entry in day.Where(e => e.At < now).OrderBy(e => e.At))

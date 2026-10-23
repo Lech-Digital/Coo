@@ -51,13 +51,19 @@ public sealed class ChangeVolumeUnit(IHouseholdStore households, IVersionClock c
 /// </summary>
 public sealed class SetHiddenKinds(IHouseholdStore households, IVersionClock clock)
 {
+    /// <summary>
+    /// The kinds with a tile on Today, which Settings can hide. Health and growth are logged from their own sheet and
+    /// never hidden, so they do not count towards "at least one stays visible".
+    /// </summary>
+    public static IReadOnlyList<string> DailyKinds { get; } = ["feeding", "diaper", "sleep", "pump"];
+
     public async Task<Result> ExecuteAsync(HouseholdSettings settings, EntryKindCode kind, bool hidden, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(settings);
         var next = new HashSet<EntryKindCode>(settings.HiddenKinds);
         if (!(hidden ? next.Add(kind) : next.Remove(kind)))
             return Result.Success;
-        if (hidden && EntryKinds.All.All(k => next.Contains(k.Code)))
+        if (hidden && DailyKinds.All(code => next.Contains(EntryKindCode.Known(code))))
             return Result.Failure(SettingsErrors.AllKindsHidden);
 
         var result = settings.SetHiddenKinds(next, await clock.NextAsync(cancellationToken));

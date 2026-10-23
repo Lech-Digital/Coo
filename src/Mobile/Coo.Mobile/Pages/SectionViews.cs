@@ -22,7 +22,8 @@ internal sealed record SectionHost(
     TodayViewModel Today,
     Action SwitchToLog,
     Action SwitchToAdvisor,
-    Action OpenVoice);
+    Action OpenVoice,
+    Action OpenHealth);
 
 /// <summary>
 /// A view that redraws when its source changes, coalesced to one redraw per change burst. Off screen it only notes the
@@ -426,9 +427,27 @@ internal static class SectionViews
         voice.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(host.OpenVoice) });
         SemanticProperties.SetDescription(voice, Strings.Get("Quick.Title"));
 
-        var actions = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], Padding = new Thickness(24, 0) };
+        // Health and growth: medicine, temperature, vaccines, visits and measurements, and the growth chart.
+        var health = new Button
+        {
+            Text = $"＋ {Strings.Get("Health.Short")}",
+            HeightRequest = 36,
+            Padding = new Thickness(14, 0),
+            CornerRadius = 18,
+            FontFamily = "FigtreeMedium",
+            FontSize = 13,
+            Margin = new Thickness(0, 8, 8, 0),
+        };
+        health.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
+        health.SetDynamicResource(Button.TextColorProperty, "Ink2");
+        health.SetDynamicResource(Button.BorderColorProperty, "Line");
+        health.BorderWidth = 1;
+        health.Clicked += (_, _) => host.OpenHealth();
+
+        var actions = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto)], Padding = new Thickness(24, 0) };
         actions.Add(voice, 0);
-        actions.Add(earlier, 1);
+        actions.Add(health, 1);
+        actions.Add(earlier, 2);
         return new VerticalStackLayout { Children = { grid, actions } };
     }
 

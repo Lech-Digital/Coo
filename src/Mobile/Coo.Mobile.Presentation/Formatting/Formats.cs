@@ -2,6 +2,8 @@ using System.Globalization;
 using Coo.Domain.CareLog;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.CareLog.Kinds.Feeding;
+using Coo.Domain.CareLog.Kinds.Growth;
+using Coo.Domain.CareLog.Kinds.Health;
 using Coo.Domain.CareLog.Kinds.Pump;
 using Coo.Domain.CareLog.Kinds.Sleep;
 using Coo.Domain.Households;
@@ -87,9 +89,47 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
                 Duration(((SessionTiming)entry.Timing).Range.Duration(now))),
             PumpDetails { Yield: { } y } => Strings.Format("Entry.Pump", Volume(y.Total)),
             PumpDetails => Strings.Get("Entry.PumpNoAmount"),
+            GrowthDetails g => Strings.Format("Entry.Growth", Growth(g)),
+            MedicineDetails { Dose: { } dose } m => $"{m.Name} · {dose}",
+            MedicineDetails m => m.Name,
+            TemperatureDetails t => Strings.Format(t.IsFever ? "Entry.Fever" : "Entry.Temperature", Temperature(t.Celsius)),
+            VaccineDetails v => Strings.Format("Entry.Vaccine", v.Name),
+            VisitDetails { With: { } with } => Strings.Format("Entry.VisitWith", with),
+            VisitDetails => Strings.Get("Kind.Visit"),
             _ => entry.KindCode.Value,
         };
     }
+
+    private bool Imperial => unit == VolumeUnit.Ounces;
+
+    /// <summary>"4.38 kg · 58.4 cm · head 39.2 cm": what was measured, in the household's units.</summary>
+    public string Growth(GrowthDetails growth)
+    {
+        ArgumentNullException.ThrowIfNull(growth);
+        var parts = new List<string>();
+        if (growth.WeightGrams is { } g)
+            parts.Add(Weight(g));
+        if (growth.LengthMm is { } l)
+            parts.Add(Length(l));
+        if (growth.HeadMm is { } h)
+            parts.Add($"{Strings.Get("Edit.Head")} {Length(h)}");
+        return string.Join(" · ", parts);
+    }
+
+    /// <summary>"4.38 kg" or "9.66 lb".</summary>
+    public string Weight(int grams) => Imperial
+        ? $"{(grams / 453.59237m).ToString("0.##", Strings.Culture)} {Strings.Get("Unit.Lb")}"
+        : $"{(grams / 1000m).ToString("0.###", Strings.Culture)} {Strings.Get("Unit.Kg")}";
+
+    /// <summary>"58.4 cm" or "23 in".</summary>
+    public string Length(int millimetres) => Imperial
+        ? $"{(millimetres / 25.4m).ToString("0.#", Strings.Culture)} {Strings.Get("Unit.In")}"
+        : $"{(millimetres / 10m).ToString("0.#", Strings.Culture)} {Strings.Get("Unit.Cm")}";
+
+    /// <summary>"38.4 °C" or "101.1 °F".</summary>
+    public string Temperature(decimal celsius) => Imperial
+        ? $"{(celsius * 9m / 5m + 32m).ToString("0.0", Strings.Culture)} °F"
+        : $"{celsius.ToString("0.0", Strings.Culture)} °C";
 
     /// <summary>"in 3 parts" (Spec 011d §5), for a feed in two or more parts.</summary>
     public static string Parts(BreastFeed feed)

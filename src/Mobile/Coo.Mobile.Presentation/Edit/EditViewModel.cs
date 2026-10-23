@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using Coo.Domain.CareLog;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.CareLog.Kinds.Feeding;
+using Coo.Domain.CareLog.Kinds.Growth;
+using Coo.Domain.CareLog.Kinds.Health;
 using Coo.Domain.CareLog.Kinds.Pump;
 using Coo.Domain.CareLog.Kinds.Sleep;
 using Coo.Domain.CareLog.Plausibility;
@@ -95,6 +97,26 @@ public sealed partial class EditViewModel(
     private string _pumpRight = "";
 
     [ObservableProperty]
+    private string _weight = "";
+
+    [ObservableProperty]
+    private string _length = "";
+
+    [ObservableProperty]
+    private string _head = "";
+
+    /// <summary>A medicine's or a vaccine's name.</summary>
+    [ObservableProperty]
+    private string _healthName = "";
+
+    /// <summary>A medicine's dose, or who a visit was with.</summary>
+    [ObservableProperty]
+    private string _healthDetail = "";
+
+    [ObservableProperty]
+    private string _temperature = "";
+
+    [ObservableProperty]
     private string _note = "";
 
     [ObservableProperty]
@@ -123,6 +145,15 @@ public sealed partial class EditViewModel(
     }
 
     public string UnitLabel => Strings.Get(_household?.VolumeUnit == VolumeUnit.Ounces ? "Unit.Oz" : "Unit.Ml");
+
+    /// <summary>Households counting in ounces measure in pounds, inches and °F; the rest in kg, cm and °C.</summary>
+    public bool IsImperial => _household?.VolumeUnit == VolumeUnit.Ounces;
+
+    public string WeightUnit => Strings.Get(IsImperial ? "Unit.Lb" : "Unit.Kg");
+
+    public string LengthUnit => Strings.Get(IsImperial ? "Unit.In" : "Unit.Cm");
+
+    public string TemperatureUnit => IsImperial ? "°F" : "°C";
 
     public DateTime Today => DateTime.SpecifyKind(time.GetLocalNow().Date, DateTimeKind.Unspecified);
 
@@ -195,11 +226,13 @@ public sealed partial class EditViewModel(
     {
         await LoadContextAsync();
         (IsNew, KindCode, EntryId, _original, PartLines) = (true, kindCode, null, null, []);
-        var at = time.GetLocalNow().AddMinutes(-15);
+        // A feed or a nap logged afterwards started a while ago (Q6); a dose, a reading or a measurement is usually now.
+        var at = kindCode is "growth" or "medicine" or "temperature" or "vaccine" or "visit" ? time.GetLocalNow() : time.GetLocalNow().AddMinutes(-15);
         SetStart(at);
         SetEnd(at.AddMinutes(kindCode == "sleep" ? 15 : 10));
         HasEnd = true;
         (LeftMinutes, RightMinutes, Amount, SecondAmount, Note, Error, Warnings) = ("", "", "", "", "", "", "");
+        (Weight, Length, Head, HealthName, HealthDetail, Temperature) = ("", "", "", "", "", "");
         Amount = _household?.VolumeUnit == VolumeUnit.Ounces ? "4" : "120";
         SecondAmount = Amount;
     }
@@ -394,6 +427,43 @@ public sealed partial class EditViewModel(
                     return range.IsSuccess ? Ok(new SleepDetails(SleepKind), EntryTiming.Session(range.Value)) : Fail(range.Error!);
                 }
 
+            case "growth":
+                {
+                    if (!TryMeasure(Weight, IsImperial ? GramsPerPound : 1000m, out var grams)
+                        || !TryMeasure(Length, IsImperial ? MmPerInch : 10m, out var length)
+                        || !TryMeasure(Head, IsImperial ? MmPerInch : 10m, out var head))
+                        return Fail(DomainError.Of(NumberInvalid));
+                    var growth = GrowthDetails.Create(grams, length, head);
+                    return growth.IsSuccess ? Ok(growth.Value, EntryTiming.Point(start)) : Fail(growth.Error!);
+                }
+
+            case "medicine":
+                {
+                    var medicine = MedicineDetails.Create(HealthName, HealthDetail);
+                    return medicine.IsSuccess ? Ok(medicine.Value, EntryTiming.Point(start)) : Fail(medicine.Error!);
+                }
+
+            case "temperature":
+                {
+                    if (!decimal.TryParse(Temperature, System.Globalization.NumberStyles.Number, Strings.Culture, out var degrees))
+                        return Fail(DomainError.Of(NumberInvalid));
+                    var celsius = IsImperial ? (degrees - 32m) * 5m / 9m : degrees;
+                    var reading = TemperatureDetails.Create(celsius);
+                    return reading.IsSuccess ? Ok(reading.Value, EntryTiming.Point(start)) : Fail(reading.Error!);
+                }
+
+            case "vaccine":
+                {
+                    var vaccine = VaccineDetails.Create(HealthName);
+                    return vaccine.IsSuccess ? Ok(vaccine.Value, EntryTiming.Point(start)) : Fail(vaccine.Error!);
+                }
+
+            case "visit":
+                {
+                    var visit = VisitDetails.Create(HealthDetail);
+                    return visit.IsSuccess ? Ok(visit.Value, EntryTiming.Point(start)) : Fail(visit.Error!);
+                }
+
             default:
                 {
                     var range = TimeRange.Create(start, end);
@@ -487,6 +557,23 @@ public sealed partial class EditViewModel(
             case PumpDetails { Yield: PumpYieldTotal t }:
                 PumpLeft = InUnit(t.Amount);
                 break;
+            case GrowthDetails g:
+                Weight = Shown(g.WeightGrams, IsImperial ? GramsPerPound : 1000m, IsImperial ? "0.##" : "0.###");
+                Length = Shown(g.LengthMm, IsImperial ? MmPerInch : 10m, "0.#");
+                Head = Shown(g.HeadMm, IsImperial ? MmPerInch : 10m, "0.#");
+                break;
+            case MedicineDetails m:
+                (HealthName, HealthDetail) = (m.Name, m.Dose ?? "");
+                break;
+            case TemperatureDetails t:
+                Temperature = (IsImperial ? t.Celsius * 9m / 5m + 32m : t.Celsius).ToString("0.0", Strings.Culture);
+                break;
+            case VaccineDetails v:
+                HealthName = v.Name;
+                break;
+            case VisitDetails v:
+                HealthDetail = v.With ?? "";
+                break;
         }
     }
 
@@ -500,7 +587,32 @@ public sealed partial class EditViewModel(
         }
 
         OnPropertyChanged(nameof(UnitLabel));
+        OnPropertyChanged(nameof(IsImperial));
     }
+
+    /// <summary>A measurement that is not a number ("4,5,1", "abc").</summary>
+    public const string NumberInvalid = "edit.number-invalid";
+
+    private const decimal GramsPerPound = 453.59237m;
+    private const decimal MmPerInch = 25.4m;
+
+    /// <summary>
+    /// A measurement typed in the household's unit, in grams or millimetres: empty is "not measured" (null); anything
+    /// unreadable fails. The Domain checks the range.
+    /// </summary>
+    private static bool TryMeasure(string text, decimal factor, out int? value)
+    {
+        value = null;
+        if (string.IsNullOrWhiteSpace(text))
+            return true;
+        if (!decimal.TryParse(text, System.Globalization.NumberStyles.Number, Strings.Culture, out var n) || n <= 0)
+            return false;
+        value = (int)Math.Round(n * factor, MidpointRounding.AwayFromZero);
+        return true;
+    }
+
+    private static string Shown(int? stored, decimal factor, string format) =>
+        stored is { } v ? (v / factor).ToString(format, Strings.Culture) : "";
 
     // The form shows wall-clock time in the TimeProvider's zone, never the machine's: CI runs in UTC, the phone does not.
     private void SetStart(DateTimeOffset at) => (StartDate, StartTime) = (Local(at).Date, Local(at).TimeOfDay);
@@ -546,6 +658,11 @@ public sealed partial class EditViewModel(
         "feeding" => "Kind.Feed",
         "diaper" => "Kind.Diaper",
         "sleep" => "Kind.Sleep",
+        "growth" => "Kind.Growth",
+        "medicine" => "Kind.Medicine",
+        "temperature" => "Kind.Temperature",
+        "vaccine" => "Kind.Vaccine",
+        "visit" => "Kind.Visit",
         _ => "Kind.Pump",
     };
 }

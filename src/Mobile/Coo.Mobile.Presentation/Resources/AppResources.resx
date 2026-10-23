@@ -139,26 +139,40 @@
   <data name="Earlier.SleepSubtitle" xml:space="preserve"><value>Nap or night sleep</value></data>
   <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>This entry changed on another phone. Have a look and save again.</value></data>
   <data name="Edit.Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Edit.Dose" xml:space="preserve"><value>Dose (optional)</value></data>
   <data name="Edit.Earlier" xml:space="preserve"><value>Earlier…</value></data>
   <data name="Edit.End" xml:space="preserve"><value>End</value></data>
   <data name="Edit.FirstSide" xml:space="preserve"><value>Started on</value></data>
+  <data name="Edit.GrowthHint" xml:space="preserve"><value>Fill in what was measured; the rest can stay empty.</value></data>
+  <data name="Edit.Head" xml:space="preserve"><value>Head circumference</value></data>
   <data name="Edit.KindAuto" xml:space="preserve"><value>Decide for me</value></data>
   <data name="Edit.KindNap" xml:space="preserve"><value>Nap</value></data>
   <data name="Edit.KindNight" xml:space="preserve"><value>Night</value></data>
+  <data name="Edit.Length" xml:space="preserve"><value>Length</value></data>
+  <data name="Edit.MedicineName" xml:space="preserve"><value>Medicine</value></data>
+  <data name="Edit.MedicinePlaceholder" xml:space="preserve"><value>e.g. Vitamin D</value></data>
   <data name="Edit.Minutes" xml:space="preserve"><value>{0} min</value></data>
   <data name="Edit.Newer" xml:space="preserve"><value>This entry is from a newer version of Coo. Update the app to see it.</value></data>
   <data name="Edit.Note" xml:space="preserve"><value>Note</value></data>
   <data name="Edit.Part" xml:space="preserve"><value>Part {0}</value></data>
   <data name="Edit.Start" xml:space="preserve"><value>Start</value></data>
   <data name="Edit.StillRunning" xml:space="preserve"><value>Still running</value></data>
+  <data name="Edit.Temperature" xml:space="preserve"><value>Temperature</value></data>
   <data name="Edit.Time" xml:space="preserve"><value>Time</value></data>
   <data name="Edit.Title" xml:space="preserve"><value>Edit</value></data>
   <data name="Edit.Total" xml:space="preserve"><value>Total</value></data>
   <data name="Edit.Unreadable" xml:space="preserve"><value>This entry could not be read.</value></data>
+  <data name="Edit.VaccineName" xml:space="preserve"><value>Vaccine</value></data>
+  <data name="Edit.VisitNoteHint" xml:space="preserve"><value>Write what the doctor said in the note below.</value></data>
+  <data name="Edit.VisitPlaceholder" xml:space="preserve"><value>e.g. Paediatrician, midwife</value></data>
+  <data name="Edit.VisitWith" xml:space="preserve"><value>With (optional)</value></data>
+  <data name="Edit.Weight" xml:space="preserve"><value>Weight</value></data>
   <data name="Entry.Bottle" xml:space="preserve"><value>Bottle · {0} · {1}</value></data>
   <data name="Entry.Breast" xml:space="preserve"><value>Breast · {0}</value></data>
   <data name="Entry.BreastSide" xml:space="preserve"><value>{0} {1}</value></data>
   <data name="Entry.Diaper" xml:space="preserve"><value>Diaper · {0}</value></data>
+  <data name="Entry.Fever" xml:space="preserve"><value>Fever · {0}</value></data>
+  <data name="Entry.Growth" xml:space="preserve"><value>Growth · {0}</value></data>
   <data name="Entry.Nap" xml:space="preserve"><value>Nap · {0}</value></data>
   <data name="Entry.Parts.one" xml:space="preserve"><value>in {0} part</value></data>
   <data name="Entry.Parts.other" xml:space="preserve"><value>in {0} parts</value></data>
@@ -169,6 +183,9 @@
   <data name="Entry.Running" xml:space="preserve"><value>running</value></data>
   <data name="Entry.Sleep" xml:space="preserve"><value>Sleep · {0}</value></data>
   <data name="Entry.Sleeping" xml:space="preserve"><value>Sleeping</value></data>
+  <data name="Entry.Temperature" xml:space="preserve"><value>Temperature · {0}</value></data>
+  <data name="Entry.Vaccine" xml:space="preserve"><value>Vaccine · {0}</value></data>
+  <data name="Entry.VisitWith" xml:space="preserve"><value>Doctor visit · {0}</value></data>
   <data name="Error.Generic" xml:space="preserve"><value>That could not be saved.</value></data>
   <data name="Error.auth.rate-limited" xml:space="preserve"><value>Too many tries. Wait a while and try again.</value></data>
   <data name="Error.baby.already-born" xml:space="preserve"><value>The birth is already recorded.</value></data>
@@ -183,9 +200,16 @@
   <data name="Error.breast.no-segments" xml:space="preserve"><value>Add the minutes for at least one side.</value></data>
   <data name="Error.breast.side-duration-invalid" xml:space="preserve"><value>Minutes on a side must be from 1 to 240.</value></data>
   <data name="Error.breast.too-long" xml:space="preserve"><value>A breast feed can be at most 6 hours. Check the times.</value></data>
+  <data name="Error.edit.number-invalid" xml:space="preserve"><value>Enter numbers only, like 4.5.</value></data>
   <data name="Error.entry.not-editable" xml:space="preserve"><value>This entry cannot be edited in this version of Coo.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>This entry no longer exists.</value></data>
   <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>This entry has times that are not allowed.</value></data>
+  <data name="Error.growth.empty" xml:space="preserve"><value>Enter at least one measurement.</value></data>
+  <data name="Error.growth.head-out-of-range" xml:space="preserve"><value>That head circumference looks wrong: check the unit.</value></data>
+  <data name="Error.growth.length-out-of-range" xml:space="preserve"><value>That length looks wrong: check the unit.</value></data>
+  <data name="Error.growth.weight-out-of-range" xml:space="preserve"><value>That weight looks wrong: check the unit.</value></data>
+  <data name="Error.health.name-required" xml:space="preserve"><value>Enter a name.</value></data>
+  <data name="Error.health.text-too-long" xml:space="preserve"><value>That is too long: at most 60 characters.</value></data>
   <data name="Error.household.already-has-family" xml:space="preserve"><value>You're already in a family on Coo.</value></data>
   <data name="Error.household.confirmation-required" xml:space="preserve"><value>This family still has entries on Coo's server. Confirm to delete them.</value></data>
   <data name="Error.household.forbidden" xml:space="preserve"><value>You can't do that in this family.</value></data>
@@ -208,6 +232,7 @@
   <data name="Error.sync.role-forbidden" xml:space="preserve"><value>Your role in this family can't change this.</value></data>
   <data name="Error.sync.schema-unsupported" xml:space="preserve"><value>This change needs a newer version of Coo. Update the app.</value></data>
   <data name="Error.sync.stamp-in-future" xml:space="preserve"><value>This phone's clock is ahead. Check the date and time, then edit the entry.</value></data>
+  <data name="Error.temperature.out-of-range" xml:space="preserve"><value>That temperature looks wrong: check °C or °F.</value></data>
   <data name="Error.time.end-not-after-start" xml:space="preserve"><value>The end must be after the start.</value></data>
   <data name="Error.time.too-far-in-future" xml:space="preserve"><value>That time is too far in the future.</value></data>
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Enter an amount above 0 and up to 1,000 ml.</value></data>
@@ -261,6 +286,28 @@
   <data name="Feed.BreastHint" xml:space="preserve"><value>Starts a timer on that side</value></data>
   <data name="Feed.Left" xml:space="preserve"><value>Left</value></data>
   <data name="Feed.Right" xml:space="preserve"><value>Right</value></data>
+  <data name="Growth.Add" xml:space="preserve"><value>Add measurement</value></data>
+  <data name="Growth.Boys" xml:space="preserve"><value>Boys</value></data>
+  <data name="Growth.Chart" xml:space="preserve"><value>Growth chart</value></data>
+  <data name="Growth.ChartSubtitle" xml:space="preserve"><value>Compared with WHO standards</value></data>
+  <data name="Growth.Empty" xml:space="preserve"><value>No measurements yet. Add one from a check-up or a home scale.</value></data>
+  <data name="Growth.Girls" xml:space="preserve"><value>Girls</value></data>
+  <data name="Growth.Head" xml:space="preserve"><value>Head</value></data>
+  <data name="Growth.Months" xml:space="preserve"><value>months</value></data>
+  <data name="Growth.NoBirth" xml:space="preserve"><value>Add the birth date to see the growth chart.</value></data>
+  <data name="Growth.Percentile" xml:space="preserve"><value>{0} percentile</value></data>
+  <data name="Growth.Source" xml:space="preserve"><value>Lines: WHO Child Growth Standards, 3rd to 97th percentile, for the first two years. A chart is a guide: talk to your doctor about any worry.</value></data>
+  <data name="Growth.UseBoys" xml:space="preserve"><value>Showing the girls’ chart. Use the boys’ chart instead</value></data>
+  <data name="Growth.UseGirls" xml:space="preserve"><value>Showing the boys’ chart. Use the girls’ chart instead</value></data>
+  <data name="Growth.WhichChart" xml:space="preserve"><value>Which WHO chart should Coo use?</value></data>
+  <data name="Growth.WhichChartHint" xml:space="preserve"><value>Girls and boys grow a little differently. This stays on this phone.</value></data>
+  <data name="Health.GrowthSubtitle" xml:space="preserve"><value>Weight, length, head</value></data>
+  <data name="Health.MedicineSubtitle" xml:space="preserve"><value>Vitamin D, fever medicine…</value></data>
+  <data name="Health.Short" xml:space="preserve"><value>Health</value></data>
+  <data name="Health.TemperatureSubtitle" xml:space="preserve"><value>A reading, in °C or °F</value></data>
+  <data name="Health.Title" xml:space="preserve"><value>Health &amp; growth</value></data>
+  <data name="Health.VaccineSubtitle" xml:space="preserve"><value>As on the vaccination card</value></data>
+  <data name="Health.VisitSubtitle" xml:space="preserve"><value>Doctor, midwife, clinic</value></data>
   <data name="Hero.AwakeFor" xml:space="preserve"><value>Awake for</value></data>
   <data name="Hero.FeedingLeft" xml:space="preserve"><value>Feeding · left</value></data>
   <data name="Hero.FeedingPaused" xml:space="preserve"><value>Feeding · paused</value></data>
@@ -299,8 +346,13 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Join.TryAgain" xml:space="preserve"><value>Try again</value></data>
   <data name="Kind.Diaper" xml:space="preserve"><value>Diaper</value></data>
   <data name="Kind.Feed" xml:space="preserve"><value>Feed</value></data>
+  <data name="Kind.Growth" xml:space="preserve"><value>Growth</value></data>
+  <data name="Kind.Medicine" xml:space="preserve"><value>Medicine</value></data>
   <data name="Kind.Pump" xml:space="preserve"><value>Pump</value></data>
   <data name="Kind.Sleep" xml:space="preserve"><value>Sleep</value></data>
+  <data name="Kind.Temperature" xml:space="preserve"><value>Temperature</value></data>
+  <data name="Kind.Vaccine" xml:space="preserve"><value>Vaccine</value></data>
+  <data name="Kind.Visit" xml:space="preserve"><value>Doctor visit</value></data>
   <data name="Milk.Both" xml:space="preserve"><value>Both</value></data>
   <data name="Milk.Breast" xml:space="preserve"><value>Breast milk</value></data>
   <data name="Milk.Formula" xml:space="preserve"><value>Formula</value></data>
@@ -532,6 +584,10 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Trend.WeekRange" xml:space="preserve"><value>{0} – {1}</value></data>
   <data name="Trend.Weeks" xml:space="preserve"><value>Weeks</value></data>
   <data name="Trend.WetDirty" xml:space="preserve"><value>{0} wet · {1} dirty</value></data>
+  <data name="Unit.Cm" xml:space="preserve"><value>cm</value></data>
+  <data name="Unit.In" xml:space="preserve"><value>in</value></data>
+  <data name="Unit.Kg" xml:space="preserve"><value>kg</value></data>
+  <data name="Unit.Lb" xml:space="preserve"><value>lb</value></data>
   <data name="Unit.Ml" xml:space="preserve"><value>ml</value></data>
   <data name="Unit.Oz" xml:space="preserve"><value>oz</value></data>
   <data name="Update.Button" xml:space="preserve"><value>Update</value></data>

@@ -1,6 +1,8 @@
 using Coo.Domain.CareLog;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.CareLog.Kinds.Feeding;
+using Coo.Domain.CareLog.Kinds.Growth;
+using Coo.Domain.CareLog.Kinds.Health;
 using Coo.Domain.CareLog.Kinds.Pump;
 using Coo.Domain.CareLog.Kinds.Sleep;
 
@@ -48,6 +50,14 @@ internal static class Fixtures
         ["pump/v1/left-only.json"] = new PumpDetails(PumpYield.BySide(Ml(70), null).Value),
         ["pump/v1/both-sides.json"] = new PumpDetails(PumpYield.BySide(Ml(70), Ml(55.5m)).Value),
         ["pump/v1/total.json"] = new PumpDetails(PumpYield.OfTotal(Ml(125))),
+        ["growth/v1/all.json"] = GrowthDetails.Create(5_120, 584, 392).Value,
+        ["growth/v1/weight-only.json"] = GrowthDetails.Create(4_380, null, null).Value,
+        ["medicine/v1/with-dose.json"] = MedicineDetails.Create("Vitamin D", "400 IU").Value,
+        ["medicine/v1/no-dose.json"] = MedicineDetails.Create("Paracetamol", null).Value,
+        ["temperature/v1/fever.json"] = TemperatureDetails.Create(38.4m).Value,
+        ["vaccine/v1/name.json"] = VaccineDetails.Create("MMR").Value,
+        ["visit/v1/with.json"] = VisitDetails.Create("Paediatrician").Value,
+        ["visit/v1/empty.json"] = VisitDetails.Create(null).Value,
     };
 
     public static string Read(string relativePath) => File.ReadAllText(Path.Combine(Directory, relativePath)).Trim();
