@@ -10,6 +10,7 @@ internal sealed class ReminderSettingsStore(LocalDatabase database) : IReminderS
     private const string FeedAtNightKey = "reminders.feed_at_night";
     private const string TimerKey = "reminders.timer";
     private const string NapKey = "reminders.nap";
+    private const string NapLeadKey = "reminders.nap_lead_minutes";
 
     public async Task<ReminderSettings> GetAsync(CancellationToken cancellationToken)
     {
@@ -18,11 +19,15 @@ internal sealed class ReminderSettingsStore(LocalDatabase database) : IReminderS
             (string?)await connection.ScalarAsync("SELECT value FROM app_state WHERE key = $k;", cancellationToken, null, ("$k", key));
 
         var minutes = int.TryParse(await Read(FeedEveryKey), NumberStyles.None, CultureInfo.InvariantCulture, out var m) && m > 0 ? m : (int?)null;
+        var lead = int.TryParse(await Read(NapLeadKey), NumberStyles.None, CultureInfo.InvariantCulture, out var l) && ReminderSettings.NapLeads.Contains(l)
+            ? l
+            : ReminderSettings.Off.NapLeadMinutes;
         return new ReminderSettings(
             minutes is { } every ? TimeSpan.FromMinutes(every) : null,
             await Read(FeedAtNightKey) == "1",
             await Read(TimerKey) == "1",
-            await Read(NapKey) == "1");
+            await Read(NapKey) == "1",
+            lead);
     }
 
     public async Task SetAsync(ReminderSettings settings, CancellationToken cancellationToken)
@@ -36,6 +41,7 @@ internal sealed class ReminderSettingsStore(LocalDatabase database) : IReminderS
                      (FeedAtNightKey, settings.FeedAtNight ? "1" : "0"),
                      (TimerKey, settings.TimerRunning ? "1" : "0"),
                      (NapKey, settings.NapWindow ? "1" : "0"),
+                     (NapLeadKey, settings.NapLeadMinutes.ToString(CultureInfo.InvariantCulture)),
                  })
         {
             await connection.ExecuteAsync(

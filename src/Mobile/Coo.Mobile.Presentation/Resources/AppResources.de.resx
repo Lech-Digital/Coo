@@ -402,8 +402,10 @@ Wenn der Link Coo nicht öffnet, geh in Coo zu Einstellungen → Familie → Ein
   <data name="Quick.Error.signed-out" xml:space="preserve"><value>Sag es Coo funktioniert, sobald du angemeldet bist und deine Einträge teilst (Einstellungen → Konto). Bis dahin nutze die Knöpfe.</value></data>
   <data name="Quick.Error.unavailable" xml:space="preserve"><value>Coo kann gerade nicht verstehen. Deine Worte bleiben für später.</value></data>
   <data name="Quick.Hint" xml:space="preserve"><value>Sag oder tippe, was passiert ist, z. B. „{0} trinkt links“ oder „120 ml Pre-Milch um zwei, dann eine nasse Windel“.</value></data>
+  <data name="Quick.HoldHint" xml:space="preserve"><value>Halten zum Sprechen, oder tippen und sprechen</value></data>
   <data name="Quick.KeptForLater" xml:space="preserve"><value>Keine Verbindung: Coo hat deine Worte gespeichert und fragt später nach.</value></data>
   <data name="Quick.Listening" xml:space="preserve"><value>Ich höre zu…</value></data>
+  <data name="Quick.ListeningRelease" xml:space="preserve"><value>Ich höre zu… loslassen oder tippen, wenn du fertig bist</value></data>
   <data name="Quick.NotHeard" xml:space="preserve"><value>Das habe ich nicht verstanden. Versuch es noch einmal oder tippe es.</value></data>
   <data name="Quick.NothingFound" xml:space="preserve"><value>Coo hat darin nichts zum Eintragen gefunden. Sag, was wann passiert ist.</value></data>
   <data name="Quick.Now" xml:space="preserve"><value>jetzt</value></data>
@@ -426,23 +428,30 @@ Wenn der Link Coo nicht öffnet, geh in Coo zu Einstellungen → Familie → Ein
   <data name="Quick.Warn.ai.nothing-running" xml:space="preserve"><value>Gerade läuft nichts</value></data>
   <data name="Quick.Warn.ai.time-not-stated" xml:space="preserve"><value>Keine Zeit genannt: jetzt</value></data>
   <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Ungewöhnliche Menge: bitte prüfen</value></data>
+  <data name="Reminder.Bed.Body" xml:space="preserve"><value>Wach seit {0}. Schlafenszeit ist ab etwa {1} wahrscheinlich.</value></data>
+  <data name="Reminder.Bed.Title" xml:space="preserve"><value>Bald Schlafenszeit für {0}</value></data>
   <data name="Reminder.Feed.Body" xml:space="preserve"><value>Die letzte Mahlzeit begann um {0}.</value></data>
   <data name="Reminder.Feed.Title" xml:space="preserve"><value>Zeit, {0} zu füttern?</value></data>
-  <data name="Reminder.Nap.Body" xml:space="preserve"><value>Wach seit {0}: das Wachfenster ist fast vorbei.</value></data>
-  <data name="Reminder.Nap.Title" xml:space="preserve"><value>Bald Schlafenszeit für {0}</value></data>
+  <data name="Reminder.Nap.Body" xml:space="preserve"><value>Wach seit {0}. Ein Schläfchen ist ab etwa {1} wahrscheinlich.</value></data>
+  <data name="Reminder.Nap.Title" xml:space="preserve"><value>Bald Zeit für ein Schläfchen: {0}</value></data>
   <data name="Reminder.Timer.Body" xml:space="preserve"><value>Gestartet um {0}. Wenn ihr fertig seid, öffne Coo und stoppe ihn.</value></data>
   <data name="Reminder.Timer.Feeding" xml:space="preserve"><value>Still-Timer läuft noch</value></data>
   <data name="Reminder.Timer.Pumping" xml:space="preserve"><value>Abpump-Timer läuft noch</value></data>
   <data name="Reminders.Denied" xml:space="preserve"><value>Benachrichtigungen sind für Coo aus. Aktiviere sie in den Android-Einstellungen, um Erinnerungen zu erhalten.</value></data>
+  <data name="Reminders.Exact" xml:space="preserve"><value>Auf die Minute genau</value></data>
+  <data name="Reminders.ExactAllow" xml:space="preserve"><value>In den Einstellungen erlauben</value></data>
+  <data name="Reminders.ExactHint" xml:space="preserve"><value>Android kann Erinnerungen bei ruhendem Handy eine Weile zurückhalten. Erlaube „Wecker &amp; Erinnerungen“ für Coo, damit sie pünktlich kommen.</value></data>
   <data name="Reminders.Feed" xml:space="preserve"><value>Mahlzeit</value></data>
   <data name="Reminders.FeedAtNight" xml:space="preserve"><value>Auch nachts</value></data>
   <data name="Reminders.FeedAtNightHint" xml:space="preserve"><value>Sonst still zwischen {0} und {1}.</value></data>
   <data name="Reminders.FeedHint" xml:space="preserve"><value>So lange nach Beginn der letzten Mahlzeit</value></data>
   <data name="Reminders.Hours" xml:space="preserve"><value>{0} Std.</value></data>
   <data name="Reminders.Intro" xml:space="preserve"><value>Coo erinnert dich auf diesem Handy, auch offline. Jedes Elternteil wählt selbst.</value></data>
-  <data name="Reminders.MayBeLate" xml:space="preserve"><value>Android kann Erinnerungen bei ruhendem Handy einige Minuten später zustellen.</value></data>
+  <data name="Reminders.Minutes" xml:space="preserve"><value>{0} Min. vorher</value></data>
   <data name="Reminders.Nap" xml:space="preserve"><value>Schlaffenster</value></data>
-  <data name="Reminders.NapHint" xml:space="preserve"><value>15 Minuten vor Ende des typischen Wachfensters für dieses Alter</value></data>
+  <data name="Reminders.NapHint" xml:space="preserve"><value>Bevor das nächste Schläfchen oder die Schlafenszeit wahrscheinlich ist, gelernt aus den Schlafzeiten, die ihr eintragt</value></data>
+  <data name="Reminders.NapLead" xml:space="preserve"><value>Erinnern</value></data>
+  <data name="Reminders.NapPremium" xml:space="preserve"><value>Teil von Premium: lernt den eigenen Rhythmus deines Babys und erinnert dich vor dem nächsten Schläfchen.</value></data>
   <data name="Reminders.Off" xml:space="preserve"><value>Aus</value></data>
   <data name="Reminders.Timer" xml:space="preserve"><value>Vergessener Timer</value></data>
   <data name="Reminders.TimerHint" xml:space="preserve"><value>Wenn ein Still- oder Abpump-Timer 45 Minuten läuft</value></data>
@@ -579,16 +588,23 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Toast.Saved" xml:space="preserve"><value>Gespeichert · {0}</value></data>
   <data name="Toast.Undone" xml:space="preserve"><value>Rückgängig gemacht</value></data>
   <data name="Today.AdvisorTip" xml:space="preserve"><value>Tipp des Tages</value></data>
+  <data name="Today.BedDue" xml:space="preserve"><value>Schlafenszeit ist jetzt wahrscheinlich</value></data>
+  <data name="Today.BedLikely" xml:space="preserve"><value>Schlafenszeit wahrscheinlich {0}–{1}</value></data>
   <data name="Today.DailyProgress" xml:space="preserve"><value>Tagesverlauf</value></data>
-  <data name="Today.NapDue" xml:space="preserve"><value>Schläfchen ist jetzt dran</value></data>
-  <data name="Today.NapWindow" xml:space="preserve"><value>{0}m Wachfenster</value></data>
-  <data name="Today.NextNap" xml:space="preserve"><value>Nächstes Schläfchen ~{0}</value></data>
+  <data name="Today.NapDue" xml:space="preserve"><value>Ein Schläfchen ist jetzt wahrscheinlich</value></data>
+  <data name="Today.NapLearning" xml:space="preserve"><value>Trag noch ein paar Tage ein für einen persönlichen Vorschlag.</value></data>
+  <data name="Today.NapLikely" xml:space="preserve"><value>Schläfchen wahrscheinlich {0}–{1}</value></data>
+  <data name="Today.NapPremium" xml:space="preserve"><value>Persönliche Schlafzeiten mit Premium</value></data>
+  <data name="Today.NapTypical" xml:space="preserve"><value>Typisches Wachfenster mit {0}: {1}</value></data>
+  <data name="Today.NapWhyLink" xml:space="preserve"><value>Warum diese Zeit?</value></data>
   <data name="Today.NextSide" xml:space="preserve"><value>Nächste Seite: {0}</value></data>
   <data name="Today.NextUp" xml:space="preserve"><value>Als Nächstes</value></data>
   <data name="Today.Paused" xml:space="preserve"><value>Teilen mit dieser Familie ist pausiert. Deine Einträge sind auf diesem Handy sicher.</value></data>
   <data name="Today.ProgressDiapers" xml:space="preserve"><value>{0} von {1}+ Windeln</value></data>
   <data name="Today.ProgressFeeds" xml:space="preserve"><value>{0} von {1} Mahlzeiten</value></data>
   <data name="Today.ProgressSleep" xml:space="preserve"><value>{0} von {1} Schlaf</value></data>
+  <data name="Today.RangeHours" xml:space="preserve"><value>{0}–{1} Std.</value></data>
+  <data name="Today.RangeMinutes" xml:space="preserve"><value>{0}–{1} Min.</value></data>
   <data name="Today.RecentActivity" xml:space="preserve"><value>Letzte Aktivitäten</value></data>
   <data name="Today.SeeAllInLog" xml:space="preserve"><value>Ganzen Verlauf anzeigen →</value></data>
   <data name="Today.SinceFeed" xml:space="preserve"><value>seit {0} nicht gefüttert</value></data>
@@ -650,6 +666,13 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>Das ist ein langer Schlaf (über 16 Stunden).</value></data>
   <data name="Who.Other" xml:space="preserve"><value>Anderes Elternteil</value></data>
   <data name="Who.You" xml:space="preserve"><value>Du</value></data>
+  <data name="Why.Awake" xml:space="preserve"><value>Wach seit {0}.</value></data>
+  <data name="Why.Disclaimer" xml:space="preserve"><value>Die Vorschläge stammen aus euren eingetragenen Schlafzeiten und allgemeinen Empfehlungen. Sie sind kein medizinischer Rat: Sprich bei Sorgen um Schlaf oder Entwicklung mit eurer Kinderärztin oder eurem Kinderarzt.</value></data>
+  <data name="Why.PersonalBed" xml:space="preserve"><value>Vor dem Schlafengehen war {0} in den letzten {2} Tagen meist etwa {1} wach.</value></data>
+  <data name="Why.PersonalNap" xml:space="preserve"><value>Vor dem {3}. Schläfchen war {0} in den letzten {2} Tagen meist etwa {1} wach.</value></data>
+  <data name="Why.ShortNap" xml:space="preserve"><value>Das letzte Schläfchen war kurz, deshalb kommt das Fenster etwas früher.</value></data>
+  <data name="Why.TitleBed" xml:space="preserve"><value>Schlafenszeit</value></data>
+  <data name="Why.TitleNap" xml:space="preserve"><value>Nächstes Schläfchen</value></data>
   <data name="Widget.AsleepSince" xml:space="preserve"><value>Schläft seit {0}</value></data>
   <data name="Widget.AwakeSince" xml:space="preserve"><value>Wach seit {0}</value></data>
   <data name="Widget.DiaperAt" xml:space="preserve"><value>Windel um {0}</value></data>

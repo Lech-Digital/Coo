@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<GetEntries>();
         services.AddTransient<EnsureProvisionalHousehold>();
         services.AddTransient<GetToday>();
+        services.AddTransient<Insights.GetSleepPrediction>();
         services.AddTransient<Growth.GetGrowth>();
         services.AddTransient<Reports.BuildCareReport>();
         services.AddTransient<GetDay>();

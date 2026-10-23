@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Coo.Mobile.Application.Billing;
 using Coo.Mobile.Application.Notifications;
 using Coo.Mobile.Application.Preferences;
 using Coo.Mobile.Presentation.Localization;
@@ -15,7 +16,8 @@ public sealed partial class RemindersViewModel(
     IReminderSettingsStore store,
     IReminderScheduler scheduler,
     IDevicePreferences preferences,
-    ReminderRefresher refresher) : ObservableObject
+    ReminderRefresher refresher,
+    IBillingService billing) : ObservableObject
 {
     [ObservableProperty]
     private ReminderSettings _settings = ReminderSettings.Off;
@@ -25,6 +27,17 @@ public sealed partial class RemindersViewModel(
 
     [ObservableProperty]
     private string _message = "";
+
+    [ObservableProperty]
+    private bool _canBeExact = true;
+
+    /// <summary>The nap reminder follows the personal prediction, which is Premium (ADR 0008 §7).</summary>
+    public bool IsPremium => billing.IsPremiumCached;
+
+    /// <summary>Exact alarms are worth asking for once something is on.</summary>
+    public bool ShowExact => !CanBeExact && Settings.AnyOn;
+
+    public static string LeadLabel(int minutes) => Strings.Format("Reminders.Minutes", minutes);
 
     /// <summary>The feeding choices: Off, then each interval.</summary>
     public static IReadOnlyList<TimeSpan?> FeedChoices { get; } = [null, .. ReminderSettings.FeedIntervals.Select(i => (TimeSpan?)i)];
@@ -36,6 +49,9 @@ public sealed partial class RemindersViewModel(
     public async Task LoadAsync()
     {
         Settings = await store.GetAsync(CancellationToken.None);
+        CanBeExact = scheduler.CanBeExact;
+        // Back from Android's settings with exact alarms allowed: schedule them again, on the minute.
+        await refresher.RefreshAsync();
         var quiet = (await preferences.GetAppearanceAsync(CancellationToken.None)).QuietHours;
         QuietHint = Strings.Format("Reminders.FeedAtNightHint", quiet.Start.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture),
             quiet.End.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture));
@@ -52,6 +68,12 @@ public sealed partial class RemindersViewModel(
 
     [RelayCommand]
     private Task ToggleNap() => ApplyAsync(Settings with { NapWindow = !Settings.NapWindow });
+
+    [RelayCommand]
+    private Task SetNapLead(int minutes) => ApplyAsync(Settings with { NapLeadMinutes = minutes });
+
+    [RelayCommand]
+    private void AllowExact() => scheduler.OpenExactSettings();
 
     private async Task ApplyAsync(ReminderSettings next)
     {

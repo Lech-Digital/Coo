@@ -149,7 +149,7 @@ public sealed class TodayPage : ContentPage
             LiveView.Release(old as IVisualTreeElement);
         _sections.Children.Clear();
         foreach (var section in _model.Sections)
-            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model, SwitchToLog, SwitchToAdvisor, OpenVoice, OpenHealth)));
+            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model, SwitchToLog, SwitchToAdvisor, OpenVoice, OpenHealth, OpenSleepWhy, OpenPremium)));
         _built = [.. _model.Sections];
         _builtLanguage = Strings.Language;
     }
@@ -228,6 +228,17 @@ public sealed class TodayPage : ContentPage
         }.Where(b => _model.IsShown(b.Kind)).Select(b => b.Item).ToArray();
         await _sheet.ShowAsync(Panel(Strings.Get("Edit.Earlier"), items));
     }
+
+    /// <summary>Why this sleep window (ADR 0008 §8): the explanation, one tap from Today, with the note that it is not advice.</summary>
+    private async void OpenSleepWhy(NextUpSection section)
+    {
+        _pageSheet = true;
+        var lines = section.NapWhy.Select((line, i) => (View)Ui.Text(line, i == section.NapWhy.Count - 1 ? "Meta" : "Body", "Ink2")).ToList();
+        lines.Insert(0, Ui.Text(section.NextNap, "BodyStrong"));
+        await _sheet.ShowAsync(Panel(section.NapWhyTitle, [.. lines]));
+    }
+
+    private async void OpenPremium() => await Navigation.PushAsync(_services.GetRequiredService<PremiumPage>());
 
     /// <summary>"Health": the growth chart, then a measurement, medicine, temperature, vaccine or visit, each a form set to now.</summary>
     private async void OpenHealth()

@@ -13,9 +13,16 @@ public interface ISpeechToText
 {
     bool IsAvailable { get; }
 
-    /// <summary>One recognition session; the best phrase, or null on silence, refusal or error.</summary>
+    /// <summary>
+    /// Listens until <see cref="Finish"/>, or until the person stops talking; everything heard, or null on silence,
+    /// refusal or error. Cancelling drops what was heard.
+    /// </summary>
     /// <param name="language">The app's language, two letters, so Polish is heard as Polish.</param>
-    Task<string?> ListenAsync(string language, CancellationToken cancellationToken);
+    /// <param name="onHeard">The words so far, as they come, on the main thread.</param>
+    Task<string?> ListenAsync(string language, Action<string>? onHeard, CancellationToken cancellationToken);
+
+    /// <summary>The person let go of the button or tapped it: stop listening and keep what was heard.</summary>
+    void Finish();
 }
 
 /// <summary>Words that could not be parsed yet (offline, server busy): kept on this phone until reviewed (ADR 0005 §3).</summary>

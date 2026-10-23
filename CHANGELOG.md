@@ -11,6 +11,24 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 - Each release gets a section here, newest first, written for parents rather than developers where it ends up in
   Play's "What's new".
 
+## 1.4.0 (code 21) — 2026-10-24
+
+### New
+- **Personal nap times** (Premium): Coo learns your baby's own wake windows from the sleeps you log and shows when
+  the next nap or bedtime is likely ("Nap likely 10:50–11:15"), with "Why this time?" one tap away. Until it has
+  learned enough, it shows the typical wake window for your baby's age.
+- **The nap reminder** follows that prediction, 5, 10, 15 or 20 minutes before the window opens.
+- **Reminders on the minute**: allow "Alarms & reminders" for Coo (Settings → Reminders) and they arrive exactly on
+  time, even when the phone is idle.
+- **Sync in the background**: your partner's entries reach this phone every 15 minutes or so, with Coo closed, so
+  reminders and the widget stay up to date.
+
+### Changed
+- **Tell Coo** listens better: hold the mic to talk and let go when done, or tap, talk, and tap again. It waits for
+  you to start, keeps listening through pauses, and shows the words as you speak. It no longer gives up at once on
+  phones without an offline speech pack for your language.
+- Without Premium, Today shows the typical wake window for your baby's age instead of an estimated nap time.
+
 ## 1.3.0 (code 20) — 2026-10-23
 
 ### New

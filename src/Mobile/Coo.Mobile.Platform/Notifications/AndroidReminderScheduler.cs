@@ -7,9 +7,10 @@ using Microsoft.Maui.ApplicationModel;
 namespace Coo.Mobile.Platform.Notifications;
 
 /// <summary>
-/// Coo's reminders as Android alarms (ADR 0007 §3): <c>setAndAllowWhileIdle</c>, so they fire in Doze, a few minutes late
-/// at worst. What is scheduled is also kept in the app's shared preferences, so the boot receiver can put the alarms
-/// back without starting the app, and a reconcile can cancel what is no longer planned.
+/// Coo's reminders as Android alarms (ADR 0007 §3): exact (<c>setExactAndAllowWhileIdle</c>) where the parent allowed
+/// "Alarms &amp; reminders", otherwise <c>setAndAllowWhileIdle</c>, which Doze may hold back for a while. What is scheduled
+/// is also kept in the app's shared preferences, so the boot receiver can put the alarms back without starting the app,
+/// and a reconcile can cancel what is no longer planned.
 /// </summary>
 internal sealed class AndroidReminderScheduler : IReminderScheduler
 {
@@ -21,6 +22,27 @@ internal sealed class AndroidReminderScheduler : IReminderScheduler
         Reminders.EnsureChannel(Context, ChannelName.Value);
         Reminders.Replace(Context, notices);
         return Task.CompletedTask;
+    }
+
+    public bool CanBeExact => Reminders.CanBeExact(Context);
+
+    public void OpenExactSettings()
+    {
+        if (!OperatingSystem.IsAndroidVersionAtLeast(31))
+            return;
+        try
+        {
+            var intent = new Intent(global::Android.Provider.Settings.ActionRequestScheduleExactAlarm)
+                .SetData(global::Android.Net.Uri.Parse("package:" + Context.PackageName))
+                .AddFlags(ActivityFlags.NewTask);
+            Context.StartActivity(intent);
+        }
+#pragma warning disable CA1031 // A phone without that screen: reminders stay inexact, nothing else changes.
+        catch (Exception e)
+#pragma warning restore CA1031
+        {
+            global::Android.Util.Log.Warn("Coo", $"Exact alarm settings not opened: {e.GetType().Name}");
+        }
     }
 
     public async Task<bool> EnsurePermissionAsync()
@@ -79,11 +101,31 @@ internal static class Reminders
         }
     }
 
+    /// <summary>Before Android 12 every app may; from 12 the parent decides, in "Alarms &amp; reminders".</summary>
+    public static bool CanBeExact(Context context) =>
+        !OperatingSystem.IsAndroidVersionAtLeast(31)
+        || (context.GetSystemService(Context.AlarmService) is AlarmManager alarms && alarms.CanScheduleExactAlarms());
+
     private static void Schedule(Context context, ReminderNotice notice)
     {
         if (context.GetSystemService(Context.AlarmService) is not AlarmManager alarms)
             return;
-        alarms.SetAndAllowWhileIdle(AlarmType.RtcWakeup, notice.At.ToUnixTimeMilliseconds(), Pending(context, notice.Id, notice));
+        var at = notice.At.ToUnixTimeMilliseconds();
+        var pending = Pending(context, notice.Id, notice);
+        try
+        {
+            if (CanBeExact(context))
+            {
+                alarms.SetExactAndAllowWhileIdle(AlarmType.RtcWakeup, at, pending);
+                return;
+            }
+        }
+        catch (Java.Lang.SecurityException)
+        {
+            // Taken back between the check and the call: inexact below.
+        }
+
+        alarms.SetAndAllowWhileIdle(AlarmType.RtcWakeup, at, pending);
     }
 
     private static void Cancel(Context context, string id)
@@ -179,14 +221,19 @@ public sealed class ReminderReceiver : BroadcastReceiver
     }
 }
 
-/// <summary>Puts the alarms back after a reboot or an app update, when Android has dropped them all.</summary>
+/// <summary>
+/// Puts the alarms back after a reboot or an app update, when Android has dropped them all, and again when the parent
+/// allows exact alarms, so the ones waiting become exact.
+/// </summary>
 [BroadcastReceiver(Exported = true)]
-[IntentFilter([Intent.ActionBootCompleted, Intent.ActionMyPackageReplaced])]
+[IntentFilter([Intent.ActionBootCompleted, Intent.ActionMyPackageReplaced, ExactAllowed])]
 public sealed class ReminderBootReceiver : BroadcastReceiver
 {
+    private const string ExactAllowed = "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED";
+
     public override void OnReceive(Context? context, Intent? intent)
     {
-        if (context is null || (intent?.Action != Intent.ActionBootCompleted && intent?.Action != Intent.ActionMyPackageReplaced))
+        if (context is null || intent?.Action is not (Intent.ActionBootCompleted or Intent.ActionMyPackageReplaced or ExactAllowed))
             return;
         try
         {

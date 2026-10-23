@@ -2,6 +2,7 @@ using Coo.Domain.CareLog;
 using Coo.Domain.CareLog.Kinds.Feeding;
 using Coo.Domain.CareLog.Kinds.Pump;
 using Coo.Domain.CareLog.Kinds.Sleep;
+using Coo.Domain.Insights;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Preferences;
 
@@ -14,10 +15,14 @@ namespace Coo.Mobile.Application.Notifications;
 /// <param name="FeedEvery">"It has been this long since the last feeding"; null is off.</param>
 /// <param name="FeedAtNight">The feeding reminder also during quiet hours, for parents doing night feeds.</param>
 /// <param name="TimerRunning">A feeding or pumping timer still running after <see cref="ReminderPlanner.TimerAfter"/>.</param>
-/// <param name="NapWindow">Shortly before the end of the baby's wake window.</param>
-public sealed record ReminderSettings(TimeSpan? FeedEvery, bool FeedAtNight, bool TimerRunning, bool NapWindow)
+/// <param name="NapWindow">Before the predicted sleep window opens (ADR 0008 §7): Premium.</param>
+/// <param name="NapLeadMinutes">How long before the window opens: 5, 10, 15 or 20 minutes.</param>
+public sealed record ReminderSettings(TimeSpan? FeedEvery, bool FeedAtNight, bool TimerRunning, bool NapWindow, int NapLeadMinutes = 15)
 {
     public static ReminderSettings Off { get; } = new(null, false, false, false);
+
+    /// <summary>The lead times a parent can pick for the nap reminder (ADR 0008 §7).</summary>
+    public static IReadOnlyList<int> NapLeads { get; } = [5, 10, 15, 20];
 
     /// <summary>The intervals a parent can pick for the feeding reminder.</summary>
     public static IReadOnlyList<TimeSpan> FeedIntervals { get; } =
@@ -31,30 +36,17 @@ public enum ReminderKind
     Feed,
     Timer,
     Nap,
+    Bedtime,
 }
 
 /// <summary>
 /// One notification that should be scheduled. <paramref name="Id"/> is stable for its rule and subject, so planning twice
 /// changes nothing (ADR 0007 §3). <paramref name="Since"/> is the moment the text names ("last feeding at 11:20"), true
-/// whenever the notification arrives, so a late alarm is never wrong.
+/// whenever the notification arrives, so a late alarm is never wrong. <paramref name="Opens"/> is when a predicted sleep
+/// window opens, for the nap and bedtime reminders.
 /// </summary>
-public sealed record PlannedReminder(string Id, ReminderKind Kind, DateTimeOffset At, DateTimeOffset Since, EntryDetails? Details = null);
-
-/// <summary>Typical wake windows by age, in minutes: how long a baby manages awake before the next sleep.</summary>
-public static class WakeWindows
-{
-    public static (int MinMinutes, int MaxMinutes) For(int daysOld) => daysOld switch
-    {
-        < 14 => (30, 45),
-        < 45 => (45, 60),
-        < 90 => (60, 90),
-        < 150 => (90, 120),
-        < 240 => (120, 150),
-        < 365 => (150, 210),
-        < 545 => (240, 300),
-        _ => (300, 360),
-    };
-}
+public sealed record PlannedReminder(
+    string Id, ReminderKind Kind, DateTimeOffset At, DateTimeOffset Since, EntryDetails? Details = null, DateTimeOffset? Opens = null);
 
 /// <summary>
 /// The complete set of reminders that should be scheduled now (ADR 0007 §3): pure, recomputed after every write and
@@ -66,11 +58,9 @@ public static class ReminderPlanner
     /// <summary>How long a feeding or pumping timer runs before Coo asks whether it was forgotten.</summary>
     public static readonly TimeSpan TimerAfter = TimeSpan.FromMinutes(45);
 
-    /// <summary>How long before the end of the wake window the nap reminder comes (ADR 0008 §7).</summary>
-    public static readonly TimeSpan NapLead = TimeSpan.FromMinutes(15);
-
+    /// <param name="sleep">The predicted next sleep window; null when there is none, or without Premium.</param>
     public static IReadOnlyList<PlannedReminder> Plan(
-        TodaySummary today, DateOnly? birthDate, ReminderSettings settings, QuietHours quiet, TimeZoneInfo zone, DateTimeOffset now)
+        TodaySummary today, SleepPrediction? sleep, ReminderSettings settings, QuietHours quiet, TimeZoneInfo zone, DateTimeOffset now)
     {
         ArgumentNullException.ThrowIfNull(today);
         ArgumentNullException.ThrowIfNull(settings);
@@ -98,13 +88,15 @@ public static class ReminderPlanner
         }
 
         var asleep = today.Running.Any(e => e.Details is SleepDetails);
-        if (settings.NapWindow && !asleep && birthDate is { } born && today.AwakeSince is { } awake)
+        if (settings.NapWindow && !asleep && sleep is not null)
         {
-            var daysOld = Math.Max(0, DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, zone).DateTime).DayNumber - born.DayNumber);
-            var at = awake.AddMinutes(WakeWindows.For(daysOld).MaxMinutes) - NapLead;
-            // Not at night: the next sleep then is the night's, and nobody needs a reminder for it.
+            // A lead time before the window opens (ADR 0008 §7), never in quiet hours: those are the night's.
+            var at = sleep.Earliest - TimeSpan.FromMinutes(settings.NapLeadMinutes);
             if (at > now && !AtNight(at))
-                planned.Add(new PlannedReminder("nap", ReminderKind.Nap, at, awake));
+            {
+                var kind = sleep.IsBedtime ? ReminderKind.Bedtime : ReminderKind.Nap;
+                planned.Add(new PlannedReminder("nap", kind, at, sleep.AwakeSince, Opens: sleep.Earliest));
+            }
         }
 
         return planned;

@@ -402,8 +402,10 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Quick.Error.signed-out" xml:space="preserve"><value>Zeg het tegen Coo werkt zodra je bent ingelogd en je logboek deelt (Instellingen → Account). Gebruik tot die tijd de knoppen.</value></data>
   <data name="Quick.Error.unavailable" xml:space="preserve"><value>Coo kan het nu niet begrijpen. Je woorden blijven bewaard voor later.</value></data>
   <data name="Quick.Hint" xml:space="preserve"><value>Zeg of typ wat er gebeurde, zoals ‘{0} begon links’ of ‘120 ml flesvoeding om twee uur, daarna een natte luier’.</value></data>
+  <data name="Quick.HoldHint" xml:space="preserve"><value>Houd vast om te praten, of tik en spreek</value></data>
   <data name="Quick.KeptForLater" xml:space="preserve"><value>Geen verbinding: Coo heeft je woorden bewaard en vraagt je later ze na te kijken.</value></data>
   <data name="Quick.Listening" xml:space="preserve"><value>Ik luister…</value></data>
+  <data name="Quick.ListeningRelease" xml:space="preserve"><value>Ik luister… laat los of tik als je klaar bent</value></data>
   <data name="Quick.NotHeard" xml:space="preserve"><value>Dat verstond ik niet. Probeer het opnieuw of typ het.</value></data>
   <data name="Quick.NothingFound" xml:space="preserve"><value>Coo vond daar niets in om te loggen. Zeg wat er gebeurde, en wanneer.</value></data>
   <data name="Quick.Now" xml:space="preserve"><value>nu</value></data>
@@ -426,23 +428,30 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Quick.Warn.ai.nothing-running" xml:space="preserve"><value>Er loopt nu niets</value></data>
   <data name="Quick.Warn.ai.time-not-stated" xml:space="preserve"><value>Geen tijd genoemd: nu</value></data>
   <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Ongebruikelijke hoeveelheid: controleer</value></data>
+  <data name="Reminder.Bed.Body" xml:space="preserve"><value>Wakker sinds {0}. Bedtijd is waarschijnlijk vanaf ongeveer {1}.</value></data>
+  <data name="Reminder.Bed.Title" xml:space="preserve"><value>Bijna bedtijd voor {0}</value></data>
   <data name="Reminder.Feed.Body" xml:space="preserve"><value>De laatste voeding begon om {0}.</value></data>
   <data name="Reminder.Feed.Title" xml:space="preserve"><value>Tijd om {0} te voeden?</value></data>
-  <data name="Reminder.Nap.Body" xml:space="preserve"><value>Wakker sinds {0}: het wakkervenster is bijna voorbij.</value></data>
+  <data name="Reminder.Nap.Body" xml:space="preserve"><value>Wakker sinds {0}. Een dutje is waarschijnlijk vanaf ongeveer {1}.</value></data>
   <data name="Reminder.Nap.Title" xml:space="preserve"><value>Bijna tijd voor een dutje voor {0}</value></data>
   <data name="Reminder.Timer.Body" xml:space="preserve"><value>Gestart om {0}. Klaar? Open Coo om hem te stoppen.</value></data>
   <data name="Reminder.Timer.Feeding" xml:space="preserve"><value>Voedingstimer loopt nog</value></data>
   <data name="Reminder.Timer.Pumping" xml:space="preserve"><value>Kolftimer loopt nog</value></data>
   <data name="Reminders.Denied" xml:space="preserve"><value>Meldingen staan uit voor Coo. Zet ze aan in de Android-instellingen om herinneringen te krijgen.</value></data>
+  <data name="Reminders.Exact" xml:space="preserve"><value>Precies op tijd</value></data>
+  <data name="Reminders.ExactAllow" xml:space="preserve"><value>Toestaan in instellingen</value></data>
+  <data name="Reminders.ExactHint" xml:space="preserve"><value>Android kan herinneringen uitstellen als de telefoon niet in gebruik is. Sta ‘Wekkers en herinneringen’ toe voor Coo om ze op tijd te krijgen.</value></data>
   <data name="Reminders.Feed" xml:space="preserve"><value>Voeding</value></data>
   <data name="Reminders.FeedAtNight" xml:space="preserve"><value>Ook ’s nachts</value></data>
   <data name="Reminders.FeedAtNightHint" xml:space="preserve"><value>Anders stil tussen {0} en {1}.</value></data>
   <data name="Reminders.FeedHint" xml:space="preserve"><value>Zo lang na het begin van de laatste voeding</value></data>
   <data name="Reminders.Hours" xml:space="preserve"><value>{0} u</value></data>
   <data name="Reminders.Intro" xml:space="preserve"><value>Coo herinnert je vanaf deze telefoon, ook offline. Elke ouder kiest zelf.</value></data>
-  <data name="Reminders.MayBeLate" xml:space="preserve"><value>Android kan herinneringen een paar minuten later bezorgen als de telefoon niet in gebruik is.</value></data>
+  <data name="Reminders.Minutes" xml:space="preserve"><value>{0} min van tevoren</value></data>
   <data name="Reminders.Nap" xml:space="preserve"><value>Dutjesvenster</value></data>
-  <data name="Reminders.NapHint" xml:space="preserve"><value>15 minuten voor het einde van het gebruikelijke wakkervenster voor deze leeftijd</value></data>
+  <data name="Reminders.NapHint" xml:space="preserve"><value>Voor het waarschijnlijke volgende dutje of bedtijd, geleerd uit de slaap die je logt</value></data>
+  <data name="Reminders.NapLead" xml:space="preserve"><value>Herinner me</value></data>
+  <data name="Reminders.NapPremium" xml:space="preserve"><value>Onderdeel van Premium: leert het ritme van je baby en herinnert je voor het volgende dutje.</value></data>
   <data name="Reminders.Off" xml:space="preserve"><value>Uit</value></data>
   <data name="Reminders.Timer" xml:space="preserve"><value>Vergeten timer</value></data>
   <data name="Reminders.TimerHint" xml:space="preserve"><value>Als een voedings- of kolftimer 45 minuten loopt</value></data>
@@ -579,16 +588,23 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Toast.Saved" xml:space="preserve"><value>Opgeslagen · {0}</value></data>
   <data name="Toast.Undone" xml:space="preserve"><value>Ongedaan gemaakt</value></data>
   <data name="Today.AdvisorTip" xml:space="preserve"><value>Tip van de dag</value></data>
+  <data name="Today.BedDue" xml:space="preserve"><value>Bedtijd is nu waarschijnlijk</value></data>
+  <data name="Today.BedLikely" xml:space="preserve"><value>Bedtijd waarschijnlijk {0}–{1}</value></data>
   <data name="Today.DailyProgress" xml:space="preserve"><value>Dagelijkse voortgang</value></data>
-  <data name="Today.NapDue" xml:space="preserve"><value>Tijd voor een dutje</value></data>
-  <data name="Today.NapWindow" xml:space="preserve"><value>{0}m waakvenster</value></data>
-  <data name="Today.NextNap" xml:space="preserve"><value>Volgend dutje ~{0}</value></data>
+  <data name="Today.NapDue" xml:space="preserve"><value>Een dutje is nu waarschijnlijk</value></data>
+  <data name="Today.NapLearning" xml:space="preserve"><value>Log nog een paar dagen voor een persoonlijke suggestie.</value></data>
+  <data name="Today.NapLikely" xml:space="preserve"><value>Dutje waarschijnlijk {0}–{1}</value></data>
+  <data name="Today.NapPremium" xml:space="preserve"><value>Persoonlijke dutjestijden met Premium</value></data>
+  <data name="Today.NapTypical" xml:space="preserve"><value>Gebruikelijk wakkervenster op {0}: {1}</value></data>
+  <data name="Today.NapWhyLink" xml:space="preserve"><value>Waarom deze tijd?</value></data>
   <data name="Today.NextSide" xml:space="preserve"><value>Volgende kant: {0}</value></data>
   <data name="Today.NextUp" xml:space="preserve"><value>Binnenkort</value></data>
   <data name="Today.Paused" xml:space="preserve"><value>Delen met dit gezin is gepauzeerd. Je items zijn veilig op deze telefoon.</value></data>
   <data name="Today.ProgressDiapers" xml:space="preserve"><value>{0} van {1}+ luiers</value></data>
   <data name="Today.ProgressFeeds" xml:space="preserve"><value>{0} van {1} voedingen</value></data>
   <data name="Today.ProgressSleep" xml:space="preserve"><value>{0} van {1} slaap</value></data>
+  <data name="Today.RangeHours" xml:space="preserve"><value>{0}–{1} u</value></data>
+  <data name="Today.RangeMinutes" xml:space="preserve"><value>{0}–{1} min</value></data>
   <data name="Today.RecentActivity" xml:space="preserve"><value>Recente activiteit</value></data>
   <data name="Today.SeeAllInLog" xml:space="preserve"><value>Bekijk alles in Logboek →</value></data>
   <data name="Today.SinceFeed" xml:space="preserve"><value>{0} sinds laatste voeding</value></data>
@@ -650,6 +666,13 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>Dat is een lange slaap (meer dan 16 uur).</value></data>
   <data name="Who.Other" xml:space="preserve"><value>Andere ouder</value></data>
   <data name="Who.You" xml:space="preserve"><value>Jij</value></data>
+  <data name="Why.Awake" xml:space="preserve"><value>Wakker sinds {0}.</value></data>
+  <data name="Why.Disclaimer" xml:space="preserve"><value>Suggesties komen uit de slaap die je logt en algemene richtlijnen. Ze zijn geen medisch advies: bespreek zorgen over slaap of ontwikkeling met je kinderarts of het consultatiebureau.</value></data>
+  <data name="Why.PersonalBed" xml:space="preserve"><value>Voor bedtijd was {0} de afgelopen {2} dagen ongeveer {1} wakker.</value></data>
+  <data name="Why.PersonalNap" xml:space="preserve"><value>Voor dutje {3} was {0} de afgelopen {2} dagen ongeveer {1} wakker.</value></data>
+  <data name="Why.ShortNap" xml:space="preserve"><value>Het laatste dutje was kort, dus het venster komt iets eerder.</value></data>
+  <data name="Why.TitleBed" xml:space="preserve"><value>Bedtijd</value></data>
+  <data name="Why.TitleNap" xml:space="preserve"><value>Volgend dutje</value></data>
   <data name="Widget.AsleepSince" xml:space="preserve"><value>Slaapt sinds {0}</value></data>
   <data name="Widget.AwakeSince" xml:space="preserve"><value>Wakker sinds {0}</value></data>
   <data name="Widget.DiaperAt" xml:space="preserve"><value>Luier om {0}</value></data>

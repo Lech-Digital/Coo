@@ -83,14 +83,18 @@ public sealed partial class TodayViewModel : ObservableObject
     private readonly IDevicePreferences _preferences;
     private readonly Coo.Mobile.Application.Households.BabyAvatarSyncService? _avatarSync;
     private string? _avatarRef;
+    private readonly Coo.Mobile.Application.Insights.GetSleepPrediction? _getSleep;
+    private Coo.Domain.Insights.SleepPrediction? _sleep;
 
     public TodayViewModel(
         IEnumerable<IHomeSection> sections, IHouseholdStore households, GetToday getToday, HomeActions actions,
         ThemeController theme, IClockFormat clock, RecordBirth recordBirth, TimeProvider time, GetAttention attention, UndoService undo,
         WhoLabelsSource who, Coo.Mobile.Application.Preferences.IReviewPrompter reviewPrompter, Coo.Mobile.Application.Billing.IBillingService billing,
-        IDevicePreferences preferences, Coo.Mobile.Application.Households.BabyAvatarSyncService? avatarSync = null)
+        IDevicePreferences preferences, Coo.Mobile.Application.Households.BabyAvatarSyncService? avatarSync = null,
+        Coo.Mobile.Application.Insights.GetSleepPrediction? getSleep = null)
     {
         _billing = billing;
+        _getSleep = getSleep;
         _preferences = preferences;
         _avatarSync = avatarSync;
         _billing.EntitlementChanged += () => Tick();
@@ -180,6 +184,9 @@ public sealed partial class TodayViewModel : ObservableObject
         // An entry waiting for its delete (Spec 007 §5) is already gone from what the parent sees.
         if (_summary is not null)
             _summary = _summary with { TodayEntries = [.. _summary.TodayEntries.Where(e => !_undo.IsPendingDelete(e.Id))] };
+        _sleep = _baby.IsBorn && _getSleep is not null
+            ? await _getSleep.ExecuteAsync(_household.Id, _baby, Zone(), _time.GetLocalNow(), CancellationToken.None)
+            : null;
         _attentionCount = (await _attention.ExecuteAsync(_household.Id, _time.GetLocalNow(), CancellationToken.None)).Count;
         _who = await _whoSource.ForAsync(_household.Id);
         _currentLocalDay = _time.GetLocalNow().Date;
@@ -353,7 +360,7 @@ public sealed partial class TodayViewModel : ObservableObject
         Tick();
     }
 
-    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef);
+    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep);
 
     private Formats Formats() => new(_clock.Is24Hour, _household?.VolumeUnit ?? VolumeUnit.Millilitres);
 

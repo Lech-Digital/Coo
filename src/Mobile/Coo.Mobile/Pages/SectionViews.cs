@@ -23,7 +23,9 @@ internal sealed record SectionHost(
     Action SwitchToLog,
     Action SwitchToAdvisor,
     Action OpenVoice,
-    Action OpenHealth);
+    Action OpenHealth,
+    Action<NextUpSection> OpenSleepWhy,
+    Action OpenPremium);
 
 /// <summary>
 /// A view that redraws when its source changes, coalesced to one redraw per change burst. Off screen it only notes the
@@ -483,12 +485,19 @@ internal static class SectionViews
 
         if (!string.IsNullOrEmpty(s.NextNap))
         {
-            var napRow = new HorizontalStackLayout { Spacing = 8, VerticalOptions = LayoutOptions.Center };
-            var napIcon = new Icon(IconGeometry.Sleep, "SleepInk", 18) { VerticalOptions = LayoutOptions.Center };
-            var napText = Ui.Text($"{s.NextNap} · {s.NapWindow}", "Body", "Ink2");
-            napText.VerticalOptions = LayoutOptions.Center;
-            napRow.Add(napIcon);
-            napRow.Add(napText);
+            // The next sleep (ADR 0008 §7): its window, and one tap to why (Premium) or to Premium.
+            var napRow = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 8 };
+            var napIcon = new Icon(IconGeometry.Sleep, "SleepInk", 18) { VerticalOptions = LayoutOptions.Start, Margin = new Thickness(0, 2, 0, 0) };
+            var napText = new VerticalStackLayout { Spacing = 2 };
+            napText.Add(Ui.Text(s.NextNap, s.NapIsPersonal ? "BodyStrong" : "Body", s.NapIsPersonal ? "Ink" : "Ink2"));
+            if (!string.IsNullOrEmpty(s.NapWindow))
+                napText.Add(Ui.Text(s.NapWindow, "Meta", s.NapIsPersonal || s.NapUpsell ? "Accent" : "Ink2"));
+            napRow.Add(napIcon, 0);
+            napRow.Add(napText, 1);
+            if (s.NapIsPersonal)
+                napRow.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => host.OpenSleepWhy(s)) });
+            else if (s.NapUpsell)
+                napRow.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(host.OpenPremium) });
             stack.Add(napRow);
         }
 

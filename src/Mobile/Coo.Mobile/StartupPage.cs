@@ -47,6 +47,9 @@ public sealed class StartupPage : ContentPage
         await _household.ExecuteAsync(CancellationToken.None);
 #if COO_DEMO
         await _services.GetRequiredService<Coo.Mobile.Application.Demo.SeedDemoLog>().ExecuteAsync(CancellationToken.None);
+
+        // The demo shows everything, Premium included: it is local only and never sold (store-assets/PLAN.md).
+        _services.GetRequiredService<Coo.Mobile.Application.Billing.IBillingService>().SetPremiumForDebug(true);
 #endif
 
         // Who is signed in (Spec 010 §3.3), read once from SecureStorage. Signed in or not, Today opens the same way.
@@ -354,6 +357,7 @@ public sealed class StartupPage : ContentPage
             _services.GetRequiredService<Coo.Mobile.Application.Sync.LocalWrites>().Written += (_, _) => reminders.RequestSoon();
             engine.DataChanged += (_, _) => reminders.RequestSoon();
             reminders.RequestSoon();
+            BackgroundSyncJob.Schedule(global::Android.App.Application.Context);
 
             // Started while Coo is not on screen (a Stopped that came before this page finished): no 30-second pull then.
             if (!App.IsForeground)

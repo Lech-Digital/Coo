@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using Coo.Domain.Households;
+using Coo.Domain.Insights;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Presentation.Formatting;
 using Coo.Mobile.Presentation.Theme;
@@ -16,7 +17,7 @@ public enum HomeStage
 /// <summary>Everything a section may show, computed once per refresh or tick.</summary>
 public sealed record HomeSnapshot(
     HouseholdSettings Household, BabyProfile Baby, TodaySummary? Today, DateTimeOffset Now, PaletteKind Palette, Formats Formats,
-    int AttentionCount = 0, WhoLabels? Who = null, bool IsPremium = false, string? AvatarRef = null);
+    int AttentionCount = 0, WhoLabels? Who = null, bool IsPremium = false, string? AvatarRef = null, SleepPrediction? Sleep = null);
 
 /// <summary>
 /// One block of Today (Spec 006 §3a, ADR 0010 §5). Today only lays out the sections that apply to the current stage and

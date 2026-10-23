@@ -21,4 +21,7 @@
   <!-- Reminders (ADR 0007): asked for when the first reminder is turned on; alarms come back after a reboot. -->
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
   <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+  <!-- Reminders on the minute (ADR 0007 §3), only when the parent allows "Alarms & reminders" for Coo in Android's
+       settings; without it they stay inexact. Not USE_EXACT_ALARM: that one is for alarm-clock and calendar apps. -->
+  <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 </manifest>

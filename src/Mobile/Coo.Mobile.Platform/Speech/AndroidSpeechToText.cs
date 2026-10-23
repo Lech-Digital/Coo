@@ -8,17 +8,19 @@ using Microsoft.Maui.ApplicationModel;
 namespace Coo.Mobile.Platform.Speech;
 
 /// <summary>
-/// Dictation through Android's <see cref="SpeechRecognizer"/> (ADR 0005 §2), after CoreChoice's AndroidVoiceDictation: one
-/// session per tap, the microphone asked for on first use (never at launch), on-device recognition preferred. Audio stays
-/// with Android's recogniser: Coo never records or sends it, only the resulting text. Never throws: any failure is null.
+/// Dictation through Android's <see cref="SpeechRecognizer"/> (ADR 0005 §2), the microphone asked for on first use (never
+/// at launch), on-device recognition preferred. Audio stays with Android's recogniser: Coo never records or sends it, only
+/// the resulting text. Never throws: any failure is null.
 /// </summary>
 internal sealed class AndroidSpeechToText : ISpeechToText
 {
     private static Context Context => global::Android.App.Application.Context;
 
+    private ListeningSession? _current;
+
     public bool IsAvailable => SpeechRecognizer.IsRecognitionAvailable(Context);
 
-    public async Task<string?> ListenAsync(string language, CancellationToken cancellationToken)
+    public async Task<string?> ListenAsync(string language, Action<string>? onHeard, CancellationToken cancellationToken)
     {
         if (!IsAvailable)
             return null;
@@ -31,7 +33,10 @@ internal sealed class AndroidSpeechToText : ISpeechToText
             if (status != PermissionStatus.Granted || cancellationToken.IsCancellationRequested)
                 return null;
 
-            return await ListenOnMainThreadAsync(language, cancellationToken);
+            var session = new ListeningSession(language, onHeard);
+            _current = session;
+            using var registration = cancellationToken.Register(session.Cancel);
+            return await session.RunAsync();
         }
 #pragma warning disable CA1031 // A denied permission or a platform quirk must not break Today; the person can type instead.
         catch (Exception)
@@ -41,139 +46,204 @@ internal sealed class AndroidSpeechToText : ISpeechToText
         }
     }
 
-    private static Task<string?> ListenOnMainThreadAsync(string language, CancellationToken cancellationToken)
-    {
-        var completion = new TaskCompletionSource<string?>();
-        var session = new RecognizerSession();
+    public void Finish() => _current?.Finish();
 
-        // One exit for every outcome, so the recogniser is torn down exactly once and the microphone always closes.
-        void Complete(string? result)
+    /// <summary>
+    /// One "Tell Coo", as long as it takes: Android's recogniser ends a session at the first pause, so each one that ends is
+    /// started again and the words are joined, until the person lets go or taps, or stops talking for
+    /// <see cref="QuietAfterSpeech"/>. Before any words it waits <see cref="WaitForSpeech"/>: a parent picking up a baby
+    /// does not start talking at once. A missing offline language pack fails at once on some phones: then Android's online
+    /// recogniser is used. Everything runs on the main thread, where Android calls the listener.
+    /// </summary>
+    private sealed class ListeningSession(string language, Action<string>? onHeard) : Java.Lang.Object, IRecognitionListener
+    {
+        private const long WaitForSpeech = 20_000;
+        private const long LongestSession = 90_000;
+        private const long QuietAfterSpeech = 3_000;
+        private const long FinishGrace = 1_500;
+        private const long RestartDelay = 120;
+
+        private readonly TaskCompletionSource<string?> _done = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly Handler _main = new(Looper.MainLooper!);
+        private readonly List<string> _finals = [];
+        private SpeechRecognizer? _recognizer;
+        private string _partial = "";
+        private bool _offline = true;
+        private bool _finishing;
+        private long _startedAt;
+        private int _quietTimer;
+
+        private string Heard => string.Join(' ', _partial.Length > 0 ? [.. _finals, _partial] : _finals).Trim();
+
+        public Task<string?> RunAsync()
         {
-            completion.TrySetResult(result);
-            session.Close();
+            MainThread.BeginInvokeOnMainThread(Start);
+            return _done.Task;
         }
 
-        var registration = cancellationToken.Register(() => Complete(null));
-        completion.Task.ContinueWith(_ => registration.Dispose(), TaskScheduler.Default);
-
-        MainThread.BeginInvokeOnMainThread(() =>
+        /// <summary>Let go or tapped: what was heard so far is the answer, once Android hands over the last words.</summary>
+        public void Finish() => MainThread.BeginInvokeOnMainThread(() =>
         {
-            SpeechRecognizer? recognizer = null;
+            if (_done.Task.IsCompleted || _finishing)
+                return;
+            _finishing = true;
+            Try(() => _recognizer?.StopListening());
+            _main.PostDelayed(() => Complete(Heard), FinishGrace);
+        });
+
+        public void Cancel() => MainThread.BeginInvokeOnMainThread(() => Complete(null));
+
+        private void Start()
+        {
             try
             {
-                recognizer = SpeechRecognizer.CreateSpeechRecognizer(Context);
-                if (recognizer is null)
+                _recognizer = SpeechRecognizer.CreateSpeechRecognizer(Context);
+                if (_recognizer is null || _done.Task.IsCompleted)
                 {
                     Complete(null);
                     return;
                 }
 
-                // Cancelled before the main thread got here: destroy it now, never start it.
-                if (!session.TryAdopt(recognizer))
-                {
-                    RecognizerSession.Release(recognizer);
-                    return;
-                }
-
-                recognizer.SetRecognitionListener(new OneShotListener(Complete));
-                var intent = new Intent(RecognizerIntent.ActionRecognizeSpeech);
-                intent.PutExtra(RecognizerIntent.ExtraLanguageModel, RecognizerIntent.LanguageModelFreeForm);
-                intent.PutExtra(RecognizerIntent.ExtraLanguage, Java.Util.Locale.ForLanguageTag(language).ToLanguageTag());
-                // On the device where it can be (ADR 0005 §2); Android falls back to its online service otherwise.
-                intent.PutExtra(RecognizerIntent.ExtraPreferOffline, true);
-                // A pause in a tired sentence ("Lena ate… 120 ml") should not end it.
-                intent.PutExtra(RecognizerIntent.ExtraSpeechInputCompleteSilenceLengthMillis, 2500);
-                recognizer.StartListening(intent);
+                _recognizer.SetRecognitionListener(this);
+                _startedAt = SystemClock.ElapsedRealtime();
+                Begin();
             }
 #pragma warning disable CA1031
             catch (Exception)
 #pragma warning restore CA1031
             {
-                if (recognizer is not null)
-                    RecognizerSession.Release(recognizer);
                 Complete(null);
             }
-        });
-
-        return completion.Task;
-    }
-
-    /// <summary>Owns the one recogniser of a listening attempt and releases it exactly once, on the main thread.</summary>
-    private sealed class RecognizerSession
-    {
-        private readonly Lock _gate = new();
-        private SpeechRecognizer? _recognizer;
-        private bool _closed;
-
-        public bool TryAdopt(SpeechRecognizer recognizer)
-        {
-            lock (_gate)
-            {
-                if (_closed)
-                    return false;
-                _recognizer = recognizer;
-                return true;
-            }
         }
 
-        public void Close()
+        private void Begin()
         {
-            SpeechRecognizer? toRelease;
-            lock (_gate)
+            if (_done.Task.IsCompleted || _recognizer is null)
+                return;
+            var intent = new Intent(RecognizerIntent.ActionRecognizeSpeech);
+            intent.PutExtra(RecognizerIntent.ExtraLanguageModel, RecognizerIntent.LanguageModelFreeForm);
+            intent.PutExtra(RecognizerIntent.ExtraLanguage, Java.Util.Locale.ForLanguageTag(language).ToLanguageTag());
+            intent.PutExtra(RecognizerIntent.ExtraPartialResults, true);
+            // On the device where it can be (ADR 0005 §2); online when this phone has no offline pack for the language.
+            intent.PutExtra(RecognizerIntent.ExtraPreferOffline, _offline);
+            intent.PutExtra(RecognizerIntent.ExtraSpeechInputCompleteSilenceLengthMillis, 2500);
+            intent.PutExtra(RecognizerIntent.ExtraSpeechInputPossiblyCompleteSilenceLengthMillis, 2000);
+            try
             {
-                if (_closed)
-                    return;
-                _closed = true;
-                toRelease = _recognizer;
-                _recognizer = null;
+                _recognizer.StartListening(intent);
             }
-
-            if (toRelease is not null)
-                MainThread.BeginInvokeOnMainThread(() => Release(toRelease));
-        }
-
-        public static void Release(SpeechRecognizer recognizer)
-        {
-#pragma warning disable CA1031 // Teardown: a throw here would turn a clean exit into a crash.
-            try { recognizer.Cancel(); } catch (Exception) { }
-            try { recognizer.Destroy(); } catch (Exception) { }
-            try { recognizer.Dispose(); } catch (Exception) { }
+#pragma warning disable CA1031
+            catch (Exception)
 #pragma warning restore CA1031
+            {
+                Complete(Heard);
+            }
         }
-    }
 
-    /// <summary>Reports exactly one outcome: the best phrase, or null on silence, cancellation or error.</summary>
-    private sealed class OneShotListener(Action<string?> onDone) : Java.Lang.Object, IRecognitionListener
-    {
-        private bool _done;
+        private void Restart() => _main.PostDelayed(Begin, RestartDelay);
+
+        private long Elapsed => SystemClock.ElapsedRealtime() - _startedAt;
 
         private void Complete(string? result)
         {
-            if (_done)
+            if (!_done.TrySetResult(string.IsNullOrWhiteSpace(result) ? null : result))
                 return;
-            _done = true;
-            onDone(result);
+            _main.RemoveCallbacksAndMessages(null);
+            if (_recognizer is { } recognizer)
+            {
+                _recognizer = null;
+                Try(recognizer.Cancel);
+                Try(recognizer.Destroy);
+                Try(recognizer.Dispose);
+            }
+        }
+
+        // After words, a quiet spell ends it; any new words restart the count.
+        private void ArmQuietTimer()
+        {
+            var timer = ++_quietTimer;
+            _main.PostDelayed(() =>
+            {
+                if (timer == _quietTimer && !_finishing)
+                    Complete(Heard);
+            }, QuietAfterSpeech);
+        }
+
+        public void OnPartialResults(Bundle? partialResults)
+        {
+            var phrase = partialResults?.GetStringArrayList(SpeechRecognizer.ResultsRecognition) is { Count: > 0 } list ? list[0] : null;
+            if (string.IsNullOrWhiteSpace(phrase))
+                return;
+            _partial = phrase;
+            _quietTimer++;
+            onHeard?.Invoke(Heard);
         }
 
         public void OnResults(Bundle? results)
         {
-            var phrases = results?.GetStringArrayList(SpeechRecognizer.ResultsRecognition);
-            Complete(phrases is { Count: > 0 } ? phrases[0] : null);
+            var phrase = results?.GetStringArrayList(SpeechRecognizer.ResultsRecognition) is { Count: > 0 } list ? list[0] : _partial;
+            if (!string.IsNullOrWhiteSpace(phrase))
+                _finals.Add(phrase);
+            _partial = "";
+            onHeard?.Invoke(Heard);
+
+            if (_finishing || Elapsed > LongestSession)
+            {
+                Complete(Heard);
+                return;
+            }
+
+            if (_finals.Count > 0)
+                ArmQuietTimer();
+            Restart();
         }
 
-        public void OnError([GeneratedEnum] SpeechRecognizerError error) => Complete(null);
-
-        public void OnPartialResults(Bundle? partialResults)
+        public void OnError([GeneratedEnum] SpeechRecognizerError error)
         {
+            if (_finishing)
+            {
+                Complete(Heard);
+                return;
+            }
+
+            switch ((int)error)
+            {
+                // No offline pack for this language (12, 13), or the on-device service gave up (11): go online.
+                case 11 or 12 or 13 when _offline:
+                    _offline = false;
+                    Restart();
+                    return;
+
+                // Silence or nothing understood (7, 6), or the recogniser still closing the last session (5, 8).
+                case 5 or 6 or 7 or 8:
+                    if (Heard.Length > 0)
+                    {
+                        // Words then silence: they are the answer, unless the quiet timer is still waiting for more.
+                        ArmQuietTimer();
+                        Restart();
+                    }
+                    else if (Elapsed < WaitForSpeech)
+                    {
+                        Restart();
+                    }
+                    else
+                    {
+                        Complete(null);
+                    }
+
+                    return;
+
+                default:
+                    Complete(Heard);
+                    return;
+            }
         }
 
         public void OnReadyForSpeech(Bundle? @params)
         {
         }
 
-        public void OnBeginningOfSpeech()
-        {
-        }
+        public void OnBeginningOfSpeech() => _quietTimer++;
 
         public void OnRmsChanged(float rmsdB)
         {
@@ -189,6 +259,13 @@ internal sealed class AndroidSpeechToText : ISpeechToText
 
         public void OnEvent(int eventType, Bundle? @params)
         {
+        }
+
+        private static void Try(Action action)
+        {
+#pragma warning disable CA1031 // Teardown: a throw here would turn a clean exit into a crash.
+            try { action(); } catch (Exception) { }
+#pragma warning restore CA1031
         }
     }
 }

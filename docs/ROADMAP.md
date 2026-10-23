@@ -26,12 +26,12 @@ two.
 | 11d | **Merge feeds** | 011d (accepted) | Feeds close together become one feed in parts: Needs attention groups them and offers "Merge into one feed"; the length is the feeding time without the pauses, and the Log reads "in 3 parts". **Test:** three timed feeds with short pauses, merged, undone, merged again, seen on the second phone. | Done (0.13.0; Spec 011d §10) |
 | 11c | **Washi forms** | 011c | The edit and Settings pages in the Washi style of Today and Log: Washi fields instead of Android's underlined boxes, the entry's kind colour and badge, grouped cards. Shown as mockups first. **Test:** side by side with Today and Log, day and night. | Done |
 | 12 | **Billing and entitlements** | 012 | Play Billing, RTDN, the reconciler, `FeatureGate`. **Premium:** the sleep prediction, AI-assisted logging, the night summary and the weekly summary; a 7-day trial, then monthly, yearly or lifetime, or free forever. Golden "coo Premium" branding across tabs, persistent entitlement cache. **Test:** Play license testers. | In progress (Client & API endpoints in place, golden branding active) |
-| 13 | **Reminders and notifications** | 013 | The local reminders from ADR 0007, and WorkManager sync. | — |
-| 14 | **Sleep predictor** | 014 | ADR 0008, with the backtest harness gating it. | — |
+| 13 | **Reminders and notifications** | 013 | The local reminders from ADR 0007, and WorkManager sync. | Done (1.2.0 reminders and widget; 1.4.0 exact alarms and background sync, with Android's JobScheduler rather than WorkManager) |
+| 14 | **Sleep predictor** | 014 | ADR 0008, with the backtest harness gating it. | Done (1.4.0; synthetic backtest only, see the ADR's amendment) |
 | 15 | **AI logging** | 015 | Voice and text to proposals, the confirmation card, pending notes, evals. | — |
 | 15b | **Night and weekly summaries** | 015b | Premium, AI: a written summary of the night, and a weekly summary, with ADR 0005's privacy rules. Designed in its own spec (owner, 2026-10-02). | — |
 | 15c | **Baby Advisor & Milestones** | 015c | Dedicated Advisor tab. Multi-turn AI chat with conversation history and instant cancellation, dynamic age-based developmental milestone guide, age-targeted quick ask pills with rotation, shared header bar with Day/Night toggle & baby chip. | Done |
-| 16 | **Reports (PDF)** | 016 | The pediatrician report, designed first. | — |
+| 16 | **Reports (PDF)** | 016 | The pediatrician report, designed first. | Done (1.3.0) |
 | 17 | **Wear OS companion** | 017 | ADR 0009. | — |
 | 18 | **Release** | 018 | Signing, the Play listing in seven languages, the privacy policy, closed testing. Store assets per `store-assets/PLAN.md` (demo build, screenshots, feature graphic, listing in seven languages). | — |
 

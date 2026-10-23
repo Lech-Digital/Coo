@@ -3,6 +3,7 @@ using Coo.Domain.CareLog.Kinds.Feeding;
 using Coo.Domain.Common;
 using Coo.Domain.Common.Versioning;
 using Coo.Domain.Households;
+using Coo.Domain.Insights;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Presentation.Formatting;
 using Coo.Mobile.Presentation.Theme;
@@ -334,30 +335,67 @@ public sealed class NightTimersTests
     }
 
     [Fact]
-    public void NextUpSection_AlternatesBreastSideAndCalculatesNapEstimate()
+    public void NextUpSection_WithoutPremium_ShowsTheTypicalWakeWindowAndTheWayToPremium()
     {
         // Arrange
-        var baby = BabyProfile.Create(Baby, Household, "Lena", [], new DateOnly(2026, 8, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
-        var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
-
-        // Last feed was on Left side 45 minutes ago
-        var lastFeed = Entry(BreastFeed.Start(BreastSide.Left, Now.AddMinutes(-45)), null);
-        var awakeSince = Now.AddMinutes(-30);
-        var summary = new TodaySummary([], lastFeed, null, null, null, awakeSince, [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc));
-        var snapshot = new HomeSnapshot(settings, baby, summary, Now, PaletteKind.Day, new Formats(true, VolumeUnit.Millilitres));
-
         var section = new NextUpSection();
 
         // Act
-        section.Update(snapshot);
+        section.Update(NextUpSnapshot(isPremium: false, sleep: null));
 
         // Assert
         section.HasContent.Should().BeTrue();
         section.NextSide.Should().Contain("right", "alternates from previous left side");
         section.SinceFeed.Should().Contain("45 m");
-        section.NextNap.Should().NotBeEmpty();
-        section.NapWindow.Should().Contain("60–90m");
+        section.NextNap.Should().Contain("60–90 min");
+        section.NapUpsell.Should().BeTrue();
+        section.NapIsPersonal.Should().BeFalse();
     }
+
+    [Fact]
+    public void NextUpSection_PremiumHighConfidence_ShowsThePersonalWindowAndWhy()
+    {
+        // Arrange
+        var section = new NextUpSection();
+        var sleep = Prediction(PredictionConfidence.High);
+
+        // Act
+        section.Update(NextUpSnapshot(isPremium: true, sleep));
+
+        // Assert
+        section.NapIsPersonal.Should().BeTrue();
+        section.NextNap.Should().Be($"Nap likely {Now.AddMinutes(40):HH:mm}–{Now.AddMinutes(70):HH:mm}");
+        section.NapWhy.Should().Contain(line => line.Contains("Lena") && line.Contains("1 h 20 m"));
+        section.NapWhy[^1].Should().Contain("not medical advice");
+    }
+
+    [Fact]
+    public void NextUpSection_PremiumLowConfidence_ShowsTheTypicalWindowNeverATime()
+    {
+        // Arrange
+        var section = new NextUpSection();
+
+        // Act
+        section.Update(NextUpSnapshot(isPremium: true, Prediction(PredictionConfidence.Low)));
+
+        // Assert
+        section.NapIsPersonal.Should().BeFalse();
+        section.NextNap.Should().Contain("60–90 min");
+        section.NapWindow.Should().Contain("few more days");
+    }
+
+    private HomeSnapshot NextUpSnapshot(bool isPremium, SleepPrediction? sleep)
+    {
+        var baby = BabyProfile.Create(Baby, Household, "Lena", [], new DateOnly(2026, 8, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
+        var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
+        var lastFeed = Entry(BreastFeed.Start(BreastSide.Left, Now.AddMinutes(-45)), null);
+        var summary = new TodaySummary([], lastFeed, null, null, null, Now.AddMinutes(-30), [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc));
+        return new HomeSnapshot(settings, baby, summary, Now, PaletteKind.Day, new Formats(true, VolumeUnit.Millilitres), IsPremium: isPremium, Sleep: sleep);
+    }
+
+    private static SleepPrediction Prediction(PredictionConfidence confidence) => new(
+        2, false, Now.AddMinutes(-30), Now.AddMinutes(40), Now.AddMinutes(55), Now.AddMinutes(70), confidence, TimeSpan.FromMinutes(85),
+        TimeSpan.FromMinutes(80), 9, 9, WakeWindowPrior.For(61), false, SleepPredictor.Version);
 
     [Fact]
     public void DailyProgressSection_CalculatesMetricsAndRatiosAgainstAgeNorms()

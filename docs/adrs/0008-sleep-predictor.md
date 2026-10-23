@@ -9,6 +9,15 @@ Status: Accepted — amended 2026-10-02 (see below)
 > or its explanation; that is an open question for the predictor's spec (Increment 14), which must keep the backtest
 > gate of §5 and the privacy rules of ADR 0005 if it does.
 
+> **Amendment, 2026-10-24 (v1 built, `sleep-v1`).** The backtest (§6) tuned the §4 constants: prior weight `K = 2`
+> (not 5), half-life 7 days (not 4), band = the full interquartile range (not half), High confidence from `n_eff >= 3`
+> (not 5). With the starting values no prediction could reach High confidence (a fortnight of daily windows weighs
+> about 4.6) and the hit rate stayed near 50%. Synthetic backtest, eight babies from 10 days to 18 months: High
+> confidence mean absolute error 11.4 min, hit rate 71%, against 17.7 min for the age prior alone; the same on fresh
+> seeds (12.0 min, 67%). Three additions to §3–§4: a sleep that follows a night within a 3-hour waking, before 05:00,
+> continues the night (a young baby's broken night is not naps); a window after a short nap is counted at its usual
+> length (divided by 0.85) so it does not skew the median; no prediction while awake in the night (after the night
+> window opens and before 05:00 following a night sleep). Real histories must still confirm the targets.
 
 ## Context
 

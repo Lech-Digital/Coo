@@ -11,6 +11,12 @@ public interface IReminderScheduler
 
     /// <summary>Asks for the notification permission (Android 13+) if needed; false when the parent said no.</summary>
     Task<bool> EnsurePermissionAsync();
+
+    /// <summary>Reminders arrive on the minute: Android lets Coo set exact alarms (ADR 0007 §3).</summary>
+    bool CanBeExact { get; }
+
+    /// <summary>Opens Android's "Alarms &amp; reminders" setting for Coo, where exact alarms are allowed.</summary>
+    void OpenExactSettings();
 }
 
 public interface IReminderSettingsStore

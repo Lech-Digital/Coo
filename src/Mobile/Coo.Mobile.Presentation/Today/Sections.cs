@@ -6,6 +6,8 @@ using Coo.Domain.CareLog.Kinds.Feeding;
 using Coo.Domain.CareLog.Kinds.Pump;
 using Coo.Domain.CareLog.Kinds.Sleep;
 using Coo.Domain.Common;
+using Coo.Domain.Households;
+using Coo.Domain.Insights;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Presentation.Formatting;
 using Coo.Mobile.Presentation.Localization;
@@ -325,7 +327,11 @@ public sealed partial class LogTilesSection(HomeActions actions) : ObservableObj
     }
 }
 
-/// <summary>Forward-looking card: next breast side, duration since feed, and next nap window estimate.</summary>
+/// <summary>
+/// Forward-looking card: next breast side, time since the last feed, and the next sleep (ADR 0008 §7). Free: the
+/// age-typical wake window. Premium: the personal window with its explanation one tap away, or, at low confidence, the
+/// typical window and a word on why there is no personal one yet. Never a precise time the predictor does not believe.
+/// </summary>
 public sealed partial class NextUpSection : ObservableObject, IHomeSection
 {
     public int Order => 35;
@@ -341,6 +347,20 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
 
     [ObservableProperty]
     private string _napWindow = "";
+
+    /// <summary>The personal window is shown: <see cref="NapWhy"/> explains it.</summary>
+    [ObservableProperty]
+    private bool _napIsPersonal;
+
+    /// <summary>Without Premium: <see cref="NapWindow"/> points to it.</summary>
+    [ObservableProperty]
+    private bool _napUpsell;
+
+    [ObservableProperty]
+    private string _napWhyTitle = "";
+
+    [ObservableProperty]
+    private IReadOnlyList<string> _napWhy = [];
 
     [ObservableProperty]
     private bool _hasContent;
@@ -377,35 +397,72 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
             SinceFeed = "";
         }
 
-        // 3. Nap window estimate
-        if (snapshot.Baby.IsBorn && snapshot.Baby.BirthDate is { } birthDate)
+        // 3. The next sleep (ADR 0008 §7)
+        NextNap = NapWindow = "";
+        NapIsPersonal = NapUpsell = false;
+        var asleep = t?.Running.Any(e => e.Details is SleepDetails) == true;
+        if (snapshot.Baby.IsBorn && t?.AwakeSince is not null && !asleep)
         {
-            var daysOld = Math.Max(0, DateOnly.FromDateTime(snapshot.Now.LocalDateTime).DayNumber - birthDate.DayNumber);
-            var (minWakeMins, maxWakeMins) = Coo.Mobile.Application.Notifications.WakeWindows.For(daysOld);
-            NapWindow = Strings.Format("Today.NapWindow", $"{minWakeMins}–{maxWakeMins}");
-
-            var awakeSince = t?.AwakeSince;
-            if (awakeSince is { } awake)
+            var today = DateOnly.FromDateTime(snapshot.Now.DateTime);
+            var age = Formats.Age(snapshot.Baby, today);
+            var band = WakeWindowPrior.For(BabyAge.On(snapshot.Baby, today).CorrectedDays);
+            var typical = Strings.Format("Today.NapTypical", age, Range(band));
+            var sleep = snapshot.Sleep;
+            if (snapshot.IsPremium && sleep is { Confidence: PredictionConfidence.High })
             {
-                // Past the end of the wake window the nap is due, not "next at" a time already gone (seen on the
-                // demo's Today at 2:15 PM: "Next nap ~1:36 PM").
-                var estNapTime = awake.AddMinutes(maxWakeMins);
-                NextNap = estNapTime > snapshot.Now
-                    ? Strings.Format("Today.NextNap", snapshot.Formats.Time(estNapTime))
-                    : Strings.Get("Today.NapDue");
+                var due = snapshot.Now > sleep.Latest;
+                NextNap = (sleep.IsBedtime, due) switch
+                {
+                    (true, true) => Strings.Get("Today.BedDue"),
+                    (true, false) => Strings.Format("Today.BedLikely", snapshot.Formats.Time(sleep.Earliest), snapshot.Formats.Time(sleep.Latest)),
+                    (false, true) => Strings.Get("Today.NapDue"),
+                    _ => Strings.Format("Today.NapLikely", snapshot.Formats.Time(sleep.Earliest), snapshot.Formats.Time(sleep.Latest)),
+                };
+                NapWindow = Strings.Get("Today.NapWhyLink");
+                NapIsPersonal = true;
+                NapWhyTitle = Strings.Get(sleep.IsBedtime ? "Why.TitleBed" : "Why.TitleNap");
+                NapWhy = Explain(sleep, snapshot, typical);
             }
-            else
+            else if (sleep is not null || !snapshot.IsPremium)
             {
-                NextNap = "";
+                NextNap = typical;
+                NapWindow = Strings.Get(snapshot.IsPremium ? "Today.NapLearning" : "Today.NapPremium");
+                NapUpsell = !snapshot.IsPremium;
             }
-        }
-        else
-        {
-            NapWindow = "";
-            NextNap = "";
         }
 
         HasContent = !string.IsNullOrEmpty(NextSide) || !string.IsNullOrEmpty(SinceFeed) || !string.IsNullOrEmpty(NextNap);
+    }
+
+    /// <summary>"2–3 h" or "60–90 min": the age-typical wake window.</summary>
+    public static string Range(WakeWindowBand band)
+    {
+        ArgumentNullException.ThrowIfNull(band);
+        if (band.High < TimeSpan.FromHours(2))
+            return Strings.Format("Today.RangeMinutes", (int)band.Low.TotalMinutes, (int)band.High.TotalMinutes);
+        var culture = Strings.Culture;
+        return Strings.Format("Today.RangeHours", band.Low.TotalHours.ToString("0.#", culture), band.High.TotalHours.ToString("0.#", culture));
+    }
+
+    /// <summary>Why this window (ADR 0008 §8): the baby's own windows, the typical ones, a short nap, and that it is not advice.</summary>
+    public static IReadOnlyList<string> Explain(SleepPrediction sleep, HomeSnapshot snapshot, string typical)
+    {
+        ArgumentNullException.ThrowIfNull(sleep);
+        ArgumentNullException.ThrowIfNull(snapshot);
+        var lines = new List<string>();
+        if (sleep.PersonalMedian is { } median)
+        {
+            lines.Add(sleep.IsBedtime
+                ? Strings.Format("Why.PersonalBed", snapshot.Baby.Name, Formats.Duration(median), sleep.DaysUsed)
+                : Strings.Format("Why.PersonalNap", snapshot.Baby.Name, Formats.Duration(median), sleep.DaysUsed, sleep.Position));
+        }
+
+        lines.Add(typical + ".");
+        if (sleep.ShortNapAdjusted)
+            lines.Add(Strings.Get("Why.ShortNap"));
+        lines.Add(Strings.Format("Why.Awake", snapshot.Formats.Time(sleep.AwakeSince)));
+        lines.Add(Strings.Get("Why.Disclaimer"));
+        return lines;
     }
 }
 

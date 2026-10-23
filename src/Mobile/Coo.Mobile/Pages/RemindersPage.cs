@@ -10,9 +10,12 @@ public sealed class RemindersPage : ContentPage
     private readonly RemindersViewModel _model;
     private readonly ContentView _body = new();
 
-    public RemindersPage(RemindersViewModel model)
+    private readonly IServiceProvider _services;
+
+    public RemindersPage(RemindersViewModel model, IServiceProvider services)
     {
         _model = model;
+        _services = services;
         Shell.SetNavBarIsVisible(this, false);
         Content = new ScrollView { Content = _body };
     }
@@ -21,6 +24,8 @@ public sealed class RemindersPage : ContentPage
     {
         base.OnAppearing();
         _model.PropertyChanged += OnModelChanged;
+        if (Window is { } window)
+            window.Resumed += OnResumed;
         await _model.LoadAsync();
         Render();
     }
@@ -29,7 +34,12 @@ public sealed class RemindersPage : ContentPage
     {
         base.OnDisappearing();
         _model.PropertyChanged -= OnModelChanged;
+        if (Window is { } window)
+            window.Resumed -= OnResumed;
     }
+
+    // Back from Android's "Alarms & reminders": the choice made there shows at once.
+    private async void OnResumed(object? sender, EventArgs e) => await _model.LoadAsync();
 
     protected override bool OnBackButtonPressed()
     {
@@ -64,12 +74,53 @@ public sealed class RemindersPage : ContentPage
         stack.Add(new Card(feed));
 
         stack.Add(new Card(Toggle("Reminders.Timer", Strings.Get("Reminders.TimerHint"), settings.TimerRunning, _model.ToggleTimerCommand)));
-        stack.Add(new Card(Toggle("Reminders.Nap", Strings.Get("Reminders.NapHint"), settings.NapWindow, _model.ToggleNapCommand)));
+        stack.Add(new Card(NapCard(settings)));
 
         if (!string.IsNullOrEmpty(_model.Message))
             stack.Add(Ui.Text(_model.Message, "Body", "AccentInk"));
-        stack.Add(Ui.Text(Strings.Get("Reminders.MayBeLate"), "Meta", "Ink2"));
+        if (_model.ShowExact)
+        {
+            var exact = new VerticalStackLayout { Spacing = 8 };
+            exact.Add(Ui.Text(Strings.Get("Reminders.Exact"), "BodyStrong"));
+            exact.Add(Ui.Text(Strings.Get("Reminders.ExactHint"), "Meta", "Ink2"));
+            var allow = new Button { Text = Strings.Get("Reminders.ExactAllow"), Command = _model.AllowExactCommand, HorizontalOptions = LayoutOptions.Start };
+            allow.SetDynamicResource(StyleProperty, "GhostButton");
+            exact.Add(allow);
+            stack.Add(new Card(exact));
+        }
         _body.Content = stack;
+    }
+
+    /// <summary>
+    /// The nap reminder: with Premium a switch and the lead time; without, what it does and the way to Premium, since it
+    /// follows the personal prediction (ADR 0008 §7).
+    /// </summary>
+    private View NapCard(Coo.Mobile.Application.Notifications.ReminderSettings settings)
+    {
+        if (!_model.IsPremium)
+        {
+            var locked = Toggle("Reminders.Nap", Strings.Get("Reminders.NapPremium"), false, new Command(async () =>
+                await Navigation.PushAsync(_services.GetRequiredService<PremiumPage>())));
+            return locked;
+        }
+
+        var nap = new VerticalStackLayout { Spacing = 8 };
+        nap.Add(Toggle("Reminders.Nap", Strings.Get("Reminders.NapHint"), settings.NapWindow, _model.ToggleNapCommand));
+        if (settings.NapWindow)
+        {
+            var leads = new FlexLayout { Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap, AlignItems = Microsoft.Maui.Layouts.FlexAlignItems.Start };
+            foreach (var minutes in Coo.Mobile.Application.Notifications.ReminderSettings.NapLeads)
+            {
+                var chip = new Button { Text = RemindersViewModel.LeadLabel(minutes), Command = _model.SetNapLeadCommand, CommandParameter = minutes, Margin = new Thickness(0, 0, 8, 8) };
+                chip.SetDynamicResource(StyleProperty, minutes == settings.NapLeadMinutes ? "PrimaryButton" : "GhostButton");
+                leads.Add(chip);
+            }
+
+            nap.Add(Ui.Text(Strings.Get("Reminders.NapLead"), "Meta", "Ink2"));
+            nap.Add(leads);
+        }
+
+        return nap;
     }
 
     /// <summary>A title, a hint and a switch; the whole row toggles.</summary>

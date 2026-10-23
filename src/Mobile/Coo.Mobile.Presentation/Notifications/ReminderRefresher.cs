@@ -1,8 +1,10 @@
 using Coo.Domain.CareLog.Kinds.Feeding;
 using Coo.Domain.CareLog.Kinds.Sleep;
 using Coo.Domain.Households;
+using Coo.Mobile.Application.Billing;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
+using Coo.Mobile.Application.Insights;
 using Coo.Mobile.Application.Notifications;
 using Coo.Mobile.Application.Preferences;
 using Coo.Mobile.Presentation.Formatting;
@@ -18,6 +20,8 @@ namespace Coo.Mobile.Presentation.Notifications;
 public sealed class ReminderRefresher(
     IHouseholdStore households,
     GetToday getToday,
+    GetSleepPrediction getSleep,
+    IBillingService billing,
     IReminderSettingsStore settings,
     IDevicePreferences preferences,
     IReminderScheduler scheduler,
@@ -77,7 +81,11 @@ public sealed class ReminderRefresher(
             }
 
             var quiet = (await preferences.GetAppearanceAsync(cancellationToken)).QuietHours;
-            var planned = ReminderPlanner.Plan(today, baby.BirthDate, chosen, quiet, zone, now);
+            // The nap reminder follows the personal prediction, which is Premium (ADR 0008 §7).
+            var sleep = chosen.NapWindow && billing.IsPremiumCached
+                ? await getSleep.ExecuteAsync(household.Id, baby, zone, now, cancellationToken)
+                : null;
+            var planned = ReminderPlanner.Plan(today, sleep, chosen, quiet, zone, now);
             await scheduler.ReplaceAllAsync([.. planned.Select(p => Notice(p, baby.Name, formats, zone))], cancellationToken);
         }
 #pragma warning disable CA1031 // Reminders are best effort: the next write or sync plans again.
@@ -104,7 +112,10 @@ public sealed class ReminderRefresher(
             ReminderKind.Timer => (
                 Strings.Get(reminder.Details is FeedingDetails ? "Reminder.Timer.Feeding" : "Reminder.Timer.Pumping"),
                 Strings.Format("Reminder.Timer.Body", since)),
-            _ => (Strings.Format("Reminder.Nap.Title", babyName), Strings.Format("Reminder.Nap.Body", since)),
+            ReminderKind.Bedtime => (
+                Strings.Format("Reminder.Bed.Title", babyName),
+                Strings.Format("Reminder.Bed.Body", since, formats.Time(reminder.Opens ?? reminder.At, zone))),
+            _ => (Strings.Format("Reminder.Nap.Title", babyName), Strings.Format("Reminder.Nap.Body", since, formats.Time(reminder.Opens ?? reminder.At, zone))),
         };
         return new ReminderNotice(reminder.Id, reminder.At, title, body);
     }

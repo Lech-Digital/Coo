@@ -118,7 +118,8 @@ public sealed partial class QuickLogViewModel(
         Stage = QuickLogStage.Listening;
         _listening?.Dispose();
         _listening = new CancellationTokenSource();
-        var heard = await speech.ListenAsync(Strings.Language, _listening.Token);
+        Text = "";
+        var heard = await speech.ListenAsync(Strings.Language, words => Text = words, _listening.Token);
         if (Stage != QuickLogStage.Listening)
             return;
         if (string.IsNullOrWhiteSpace(heard))
@@ -130,6 +131,14 @@ public sealed partial class QuickLogViewModel(
 
         Text = heard;
         await UnderstandAsync(heard, time.GetUtcNow(), null);
+    }
+
+    /// <summary>Let go, or a tap while listening: what was heard so far goes to Coo.</summary>
+    [RelayCommand]
+    private void FinishListening()
+    {
+        if (Stage == QuickLogStage.Listening)
+            speech.Finish();
     }
 
     [RelayCommand]
