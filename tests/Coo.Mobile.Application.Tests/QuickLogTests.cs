@@ -138,6 +138,26 @@ public sealed class QuickLogTests
         _store.Entries.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task Apply_VitaminD_LogsAMedicineMarkedAsAiParsed()
+    {
+        // Arrange
+        AiParseRequest? sent = null;
+        _api.ParseAsync(Arg.Do<AiParseRequest>(r => sent = r), Arg.Any<CancellationToken>()).Returns(new AiParseResponse(
+            [new AiProposal(AiActions.MedicineLog, Now, null, null, null, null, null, null, null, "vitamin D", [], Name: "Vitamin D", Dose: "400 IU")], [], "v2"));
+        var review = (await Prepare().ExecuteAsync("gave vitamin D", Now, "en", CancellationToken.None)).Review!;
+
+        // Act
+        var results = await Apply().ExecuteAsync(review, review.Items, null, CancellationToken.None);
+
+        // Assert
+        sent!.Actions.Should().Contain(AiActions.MedicineLog);
+        results.Should().Equal((string?)null);
+        var logged = _store.Entries.Should().ContainSingle().Subject;
+        logged.Details.Should().BeOfType<Coo.Domain.CareLog.Kinds.Health.MedicineDetails>().Which.Dose.Should().Be("400 IU");
+        logged.Source.Kind.Should().Be(EntrySourceKind.AiParsed);
+    }
+
     private PrepareQuickLog Prepare() => new(_households, new GetToday(_store), _store, _api, _notes, _time);
 
     private ApplyQuickLog Apply()

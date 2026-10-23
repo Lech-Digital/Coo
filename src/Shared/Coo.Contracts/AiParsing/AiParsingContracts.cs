@@ -7,6 +7,8 @@ namespace Coo.Contracts.AiParsing;
 /// <param name="CapturedAt">When the words were captured: times like "20 minutes ago" are resolved against it, not against when
 /// the text was parsed (a pending note may be parsed hours later).</param>
 /// <param name="Context">What is happening now, so short phrases resolve: "she woke up", "other side".</param>
+/// <param name="Actions">The <see cref="AiActions"/> this phone can show and save. Null is a phone from before health
+/// and growth (1.1): it gets <see cref="AiActions.Original"/> only, so it is never handed an action it cannot show.</param>
 public sealed record AiParseRequest(
     Guid HouseholdId,
     Guid BabyId,
@@ -14,7 +16,8 @@ public sealed record AiParseRequest(
     DateTimeOffset CapturedAt,
     string TimeZoneId,
     string? Language,
-    AiParseContext Context);
+    AiParseContext Context,
+    IReadOnlyList<string>? Actions = null);
 
 /// <param name="Running">The sessions in progress, as <see cref="AiRunningKinds"/> codes.</param>
 /// <param name="LastBreastSide">"left" or "right": the side the last breast feed ended on.</param>
@@ -29,6 +32,10 @@ public sealed record AiParseContext(IReadOnlyList<string> Running, string? LastB
 /// <param name="Contents">"wet", "dirty" or "mixed" for a diaper.</param>
 /// <param name="SourceText">The part of the input this came from, shown in the review.</param>
 /// <param name="Warnings">Codes from <see cref="AiWarnings"/>: shown, never silently fixed.</param>
+/// <param name="Name">A medicine's or a vaccine's name, or who a visit was with.</param>
+/// <param name="Dose">A medicine's dose as said ("400 IU").</param>
+/// <param name="Celsius">A temperature, converted to °C.</param>
+/// <param name="WeightGrams">A measurement, in grams and millimetres whatever unit was said.</param>
 public sealed record AiProposal(
     string Action,
     DateTimeOffset At,
@@ -40,7 +47,13 @@ public sealed record AiProposal(
     string? Milk,
     string? Contents,
     string SourceText,
-    IReadOnlyList<string> Warnings);
+    IReadOnlyList<string> Warnings,
+    string? Name = null,
+    string? Dose = null,
+    decimal? Celsius = null,
+    int? WeightGrams = null,
+    int? LengthMm = null,
+    int? HeadMm = null);
 
 /// <param name="Unparsed">Fragments the model could not turn into an action.</param>
 /// <param name="ErrorCode">ai.daily-limit, ai.free-limit or ai.unavailable; the phone keeps the text as a pending note.</param>
@@ -92,6 +105,21 @@ public static class AiActions
     public const string PumpStart = "pump.start";
     public const string PumpStop = "pump.stop";
     public const string PumpLog = "pump.log";
+
+    public const string MedicineLog = "medicine.log";
+    public const string TemperatureLog = "temperature.log";
+    public const string GrowthLog = "growth.log";
+    public const string VaccineLog = "vaccine.log";
+    public const string VisitLog = "visit.log";
+
+    /// <summary>The actions of 1.1, the first Tell Coo: what a phone that sends no list understands.</summary>
+    public static IReadOnlyList<string> Original { get; } =
+    [
+        BreastStart, BreastSwitch, BreastStop, BreastLog, BottleLog, DiaperLog, SleepStart, SleepEnd, SleepLog, PumpStart, PumpStop, PumpLog,
+    ];
+
+    /// <summary>Everything this version knows: <see cref="Original"/> and health and growth.</summary>
+    public static IReadOnlyList<string> All { get; } = [.. Original, MedicineLog, TemperatureLog, GrowthLog, VaccineLog, VisitLog];
 }
 
 public static class AiWarnings

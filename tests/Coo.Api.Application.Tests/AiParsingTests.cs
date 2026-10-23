@@ -149,6 +149,55 @@ public sealed class ParseCareLogTextTests
     }
 
     [Fact]
+    public async Task ExecuteAsync_FeverInFahrenheitAndWeightInPounds_ProposesCelsiusAndGrams()
+    {
+        // Arrange
+        await MemberAsync();
+        _parser.Next = Parsed(
+            new ParsedEntry("Temperature", null, null, null, null, null, null, null, TimeExpression.Now, null, "101.3", Temperature: 101.3m, TemperatureUnit: "f"),
+            new ParsedEntry("Growth", null, null, null, null, null, null, null, TimeExpression.Now, null, "11 lb", Weight: 11m, WeightUnit: "lb"));
+
+        // Act
+        var outcome = await Sut().ExecuteAsync(Parent, Request("101.3 and she's 11 lb", AiActions.All), CancellationToken.None);
+
+        // Assert
+        var proposals = outcome.Response!.Proposals;
+        proposals.Should().HaveCount(2);
+        proposals[0].Should().Match<AiProposal>(p => p.Action == AiActions.TemperatureLog && p.Celsius == 38.5m);
+        proposals[1].Should().Match<AiProposal>(p => p.Action == AiActions.GrowthLog && p.WeightGrams == 4_990 && p.LengthMm == null);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_MedicineForAPhoneWithoutHealthActions_ComesBackAsWords()
+    {
+        // Arrange: a 1.1 phone sends no action list.
+        await MemberAsync();
+        _parser.Next = Parsed(new ParsedEntry("Medicine", null, null, null, null, null, null, null, TimeExpression.Now, null, "vitamin D", Name: "Vitamin D"));
+
+        // Act
+        var outcome = await Sut().ExecuteAsync(Parent, Request("gave vitamin D"), CancellationToken.None);
+
+        // Assert
+        outcome.Response!.Proposals.Should().BeEmpty();
+        outcome.Response.Unparsed.Should().Equal("vitamin D");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_TemperatureNoBodyCanHave_IsNotProposed()
+    {
+        // Arrange
+        await MemberAsync();
+        _parser.Next = Parsed(new ParsedEntry("Temperature", null, null, null, null, null, null, null, TimeExpression.Now, null, "45", Temperature: 45m, TemperatureUnit: "c"));
+
+        // Act
+        var outcome = await Sut().ExecuteAsync(Parent, Request("temperature 45", AiActions.All), CancellationToken.None);
+
+        // Assert
+        outcome.Response!.Proposals.Should().BeEmpty();
+        outcome.Response.Unparsed.Should().Equal("45");
+    }
+
+    [Fact]
     public async Task ExecuteAsync_NotAMember_IsRefusedWithoutCallingTheModel()
     {
         // Act
@@ -199,8 +248,8 @@ public sealed class ParseCareLogTextTests
     private ParseCareLogText Sut() =>
         new(new SyncAccess(_memberships, _consents), _billing, _store, _parser, new AiParsingLimitsOptions(), _time);
 
-    private static AiParseRequest Request(string text) =>
-        new(Household.Value, Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"), text, Now, "Europe/Amsterdam", "en", new AiParseContext([], null, "ml"));
+    private static AiParseRequest Request(string text, IReadOnlyList<string>? actions = null) =>
+        new(Household.Value, Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"), text, Now, "Europe/Amsterdam", "en", new AiParseContext([], null, "ml"), actions);
 
     private static ParsedText Parsed(params ParsedEntry[] entries) => new(entries, [], "v1");
 

@@ -10,7 +10,7 @@ public sealed record ParsePrompt(string Text, string Context);
 
 /// <summary>One entry as the model read it. Untrusted: everything is checked before it becomes a proposal.</summary>
 /// <param name="Type">BreastStart, BreastSwitch, BreastStop, BreastFeeding, BottleFeeding, Diaper, SleepStart, SleepEnd, Sleep,
-/// PumpStart, PumpStop or Pumping.</param>
+/// PumpStart, PumpStop, Pumping, Medicine, Temperature, Growth, Vaccine or Visit.</param>
 /// <param name="Unit">"ml" or "oz" for <see cref="Amount"/>; null when not said.</param>
 public sealed record ParsedEntry(
     string Type,
@@ -23,7 +23,16 @@ public sealed record ParsedEntry(
     string? Contents,
     TimeExpression Time,
     TimeExpression? EndTime,
-    string SourceText);
+    string SourceText,
+    string? Name = null,
+    string? Dose = null,
+    decimal? Temperature = null,
+    string? TemperatureUnit = null,
+    decimal? Weight = null,
+    string? WeightUnit = null,
+    decimal? Length = null,
+    decimal? Head = null,
+    string? LengthUnit = null);
 
 public sealed record ParsedText(IReadOnlyList<ParsedEntry> Entries, IReadOnlyList<string> Unparsed, string PromptVersion);
 

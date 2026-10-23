@@ -3,6 +3,8 @@ using Coo.Domain.CareLog;
 using Coo.Domain.CareLog.Duplicates;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.CareLog.Kinds.Feeding;
+using Coo.Domain.CareLog.Kinds.Growth;
+using Coo.Domain.CareLog.Kinds.Health;
 using Coo.Domain.CareLog.Kinds.Pump;
 using Coo.Domain.CareLog.Kinds.Sleep;
 using Coo.Domain.Common;
@@ -47,7 +49,7 @@ public sealed class PrepareQuickLog(IHouseholdStore households, GetToday today, 
 
         var zone = TimeZoneInfo.FindSystemTimeZoneById(household.TimeZoneId);
         var summary = await today.ExecuteAsync(household.Id, baby.Id, zone, time.GetUtcNow(), cancellationToken);
-        var request = new AiParseRequest(household.Id.Value, baby.Id.Value, trimmed, capturedAt, household.TimeZoneId, language, Context(summary, household));
+        var request = new AiParseRequest(household.Id.Value, baby.Id.Value, trimmed, capturedAt, household.TimeZoneId, language, Context(summary, household), AiActions.All);
 
         AiParseResponse? response;
         try
@@ -247,6 +249,16 @@ public static class QuickLogEntries
             case AiActions.PumpLog when TimeRange.Create(p.At, p.EndAt ?? p.At + AssumedPumpLength) is { IsSuccess: true } range:
                 var yield = p.Millilitres is { } amount && Volume.FromMillilitres(amount) is { IsSuccess: true } pumped ? PumpYield.OfTotal(pumped.Value) : null;
                 return (new PumpDetails(yield), EntryTiming.Session(range.Value));
+            case AiActions.MedicineLog when MedicineDetails.Create(p.Name, p.Dose) is { IsSuccess: true } medicine:
+                return (medicine.Value, EntryTiming.Point(p.At));
+            case AiActions.TemperatureLog when p.Celsius is { } celsius && TemperatureDetails.Create(celsius) is { IsSuccess: true } reading:
+                return (reading.Value, EntryTiming.Point(p.At));
+            case AiActions.GrowthLog when GrowthDetails.Create(p.WeightGrams, p.LengthMm, p.HeadMm) is { IsSuccess: true } growth:
+                return (growth.Value, EntryTiming.Point(p.At));
+            case AiActions.VaccineLog when VaccineDetails.Create(p.Name) is { IsSuccess: true } vaccine:
+                return (vaccine.Value, EntryTiming.Point(p.At));
+            case AiActions.VisitLog when VisitDetails.Create(p.Name) is { IsSuccess: true } visit:
+                return (visit.Value, EntryTiming.Point(p.At));
             default:
                 return null;
         }

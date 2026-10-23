@@ -1,3 +1,4 @@
+using Coo.Api.Application.AiParsing;
 using Coo.Api.Infrastructure.Ai;
 using Coo.Domain.CareLog.Time;
 
@@ -29,6 +30,25 @@ public sealed class GeminiCareLogParserTests
         parsed.Entries[2].Time.Should().Be(TimeExpression.Clock(13, 0));
         parsed.Entries[2].EndTime.Should().Be(TimeExpression.MinutesAgo(30));
         parsed.Unparsed.Should().Equal("the weather");
+    }
+
+    [Fact]
+    public void Read_HealthAndGrowth_KeepNamesNumbersAndUnits()
+    {
+        // Act
+        var parsed = GeminiCareLogParser.Read("""
+            {"entries":[
+              {"type":"Medicine","name":"Vitamin D","dose":"400 IU","time":{"kind":"now"},"sourceText":"vitamin D"},
+              {"type":"Temperature","temperature":38.4,"temperatureUnit":"c","time":{"kind":"minutesAgo","n":10},"sourceText":"38.4"},
+              {"type":"Growth","weight":5.1,"weightUnit":"kg","length":58,"lengthUnit":"cm","time":{"kind":"now"},"sourceText":"5.1 kg, 58 cm"}
+            ],"unparsed":[]}
+            """);
+
+        // Assert
+        parsed.Entries.Should().HaveCount(3);
+        parsed.Entries[0].Should().Match<ParsedEntry>(e => e.Name == "Vitamin D" && e.Dose == "400 IU");
+        parsed.Entries[1].Should().Match<ParsedEntry>(e => e.Temperature == 38.4m && e.TemperatureUnit == "c");
+        parsed.Entries[2].Should().Match<ParsedEntry>(e => e.Weight == 5.1m && e.WeightUnit == "kg" && e.Length == 58m && e.LengthUnit == "cm" && e.Head == null);
     }
 
     [Fact]

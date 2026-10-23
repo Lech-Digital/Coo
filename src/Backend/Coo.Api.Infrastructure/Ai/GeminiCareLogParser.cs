@@ -16,7 +16,7 @@ namespace Coo.Api.Infrastructure.Ai;
 internal sealed partial class GeminiCareLogParser(IConfiguration configuration, ILogger<GeminiCareLogParser> logger) : ICareLogTextParser
 {
     /// <summary>Bumped with every change to <see cref="SystemPrompt"/> or the schema: every parse reports the version it used.</summary>
-    public const string PromptVersion = "coo-parse-v1";
+    public const string PromptVersion = "coo-parse-v2";
 
     /// <summary>Pinned, never a "-latest" alias: an alias could change the model under a fixed prompt (ADR 0005 §6).</summary>
     public const string DefaultModel = "gemini-3.5-flash-lite";
@@ -41,6 +41,13 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
         - SleepStart: the baby falls asleep now or at a time. SleepEnd: the running sleep ends ("she woke up").
         - Sleep: a finished sleep with a start and an end ("napped from 1 to 2:30").
         - PumpStart, PumpStop (with amount if said), Pumping: a finished pumping session with an amount.
+        - Medicine: a medicine or supplement given to the baby ("gave her vitamin D", "2.5 ml paracetamol"). name is the
+          medicine as said; dose is the amount as said, if any ("400 IU", "2.5 ml").
+        - Temperature: a temperature reading; temperature is the number, temperatureUnit "c" or "f" if said.
+        - Growth: a measurement; weight with weightUnit "kg", "g" or "lb"; length and head (circumference) with
+          lengthUnit "cm" or "in". Only the values said.
+        - Vaccine: a vaccination; name is the vaccine as said ("MMR", "the 8-week jabs").
+        - Visit: a visit to a doctor, midwife or clinic; name is who, if said ("paediatrician").
 
         Rules:
         - Use the context to resolve short phrases: "other side" is the side opposite the last one; "woke up" ends the
@@ -88,6 +95,7 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
                             {
                                 "BreastStart", "BreastSwitch", "BreastStop", "BreastFeeding", "BottleFeeding", "Diaper",
                                 "SleepStart", "SleepEnd", "Sleep", "PumpStart", "PumpStop", "Pumping",
+                                "Medicine", "Temperature", "Growth", "Vaccine", "Visit",
                             },
                         },
                         side = new { type = "STRING", @enum = new[] { "left", "right" } },
@@ -97,6 +105,15 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
                         unit = new { type = "STRING", @enum = new[] { "ml", "oz" } },
                         milk = new { type = "STRING", @enum = new[] { "formula", "breast" } },
                         contents = new { type = "STRING", @enum = new[] { "wet", "dirty", "mixed" } },
+                        name = new { type = "STRING" },
+                        dose = new { type = "STRING" },
+                        temperature = new { type = "NUMBER" },
+                        temperatureUnit = new { type = "STRING", @enum = new[] { "c", "f" } },
+                        weight = new { type = "NUMBER" },
+                        weightUnit = new { type = "STRING", @enum = new[] { "kg", "g", "lb" } },
+                        length = new { type = "NUMBER" },
+                        head = new { type = "NUMBER" },
+                        lengthUnit = new { type = "STRING", @enum = new[] { "cm", "in" } },
                         time = TimeSchema,
                         endTime = TimeSchema,
                         sourceText = new { type = "STRING" },
@@ -168,13 +185,22 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
                     Str(e, "side"),
                     Int(e, "leftMinutes"),
                     Int(e, "rightMinutes"),
-                    e.TryGetProperty("amount", out var amount) && amount.ValueKind == JsonValueKind.Number ? amount.GetDecimal() : null,
+                    Dec(e, "amount"),
                     Str(e, "unit"),
                     Str(e, "milk"),
                     Str(e, "contents"),
                     Time(time),
                     e.TryGetProperty("endTime", out var end) ? Time(end) : null,
-                    Str(e, "sourceText") ?? ""));
+                    Str(e, "sourceText") ?? "",
+                    Str(e, "name"),
+                    Str(e, "dose"),
+                    Dec(e, "temperature"),
+                    Str(e, "temperatureUnit"),
+                    Dec(e, "weight"),
+                    Str(e, "weightUnit"),
+                    Dec(e, "length"),
+                    Dec(e, "head"),
+                    Str(e, "lengthUnit")));
             }
         }
 
@@ -194,6 +220,9 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
 
     private static string? Str(JsonElement e, string name) =>
         e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var p) && p.ValueKind == JsonValueKind.String ? p.GetString() : null;
+
+    private static decimal? Dec(JsonElement e, string name) =>
+        e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var p) && p.ValueKind == JsonValueKind.Number && p.TryGetDecimal(out var d) ? d : null;
 
     private static int? Int(JsonElement e, string name) =>
         e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var p) && p.ValueKind == JsonValueKind.Number
@@ -215,7 +244,8 @@ internal sealed class FakeCareLogParser : ICareLogTextParser
             new(type, side, null, null, amount, null, null, contents, TimeExpression.Now, null, prompt.Text);
 
         ParsedEntry? entry =
-            text.Contains("left", StringComparison.Ordinal) ? Entry("BreastStart", side: "left")
+            text.Contains("vitamin", StringComparison.Ordinal) ? Entry("Medicine") with { Name = "Vitamin D" }
+            : text.Contains("left", StringComparison.Ordinal) ? Entry("BreastStart", side: "left")
             : text.Contains("right", StringComparison.Ordinal) ? Entry("BreastStart", side: "right")
             : text.Contains("woke", StringComparison.Ordinal) ? Entry("SleepEnd")
             : text.Contains("asleep", StringComparison.Ordinal) ? Entry("SleepStart")

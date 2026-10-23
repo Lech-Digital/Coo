@@ -4,6 +4,8 @@ using Coo.Api.Application.Billing;
 using Coo.Api.Application.Sync;
 using Coo.Contracts.AiParsing;
 using Coo.Domain.CareLog;
+using Coo.Domain.CareLog.Kinds.Growth;
+using Coo.Domain.CareLog.Kinds.Health;
 using Coo.Domain.CareLog.Time;
 using Coo.Domain.Common;
 
@@ -71,10 +73,12 @@ public sealed class ParseCareLogText(
 
         var proposals = new List<AiProposal>();
         var unparsed = parsed.Unparsed.Select(u => TextPseudonymiser.Restore(u, names)).ToList();
+        var understood = request.Actions ?? AiActions.Original;
         foreach (var entry in parsed.Entries)
         {
             var proposal = Propose(entry, request, zone, names);
-            if (proposal is null)
+            // An action this phone cannot show goes back as words, never as something it would drop or misread.
+            if (proposal is null || !understood.Contains(proposal.Action))
                 unparsed.Add(TextPseudonymiser.Restore(entry.SourceText, names));
             else
                 proposals.Add(proposal);
@@ -130,6 +134,11 @@ public sealed class ParseCareLogText(
             "PumpStart" => AiActions.PumpStart,
             "PumpStop" => AiActions.PumpStop,
             "Pumping" => AiActions.PumpLog,
+            "Medicine" => AiActions.MedicineLog,
+            "Temperature" => AiActions.TemperatureLog,
+            "Growth" => AiActions.GrowthLog,
+            "Vaccine" => AiActions.VaccineLog,
+            "Visit" => AiActions.VisitLog,
             _ => null,
         };
         if (action is null)
@@ -193,6 +202,37 @@ public sealed class ParseCareLogText(
         if (action == AiActions.SleepLog && endAt is null)
             return null;
 
+        // Health and growth go through the Domain's own factories: what they refuse is never proposed.
+        string? name = entry.Name is { } said ? TextPseudonymiser.Restore(said.Trim(), names) : null;
+        string? dose = entry.Dose?.Trim();
+        decimal? celsius = null;
+        int? grams = null, lengthMm = null, headMm = null;
+        switch (action)
+        {
+            case AiActions.MedicineLog when MedicineDetails.Create(name, dose).IsFailure:
+            case AiActions.VaccineLog when VaccineDetails.Create(name).IsFailure:
+            case AiActions.VisitLog when VisitDetails.Create(name).IsFailure:
+                return null;
+            case AiActions.TemperatureLog:
+                if (entry.Temperature is not { } degrees)
+                    return null;
+                // A number over 50 can only be °F, whatever unit came back.
+                var isFahrenheit = entry.TemperatureUnit == "f" || degrees > 50;
+                var reading = TemperatureDetails.Create(isFahrenheit ? (degrees - 32m) * 5m / 9m : degrees);
+                if (reading.IsFailure)
+                    return null;
+                celsius = reading.Value.Celsius;
+                break;
+            case AiActions.GrowthLog:
+                grams = entry.Weight is { } w and > 0 ? (int)Math.Round(entry.WeightUnit switch { "g" => w, "lb" => w * 453.59237m, _ => w * 1000m }) : null;
+                var perUnit = entry.LengthUnit == "in" ? 25.4m : 10m;
+                lengthMm = entry.Length is { } l and > 0 ? (int)Math.Round(l * perUnit) : null;
+                headMm = entry.Head is { } h and > 0 ? (int)Math.Round(h * perUnit) : null;
+                if (GrowthDetails.Create(grams, lengthMm, headMm).IsFailure)
+                    return null;
+                break;
+        }
+
         return new AiProposal(
             action,
             at.Value.At,
@@ -204,6 +244,12 @@ public sealed class ParseCareLogText(
             entry.Milk is "formula" or "breast" ? entry.Milk : null,
             entry.Contents,
             TextPseudonymiser.Restore(entry.SourceText, names),
-            warnings);
+            warnings,
+            action is AiActions.MedicineLog or AiActions.VaccineLog or AiActions.VisitLog ? name : null,
+            action == AiActions.MedicineLog ? dose : null,
+            celsius,
+            grams,
+            lengthMm,
+            headMm);
     }
 }
