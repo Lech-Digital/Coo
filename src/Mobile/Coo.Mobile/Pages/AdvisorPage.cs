@@ -25,7 +25,7 @@ public sealed class AdvisorPage : ContentPage
         SetupUi();
     }
 
-    private const string ConsentKey = "advisor.consent.v1";
+    private const string ConsentKey = "advisor.consent.v2";
 
     /// <summary>The Advisor's consent (Advisor.ConsentBody), asked before the first question and remembered on this phone.</summary>
     private Task<bool> EnsureConsentAsync() => AskConsentAsync(this);
@@ -414,22 +414,27 @@ public sealed class AdvisorPage : ContentPage
 
         var inputRow = new Grid
         {
-            ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)],
+            ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)],
             ColumnSpacing = 8,
             Margin = new Thickness(0, 10, 0, 0)
         };
 
+        if (_model.CanSpeak)
+            inputRow.Add(MicButton(), 0);
         var inputRounded = Ui.Rounded(inputEntry, "Surface", 12, new Thickness(14, 2), "Line");
-        inputRow.Add(inputRounded, 0);
+        inputRow.Add(inputRounded, 1);
 
         var buttonContainer = new HorizontalStackLayout { Children = { sendButton, activityIndicator } };
-        inputRow.Add(buttonContainer, 1);
+        inputRow.Add(buttonContainer, 2);
 
         // Always in view under the question box (Play's health-content policy, and plain honesty).
         var disclaimer = Ui.Text(Strings.Get("Advisor.Disclaimer"), "Meta", "Ink2").Tap(l => l.FontSize = 11);
+        var voiceMessage = Ui.Text("", "Meta", "AccentInk");
+        voiceMessage.SetBinding(Label.TextProperty, nameof(AdvisorViewModel.VoiceMessage));
+        voiceMessage.SetBinding(VisualElement.IsVisibleProperty, new Binding(nameof(AdvisorViewModel.VoiceMessage), converter: new NotEmptyConverter()));
         var bottomContainer = new ContentView
         {
-            Content = new VerticalStackLayout { Spacing = 4, Children = { inputRow, disclaimer } }
+            Content = new VerticalStackLayout { Spacing = 4, Children = { inputRow, voiceMessage, disclaimer } }
         };
         bottomContainer.SetBinding(VisualElement.IsVisibleProperty, new Binding("IsHistoryOpen", converter: new InverseBoolConverter()));
 
@@ -508,6 +513,55 @@ public sealed class AdvisorPage : ContentPage
         Content = rootGrid;
         this.SetDynamicResource(VisualElement.BackgroundColorProperty, "Ground");
     }
+
+    private long _micPressedAt;
+    private bool _micStartedByPress;
+
+    /// <summary>
+    /// The mic beside the question box, as in Tell Coo: hold to talk and let go, or tap, talk, and tap again (or pause).
+    /// Accent while recording.
+    /// </summary>
+    private Grid MicButton()
+    {
+        var face = new Border
+        {
+            WidthRequest = 44,
+            HeightRequest = 44,
+            StrokeThickness = 0,
+            StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 22 },
+            Content = new Coo.Mobile.Components.Icon(Coo.Mobile.Presentation.Theme.IconGeometry.Mic, "OnAccent", 22) { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center },
+            InputTransparent = true,
+        };
+        void Paint() => face.SetDynamicResource(VisualElement.BackgroundColorProperty, _model.IsRecording ? "AccentInk" : "Accent");
+        Paint();
+        _model.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(AdvisorViewModel.IsRecording))
+                Dispatcher.Dispatch(Paint);
+        };
+        var press = new Button { WidthRequest = 44, HeightRequest = 44, CornerRadius = 22, BackgroundColor = Colors.Transparent, BorderWidth = 0 };
+        SemanticProperties.SetDescription(press, Strings.Get("Quick.HoldHint"));
+        press.Pressed += (_, _) =>
+        {
+            if (_model.IsRecording)
+            {
+                _micStartedByPress = false;
+                _model.FinishSpeakingCommand.Execute(null);
+                return;
+            }
+
+            _micPressedAt = Environment.TickCount64;
+            _micStartedByPress = true;
+            _model.SpeakCommand.Execute(null);
+        };
+        press.Released += (_, _) =>
+        {
+            if (_micStartedByPress && Environment.TickCount64 - _micPressedAt >= 600)
+                _model.FinishSpeakingCommand.Execute(null);
+            _micStartedByPress = false;
+        };
+        return new Grid { VerticalOptions = LayoutOptions.Center, Children = { face, press } };
+    }
 }
 
 public class BoolToStringConverter(string trueValue, string falseValue) : IValueConverter
@@ -566,4 +620,12 @@ public class BoolToDynamicResourceConverter(string trueKey, string falseKey) : I
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) => throw new NotImplementedException();
+}
+
+/// <summary>True for a non-empty string: a message line shows only when there is something to say.</summary>
+public class NotEmptyConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) => value is string { Length: > 0 };
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) => throw new NotSupportedException();
 }

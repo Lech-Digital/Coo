@@ -11,6 +11,21 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 - Each release gets a section here, newest first, written for parents rather than developers where it ends up in
   Play's "What's new".
 
+## 1.7.0 (code 24) — 2026-10-24
+
+### New
+- **Speak to the Advisor**: a mic beside the question box; hold to talk, or tap and talk.
+- **Tell Coo understands speech much better**: when you are signed in, what you say goes to Google's Gemini to be
+  written down (the words show in the box before Coo reads them). Signed out or offline, your phone's own speech
+  recognition is used as before. Voice messages have a daily allowance: 60 with Premium, 5 without.
+
+### Changed
+- **A better Advisor**: it sees every entry of the last two days, two weeks of daily totals, four weeks of trends and
+  Coo's next-nap estimate, knows what time it is for you, answers the question first, and no longer starts every
+  answer with "I am not a doctor" (the note stays under the conversation). It politely declines questions that are
+  not about your baby and family.
+- Tell Coo and the Advisor ask for your agreement again, because recordings are now sent.
+
 ## 1.6.0 (code 23) — 2026-10-24
 
 ### New

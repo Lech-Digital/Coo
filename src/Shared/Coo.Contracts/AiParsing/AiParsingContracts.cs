@@ -35,6 +35,28 @@ public sealed record AiImageRequest(
     string? Language,
     DateOnly? BirthDate);
 
+/// <summary>
+/// A spoken message to turn into text (owner, 2026-10-24: Android's recogniser understood too little): for Tell Coo,
+/// whose text is then parsed as typed words, and for the Advisor, where it becomes the question. The server sends the
+/// recording to the model to transcribe and keeps nothing of it.
+/// </summary>
+/// <param name="AudioBase64">At most <see cref="AiParsingLimits.MaxAudioBytes"/> bytes before encoding: about a minute.</param>
+/// <param name="MimeType">audio/aac (Android's ADTS AAC), audio/mp4, audio/ogg, audio/wav or audio/mpeg.</param>
+/// <param name="Hints">Words to expect: the baby's names, the care words. They help the model spell them right.</param>
+/// <param name="Purpose">"log" (Tell Coo) or "advisor".</param>
+public sealed record AiTranscribeRequest(
+    Guid HouseholdId,
+    string AudioBase64,
+    string MimeType,
+    string TimeZoneId,
+    string? Language,
+    IReadOnlyList<string>? Hints,
+    string Purpose);
+
+/// <param name="Text">What was said; empty when nothing was.</param>
+/// <param name="ErrorCode">ai.voice-daily-limit, ai.voice-free-limit or ai.unavailable.</param>
+public sealed record AiTranscribeResponse(string Text, string? ErrorCode = null, int? Limit = null);
+
 /// <param name="Running">The sessions in progress, as <see cref="AiRunningKinds"/> codes.</param>
 /// <param name="LastBreastSide">"left" or "right": the side the last breast feed ended on.</param>
 /// <param name="VolumeUnit">"ml" or "oz": the unit an amount without one is in.</param>
@@ -86,6 +108,11 @@ public static class AiParsingLimits
 
     /// <summary>A phone photo scaled to about 1600 pixels is a few hundred kilobytes; this leaves room.</summary>
     public const int MaxImageBytes = 4_000_000;
+
+    /// <summary>A minute of speech as 32 kbit/s AAC is about 240 kB; this leaves room for other codecs.</summary>
+    public const int MaxAudioBytes = 2_000_000;
+
+    public static readonly IReadOnlyList<string> AudioTypes = ["audio/aac", "audio/mp4", "audio/ogg", "audio/wav", "audio/mpeg"];
 }
 
 public static class AiRunningKinds

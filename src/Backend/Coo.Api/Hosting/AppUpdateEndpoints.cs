@@ -8,7 +8,7 @@ public static class AppUpdateEndpoints
     {
         endpoints.MapGet("/api/app-version", ([FromServices] IConfiguration configuration) =>
         {
-            var latest = configuration.GetValue<int>("AppUpdates:Latest", 23);
+            var latest = configuration.GetValue<int>("AppUpdates:Latest", 24);
             var minimum = configuration.GetValue<int>("AppUpdates:Minimum", 15);
             var isForced = configuration.GetValue<bool>("AppUpdates:IsForced", false);
 

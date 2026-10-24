@@ -53,7 +53,10 @@ public sealed partial class QuickLogViewModel(
     IClockFormat clock,
     UndoService undo,
     TimeProvider time,
-    ISpeechLanguagePreference speechLanguage) : ObservableObject, IDisposable
+    ISpeechLanguagePreference speechLanguage,
+    IVoiceRecorder? recorder = null,
+    TranscribeVoice? transcribe = null,
+    Coo.Mobile.Application.Auth.Account? account = null) : ObservableObject, IDisposable
 {
     private QuickLogReview? _review;
     private Guid? _pendingNote;
@@ -79,7 +82,17 @@ public sealed partial class QuickLogViewModel(
 
     private IReadOnlyList<string> _babyNames = [];
 
-    public bool CanListen => speech.IsAvailable;
+    // A send that failed (offline, the server busy): the phone's own recogniser for the rest of this sheet.
+    private bool _onPhoneOnly;
+
+    public bool CanListen => speech.IsAvailable || recorder?.IsAvailable == true;
+
+    /// <summary>
+    /// Speech goes to Gemini to be understood (owner, 2026-10-24) when signed in, as Tell Coo needs anyway; signed out, or
+    /// after a failed send, the phone's own recogniser is used, which works offline.
+    /// </summary>
+    private bool UsesAiVoice => !_onPhoneOnly && recorder?.IsAvailable == true && transcribe is not null
+                                && account?.State is Coo.Mobile.Application.Auth.SignedIn;
 
     /// <summary>The language Tell Coo listens in: the app's, unless this parent speaks another to it.</summary>
     [ObservableProperty]
@@ -119,6 +132,7 @@ public sealed partial class QuickLogViewModel(
     public async Task OpenAsync()
     {
         _listening?.Cancel();
+        _onPhoneOnly = false;
         (_review, _pendingNote) = (null, null);
         (Stage, Text, Message, Rows, Unparsed) = (QuickLogStage.Input, "", "", [], "");
         PendingNotes = await notes.ListAsync(CancellationToken.None);
@@ -146,6 +160,12 @@ public sealed partial class QuickLogViewModel(
         _listening?.Dispose();
         _listening = new CancellationTokenSource();
         Text = "";
+        if (UsesAiVoice)
+        {
+            await ListenWithAiAsync(_listening.Token);
+            return;
+        }
+
         var heard = await speech.ListenAsync(SpeechLanguage, words => Text = words, _listening.Token, Hints());
         if (Stage != QuickLogStage.Listening)
             return;
@@ -160,12 +180,56 @@ public sealed partial class QuickLogViewModel(
         await UnderstandAsync(heard, time.GetUtcNow(), null);
     }
 
+    /// <summary>Recorded, then sent to Gemini to write down; the words show in the text box before Coo reads them as typed.</summary>
+    private async Task ListenWithAiAsync(CancellationToken cancellationToken)
+    {
+        var recording = await recorder!.RecordAsync(cancellationToken);
+        if (Stage != QuickLogStage.Listening)
+            return;
+        if (recording is null)
+        {
+            Stage = QuickLogStage.Input;
+            Message = Strings.Get("Quick.NotHeard");
+            return;
+        }
+
+        Stage = QuickLogStage.Thinking;
+        var voice = await transcribe!.ExecuteAsync(recording, TranscribeVoice.ForLog, SpeechLanguage, Hints(), CancellationToken.None);
+        if (voice.ErrorCode is { } error)
+        {
+            Stage = QuickLogStage.Input;
+            Message = error switch
+            {
+                "ai.voice-free-limit" => Strings.Format("Quick.Error.voice-free-limit", voice.Limit ?? 5),
+                "ai.voice-daily-limit" => Strings.Format("Quick.Error.voice-daily-limit", voice.Limit ?? 60),
+                "ai.signed-out" => Strings.Get("Quick.Error.signed-out"),
+                _ => Strings.Get("Quick.VoiceFailed"),
+            };
+            // Offline or the server busy: the phone's own recogniser works without either.
+            if (error == "ai.unavailable" && speech.IsAvailable)
+                _onPhoneOnly = true;
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(voice.Text))
+        {
+            Stage = QuickLogStage.Input;
+            Message = Strings.Get("Quick.NotHeard");
+            return;
+        }
+
+        Text = voice.Text;
+        await UnderstandAsync(voice.Text, time.GetUtcNow(), null);
+    }
+
     /// <summary>Let go, or a tap while listening: what was heard so far goes to Coo.</summary>
     [RelayCommand]
     private void FinishListening()
     {
-        if (Stage == QuickLogStage.Listening)
-            speech.Finish();
+        if (Stage != QuickLogStage.Listening)
+            return;
+        speech.Finish();
+        recorder?.Finish();
     }
 
     [RelayCommand]

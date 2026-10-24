@@ -47,7 +47,7 @@ internal sealed class AdvisorService(
         var baby = await db.BabyProfiles.AsNoTracking()
             .FirstOrDefaultAsync(b => b.Id == request.BabyId && b.HouseholdId == householdId.Value && !b.IsDeleted, cancellationToken);
         int? weeks = baby?.BirthDate is { } born ? (today.DayNumber - born.DayNumber) / 7 : null;
-        var system = AdvisorPrompt.System(baby?.Name, weeks, request.Context, request.Language);
+        var system = AdvisorPrompt.System(baby?.Name, weeks, request.Context, request.Language, TimeZoneInfo.ConvertTime(timeProvider.GetUtcNow(), zone));
 
         var contents = AdvisorPrompt.History(request.History)
             .Select(m => (object)new { role = m.IsUser ? "user" : "model", parts = new[] { new { text = m.Text } } })

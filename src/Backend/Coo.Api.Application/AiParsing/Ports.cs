@@ -45,11 +45,17 @@ public sealed record ParsedText(IReadOnlyList<ParsedEntry> Entries, IReadOnlyLis
 /// <summary>A photo of a health record and the facts that date it: today, the birth date, the app's language.</summary>
 public sealed record ImagePrompt(byte[] Image, string MimeType, string Context);
 
+/// <summary>A recording to transcribe, with the words likely in it and the app's language as a hint.</summary>
+public sealed record SpeechPrompt(byte[] Audio, string MimeType, IReadOnlyList<string> Hints, string? Language, bool ForAdvisor);
+
 /// <summary>The model behind AI logging (ADR 0005 §9): Gemini in production, a fake in development.</summary>
 public interface ICareLogTextParser
 {
     /// <returns>Null when the model could not be reached or answered with nothing usable.</returns>
     Task<ParsedText?> ParseAsync(ParsePrompt prompt, CancellationToken cancellationToken);
+
+    /// <summary>What was said in a recording, in the language spoken; empty when nothing was; null when the model failed.</summary>
+    Task<string?> TranscribeAsync(SpeechPrompt prompt, CancellationToken cancellationToken);
 
     /// <summary>Measurements and vaccinations from a photo, each with its <see cref="ParsedEntry.Date"/> or age.</summary>
     /// <returns>Null when the model could not be reached or answered with nothing usable.</returns>
@@ -67,4 +73,10 @@ public interface IAiParsingStore
 
     /// <summary>How many parses the household has made that day.</summary>
     Task<int> UsedAsync(HouseholdId household, DateOnly day, CancellationToken cancellationToken);
+
+    /// <summary>Counts one transcription for the household's day; voice has its own allowance.</summary>
+    Task CountVoiceAsync(HouseholdId household, DateOnly day, CancellationToken cancellationToken);
+
+    /// <summary>How many transcriptions the household has made that day.</summary>
+    Task<int> UsedVoiceAsync(HouseholdId household, DateOnly day, CancellationToken cancellationToken);
 }

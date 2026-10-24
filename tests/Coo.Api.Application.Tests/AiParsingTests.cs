@@ -294,6 +294,57 @@ public sealed class ParseCareLogTextTests
         _parser.SeenImage.Should().BeNull();
     }
 
+    [Fact]
+    public async Task TranscribeAsync_VoiceNote_ReturnsTheTextAndCountsAVoiceUse()
+    {
+        // Arrange
+        await MemberAsync();
+
+        // Act
+        var (_, response) = await Sut().TranscribeAsync(Parent, Speech(), CancellationToken.None);
+
+        // Assert
+        response!.Text.Should().Be("120 ml formula");
+        _parser.SeenSpeech!.Hints.Should().Equal("Lena", "bottle");
+        _parser.SeenSpeech.ForAdvisor.Should().BeFalse();
+        _store.VoiceCounted.Should().Be(1);
+        _store.Counted.Should().Be(0, "voice has its own allowance");
+    }
+
+    [Fact]
+    public async Task TranscribeAsync_FreeVoiceAllowanceUsedUp_SaysSoWithoutCallingTheModel()
+    {
+        // Arrange
+        await MemberAsync();
+        _store.VoiceUsed = new AiParsingLimitsOptions().VoiceFreePerDay;
+
+        // Act
+        var (_, response) = await Sut().TranscribeAsync(Parent, Speech(), CancellationToken.None);
+
+        // Assert
+        response!.ErrorCode.Should().Be("ai.voice-free-limit");
+        _parser.SeenSpeech.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("video/mp4")]
+    [InlineData("audio/aac-but-empty")]
+    public async Task TranscribeAsync_NotAudio_IsRefused(string mime)
+    {
+        // Arrange
+        await MemberAsync();
+        var request = mime == "video/mp4" ? Speech() with { MimeType = mime } : Speech() with { AudioBase64 = Convert.ToBase64String([1, 2, 3]) };
+
+        // Act
+        var (refusal, _) = await Sut().TranscribeAsync(Parent, request, CancellationToken.None);
+
+        // Assert
+        refusal.Should().Be(ParseRefusal.NotAudio);
+    }
+
+    private static AiTranscribeRequest Speech() =>
+        new(Household.Value, Convert.ToBase64String(new byte[512]), "audio/aac", "Europe/Amsterdam", "en", ["Lena", " bottle ", "Lena"], "log");
+
     private static AiImageRequest Image() =>
         new(Household.Value, Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1"), Convert.ToBase64String([0xFF, 0xD8, 0xFF, 0xE0, 1, 2, 3]), "image/jpeg",
             Now, "Europe/Amsterdam", "en", new DateOnly(2026, 9, 4));
@@ -331,6 +382,16 @@ public sealed class ParseCareLogTextTests
             SeenImage = prompt;
             return Task.FromResult(Next);
         }
+
+        public string? NextSpeech { get; set; } = "120 ml formula";
+
+        public SpeechPrompt? SeenSpeech { get; private set; }
+
+        public Task<string?> TranscribeAsync(SpeechPrompt prompt, CancellationToken cancellationToken)
+        {
+            SeenSpeech = prompt;
+            return Task.FromResult(NextSpeech);
+        }
     }
 
     private sealed class FakeAiStore : IAiParsingStore
@@ -345,6 +406,18 @@ public sealed class ParseCareLogTextTests
         public Task<int> CountAsync(HouseholdId household, DateOnly day, CancellationToken cancellationToken) => Task.FromResult(++Counted + Used);
 
         public Task<int> UsedAsync(HouseholdId household, DateOnly day, CancellationToken cancellationToken) => Task.FromResult(Used);
+
+        public int VoiceUsed { get; set; }
+
+        public int VoiceCounted { get; private set; }
+
+        public Task CountVoiceAsync(HouseholdId household, DateOnly day, CancellationToken cancellationToken)
+        {
+            VoiceCounted++;
+            return Task.CompletedTask;
+        }
+
+        public Task<int> UsedVoiceAsync(HouseholdId household, DateOnly day, CancellationToken cancellationToken) => Task.FromResult(VoiceUsed);
     }
 
     private sealed class FakeBilling : IBillingStore

@@ -10,6 +10,25 @@ internal sealed class AiParseClient(HttpClient http) : IAiParseApi
 {
     private static readonly Uri ParseUri = new("api/ai/parse", UriKind.Relative);
     private static readonly Uri ParseImageUri = new("api/ai/parse-image", UriKind.Relative);
+    private static readonly Uri TranscribeUri = new("api/ai/transcribe", UriKind.Relative);
+
+    public async Task<AiTranscribeResponse?> TranscribeAsync(AiTranscribeRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var message = new HttpRequestMessage(HttpMethod.Post, TranscribeUri) { Content = JsonContent.Create(request, AiParsingJsonContext.Default.AiTranscribeRequest) };
+            using var response = await http.SendAsync(message, cancellationToken);
+            if (response.StatusCode is System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden)
+                return new AiTranscribeResponse("", "ai.signed-out");
+            if (!response.IsSuccessStatusCode)
+                return null;
+            return await response.Content.ReadFromJsonAsync(AiParsingJsonContext.Default.AiTranscribeResponse, cancellationToken);
+        }
+        catch (Exception e) when (e is HttpRequestException or JsonException or TaskCanceledException { InnerException: TimeoutException })
+        {
+            return null;
+        }
+    }
 
     public Task<AiParseResponse?> ParseAsync(AiParseRequest request, CancellationToken cancellationToken) =>
         PostAsync(ParseUri, JsonContent.Create(request, AiParsingJsonContext.Default.AiParseRequest), cancellationToken);
@@ -40,6 +59,8 @@ internal sealed class AiParseClient(HttpClient http) : IAiParseApi
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 [JsonSerializable(typeof(AiParseRequest))]
 [JsonSerializable(typeof(AiImageRequest))]
+[JsonSerializable(typeof(AiTranscribeRequest))]
+[JsonSerializable(typeof(AiTranscribeResponse))]
 [JsonSerializable(typeof(AiParseResponse))]
 [JsonSerializable(typeof(List<PendingNote>))]
 internal sealed partial class AiParsingJsonContext : JsonSerializerContext;

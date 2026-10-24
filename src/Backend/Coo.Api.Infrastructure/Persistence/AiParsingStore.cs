@@ -34,6 +34,24 @@ internal sealed class AiParsingStore(IDbContextFactory<CooDbContext> contexts) :
         return counts.Single();
     }
 
+    public async Task CountVoiceAsync(HouseholdId household, DateOnly day, CancellationToken cancellationToken)
+    {
+        await using var db = await contexts.CreateDbContextAsync(cancellationToken);
+        await db.Database.ExecuteSqlAsync($"""
+            INSERT INTO ai_parse_usages (household_id, date, parse_count, voice_count) VALUES ({household.Value}, {day}, 0, 1)
+            ON CONFLICT (household_id, date) DO UPDATE SET voice_count = ai_parse_usages.voice_count + 1
+            """, cancellationToken);
+    }
+
+    public async Task<int> UsedVoiceAsync(HouseholdId household, DateOnly day, CancellationToken cancellationToken)
+    {
+        await using var db = await contexts.CreateDbContextAsync(cancellationToken);
+        return await db.AiParseUsages.AsNoTracking()
+            .Where(u => u.HouseholdId == household.Value && u.Date == day)
+            .Select(u => u.VoiceCount)
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<int> UsedAsync(HouseholdId household, DateOnly day, CancellationToken cancellationToken)
     {
         await using var db = await contexts.CreateDbContextAsync(cancellationToken);

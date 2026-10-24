@@ -15,12 +15,23 @@ namespace Coo.Mobile.Application.Advisor;
 
 /// <summary>
 /// The baby's recent log as plain English for the Advisor (sent with each question): what is happening now, the last
-/// of each kind, each of the last seven days, and this week against the week before. Facts only, in the family's time
-/// zone, so the answer can quote them instead of guessing.
+/// of each kind, every entry of the last two days, each of the last fourteen days, the last four weeks, the next likely
+/// sleep, health and growth. Facts only, in the family's time zone and without notes, so the answer can quote them
+/// instead of guessing (owner, 2026-10-24: "more than a few logs back").
 /// </summary>
 public sealed class BuildAdvisorContext(
-    GetToday today, GetCareTrends trends, ICareLogStore? store = null, IHouseholdStore? households = null, IGrowthChartPreference? chart = null)
+    GetToday today, GetCareTrends trends, ICareLogStore? store = null, IHouseholdStore? households = null, IGrowthChartPreference? chart = null,
+    Insights.GetSleepPrediction? sleep = null)
 {
+    /// <summary>Entry by entry this far back; before that, by day.</summary>
+    public static readonly TimeSpan DetailWindow = TimeSpan.FromHours(48);
+
+    /// <summary>Days told one by one, today included.</summary>
+    public const int Days = 14;
+
+    /// <summary>At most this many entries in the two-day list, the newest kept: a log of twin pumping can be long.</summary>
+    public const int MaxDetailLines = 120;
+
     /// <summary>How far back medicines, temperatures, vaccines and visits are told.</summary>
     public static readonly TimeSpan HealthWindow = TimeSpan.FromDays(14);
 
@@ -31,8 +42,8 @@ public sealed class BuildAdvisorContext(
     {
         var summary = await today.ExecuteAsync(household, baby, zone, now, cancellationToken);
         var date = DayMath.DateOf(now, zone);
-        var days = await trends.DaysAsync(household, baby, date.AddDays(-6), date, zone, now, cancellationToken);
-        var weeks = await trends.ExecuteAsync(household, baby, TrendGrain.Week, date, 2, DayOfWeek.Monday, zone, now, cancellationToken);
+        var days = await trends.DaysAsync(household, baby, date.AddDays(1 - Days), date, zone, now, cancellationToken);
+        var weeks = await trends.ExecuteAsync(household, baby, TrendGrain.Week, date, 4, DayOfWeek.Monday, zone, now, cancellationToken);
         string At(DateTimeOffset instant) => TimeZoneInfo.ConvertTime(instant, zone).ToString("ddd HH:mm", En);
 
         var text = new StringBuilder();
@@ -49,20 +60,64 @@ public sealed class BuildAdvisorContext(
                 text.AppendLine(CultureInfo.InvariantCulture, $"Last {last.KindCode.Value}: {At(last.Timing.OccurredAt)}, {Describe(last, now)}.");
         }
 
-        text.AppendLine("Per day (sleep is cut at midnight; today is not over):");
+        if (sleep is not null && households is not null
+            && (await households.ListBabiesAsync(household, cancellationToken)).FirstOrDefault(b => b.Id == baby) is { } profile
+            && await sleep.ExecuteAsync(household, profile, zone, now, cancellationToken) is { } next)
+        {
+            var what = next.IsBedtime ? "Bedtime" : $"Nap {next.Position}";
+            text.AppendLine(CultureInfo.InvariantCulture,
+                $"Next sleep (Coo's estimate, {next.Confidence.ToString().ToLowerInvariant()} confidence): {what} likely {At(next.Earliest)}–{At(next.Latest)}; typical wake window at this age {Duration(next.Prior.Low)}–{Duration(next.Prior.High)}{(next.PersonalMedian is { } median ? $", this baby's lately {Duration(median)}" : "")}.");
+        }
+
+        if (store is not null)
+            await AppendRecentEntriesAsync(text, household, baby, zone, now, cancellationToken);
+
+        text.AppendLine(CultureInfo.InvariantCulture, $"Per day, last {Days} days (sleep is cut at midnight; today is not over):");
         foreach (var day in days.Values.OrderBy(d => d.Date))
             text.AppendLine(Line(day, day.Date == date));
 
-        if (weeks is [var before, var current])
+        if (weeks.Count > 0)
         {
-            text.AppendLine(Week("This week so far", current));
-            text.AppendLine(Week("Last week", before));
+            text.AppendLine("Per week (Monday to Sunday), daily averages:");
+            for (var i = weeks.Count - 1; i >= 0; i--)
+                text.AppendLine(Week(i == weeks.Count - 1 ? "This week so far" : $"Week of {weeks[i].Start.ToString("d MMM", En)}", weeks[i]));
         }
 
         if (store is not null)
             await AppendHealthAndGrowthAsync(text, household, baby, zone, now, cancellationToken);
 
         return text.ToString();
+    }
+
+    /// <summary>Every feed, sleep, diaper and pump of the last two days, with its time: what "a few logs back" means to a parent.</summary>
+    private async Task AppendRecentEntriesAsync(
+        StringBuilder text, HouseholdId household, BabyId baby, TimeZoneInfo zone, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        string At(DateTimeOffset instant) => TimeZoneInfo.ConvertTime(instant, zone).ToString("ddd HH:mm", En);
+        string Clock(DateTimeOffset instant) => TimeZoneInfo.ConvertTime(instant, zone).ToString("HH:mm", En);
+        var entries = (await store!.ListAsync(household, now - DetailWindow - TimeSpan.FromDays(1), now.AddMinutes(1), cancellationToken))
+            .OfType<LiveEntry>().Select(l => l.Entry)
+            .Where(e => !e.IsDeleted && GetToday.IsAbout(e, baby))
+            .Where(e => e.Details is FeedingDetails or SleepDetails or DiaperDetails or PumpDetails)
+            // A session counts while any of it is in the window; a point, a breast feed, by when it happened.
+            .Where(e => (e.Timing is SessionTiming s ? s.Range.End ?? now : e.Timing.OccurredAt) >= now - DetailWindow)
+            .OrderBy(e => e.Timing.OccurredAt)
+            .ToList();
+        if (entries.Count == 0)
+            return;
+        text.AppendLine(CultureInfo.InvariantCulture, $"Every entry of the last {DetailWindow.TotalHours:0} hours, oldest first:");
+        foreach (var e in entries.TakeLast(MaxDetailLines))
+        {
+            var when = e.Timing switch
+            {
+                SessionTiming { Range.End: { } end } s => $"{At(s.Range.Start)}–{Clock(end)}",
+                SessionTiming s => $"{At(s.Range.Start)}–now",
+                _ when e.Details is BreastFeed f => $"{At(f.FirstStart)}",
+                _ => At(e.Timing.OccurredAt),
+            };
+            // Never the note: the privacy policy promises the Advisor gets the log without notes.
+            text.AppendLine(CultureInfo.InvariantCulture, $"- {when} {Describe(e, now)}");
+        }
     }
 
     /// <summary>Medicines, temperatures, vaccines and visits of the last two weeks; every growth measurement, with its WHO percentile.</summary>

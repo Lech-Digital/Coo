@@ -50,6 +50,23 @@ public sealed class AiParsingApiTests(AuthApi api) : IClassFixture<AuthApi>
     }
 
     [Fact]
+    public async Task Transcribe_VoiceNote_ReturnsTheFakesText()
+    {
+        // Arrange
+        using var client = api.Factory.CreateClient();
+        var session = await SyncCalls.SignInWithConsentAsync(client, "ai-voice1", Calls.Id(9131), Calls.Id(9132));
+        var request = new AiTranscribeRequest(session.HouseholdId, Convert.ToBase64String(new byte[1024]), "audio/aac", "Europe/Amsterdam", "en", ["Lena"], "log");
+
+        // Act
+        var response = await Calls.SendAsync(client, HttpMethod.Post, new Uri("/api/ai/transcribe", UriKind.Relative), session.AccessToken, request);
+        var body = await response.Content.ReadFromJsonAsync<AiTranscribeResponse>();
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("wet diaper", body!.Text);
+    }
+
+    [Fact]
     public async Task ParseImage_NotAnImage_IsABadRequest()
     {
         // Arrange

@@ -10,6 +10,26 @@ public static class AiParsingEndpoints
 {
     public static void MapAiParsingEndpoints(this IEndpointRouteBuilder app)
     {
+        // A voice message for Tell Coo or the Advisor: transcribed, answered, and kept nowhere.
+        app.MapPost("/api/ai/transcribe", async Task<IResult> (
+            HttpRequest http,
+            ClaimsPrincipal principal,
+            [FromServices] ParseCareLogText parse,
+            CancellationToken cancellationToken) =>
+        {
+            var request = await AuthEndpoints.TryReadJsonAsync<AiTranscribeRequest>(http, cancellationToken);
+            if (request is null || request.HouseholdId == Guid.Empty || string.IsNullOrWhiteSpace(request.TimeZoneId))
+                return Results.BadRequest(new { Code = "ai.malformed" });
+
+            var (refusal, response) = await parse.TranscribeAsync(AuthEndpoints.UserOf(principal), request, cancellationToken);
+            return refusal switch
+            {
+                ParseRefusal.NotAMember => Results.Forbid(),
+                ParseRefusal.NotAudio => Results.BadRequest(new { Code = "ai.not-audio" }),
+                _ => Results.Ok(response),
+            };
+        }).RequireAuthorization();
+
         // A photo of a health record (a growth card, a vaccination booklet): read, answered, and kept nowhere.
         app.MapPost("/api/ai/parse-image", async Task<IResult> (
             HttpRequest http,

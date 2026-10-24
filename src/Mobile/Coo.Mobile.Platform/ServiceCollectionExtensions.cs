@@ -23,6 +23,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IConnectivityWatcher>(_ => new Sync.AndroidConnectivity(() => global::Android.App.Application.Context));
         services.AddSingleton<Coo.Mobile.Application.Billing.IBillingService>(sp => new Billing.BillingService(sp));
         services.AddSingleton<Coo.Mobile.Application.AiLogging.ISpeechToText, Speech.AndroidSpeechToText>();
+        services.AddSingleton<Coo.Mobile.Application.AiLogging.IVoiceRecorder, Speech.AndroidVoiceRecorder>();
         services.AddSingleton<Coo.Mobile.Application.Notifications.IReminderScheduler, Notifications.AndroidReminderScheduler>();
         services.AddSingleton<Coo.Mobile.Application.Reports.IReportExporter, Reports.AndroidPdfExporter>();
         return services;

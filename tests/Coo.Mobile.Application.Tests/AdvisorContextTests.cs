@@ -105,6 +105,24 @@ public sealed class AdvisorContextTests
         text.Should().NotContain("Health, last 14 days").And.NotContain("Growth measurements");
     }
 
+    [Fact]
+    public async Task ExecuteAsync_EntriesOfTheLastTwoDays_AreListedOneByOneWithTheirTimes()
+    {
+        // Arrange: a night sleep yesterday, a diaper this morning, and a diaper three days ago that is only counted
+        var store = Store([Sleep(At(21, 19, 30), At(22, 6, 15)), Diaper(At(22, 9, 5), DiaperContents.Dirty), Diaper(At(19, 9, 0), DiaperContents.Wet)]);
+
+        // Act
+        var text = await new BuildAdvisorContext(new GetToday(store), new GetCareTrends(store), store)
+            .ExecuteAsync(Household, Baby, Amsterdam, Now, CancellationToken.None);
+
+        // Assert
+        text.Should().Contain("Every entry of the last 48 hours");
+        text.Should().Contain("- Wed 19:30–06:15 sleep of 10 h 45 m");
+        text.Should().Contain("- Thu 09:05 diaper, dirty");
+        text.Should().NotContain("Mon 09:00 diaper", "older entries are in the daily totals, not one by one");
+        text.Should().Contain("Per day, last 14 days");
+    }
+
     private static ICareLogStore Store(IReadOnlyList<CareEntry> entries)
     {
         var store = Substitute.For<ICareLogStore>();

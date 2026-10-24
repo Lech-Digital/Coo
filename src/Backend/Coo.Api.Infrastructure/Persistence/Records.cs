@@ -309,6 +309,9 @@ internal sealed class AiParseUsageRecord
     public required DateOnly Date { get; init; }
 
     public required int ParseCount { get; set; }
+
+    /// <summary>Transcriptions that day: Tell Coo and the Advisor by voice, which have their own allowance.</summary>
+    public int VoiceCount { get; set; }
 }
 
 internal sealed class AdvisorUsageRecord

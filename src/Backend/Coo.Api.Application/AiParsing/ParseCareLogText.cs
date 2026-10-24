@@ -11,8 +11,12 @@ using Coo.Domain.Common;
 
 namespace Coo.Api.Application.AiParsing;
 
-/// <summary>The daily allowances (ADR 0005 §7): Premium families get many, others a few to try it.</summary>
-public sealed record AiParsingLimitsOptions(int PremiumPerDay = 100, int FreePerDay = 5);
+/// <summary>
+/// The daily allowances (ADR 0005 §7): Premium families get many, others a few to try it. Voice has its own: a minute
+/// of speech costs about what a parse does, and a family that speaks every log uses one of each (owner, 2026-10-24:
+/// limits that fit the price of the subscription).
+/// </summary>
+public sealed record AiParsingLimitsOptions(int PremiumPerDay = 100, int FreePerDay = 5, int VoicePremiumPerDay = 60, int VoiceFreePerDay = 5);
 
 public enum ParseRefusal
 {
@@ -22,6 +26,9 @@ public enum ParseRefusal
 
     /// <summary>Not a JPEG or PNG, or not one at all.</summary>
     NotAnImage,
+
+    /// <summary>Not one of the audio types, too long, or empty.</summary>
+    NotAudio,
 }
 
 public sealed record ParseOutcome(ParseRefusal Refusal, AiParseResponse? Response);
@@ -86,6 +93,51 @@ public sealed class ParseCareLogText(
         }
 
         return Answer(proposals, unparsed, parsed.PromptVersion, null, null);
+    }
+
+    /// <summary>
+    /// A recording to text, for Tell Coo or the Advisor. The model hears the names: unlike typed words they cannot be
+    /// replaced first, which the app says before the first recording. Nothing of the recording is kept.
+    /// </summary>
+    public async Task<(ParseRefusal Refusal, AiTranscribeResponse? Response)> TranscribeAsync(
+        UserId user, AiTranscribeRequest request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var household = new HouseholdId(request.HouseholdId);
+        if ((await access.CheckAsync(user, household, cancellationToken)).Denial != AccessDenial.None)
+            return (ParseRefusal.NotAMember, null);
+        if (DecodeAudio(request) is not { } audio)
+            return (ParseRefusal.NotAudio, null);
+
+        var zone = Zone(request.TimeZoneId);
+        var day = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(time.GetUtcNow(), zone).DateTime);
+        var isPremium = await billing.IsHouseholdPremiumAsync(household, cancellationToken);
+        var limit = isPremium ? limits.VoicePremiumPerDay : limits.VoiceFreePerDay;
+        if (await store.UsedVoiceAsync(household, day, cancellationToken) >= limit)
+            return (ParseRefusal.None, new AiTranscribeResponse("", isPremium ? "ai.voice-daily-limit" : "ai.voice-free-limit", limit));
+
+        var hints = (request.Hints ?? []).Where(h => !string.IsNullOrWhiteSpace(h)).Select(h => h.Trim()).Distinct().Take(60).ToList();
+        var text = await parser.TranscribeAsync(new SpeechPrompt(audio, request.MimeType, hints, request.Language, request.Purpose == "advisor"), cancellationToken);
+        if (text is null)
+            return (ParseRefusal.None, new AiTranscribeResponse("", "ai.unavailable"));
+        await store.CountVoiceAsync(household, day, cancellationToken);
+        return (ParseRefusal.None, new AiTranscribeResponse(text.Trim()));
+    }
+
+    private static byte[]? DecodeAudio(AiTranscribeRequest request)
+    {
+        if (!AiParsingLimits.AudioTypes.Contains(request.MimeType) || string.IsNullOrEmpty(request.AudioBase64)
+            || request.AudioBase64.Length > (AiParsingLimits.MaxAudioBytes / 3 * 4) + 4)
+            return null;
+        try
+        {
+            var bytes = Convert.FromBase64String(request.AudioBase64);
+            return bytes.Length < 64 ? null : bytes;
+        }
+        catch (FormatException)
+        {
+            return null;
+        }
     }
 
     /// <summary>

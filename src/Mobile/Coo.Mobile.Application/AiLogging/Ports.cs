@@ -7,6 +7,9 @@ public interface IAiParseApi
 {
     Task<AiParseResponse?> ParseAsync(AiParseRequest request, CancellationToken cancellationToken);
 
+    /// <summary>A recording to text, through the server and Gemini; null when the server could not be reached.</summary>
+    Task<AiTranscribeResponse?> TranscribeAsync(AiTranscribeRequest request, CancellationToken cancellationToken);
+
     /// <summary>A photo of a health record to proposals; null when the server could not be reached.</summary>
     Task<AiParseResponse?> ParseImageAsync(AiImageRequest request, CancellationToken cancellationToken);
 }
@@ -48,4 +51,25 @@ public interface ISpeechLanguagePreference
     Task<string?> GetAsync(CancellationToken cancellationToken);
 
     Task SetAsync(string? language, CancellationToken cancellationToken);
+}
+
+/// <summary>A voice message as recorded on the phone: compressed audio and its type, for the server to transcribe.</summary>
+public sealed record VoiceRecording(byte[] Audio, string MimeType, TimeSpan Length);
+
+/// <summary>
+/// The microphone, recorded (owner, 2026-10-24: Gemini understands speech far better than Android's recogniser). The
+/// recording lives in memory and a cache file that is deleted at once; it leaves the phone only to be transcribed.
+/// </summary>
+public interface IVoiceRecorder
+{
+    bool IsAvailable { get; }
+
+    /// <summary>
+    /// Records until <see cref="Finish"/>, a quiet spell after speech, or the longest message; null when the microphone
+    /// was refused, nothing was said, or it was cancelled.
+    /// </summary>
+    Task<VoiceRecording?> RecordAsync(CancellationToken cancellationToken);
+
+    /// <summary>The person let go of the button or tapped it: stop and keep what was recorded.</summary>
+    void Finish();
 }

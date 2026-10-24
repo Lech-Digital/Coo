@@ -334,6 +334,7 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
             e.Property(a => a.HouseholdId).HasColumnName("household_id");
             e.Property(a => a.Date).HasColumnName("date");
             e.Property(a => a.ParseCount).HasColumnName("parse_count");
+            e.Property(a => a.VoiceCount).HasColumnName("voice_count").HasDefaultValue(0);
             // Goes with its household, like everything a household owns.
             e.HasOne<HouseholdRecord>().WithMany().HasForeignKey(a => a.HouseholdId)
                 .HasConstraintName("fk_ai_parse_usages_households").OnDelete(DeleteBehavior.Cascade);

@@ -21,8 +21,26 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
     /// <summary>Pinned, never a "-latest" alias: an alias could change the model under a fixed prompt (ADR 0005 §6).</summary>
     public const string DefaultModel = "gemini-3.5-flash-lite";
 
+    internal const string SpeechSystemPrompt = """
+        You transcribe a short voice message for the app Coo, recorded by a parent of a baby, often tired, at night,
+        with a baby crying in the background. Write down exactly what they said, in the language they spoke (it may mix
+        languages: keep each word in its own). Correct only obvious mis-hearings of the words listed as likely. Write
+        numbers and times as digits ("120 ml", "14:30", "10 minutes"). No commentary and no translation. If nothing is
+        said, or only noise, return an empty text.
+        """;
+
+    private static readonly object SpeechSchema = new
+    {
+        type = "OBJECT",
+        properties = new { text = new { type = "STRING" } },
+        required = new[] { "text" },
+    };
+
     /// <summary>The photo reader's version, reported like <see cref="PromptVersion"/>.</summary>
     public const string ImagePromptVersion = "coo-image-v1";
+
+    /// <summary>The transcriber's version.</summary>
+    public const string SpeechPromptVersion = "coo-speech-v1";
 
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(10) };
 
@@ -223,6 +241,40 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
         return await SendAsync(body, ImageHttp, json => Read(json) with { PromptVersion = ImagePromptVersion }, cancellationToken);
     }
 
+    public async Task<string?> TranscribeAsync(SpeechPrompt prompt, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(prompt);
+        var context = $"It is a {(prompt.ForAdvisor ? "question for a baby advisor" : "note of what the baby just did: feeds, sleep, diapers, pumping, medicine")}."
+            + (prompt.Language is { } language ? $" The app's language is \"{language}\"." : "")
+            + (prompt.Hints.Count > 0 ? $" Likely words: {string.Join(", ", prompt.Hints)}." : "");
+        var body = new
+        {
+            systemInstruction = new { parts = new[] { new { text = SpeechSystemPrompt } } },
+            contents = new[]
+            {
+                new
+                {
+                    role = "user",
+                    parts = new object[]
+                    {
+                        new { inline_data = new { mime_type = prompt.MimeType, data = Convert.ToBase64String(prompt.Audio) } },
+                        new { text = context },
+                    },
+                },
+            },
+            generationConfig = new { temperature = 0.0, seed = 7, responseMimeType = "application/json", responseSchema = SpeechSchema },
+        };
+
+        // The transcript travels in ParsedText's one unparsed slot: SendAsync's error handling stays in one place.
+        var read = await SendAsync(body, ImageHttp, json =>
+        {
+            using var doc = JsonDocument.Parse(json);
+            var said = doc.RootElement.TryGetProperty("text", out var t) && t.ValueKind == JsonValueKind.String ? t.GetString() ?? "" : "";
+            return new ParsedText([], [said], SpeechPromptVersion);
+        }, cancellationToken);
+        return read is null ? null : read.Unparsed.Count > 0 ? read.Unparsed[0] : "";
+    }
+
     private async Task<ParsedText?> SendAsync(object body, HttpClient http, Func<string, ParsedText> read, CancellationToken cancellationToken)
     {
         var apiKey = configuration["Gemini:ApiKey"];
@@ -361,6 +413,9 @@ internal sealed class FakeCareLogParser : ICareLogTextParser
             ? new ParsedText([], [prompt.Text], "fake")
             : new ParsedText([entry], [], "fake"));
     }
+
+    /// <summary>Any recording says "wet diaper": the flow runs end to end without a key.</summary>
+    public Task<string?> TranscribeAsync(SpeechPrompt prompt, CancellationToken cancellationToken) => Task.FromResult<string?>("wet diaper");
 
     /// <summary>Any photo reads as a little growth card: a weight at birth, and a weight and length at six weeks.</summary>
     public Task<ParsedText?> ReadImageAsync(ImagePrompt prompt, CancellationToken cancellationToken)

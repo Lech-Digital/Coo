@@ -32,7 +32,7 @@
   <data name="Action.WokeUp" xml:space="preserve"><value>Wakker</value></data>
   <data name="Advisor.Ask" xml:space="preserve"><value>Vragen</value></data>
   <data name="Advisor.ConsentAgree" xml:space="preserve"><value>Akkoord</value></data>
-  <data name="Advisor.ConsentBody" xml:space="preserve"><value>Om te antwoorden stuurt Coo je vraag, dit gesprek, de voornaam en leeftijd van je baby en een samenvatting van de laatste 7 dagen (tijden en hoeveelheden, geen notities) naar de AI Gemini van Google, die het antwoord schrijft. De server van Coo bewaart je vragen en de antwoorden niet; ze blijven op deze telefoon. De antwoorden zijn algemene informatie, geen medisch advies.</value></data>
+  <data name="Advisor.ConsentBody" xml:space="preserve"><value>Om te antwoorden stuurt Coo je vraag (getypt, of je opname om in tekst om te zetten), dit gesprek, de voornaam en leeftijd van je baby en je logboek van de laatste 14 dagen, de laatste twee dagen item voor item (tijden en hoeveelheden, geen notities), naar de AI Gemini van Google, die het antwoord schrijft. De server van Coo bewaart vragen noch antwoorden; ze blijven op deze telefoon. De antwoorden zijn algemene informatie, geen medisch advies.</value></data>
   <data name="Advisor.ConsentLater" xml:space="preserve"><value>Niet nu</value></data>
   <data name="Advisor.ConsentTitle" xml:space="preserve"><value>Voor je eerste vraag</value></data>
   <data name="Advisor.Conversation" xml:space="preserve"><value>Gesprek</value></data>
@@ -429,13 +429,15 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Quick.AlreadyLogged" xml:space="preserve"><value>Al gelogd om {0}</value></data>
   <data name="Quick.Baby" xml:space="preserve"><value>Baby</value></data>
   <data name="Quick.Cancel" xml:space="preserve"><value>Annuleren</value></data>
-  <data name="Quick.ConsentBody" xml:space="preserve"><value>Om je te begrijpen stuurt Coo de woorden (nooit de opname) naar onze server en door naar de AI Gemini van Google, samen met wat er nu loopt. De namen van je baby en gezin worden eerst vervangen. Niets wordt bewaard; je controleert elk item voordat het wordt opgeslagen.</value></data>
+  <data name="Quick.ConsentBody" xml:space="preserve"><value>Om je te begrijpen stuurt Coo wat je zegt naar onze server en door naar de AI Gemini van Google: als je spreekt, de opname, om die in tekst om te zetten; als je typt, de tekst. Wat er nu loopt gaat mee. In getypte tekst worden de namen van je baby en gezin eerst vervangen; in een opname kan dat niet. Er wordt niets bewaard, en je controleert elk item voordat het wordt opgeslagen.</value></data>
   <data name="Quick.ConsentTitle" xml:space="preserve"><value>Voordat je het Coo vertelt</value></data>
   <data name="Quick.DropNote" xml:space="preserve"><value>Weggooien</value></data>
   <data name="Quick.Error.daily-limit" xml:space="preserve"><value>Dat waren de {0} van vandaag. Log de rest met de knoppen of probeer het morgen.</value></data>
   <data name="Quick.Error.free-limit" xml:space="preserve"><value>Dat waren de {0} gratis pogingen van vandaag. Met Coo Premium heb je er tot 100 per dag.</value></data>
   <data name="Quick.Error.signed-out" xml:space="preserve"><value>Zeg het tegen Coo werkt zodra je bent ingelogd en je logboek deelt (Instellingen → Account). Gebruik tot die tijd de knoppen.</value></data>
   <data name="Quick.Error.unavailable" xml:space="preserve"><value>Coo kan het nu niet begrijpen. Je woorden blijven bewaard voor later.</value></data>
+  <data name="Quick.Error.voice-daily-limit" xml:space="preserve"><value>Dat was het laatste spraakbericht van vandaag ({0} per dag). Typ het, of probeer het morgen.</value></data>
+  <data name="Quick.Error.voice-free-limit" xml:space="preserve"><value>Dat was het laatste spraakbericht van vandaag zonder Premium ({0} per dag). Typ het, of probeer het morgen.</value></data>
   <data name="Quick.Hint" xml:space="preserve"><value>Zeg of typ wat er gebeurde, zoals ‘{0} begon links’ of ‘120 ml flesvoeding om twee uur, daarna een natte luier’.</value></data>
   <data name="Quick.HoldHint" xml:space="preserve"><value>Houd vast om te praten, of tik en spreek</value></data>
   <data name="Quick.KeptForLater" xml:space="preserve"><value>Geen verbinding: Coo heeft je woorden bewaard en vraagt je later ze na te kijken.</value></data>
@@ -447,7 +449,7 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Quick.PendingTitle" xml:space="preserve"><value>Wacht op begrip</value></data>
   <data name="Quick.PhotoNothing" xml:space="preserve"><value>Coo vond op die foto geen metingen of vaccinaties met een datum. Probeer een scherpere foto van de pagina, of typ ze.</value></data>
   <data name="Quick.PhotoUnavailable" xml:space="preserve"><value>Coo kan nu geen foto’s lezen. Probeer het zo opnieuw.</value></data>
-  <data name="Quick.Privacy" xml:space="preserve"><value>De namen van je baby en gezin worden verborgen voor de AI. Andere namen worden verstuurd zoals je ze zegt.</value></data>
+  <data name="Quick.Privacy" xml:space="preserve"><value>Getypt: de namen van je baby en gezin blijven verborgen voor de AI. Gesproken: de opname gaat zo naar de AI en wordt niet bewaard.</value></data>
   <data name="Quick.ReviewNote" xml:space="preserve"><value>Bekijken</value></data>
   <data name="Quick.Save" xml:space="preserve"><value>Opslaan</value></data>
   <data name="Quick.Saved.one" xml:space="preserve"><value>{0} item opgeslagen</value></data>
@@ -460,7 +462,9 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Quick.Thinking" xml:space="preserve"><value>Even begrijpen…</value></data>
   <data name="Quick.Title" xml:space="preserve"><value>Zeg het tegen Coo</value></data>
   <data name="Quick.TypeHere" xml:space="preserve"><value>Of typ het…</value></data>
+  <data name="Quick.Understanding" xml:space="preserve"><value>Ik luister terug…</value></data>
   <data name="Quick.Unparsed" xml:space="preserve"><value>Niet begrepen: {0}</value></data>
+  <data name="Quick.VoiceFailed" xml:space="preserve"><value>Coo hoorde dat niet duidelijk. Probeer het opnieuw, of typ het.</value></data>
   <data name="Quick.Warn.ai.in-the-future" xml:space="preserve"><value>In de toekomst?</value></data>
   <data name="Quick.Warn.ai.long-ago" xml:space="preserve"><value>Meer dan 2 dagen geleden</value></data>
   <data name="Quick.Warn.ai.long-sleep" xml:space="preserve"><value>Langer dan 16 uur</value></data>

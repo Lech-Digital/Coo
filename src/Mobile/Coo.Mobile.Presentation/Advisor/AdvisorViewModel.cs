@@ -14,8 +14,89 @@ public partial class AdvisorViewModel(
     ISessionStore sessionStore,
     IHouseholdStore householdStore,
     TimeProvider timeProvider,
-    BuildAdvisorContext? buildContext = null) : ObservableObject, IDisposable
+    BuildAdvisorContext? buildContext = null,
+    Coo.Mobile.Application.AiLogging.IVoiceRecorder? recorder = null,
+    Coo.Mobile.Application.AiLogging.TranscribeVoice? transcribe = null) : ObservableObject, IDisposable
 {
+    /// <summary>Recording a spoken question; it goes to Gemini to be written down, then is asked like a typed one.</summary>
+    [ObservableProperty]
+    private bool _isRecording;
+
+    /// <summary>Why a spoken question did not arrive (a used-up allowance, nothing heard); empty otherwise.</summary>
+    [ObservableProperty]
+    private string _voiceMessage = "";
+
+    public bool CanSpeak => recorder?.IsAvailable == true && transcribe is not null;
+
+    /// <summary>
+    /// The mic: records until let go, a tap, or a pause after speaking; the words become the question and are asked at
+    /// once (owner, 2026-10-24: "we should be able to speak to it"). Consent first: the recording leaves the phone.
+    /// </summary>
+    [RelayCommand]
+    private async Task SpeakAsync()
+    {
+        if (!CanSpeak || IsBusy || IsRecording)
+            return;
+        if (EnsureConsentAsync is { } consent && !await consent())
+            return;
+        VoiceMessage = "";
+        IsRecording = true;
+        Coo.Mobile.Application.AiLogging.VoiceRecording? recording;
+        try
+        {
+            recording = await recorder!.RecordAsync(CancellationToken.None);
+        }
+        finally
+        {
+            IsRecording = false;
+        }
+
+        if (recording is null)
+        {
+            VoiceMessage = Strings.Get("Quick.NotHeard");
+            return;
+        }
+
+        IsBusy = true;
+        Coo.Mobile.Application.AiLogging.VoiceText voice;
+        try
+        {
+            var household = (await householdStore.ListHouseholdsAsync(CancellationToken.None)).FirstOrDefault(h => !h.IsDeleted);
+            var baby = household is null ? null : (await householdStore.ListBabiesAsync(household.Id, CancellationToken.None)).FirstOrDefault(b => !b.IsDeleted);
+            IReadOnlyList<string> hints = baby is null ? [] : [baby.Name, .. baby.Nicknames];
+            voice = await transcribe!.ExecuteAsync(recording, Coo.Mobile.Application.AiLogging.TranscribeVoice.ForAdvisor, Strings.Language, hints, CancellationToken.None);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+
+        if (voice.ErrorCode is { } error)
+        {
+            VoiceMessage = error switch
+            {
+                "ai.voice-free-limit" => Strings.Format("Quick.Error.voice-free-limit", voice.Limit ?? 5),
+                "ai.voice-daily-limit" => Strings.Format("Quick.Error.voice-daily-limit", voice.Limit ?? 60),
+                "ai.signed-out" => Strings.Get("Quick.Error.signed-out"),
+                _ => Strings.Get("Quick.VoiceFailed"),
+            };
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(voice.Text))
+        {
+            VoiceMessage = Strings.Get("Quick.NotHeard");
+            return;
+        }
+
+        Question = voice.Text;
+        await AskAsync();
+    }
+
+    /// <summary>Let go, or a tap while recording: the question is what was said so far.</summary>
+    [RelayCommand]
+    private void FinishSpeaking() => recorder?.Finish();
+
     private CancellationTokenSource? _cts;
     private string? _activeRequestId;
     private string[] _allQuestionsPool = [];

@@ -4,6 +4,7 @@ using Coo.Mobile.Application.Advisor;
 using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.Households;
 using Coo.Mobile.Presentation.Advisor;
+using NSubstitute;
 
 namespace Coo.Mobile.Presentation.Tests;
 
@@ -15,9 +16,12 @@ public sealed class AdvisorViewModelTests
         public string ResponseToReturn { get; set; } = "Here is the guidance for your baby.";
         public int CallCount { get; private set; }
 
+        public string? LastQuestion { get; private set; }
+
         public async Task<AskAdvisorResponse> AskAsync(AskAdvisorRequest request, CancellationToken cancellationToken)
         {
             CallCount++;
+            LastQuestion = request.Question;
             if (Tcs != null)
             {
                 cancellationToken.Register(() => Tcs.TrySetCanceled(cancellationToken));
@@ -83,7 +87,8 @@ public sealed class AdvisorViewModelTests
         public Task SaveBabyAsync(BabyProfile baby, CancellationToken cancellationToken) => Task.CompletedTask;
     }
 
-    private static (AdvisorViewModel vm, FakeAdvisorApi api, InMemoryThreadStore store) CreateSut(DateOnly? babyBirthDate = null)
+    private static (AdvisorViewModel vm, FakeAdvisorApi api, InMemoryThreadStore store) CreateSut(
+        DateOnly? babyBirthDate = null, Coo.Mobile.Application.AiLogging.IVoiceRecorder? recorder = null, Coo.Mobile.Application.AiLogging.TranscribeVoice? transcribe = null)
     {
         var fixedTime = new DateTimeOffset(2026, 10, 8, 12, 0, 0, TimeSpan.Zero);
         var timeProvider = new ManualTime(fixedTime);
@@ -111,8 +116,63 @@ public sealed class AdvisorViewModelTests
         }
 
         var householdStore = new FakeHouseholdStore(baby);
-        var vm = new AdvisorViewModel(api, store, sessionStore, householdStore, timeProvider);
+        var vm = new AdvisorViewModel(api, store, sessionStore, householdStore, timeProvider, recorder: recorder, transcribe: transcribe);
         return (vm, api, store);
+    }
+
+    private sealed class FakeRecorder(Coo.Mobile.Application.AiLogging.VoiceRecording? recording) : Coo.Mobile.Application.AiLogging.IVoiceRecorder
+    {
+        public bool IsAvailable => true;
+
+        public Task<Coo.Mobile.Application.AiLogging.VoiceRecording?> RecordAsync(CancellationToken cancellationToken) => Task.FromResult(recording);
+
+        public void Finish()
+        {
+        }
+    }
+
+    private static Coo.Mobile.Application.AiLogging.TranscribeVoice Transcriber(string said)
+    {
+        var households = NSubstitute.Substitute.For<IHouseholdStore>();
+        households.ListHouseholdsAsync(NSubstitute.Arg.Any<CancellationToken>()).Returns(
+            [HouseholdSettings.Create(new HouseholdId(Guid.Parse("11111111-1111-1111-1111-111111111111")), VolumeUnit.Millilitres, "Europe/Amsterdam",
+                new Coo.Domain.Common.Versioning.HlcStamp(1, 0, new DeviceId(Guid.Parse("44444444-4444-4444-4444-444444444444")))).Value]);
+        var api = NSubstitute.Substitute.For<Coo.Mobile.Application.AiLogging.IAiParseApi>();
+        api.TranscribeAsync(NSubstitute.Arg.Any<Coo.Contracts.AiParsing.AiTranscribeRequest>(), NSubstitute.Arg.Any<CancellationToken>())
+            .Returns(new Coo.Contracts.AiParsing.AiTranscribeResponse(said));
+        return new Coo.Mobile.Application.AiLogging.TranscribeVoice(households, api);
+    }
+
+    [Fact]
+    public async Task Speak_SpokenQuestion_IsAskedLikeATypedOne()
+    {
+        // Arrange
+        var recording = new Coo.Mobile.Application.AiLogging.VoiceRecording(new byte[300], "audio/aac", TimeSpan.FromSeconds(3));
+        var (vm, api, _) = CreateSut(new DateOnly(2026, 8, 9), new FakeRecorder(recording), Transcriber("Why does Leo wake at 4?"));
+        await vm.InitializeAsync();
+
+        // Act
+        await vm.SpeakCommand.ExecuteAsync(null);
+
+        // Assert
+        api.LastQuestion.Should().Be("Why does Leo wake at 4?");
+        vm.VoiceMessage.Should().BeEmpty();
+        vm.IsRecording.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Speak_NothingRecorded_SaysSoAndAsksNothing()
+    {
+        // Arrange
+        var (vm, api, _) = CreateSut(new DateOnly(2026, 8, 9), new FakeRecorder(null), Transcriber("unused"));
+        await vm.InitializeAsync();
+
+        // Act
+        await vm.SpeakCommand.ExecuteAsync(null);
+
+        // Assert
+        api.CallCount.Should().Be(0);
+        vm.VoiceMessage.Should().NotBeEmpty();
     }
 
     [Fact]

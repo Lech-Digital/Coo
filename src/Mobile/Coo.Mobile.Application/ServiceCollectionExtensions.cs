@@ -20,6 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<EnsureProvisionalHousehold>();
         services.AddTransient<GetToday>();
         services.AddTransient<QuickActions>();
+        services.AddTransient<AiLogging.TranscribeVoice>();
         services.AddTransient<Import.ImportLog>();
         services.AddTransient<Import.ExportLog>();
         services.AddSingleton<ILogAccess, Households.FamilyLogAccess>();

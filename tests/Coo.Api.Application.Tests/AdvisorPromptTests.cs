@@ -8,13 +8,15 @@ public sealed class AdvisorPromptTests
     public void System_WithLogAndPolish_GroundsTheAnswerInTheLogAndTheLanguage()
     {
         // Act
-        var system = AdvisorPrompt.System("Lena", 9, "- Thu 22 Oct: sleep 13 h 05 m", "pl");
+        var system = AdvisorPrompt.System("Lena", 9, "- Thu 22 Oct: sleep 13 h 05 m", "pl", new DateTimeOffset(2026, 10, 23, 3, 10, 0, TimeSpan.FromHours(2)));
 
         // Assert
         system.Should().Contain("Lena, is 9 weeks old");
         system.Should().Contain("sleep 13 h 05 m");
-        system.Should().Contain("Always answer in Polish.");
-        system.Should().Contain("not a doctor");
+        system.Should().Contain("Always answer in Polish");
+        system.Should().Contain("Friday 03:10 (night)");
+        system.Should().Contain("Do not open or close with disclaimers", "the page shows the note; the answer should not repeat it");
+        system.Should().Contain("you can only help with the baby and the family", "off-topic use is declined in the same call, with no second model call");
     }
 
     [Fact]
@@ -24,7 +26,7 @@ public sealed class AdvisorPromptTests
         var system = AdvisorPrompt.System(null, null, null, "xx");
 
         // Assert
-        system.Should().Contain("Always answer in English.");
+        system.Should().Contain("Always answer in English");
         system.Should().NotContain("The baby's log");
     }
 
@@ -51,6 +53,6 @@ public sealed class AdvisorPromptTests
         var system = AdvisorPrompt.System(null, null, new string('y', 50_000), "en");
 
         // Assert
-        system.Length.Should().BeLessThan(AdvisorPrompt.MaxContextLength + 2000);
+        system.Length.Should().BeLessThan(AdvisorPrompt.MaxContextLength + 4000);
     }
 }

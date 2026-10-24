@@ -167,7 +167,7 @@ public sealed class TodayPage : ContentPage
 
     private async void OpenAttention() => await Navigation.PushAsync(_services.GetRequiredService<AttentionPage>());
 
-    private const string QuickLogConsentKey = "ai.logging.consent.v1";
+    private const string QuickLogConsentKey = "ai.logging.consent.v2";
     private Components.QuickLogView? _voice;
 
     /// <summary>

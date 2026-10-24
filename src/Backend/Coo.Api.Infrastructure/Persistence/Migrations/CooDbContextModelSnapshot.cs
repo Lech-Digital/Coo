@@ -56,6 +56,12 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("parse_count");
 
+                    b.Property<int>("VoiceCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("voice_count");
+
                     b.HasKey("HouseholdId", "Date");
 
                     b.ToTable("ai_parse_usages", (string)null);
