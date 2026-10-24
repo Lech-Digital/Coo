@@ -1,5 +1,7 @@
+using System.Globalization;
 using Coo.Domain.CareLog;
 using Coo.Domain.CareLog.Kinds.Feeding;
+using Coo.Domain.CareLog.Kinds.Health;
 using Coo.Domain.CareLog.Kinds.Pump;
 using Coo.Domain.CareLog.Kinds.Sleep;
 using Coo.Domain.Insights;
@@ -17,9 +19,35 @@ namespace Coo.Mobile.Application.Notifications;
 /// <param name="TimerRunning">A feeding or pumping timer still running after <see cref="ReminderPlanner.TimerAfter"/>.</param>
 /// <param name="NapWindow">Before the predicted sleep window opens (ADR 0008 §7): Premium.</param>
 /// <param name="NapLeadMinutes">How long before the window opens: 5, 10, 15 or 20 minutes.</param>
-public sealed record ReminderSettings(TimeSpan? FeedEvery, bool FeedAtNight, bool TimerRunning, bool NapWindow, int NapLeadMinutes = 15)
+/// <param name="DiaperEvery">"Check the diaper": this long after the last change; null is off.</param>
+/// <param name="DiaperAtNight">The diaper reminder also during quiet hours.</param>
+/// <param name="BathEveryDays">A bath every 1, 2, 3 or 7 days, counted from the last one; null is off.</param>
+/// <param name="BathAt">The time of day for the bath reminder; <see cref="BathTime"/> when unset.</param>
+/// <param name="Medicines">Daily medicines and vitamins, each at its own times.</param>
+public sealed record ReminderSettings(
+    TimeSpan? FeedEvery,
+    bool FeedAtNight,
+    bool TimerRunning,
+    bool NapWindow,
+    int NapLeadMinutes = 15,
+    TimeSpan? DiaperEvery = null,
+    bool DiaperAtNight = false,
+    int? BathEveryDays = null,
+    TimeOnly? BathAt = null,
+    IReadOnlyList<MedicineReminder>? Medicines = null)
 {
     public static ReminderSettings Off { get; } = new(null, false, false, false);
+
+    /// <summary>The intervals a parent can pick for the diaper check.</summary>
+    public static IReadOnlyList<TimeSpan> DiaperIntervals { get; } = [TimeSpan.FromHours(2), TimeSpan.FromHours(3), TimeSpan.FromHours(4)];
+
+    /// <summary>How often a bath can be reminded: daily, every other day, every third day, weekly.</summary>
+    public static IReadOnlyList<int> BathIntervals { get; } = [1, 2, 3, 7];
+
+    /// <summary>Bath time, 19:00 until the parent picks another.</summary>
+    public TimeOnly BathTime => BathAt ?? new TimeOnly(19, 0);
+
+    public IReadOnlyList<MedicineReminder> MedicineList => Medicines ?? [];
 
     /// <summary>The lead times a parent can pick for the nap reminder (ADR 0008 §7).</summary>
     public static IReadOnlyList<int> NapLeads { get; } = [5, 10, 15, 20];
@@ -28,7 +56,24 @@ public sealed record ReminderSettings(TimeSpan? FeedEvery, bool FeedAtNight, boo
     public static IReadOnlyList<TimeSpan> FeedIntervals { get; } =
         [TimeSpan.FromHours(2), TimeSpan.FromHours(2.5), TimeSpan.FromHours(3), TimeSpan.FromHours(3.5), TimeSpan.FromHours(4)];
 
-    public bool AnyOn => FeedEvery is not null || TimerRunning || NapWindow;
+    public bool AnyOn => FeedEvery is not null || TimerRunning || NapWindow || DiaperEvery is not null || BathEveryDays is not null || MedicineList.Count > 0;
+}
+
+/// <summary>
+/// A medicine or vitamin given every day at fixed times: vitamin D at 09:00, an antibiotic at 08:00, 14:00 and 20:00 for a
+/// week. <paramref name="Until"/> is the last day, inclusive; null is every day until it is removed.
+/// </summary>
+public sealed record MedicineReminder(string Name, string? Dose, IReadOnlyList<TimeOnly> Times, DateOnly? Until = null)
+{
+    public const int MaxTimes = 6;
+
+    /// <summary>The same medicine as a logged one: the same name, or both a vitamin ("Vitamin D" and "D3 drops").</summary>
+    public bool Matches(string logged)
+    {
+        ArgumentNullException.ThrowIfNull(logged);
+        return string.Equals(logged.Trim(), Name.Trim(), StringComparison.OrdinalIgnoreCase)
+            || (Vitamins.IsVitamin(logged) && Vitamins.IsVitamin(Name));
+    }
 }
 
 public enum ReminderKind
@@ -37,6 +82,9 @@ public enum ReminderKind
     Timer,
     Nap,
     Bedtime,
+    Diaper,
+    Bath,
+    Medicine,
 }
 
 /// <summary>
@@ -45,8 +93,10 @@ public enum ReminderKind
 /// whenever the notification arrives, so a late alarm is never wrong. <paramref name="Opens"/> is when a predicted sleep
 /// window opens, for the nap and bedtime reminders.
 /// </summary>
+/// <param name="Medicine">The medicine reminder this one is for.</param>
 public sealed record PlannedReminder(
-    string Id, ReminderKind Kind, DateTimeOffset At, DateTimeOffset Since, EntryDetails? Details = null, DateTimeOffset? Opens = null);
+    string Id, ReminderKind Kind, DateTimeOffset At, DateTimeOffset Since, EntryDetails? Details = null, DateTimeOffset? Opens = null,
+    MedicineReminder? Medicine = null);
 
 /// <summary>
 /// The complete set of reminders that should be scheduled now (ADR 0007 §3): pure, recomputed after every write and
@@ -99,6 +149,68 @@ public static class ReminderPlanner
             }
         }
 
+        if (settings.DiaperEvery is { } check && today.LastDiaper is { } diaper)
+        {
+            var at = diaper.Timing.OccurredAt + check;
+            if (at > now && (settings.DiaperAtNight || !AtNight(at)))
+                planned.Add(new PlannedReminder("diaper", ReminderKind.Diaper, at, diaper.Timing.OccurredAt, diaper.Details));
+        }
+
+        var localToday = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, zone).DateTime);
+        if (settings.BathEveryDays is { } days)
+        {
+            // Due N days after the last bath's day (today when there was none, or it is overdue); bathed today, not before
+            // the next due day. Bath time already past today: tomorrow.
+            var bathed = today.LastBath is { } bath ? DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(bath.Timing.OccurredAt, zone).DateTime) : (DateOnly?)null;
+            var due = bathed is { } d ? d.AddDays(days) : localToday;
+            if (due < localToday)
+                due = localToday;
+            var at = At(due, settings.BathTime, zone);
+            if (at <= now)
+                at = At(due.AddDays(1), settings.BathTime, zone);
+            planned.Add(new PlannedReminder("bath", ReminderKind.Bath, at, today.LastBath?.Timing.OccurredAt ?? at, today.LastBath?.Details));
+        }
+
+        var medicines = settings.MedicineList;
+        for (var i = 0; i < medicines.Count; i++)
+        {
+            var medicine = medicines[i];
+            var slots = medicine.Times.Distinct().Order().ToList();
+            if (slots.Count == 0)
+                continue;
+            var given = (today.Medicines ?? [])
+                .Where(e => e.Details is MedicineDetails m && medicine.Matches(m.Name))
+                .Select(e => e.Timing.OccurredAt)
+                .ToList();
+
+            // The next day's worth of doses: every slot today and tomorrow still to come, skipping one already given (logged
+            // in the three hours before it, and after the dose before it).
+            var doses = new[] { localToday, localToday.AddDays(1) }
+                .Where(day => medicine.Until is not { } until || day <= until)
+                .SelectMany(day => slots.Select(t => At(day, t, zone)))
+                .ToList();
+            for (var k = 0; k < doses.Count; k++)
+            {
+                var at = doses[k];
+                if (at <= now || at > now.AddDays(1))
+                    continue;
+                var from = at - TimeSpan.FromHours(3);
+                if (k > 0 && doses[k - 1] > from)
+                    from = doses[k - 1];
+                if (given.Any(g => g > from && g <= at))
+                    continue;
+                var id = string.Create(CultureInfo.InvariantCulture, $"med:{i}:{at.ToUnixTimeSeconds()}");
+                planned.Add(new PlannedReminder(id, ReminderKind.Medicine, at, at, Medicine: medicine));
+            }
+        }
+
         return planned;
+    }
+
+    /// <summary>A clock time on a local day, as an instant; in a daylight-saving gap the offset before the change.</summary>
+    private static DateTimeOffset At(DateOnly day, TimeOnly time, TimeZoneInfo zone)
+    {
+        var local = day.ToDateTime(time, DateTimeKind.Unspecified);
+        return new DateTimeOffset(local, zone.GetUtcOffset(local));
     }
 }

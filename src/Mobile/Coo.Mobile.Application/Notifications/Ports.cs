@@ -1,7 +1,15 @@
+using Coo.Mobile.Application.CareLog;
+
 namespace Coo.Mobile.Application.Notifications;
 
-/// <summary>A reminder ready for Android: its stable ID, when, and the text, composed on the phone (ADR 0007 §2).</summary>
-public sealed record ReminderNotice(string Id, DateTimeOffset At, string Title, string Body);
+/// <summary>
+/// A reminder ready for Android: its stable ID, when, and the text, composed on the phone (ADR 0007 §2), with the buttons
+/// that log the answer from the notification itself ("Wet", "Given").
+/// </summary>
+public sealed record ReminderNotice(string Id, DateTimeOffset At, string Title, string Body, IReadOnlyList<ReminderButton>? Buttons = null);
+
+/// <summary>A notification button: its words, and the one-tap log it makes; a medicine's name and dose go with "Given".</summary>
+public sealed record ReminderButton(string Label, QuickAction Action, string? Name = null, string? Dose = null);
 
 /// <summary>Android's alarms for Coo's reminders (ADR 0007 §6).</summary>
 public interface IReminderScheduler

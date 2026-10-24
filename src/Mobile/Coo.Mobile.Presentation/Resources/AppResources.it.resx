@@ -396,6 +396,17 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Kind.Temperature" xml:space="preserve"><value>Temperatura</value></data>
   <data name="Kind.Vaccine" xml:space="preserve"><value>Vaccino</value></data>
   <data name="Kind.Visit" xml:space="preserve"><value>Visita medica</value></data>
+  <data name="MedReminder.AddTime" xml:space="preserve"><value>Aggiungi orario</value></data>
+  <data name="MedReminder.Days" xml:space="preserve"><value>{0} giorni</value></data>
+  <data name="MedReminder.Dose" xml:space="preserve"><value>Dose (facoltativa)</value></data>
+  <data name="MedReminder.For" xml:space="preserve"><value>Per quanto tempo</value></data>
+  <data name="MedReminder.Name" xml:space="preserve"><value>Medicina o vitamina</value></data>
+  <data name="MedReminder.NameNeeded" xml:space="preserve"><value>Inserisci un nome.</value></data>
+  <data name="MedReminder.Ongoing" xml:space="preserve"><value>Ogni giorno</value></data>
+  <data name="MedReminder.Remove" xml:space="preserve"><value>Rimuovi promemoria</value></data>
+  <data name="MedReminder.Times" xml:space="preserve"><value>Orari</value></data>
+  <data name="MedReminder.Title" xml:space="preserve"><value>Promemoria medicina</value></data>
+  <data name="MedReminder.VitaminD" xml:space="preserve"><value>Vitamina D</value></data>
   <data name="Milk.Both" xml:space="preserve"><value>Entrambi</value></data>
   <data name="Milk.Breast" xml:space="preserve"><value>Latte materno</value></data>
   <data name="Milk.Formula" xml:space="preserve"><value>Formula</value></data>
@@ -491,16 +502,35 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Quick.Warn.ai.nothing-running" xml:space="preserve"><value>Non c’è nulla in corso</value></data>
   <data name="Quick.Warn.ai.time-not-stated" xml:space="preserve"><value>Nessun orario: adesso</value></data>
   <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Quantità insolita: controlla</value></data>
+  <data name="Reminder.Bath.Body" xml:space="preserve"><value>Ultimo bagnetto: {0}.</value></data>
+  <data name="Reminder.Bath.Done" xml:space="preserve"><value>Bagnetto fatto</value></data>
+  <data name="Reminder.Bath.First" xml:space="preserve"><value>Tocca «Bagnetto fatto» dopo, e Coo conta da lì.</value></data>
+  <data name="Reminder.Bath.Title" xml:space="preserve"><value>È ora del bagnetto per {0}</value></data>
   <data name="Reminder.Bed.Body" xml:space="preserve"><value>Sveglio dalle {0}. È probabile che sia ora di dormire dalle {1} circa.</value></data>
   <data name="Reminder.Bed.Title" xml:space="preserve"><value>Presto sarà ora di dormire per {0}</value></data>
+  <data name="Reminder.Diaper.Body" xml:space="preserve"><value>Ultimo cambio alle {0}.</value></data>
+  <data name="Reminder.Diaper.Title" xml:space="preserve"><value>Controlla il pannolino di {0}</value></data>
   <data name="Reminder.Feed.Body" xml:space="preserve"><value>L’ultima poppata è iniziata alle {0}.</value></data>
   <data name="Reminder.Feed.Title" xml:space="preserve"><value>È ora di nutrire {0}?</value></data>
+  <data name="Reminder.Medicine.Body" xml:space="preserve"><value>Previsto alle {0}.</value></data>
+  <data name="Reminder.Medicine.BodyDose" xml:space="preserve"><value>{0}, previsto alle {1}.</value></data>
+  <data name="Reminder.Medicine.Given" xml:space="preserve"><value>Dato</value></data>
+  <data name="Reminder.Medicine.Title" xml:space="preserve"><value>{0} per {1}</value></data>
   <data name="Reminder.Nap.Body" xml:space="preserve"><value>Sveglio dalle {0}. Un pisolino è probabile dalle {1} circa.</value></data>
   <data name="Reminder.Nap.Title" xml:space="preserve"><value>Presto sarà ora del pisolino per {0}</value></data>
   <data name="Reminder.Timer.Body" xml:space="preserve"><value>Avviato alle {0}. Se avete finito, apri Coo per fermarlo.</value></data>
   <data name="Reminder.Timer.Feeding" xml:space="preserve"><value>Il timer della poppata è ancora attivo</value></data>
   <data name="Reminder.Timer.Pumping" xml:space="preserve"><value>Il timer del tiralatte è ancora attivo</value></data>
+  <data name="Reminders.AddMedicine" xml:space="preserve"><value>Aggiungi medicina</value></data>
+  <data name="Reminders.AddVitamin" xml:space="preserve"><value>Vitamina D ogni giorno</value></data>
+  <data name="Reminders.BathAt" xml:space="preserve"><value>Alle</value></data>
+  <data name="Reminders.BathHint" xml:space="preserve"><value>Contato dall’ultimo bagnetto registrato</value></data>
+  <data name="Reminders.Daily" xml:space="preserve"><value>Ogni giorno</value></data>
   <data name="Reminders.Denied" xml:space="preserve"><value>Le notifiche di Coo sono disattivate. Attivale nelle impostazioni di Android per ricevere i promemoria.</value></data>
+  <data name="Reminders.Diaper" xml:space="preserve"><value>Controllo pannolino</value></data>
+  <data name="Reminders.DiaperHint" xml:space="preserve"><value>Questo tempo dopo l’ultimo cambio</value></data>
+  <data name="Reminders.EveryDay" xml:space="preserve"><value>ogni giorno</value></data>
+  <data name="Reminders.EveryDays" xml:space="preserve"><value>Ogni {0} giorni</value></data>
   <data name="Reminders.Exact" xml:space="preserve"><value>Puntuale al minuto</value></data>
   <data name="Reminders.ExactAllow" xml:space="preserve"><value>Consenti nelle impostazioni</value></data>
   <data name="Reminders.ExactHint" xml:space="preserve"><value>Android può ritardare i promemoria quando il telefono è inattivo. Consenti «Sveglie e promemoria» per Coo per riceverli in orario.</value></data>
@@ -510,6 +540,8 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Reminders.FeedHint" xml:space="preserve"><value>Questo tempo dopo l’inizio dell’ultima poppata</value></data>
   <data name="Reminders.Hours" xml:space="preserve"><value>{0} h</value></data>
   <data name="Reminders.Intro" xml:space="preserve"><value>Coo ti ricorda dal telefono, anche offline. Ogni genitore sceglie i propri.</value></data>
+  <data name="Reminders.Medicines" xml:space="preserve"><value>Medicine e vitamine</value></data>
+  <data name="Reminders.MedicinesHint" xml:space="preserve"><value>A orari fissi ogni giorno. Già registrato? Nessun promemoria.</value></data>
   <data name="Reminders.Minutes" xml:space="preserve"><value>{0} min prima</value></data>
   <data name="Reminders.Nap" xml:space="preserve"><value>Finestra del pisolino</value></data>
   <data name="Reminders.NapHint" xml:space="preserve"><value>Prima del prossimo pisolino o della nanna probabile, imparato dai sonni che registri</value></data>
@@ -519,6 +551,8 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Reminders.Timer" xml:space="preserve"><value>Timer dimenticato</value></data>
   <data name="Reminders.TimerHint" xml:space="preserve"><value>Quando un timer di poppata o tiralatte è attivo da 45 minuti</value></data>
   <data name="Reminders.Title" xml:space="preserve"><value>Promemoria</value></data>
+  <data name="Reminders.Until" xml:space="preserve"><value>fino al {0}</value></data>
+  <data name="Reminders.Weekly" xml:space="preserve"><value>Ogni settimana</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>Non sei più membro della famiglia che tiene il registro di {0}, quindi quel registro verrà rimosso da questo telefono. Le voci che hai già condiviso restano nella famiglia.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Non sei più membro di questa famiglia, quindi il suo registro verrà rimosso da questo telefono. Le voci che hai già condiviso restano nella famiglia.</value></data>
   <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>

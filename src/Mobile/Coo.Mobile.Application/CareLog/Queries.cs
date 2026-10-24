@@ -24,7 +24,7 @@ public sealed record TodaySummary(
     LocalDay Today,
     TimeSpan? SleepSoFar = null,
     CareEntry? LastBath = null,
-    CareEntry? LastVitamin = null);
+    IReadOnlyList<CareEntry>? Medicines = null);
 
 /// <summary>
 /// One mark on the day chart, as fractions of the day (Spec 006 §7, Spec 009b §2): a sleep block, or a feed, diaper or
@@ -42,6 +42,9 @@ public sealed class GetToday(ICareLogStore store)
 {
     /// <summary>How far back "last feed" and friends look.</summary>
     public static readonly TimeSpan LookBack = TimeSpan.FromDays(7);
+
+    /// <summary>How far back the medicines given are listed, for the medicine reminders: a dose already given is not asked for.</summary>
+    public static readonly TimeSpan MedicineLookBack = TimeSpan.FromDays(2);
 
     public async Task<TodaySummary> ExecuteAsync(
         HouseholdId household, BabyId baby, TimeZoneInfo zone, DateTimeOffset now, CancellationToken cancellationToken)
@@ -68,7 +71,8 @@ public sealed class GetToday(ICareLogStore store)
                 .Select(e => e.Timing is SessionTiming s ? today.Overlap(s.Range.Start, s.Range.End ?? now) : TimeSpan.Zero)
                 .Sum(t => t.Ticks)),
             Latest<Coo.Domain.CareLog.Kinds.Bath.BathDetails>(live),
-            live.Where(e => e.Details is Coo.Domain.CareLog.Kinds.Health.MedicineDetails m && Vitamins.IsVitamin(m.Name)).MaxBy(e => e.Timing.OccurredAt));
+            live.Where(e => e.Details is Coo.Domain.CareLog.Kinds.Health.MedicineDetails && e.Timing.OccurredAt >= now - MedicineLookBack)
+                .OrderBy(e => e.Timing.OccurredAt).ToList());
     }
 
     internal static bool IsAbout(CareEntry entry, BabyId baby) =>

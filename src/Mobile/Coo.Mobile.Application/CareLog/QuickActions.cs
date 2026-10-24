@@ -23,6 +23,8 @@ public enum QuickAction
     WokeUp,
     Pump,
     StopPump,
+    Bath,
+    Medicine,
 }
 
 /// <param name="Done">What was written, for the confirmation; null when nothing was (see <paramref name="Error"/>).</param>
@@ -44,7 +46,8 @@ public sealed class QuickActions(IHouseholdStore households, GetToday getToday, 
     public const string NothingRunning = "quick.nothing-running";
     public const string AlreadyRunning = "quick.already-running";
 
-    public async Task<QuickActionResult> ExecuteAsync(QuickAction action, CancellationToken cancellationToken)
+    /// <param name="medicine">For <see cref="QuickAction.Medicine"/>: the name and dose to log, as the reminder named them.</param>
+    public async Task<QuickActionResult> ExecuteAsync(QuickAction action, CancellationToken cancellationToken, (string Name, string? Dose)? medicine = null)
     {
         var household = (await households.ListHouseholdsAsync(cancellationToken)).FirstOrDefault(h => !h.IsDeleted);
         var baby = household is null ? null
@@ -119,6 +122,11 @@ public sealed class QuickActions(IHouseholdStore households, GetToday getToday, 
                     : await Log(new PumpDetails(), EntryTiming.Session(TimeRange.Open(now)), caregiver: true);
             case QuickAction.StopPump:
                 return await End(Running<PumpDetails>());
+            case QuickAction.Bath:
+                return await Log(new Coo.Domain.CareLog.Kinds.Bath.BathDetails(), EntryTiming.Point(now));
+            case QuickAction.Medicine:
+                var given = Coo.Domain.CareLog.Kinds.Health.MedicineDetails.Create(medicine?.Name, medicine?.Dose);
+                return given.IsSuccess ? await Log(given.Value, EntryTiming.Point(now)) : new(null, given.Error!.Code);
             default:
                 return new(null, NothingRunning);
         }

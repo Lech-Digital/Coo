@@ -396,6 +396,17 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Kind.Temperature" xml:space="preserve"><value>Temperature</value></data>
   <data name="Kind.Vaccine" xml:space="preserve"><value>Vaccine</value></data>
   <data name="Kind.Visit" xml:space="preserve"><value>Doctor visit</value></data>
+  <data name="MedReminder.AddTime" xml:space="preserve"><value>Add a time</value></data>
+  <data name="MedReminder.Days" xml:space="preserve"><value>{0} days</value></data>
+  <data name="MedReminder.Dose" xml:space="preserve"><value>Dose (optional)</value></data>
+  <data name="MedReminder.For" xml:space="preserve"><value>For how long</value></data>
+  <data name="MedReminder.Name" xml:space="preserve"><value>Medicine or vitamin</value></data>
+  <data name="MedReminder.NameNeeded" xml:space="preserve"><value>Give it a name.</value></data>
+  <data name="MedReminder.Ongoing" xml:space="preserve"><value>Every day</value></data>
+  <data name="MedReminder.Remove" xml:space="preserve"><value>Remove reminder</value></data>
+  <data name="MedReminder.Times" xml:space="preserve"><value>Times</value></data>
+  <data name="MedReminder.Title" xml:space="preserve"><value>Medicine reminder</value></data>
+  <data name="MedReminder.VitaminD" xml:space="preserve"><value>Vitamin D</value></data>
   <data name="Milk.Both" xml:space="preserve"><value>Both</value></data>
   <data name="Milk.Breast" xml:space="preserve"><value>Breast milk</value></data>
   <data name="Milk.Formula" xml:space="preserve"><value>Formula</value></data>
@@ -491,16 +502,35 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Quick.Warn.ai.nothing-running" xml:space="preserve"><value>Nothing is running to change</value></data>
   <data name="Quick.Warn.ai.time-not-stated" xml:space="preserve"><value>No time said: saved as now</value></data>
   <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Unusual amount: check it</value></data>
+  <data name="Reminder.Bath.Body" xml:space="preserve"><value>Last bath: {0}.</value></data>
+  <data name="Reminder.Bath.Done" xml:space="preserve"><value>Bath done</value></data>
+  <data name="Reminder.Bath.First" xml:space="preserve"><value>Tap “Bath done” afterwards, and Coo counts from there.</value></data>
+  <data name="Reminder.Bath.Title" xml:space="preserve"><value>Bath time for {0}</value></data>
   <data name="Reminder.Bed.Body" xml:space="preserve"><value>Awake since {0}. Bedtime is likely from about {1}.</value></data>
   <data name="Reminder.Bed.Title" xml:space="preserve"><value>Bedtime soon for {0}</value></data>
+  <data name="Reminder.Diaper.Body" xml:space="preserve"><value>The last change was at {0}.</value></data>
+  <data name="Reminder.Diaper.Title" xml:space="preserve"><value>Diaper check for {0}</value></data>
   <data name="Reminder.Feed.Body" xml:space="preserve"><value>The last feeding started at {0}.</value></data>
   <data name="Reminder.Feed.Title" xml:space="preserve"><value>Time to feed {0}?</value></data>
+  <data name="Reminder.Medicine.Body" xml:space="preserve"><value>Due at {0}.</value></data>
+  <data name="Reminder.Medicine.BodyDose" xml:space="preserve"><value>{0}, due at {1}.</value></data>
+  <data name="Reminder.Medicine.Given" xml:space="preserve"><value>Given</value></data>
+  <data name="Reminder.Medicine.Title" xml:space="preserve"><value>{0} for {1}</value></data>
   <data name="Reminder.Nap.Body" xml:space="preserve"><value>Awake since {0}. A nap is likely from about {1}.</value></data>
   <data name="Reminder.Nap.Title" xml:space="preserve"><value>Nap time soon for {0}</value></data>
   <data name="Reminder.Timer.Body" xml:space="preserve"><value>Started at {0}. If you are done, open Coo to stop it.</value></data>
   <data name="Reminder.Timer.Feeding" xml:space="preserve"><value>Feeding timer still running</value></data>
   <data name="Reminder.Timer.Pumping" xml:space="preserve"><value>Pumping timer still running</value></data>
+  <data name="Reminders.AddMedicine" xml:space="preserve"><value>Add medicine</value></data>
+  <data name="Reminders.AddVitamin" xml:space="preserve"><value>Vitamin D daily</value></data>
+  <data name="Reminders.BathAt" xml:space="preserve"><value>At</value></data>
+  <data name="Reminders.BathHint" xml:space="preserve"><value>Counted from the last bath you log</value></data>
+  <data name="Reminders.Daily" xml:space="preserve"><value>Daily</value></data>
   <data name="Reminders.Denied" xml:space="preserve"><value>Notifications are off for Coo. Turn them on in Android’s settings to get reminders.</value></data>
+  <data name="Reminders.Diaper" xml:space="preserve"><value>Diaper check</value></data>
+  <data name="Reminders.DiaperHint" xml:space="preserve"><value>After this long since the last change</value></data>
+  <data name="Reminders.EveryDay" xml:space="preserve"><value>every day</value></data>
+  <data name="Reminders.EveryDays" xml:space="preserve"><value>Every {0} days</value></data>
   <data name="Reminders.Exact" xml:space="preserve"><value>On time to the minute</value></data>
   <data name="Reminders.ExactAllow" xml:space="preserve"><value>Allow in settings</value></data>
   <data name="Reminders.ExactHint" xml:space="preserve"><value>Android may hold reminders back for a while when the phone is idle. Allow “Alarms &amp; reminders” for Coo to get them on time.</value></data>
@@ -510,6 +540,8 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Reminders.FeedHint" xml:space="preserve"><value>After this long since the last feeding started</value></data>
   <data name="Reminders.Hours" xml:space="preserve"><value>{0} h</value></data>
   <data name="Reminders.Intro" xml:space="preserve"><value>Coo reminds you from this phone, even offline. Each parent chooses their own.</value></data>
+  <data name="Reminders.Medicines" xml:space="preserve"><value>Medicines and vitamins</value></data>
+  <data name="Reminders.MedicinesHint" xml:space="preserve"><value>At set times each day. Already logged? No reminder.</value></data>
   <data name="Reminders.Minutes" xml:space="preserve"><value>{0} min before</value></data>
   <data name="Reminders.Nap" xml:space="preserve"><value>Nap window</value></data>
   <data name="Reminders.NapHint" xml:space="preserve"><value>Before the next nap or bedtime is likely, learned from the sleeps you log</value></data>
@@ -519,6 +551,8 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Reminders.Timer" xml:space="preserve"><value>Timer left running</value></data>
   <data name="Reminders.TimerHint" xml:space="preserve"><value>When a feeding or pumping timer runs for 45 minutes</value></data>
   <data name="Reminders.Title" xml:space="preserve"><value>Reminders</value></data>
+  <data name="Reminders.Until" xml:space="preserve"><value>until {0}</value></data>
+  <data name="Reminders.Weekly" xml:space="preserve"><value>Weekly</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>You're no longer a member of the family that logs {0}, so its log will be removed from this phone. Entries you already shared stay with the family.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>You're no longer a member of this family, so its log will be removed from this phone. Entries you already shared stay with the family.</value></data>
   <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>

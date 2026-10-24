@@ -396,6 +396,17 @@ Si le lien n'ouvre pas Coo, va dans Réglages → Famille → Rejoindre une fami
   <data name="Kind.Temperature" xml:space="preserve"><value>Température</value></data>
   <data name="Kind.Vaccine" xml:space="preserve"><value>Vaccin</value></data>
   <data name="Kind.Visit" xml:space="preserve"><value>Visite médicale</value></data>
+  <data name="MedReminder.AddTime" xml:space="preserve"><value>Ajouter une heure</value></data>
+  <data name="MedReminder.Days" xml:space="preserve"><value>{0} jours</value></data>
+  <data name="MedReminder.Dose" xml:space="preserve"><value>Dose (facultatif)</value></data>
+  <data name="MedReminder.For" xml:space="preserve"><value>Pendant combien de temps</value></data>
+  <data name="MedReminder.Name" xml:space="preserve"><value>Médicament ou vitamine</value></data>
+  <data name="MedReminder.NameNeeded" xml:space="preserve"><value>Indiquez un nom.</value></data>
+  <data name="MedReminder.Ongoing" xml:space="preserve"><value>Chaque jour</value></data>
+  <data name="MedReminder.Remove" xml:space="preserve"><value>Supprimer le rappel</value></data>
+  <data name="MedReminder.Times" xml:space="preserve"><value>Heures</value></data>
+  <data name="MedReminder.Title" xml:space="preserve"><value>Rappel de médicament</value></data>
+  <data name="MedReminder.VitaminD" xml:space="preserve"><value>Vitamine D</value></data>
   <data name="Milk.Both" xml:space="preserve"><value>Les deux</value></data>
   <data name="Milk.Breast" xml:space="preserve"><value>Lait maternel</value></data>
   <data name="Milk.Formula" xml:space="preserve"><value>Lait infantile</value></data>
@@ -491,16 +502,35 @@ Si le lien n'ouvre pas Coo, va dans Réglages → Famille → Rejoindre une fami
   <data name="Quick.Warn.ai.nothing-running" xml:space="preserve"><value>Rien n’est en cours</value></data>
   <data name="Quick.Warn.ai.time-not-stated" xml:space="preserve"><value>Pas d’heure dite : maintenant</value></data>
   <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Quantité inhabituelle : vérifiez</value></data>
+  <data name="Reminder.Bath.Body" xml:space="preserve"><value>Dernier bain : {0}.</value></data>
+  <data name="Reminder.Bath.Done" xml:space="preserve"><value>Bain fait</value></data>
+  <data name="Reminder.Bath.First" xml:space="preserve"><value>Touchez « Bain fait » ensuite, et Coo compte à partir de là.</value></data>
+  <data name="Reminder.Bath.Title" xml:space="preserve"><value>L’heure du bain pour {0}</value></data>
   <data name="Reminder.Bed.Body" xml:space="preserve"><value>Éveillé depuis {0}. Le coucher est probable à partir de {1} environ.</value></data>
   <data name="Reminder.Bed.Title" xml:space="preserve"><value>Bientôt l’heure du coucher pour {0}</value></data>
+  <data name="Reminder.Diaper.Body" xml:space="preserve"><value>Dernier change à {0}.</value></data>
+  <data name="Reminder.Diaper.Title" xml:space="preserve"><value>Vérifier la couche de {0}</value></data>
   <data name="Reminder.Feed.Body" xml:space="preserve"><value>Le dernier repas a commencé à {0}.</value></data>
   <data name="Reminder.Feed.Title" xml:space="preserve"><value>L’heure de nourrir {0} ?</value></data>
+  <data name="Reminder.Medicine.Body" xml:space="preserve"><value>Prévu à {0}.</value></data>
+  <data name="Reminder.Medicine.BodyDose" xml:space="preserve"><value>{0}, prévu à {1}.</value></data>
+  <data name="Reminder.Medicine.Given" xml:space="preserve"><value>Donné</value></data>
+  <data name="Reminder.Medicine.Title" xml:space="preserve"><value>{0} pour {1}</value></data>
   <data name="Reminder.Nap.Body" xml:space="preserve"><value>Éveillé depuis {0}. Une sieste est probable à partir de {1} environ.</value></data>
   <data name="Reminder.Nap.Title" xml:space="preserve"><value>Bientôt l’heure de la sieste pour {0}</value></data>
   <data name="Reminder.Timer.Body" xml:space="preserve"><value>Démarré à {0}. Si vous avez fini, ouvrez Coo pour l’arrêter.</value></data>
   <data name="Reminder.Timer.Feeding" xml:space="preserve"><value>Le minuteur de tétée tourne encore</value></data>
   <data name="Reminder.Timer.Pumping" xml:space="preserve"><value>Le minuteur du tire-lait tourne encore</value></data>
+  <data name="Reminders.AddMedicine" xml:space="preserve"><value>Ajouter un médicament</value></data>
+  <data name="Reminders.AddVitamin" xml:space="preserve"><value>Vitamine D chaque jour</value></data>
+  <data name="Reminders.BathAt" xml:space="preserve"><value>À</value></data>
+  <data name="Reminders.BathHint" xml:space="preserve"><value>Compté depuis le dernier bain noté</value></data>
+  <data name="Reminders.Daily" xml:space="preserve"><value>Chaque jour</value></data>
   <data name="Reminders.Denied" xml:space="preserve"><value>Les notifications sont désactivées pour Coo. Activez-les dans les réglages Android pour recevoir des rappels.</value></data>
+  <data name="Reminders.Diaper" xml:space="preserve"><value>Vérifier la couche</value></data>
+  <data name="Reminders.DiaperHint" xml:space="preserve"><value>Ce temps après le dernier change</value></data>
+  <data name="Reminders.EveryDay" xml:space="preserve"><value>chaque jour</value></data>
+  <data name="Reminders.EveryDays" xml:space="preserve"><value>Tous les {0} jours</value></data>
   <data name="Reminders.Exact" xml:space="preserve"><value>À la minute près</value></data>
   <data name="Reminders.ExactAllow" xml:space="preserve"><value>Autoriser dans les réglages</value></data>
   <data name="Reminders.ExactHint" xml:space="preserve"><value>Android peut retarder les rappels quand le téléphone est en veille. Autorisez « Alarmes et rappels » pour Coo pour les recevoir à l’heure.</value></data>
@@ -510,6 +540,8 @@ Si le lien n'ouvre pas Coo, va dans Réglages → Famille → Rejoindre une fami
   <data name="Reminders.FeedHint" xml:space="preserve"><value>Ce temps après le début du dernier repas</value></data>
   <data name="Reminders.Hours" xml:space="preserve"><value>{0} h</value></data>
   <data name="Reminders.Intro" xml:space="preserve"><value>Coo vous rappelle depuis ce téléphone, même hors ligne. Chaque parent choisit les siens.</value></data>
+  <data name="Reminders.Medicines" xml:space="preserve"><value>Médicaments et vitamines</value></data>
+  <data name="Reminders.MedicinesHint" xml:space="preserve"><value>À heures fixes chaque jour. Déjà noté ? Pas de rappel.</value></data>
   <data name="Reminders.Minutes" xml:space="preserve"><value>{0} min avant</value></data>
   <data name="Reminders.Nap" xml:space="preserve"><value>Fenêtre de sieste</value></data>
   <data name="Reminders.NapHint" xml:space="preserve"><value>Avant la prochaine sieste ou le coucher probable, appris des sommeils que vous notez</value></data>
@@ -519,6 +551,8 @@ Si le lien n'ouvre pas Coo, va dans Réglages → Famille → Rejoindre une fami
   <data name="Reminders.Timer" xml:space="preserve"><value>Minuteur oublié</value></data>
   <data name="Reminders.TimerHint" xml:space="preserve"><value>Quand un minuteur de repas ou de tire-lait tourne depuis 45 minutes</value></data>
   <data name="Reminders.Title" xml:space="preserve"><value>Rappels</value></data>
+  <data name="Reminders.Until" xml:space="preserve"><value>jusqu’au {0}</value></data>
+  <data name="Reminders.Weekly" xml:space="preserve"><value>Chaque semaine</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>Vous n'êtes plus membre de la famille qui suit {0} : son journal va être supprimé de ce téléphone. Les entrées que vous avez déjà partagées restent dans la famille.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Vous n'êtes plus membre de cette famille : son journal va être supprimé de ce téléphone. Les entrées que vous avez déjà partagées restent dans la famille.</value></data>
   <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>

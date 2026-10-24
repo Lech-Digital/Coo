@@ -396,6 +396,17 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Kind.Temperature" xml:space="preserve"><value>Temperatuur</value></data>
   <data name="Kind.Vaccine" xml:space="preserve"><value>Vaccinatie</value></data>
   <data name="Kind.Visit" xml:space="preserve"><value>Doktersbezoek</value></data>
+  <data name="MedReminder.AddTime" xml:space="preserve"><value>Tijd toevoegen</value></data>
+  <data name="MedReminder.Days" xml:space="preserve"><value>{0} dagen</value></data>
+  <data name="MedReminder.Dose" xml:space="preserve"><value>Dosis (optioneel)</value></data>
+  <data name="MedReminder.For" xml:space="preserve"><value>Hoe lang</value></data>
+  <data name="MedReminder.Name" xml:space="preserve"><value>Medicijn of vitamine</value></data>
+  <data name="MedReminder.NameNeeded" xml:space="preserve"><value>Geef een naam op.</value></data>
+  <data name="MedReminder.Ongoing" xml:space="preserve"><value>Elke dag</value></data>
+  <data name="MedReminder.Remove" xml:space="preserve"><value>Herinnering verwijderen</value></data>
+  <data name="MedReminder.Times" xml:space="preserve"><value>Tijden</value></data>
+  <data name="MedReminder.Title" xml:space="preserve"><value>Medicijnherinnering</value></data>
+  <data name="MedReminder.VitaminD" xml:space="preserve"><value>Vitamine D</value></data>
   <data name="Milk.Both" xml:space="preserve"><value>Beide</value></data>
   <data name="Milk.Breast" xml:space="preserve"><value>Moedermelk</value></data>
   <data name="Milk.Formula" xml:space="preserve"><value>Kunstvoeding</value></data>
@@ -491,16 +502,35 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Quick.Warn.ai.nothing-running" xml:space="preserve"><value>Er loopt nu niets</value></data>
   <data name="Quick.Warn.ai.time-not-stated" xml:space="preserve"><value>Geen tijd genoemd: nu</value></data>
   <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Ongebruikelijke hoeveelheid: controleer</value></data>
+  <data name="Reminder.Bath.Body" xml:space="preserve"><value>Laatste badje: {0}.</value></data>
+  <data name="Reminder.Bath.Done" xml:space="preserve"><value>Badje gedaan</value></data>
+  <data name="Reminder.Bath.First" xml:space="preserve"><value>Tik daarna op ‘Badje gedaan’, dan telt Coo vanaf daar.</value></data>
+  <data name="Reminder.Bath.Title" xml:space="preserve"><value>Tijd voor het badje van {0}</value></data>
   <data name="Reminder.Bed.Body" xml:space="preserve"><value>Wakker sinds {0}. Bedtijd is waarschijnlijk vanaf ongeveer {1}.</value></data>
   <data name="Reminder.Bed.Title" xml:space="preserve"><value>Bijna bedtijd voor {0}</value></data>
+  <data name="Reminder.Diaper.Body" xml:space="preserve"><value>Laatst verschoond om {0}.</value></data>
+  <data name="Reminder.Diaper.Title" xml:space="preserve"><value>Luiercheck voor {0}</value></data>
   <data name="Reminder.Feed.Body" xml:space="preserve"><value>De laatste voeding begon om {0}.</value></data>
   <data name="Reminder.Feed.Title" xml:space="preserve"><value>Tijd om {0} te voeden?</value></data>
+  <data name="Reminder.Medicine.Body" xml:space="preserve"><value>Gepland om {0}.</value></data>
+  <data name="Reminder.Medicine.BodyDose" xml:space="preserve"><value>{0}, gepland om {1}.</value></data>
+  <data name="Reminder.Medicine.Given" xml:space="preserve"><value>Gegeven</value></data>
+  <data name="Reminder.Medicine.Title" xml:space="preserve"><value>{0} voor {1}</value></data>
   <data name="Reminder.Nap.Body" xml:space="preserve"><value>Wakker sinds {0}. Een dutje is waarschijnlijk vanaf ongeveer {1}.</value></data>
   <data name="Reminder.Nap.Title" xml:space="preserve"><value>Bijna tijd voor een dutje voor {0}</value></data>
   <data name="Reminder.Timer.Body" xml:space="preserve"><value>Gestart om {0}. Klaar? Open Coo om hem te stoppen.</value></data>
   <data name="Reminder.Timer.Feeding" xml:space="preserve"><value>Voedingstimer loopt nog</value></data>
   <data name="Reminder.Timer.Pumping" xml:space="preserve"><value>Kolftimer loopt nog</value></data>
+  <data name="Reminders.AddMedicine" xml:space="preserve"><value>Medicijn toevoegen</value></data>
+  <data name="Reminders.AddVitamin" xml:space="preserve"><value>Vitamine D dagelijks</value></data>
+  <data name="Reminders.BathAt" xml:space="preserve"><value>Om</value></data>
+  <data name="Reminders.BathHint" xml:space="preserve"><value>Geteld vanaf het laatst gelogde badje</value></data>
+  <data name="Reminders.Daily" xml:space="preserve"><value>Dagelijks</value></data>
   <data name="Reminders.Denied" xml:space="preserve"><value>Meldingen staan uit voor Coo. Zet ze aan in de Android-instellingen om herinneringen te krijgen.</value></data>
+  <data name="Reminders.Diaper" xml:space="preserve"><value>Luiercheck</value></data>
+  <data name="Reminders.DiaperHint" xml:space="preserve"><value>Zo lang na de laatste verschoning</value></data>
+  <data name="Reminders.EveryDay" xml:space="preserve"><value>elke dag</value></data>
+  <data name="Reminders.EveryDays" xml:space="preserve"><value>Elke {0} dagen</value></data>
   <data name="Reminders.Exact" xml:space="preserve"><value>Precies op tijd</value></data>
   <data name="Reminders.ExactAllow" xml:space="preserve"><value>Toestaan in instellingen</value></data>
   <data name="Reminders.ExactHint" xml:space="preserve"><value>Android kan herinneringen uitstellen als de telefoon niet in gebruik is. Sta ‘Wekkers en herinneringen’ toe voor Coo om ze op tijd te krijgen.</value></data>
@@ -510,6 +540,8 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Reminders.FeedHint" xml:space="preserve"><value>Zo lang na het begin van de laatste voeding</value></data>
   <data name="Reminders.Hours" xml:space="preserve"><value>{0} u</value></data>
   <data name="Reminders.Intro" xml:space="preserve"><value>Coo herinnert je vanaf deze telefoon, ook offline. Elke ouder kiest zelf.</value></data>
+  <data name="Reminders.Medicines" xml:space="preserve"><value>Medicijnen en vitamines</value></data>
+  <data name="Reminders.MedicinesHint" xml:space="preserve"><value>Op vaste tijden elke dag. Al gelogd? Geen herinnering.</value></data>
   <data name="Reminders.Minutes" xml:space="preserve"><value>{0} min van tevoren</value></data>
   <data name="Reminders.Nap" xml:space="preserve"><value>Dutjesvenster</value></data>
   <data name="Reminders.NapHint" xml:space="preserve"><value>Voor het waarschijnlijke volgende dutje of bedtijd, geleerd uit de slaap die je logt</value></data>
@@ -519,6 +551,8 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Reminders.Timer" xml:space="preserve"><value>Vergeten timer</value></data>
   <data name="Reminders.TimerHint" xml:space="preserve"><value>Als een voedings- of kolftimer 45 minuten loopt</value></data>
   <data name="Reminders.Title" xml:space="preserve"><value>Herinneringen</value></data>
+  <data name="Reminders.Until" xml:space="preserve"><value>tot {0}</value></data>
+  <data name="Reminders.Weekly" xml:space="preserve"><value>Wekelijks</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>Je bent geen lid meer van het gezin dat het logboek van {0} bijhoudt, dus dat logboek wordt van deze telefoon verwijderd. Items die je al hebt gedeeld blijven bij het gezin.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Je bent geen lid meer van dit gezin, dus het logboek wordt van deze telefoon verwijderd. Items die je al hebt gedeeld blijven bij het gezin.</value></data>
   <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>

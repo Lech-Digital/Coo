@@ -396,6 +396,17 @@ Si el enlace no abre Coo, ve a Ajustes → Familia → Unirse a una familia en C
   <data name="Kind.Temperature" xml:space="preserve"><value>Temperatura</value></data>
   <data name="Kind.Vaccine" xml:space="preserve"><value>Vacuna</value></data>
   <data name="Kind.Visit" xml:space="preserve"><value>Visita médica</value></data>
+  <data name="MedReminder.AddTime" xml:space="preserve"><value>Añadir hora</value></data>
+  <data name="MedReminder.Days" xml:space="preserve"><value>{0} días</value></data>
+  <data name="MedReminder.Dose" xml:space="preserve"><value>Dosis (opcional)</value></data>
+  <data name="MedReminder.For" xml:space="preserve"><value>Durante cuánto tiempo</value></data>
+  <data name="MedReminder.Name" xml:space="preserve"><value>Medicina o vitamina</value></data>
+  <data name="MedReminder.NameNeeded" xml:space="preserve"><value>Ponle un nombre.</value></data>
+  <data name="MedReminder.Ongoing" xml:space="preserve"><value>Cada día</value></data>
+  <data name="MedReminder.Remove" xml:space="preserve"><value>Quitar recordatorio</value></data>
+  <data name="MedReminder.Times" xml:space="preserve"><value>Horas</value></data>
+  <data name="MedReminder.Title" xml:space="preserve"><value>Recordatorio de medicina</value></data>
+  <data name="MedReminder.VitaminD" xml:space="preserve"><value>Vitamina D</value></data>
   <data name="Milk.Both" xml:space="preserve"><value>Ambas</value></data>
   <data name="Milk.Breast" xml:space="preserve"><value>Leche materna</value></data>
   <data name="Milk.Formula" xml:space="preserve"><value>Fórmula</value></data>
@@ -491,16 +502,35 @@ Si el enlace no abre Coo, ve a Ajustes → Familia → Unirse a una familia en C
   <data name="Quick.Warn.ai.nothing-running" xml:space="preserve"><value>No hay nada en curso</value></data>
   <data name="Quick.Warn.ai.time-not-stated" xml:space="preserve"><value>Sin hora: ahora</value></data>
   <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Cantidad inusual: revísala</value></data>
+  <data name="Reminder.Bath.Body" xml:space="preserve"><value>Último baño: {0}.</value></data>
+  <data name="Reminder.Bath.Done" xml:space="preserve"><value>Baño hecho</value></data>
+  <data name="Reminder.Bath.First" xml:space="preserve"><value>Toca «Baño hecho» al terminar y Coo cuenta desde ahí.</value></data>
+  <data name="Reminder.Bath.Title" xml:space="preserve"><value>Hora del baño de {0}</value></data>
   <data name="Reminder.Bed.Body" xml:space="preserve"><value>Despierto desde las {0}. Es probable que sea hora de dormir a partir de las {1}.</value></data>
   <data name="Reminder.Bed.Title" xml:space="preserve"><value>Pronto será hora de dormir para {0}</value></data>
+  <data name="Reminder.Diaper.Body" xml:space="preserve"><value>Último cambio a las {0}.</value></data>
+  <data name="Reminder.Diaper.Title" xml:space="preserve"><value>Revisar el pañal de {0}</value></data>
   <data name="Reminder.Feed.Body" xml:space="preserve"><value>La última toma empezó a las {0}.</value></data>
   <data name="Reminder.Feed.Title" xml:space="preserve"><value>¿Hora de dar de comer a {0}?</value></data>
+  <data name="Reminder.Medicine.Body" xml:space="preserve"><value>Toca a las {0}.</value></data>
+  <data name="Reminder.Medicine.BodyDose" xml:space="preserve"><value>{0}, a las {1}.</value></data>
+  <data name="Reminder.Medicine.Given" xml:space="preserve"><value>Dado</value></data>
+  <data name="Reminder.Medicine.Title" xml:space="preserve"><value>{0} para {1}</value></data>
   <data name="Reminder.Nap.Body" xml:space="preserve"><value>Despierto desde las {0}. Es probable una siesta a partir de las {1}.</value></data>
   <data name="Reminder.Nap.Title" xml:space="preserve"><value>Pronto será hora de la siesta de {0}</value></data>
   <data name="Reminder.Timer.Body" xml:space="preserve"><value>Empezó a las {0}. Si ya habéis terminado, abre Coo para pararlo.</value></data>
   <data name="Reminder.Timer.Feeding" xml:space="preserve"><value>El temporizador de la toma sigue en marcha</value></data>
   <data name="Reminder.Timer.Pumping" xml:space="preserve"><value>El temporizador de extracción sigue en marcha</value></data>
+  <data name="Reminders.AddMedicine" xml:space="preserve"><value>Añadir medicina</value></data>
+  <data name="Reminders.AddVitamin" xml:space="preserve"><value>Vitamina D diaria</value></data>
+  <data name="Reminders.BathAt" xml:space="preserve"><value>A las</value></data>
+  <data name="Reminders.BathHint" xml:space="preserve"><value>Contado desde el último baño registrado</value></data>
+  <data name="Reminders.Daily" xml:space="preserve"><value>A diario</value></data>
   <data name="Reminders.Denied" xml:space="preserve"><value>Las notificaciones de Coo están desactivadas. Actívalas en los ajustes de Android para recibir recordatorios.</value></data>
+  <data name="Reminders.Diaper" xml:space="preserve"><value>Revisar el pañal</value></data>
+  <data name="Reminders.DiaperHint" xml:space="preserve"><value>Este tiempo después del último cambio</value></data>
+  <data name="Reminders.EveryDay" xml:space="preserve"><value>cada día</value></data>
+  <data name="Reminders.EveryDays" xml:space="preserve"><value>Cada {0} días</value></data>
   <data name="Reminders.Exact" xml:space="preserve"><value>Puntual al minuto</value></data>
   <data name="Reminders.ExactAllow" xml:space="preserve"><value>Permitir en ajustes</value></data>
   <data name="Reminders.ExactHint" xml:space="preserve"><value>Android puede retrasar los recordatorios si el móvil está en reposo. Permite «Alarmas y recordatorios» para Coo para recibirlos a tiempo.</value></data>
@@ -510,6 +540,8 @@ Si el enlace no abre Coo, ve a Ajustes → Familia → Unirse a una familia en C
   <data name="Reminders.FeedHint" xml:space="preserve"><value>Este tiempo después del inicio de la última toma</value></data>
   <data name="Reminders.Hours" xml:space="preserve"><value>{0} h</value></data>
   <data name="Reminders.Intro" xml:space="preserve"><value>Coo te avisa desde este móvil, incluso sin conexión. Cada padre elige los suyos.</value></data>
+  <data name="Reminders.Medicines" xml:space="preserve"><value>Medicinas y vitaminas</value></data>
+  <data name="Reminders.MedicinesHint" xml:space="preserve"><value>A horas fijas cada día. ¿Ya registrado? Sin aviso.</value></data>
   <data name="Reminders.Minutes" xml:space="preserve"><value>{0} min antes</value></data>
   <data name="Reminders.Nap" xml:space="preserve"><value>Ventana de siesta</value></data>
   <data name="Reminders.NapHint" xml:space="preserve"><value>Antes de la próxima siesta u hora de dormir probable, aprendido de los sueños que registras</value></data>
@@ -519,6 +551,8 @@ Si el enlace no abre Coo, ve a Ajustes → Familia → Unirse a una familia en C
   <data name="Reminders.Timer" xml:space="preserve"><value>Temporizador olvidado</value></data>
   <data name="Reminders.TimerHint" xml:space="preserve"><value>Cuando un temporizador de toma o extracción lleva 45 minutos</value></data>
   <data name="Reminders.Title" xml:space="preserve"><value>Recordatorios</value></data>
+  <data name="Reminders.Until" xml:space="preserve"><value>hasta el {0}</value></data>
+  <data name="Reminders.Weekly" xml:space="preserve"><value>Semanal</value></data>
   <data name="Removal.Body" xml:space="preserve"><value>Ya no eres miembro de la familia que lleva el registro de {0}, así que ese registro se eliminará de este teléfono. Los registros que ya compartiste se quedan en la familia.</value></data>
   <data name="Removal.BodyNoBaby" xml:space="preserve"><value>Ya no eres miembro de esta familia, así que su registro se eliminará de este teléfono. Los registros que ya compartiste se quedan en la familia.</value></data>
   <data name="Removal.Line" xml:space="preserve"><value>{0}, {1} · {2}</value></data>

@@ -63,6 +63,10 @@ internal sealed class AndroidReminderScheduler : IReminderScheduler
 internal static class Reminders
 {
     public const string Action = "com.lechdigital.coo.action.REMINDER";
+
+    /// <summary>The one-tap log receiver in the app (by its Java name: the app project references this one, not back).</summary>
+    public const string QuickReceiver = "com.lechdigital.coo.QuickActionReceiver";
+    public const string QuickAction = "com.lechdigital.coo.action.QUICK";
     public const string ChannelId = "reminders";
     private const string Store = "coo.reminders";
     private const string Key = "scheduled";
@@ -138,11 +142,28 @@ internal static class Reminders
     {
         var intent = new Intent(context, typeof(ReminderReceiver)).SetAction(Action).PutExtra("id", id);
         if (notice is not null)
-            intent.PutExtra("title", notice.Title).PutExtra("body", notice.Body);
+            intent.PutExtra("title", notice.Title).PutExtra("body", notice.Body).PutExtra("buttons", WriteButtons(notice.Buttons));
         return PendingIntent.GetBroadcast(context, Code(id), intent, PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable)!;
     }
 
-    // One line per reminder: id, unix milliseconds, title, body, tab-separated. Texts never hold tabs or newlines.
+    // A notice's buttons in one string: label, action, medicine name and dose split by U+001F, buttons by U+001E.
+    public static string WriteButtons(IReadOnlyList<ReminderButton>? buttons) => buttons is null ? "" : string.Join('\u001e', buttons.Select(b =>
+        string.Join('\u001f', b.Label, b.Action.ToString(), b.Name ?? "", b.Dose ?? "")));
+
+    public static IReadOnlyList<ReminderButton> ReadButtons(string? text)
+    {
+        var list = new List<ReminderButton>();
+        foreach (var one in (text ?? "").Split('\u001e', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var parts = one.Split('\u001f');
+            if (parts.Length == 4 && Enum.TryParse<Coo.Mobile.Application.CareLog.QuickAction>(parts[1], out var action))
+                list.Add(new ReminderButton(parts[0], action, parts[2].Length == 0 ? null : parts[2], parts[3].Length == 0 ? null : parts[3]));
+        }
+
+        return list;
+    }
+
+    // One line per reminder: id, unix milliseconds, title, body, buttons, tab-separated. Texts never hold tabs or newlines.
     private static List<ReminderNotice> Load(Context context)
     {
         var text = context.GetSharedPreferences(Store, FileCreationMode.Private)?.GetString(Key, null) ?? "";
@@ -150,8 +171,8 @@ internal static class Reminders
         foreach (var line in text.Split('\n', StringSplitOptions.RemoveEmptyEntries))
         {
             var parts = line.Split('\t');
-            if (parts.Length == 4 && long.TryParse(parts[1], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var ms))
-                list.Add(new ReminderNotice(parts[0], DateTimeOffset.FromUnixTimeMilliseconds(ms), parts[2], parts[3]));
+            if (parts.Length is 4 or 5 && long.TryParse(parts[1], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var ms))
+                list.Add(new ReminderNotice(parts[0], DateTimeOffset.FromUnixTimeMilliseconds(ms), parts[2], parts[3], parts.Length == 5 ? ReadButtons(parts[4]) : null));
         }
 
         return list;
@@ -161,7 +182,8 @@ internal static class Reminders
     {
         static string Clean(string s) => s.Replace('\t', ' ').Replace('\n', ' ');
         var text = string.Join('\n', notices.Select(n =>
-            string.Join('\t', Clean(n.Id), n.At.ToUnixTimeMilliseconds().ToString(System.Globalization.CultureInfo.InvariantCulture), Clean(n.Title), Clean(n.Body))));
+            string.Join('\t', Clean(n.Id), n.At.ToUnixTimeMilliseconds().ToString(System.Globalization.CultureInfo.InvariantCulture), Clean(n.Title), Clean(n.Body),
+                Clean(WriteButtons(n.Buttons)))));
         context.GetSharedPreferences(Store, FileCreationMode.Private)?.Edit()?.PutString(Key, text)?.Apply();
     }
 
@@ -199,7 +221,7 @@ public sealed class ReminderReceiver : BroadcastReceiver
                 .SetSmallIcon(icon)!
                 .SetContentTitle("Coo")!
                 .Build();
-            var notification = new AndroidX.Core.App.NotificationCompat.Builder(context, Reminders.ChannelId)
+            var builder = new AndroidX.Core.App.NotificationCompat.Builder(context, Reminders.ChannelId)
                 .SetSmallIcon(icon)!
                 .SetContentTitle(title)!
                 .SetContentText(body)!
@@ -208,9 +230,24 @@ public sealed class ReminderReceiver : BroadcastReceiver
                 .SetVisibility(AndroidX.Core.App.NotificationCompat.VisibilityPrivate)!
                 .SetPublicVersion(hidden)!
                 .SetAutoCancel(true)!
-                .SetContentIntent(tap)!
-                .Build();
-            AndroidX.Core.App.NotificationManagerCompat.From(context)?.Notify(Reminders.Code(id), notification);
+                .SetContentIntent(tap)!;
+
+            // "Wet", "Given", "Bath done": logged by the app's one-tap receiver, which then clears this notification.
+            var buttons = Reminders.ReadButtons(intent.GetStringExtra("buttons"));
+            for (var i = 0; i < buttons.Count; i++)
+            {
+                var button = buttons[i];
+                var quick = new Intent(Reminders.QuickAction)
+                    .SetClassName(context.PackageName ?? "", Reminders.QuickReceiver)
+                    .PutExtra("action", button.Action.ToString())
+                    .PutExtra("notification", Reminders.Code(id));
+                if (button.Name is not null)
+                    quick.PutExtra("name", button.Name).PutExtra("dose", button.Dose);
+                var pending = PendingIntent.GetBroadcast(context, Reminders.Code($"{id}:{i}"), quick, PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
+                builder.AddAction(0, button.Label, pending);
+            }
+
+            AndroidX.Core.App.NotificationManagerCompat.From(context)?.Notify(Reminders.Code(id), builder.Build());
         }
 #pragma warning disable CA1031 // An Android callback: a reminder that cannot be shown must not crash the process.
         catch (Exception e)

@@ -25,6 +25,8 @@ public static class QuickActionText
             QuickAction.Sleep => Strings.Get("Hero.Sleeping"),
             QuickAction.WokeUp => Strings.Get("Action.WokeUp"),
             QuickAction.Pump => Strings.Get("Hero.Pumping"),
+            QuickAction.Bath => Strings.Get("Kind.Bath"),
+            QuickAction.Medicine => Strings.Get("Kind.Medicine"),
             _ => Strings.Get("Kind.Pump"),
         };
         return Strings.Format("Widget.Logged", Strings.Format("Toast.Logged", what));

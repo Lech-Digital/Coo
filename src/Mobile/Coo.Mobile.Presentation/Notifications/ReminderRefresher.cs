@@ -132,10 +132,35 @@ public sealed class ReminderRefresher(
             ReminderKind.Bedtime => (
                 Strings.Format("Reminder.Bed.Title", babyName),
                 Strings.Format("Reminder.Bed.Body", since, formats.Time(reminder.Opens ?? reminder.At, zone))),
+            ReminderKind.Diaper => (Strings.Format("Reminder.Diaper.Title", babyName), Strings.Format("Reminder.Diaper.Body", since)),
+            ReminderKind.Bath => (
+                Strings.Format("Reminder.Bath.Title", babyName),
+                reminder.Since < reminder.At
+                    ? Strings.Format("Reminder.Bath.Body", TimeZoneInfo.ConvertTime(reminder.Since, zone).ToString("dddd d MMMM", System.Globalization.CultureInfo.CurrentCulture))
+                    : Strings.Get("Reminder.Bath.First")),
+            ReminderKind.Medicine when reminder.Medicine is { } medicine => (
+                Strings.Format("Reminder.Medicine.Title", medicine.Name, babyName),
+                medicine.Dose is { Length: > 0 } dose
+                    ? Strings.Format("Reminder.Medicine.BodyDose", dose, formats.Time(reminder.At, zone))
+                    : Strings.Format("Reminder.Medicine.Body", formats.Time(reminder.At, zone))),
             _ => (Strings.Format("Reminder.Nap.Title", babyName), Strings.Format("Reminder.Nap.Body", since, formats.Time(reminder.Opens ?? reminder.At, zone))),
         };
-        return new ReminderNotice(reminder.Id, reminder.At, title, body);
+        return new ReminderNotice(reminder.Id, reminder.At, title, body, Buttons(reminder));
     }
+
+    /// <summary>The answers a notification offers, so a change or a dose is logged without opening Coo.</summary>
+    private static IReadOnlyList<ReminderButton>? Buttons(PlannedReminder reminder) => reminder.Kind switch
+    {
+        ReminderKind.Diaper =>
+        [
+            new(Strings.Get("Diaper.Wet"), QuickAction.Wet),
+            new(Strings.Get("Diaper.Dirty"), QuickAction.Dirty),
+            new(Strings.Get("Diaper.Mixed"), QuickAction.Mixed),
+        ],
+        ReminderKind.Bath => [new(Strings.Get("Reminder.Bath.Done"), QuickAction.Bath)],
+        ReminderKind.Medicine when reminder.Medicine is { } m => [new(Strings.Get("Reminder.Medicine.Given"), QuickAction.Medicine, m.Name, m.Dose)],
+        _ => null,
+    };
 
     /// <summary>What runs now, for the widgets' buttons and the timer notification, with its words in the app's language.</summary>
     public static IReadOnlyList<RunningTimer> Running(TodaySummary? today, Formats formats, TimeZoneInfo zone)

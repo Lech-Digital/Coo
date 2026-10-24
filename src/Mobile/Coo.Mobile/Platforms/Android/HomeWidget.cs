@@ -234,7 +234,8 @@ public sealed class CooTimerWidgetProvider : AppWidgetProvider
 /// for it if need be), then refreshes widgets, notification and reminders, says what was logged, and tells an open
 /// Today to reload.
 /// </summary>
-[BroadcastReceiver(Exported = false)]
+// Named, so a reminder's buttons (in Coo.Mobile.Platform, which cannot see this type) can reach it by its Java name.
+[BroadcastReceiver(Exported = false, Name = "com.lechdigital.coo.QuickActionReceiver")]
 public sealed class QuickActionReceiver : BroadcastReceiver
 {
     private const string Act = "com.lechdigital.coo.action.QUICK";
@@ -257,7 +258,11 @@ public sealed class QuickActionReceiver : BroadcastReceiver
                 if (IPlatformApplication.Current?.Services is not { } services)
                     return;
                 await Background.PrepareAsync(services);
-                var result = await services.GetRequiredService<QuickActions>().ExecuteAsync(action, CancellationToken.None);
+                // From a reminder's button: the reminder goes once answered, and "Given" carries the medicine's name and dose.
+                if (intent.GetIntExtra("notification", 0) is not 0 and var shown)
+                    AndroidX.Core.App.NotificationManagerCompat.From(context)?.Cancel(shown);
+                (string, string?)? medicine = intent.GetStringExtra("name") is { } name ? (name, intent.GetStringExtra("dose")) : null;
+                var result = await services.GetRequiredService<QuickActions>().ExecuteAsync(action, CancellationToken.None, medicine);
                 await services.GetRequiredService<Coo.Mobile.Presentation.Notifications.ReminderRefresher>().RefreshAsync();
                 var text = Coo.Mobile.Presentation.Notifications.QuickActionText.Describe(result);
                 MainThread.BeginInvokeOnMainThread(() =>

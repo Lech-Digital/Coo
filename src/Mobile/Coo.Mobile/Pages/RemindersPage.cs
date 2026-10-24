@@ -4,7 +4,10 @@ using Coo.Mobile.Presentation.Settings;
 
 namespace Coo.Mobile.Pages;
 
-/// <summary>Settings → Reminders (ADR 0007): the feeding interval, a forgotten timer, the nap window. Redrawn on each change.</summary>
+/// <summary>
+/// Settings → Reminders (ADR 0007): the feeding interval, a forgotten timer, the nap window, the diaper check, baths, and
+/// medicines and vitamins. Redrawn on each change.
+/// </summary>
 public sealed class RemindersPage : ContentPage
 {
     private readonly RemindersViewModel _model;
@@ -77,6 +80,17 @@ public sealed class RemindersPage : ContentPage
         stack.Add(new Card(Toggle("Reminders.Timer", Strings.Get("Reminders.TimerHint"), settings.TimerRunning, _model.ToggleTimerCommand)));
         stack.Add(new Card(NapCard(settings)));
 
+        var diaper = new VerticalStackLayout { Spacing = 8 };
+        diaper.Add(Ui.Text(Strings.Get("Reminders.Diaper"), "BodyStrong"));
+        diaper.Add(Ui.Text(Strings.Get("Reminders.DiaperHint"), "Meta", "Ink2"));
+        diaper.Add(Chips(RemindersViewModel.DiaperChoices, RemindersViewModel.FeedLabel, settings.DiaperEvery, _model.SetDiaperEveryCommand));
+        if (settings.DiaperEvery is not null)
+            diaper.Add(Toggle("Reminders.FeedAtNight", _model.QuietHint, settings.DiaperAtNight, _model.ToggleDiaperAtNightCommand));
+        stack.Add(new Card(diaper));
+
+        stack.Add(new Card(BathCard(settings)));
+        stack.Add(new Card(MedicinesCard(settings)));
+
         if (!string.IsNullOrEmpty(_model.Message))
             stack.Add(Ui.Text(_model.Message, "Body", "AccentInk"));
         if (_model.ShowExact)
@@ -122,6 +136,91 @@ public sealed class RemindersPage : ContentPage
         }
 
         return nap;
+    }
+
+    /// <summary>Off or a choice, as a row of chips that wraps; the chosen one is the accent.</summary>
+    private static FlexLayout Chips<T>(IEnumerable<T> choices, Func<T, string> label, T chosen, System.Windows.Input.ICommand pick)
+    {
+        var chips = new FlexLayout { Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap, AlignItems = Microsoft.Maui.Layouts.FlexAlignItems.Start };
+        foreach (var choice in choices)
+        {
+            var chip = new Button { Text = label(choice), Command = pick, CommandParameter = choice, Margin = new Thickness(0, 0, 8, 8) };
+            chip.SetDynamicResource(StyleProperty, EqualityComparer<T>.Default.Equals(choice, chosen) ? "PrimaryButton" : "GhostButton");
+            chips.Add(chip);
+        }
+
+        return chips;
+    }
+
+    /// <summary>Baths: how often, and at what time of day.</summary>
+    private View BathCard(Coo.Mobile.Application.Notifications.ReminderSettings settings)
+    {
+        var bath = new VerticalStackLayout { Spacing = 8 };
+        bath.Add(Ui.Text(Strings.Get("Kind.Bath"), "BodyStrong"));
+        bath.Add(Ui.Text(Strings.Get("Reminders.BathHint"), "Meta", "Ink2"));
+        bath.Add(Chips(RemindersViewModel.BathChoices, RemindersViewModel.BathLabel, settings.BathEveryDays, _model.SetBathEveryCommand));
+        if (settings.BathEveryDays is null)
+            return bath;
+
+        var picker = new TimePicker { Time = settings.BathTime.ToTimeSpan(), Format = "HH:mm", VerticalOptions = LayoutOptions.Center };
+        picker.SetDynamicResource(TimePicker.TextColorProperty, "Ink");
+        picker.TimeSelected += async (_, e) =>
+        {
+            if (e.NewTime is { } time)
+                await _model.SetBathAtAsync(TimeOnly.FromTimeSpan(time));
+        };
+        var row = new HorizontalStackLayout { Spacing = 12 };
+        var at = Ui.Text(Strings.Get("Reminders.BathAt"), "Body", "Ink2");
+        at.VerticalOptions = LayoutOptions.Center;
+        row.Add(at);
+        row.Add(picker);
+        bath.Add(row);
+        return bath;
+    }
+
+    /// <summary>Medicines and vitamins: one row per reminder (tap to change), then "Vitamin D daily" and "Add medicine".</summary>
+    private View MedicinesCard(Coo.Mobile.Application.Notifications.ReminderSettings settings)
+    {
+        var card = new VerticalStackLayout { Spacing = 8 };
+        card.Add(Ui.Text(Strings.Get("Reminders.Medicines"), "BodyStrong"));
+        card.Add(Ui.Text(Strings.Get("Reminders.MedicinesHint"), "Meta", "Ink2"));
+        var medicines = settings.MedicineList;
+        for (var i = 0; i < medicines.Count; i++)
+        {
+            var index = i;
+            var medicine = medicines[i];
+            var text = new VerticalStackLayout { Spacing = 2 };
+            text.Add(Ui.Text(medicine.Dose is { Length: > 0 } dose ? $"{medicine.Name} · {dose}" : medicine.Name, "Body"));
+            text.Add(Ui.Text(RemindersViewModel.MedicineLabel(medicine), "Meta", "Ink2"));
+            var row = Ui.Rounded(text, "Ground", 14, new Thickness(16, 12), "Line");
+            row.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => OpenMedicine(index, medicine)) });
+            SemanticProperties.SetDescription(row, medicine.Name);
+            card.Add(row);
+        }
+
+        var buttons = new FlexLayout { Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap, AlignItems = Microsoft.Maui.Layouts.FlexAlignItems.Start };
+        if (!medicines.Any(m => Coo.Mobile.Application.CareLog.Vitamins.IsVitamin(m.Name)))
+        {
+            var vitamin = new Button { Text = "+ " + Strings.Get("Reminders.AddVitamin"), Margin = new Thickness(0, 0, 8, 8) };
+            vitamin.SetDynamicResource(StyleProperty, "GhostButton");
+            vitamin.Clicked += (_, _) => OpenMedicine(-1, new(Strings.Get("MedReminder.VitaminD"), null, [new TimeOnly(9, 0)]));
+            buttons.Add(vitamin);
+        }
+
+        var add = new Button { Text = "+ " + Strings.Get("Reminders.AddMedicine"), Margin = new Thickness(0, 0, 8, 8) };
+        add.SetDynamicResource(StyleProperty, "GhostButton");
+        add.Clicked += (_, _) => OpenMedicine(-1, null);
+        buttons.Add(add);
+        card.Add(buttons);
+        return card;
+    }
+
+    private async void OpenMedicine(int index, Coo.Mobile.Application.Notifications.MedicineReminder? medicine)
+    {
+        var today = DateOnly.FromDateTime(_services.GetRequiredService<TimeProvider>().GetLocalNow().DateTime);
+        await Navigation.PushAsync(new MedicineReminderPage(medicine, index >= 0, today,
+            saved => _model.SaveMedicineAsync(index, saved),
+            () => _model.RemoveMedicineAsync(index)));
     }
 
     /// <summary>A title, a hint and a switch; the whole row toggles.</summary>

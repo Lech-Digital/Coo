@@ -49,6 +49,31 @@ public sealed partial class RemindersViewModel(
         ? Strings.Format("Reminders.Hours", e.TotalHours.ToString("0.#", System.Globalization.CultureInfo.CurrentCulture))
         : Strings.Get("Reminders.Off");
 
+    /// <summary>The diaper choices: Off, then each interval.</summary>
+    public static IReadOnlyList<TimeSpan?> DiaperChoices { get; } = [null, .. ReminderSettings.DiaperIntervals.Select(i => (TimeSpan?)i)];
+
+    /// <summary>The bath choices: Off, then every 1, 2, 3 or 7 days.</summary>
+    public static IReadOnlyList<int?> BathChoices { get; } = [null, .. ReminderSettings.BathIntervals.Select(i => (int?)i)];
+
+    public static string BathLabel(int? days) => days switch
+    {
+        null => Strings.Get("Reminders.Off"),
+        1 => Strings.Get("Reminders.Daily"),
+        7 => Strings.Get("Reminders.Weekly"),
+        _ => Strings.Format("Reminders.EveryDays", days),
+    };
+
+    /// <summary>"09:00, 21:00 · until Fri 30 Oct" or "09:00 · every day".</summary>
+    public static string MedicineLabel(MedicineReminder medicine)
+    {
+        ArgumentNullException.ThrowIfNull(medicine);
+        var times = string.Join(", ", medicine.Times.Order().Select(t => t.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture)));
+        var days = medicine.Until is { } until
+            ? Strings.Format("Reminders.Until", until.ToString("ddd d MMM", System.Globalization.CultureInfo.CurrentCulture))
+            : Strings.Get("Reminders.EveryDay");
+        return $"{times} · {days}";
+    }
+
     public async Task LoadAsync()
     {
         Settings = await store.GetAsync(CancellationToken.None);
@@ -76,6 +101,38 @@ public sealed partial class RemindersViewModel(
     private Task SetNapLead(int minutes) => ApplyAsync(Settings with { NapLeadMinutes = minutes });
 
     [RelayCommand]
+    private Task SetDiaperEvery(TimeSpan? every) => ApplyAsync(Settings with { DiaperEvery = every });
+
+    [RelayCommand]
+    private Task ToggleDiaperAtNight() => ApplyAsync(Settings with { DiaperAtNight = !Settings.DiaperAtNight });
+
+    [RelayCommand]
+    private Task SetBathEvery(int? days) => ApplyAsync(Settings with { BathEveryDays = days });
+
+    public Task SetBathAtAsync(TimeOnly at) => ApplyAsync(Settings with { BathAt = at });
+
+    /// <summary>Adds a medicine reminder (<paramref name="index"/> -1) or replaces the one at <paramref name="index"/>.</summary>
+    public Task SaveMedicineAsync(int index, MedicineReminder medicine)
+    {
+        ArgumentNullException.ThrowIfNull(medicine);
+        var list = Settings.MedicineList.ToList();
+        if (index >= 0 && index < list.Count)
+            list[index] = medicine;
+        else
+            list.Add(medicine);
+        return ApplyAsync(Settings with { Medicines = list });
+    }
+
+    public Task RemoveMedicineAsync(int index)
+    {
+        var list = Settings.MedicineList.ToList();
+        if (index < 0 || index >= list.Count)
+            return Task.CompletedTask;
+        list.RemoveAt(index);
+        return ApplyAsync(Settings with { Medicines = list });
+    }
+
+    [RelayCommand]
     private void AllowExact() => scheduler.OpenExactSettings();
 
     private async Task ApplyAsync(ReminderSettings next)
@@ -91,5 +148,7 @@ public sealed partial class RemindersViewModel(
     }
 
     private bool IsTurningOn(ReminderSettings next) =>
-        (next.FeedEvery is not null && Settings.FeedEvery is null) || (next.TimerRunning && !Settings.TimerRunning) || (next.NapWindow && !Settings.NapWindow);
+        (next.FeedEvery is not null && Settings.FeedEvery is null) || (next.TimerRunning && !Settings.TimerRunning) || (next.NapWindow && !Settings.NapWindow)
+        || (next.DiaperEvery is not null && Settings.DiaperEvery is null) || (next.BathEveryDays is not null && Settings.BathEveryDays is null)
+        || next.MedicineList.Count > Settings.MedicineList.Count;
 }
