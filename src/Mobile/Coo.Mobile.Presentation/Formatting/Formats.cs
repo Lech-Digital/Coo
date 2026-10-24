@@ -73,6 +73,12 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
         _ => Strings.Get("Entry.Quarantined"),
     };
 
+    /// <summary>The person's label, or the classifier's for this one sleep ("Decide for me").</summary>
+    private static bool IsNight(SleepDetails sleep, SessionTiming timing) =>
+        Coo.Domain.Insights.SleepClassifier.ClassifyOne(
+            new Coo.Domain.Insights.SleepSpan(timing.Range.Start, timing.Range.End, sleep.KindOverride),
+            TimeOnly.FromDateTime(timing.Range.Start.ToLocalTime().DateTime)) == Coo.Domain.Insights.SleepClass.Night;
+
     public string Title(CareEntry entry, DateTimeOffset now)
     {
         ArgumentNullException.ThrowIfNull(entry);
@@ -85,7 +91,7 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
             DiaperDetails d => Strings.Format("Entry.Diaper", Contents(d.Contents)),
             SleepDetails when entry.Timing.IsInProgress => Strings.Get("Entry.Sleeping"),
             SleepDetails s => Strings.Format(
-                s.KindOverride == SleepKindOverride.Night ? "Entry.Sleep" : "Entry.Nap",
+                IsNight(s, (SessionTiming)entry.Timing) ? "Entry.Sleep" : "Entry.Nap",
                 Duration(((SessionTiming)entry.Timing).Range.Duration(now))),
             PumpDetails { Yield: { } y } => Strings.Format("Entry.Pump", Volume(y.Total)),
             PumpDetails => Strings.Get("Entry.PumpNoAmount"),
@@ -96,6 +102,7 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
             VaccineDetails v => Strings.Format("Entry.Vaccine", v.Name),
             VisitDetails { With: { } with } => Strings.Format("Entry.VisitWith", with),
             VisitDetails => Strings.Get("Kind.Visit"),
+            Coo.Domain.CareLog.Kinds.Bath.BathDetails => Strings.Get("Kind.Bath"),
             _ => entry.KindCode.Value,
         };
     }

@@ -212,7 +212,7 @@ public sealed class FamilyPage : ContentPage
         try
         {
             var asked = await prompt();
-            if (await DisplayAlertAsync(asked.Title, asked.Message, asked.Accept, asked.Cancel))
+            if (await Components.CooDialog.ConfirmAsync(this, asked.Title, asked.Message, asked.Accept, asked.Cancel))
                 await action();
         }
         finally

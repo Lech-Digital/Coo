@@ -15,6 +15,27 @@ public static class IconGeometry
     /// <summary>A cross in a rounded square: medicine, temperature, vaccines and visits.</summary>
     public const string Health = "M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zM12 8v8M8 12h8";
 
+    /// <summary>A capsule: medicines and vitamins.</summary>
+    public const string Medicine = "M11.43 17.37L17.37 11.43A3.4 3.4 0 0 0 12.57 6.63L6.63 12.57A3.4 3.4 0 0 0 11.43 17.37zM14.40 14.40L9.60 9.60";
+
+    /// <summary>A thermometer: temperatures.</summary>
+    public const string Temperature = "M10 5a2 2 0 0 1 4 0v9.3a4 4 0 1 1-4 0zM12 9v8";
+
+    /// <summary>A syringe: vaccinations.</summary>
+    public const string Vaccine = "M17 3l4 4M19 5l-9.5 9.5-4-4L15 1M7.5 12.5L3 17M4 21l3-3M8 9l2 2M11 6l2 2";
+
+    /// <summary>A stethoscope: doctor and midwife visits.</summary>
+    public const string Visit = "M6 3v6a4 4 0 0 0 8 0V3M10 13v2a5 5 0 0 0 10 0v-3M18 10a2 2 0 1 0 4 0a2 2 0 1 0-4 0";
+
+    /// <summary>A line rising over axes: the growth chart.</summary>
+    public const string Chart = "M4 4v16h16M7 15l4-4 3 3 5-6";
+
+    /// <summary>A camera: a health record from a photo.</summary>
+    public const string Camera = "M4 8h3l2-2.5h6L17 8h3v11H4zM12 10a3.5 3.5 0 1 0 0 7a3.5 3.5 0 1 0 0-7";
+
+    /// <summary>A tub: baths.</summary>
+    public const string Bath = "M3 12h18v1.5A5.5 5.5 0 0 1 15.5 19h-7A5.5 5.5 0 0 1 3 13.5zM6 12V6.5a2.5 2.5 0 0 1 5 0M7 19l-1.5 2M17 19l1.5 2";
+
     public const string Pump = "M5 5h14l-5 5v3h-4v-3zM10 13v6a2 2 0 0 0 4 0v-6";
     public const string Mic = "M9 6a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0zM5 11a7 7 0 0 0 14 0M12 18v3";
     public const string Today = "M4 11l8-7 8 7v9h-5v-6h-6v6H4z";

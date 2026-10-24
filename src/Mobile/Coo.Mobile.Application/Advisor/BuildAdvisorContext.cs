@@ -98,7 +98,7 @@ public sealed class BuildAdvisorContext(
         var entries = (await store!.ListAsync(household, now - DetailWindow - TimeSpan.FromDays(1), now.AddMinutes(1), cancellationToken))
             .OfType<LiveEntry>().Select(l => l.Entry)
             .Where(e => !e.IsDeleted && GetToday.IsAbout(e, baby))
-            .Where(e => e.Details is FeedingDetails or SleepDetails or DiaperDetails or PumpDetails)
+            .Where(e => e.Details is FeedingDetails or SleepDetails or DiaperDetails or PumpDetails or Coo.Domain.CareLog.Kinds.Bath.BathDetails)
             // A session counts while any of it is in the window; a point, a breast feed, by when it happened.
             .Where(e => (e.Timing is SessionTiming s ? s.Range.End ?? now : e.Timing.OccurredAt) >= now - DetailWindow)
             .OrderBy(e => e.Timing.OccurredAt)
@@ -195,6 +195,7 @@ public sealed class BuildAdvisorContext(
         TemperatureDetails t => string.Create(En, $"temperature {t.Celsius:0.0} °C{(t.IsFever ? " (fever)" : "")}"),
         VaccineDetails v => $"vaccine {v.Name}",
         VisitDetails v => v.With is { } with ? $"doctor visit ({with})" : "doctor visit",
+        Coo.Domain.CareLog.Kinds.Bath.BathDetails => "bath",
         _ => entry.KindCode.Value,
     };
 

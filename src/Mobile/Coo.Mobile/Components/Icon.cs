@@ -28,6 +28,13 @@ public sealed class Icon : ContentView
             AnchorY = 0,
         };
         path.SetDynamicResource(Shape.StrokeProperty, colourKey + "Brush");
+
+        // MAUI draws a path from its own stroked bounds, not from 0,0 of its 24×24 grid: a glyph that does not touch the
+        // grid's top-left (the mic runs from 5 to 19) moved up and left and looked off-centre in its circle (owner's
+        // screenshot, 2026-10-24; measured 4.15 units = 5 minus half the stroke). Moved back by exactly that.
+        var bounds = Microsoft.Maui.Graphics.PathBuilder.Build(geometry).Bounds;
+        path.TranslationX = (bounds.X - (path.StrokeThickness / 2)) * size / 24;
+        path.TranslationY = (bounds.Y - (path.StrokeThickness / 2)) * size / 24;
         Content = new Grid { WidthRequest = size, HeightRequest = size, Children = { path } };
         WidthRequest = size;
         HeightRequest = size;

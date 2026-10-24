@@ -275,9 +275,11 @@ public sealed class AdjustAvatarPage : ContentPage
             await _model.SetLocalAvatarFileAsync(croppedPath);
             await Navigation.PopAsync();
         }
-        catch (Exception ex)
+#pragma warning disable CA1031 // A photo that cannot be saved says so in Coo's words.
+        catch (Exception)
+#pragma warning restore CA1031
         {
-            await DisplayAlertAsync("Error", $"Could not save avatar: {ex.Message}", "OK");
+            await Components.CooDialog.AlertAsync(this, Coo.Mobile.Presentation.Localization.Strings.Get("Avatar.Title"), Coo.Mobile.Presentation.Localization.Strings.Get("Error.Generic"));
             saveBtn.IsEnabled = true;
             saveBtn.Text = "Save";
             _saving = false;

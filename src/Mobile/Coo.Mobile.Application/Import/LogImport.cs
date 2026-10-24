@@ -56,6 +56,7 @@ public static partial class LogFileReader
     private static readonly string[] FeedWords = ["feed", "nurs", "breast", "bottle", "formula", "karmien", "pierś", "piers", "butelk", "voeding", "fles", "borst", "still", "flasche", "fütter", "futter", "tétée", "tetee", "biberon", "allait", "toma", "pecho", "poppata", "allatt", "seno"];
     private static readonly string[] SleepWords = ["sleep", "nap", "sen", "drzemk", "spanie", "slaap", "dutje", "schlaf", "nicker", "sommeil", "sieste", "dodo", "sueño", "sueno", "siesta", "sonno", "pisolino", "nanna"];
     private static readonly string[] DiaperWords = ["diaper", "nappy", "nappies", "pee", "poo", "pieluch", "luier", "windel", "couche", "pañal", "panal", "pannolin"];
+    private static readonly string[] BathWords = ["bath", "kąpiel", "kapiel", "bad ", "badje", "baden", "bain", "baño", "bano", "bagnetto", "bagno"];
     private static readonly string[] PumpWords = ["pump", "express", "odciąg", "odciag", "kolf", "abpump", "tire-lait", "tire lait", "extracc", "sacaleche", "tiralatte"];
     private static readonly string[] BottleWords = ["bottle", "formula", "butelk", "mleko modyfik", "fles", "kunstvoeding", "flasche", "pre-milch", "biberon", "lait infantile", "biberón", "fórmula", "formula", "latte artificiale"];
     private static readonly string[] FormulaWords = ["formula", "fórmula", "modyfik", "kunstvoeding", "flesvoeding", "pre-milch", "pre milch", "lait infantile", "artificiale"];
@@ -101,7 +102,7 @@ public static partial class LogFileReader
                 case AiActions.SleepLog:
                     sleeps++;
                     break;
-                default:
+                case AiActions.PumpLog:
                     pumps++;
                     break;
             }
@@ -180,6 +181,8 @@ public static partial class LogFileReader
         AiProposal Proposal(string action, DateTimeOffset? endAt = null, int? left = null, int? right = null, decimal? ml = null, string? milk = null, string? contents = null) =>
             new(action, start, endAt, null, left, right, ml, milk, contents, startText, []);
 
+        if (Any(type + " ", BathWords))
+            return Proposal(AiActions.BathLog);
         if (Any(type, PumpWords))
             return Proposal(AiActions.PumpLog, end, ml: Millilitres());
         if (Any(type, DiaperWords) || (!Any(type, FeedWords) && !Any(type, SleepWords) && (Any(words, DirtyWords) || Any(words, WetWords)) && columns.ContainsKey("type") is false))

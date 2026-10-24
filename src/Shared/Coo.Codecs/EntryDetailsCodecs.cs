@@ -20,6 +20,7 @@ public static class EntryDetailsCodecs
         TemperatureCodec.Instance,
         VaccineCodec.Instance,
         VisitCodec.Instance,
+        BathCodec.Instance,
     ];
 
     public static IEntryDetailsCodec? For(EntryKindCode kind) => All.FirstOrDefault(c => c.Kind == kind);

@@ -87,6 +87,9 @@ public sealed partial class TodayViewModel : ObservableObject
     private Coo.Domain.Insights.SleepPrediction? _sleep;
     private readonly Coo.Mobile.Application.CareLog.ILogAccess? _logAccess;
 
+    /// <summary>Set by the page: Coo's own explanation before Android asks for notifications; false is "Not now".</summary>
+    public Func<Task<bool>>? PrimeNotificationsAsync { get; set; }
+
     /// <summary>This person follows the family without logging (a Viewer): Today shows the day, without its buttons.</summary>
     public bool IsViewOnly { get; private set; }
 
@@ -128,7 +131,8 @@ public sealed partial class TodayViewModel : ObservableObject
             await RefreshAsync();
 
             // A timer just started: its clock and buttons go in the notification bar, which needs the permission (Android 13+).
-            if (outcome.Succeeded && _summary?.Running.Count > 0 && notifications is not null)
+            if (outcome.Succeeded && _summary?.Running.Count > 0 && notifications is not null
+                && (PrimeNotificationsAsync is not { } prime || await prime()))
                 _ = notifications.EnsurePermissionAsync();
         };
         _actions.SheetRequested += (_, request) => OpenSheet(request.Sheet, request.Entry);

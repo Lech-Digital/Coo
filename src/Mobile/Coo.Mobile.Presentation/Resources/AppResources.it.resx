@@ -83,6 +83,17 @@
   <data name="Attention.ShowMore" xml:space="preserve"><value>Mostra altro</value></data>
   <data name="Attention.Title" xml:space="preserve"><value>Da controllare</value></data>
   <data name="Attention.Unreadable" xml:space="preserve"><value>Non leggibile</value></data>
+  <data name="Avatar.Adjust" xml:space="preserve"><value>Regola la foto</value></data>
+  <data name="Avatar.Done" xml:space="preserve"><value>La nuova immagine è impostata.</value></data>
+  <data name="Avatar.Failed" xml:space="preserve"><value>Coo non è riuscito a creare un’immagine da quella foto. Provane un’altra.</value></data>
+  <data name="Avatar.Magic" xml:space="preserve"><value>Illustra da una foto (IA)</value></data>
+  <data name="Avatar.MagicPremium" xml:space="preserve"><value>Illustra da una foto (IA, Premium)</value></data>
+  <data name="Avatar.MagicSource" xml:space="preserve"><value>Quale foto deve illustrare Coo?</value></data>
+  <data name="Avatar.NoCamera" xml:space="preserve"><value>Questo telefono non ha una fotocamera utilizzabile. Scegli una foto dalla galleria.</value></data>
+  <data name="Avatar.PremiumOnly" xml:space="preserve"><value>Le illustrazioni fanno parte di Coo Premium.</value></data>
+  <data name="Avatar.Preset" xml:space="preserve"><value>Scegli un’illustrazione</value></data>
+  <data name="Avatar.Remove" xml:space="preserve"><value>Rimuovi la foto</value></data>
+  <data name="Avatar.Title" xml:space="preserve"><value>Foto del bambino</value></data>
   <data name="Awake.Hint" xml:space="preserve"><value>Per una poppata nel sonno o un cambio assonnato, scegli «Dorme ancora».</value></data>
   <data name="Awake.StillAsleep" xml:space="preserve"><value>Dorme ancora</value></data>
   <data name="Awake.Title" xml:space="preserve"><value>{0} sta dormendo</value></data>
@@ -132,6 +143,7 @@
   <data name="Due.Today" xml:space="preserve"><value>Previsto per oggi</value></data>
   <data name="Duration.HoursMinutes" xml:space="preserve"><value>{0} h {1} min</value></data>
   <data name="Duration.Minutes" xml:space="preserve"><value>{0} min</value></data>
+  <data name="Earlier.BathSubtitle" xml:space="preserve"><value>Quando il bambino ha fatto il bagnetto</value></data>
   <data name="Earlier.BottleSubtitle" xml:space="preserve"><value>Formula o latte materno</value></data>
   <data name="Earlier.DiaperSubtitle" xml:space="preserve"><value>Bagnato, sporco o misto</value></data>
   <data name="Earlier.FeedSubtitle" xml:space="preserve"><value>Allattamento al seno</value></data>
@@ -374,6 +386,7 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Join.Skipped.other" xml:space="preserve"><value>{0} voci non possono essere portate e verranno eliminate con essa.</value></data>
   <data name="Join.Title" xml:space="preserve"><value>Unirti alla famiglia di {0}?</value></data>
   <data name="Join.TryAgain" xml:space="preserve"><value>Riprova</value></data>
+  <data name="Kind.Bath" xml:space="preserve"><value>Bagnetto</value></data>
   <data name="Kind.Diaper" xml:space="preserve"><value>Pannolino</value></data>
   <data name="Kind.Feed" xml:space="preserve"><value>Poppata</value></data>
   <data name="Kind.Growth" xml:space="preserve"><value>Crescita</value></data>
@@ -393,6 +406,13 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Night.LastDiaper" xml:space="preserve"><value>Ultimo pannolino</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Ultima poppata</value></data>
   <data name="Night.Title" xml:space="preserve"><value>{0} · Modalità notte</value></data>
+  <data name="Permission.CameraBody" xml:space="preserve"><value>Per la foto che stai per scattare, nient’altro. Android te lo chiederà ora.</value></data>
+  <data name="Permission.CameraTitle" xml:space="preserve"><value>Coo ha bisogno della fotocamera</value></data>
+  <data name="Permission.Continue" xml:space="preserve"><value>Continua</value></data>
+  <data name="Permission.MicBody" xml:space="preserve"><value>Per sentirti quando tieni premuto il microfono. Coo ascolta solo mentre lo tieni o lo tocchi, e Android te lo chiederà ora.</value></data>
+  <data name="Permission.MicTitle" xml:space="preserve"><value>Coo ha bisogno del microfono</value></data>
+  <data name="Permission.NotifyBody" xml:space="preserve"><value>Per i promemoria che attivi e per mostrare un timer in corso con i suoi pulsanti. Sulla schermata di blocco il nome del bambino non compare mai. Android te lo chiederà ora.</value></data>
+  <data name="Permission.NotifyTitle" xml:space="preserve"><value>Coo vorrebbe inviarti notifiche</value></data>
   <data name="Photo.Choose" xml:space="preserve"><value>Scegli dalla galleria</value></data>
   <data name="Photo.Explain" xml:space="preserve"><value>Fotografa un libretto della crescita, un foglio della clinica o un libretto delle vaccinazioni. Coo legge pesi, lunghezze, circonferenze craniche e vaccini con le date, e controlli ognuno prima di salvarlo.</value></data>
   <data name="Photo.Privacy" xml:space="preserve"><value>La foto viene inviata al nostro server e all’IA Gemini di Google per essere letta, poi eliminata; non viene mai conservata. I nomi presenti non possono essere nascosti prima, quindi coprili se vuoi.</value></data>

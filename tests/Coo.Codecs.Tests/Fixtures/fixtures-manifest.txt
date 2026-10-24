@@ -1,3 +1,4 @@
+bath/v1/bath.json
 diaper/v1/dirty.json
 diaper/v1/mixed.json
 diaper/v1/wet.json

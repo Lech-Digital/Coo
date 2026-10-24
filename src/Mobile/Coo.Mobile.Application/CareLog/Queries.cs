@@ -22,7 +22,9 @@ public sealed record TodaySummary(
     DateTimeOffset? AwakeSince,
     IReadOnlyList<StoredEntry> TodayEntries,
     LocalDay Today,
-    TimeSpan? SleepSoFar = null);
+    TimeSpan? SleepSoFar = null,
+    CareEntry? LastBath = null,
+    CareEntry? LastVitamin = null);
 
 /// <summary>
 /// One mark on the day chart, as fractions of the day (Spec 006 §7, Spec 009b §2): a sleep block, or a feed, diaper or
@@ -64,7 +66,9 @@ public sealed class GetToday(ICareLogStore store)
             TimeSpan.FromTicks(live
                 .Where(e => e.Details is SleepDetails)
                 .Select(e => e.Timing is SessionTiming s ? today.Overlap(s.Range.Start, s.Range.End ?? now) : TimeSpan.Zero)
-                .Sum(t => t.Ticks)));
+                .Sum(t => t.Ticks)),
+            Latest<Coo.Domain.CareLog.Kinds.Bath.BathDetails>(live),
+            live.Where(e => e.Details is Coo.Domain.CareLog.Kinds.Health.MedicineDetails m && Vitamins.IsVitamin(m.Name)).MaxBy(e => e.Timing.OccurredAt));
     }
 
     internal static bool IsAbout(CareEntry entry, BabyId baby) =>
@@ -136,5 +140,18 @@ public sealed class GetDay(ICareLogStore store)
         }
 
         return new DaySummary(day, inDay.OrderByDescending(e => e.Start).ToList(), new DayTotals(feeds, diapers, sleep, pumped), ribbon);
+    }
+}
+
+/// <summary>A medicine that is a vitamin or supplement, by its name in any of Coo's languages ("Vitamin D", "witamina D3", "D-Fluoretten").</summary>
+public static class Vitamins
+{
+    private static readonly string[] Words = ["vitamin", "vit ", "vit.", "witamin", "vitamine", "vitamina", "d3", "d-vit", "fluoretten", "devit", "iron", "eisen", "fer ", "żelazo", "ijzer", "hierro", "ferro", "probiotic", "probiotyk"];
+
+    public static bool IsVitamin(string name)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        var lower = " " + name.ToLowerInvariant() + " ";
+        return Words.Any(w => lower.Contains(w, StringComparison.Ordinal));
     }
 }

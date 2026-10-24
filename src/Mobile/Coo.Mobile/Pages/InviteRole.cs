@@ -9,10 +9,9 @@ internal static class InviteRole
     public static async Task<Role?> AskAsync(Page page)
     {
         ArgumentNullException.ThrowIfNull(page);
-        var parent = Strings.Get("Invite.AsParent");
-        var caregiver = Strings.Get("Invite.AsCaregiver");
-        var viewer = Strings.Get("Invite.AsViewer");
-        var chosen = await page.DisplayActionSheetAsync(Strings.Get("Invite.Who"), Strings.Get("Action.Cancel"), null, parent, caregiver, viewer);
-        return chosen == parent ? Role.Parent : chosen == caregiver ? Role.Caregiver : chosen == viewer ? Role.Viewer : null;
+        Role[] roles = [Role.Parent, Role.Caregiver, Role.Viewer];
+        var chosen = await Components.CooDialog.ChooseAsync(
+            page, Strings.Get("Invite.Who"), [Strings.Get("Invite.AsParent"), Strings.Get("Invite.AsCaregiver"), Strings.Get("Invite.AsViewer")]);
+        return chosen >= 0 ? roles[chosen] : null;
     }
 }

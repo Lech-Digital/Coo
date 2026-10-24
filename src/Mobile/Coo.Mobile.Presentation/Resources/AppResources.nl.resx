@@ -83,6 +83,17 @@
   <data name="Attention.ShowMore" xml:space="preserve"><value>Meer tonen</value></data>
   <data name="Attention.Title" xml:space="preserve"><value>Vraagt aandacht</value></data>
   <data name="Attention.Unreadable" xml:space="preserve"><value>Kon niet worden gelezen</value></data>
+  <data name="Avatar.Adjust" xml:space="preserve"><value>Foto aanpassen</value></data>
+  <data name="Avatar.Done" xml:space="preserve"><value>De nieuwe afbeelding staat erin.</value></data>
+  <data name="Avatar.Failed" xml:space="preserve"><value>Coo kon van die foto geen afbeelding maken. Probeer een andere.</value></data>
+  <data name="Avatar.Magic" xml:space="preserve"><value>Illustreren uit een foto (AI)</value></data>
+  <data name="Avatar.MagicPremium" xml:space="preserve"><value>Illustreren uit een foto (AI, Premium)</value></data>
+  <data name="Avatar.MagicSource" xml:space="preserve"><value>Welke foto moet Coo illustreren?</value></data>
+  <data name="Avatar.NoCamera" xml:space="preserve"><value>Deze telefoon heeft geen camera die Coo kan gebruiken. Kies een foto uit de galerij.</value></data>
+  <data name="Avatar.PremiumOnly" xml:space="preserve"><value>Illustraties horen bij Coo Premium.</value></data>
+  <data name="Avatar.Preset" xml:space="preserve"><value>Kies een illustratie</value></data>
+  <data name="Avatar.Remove" xml:space="preserve"><value>Foto verwijderen</value></data>
+  <data name="Avatar.Title" xml:space="preserve"><value>Foto van de baby</value></data>
   <data name="Awake.Hint" xml:space="preserve"><value>Bij een droomvoeding of een slaperige verschoning kies je ‘Slaapt nog’.</value></data>
   <data name="Awake.StillAsleep" xml:space="preserve"><value>Slaapt nog</value></data>
   <data name="Awake.Title" xml:space="preserve"><value>{0} slaapt</value></data>
@@ -132,6 +143,7 @@
   <data name="Due.Today" xml:space="preserve"><value>Vandaag uitgerekend</value></data>
   <data name="Duration.HoursMinutes" xml:space="preserve"><value>{0} u {1} min</value></data>
   <data name="Duration.Minutes" xml:space="preserve"><value>{0} min</value></data>
+  <data name="Earlier.BathSubtitle" xml:space="preserve"><value>Wanneer de baby in bad ging</value></data>
   <data name="Earlier.BottleSubtitle" xml:space="preserve"><value>Flesvoeding of afgekolfde melk</value></data>
   <data name="Earlier.DiaperSubtitle" xml:space="preserve"><value>Nat, vuil of beide</value></data>
   <data name="Earlier.FeedSubtitle" xml:space="preserve"><value>Borstvoeding</value></data>
@@ -374,6 +386,7 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Join.Skipped.other" xml:space="preserve"><value>{0} items kunnen niet worden overgezet en worden mee verwijderd.</value></data>
   <data name="Join.Title" xml:space="preserve"><value>Aansluiten bij het gezin van {0}?</value></data>
   <data name="Join.TryAgain" xml:space="preserve"><value>Opnieuw proberen</value></data>
+  <data name="Kind.Bath" xml:space="preserve"><value>Badje</value></data>
   <data name="Kind.Diaper" xml:space="preserve"><value>Luier</value></data>
   <data name="Kind.Feed" xml:space="preserve"><value>Voeding</value></data>
   <data name="Kind.Growth" xml:space="preserve"><value>Groei</value></data>
@@ -393,6 +406,13 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Night.LastDiaper" xml:space="preserve"><value>Laatste luier</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Laatste voeding</value></data>
   <data name="Night.Title" xml:space="preserve"><value>{0} · Nachtmodus</value></data>
+  <data name="Permission.CameraBody" xml:space="preserve"><value>Voor de foto die je zo maakt, en niets anders. Android vraagt het je zo.</value></data>
+  <data name="Permission.CameraTitle" xml:space="preserve"><value>Coo heeft de camera nodig</value></data>
+  <data name="Permission.Continue" xml:space="preserve"><value>Doorgaan</value></data>
+  <data name="Permission.MicBody" xml:space="preserve"><value>Om je te horen als je de microfoon vasthoudt. Coo luistert alleen dan, en Android vraagt het je zo.</value></data>
+  <data name="Permission.MicTitle" xml:space="preserve"><value>Coo heeft de microfoon nodig</value></data>
+  <data name="Permission.NotifyBody" xml:space="preserve"><value>Voor de herinneringen die je aanzet, en om een lopende timer met zijn knoppen te tonen. Op het vergrendelscherm staat nooit de naam van je baby. Android vraagt het je zo.</value></data>
+  <data name="Permission.NotifyTitle" xml:space="preserve"><value>Coo wil je meldingen sturen</value></data>
   <data name="Photo.Choose" xml:space="preserve"><value>Kiezen uit galerij</value></data>
   <data name="Photo.Explain" xml:space="preserve"><value>Maak een foto van een groeikaart, een folder van het consultatiebureau of een vaccinatieboekje. Coo leest gewichten, lengtes, hoofdomtrek en vaccinaties met hun datum, en je controleert elk voor het wordt opgeslagen.</value></data>
   <data name="Photo.Privacy" xml:space="preserve"><value>De foto gaat naar onze server en Googles Gemini-AI om gelezen te worden, en wordt daarna verwijderd; hij wordt nooit bewaard. Namen erop kunnen niet eerst verborgen worden, dus dek ze af als je wilt.</value></data>

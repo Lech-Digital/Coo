@@ -277,6 +277,7 @@ public sealed class ParseCareLogText(
             "Growth" => AiActions.GrowthLog,
             "Vaccine" => AiActions.VaccineLog,
             "Visit" => AiActions.VisitLog,
+            "Bath" => AiActions.BathLog,
             _ => null,
         };
         if (action is null)

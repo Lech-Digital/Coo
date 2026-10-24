@@ -188,61 +188,43 @@ public sealed class BabyPage : ContentPage
         container.Content = stack;
     }
 
+    /// <summary>The avatar's choices in Coo's dialog: a preset, a photo, adjusting it, the AI illustration, or none.</summary>
     private async Task ShowAvatarOptionsAsync()
     {
         var isPremium = _model.IsPremium;
-        var magicAiOption = isPremium ? "✨ Generate Magic AI Avatar (Premium)" : "✨ Generate Magic AI Avatar (Upgrade to Premium)";
         var hasLocalPhoto = _model.AvatarRef != null && _model.AvatarRef.StartsWith("file:", StringComparison.OrdinalIgnoreCase);
-
-        var options = new List<string>
+        var actions = new List<(string Label, Func<Task> Run)>
         {
-            "🐻 Choose Preset Avatar",
-            "📷 Take Photo",
-            "🖼️ Choose from Gallery",
+            (Strings.Get("Avatar.Preset"), ShowPresetSelectorAsync),
+            (Strings.Get("Photo.Take"), TakePhotoAsync),
+            (Strings.Get("Photo.Choose"), PickPhotoAsync),
         };
         if (hasLocalPhoto)
-            options.Add("✂️ Adjust Current Photo");
-        options.Add(magicAiOption);
-
-        var action = await DisplayActionSheetAsync(
-            "Baby Avatar",
-            "Cancel",
-            _model.AvatarRef != null ? "Remove Avatar (Use Monogram)" : null,
-            options.ToArray());
-
-        if (action == "🐻 Choose Preset Avatar")
         {
-            await ShowPresetSelectorAsync();
-        }
-        else if (action == "📷 Take Photo")
-        {
-            await TakePhotoAsync();
-        }
-        else if (action == "🖼️ Choose from Gallery")
-        {
-            await PickPhotoAsync();
-        }
-        else if (action == "✂️ Adjust Current Photo" && hasLocalPhoto)
-        {
-            var path = _model.AvatarRef!["file:".Length..];
-            if (File.Exists(path))
+            actions.Add((Strings.Get("Avatar.Adjust"), async () =>
             {
-                await Navigation.PushAsync(new AdjustAvatarPage(path, _model));
-            }
+                var path = _model.AvatarRef!["file:".Length..];
+                if (File.Exists(path))
+                    await Navigation.PushAsync(new AdjustAvatarPage(path, _model));
+            }));
         }
-        else if (action == magicAiOption)
+
+        actions.Add((Strings.Get(isPremium ? "Avatar.Magic" : "Avatar.MagicPremium"), async () =>
         {
             if (!isPremium)
             {
-                await DisplayAlertAsync("Coo Premium", "Magic AI Avatars are exclusively available for Coo Premium subscribers.", "OK");
+                await Components.CooDialog.AlertAsync(this, "Coo Premium", Strings.Get("Avatar.PremiumOnly"));
                 return;
             }
+
             await GenerateMagicAvatarAsync();
-        }
-        else if (action == "Remove Avatar (Use Monogram)")
-        {
-            await _model.ClearAvatarCommand.ExecuteAsync(null);
-        }
+        }));
+        if (_model.AvatarRef != null)
+            actions.Add((Strings.Get("Avatar.Remove"), () => _model.ClearAvatarCommand.ExecuteAsync(null)));
+
+        var chosen = await Components.CooDialog.ChooseAsync(this, Strings.Get("Avatar.Title"), [.. actions.Select(a => a.Label)]);
+        if (chosen >= 0)
+            await actions[chosen].Run();
     }
 
     private async Task ShowPresetSelectorAsync()
@@ -259,6 +241,8 @@ public sealed class BabyPage : ContentPage
         {
             if (MediaPicker.Default.IsCaptureSupported)
             {
+                if (!await Components.CooDialog.PrimeAsync<Permissions.Camera>(this, "Permission.CameraTitle", "Permission.CameraBody"))
+                    return;
                 var photo = await MediaPicker.Default.CapturePhotoAsync();
                 if (photo != null)
                 {
@@ -274,12 +258,14 @@ public sealed class BabyPage : ContentPage
             }
             else
             {
-                await DisplayAlertAsync("Camera", "Camera capture is not supported on this device.", "OK");
+                await Components.CooDialog.AlertAsync(this, Strings.Get("Avatar.Title"), Strings.Get("Avatar.NoCamera"));
             }
         }
-        catch (Exception ex)
+#pragma warning disable CA1031 // The camera refusing says so in Coo's words; it never takes the page down.
+        catch (Exception)
+#pragma warning restore CA1031
         {
-            await DisplayAlertAsync("Error", $"Could not capture photo: {ex.Message}", "OK");
+            await Components.CooDialog.AlertAsync(this, Strings.Get("Avatar.Title"), Strings.Get("Error.Generic"));
         }
     }
 
@@ -301,9 +287,11 @@ public sealed class BabyPage : ContentPage
                 await Navigation.PushAsync(new AdjustAvatarPage(targetPath, _model));
             }
         }
-        catch (Exception ex)
+#pragma warning disable CA1031 // As above.
+        catch (Exception)
+#pragma warning restore CA1031
         {
-            await DisplayAlertAsync("Error", $"Could not select photo: {ex.Message}", "OK");
+            await Components.CooDialog.AlertAsync(this, Strings.Get("Avatar.Title"), Strings.Get("Error.Generic"));
         }
     }
 
@@ -311,22 +299,16 @@ public sealed class BabyPage : ContentPage
     {
         try
         {
-            var sourceChoice = await DisplayActionSheetAsync(
-                "Select Baby Photo for AI Avatar",
-                "Cancel",
-                null,
-                "📷 Take Photo",
-                "🖼️ Choose from Gallery");
-
-            if (sourceChoice == "Cancel" || string.IsNullOrEmpty(sourceChoice))
+            var sourceChoice = await Components.CooDialog.ChooseAsync(this, Strings.Get("Avatar.MagicSource"), [Strings.Get("Photo.Take"), Strings.Get("Photo.Choose")]);
+            if (sourceChoice < 0)
                 return;
 
             FileResult? photo = null;
-            if (sourceChoice == "📷 Take Photo")
+            if (sourceChoice == 0)
             {
                 if (!MediaPicker.Default.IsCaptureSupported)
                 {
-                    await DisplayAlertAsync("Camera", "Camera capture is not supported on this device.", "OK");
+                    await Components.CooDialog.AlertAsync(this, Strings.Get("Avatar.Title"), Strings.Get("Avatar.NoCamera"));
                     return;
                 }
                 photo = await MediaPicker.Default.CapturePhotoAsync();
@@ -357,17 +339,19 @@ public sealed class BabyPage : ContentPage
             var success = await _model.GenerateAiAvatarAsync(base64, targetPath);
             if (!success)
             {
-                var errorMsg = !string.IsNullOrEmpty(_model.Error) ? _model.Error : "Could not generate avatar from this photo.";
-                await DisplayAlertAsync("AI Avatar", errorMsg, "OK");
+                var errorMsg = !string.IsNullOrEmpty(_model.Error) ? _model.Error : Strings.Get("Avatar.Failed");
+                await Components.CooDialog.AlertAsync(this, Strings.Get("Avatar.Title"), errorMsg);
             }
             else
             {
-                await DisplayAlertAsync("Magic AI Avatar", "Your baby's custom illustrated avatar has been generated and set!", "OK");
+                await Components.CooDialog.AlertAsync(this, Strings.Get("Avatar.Title"), Strings.Get("Avatar.Done"));
             }
         }
-        catch (Exception ex)
+#pragma warning disable CA1031 // As above.
+        catch (Exception)
+#pragma warning restore CA1031
         {
-            await DisplayAlertAsync("Error", $"Could not generate avatar: {ex.Message}", "OK");
+            await Components.CooDialog.AlertAsync(this, Strings.Get("Avatar.Title"), Strings.Get("Avatar.Failed"));
         }
     }
 

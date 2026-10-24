@@ -191,7 +191,7 @@ public sealed class FamilySwitcherPage : ContentPage
         if (action == FamilyRowAction.RemoveFromPhone)
         {
             var prompt = await _model.RemovePromptAsync(row);
-            if (await DisplayAlertAsync(prompt.Title, prompt.Message, prompt.Accept, prompt.Cancel))
+            if (await Components.CooDialog.ConfirmAsync(this, prompt.Title, prompt.Message, prompt.Accept, prompt.Cancel))
                 await _model.RemoveFromPhoneCommand.ExecuteAsync(row);
             return;
         }

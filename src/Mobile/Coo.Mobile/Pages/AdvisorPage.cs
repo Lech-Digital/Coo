@@ -35,8 +35,7 @@ public sealed class AdvisorPage : ContentPage
     {
         if (Preferences.Default.Get(ConsentKey, false))
             return true;
-        var agreed = await page.DisplayAlertAsync(
-            Strings.Get("Advisor.ConsentTitle"), Strings.Get("Advisor.ConsentBody"), Strings.Get("Advisor.ConsentAgree"), Strings.Get("Advisor.ConsentLater"));
+        var agreed = await Components.CooDialog.ConfirmAsync(page, Strings.Get("Advisor.ConsentTitle"), Strings.Get("Advisor.ConsentBody"), Strings.Get("Advisor.ConsentAgree"), Strings.Get("Advisor.ConsentLater"));
         if (agreed)
             Preferences.Default.Set(ConsentKey, true);
         return agreed;
@@ -541,7 +540,7 @@ public sealed class AdvisorPage : ContentPage
         };
         var press = new Button { WidthRequest = 44, HeightRequest = 44, CornerRadius = 22, BackgroundColor = Colors.Transparent, BorderWidth = 0 };
         SemanticProperties.SetDescription(press, Strings.Get("Quick.HoldHint"));
-        press.Pressed += (_, _) =>
+        press.Pressed += async (_, _) =>
         {
             if (_model.IsRecording)
             {
@@ -549,6 +548,11 @@ public sealed class AdvisorPage : ContentPage
                 _model.FinishSpeakingCommand.Execute(null);
                 return;
             }
+
+            // The first time: Coo says what the microphone is for before Android asks; that press becomes a tap.
+            if (await Permissions.CheckStatusAsync<Permissions.Microphone>() != PermissionStatus.Granted
+                && !await Components.CooDialog.PrimeAsync<Permissions.Microphone>(this, "Permission.MicTitle", "Permission.MicBody"))
+                return;
 
             _micPressedAt = Environment.TickCount64;
             _micStartedByPress = true;

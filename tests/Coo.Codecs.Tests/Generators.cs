@@ -38,6 +38,7 @@ internal static class Generators
             select (EntryDetails)MedicineDetails.Create(name, dose).Value,
         ["temperature"] = Gen.Choose(340, 430).Select(t => (EntryDetails)TemperatureDetails.Create(t / 10m).Value),
         ["vaccine"] = Gen.Elements("DTaP-IPV-Hib-HepB", "MMR", "Rotavirus", "Pneumococcal").Select(n => (EntryDetails)VaccineDetails.Create(n).Value),
+        ["bath"] = Gen.Constant((EntryDetails)new Coo.Domain.CareLog.Kinds.Bath.BathDetails()),
         ["visit"] = Gen.Elements<string?>(null, "Paediatrician", "Midwife", "Consultatiebureau").Select(w => (EntryDetails)VisitDetails.Create(w).Value),
     };
 

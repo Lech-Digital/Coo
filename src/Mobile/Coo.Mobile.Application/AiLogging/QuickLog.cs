@@ -295,6 +295,8 @@ public static class QuickLogEntries
                 return (vaccine.Value, EntryTiming.Point(p.At));
             case AiActions.VisitLog when VisitDetails.Create(p.Name) is { IsSuccess: true } visit:
                 return (visit.Value, EntryTiming.Point(p.At));
+            case AiActions.BathLog:
+                return (new Coo.Domain.CareLog.Kinds.Bath.BathDetails(), EntryTiming.Point(p.At));
             default:
                 return null;
         }

@@ -608,7 +608,7 @@ public sealed class SettingsPage : ContentPage
         try
         {
             var prompt = _account.SignOutPrompt;
-            if (await DisplayAlertAsync(prompt.Title, prompt.Message, prompt.Accept, prompt.Cancel))
+            if (await Components.CooDialog.ConfirmAsync(this, prompt.Title, prompt.Message, prompt.Accept, prompt.Cancel))
                 await _account.SignOutCommand.ExecuteAsync(null);
         }
         finally
@@ -625,7 +625,7 @@ public sealed class SettingsPage : ContentPage
         try
         {
             var prompt = await _account.DeletePromptAsync();
-            if (await DisplayAlertAsync(prompt.Title, prompt.Message, prompt.Accept, prompt.Cancel))
+            if (await Components.CooDialog.ConfirmAsync(this, prompt.Title, prompt.Message, prompt.Accept, prompt.Cancel))
                 await _account.DeleteAccountCommand.ExecuteAsync(null);
         }
         finally
@@ -637,9 +637,9 @@ public sealed class SettingsPage : ContentPage
     private async Task ChooseLanguageAsync()
     {
         var options = _model.Languages;
-        var chosen = await DisplayActionSheetAsync(Strings.Get("Settings.Language"), null, null, [.. options.Select(o => o.Label)]);
-        if (options.FirstOrDefault(o => o.Label == chosen) is { } option)
-            await _model.ChooseLanguageCommand.ExecuteAsync(option);
+        var chosen = await Components.CooDialog.ChooseAsync(this, Strings.Get("Settings.Language"), [.. options.Select(o => o.Label)]);
+        if (chosen >= 0)
+            await _model.ChooseLanguageCommand.ExecuteAsync(options[chosen]);
     }
 
     private TimePicker TimePicker(TimeSpan value, Action<TimeSpan> set)
@@ -703,7 +703,7 @@ public sealed class SettingsPage : ContentPage
         catch (Exception)
 #pragma warning restore CA1031
         {
-            await DisplayAlertAsync(Strings.Get("Export.Title"), Strings.Get("Report.Failed"), Strings.Get("Join.OK"));
+            await Components.CooDialog.AlertAsync(this, Strings.Get("Export.Title"), Strings.Get("Report.Failed"), Strings.Get("Join.OK"));
         }
     }
 
@@ -718,7 +718,7 @@ public sealed class SettingsPage : ContentPage
             await using var stream = await file.OpenReadAsync();
             if (stream.CanSeek && stream.Length > Coo.Mobile.Presentation.Settings.ImportViewModel.MaxFileBytes)
             {
-                await DisplayAlertAsync(Strings.Get("Import.Title"), Strings.Get("Import.Nothing"), Strings.Get("Join.OK"));
+                await Components.CooDialog.AlertAsync(this, Strings.Get("Import.Title"), Strings.Get("Import.Nothing"), Strings.Get("Join.OK"));
                 return;
             }
 
@@ -727,21 +727,21 @@ public sealed class SettingsPage : ContentPage
             var model = _services.GetRequiredService<Coo.Mobile.Presentation.Settings.ImportViewModel>();
             if (await model.PreviewAsync(text) is not { } preview || preview.Entries.Count == 0)
             {
-                await DisplayAlertAsync(Strings.Get("Import.Title"), Strings.Get("Import.Nothing"), Strings.Get("Join.OK"));
+                await Components.CooDialog.AlertAsync(this, Strings.Get("Import.Title"), Strings.Get("Import.Nothing"), Strings.Get("Join.OK"));
                 return;
             }
 
             var describe = Coo.Mobile.Presentation.Settings.ImportViewModel.Describe(preview);
-            if (!await DisplayAlertAsync(Strings.Get("Import.Title"), describe, Strings.Get("Import.Go"), Strings.Get("Action.Cancel")))
+            if (!await Components.CooDialog.ConfirmAsync(this, Strings.Get("Import.Title"), describe, Strings.Get("Import.Go"), Strings.Get("Action.Cancel")))
                 return;
             var result = await model.ImportAsync(preview);
-            await DisplayAlertAsync(Strings.Get("Import.Title"), Coo.Mobile.Presentation.Settings.ImportViewModel.Describe(result), Strings.Get("Join.OK"));
+            await Components.CooDialog.AlertAsync(this, Strings.Get("Import.Title"), Coo.Mobile.Presentation.Settings.ImportViewModel.Describe(result), Strings.Get("Join.OK"));
         }
 #pragma warning disable CA1031 // An unreadable file says so; it never takes Settings down.
         catch (Exception)
 #pragma warning restore CA1031
         {
-            await DisplayAlertAsync(Strings.Get("Import.Title"), Strings.Get("Import.Nothing"), Strings.Get("Join.OK"));
+            await Components.CooDialog.AlertAsync(this, Strings.Get("Import.Title"), Strings.Get("Import.Nothing"), Strings.Get("Join.OK"));
         }
     }
 }

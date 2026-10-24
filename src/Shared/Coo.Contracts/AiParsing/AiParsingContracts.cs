@@ -158,6 +158,9 @@ public static class AiActions
     public const string VaccineLog = "vaccine.log";
     public const string VisitLog = "visit.log";
 
+    /// <summary>A bath at <see cref="AiProposal.At"/> (1.8).</summary>
+    public const string BathLog = "bath.log";
+
     /// <summary>The actions of 1.1, the first Tell Coo: what a phone that sends no list understands.</summary>
     public static IReadOnlyList<string> Original { get; } =
     [
@@ -165,7 +168,7 @@ public static class AiActions
     ];
 
     /// <summary>Everything this version knows: <see cref="Original"/> and health and growth.</summary>
-    public static IReadOnlyList<string> All { get; } = [.. Original, MedicineLog, TemperatureLog, GrowthLog, VaccineLog, VisitLog];
+    public static IReadOnlyList<string> All { get; } = [.. Original, MedicineLog, TemperatureLog, GrowthLog, VaccineLog, VisitLog, BathLog];
 }
 
 public static class AiWarnings

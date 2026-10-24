@@ -227,7 +227,7 @@ public sealed partial class EditViewModel(
         await LoadContextAsync();
         (IsNew, KindCode, EntryId, _original, PartLines) = (true, kindCode, null, null, []);
         // A feed or a nap logged afterwards started a while ago (Q6); a dose, a reading or a measurement is usually now.
-        var at = kindCode is "growth" or "medicine" or "temperature" or "vaccine" or "visit" ? time.GetLocalNow() : time.GetLocalNow().AddMinutes(-15);
+        var at = kindCode is "growth" or "medicine" or "temperature" or "vaccine" or "visit" or "bath" ? time.GetLocalNow() : time.GetLocalNow().AddMinutes(-15);
         SetStart(at);
         SetEnd(at.AddMinutes(kindCode == "sleep" ? 15 : 10));
         HasEnd = true;
@@ -464,6 +464,9 @@ public sealed partial class EditViewModel(
                     return visit.IsSuccess ? Ok(visit.Value, EntryTiming.Point(start)) : Fail(visit.Error!);
                 }
 
+            case "bath":
+                return Ok(new Coo.Domain.CareLog.Kinds.Bath.BathDetails(), EntryTiming.Point(start));
+
             default:
                 {
                     var range = TimeRange.Create(start, end);
@@ -663,6 +666,7 @@ public sealed partial class EditViewModel(
         "temperature" => "Kind.Temperature",
         "vaccine" => "Kind.Vaccine",
         "visit" => "Kind.Visit",
+        "bath" => "Kind.Bath",
         _ => "Kind.Pump",
     };
 }

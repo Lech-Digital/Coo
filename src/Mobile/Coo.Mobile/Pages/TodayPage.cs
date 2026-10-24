@@ -27,6 +27,17 @@ public sealed class TodayPage : ContentPage
     public TodayPage(TodayViewModel model, UndoService undo, LanguageController language, IServiceProvider services)
     {
         _model = model;
+
+        // A running timer goes in the notification bar: asked once, the first time one starts, never again after "Not now".
+        _model.PrimeNotificationsAsync = async () =>
+        {
+            if (await Permissions.CheckStatusAsync<Permissions.PostNotifications>() == PermissionStatus.Granted)
+                return true;
+            if (Preferences.Default.Get(TimerNotifyAskedKey, false))
+                return false;
+            Preferences.Default.Set(TimerNotifyAskedKey, true);
+            return await Components.CooDialog.PrimeAsync<Permissions.PostNotifications>(this, "Permission.NotifyTitle", "Permission.NotifyBody");
+        };
         _undo = undo;
         _language = language;
         _services = services;
@@ -168,6 +179,7 @@ public sealed class TodayPage : ContentPage
     private async void OpenAttention() => await Navigation.PushAsync(_services.GetRequiredService<AttentionPage>());
 
     private const string QuickLogConsentKey = "ai.logging.consent.v2";
+    private const string TimerNotifyAskedKey = "timers.notify.asked";
     private Components.QuickLogView? _voice;
 
     /// <summary>
@@ -180,8 +192,7 @@ public sealed class TodayPage : ContentPage
     {
         if (!Preferences.Default.Get(QuickLogConsentKey, false))
         {
-            var agreed = await DisplayAlertAsync(
-                Strings.Get("Quick.ConsentTitle"), Strings.Get("Quick.ConsentBody"), Strings.Get("Advisor.ConsentAgree"), Strings.Get("Advisor.ConsentLater"));
+            var agreed = await Components.CooDialog.ConfirmAsync(this, Strings.Get("Quick.ConsentTitle"), Strings.Get("Quick.ConsentBody"), Strings.Get("Advisor.ConsentAgree"), Strings.Get("Advisor.ConsentLater"));
             if (!agreed)
                 return;
             Preferences.Default.Set(QuickLogConsentKey, true);
@@ -195,7 +206,8 @@ public sealed class TodayPage : ContentPage
         _voice = new Components.QuickLogView(model);
         _pageSheet = true;
         await _sheet.ShowAsync(_voice);
-        if (listen && model.CanListen && model.PendingNotes.Count == 0)
+        if (listen && model.CanListen && model.PendingNotes.Count == 0
+            && await Components.CooDialog.PrimeAsync<Permissions.Microphone>(this, "Permission.MicTitle", "Permission.MicBody"))
             model.ListenCommand.Execute(null);
     }
 
@@ -225,6 +237,7 @@ public sealed class TodayPage : ContentPage
             ("diaper", EarlierItem("diaper", "Kind.Diaper", "Earlier.DiaperSubtitle")),
             ("sleep", EarlierItem("sleep", "Kind.Sleep", "Earlier.SleepSubtitle")),
             ("pump", EarlierItem("pump", "Kind.Pump", "Earlier.PumpSubtitle")),
+            ("bath", EarlierItem("bath", "Kind.Bath", "Earlier.BathSubtitle")),
         }.Where(b => _model.IsShown(b.Kind)).Select(b => b.Item).ToArray();
         await _sheet.ShowAsync(Panel(Strings.Get("Edit.Earlier"), items));
     }
@@ -244,7 +257,7 @@ public sealed class TodayPage : ContentPage
     private async void OpenHealth()
     {
         _pageSheet = true;
-        var chart = EarlierItem("growth", "Growth.Chart", "Growth.ChartSubtitle");
+        var chart = EarlierItem("growth", "Growth.Chart", "Growth.ChartSubtitle", icon: Coo.Mobile.Presentation.Theme.IconGeometry.Chart);
         chart.GestureRecognizers.Clear();
         chart.GestureRecognizers.Add(new TapGestureRecognizer
         {
@@ -255,7 +268,7 @@ public sealed class TodayPage : ContentPage
                 await Navigation.PushAsync(_services.GetRequiredService<GrowthPage>());
             }),
         });
-        var photo = EarlierItem("growth", "Health.Photo", "Health.PhotoSubtitle");
+        var photo = EarlierItem("growth", "Health.Photo", "Health.PhotoSubtitle", icon: Coo.Mobile.Presentation.Theme.IconGeometry.Camera);
         photo.GestureRecognizers.Clear();
         photo.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(OpenPhoto) });
         View[] items =
@@ -293,6 +306,8 @@ public sealed class TodayPage : ContentPage
 
     private async Task ReadPhotoAsync(bool camera)
     {
+        if (camera && !await Components.CooDialog.PrimeAsync<Permissions.Camera>(this, "Permission.CameraTitle", "Permission.CameraBody"))
+            return;
         FileResult? photo;
         try
         {
@@ -331,10 +346,10 @@ public sealed class TodayPage : ContentPage
         return scaled.AsBytes(Microsoft.Maui.Graphics.ImageFormat.Jpeg, 0.85f);
     }
 
-    private View EarlierItem(string kindCode, string key, string subtitleKey, bool bottle = false)
+    private View EarlierItem(string kindCode, string key, string subtitleKey, bool bottle = false, string? icon = null)
     {
         var look = Coo.Mobile.Presentation.Theme.EventAppearance.For(kindCode);
-        var iconPath = kindCode switch
+        var iconPath = icon ?? kindCode switch
         {
             "feeding" when bottle => Coo.Mobile.Presentation.Theme.IconGeometry.Feed,
             "feeding" => Coo.Mobile.Presentation.Theme.IconGeometry.SideLeft,

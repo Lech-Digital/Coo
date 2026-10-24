@@ -17,10 +17,11 @@ public sealed record EventAppearance(string TokenPrefix, string Icon)
         ["pump"] = new("Pump", IconGeometry.Pump),
         // Growth and health reuse the four kinds' palettes rather than adding colour tokens.
         ["growth"] = new("Pump", IconGeometry.Growth),
-        ["medicine"] = new("Diaper", IconGeometry.Health),
-        ["temperature"] = new("Feed", IconGeometry.Health),
-        ["vaccine"] = new("Sleep", IconGeometry.Health),
-        ["visit"] = new("Sleep", IconGeometry.Health),
+        ["medicine"] = new("Diaper", IconGeometry.Medicine),
+        ["temperature"] = new("Feed", IconGeometry.Temperature),
+        ["vaccine"] = new("Sleep", IconGeometry.Vaccine),
+        ["visit"] = new("Pump", IconGeometry.Visit),
+        ["bath"] = new("Sleep", IconGeometry.Bath),
     };
 
     public string Tint => TokenPrefix == "Accent" ? "AccentSoft" : TokenPrefix + "Tint";

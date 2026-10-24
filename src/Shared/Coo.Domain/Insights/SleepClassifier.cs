@@ -90,6 +90,26 @@ public static class SleepClassifier
         return classes;
     }
 
+    /// <summary>
+    /// One sleep on its own, for its label ("Night sleep 9 h 40 m" or "Nap 1 h 05 m"), when no history is at hand: the
+    /// person's label; else 5 hours or more; else 3 hours or more starting in the evening or the night (from the window's
+    /// start to <see cref="NightWindow.Morning"/>). A sleep still running counts by its start alone: one that began at
+    /// 21:00 is the night's (owner, 2026-10-24: "Decide for me" always said nap).
+    /// </summary>
+    public static SleepClass ClassifyOne(SleepSpan sleep, TimeOnly localStart, NightWindow? window = null)
+    {
+        ArgumentNullException.ThrowIfNull(sleep);
+        var night = window ?? NightWindow.Default;
+        return sleep.Override switch
+        {
+            SleepKindOverride.Night => SleepClass.Night,
+            SleepKindOverride.Nap => SleepClass.Nap,
+            _ when sleep.Length >= NightLength => SleepClass.Night,
+            _ when night.IsNightTime(localStart) && (sleep.End is null || sleep.Length >= NightInWindowLength) => SleepClass.Night,
+            _ => SleepClass.Nap,
+        };
+    }
+
     internal static TimeOnly Local(DateTimeOffset at, TimeZoneInfo zone) => TimeOnly.FromDateTime(TimeZoneInfo.ConvertTime(at, zone).DateTime);
 
     private static int FromNoon(TimeOnly time) => ((time.Hour * 60) + time.Minute + (12 * 60)) % (24 * 60);

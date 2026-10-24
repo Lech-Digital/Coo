@@ -56,6 +56,7 @@ internal static class Fixtures
         ["medicine/v1/no-dose.json"] = MedicineDetails.Create("Paracetamol", null).Value,
         ["temperature/v1/fever.json"] = TemperatureDetails.Create(38.4m).Value,
         ["vaccine/v1/name.json"] = VaccineDetails.Create("MMR").Value,
+        ["bath/v1/bath.json"] = new Coo.Domain.CareLog.Kinds.Bath.BathDetails(),
         ["visit/v1/with.json"] = VisitDetails.Create("Paediatrician").Value,
         ["visit/v1/empty.json"] = VisitDetails.Create(null).Value,
     };

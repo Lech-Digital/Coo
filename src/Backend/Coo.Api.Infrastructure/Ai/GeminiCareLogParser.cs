@@ -16,7 +16,7 @@ namespace Coo.Api.Infrastructure.Ai;
 internal sealed partial class GeminiCareLogParser(IConfiguration configuration, ILogger<GeminiCareLogParser> logger) : ICareLogTextParser
 {
     /// <summary>Bumped with every change to <see cref="SystemPrompt"/> or the schema: every parse reports the version it used.</summary>
-    public const string PromptVersion = "coo-parse-v2";
+    public const string PromptVersion = "coo-parse-v3";
 
     /// <summary>Pinned, never a "-latest" alias: an alias could change the model under a fixed prompt (ADR 0005 §6).</summary>
     public const string DefaultModel = "gemini-3.5-flash-lite";
@@ -72,6 +72,7 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
           lengthUnit "cm" or "in". Only the values said.
         - Vaccine: a vaccination; name is the vaccine as said ("MMR", "the 8-week jabs").
         - Visit: a visit to a doctor, midwife or clinic; name is who, if said ("paediatrician").
+        - Bath: the baby had a bath ("bath at 7", "we bathed her").
 
         Rules:
         - Use the context to resolve short phrases: "other side" is the side opposite the last one; "woke up" ends the
@@ -175,7 +176,7 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
                             {
                                 "BreastStart", "BreastSwitch", "BreastStop", "BreastFeeding", "BottleFeeding", "Diaper",
                                 "SleepStart", "SleepEnd", "Sleep", "PumpStart", "PumpStop", "Pumping",
-                                "Medicine", "Temperature", "Growth", "Vaccine", "Visit",
+                                "Medicine", "Temperature", "Growth", "Vaccine", "Visit", "Bath",
                             },
                         },
                         side = new { type = "STRING", @enum = new[] { "left", "right" } },

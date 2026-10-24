@@ -282,6 +282,7 @@ public sealed class EditPage : ContentPage
         "temperature" => "Kind.Temperature",
         "vaccine" => "Kind.Vaccine",
         "visit" => "Kind.Visit",
+        "bath" => "Kind.Bath",
         _ => "Kind.Pump",
     };
 }

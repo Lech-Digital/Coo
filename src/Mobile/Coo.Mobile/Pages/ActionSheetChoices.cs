@@ -9,9 +9,8 @@ internal static class ActionSheetChoices
     /// <returns>The chosen entry's position, or -1 for Cancel or a dismissed sheet.</returns>
     public static async Task<int> ChooseIndexAsync(Page page, string title, string cancel, IReadOnlyList<string> labels)
     {
-        var shown = Distinct(labels);
-        var chosen = await page.DisplayActionSheetAsync(title, cancel, null, [.. shown]);
-        return chosen is null ? -1 : shown.IndexOf(chosen);
+        // Coo's own dialog answers by position, so repeated labels need no marking any more; Distinct stays for callers.
+        return await Components.CooDialog.ChooseAsync(page, title, labels, cancel);
     }
 
     internal static List<string> Distinct(IReadOnlyList<string> labels)

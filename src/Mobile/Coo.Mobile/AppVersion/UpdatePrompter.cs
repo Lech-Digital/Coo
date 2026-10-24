@@ -114,8 +114,7 @@ public sealed class UpdatePrompter(TimeProvider time, IAppVersionApi versions) :
             var page = CurrentPage();
             if (page is null)
                 return;
-            var restart = await page.DisplayAlertAsync(
-                Strings.Get("Update.Title"), Strings.Get("Update.Downloaded"), Strings.Get("Update.Restart"), Strings.Get("Update.Later"));
+            var restart = await Components.CooDialog.ConfirmAsync(page, Strings.Get("Update.Title"), Strings.Get("Update.Downloaded"), Strings.Get("Update.Restart"), Strings.Get("Update.Later"));
             _restartAsked = false;
             if (restart)
                 _manager?.CompleteUpdate();
@@ -127,7 +126,7 @@ public sealed class UpdatePrompter(TimeProvider time, IAppVersionApi versions) :
         var page = CurrentPage();
         if (page is null)
             return;
-        await page.DisplayAlertAsync(Strings.Get("Update.Title"), Strings.Get("Update.Forced"), Strings.Get("Update.Button"));
+        await Components.CooDialog.AlertAsync(page, Strings.Get("Update.Title"), Strings.Get("Update.Forced"), Strings.Get("Update.Button"));
         await Launcher.Default.OpenAsync(new Uri("https://play.google.com/store/apps/details?id=com.lechdigital.coo"));
     }
 

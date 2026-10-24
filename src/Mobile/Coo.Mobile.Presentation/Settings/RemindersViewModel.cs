@@ -37,6 +37,9 @@ public sealed partial class RemindersViewModel(
     /// <summary>Exact alarms are worth asking for once something is on.</summary>
     public bool ShowExact => !CanBeExact && Settings.AnyOn;
 
+    /// <summary>Set by the page: Coo's own explanation before Android asks for notifications; false is "Not now".</summary>
+    public Func<Task<bool>>? PrimeNotificationsAsync { get; set; }
+
     public static string LeadLabel(int minutes) => Strings.Format("Reminders.Minutes", minutes);
 
     /// <summary>The feeding choices: Off, then each interval.</summary>
@@ -79,7 +82,7 @@ public sealed partial class RemindersViewModel(
     {
         Message = "";
         // Turning something on is the moment to ask (ADR 0007 §4); a "no" keeps the choice but says why nothing arrives.
-        if (IsTurningOn(next) && !await scheduler.EnsurePermissionAsync())
+        if (IsTurningOn(next) && (PrimeNotificationsAsync is { } prime && !await prime() || !await scheduler.EnsurePermissionAsync()))
             Message = Strings.Get("Reminders.Denied");
 
         Settings = next;

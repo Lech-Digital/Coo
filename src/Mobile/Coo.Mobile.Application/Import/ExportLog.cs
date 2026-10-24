@@ -103,6 +103,9 @@ public sealed class ExportLog(IHouseholdStore households, ICareLogStore store)
                 row[0] = "Vaccine";
                 row[9] = vaccine.Name;
                 break;
+            case Coo.Domain.CareLog.Kinds.Bath.BathDetails:
+                row[0] = "Bath";
+                break;
             case VisitDetails visit:
                 row[0] = "Doctor visit";
                 row[9] = visit.With ?? "";

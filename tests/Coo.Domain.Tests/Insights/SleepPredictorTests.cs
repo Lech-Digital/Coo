@@ -164,6 +164,36 @@ public sealed class SleepPredictorTests
         classes.Should().Equal(SleepClass.Night, SleepClass.Night);
     }
 
+    [Theory]
+    [InlineData(20, 0, 9 * 60, null, SleepClass.Night)]
+    [InlineData(13, 0, 90, null, SleepClass.Nap)]
+    [InlineData(1, 30, 200, null, SleepClass.Night)]
+    [InlineData(19, 30, 40, null, SleepClass.Nap)]
+    [InlineData(14, 0, 6 * 60, null, SleepClass.Night)]
+    [InlineData(21, 0, 10 * 60, SleepKindOverride.Nap, SleepClass.Nap)]
+    public void ClassifyOne_DecideForMe_FollowsLengthAndTimeOfDay(int hour, int minute, int minutes, SleepKindOverride? label, SleepClass expected)
+    {
+        // Arrange
+        var start = At(Day1, hour, minute);
+        var sleep = new SleepSpan(start, start.AddMinutes(minutes), label);
+
+        // Act
+        var result = SleepClassifier.ClassifyOne(sleep, new TimeOnly(hour, minute));
+
+        // Assert
+        result.Should().Be(expected);
+    }
+
+    [Fact]
+    public void ClassifyOne_RunningSinceNineInTheEvening_IsNight()
+    {
+        // Act
+        var result = SleepClassifier.ClassifyOne(new SleepSpan(At(Day1, 21, 0), null), new TimeOnly(21, 0));
+
+        // Assert
+        result.Should().Be(SleepClass.Night);
+    }
+
     [Fact]
     public void LearnNightWindow_FewerThanThreeNights_IsTheDefault()
     {
