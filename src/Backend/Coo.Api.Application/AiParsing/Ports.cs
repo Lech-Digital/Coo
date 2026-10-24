@@ -38,7 +38,9 @@ public sealed record ParsedEntry(
     string? LengthUnit = null,
     DateOnly? Date = null,
     int? AgeDays = null,
-    int? AgeMonths = null);
+    int? AgeMonths = null,
+    string? Reaction = null,
+    string? Milestone = null);
 
 public sealed record ParsedText(IReadOnlyList<ParsedEntry> Entries, IReadOnlyList<string> Unparsed, string PromptVersion);
 

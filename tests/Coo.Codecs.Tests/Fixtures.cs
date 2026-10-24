@@ -57,6 +57,11 @@ internal static class Fixtures
         ["temperature/v1/fever.json"] = TemperatureDetails.Create(38.4m).Value,
         ["vaccine/v1/name.json"] = VaccineDetails.Create("MMR").Value,
         ["bath/v1/bath.json"] = new Coo.Domain.CareLog.Kinds.Bath.BathDetails(),
+        ["tummy/v1/tummy.json"] = new Coo.Domain.CareLog.Kinds.Development.TummyDetails(),
+        ["solids/v1/reaction.json"] = Coo.Domain.CareLog.Kinds.Development.SolidsDetails.Create("Peanut butter", "1 spoon", Coo.Domain.CareLog.Kinds.Development.SolidsReaction.Reaction).Value,
+        ["solids/v1/food-only.json"] = Coo.Domain.CareLog.Kinds.Development.SolidsDetails.Create("Carrot puree", null, Coo.Domain.CareLog.Kinds.Development.SolidsReaction.None).Value,
+        ["milestone/v1/preset.json"] = Coo.Domain.CareLog.Kinds.Development.MilestoneDetails.Create("first-smile", null).Value,
+        ["milestone/v1/custom.json"] = Coo.Domain.CareLog.Kinds.Development.MilestoneDetails.Create("custom", "Clapped hands").Value,
         ["visit/v1/with.json"] = VisitDetails.Create("Paediatrician").Value,
         ["visit/v1/empty.json"] = VisitDetails.Create(null).Value,
     };

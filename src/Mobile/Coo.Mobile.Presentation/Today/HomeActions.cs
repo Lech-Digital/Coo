@@ -85,6 +85,9 @@ public sealed class HomeActions(LogEntry log, ReviseEntry revise, TimeProvider t
     public Task StartPumpAsync() =>
         LogAsync(new PumpDetails(), EntryTiming.Session(TimeRange.Open(time.GetLocalNow())), EntrySource.Timer, Strings.Get("Hero.Pumping"), caregiver: true);
 
+    public Task StartTummyAsync() =>
+        LogAsync(new Coo.Domain.CareLog.Kinds.Development.TummyDetails(), EntryTiming.Session(TimeRange.Open(time.GetLocalNow())), EntrySource.Timer, Strings.Get("Hero.Tummy"));
+
     public Task SwitchSideAsync(EntryId id) =>
         ReviseAsync(id, (e, v, now) => e.Revise<BreastFeed>(d => d.SwitchSide(time.GetLocalNow()), v, now), Strings.Get("Action.SwitchSide") ?? "Switched side");
 

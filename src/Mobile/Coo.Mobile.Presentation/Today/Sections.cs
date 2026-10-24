@@ -103,6 +103,7 @@ internal static class Running
             (item.Title, item.Digits) = entry.Details switch
             {
                 SleepDetails => (Strings.Get("Hero.Sleeping"), Formats.Clock(s.Now - entry.Timing.OccurredAt)),
+                Coo.Domain.CareLog.Kinds.Development.TummyDetails => (Strings.Get("Hero.Tummy"), Formats.Clock(s.Now - entry.Timing.OccurredAt)),
                 _ => (Strings.Get("Hero.Pumping"), Formats.Clock(s.Now - entry.Timing.OccurredAt)),
             };
         }
@@ -139,6 +140,7 @@ internal static class Running
         {
             BreastFeed f => MakeBreastButtons(entry.Id, f, actions),
             SleepDetails => [new(Strings.Get("Action.WokeUp") ?? "Woke up", true, new AsyncRelayCommand(() => actions.EndSessionAsync(entry.Id)))],
+            Coo.Domain.CareLog.Kinds.Development.TummyDetails => [new(Strings.Get("Action.Stop") ?? "Stop", true, new AsyncRelayCommand(() => actions.EndSessionAsync(entry.Id)))],
             _ => [new(Strings.Get("Action.Stop") ?? "Stop", true, new AsyncRelayCommand(() => { actions.RequestPumpYield(entry.Id); return Task.CompletedTask; }))],
         };
         return new RunningItem(entry.Id, entry.KindCode.Value, started, buttons);

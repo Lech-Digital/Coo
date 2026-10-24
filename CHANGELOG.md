@@ -11,6 +11,28 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 - Each release gets a section here, newest first, written for parents rather than developers where it ends up in
   Play's "What's new".
 
+## 1.8.0 (code 25) — 2026-10-24
+
+Needs the server of the same day: it knows the new kinds of entry, and only then do they sync.
+
+### New
+- **Reminders for the diaper check, baths, and medicines and vitamins.** A diaper check a set time after the last
+  change; a bath every day, every other day, every third day or weekly, at your bath time; and any medicine or
+  vitamin at its own times of day, every day or for a course of days ("Vitamin D daily" is one tap). A dose you
+  already logged is not reminded. Answer from the notification: Wet, Dirty or Both; Bath done; Given.
+- **Baths**: log them from "Earlier…" or by telling Coo.
+- **Tummy time**: a timer started from "Earlier…" and stopped on Today, with today's total; or log it afterwards.
+- **Solid food**: what your baby ate, how much, and how it went (liked it, didn't, or a reaction). The Advisor sees
+  every food tried and any reaction.
+- **Milestones**: first smile, rolling over, first tooth, first steps and more, or your own, on the day they happened.
+- Tell Coo understands baths, tummy time, solid food and milestones.
+
+### Changed
+- Coo's own dialogs everywhere instead of Android's grey ones, and a word from Coo before Android asks for the
+  microphone, camera or notifications.
+- Every icon sits in the middle of its circle (the mic was off-centre), and each health entry has its own icon.
+- "Decide for me" on a sleep now picks night for a long sleep or one that starts in the evening; it always said nap.
+
 ## 1.7.0 (code 24) — 2026-10-24
 
 ### New

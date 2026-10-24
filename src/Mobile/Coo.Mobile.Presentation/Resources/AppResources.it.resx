@@ -147,14 +147,26 @@
   <data name="Earlier.BottleSubtitle" xml:space="preserve"><value>Formula o latte materno</value></data>
   <data name="Earlier.DiaperSubtitle" xml:space="preserve"><value>Bagnato, sporco o misto</value></data>
   <data name="Earlier.FeedSubtitle" xml:space="preserve"><value>Allattamento al seno</value></data>
+  <data name="Earlier.MilestoneSubtitle" xml:space="preserve"><value>Primo sorriso, primo dentino, primi passi</value></data>
   <data name="Earlier.PumpSubtitle" xml:space="preserve"><value>Latte tirato</value></data>
   <data name="Earlier.SleepSubtitle" xml:space="preserve"><value>Pisolino o notte</value></data>
+  <data name="Earlier.SolidsSubtitle" xml:space="preserve"><value>Cosa ha mangiato e com’è andata</value></data>
+  <data name="Earlier.TummyEarlierSubtitle" xml:space="preserve"><value>Tummy time già fatto</value></data>
+  <data name="Earlier.TummyStart" xml:space="preserve"><value>Avvia tummy time</value></data>
+  <data name="Earlier.TummySubtitle" xml:space="preserve"><value>Un timer, da fermare in Oggi</value></data>
+  <data name="Earlier.TummyToday" xml:space="preserve"><value>{0} oggi</value></data>
   <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>Questa voce è cambiata su un altro telefono. Controllala e salva di nuovo.</value></data>
   <data name="Edit.Delete" xml:space="preserve"><value>Elimina</value></data>
   <data name="Edit.Dose" xml:space="preserve"><value>Dose (facoltativa)</value></data>
   <data name="Edit.Earlier" xml:space="preserve"><value>Prima…</value></data>
   <data name="Edit.End" xml:space="preserve"><value>Fine</value></data>
   <data name="Edit.FirstSide" xml:space="preserve"><value>Iniziato a</value></data>
+  <data name="Edit.Food" xml:space="preserve"><value>Alimento</value></data>
+  <data name="Edit.FoodAmount" xml:space="preserve"><value>Quanto (facoltativo)</value></data>
+  <data name="Edit.FoodAmountPlaceholder" xml:space="preserve"><value>3 cucchiaini</value></data>
+  <data name="Edit.FoodPlaceholder" xml:space="preserve"><value>Purea di carote</value></data>
+  <data name="Edit.FoodReaction" xml:space="preserve"><value>Com’è andata</value></data>
+  <data name="Edit.FoodReactionHint" xml:space="preserve"><value>Eruzione, vomito o gonfiore dopo un alimento nuovo: dillo al pediatra. Viso gonfio o difficoltà a respirare: chiama i soccorsi.</value></data>
   <data name="Edit.GrowthHint" xml:space="preserve"><value>Inserisci ciò che è stato misurato; il resto può restare vuoto.</value></data>
   <data name="Edit.Head" xml:space="preserve"><value>Circonferenza cranica</value></data>
   <data name="Edit.KindAuto" xml:space="preserve"><value>Automatico</value></data>
@@ -163,6 +175,9 @@
   <data name="Edit.Length" xml:space="preserve"><value>Lunghezza</value></data>
   <data name="Edit.MedicineName" xml:space="preserve"><value>Farmaco</value></data>
   <data name="Edit.MedicinePlaceholder" xml:space="preserve"><value>es. Vitamina D</value></data>
+  <data name="Edit.MilestoneHint" xml:space="preserve"><value>Imposta sopra il giorno in cui è successo; ogni bimbo ha i suoi tempi.</value></data>
+  <data name="Edit.MilestonePlaceholder" xml:space="preserve"><value>Ha battuto le mani</value></data>
+  <data name="Edit.MilestoneTitle" xml:space="preserve"><value>Cosa è successo</value></data>
   <data name="Edit.Minutes" xml:space="preserve"><value>{0} min</value></data>
   <data name="Edit.Newer" xml:space="preserve"><value>Questa voce viene da una versione più recente di Coo. Aggiorna l’app per vederla.</value></data>
   <data name="Edit.Note" xml:space="preserve"><value>Nota</value></data>
@@ -196,6 +211,8 @@
   <data name="Entry.Sleep" xml:space="preserve"><value>Sonno · {0}</value></data>
   <data name="Entry.Sleeping" xml:space="preserve"><value>Dorme</value></data>
   <data name="Entry.Temperature" xml:space="preserve"><value>Temperatura · {0}</value></data>
+  <data name="Entry.Tummy" xml:space="preserve"><value>Tummy time {0}</value></data>
+  <data name="Entry.TummyRunning" xml:space="preserve"><value>Tummy time · in corso</value></data>
   <data name="Entry.Vaccine" xml:space="preserve"><value>Vaccino · {0}</value></data>
   <data name="Entry.VisitWith" xml:space="preserve"><value>Visita medica · {0}</value></data>
   <data name="Error.Generic" xml:space="preserve"><value>Non è stato possibile salvare.</value></data>
@@ -234,6 +251,8 @@
   <data name="Error.invitation.invalid" xml:space="preserve"><value>Questo invito non può essere usato. Potrebbe essere scaduto, già usato o ritirato. Chiedine uno nuovo.</value></data>
   <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Si possono invitare solo genitori.</value></data>
   <data name="Error.invitation.too-many" xml:space="preserve"><value>Questa famiglia ha già 5 inviti aperti. Ritirane uno per crearne uno nuovo.</value></data>
+  <data name="Error.milestone.title-required" xml:space="preserve"><value>Scrivi cosa è successo.</value></data>
+  <data name="Error.milestone.unknown" xml:space="preserve"><value>Scegli un traguardo.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>Una nota ha al massimo 500 caratteri.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Il tiralatte dura al massimo 4 ore. Controlla gli orari.</value></data>
   <data name="Error.quick.already-running" xml:space="preserve"><value>Già in corso.</value></data>
@@ -241,6 +260,9 @@
   <data name="Error.quick.nothing-running" xml:space="preserve"><value>Non c’è nulla in corso.</value></data>
   <data name="Error.settings.all-kinds-hidden" xml:space="preserve"><value>Lascia visibile almeno un tipo.</value></data>
   <data name="Error.sleep.too-long" xml:space="preserve"><value>Un sonno dura al massimo 24 ore. Controlla gli orari.</value></data>
+  <data name="Error.solids.food-required" xml:space="preserve"><value>Inserisci cosa ha mangiato.</value></data>
+  <data name="Error.solids.reaction-unknown" xml:space="preserve"><value>Scegli com’è andata.</value></data>
+  <data name="Error.solids.text-too-long" xml:space="preserve"><value>Troppo lungo: al massimo 80 caratteri per l’alimento e 40 per la quantità.</value></data>
   <data name="Error.sync.change-malformed" xml:space="preserve"><value>Il server non è riuscito a leggere questa modifica.</value></data>
   <data name="Error.sync.consent-required" xml:space="preserve"><value>Prima accetta la condivisione, poi riprova.</value></data>
   <data name="Error.sync.household-mismatch" xml:space="preserve"><value>Questa voce appartiene già al registro di un’altra famiglia.</value></data>
@@ -251,6 +273,7 @@
   <data name="Error.temperature.out-of-range" xml:space="preserve"><value>Quella temperatura sembra sbagliata: controlla °C o °F.</value></data>
   <data name="Error.time.end-not-after-start" xml:space="preserve"><value>La fine deve essere dopo l’inizio.</value></data>
   <data name="Error.time.too-far-in-future" xml:space="preserve"><value>Quest’ora è troppo nel futuro.</value></data>
+  <data name="Error.tummy.too-long" xml:space="preserve"><value>Più di due ore di tummy time? Controlla la fine.</value></data>
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Inserisci una quantità sopra 0 e fino a 1.000 ml.</value></data>
   <data name="Expecting.Eyebrow" xml:space="preserve"><value>In attesa</value></data>
   <data name="Export.Title" xml:space="preserve"><value>Esporta il diario (CSV)</value></data>
@@ -339,6 +362,7 @@
   <data name="Hero.SinceAfterNap" xml:space="preserve"><value>dalle {0}, dopo un pisolino di {1}</value></data>
   <data name="Hero.Sleeping" xml:space="preserve"><value>Dorme</value></data>
   <data name="Hero.Started" xml:space="preserve"><value>iniziato alle {0}</value></data>
+  <data name="Hero.Tummy" xml:space="preserve"><value>Tummy time</value></data>
   <data name="Import.Added.one" xml:space="preserve"><value>Aggiunta {0} voce.</value></data>
   <data name="Import.Added.other" xml:space="preserve"><value>Aggiunte {0} voci.</value></data>
   <data name="Import.AlreadyThere.one" xml:space="preserve"><value>{0} era già in Coo.</value></data>
@@ -391,9 +415,12 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Kind.Feed" xml:space="preserve"><value>Poppata</value></data>
   <data name="Kind.Growth" xml:space="preserve"><value>Crescita</value></data>
   <data name="Kind.Medicine" xml:space="preserve"><value>Medicina</value></data>
+  <data name="Kind.Milestone" xml:space="preserve"><value>Traguardo</value></data>
   <data name="Kind.Pump" xml:space="preserve"><value>Tiralatte</value></data>
   <data name="Kind.Sleep" xml:space="preserve"><value>Sonno</value></data>
+  <data name="Kind.Solids" xml:space="preserve"><value>Pappa</value></data>
   <data name="Kind.Temperature" xml:space="preserve"><value>Temperatura</value></data>
+  <data name="Kind.Tummy" xml:space="preserve"><value>Tummy time</value></data>
   <data name="Kind.Vaccine" xml:space="preserve"><value>Vaccino</value></data>
   <data name="Kind.Visit" xml:space="preserve"><value>Visita medica</value></data>
   <data name="MedReminder.AddTime" xml:space="preserve"><value>Aggiungi orario</value></data>
@@ -407,6 +434,18 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="MedReminder.Times" xml:space="preserve"><value>Orari</value></data>
   <data name="MedReminder.Title" xml:space="preserve"><value>Promemoria medicina</value></data>
   <data name="MedReminder.VitaminD" xml:space="preserve"><value>Vitamina D</value></data>
+  <data name="Milestone.crawls" xml:space="preserve"><value>Gattona</value></data>
+  <data name="Milestone.custom" xml:space="preserve"><value>Altro…</value></data>
+  <data name="Milestone.first-smile" xml:space="preserve"><value>Primo sorriso</value></data>
+  <data name="Milestone.first-steps" xml:space="preserve"><value>Primi passi</value></data>
+  <data name="Milestone.first-tooth" xml:space="preserve"><value>Primo dentino</value></data>
+  <data name="Milestone.first-word" xml:space="preserve"><value>Prima parola</value></data>
+  <data name="Milestone.holds-head" xml:space="preserve"><value>Tiene su la testa</value></data>
+  <data name="Milestone.laughs" xml:space="preserve"><value>Prima risata</value></data>
+  <data name="Milestone.rolls-over" xml:space="preserve"><value>Si gira</value></data>
+  <data name="Milestone.sits" xml:space="preserve"><value>Sta seduto</value></data>
+  <data name="Milestone.sleeps-through" xml:space="preserve"><value>Dorme tutta la notte</value></data>
+  <data name="Milestone.stands" xml:space="preserve"><value>Sta in piedi</value></data>
   <data name="Milk.Both" xml:space="preserve"><value>Entrambi</value></data>
   <data name="Milk.Breast" xml:space="preserve"><value>Latte materno</value></data>
   <data name="Milk.Formula" xml:space="preserve"><value>Formula</value></data>
@@ -647,6 +686,10 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.Left" xml:space="preserve"><value>sinistro</value></data>
   <data name="Side.R" xml:space="preserve"><value>D</value></data>
   <data name="Side.Right" xml:space="preserve"><value>destro</value></data>
+  <data name="Solids.Disliked" xml:space="preserve"><value>Non gli è piaciuto</value></data>
+  <data name="Solids.Liked" xml:space="preserve"><value>Gli è piaciuto</value></data>
+  <data name="Solids.None" xml:space="preserve"><value>Niente di speciale</value></data>
+  <data name="Solids.Reaction" xml:space="preserve"><value>Una reazione</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statistiche</value></data>
   <data name="Summary.Hint" xml:space="preserve"><value>Il Consulente confronta questa settimana con la precedente: sonno, poppate, pannolini e ciò che merita attenzione.</value></data>
   <data name="Summary.Prompt" xml:space="preserve"><value>Scrivi un breve riassunto della settimana del bambino per un genitore stanco: come questa settimana si confronta con la precedente per sonno, poppate e pannolini, cosa conta per salute o crescita, e un consiglio pratico e gentile. Da quattro a sei frasi, calde e semplici, senza titoli né elenchi. Usa solo il registro.</value></data>

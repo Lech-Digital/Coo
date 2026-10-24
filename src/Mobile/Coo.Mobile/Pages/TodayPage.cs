@@ -238,6 +238,15 @@ public sealed class TodayPage : ContentPage
             ("sleep", EarlierItem("sleep", "Kind.Sleep", "Earlier.SleepSubtitle")),
             ("pump", EarlierItem("pump", "Kind.Pump", "Earlier.PumpSubtitle")),
             ("bath", EarlierItem("bath", "Kind.Bath", "Earlier.BathSubtitle")),
+            ("tummy", EarlierItem("tummy", "Earlier.TummyStart", "", subtitle: _model.TummySubtitle(), onTap: async () =>
+            {
+                _pageSheet = false;
+                await _sheet.HideAsync();
+                await _model.StartTummyAsync();
+            })),
+            ("tummy", EarlierItem("tummy", "Kind.Tummy", "Earlier.TummyEarlierSubtitle")),
+            ("solids", EarlierItem("solids", "Kind.Solids", "Earlier.SolidsSubtitle")),
+            ("milestone", EarlierItem("milestone", "Kind.Milestone", "Earlier.MilestoneSubtitle")),
         }.Where(b => _model.IsShown(b.Kind)).Select(b => b.Item).ToArray();
         await _sheet.ShowAsync(Panel(Strings.Get("Edit.Earlier"), items));
     }
@@ -346,7 +355,9 @@ public sealed class TodayPage : ContentPage
         return scaled.AsBytes(Microsoft.Maui.Graphics.ImageFormat.Jpeg, 0.85f);
     }
 
-    private View EarlierItem(string kindCode, string key, string subtitleKey, bool bottle = false, string? icon = null)
+    /// <param name="subtitle">The line under the title, when it is not a fixed string (<paramref name="subtitleKey"/>).</param>
+    /// <param name="onTap">What a tap does instead of opening the form: tummy time starts its timer.</param>
+    private View EarlierItem(string kindCode, string key, string subtitleKey, bool bottle = false, string? icon = null, string? subtitle = null, Func<Task>? onTap = null)
     {
         var look = Coo.Mobile.Presentation.Theme.EventAppearance.For(kindCode);
         var iconPath = icon ?? kindCode switch
@@ -376,7 +387,7 @@ public sealed class TodayPage : ContentPage
         iconContainer.SetDynamicResource(VisualElement.BackgroundColorProperty, look.Tint);
 
         var titleLabel = Ui.Text(Strings.Get(key), "BodyStrong");
-        var subtitleText = Strings.Get(subtitleKey);
+        var subtitleText = subtitle ?? Strings.Get(subtitleKey);
         var subtitleLabel = Ui.Text(string.IsNullOrEmpty(subtitleText) ? "" : subtitleText, "Meta", "Ink2");
 
         var textStack = new VerticalStackLayout
@@ -418,7 +429,7 @@ public sealed class TodayPage : ContentPage
         border.SetDynamicResource(Border.StrokeProperty, "LineBrush");
 
         var tap = new TapGestureRecognizer();
-        tap.Tapped += async (_, _) => await OpenNewAsync(kindCode, bottle);
+        tap.Tapped += async (_, _) => await (onTap?.Invoke() ?? OpenNewAsync(kindCode, bottle));
         border.GestureRecognizers.Add(tap);
 
         return border;

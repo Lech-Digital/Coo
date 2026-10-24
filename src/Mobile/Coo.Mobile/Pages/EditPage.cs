@@ -1,3 +1,4 @@
+using Coo.Domain.CareLog.Kinds.Development;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.CareLog.Kinds.Feeding;
 using Coo.Domain.CareLog.Kinds.Sleep;
@@ -78,7 +79,7 @@ public sealed class EditPage : ContentPage
             return;
         }
 
-        form.Add(Field(_model.KindCode is "sleep" or "pump" || (_model.KindCode == "feeding" && !_model.IsBottle) ? Strings.Get("Edit.Start") : Strings.Get("Edit.Time"),
+        form.Add(Field(_model.KindCode is "sleep" or "pump" or "tummy" || (_model.KindCode == "feeding" && !_model.IsBottle) ? Strings.Get("Edit.Start") : Strings.Get("Edit.Time"),
             DateAndTime(nameof(EditViewModel.StartDate), nameof(EditViewModel.StartTime))));
 
         switch (_model.KindCode)
@@ -115,6 +116,32 @@ public sealed class EditPage : ContentPage
                     (Strings.Get("Diaper.Dirty"), () => _model.Contents = DiaperContents.Dirty, _model.Contents == DiaperContents.Dirty),
                     (Strings.Get("Diaper.Mixed"), () => _model.Contents = DiaperContents.Mixed, _model.Contents == DiaperContents.Mixed),
                 }));
+                break;
+            case "tummy":
+                if (!_model.IsRunning)
+                    form.Add(Field(Strings.Get("Edit.End"), DateAndTime(nameof(EditViewModel.EndDate), nameof(EditViewModel.EndTime))));
+                break;
+            case "solids":
+                form.Add(Field(Strings.Get("Edit.Food"), Text(nameof(EditViewModel.HealthName), Strings.Get("Edit.FoodPlaceholder"))));
+                form.Add(Field(Strings.Get("Edit.FoodAmount"), Text(nameof(EditViewModel.HealthDetail), Strings.Get("Edit.FoodAmountPlaceholder"))));
+                form.Add(Field(Strings.Get("Edit.FoodReaction"), Wrapped(Choices(new (string, Action, bool)[]
+                {
+                    (Strings.Get("Solids.None"), () => _model.SolidsReaction = SolidsReaction.None, _model.SolidsReaction == SolidsReaction.None),
+                    (Strings.Get("Solids.Liked"), () => _model.SolidsReaction = SolidsReaction.Liked, _model.SolidsReaction == SolidsReaction.Liked),
+                    (Strings.Get("Solids.Disliked"), () => _model.SolidsReaction = SolidsReaction.Disliked, _model.SolidsReaction == SolidsReaction.Disliked),
+                    (Strings.Get("Solids.Reaction"), () => _model.SolidsReaction = SolidsReaction.Reaction, _model.SolidsReaction == SolidsReaction.Reaction),
+                }))));
+                if (_model.SolidsReaction == SolidsReaction.Reaction)
+                    form.Add(Ui.Text(Strings.Get("Edit.FoodReactionHint"), "Meta", "Ink2"));
+                break;
+            case "milestone":
+                form.Add(Wrapped(Choices([
+                    .. MilestoneDetails.Presets.Select(code => (Strings.Get("Milestone." + code), (Action)(() => _model.MilestoneCode = code), _model.MilestoneCode == code)),
+                    (Strings.Get("Milestone.custom"), () => _model.MilestoneCode = MilestoneDetails.Custom, _model.MilestoneCode == MilestoneDetails.Custom),
+                ])));
+                if (_model.MilestoneCode == MilestoneDetails.Custom)
+                    form.Add(Field(Strings.Get("Edit.MilestoneTitle"), Text(nameof(EditViewModel.HealthName), Strings.Get("Edit.MilestonePlaceholder"))));
+                form.Add(Ui.Text(Strings.Get("Edit.MilestoneHint"), "Meta", "Ink2"));
                 break;
             case "sleep" or "pump":
                 if (!_model.IsRunning)
@@ -269,6 +296,20 @@ public sealed class EditPage : ContentPage
         return row;
     }
 
+    /// <summary>Chips that wrap onto more lines: the reactions, and the eleven milestones.</summary>
+    private static FlexLayout Wrapped(HorizontalStackLayout row)
+    {
+        var flex = new FlexLayout { Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap, AlignItems = Microsoft.Maui.Layouts.FlexAlignItems.Start };
+        foreach (var chip in row.Children.OfType<View>().ToList())
+        {
+            row.Remove(chip);
+            chip.Margin = new Thickness(0, 0, 8, 8);
+            flex.Add(chip);
+        }
+
+        return flex;
+    }
+
     private static string Minutes(string sideKey) => $"{Strings.Get(sideKey)} ({Strings.Format("Edit.Minutes", "").Trim()})";
 
     private string KindKey() => _model.KindCode switch
@@ -283,6 +324,9 @@ public sealed class EditPage : ContentPage
         "vaccine" => "Kind.Vaccine",
         "visit" => "Kind.Visit",
         "bath" => "Kind.Bath",
+        "tummy" => "Kind.Tummy",
+        "solids" => "Kind.Solids",
+        "milestone" => "Kind.Milestone",
         _ => "Kind.Pump",
     };
 }

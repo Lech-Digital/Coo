@@ -106,6 +106,20 @@ public sealed class ExportLog(IHouseholdStore households, ICareLogStore store)
             case Coo.Domain.CareLog.Kinds.Bath.BathDetails:
                 row[0] = "Bath";
                 break;
+            case Coo.Domain.CareLog.Kinds.Development.TummyDetails:
+                row[0] = "Tummy time";
+                break;
+            case Coo.Domain.CareLog.Kinds.Development.SolidsDetails solids:
+                // The food as the name, the amount as the dose, the reaction in the diaper column's place for contents.
+                row[0] = "Solid food";
+                row[9] = solids.Food;
+                row[10] = solids.Amount ?? "";
+                row[8] = solids.Reaction == Coo.Domain.CareLog.Kinds.Development.SolidsReaction.None ? "" : solids.Reaction.ToString().ToLowerInvariant();
+                break;
+            case Coo.Domain.CareLog.Kinds.Development.MilestoneDetails milestone:
+                row[0] = "Milestone";
+                row[9] = milestone.Title ?? milestone.Code.Replace('-', ' ');
+                break;
             case VisitDetails visit:
                 row[0] = "Doctor visit";
                 row[9] = visit.With ?? "";

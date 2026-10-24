@@ -36,6 +36,15 @@ public static class IconGeometry
     /// <summary>A tub: baths.</summary>
     public const string Bath = "M3 12h18v1.5A5.5 5.5 0 0 1 15.5 19h-7A5.5 5.5 0 0 1 3 13.5zM6 12V6.5a2.5 2.5 0 0 1 5 0M7 19l-1.5 2M17 19l1.5 2";
 
+    /// <summary>A baby on its tummy, head up, on a floor line: tummy time.</summary>
+    public const string Tummy = "M4 11.5a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0M9 15h8.5a2.5 2.5 0 0 1 0 5H8.5M8 20l2-3M3 20h18";
+
+    /// <summary>A spoon beside a bowl: solid food.</summary>
+    public const string Solids = "M5 7a3 4 0 1 0 6 0a3 4 0 1 0 -6 0M8 11v10M13 13h8a4 4 0 0 1 -8 0z";
+
+    /// <summary>A five-point star: a milestone.</summary>
+    public const string Milestone = "M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z";
+
     public const string Pump = "M5 5h14l-5 5v3h-4v-3zM10 13v6a2 2 0 0 0 4 0v-6";
     public const string Mic = "M9 6a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0zM5 11a7 7 0 0 0 14 0M12 18v3";
     public const string Today = "M4 11l8-7 8 7v9h-5v-6h-6v6H4z";

@@ -266,6 +266,9 @@ public static class QuickLogEntries
     /// <summary>A pump logged without an end lasted this long: the session needs one, and the review says so.</summary>
     public static readonly TimeSpan AssumedPumpLength = TimeSpan.FromMinutes(15);
 
+    /// <summary>Tummy time said without an end ("tummy time at 4"): a usual session.</summary>
+    public static readonly TimeSpan AssumedTummyLength = TimeSpan.FromMinutes(10);
+
     public static (EntryDetails Details, EntryTiming? Timing)? NewEntry(AiProposal proposal)
     {
         ArgumentNullException.ThrowIfNull(proposal);
@@ -297,6 +300,18 @@ public static class QuickLogEntries
                 return (visit.Value, EntryTiming.Point(p.At));
             case AiActions.BathLog:
                 return (new Coo.Domain.CareLog.Kinds.Bath.BathDetails(), EntryTiming.Point(p.At));
+            case AiActions.TummyLog when TimeRange.Create(p.At, p.EndAt ?? p.At + AssumedTummyLength) is { IsSuccess: true } tummy:
+                return (new Coo.Domain.CareLog.Kinds.Development.TummyDetails(), EntryTiming.Session(tummy.Value));
+            case AiActions.SolidsLog when Coo.Domain.CareLog.Kinds.Development.SolidsDetails.Create(p.Name, p.Dose, p.Reaction switch
+            {
+                "liked" => Coo.Domain.CareLog.Kinds.Development.SolidsReaction.Liked,
+                "disliked" => Coo.Domain.CareLog.Kinds.Development.SolidsReaction.Disliked,
+                "reaction" => Coo.Domain.CareLog.Kinds.Development.SolidsReaction.Reaction,
+                _ => Coo.Domain.CareLog.Kinds.Development.SolidsReaction.None,
+            }) is { IsSuccess: true } solids:
+                return (solids.Value, EntryTiming.Point(p.At));
+            case AiActions.MilestoneLog when Coo.Domain.CareLog.Kinds.Development.MilestoneDetails.Create(p.Milestone ?? "custom", p.Name) is { IsSuccess: true } milestone:
+                return (milestone.Value, EntryTiming.Point(p.At));
             default:
                 return null;
         }

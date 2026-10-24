@@ -1,4 +1,5 @@
 using Coo.Domain.CareLog.Kinds.Bath;
+using Coo.Domain.CareLog.Kinds.Development;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.CareLog.Kinds.Feeding;
 using Coo.Domain.CareLog.Kinds.Growth;
@@ -26,6 +27,9 @@ public static class EntryKinds
         VaccineKind.Instance,
         VisitKind.Instance,
         BathKind.Instance,
+        TummyKind.Instance,
+        SolidsKind.Instance,
+        MilestoneKind.Instance,
     ];
 
     public static IEntryKind? Find(EntryKindCode code) => All.FirstOrDefault(k => k.Code == code);

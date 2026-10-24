@@ -39,6 +39,17 @@ internal static class Generators
         ["temperature"] = Gen.Choose(340, 430).Select(t => (EntryDetails)TemperatureDetails.Create(t / 10m).Value),
         ["vaccine"] = Gen.Elements("DTaP-IPV-Hib-HepB", "MMR", "Rotavirus", "Pneumococcal").Select(n => (EntryDetails)VaccineDetails.Create(n).Value),
         ["bath"] = Gen.Constant((EntryDetails)new Coo.Domain.CareLog.Kinds.Bath.BathDetails()),
+        ["tummy"] = Gen.Constant((EntryDetails)new Coo.Domain.CareLog.Kinds.Development.TummyDetails()),
+        ["solids"] =
+            from food in Gen.Elements("Carrot puree", "Banana", "Pindakaas", "Jabłko", "Avocado")
+            from amount in Gen.Elements<string?>(null, "3 spoons", "half a jar")
+            from reaction in Gen.Elements(Enum.GetValues<Coo.Domain.CareLog.Kinds.Development.SolidsReaction>())
+            select (EntryDetails)Coo.Domain.CareLog.Kinds.Development.SolidsDetails.Create(food, amount, reaction).Value,
+        ["milestone"] =
+            (from code in Gen.Elements([.. Coo.Domain.CareLog.Kinds.Development.MilestoneDetails.Presets, "custom"])
+             from title in Gen.Elements<string?>(null, "Clapped hands", "Pierwszy uśmiech")
+             where code != "custom" || title is not null
+             select (EntryDetails)Coo.Domain.CareLog.Kinds.Development.MilestoneDetails.Create(code, title).Value),
         ["visit"] = Gen.Elements<string?>(null, "Paediatrician", "Midwife", "Consultatiebureau").Select(w => (EntryDetails)VisitDetails.Create(w).Value),
     };
 

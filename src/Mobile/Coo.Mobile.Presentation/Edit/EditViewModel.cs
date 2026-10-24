@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Coo.Domain.CareLog;
+using Coo.Domain.CareLog.Kinds.Development;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.CareLog.Kinds.Feeding;
 using Coo.Domain.CareLog.Kinds.Growth;
@@ -116,6 +117,14 @@ public sealed partial class EditViewModel(
     [ObservableProperty]
     private string _temperature = "";
 
+    /// <summary>How a solid food went; the food is in <see cref="HealthName"/>, the amount in <see cref="HealthDetail"/>.</summary>
+    [ObservableProperty]
+    private SolidsReaction _solidsReaction = SolidsReaction.None;
+
+    /// <summary>A milestone's preset code, or <see cref="MilestoneDetails.Custom"/>; its own title is in <see cref="HealthName"/>.</summary>
+    [ObservableProperty]
+    private string _milestoneCode = MilestoneDetails.Presets[0];
+
     [ObservableProperty]
     private string _note = "";
 
@@ -227,12 +236,13 @@ public sealed partial class EditViewModel(
         await LoadContextAsync();
         (IsNew, KindCode, EntryId, _original, PartLines) = (true, kindCode, null, null, []);
         // A feed or a nap logged afterwards started a while ago (Q6); a dose, a reading or a measurement is usually now.
-        var at = kindCode is "growth" or "medicine" or "temperature" or "vaccine" or "visit" or "bath" ? time.GetLocalNow() : time.GetLocalNow().AddMinutes(-15);
+        var at = kindCode is "growth" or "medicine" or "temperature" or "vaccine" or "visit" or "bath" or "solids" or "milestone" ? time.GetLocalNow() : time.GetLocalNow().AddMinutes(-15);
         SetStart(at);
         SetEnd(at.AddMinutes(kindCode == "sleep" ? 15 : 10));
         HasEnd = true;
         (LeftMinutes, RightMinutes, Amount, SecondAmount, Note, Error, Warnings) = ("", "", "", "", "", "", "");
         (Weight, Length, Head, HealthName, HealthDetail, Temperature) = ("", "", "", "", "", "");
+        (SolidsReaction, MilestoneCode) = (SolidsReaction.None, MilestoneDetails.Presets[0]);
         Amount = _household?.VolumeUnit == VolumeUnit.Ounces ? "4" : "120";
         SecondAmount = Amount;
     }
@@ -467,6 +477,24 @@ public sealed partial class EditViewModel(
             case "bath":
                 return Ok(new Coo.Domain.CareLog.Kinds.Bath.BathDetails(), EntryTiming.Point(start));
 
+            case "tummy":
+                {
+                    var range = TimeRange.Create(start, end);
+                    return range.IsSuccess ? Ok(new TummyDetails(), EntryTiming.Session(range.Value)) : Fail(range.Error!);
+                }
+
+            case "solids":
+                {
+                    var solids = SolidsDetails.Create(HealthName, HealthDetail, SolidsReaction);
+                    return solids.IsSuccess ? Ok(solids.Value, EntryTiming.Point(start)) : Fail(solids.Error!);
+                }
+
+            case "milestone":
+                {
+                    var milestone = MilestoneDetails.Create(MilestoneCode, MilestoneCode == MilestoneDetails.Custom ? HealthName : null);
+                    return milestone.IsSuccess ? Ok(milestone.Value, EntryTiming.Point(start)) : Fail(milestone.Error!);
+                }
+
             default:
                 {
                     var range = TimeRange.Create(start, end);
@@ -577,6 +605,12 @@ public sealed partial class EditViewModel(
             case VisitDetails v:
                 HealthDetail = v.With ?? "";
                 break;
+            case SolidsDetails f:
+                (HealthName, HealthDetail, SolidsReaction) = (f.Food, f.Amount ?? "", f.Reaction);
+                break;
+            case MilestoneDetails m:
+                (MilestoneCode, HealthName) = (m.Code, m.Title ?? "");
+                break;
         }
     }
 
@@ -667,6 +701,9 @@ public sealed partial class EditViewModel(
         "vaccine" => "Kind.Vaccine",
         "visit" => "Kind.Visit",
         "bath" => "Kind.Bath",
+        "tummy" => "Kind.Tummy",
+        "solids" => "Kind.Solids",
+        "milestone" => "Kind.Milestone",
         _ => "Kind.Pump",
     };
 }

@@ -165,6 +165,15 @@ public sealed partial class TodayViewModel : ObservableObject
     public string UnitLabel => Strings.Get(_household?.VolumeUnit == VolumeUnit.Ounces ? "Unit.Oz" : "Unit.Ml");
 
     /// <summary>For the page's "Earlier…" choices (Spec 009 §3.2).</summary>
+    /// <summary>Starts tummy time's timer, from "Earlier…" (the running card stops it).</summary>
+    public Task StartTummyAsync() => _actions.StartTummyAsync();
+
+    /// <summary>"Running" or "12 min today": the tummy time line in "Earlier…".</summary>
+    public string TummySubtitle() =>
+        _summary?.Running.Any(e => e.Details is Coo.Domain.CareLog.Kinds.Development.TummyDetails) == true ? Strings.Get("Tile.Running")
+        : _summary?.TummyToday is { TotalMinutes: >= 1 } done ? Strings.Format("Earlier.TummyToday", Formatting.Formats.Duration(done))
+        : Strings.Get("Earlier.TummySubtitle");
+
     public bool IsShown(string kindCode) => _household is null || KindVisibility.IsShown(_household, kindCode);
 
     private decimal Step => _household?.VolumeUnit == VolumeUnit.Ounces ? 0.5m : 10m;

@@ -16,7 +16,7 @@ namespace Coo.Api.Infrastructure.Ai;
 internal sealed partial class GeminiCareLogParser(IConfiguration configuration, ILogger<GeminiCareLogParser> logger) : ICareLogTextParser
 {
     /// <summary>Bumped with every change to <see cref="SystemPrompt"/> or the schema: every parse reports the version it used.</summary>
-    public const string PromptVersion = "coo-parse-v3";
+    public const string PromptVersion = "coo-parse-v4";
 
     /// <summary>Pinned, never a "-latest" alias: an alias could change the model under a fixed prompt (ADR 0005 §6).</summary>
     public const string DefaultModel = "gemini-3.5-flash-lite";
@@ -73,6 +73,12 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
         - Vaccine: a vaccination; name is the vaccine as said ("MMR", "the 8-week jabs").
         - Visit: a visit to a doctor, midwife or clinic; name is who, if said ("paediatrician").
         - Bath: the baby had a bath ("bath at 7", "we bathed her").
+        - Tummy: tummy time, with an end time if said ("10 minutes of tummy time at 4", "tummy time from 4 to 4:15").
+        - Solids: solid food eaten ("she had carrot puree for lunch"); name is the food as said; dose is how much, if said
+          ("3 spoons"); reaction "liked", "disliked", "reaction" (a rash, vomiting or swelling after it) or "none".
+        - Milestone: a first in development ("she smiled for the first time", "first tooth today"); milestone is one of
+          first-smile, laughs, holds-head, rolls-over, sleeps-through, sits, first-tooth, crawls, stands, first-word,
+          first-steps, or "custom" with name as said ("clapped her hands").
 
         Rules:
         - Use the context to resolve short phrases: "other side" is the side opposite the last one; "woke up" ends the
@@ -133,6 +139,16 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
                         length = new { type = "NUMBER" },
                         head = new { type = "NUMBER" },
                         lengthUnit = new { type = "STRING", @enum = new[] { "cm", "in" } },
+                        reaction = new { type = "STRING", @enum = new[] { "none", "liked", "disliked", "reaction" } },
+                        milestone = new
+                        {
+                            type = "STRING",
+                            @enum = new[]
+                            {
+                                "first-smile", "laughs", "holds-head", "rolls-over", "sleeps-through", "sits", "first-tooth", "crawls",
+                                "stands", "first-word", "first-steps", "custom",
+                            },
+                        },
                         sourceText = new { type = "STRING" },
                     },
                     required = new[] { "type", "sourceText" },
@@ -176,7 +192,7 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
                             {
                                 "BreastStart", "BreastSwitch", "BreastStop", "BreastFeeding", "BottleFeeding", "Diaper",
                                 "SleepStart", "SleepEnd", "Sleep", "PumpStart", "PumpStop", "Pumping",
-                                "Medicine", "Temperature", "Growth", "Vaccine", "Visit", "Bath",
+                                "Medicine", "Temperature", "Growth", "Vaccine", "Visit", "Bath", "Tummy", "Solids", "Milestone",
                             },
                         },
                         side = new { type = "STRING", @enum = new[] { "left", "right" } },
@@ -350,7 +366,9 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
                     Str(e, "lengthUnit"),
                     date,
                     Int(e, "ageDays"),
-                    Int(e, "ageMonths")));
+                    Int(e, "ageMonths"),
+                    Str(e, "reaction"),
+                    Str(e, "milestone")));
             }
         }
 

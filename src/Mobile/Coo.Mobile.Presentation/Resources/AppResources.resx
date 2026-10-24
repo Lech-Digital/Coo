@@ -147,14 +147,26 @@
   <data name="Earlier.BottleSubtitle" xml:space="preserve"><value>Formula or expressed milk</value></data>
   <data name="Earlier.DiaperSubtitle" xml:space="preserve"><value>Wet, dirty or mixed</value></data>
   <data name="Earlier.FeedSubtitle" xml:space="preserve"><value>Breastfeeding session</value></data>
+  <data name="Earlier.MilestoneSubtitle" xml:space="preserve"><value>A first smile, a first tooth, first steps</value></data>
   <data name="Earlier.PumpSubtitle" xml:space="preserve"><value>Expressed milk yield</value></data>
   <data name="Earlier.SleepSubtitle" xml:space="preserve"><value>Nap or night sleep</value></data>
+  <data name="Earlier.SolidsSubtitle" xml:space="preserve"><value>What she ate, and how it went</value></data>
+  <data name="Earlier.TummyEarlierSubtitle" xml:space="preserve"><value>Tummy time that already happened</value></data>
+  <data name="Earlier.TummyStart" xml:space="preserve"><value>Start tummy time</value></data>
+  <data name="Earlier.TummySubtitle" xml:space="preserve"><value>A timer, stopped from Today</value></data>
+  <data name="Earlier.TummyToday" xml:space="preserve"><value>{0} today so far</value></data>
   <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>This entry changed on another phone. Have a look and save again.</value></data>
   <data name="Edit.Delete" xml:space="preserve"><value>Delete</value></data>
   <data name="Edit.Dose" xml:space="preserve"><value>Dose (optional)</value></data>
   <data name="Edit.Earlier" xml:space="preserve"><value>Earlier…</value></data>
   <data name="Edit.End" xml:space="preserve"><value>End</value></data>
   <data name="Edit.FirstSide" xml:space="preserve"><value>Started on</value></data>
+  <data name="Edit.Food" xml:space="preserve"><value>Food</value></data>
+  <data name="Edit.FoodAmount" xml:space="preserve"><value>How much (optional)</value></data>
+  <data name="Edit.FoodAmountPlaceholder" xml:space="preserve"><value>3 spoons</value></data>
+  <data name="Edit.FoodPlaceholder" xml:space="preserve"><value>Carrot puree</value></data>
+  <data name="Edit.FoodReaction" xml:space="preserve"><value>How it went</value></data>
+  <data name="Edit.FoodReactionHint" xml:space="preserve"><value>A rash, vomiting or swelling after a new food is worth telling your doctor. Swelling of the face or trouble breathing: call emergency services.</value></data>
   <data name="Edit.GrowthHint" xml:space="preserve"><value>Fill in what was measured; the rest can stay empty.</value></data>
   <data name="Edit.Head" xml:space="preserve"><value>Head circumference</value></data>
   <data name="Edit.KindAuto" xml:space="preserve"><value>Decide for me</value></data>
@@ -163,6 +175,9 @@
   <data name="Edit.Length" xml:space="preserve"><value>Length</value></data>
   <data name="Edit.MedicineName" xml:space="preserve"><value>Medicine</value></data>
   <data name="Edit.MedicinePlaceholder" xml:space="preserve"><value>e.g. Vitamin D</value></data>
+  <data name="Edit.MilestoneHint" xml:space="preserve"><value>Set the day it happened above; every baby has their own pace.</value></data>
+  <data name="Edit.MilestonePlaceholder" xml:space="preserve"><value>Clapped hands</value></data>
+  <data name="Edit.MilestoneTitle" xml:space="preserve"><value>What happened</value></data>
   <data name="Edit.Minutes" xml:space="preserve"><value>{0} min</value></data>
   <data name="Edit.Newer" xml:space="preserve"><value>This entry is from a newer version of Coo. Update the app to see it.</value></data>
   <data name="Edit.Note" xml:space="preserve"><value>Note</value></data>
@@ -196,6 +211,8 @@
   <data name="Entry.Sleep" xml:space="preserve"><value>Sleep · {0}</value></data>
   <data name="Entry.Sleeping" xml:space="preserve"><value>Sleeping</value></data>
   <data name="Entry.Temperature" xml:space="preserve"><value>Temperature · {0}</value></data>
+  <data name="Entry.Tummy" xml:space="preserve"><value>Tummy time {0}</value></data>
+  <data name="Entry.TummyRunning" xml:space="preserve"><value>Tummy time · running</value></data>
   <data name="Entry.Vaccine" xml:space="preserve"><value>Vaccine · {0}</value></data>
   <data name="Entry.VisitWith" xml:space="preserve"><value>Doctor visit · {0}</value></data>
   <data name="Error.Generic" xml:space="preserve"><value>That could not be saved.</value></data>
@@ -234,6 +251,8 @@
   <data name="Error.invitation.invalid" xml:space="preserve"><value>This invitation can't be used. It may have expired, been used or been withdrawn. Ask for a new one.</value></data>
   <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Only parents can be invited.</value></data>
   <data name="Error.invitation.too-many" xml:space="preserve"><value>This family already has 5 open invitations. Withdraw one to make a new one.</value></data>
+  <data name="Error.milestone.title-required" xml:space="preserve"><value>Say what happened.</value></data>
+  <data name="Error.milestone.unknown" xml:space="preserve"><value>Choose a milestone.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>A note can be at most 500 characters.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Pumping can be at most 4 hours. Check the times.</value></data>
   <data name="Error.quick.already-running" xml:space="preserve"><value>Already running.</value></data>
@@ -241,6 +260,9 @@
   <data name="Error.quick.nothing-running" xml:space="preserve"><value>Nothing is running.</value></data>
   <data name="Error.settings.all-kinds-hidden" xml:space="preserve"><value>Keep at least one type visible.</value></data>
   <data name="Error.sleep.too-long" xml:space="preserve"><value>A sleep can be at most 24 hours. Check the times.</value></data>
+  <data name="Error.solids.food-required" xml:space="preserve"><value>Enter what was eaten.</value></data>
+  <data name="Error.solids.reaction-unknown" xml:space="preserve"><value>Choose how it went.</value></data>
+  <data name="Error.solids.text-too-long" xml:space="preserve"><value>That is too long: at most 80 characters for the food and 40 for the amount.</value></data>
   <data name="Error.sync.change-malformed" xml:space="preserve"><value>The server couldn't read this change.</value></data>
   <data name="Error.sync.consent-required" xml:space="preserve"><value>Agree to share first, then try again.</value></data>
   <data name="Error.sync.household-mismatch" xml:space="preserve"><value>This entry already belongs to another family's log.</value></data>
@@ -251,6 +273,7 @@
   <data name="Error.temperature.out-of-range" xml:space="preserve"><value>That temperature looks wrong: check °C or °F.</value></data>
   <data name="Error.time.end-not-after-start" xml:space="preserve"><value>The end must be after the start.</value></data>
   <data name="Error.time.too-far-in-future" xml:space="preserve"><value>That time is too far in the future.</value></data>
+  <data name="Error.tummy.too-long" xml:space="preserve"><value>Tummy time of more than two hours? Check the end.</value></data>
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Enter an amount above 0 and up to 1,000 ml.</value></data>
   <data name="Expecting.Eyebrow" xml:space="preserve"><value>Expecting</value></data>
   <data name="Export.Title" xml:space="preserve"><value>Export your log (CSV)</value></data>
@@ -339,6 +362,7 @@
   <data name="Hero.SinceAfterNap" xml:space="preserve"><value>since {0}, after a {1} nap</value></data>
   <data name="Hero.Sleeping" xml:space="preserve"><value>Sleeping</value></data>
   <data name="Hero.Started" xml:space="preserve"><value>started {0}</value></data>
+  <data name="Hero.Tummy" xml:space="preserve"><value>Tummy time</value></data>
   <data name="Import.Added.one" xml:space="preserve"><value>Added {0} entry.</value></data>
   <data name="Import.Added.other" xml:space="preserve"><value>Added {0} entries.</value></data>
   <data name="Import.AlreadyThere.one" xml:space="preserve"><value>{0} was already in Coo.</value></data>
@@ -391,9 +415,12 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Kind.Feed" xml:space="preserve"><value>Feed</value></data>
   <data name="Kind.Growth" xml:space="preserve"><value>Growth</value></data>
   <data name="Kind.Medicine" xml:space="preserve"><value>Medicine</value></data>
+  <data name="Kind.Milestone" xml:space="preserve"><value>Milestone</value></data>
   <data name="Kind.Pump" xml:space="preserve"><value>Pump</value></data>
   <data name="Kind.Sleep" xml:space="preserve"><value>Sleep</value></data>
+  <data name="Kind.Solids" xml:space="preserve"><value>Solid food</value></data>
   <data name="Kind.Temperature" xml:space="preserve"><value>Temperature</value></data>
+  <data name="Kind.Tummy" xml:space="preserve"><value>Tummy time</value></data>
   <data name="Kind.Vaccine" xml:space="preserve"><value>Vaccine</value></data>
   <data name="Kind.Visit" xml:space="preserve"><value>Doctor visit</value></data>
   <data name="MedReminder.AddTime" xml:space="preserve"><value>Add a time</value></data>
@@ -407,6 +434,18 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="MedReminder.Times" xml:space="preserve"><value>Times</value></data>
   <data name="MedReminder.Title" xml:space="preserve"><value>Medicine reminder</value></data>
   <data name="MedReminder.VitaminD" xml:space="preserve"><value>Vitamin D</value></data>
+  <data name="Milestone.crawls" xml:space="preserve"><value>Crawls</value></data>
+  <data name="Milestone.custom" xml:space="preserve"><value>Something else…</value></data>
+  <data name="Milestone.first-smile" xml:space="preserve"><value>First smile</value></data>
+  <data name="Milestone.first-steps" xml:space="preserve"><value>First steps</value></data>
+  <data name="Milestone.first-tooth" xml:space="preserve"><value>First tooth</value></data>
+  <data name="Milestone.first-word" xml:space="preserve"><value>First word</value></data>
+  <data name="Milestone.holds-head" xml:space="preserve"><value>Holds head up</value></data>
+  <data name="Milestone.laughs" xml:space="preserve"><value>First laugh</value></data>
+  <data name="Milestone.rolls-over" xml:space="preserve"><value>Rolls over</value></data>
+  <data name="Milestone.sits" xml:space="preserve"><value>Sits up</value></data>
+  <data name="Milestone.sleeps-through" xml:space="preserve"><value>Sleeps through the night</value></data>
+  <data name="Milestone.stands" xml:space="preserve"><value>Stands</value></data>
   <data name="Milk.Both" xml:space="preserve"><value>Both</value></data>
   <data name="Milk.Breast" xml:space="preserve"><value>Breast milk</value></data>
   <data name="Milk.Formula" xml:space="preserve"><value>Formula</value></data>
@@ -647,6 +686,10 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.Left" xml:space="preserve"><value>left</value></data>
   <data name="Side.R" xml:space="preserve"><value>R</value></data>
   <data name="Side.Right" xml:space="preserve"><value>right</value></data>
+  <data name="Solids.Disliked" xml:space="preserve"><value>Didn’t like it</value></data>
+  <data name="Solids.Liked" xml:space="preserve"><value>Liked it</value></data>
+  <data name="Solids.None" xml:space="preserve"><value>Nothing special</value></data>
+  <data name="Solids.Reaction" xml:space="preserve"><value>A reaction</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statistics</value></data>
   <data name="Summary.Hint" xml:space="preserve"><value>The Advisor compares this week with the last: sleep, feeds, diapers, anything worth noting.</value></data>
   <data name="Summary.Prompt" xml:space="preserve"><value>Write a short summary of the baby’s week for a tired parent: how this week compares with last week in sleep, feeds and diapers, anything in health or growth worth knowing, and one gentle, practical tip. Four to six sentences, warm and plain, no headings or lists. Use only the log.</value></data>

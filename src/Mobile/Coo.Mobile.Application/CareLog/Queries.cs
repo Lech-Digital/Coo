@@ -24,7 +24,8 @@ public sealed record TodaySummary(
     LocalDay Today,
     TimeSpan? SleepSoFar = null,
     CareEntry? LastBath = null,
-    IReadOnlyList<CareEntry>? Medicines = null);
+    IReadOnlyList<CareEntry>? Medicines = null,
+    TimeSpan? TummyToday = null);
 
 /// <summary>
 /// One mark on the day chart, as fractions of the day (Spec 006 §7, Spec 009b §2): a sleep block, or a feed, diaper or
@@ -72,7 +73,11 @@ public sealed class GetToday(ICareLogStore store)
                 .Sum(t => t.Ticks)),
             Latest<Coo.Domain.CareLog.Kinds.Bath.BathDetails>(live),
             live.Where(e => e.Details is Coo.Domain.CareLog.Kinds.Health.MedicineDetails && e.Timing.OccurredAt >= now - MedicineLookBack)
-                .OrderBy(e => e.Timing.OccurredAt).ToList());
+                .OrderBy(e => e.Timing.OccurredAt).ToList(),
+            TimeSpan.FromTicks(live
+                .Where(e => e.Details is Coo.Domain.CareLog.Kinds.Development.TummyDetails)
+                .Select(e => e.Timing is SessionTiming s ? today.Overlap(s.Range.Start, s.Range.End ?? now) : TimeSpan.Zero)
+                .Sum(t => t.Ticks)));
     }
 
     internal static bool IsAbout(CareEntry entry, BabyId baby) =>

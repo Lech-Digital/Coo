@@ -4,6 +4,7 @@ using Coo.Api.Application.Billing;
 using Coo.Api.Application.Sync;
 using Coo.Contracts.AiParsing;
 using Coo.Domain.CareLog;
+using Coo.Domain.CareLog.Kinds.Development;
 using Coo.Domain.CareLog.Kinds.Growth;
 using Coo.Domain.CareLog.Kinds.Health;
 using Coo.Domain.CareLog.Time;
@@ -278,6 +279,9 @@ public sealed class ParseCareLogText(
             "Vaccine" => AiActions.VaccineLog,
             "Visit" => AiActions.VisitLog,
             "Bath" => AiActions.BathLog,
+            "Tummy" => AiActions.TummyLog,
+            "Solids" => AiActions.SolidsLog,
+            "Milestone" => AiActions.MilestoneLog,
             _ => null,
         };
         if (action is null)
@@ -363,6 +367,8 @@ public sealed class ParseCareLogText(
             case AiActions.MedicineLog when MedicineDetails.Create(name, dose).IsFailure:
             case AiActions.VaccineLog when VaccineDetails.Create(name).IsFailure:
             case AiActions.VisitLog when VisitDetails.Create(name).IsFailure:
+            case AiActions.SolidsLog when SolidsDetails.Create(name, dose, Reaction(entry.Reaction)).IsFailure:
+            case AiActions.MilestoneLog when MilestoneDetails.Create(entry.Milestone ?? MilestoneDetails.Custom, name).IsFailure:
                 return null;
             case AiActions.TemperatureLog:
                 if (entry.Temperature is not { } degrees)
@@ -396,13 +402,23 @@ public sealed class ParseCareLogText(
             entry.Contents,
             TextPseudonymiser.Restore(entry.SourceText, names),
             warnings,
-            action is AiActions.MedicineLog or AiActions.VaccineLog or AiActions.VisitLog ? name : null,
-            action == AiActions.MedicineLog ? dose : null,
+            action is AiActions.MedicineLog or AiActions.VaccineLog or AiActions.VisitLog or AiActions.SolidsLog or AiActions.MilestoneLog ? name : null,
+            action is AiActions.MedicineLog or AiActions.SolidsLog ? dose : null,
             celsius,
             grams,
             lengthMm,
-            headMm);
+            headMm,
+            action == AiActions.SolidsLog ? Reaction(entry.Reaction).ToString().ToLowerInvariant() : null,
+            action == AiActions.MilestoneLog ? entry.Milestone ?? MilestoneDetails.Custom : null);
     }
+
+    private static SolidsReaction Reaction(string? said) => said switch
+    {
+        "liked" => SolidsReaction.Liked,
+        "disliked" => SolidsReaction.Disliked,
+        "reaction" => SolidsReaction.Reaction,
+        _ => SolidsReaction.None,
+    };
 
     /// <summary>
     /// A photo's entry as an instant: its written date, or the birth date plus its age, at noon local time (a record gives

@@ -147,14 +147,26 @@
   <data name="Earlier.BottleSubtitle" xml:space="preserve"><value>Flesvoeding of afgekolfde melk</value></data>
   <data name="Earlier.DiaperSubtitle" xml:space="preserve"><value>Nat, vuil of beide</value></data>
   <data name="Earlier.FeedSubtitle" xml:space="preserve"><value>Borstvoeding</value></data>
+  <data name="Earlier.MilestoneSubtitle" xml:space="preserve"><value>Eerste lachje, eerste tandje, eerste stapjes</value></data>
   <data name="Earlier.PumpSubtitle" xml:space="preserve"><value>Afgekolfde melk</value></data>
   <data name="Earlier.SleepSubtitle" xml:space="preserve"><value>Dutje of nachtrust</value></data>
+  <data name="Earlier.SolidsSubtitle" xml:space="preserve"><value>Wat er gegeten is, en hoe het ging</value></data>
+  <data name="Earlier.TummyEarlierSubtitle" xml:space="preserve"><value>Buikligging die al geweest is</value></data>
+  <data name="Earlier.TummyStart" xml:space="preserve"><value>Buikligging starten</value></data>
+  <data name="Earlier.TummySubtitle" xml:space="preserve"><value>Een timer, stop hem op Vandaag</value></data>
+  <data name="Earlier.TummyToday" xml:space="preserve"><value>Vandaag al {0}</value></data>
   <data name="Edit.ChangedElsewhere" xml:space="preserve"><value>Dit item is op een andere telefoon gewijzigd. Kijk ernaar en sla opnieuw op.</value></data>
   <data name="Edit.Delete" xml:space="preserve"><value>Verwijderen</value></data>
   <data name="Edit.Dose" xml:space="preserve"><value>Dosis (optioneel)</value></data>
   <data name="Edit.Earlier" xml:space="preserve"><value>Eerder…</value></data>
   <data name="Edit.End" xml:space="preserve"><value>Einde</value></data>
   <data name="Edit.FirstSide" xml:space="preserve"><value>Begonnen aan</value></data>
+  <data name="Edit.Food" xml:space="preserve"><value>Voedsel</value></data>
+  <data name="Edit.FoodAmount" xml:space="preserve"><value>Hoeveel (optioneel)</value></data>
+  <data name="Edit.FoodAmountPlaceholder" xml:space="preserve"><value>3 lepels</value></data>
+  <data name="Edit.FoodPlaceholder" xml:space="preserve"><value>Wortelpuree</value></data>
+  <data name="Edit.FoodReaction" xml:space="preserve"><value>Hoe het ging</value></data>
+  <data name="Edit.FoodReactionHint" xml:space="preserve"><value>Uitslag, spugen of zwelling na nieuw voedsel: vertel het de arts. Opgezwollen gezicht of moeite met ademen: bel 112.</value></data>
   <data name="Edit.GrowthHint" xml:space="preserve"><value>Vul in wat er gemeten is; de rest mag leeg blijven.</value></data>
   <data name="Edit.Head" xml:space="preserve"><value>Hoofdomtrek</value></data>
   <data name="Edit.KindAuto" xml:space="preserve"><value>Automatisch</value></data>
@@ -163,6 +175,9 @@
   <data name="Edit.Length" xml:space="preserve"><value>Lengte</value></data>
   <data name="Edit.MedicineName" xml:space="preserve"><value>Medicijn</value></data>
   <data name="Edit.MedicinePlaceholder" xml:space="preserve"><value>bv. Vitamine D</value></data>
+  <data name="Edit.MilestoneHint" xml:space="preserve"><value>Zet hierboven de dag waarop het gebeurde; elk kindje heeft zijn eigen tempo.</value></data>
+  <data name="Edit.MilestonePlaceholder" xml:space="preserve"><value>Klapte in de handjes</value></data>
+  <data name="Edit.MilestoneTitle" xml:space="preserve"><value>Wat er gebeurde</value></data>
   <data name="Edit.Minutes" xml:space="preserve"><value>{0} min</value></data>
   <data name="Edit.Newer" xml:space="preserve"><value>Dit item komt uit een nieuwere versie van Coo. Werk de app bij om het te zien.</value></data>
   <data name="Edit.Note" xml:space="preserve"><value>Notitie</value></data>
@@ -196,6 +211,8 @@
   <data name="Entry.Sleep" xml:space="preserve"><value>Slaap · {0}</value></data>
   <data name="Entry.Sleeping" xml:space="preserve"><value>Slaapt</value></data>
   <data name="Entry.Temperature" xml:space="preserve"><value>Temperatuur · {0}</value></data>
+  <data name="Entry.Tummy" xml:space="preserve"><value>Buikligging {0}</value></data>
+  <data name="Entry.TummyRunning" xml:space="preserve"><value>Buikligging · loopt</value></data>
   <data name="Entry.Vaccine" xml:space="preserve"><value>Vaccinatie · {0}</value></data>
   <data name="Entry.VisitWith" xml:space="preserve"><value>Doktersbezoek · {0}</value></data>
   <data name="Error.Generic" xml:space="preserve"><value>Dat kon niet worden opgeslagen.</value></data>
@@ -234,6 +251,8 @@
   <data name="Error.invitation.invalid" xml:space="preserve"><value>Deze uitnodiging kan niet worden gebruikt. Misschien is ze verlopen, al gebruikt of ingetrokken. Vraag om een nieuwe.</value></data>
   <data name="Error.invitation.role-unsupported" xml:space="preserve"><value>Alleen ouders kunnen worden uitgenodigd.</value></data>
   <data name="Error.invitation.too-many" xml:space="preserve"><value>Dit gezin heeft al 5 openstaande uitnodigingen. Trek er een in om een nieuwe te maken.</value></data>
+  <data name="Error.milestone.title-required" xml:space="preserve"><value>Schrijf wat er gebeurde.</value></data>
+  <data name="Error.milestone.unknown" xml:space="preserve"><value>Kies een mijlpaal.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>Een notitie heeft hoogstens 500 tekens.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Kolven duurt hoogstens 4 uur. Controleer de tijden.</value></data>
   <data name="Error.quick.already-running" xml:space="preserve"><value>Loopt al.</value></data>
@@ -241,6 +260,9 @@
   <data name="Error.quick.nothing-running" xml:space="preserve"><value>Er loopt niets.</value></data>
   <data name="Error.settings.all-kinds-hidden" xml:space="preserve"><value>Laat ten minste één soort zichtbaar.</value></data>
   <data name="Error.sleep.too-long" xml:space="preserve"><value>Een slaap duurt hoogstens 24 uur. Controleer de tijden.</value></data>
+  <data name="Error.solids.food-required" xml:space="preserve"><value>Vul in wat er gegeten is.</value></data>
+  <data name="Error.solids.reaction-unknown" xml:space="preserve"><value>Kies hoe het ging.</value></data>
+  <data name="Error.solids.text-too-long" xml:space="preserve"><value>Dat is te lang: hooguit 80 tekens voor het voedsel en 40 voor de hoeveelheid.</value></data>
   <data name="Error.sync.change-malformed" xml:space="preserve"><value>De server kon deze wijziging niet lezen.</value></data>
   <data name="Error.sync.consent-required" xml:space="preserve"><value>Ga eerst akkoord met delen en probeer het dan opnieuw.</value></data>
   <data name="Error.sync.household-mismatch" xml:space="preserve"><value>Dit item hoort al bij het logboek van een ander gezin.</value></data>
@@ -251,6 +273,7 @@
   <data name="Error.temperature.out-of-range" xml:space="preserve"><value>Die temperatuur lijkt niet te kloppen: controleer °C of °F.</value></data>
   <data name="Error.time.end-not-after-start" xml:space="preserve"><value>Het einde moet na het begin liggen.</value></data>
   <data name="Error.time.too-far-in-future" xml:space="preserve"><value>Die tijd ligt te ver in de toekomst.</value></data>
+  <data name="Error.tummy.too-long" xml:space="preserve"><value>Langer dan twee uur buikligging? Controleer het einde.</value></data>
   <data name="Error.volume.out-of-range" xml:space="preserve"><value>Vul een hoeveelheid in boven 0 en tot 1.000 ml.</value></data>
   <data name="Expecting.Eyebrow" xml:space="preserve"><value>In verwachting</value></data>
   <data name="Export.Title" xml:space="preserve"><value>Logboek exporteren (CSV)</value></data>
@@ -339,6 +362,7 @@
   <data name="Hero.SinceAfterNap" xml:space="preserve"><value>sinds {0}, na een dutje van {1}</value></data>
   <data name="Hero.Sleeping" xml:space="preserve"><value>Slaapt</value></data>
   <data name="Hero.Started" xml:space="preserve"><value>begonnen {0}</value></data>
+  <data name="Hero.Tummy" xml:space="preserve"><value>Buikligging</value></data>
   <data name="Import.Added.one" xml:space="preserve"><value>{0} item toegevoegd.</value></data>
   <data name="Import.Added.other" xml:space="preserve"><value>{0} items toegevoegd.</value></data>
   <data name="Import.AlreadyThere.one" xml:space="preserve"><value>{0} stond al in Coo.</value></data>
@@ -391,9 +415,12 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Kind.Feed" xml:space="preserve"><value>Voeding</value></data>
   <data name="Kind.Growth" xml:space="preserve"><value>Groei</value></data>
   <data name="Kind.Medicine" xml:space="preserve"><value>Medicijn</value></data>
+  <data name="Kind.Milestone" xml:space="preserve"><value>Mijlpaal</value></data>
   <data name="Kind.Pump" xml:space="preserve"><value>Kolven</value></data>
   <data name="Kind.Sleep" xml:space="preserve"><value>Slaap</value></data>
+  <data name="Kind.Solids" xml:space="preserve"><value>Vast voedsel</value></data>
   <data name="Kind.Temperature" xml:space="preserve"><value>Temperatuur</value></data>
+  <data name="Kind.Tummy" xml:space="preserve"><value>Buikligging</value></data>
   <data name="Kind.Vaccine" xml:space="preserve"><value>Vaccinatie</value></data>
   <data name="Kind.Visit" xml:space="preserve"><value>Doktersbezoek</value></data>
   <data name="MedReminder.AddTime" xml:space="preserve"><value>Tijd toevoegen</value></data>
@@ -407,6 +434,18 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="MedReminder.Times" xml:space="preserve"><value>Tijden</value></data>
   <data name="MedReminder.Title" xml:space="preserve"><value>Medicijnherinnering</value></data>
   <data name="MedReminder.VitaminD" xml:space="preserve"><value>Vitamine D</value></data>
+  <data name="Milestone.crawls" xml:space="preserve"><value>Kruipt</value></data>
+  <data name="Milestone.custom" xml:space="preserve"><value>Iets anders…</value></data>
+  <data name="Milestone.first-smile" xml:space="preserve"><value>Eerste lachje</value></data>
+  <data name="Milestone.first-steps" xml:space="preserve"><value>Eerste stapjes</value></data>
+  <data name="Milestone.first-tooth" xml:space="preserve"><value>Eerste tandje</value></data>
+  <data name="Milestone.first-word" xml:space="preserve"><value>Eerste woordje</value></data>
+  <data name="Milestone.holds-head" xml:space="preserve"><value>Houdt hoofdje op</value></data>
+  <data name="Milestone.laughs" xml:space="preserve"><value>Eerste schaterlach</value></data>
+  <data name="Milestone.rolls-over" xml:space="preserve"><value>Rolt om</value></data>
+  <data name="Milestone.sits" xml:space="preserve"><value>Zit</value></data>
+  <data name="Milestone.sleeps-through" xml:space="preserve"><value>Slaapt door</value></data>
+  <data name="Milestone.stands" xml:space="preserve"><value>Staat</value></data>
   <data name="Milk.Both" xml:space="preserve"><value>Beide</value></data>
   <data name="Milk.Breast" xml:space="preserve"><value>Moedermelk</value></data>
   <data name="Milk.Formula" xml:space="preserve"><value>Kunstvoeding</value></data>
@@ -647,6 +686,10 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Side.Left" xml:space="preserve"><value>links</value></data>
   <data name="Side.R" xml:space="preserve"><value>R</value></data>
   <data name="Side.Right" xml:space="preserve"><value>rechts</value></data>
+  <data name="Solids.Disliked" xml:space="preserve"><value>Niet lekker gevonden</value></data>
+  <data name="Solids.Liked" xml:space="preserve"><value>Lekker gevonden</value></data>
+  <data name="Solids.None" xml:space="preserve"><value>Niets bijzonders</value></data>
+  <data name="Solids.Reaction" xml:space="preserve"><value>Een reactie</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statistieken</value></data>
   <data name="Summary.Hint" xml:space="preserve"><value>De Adviseur vergelijkt deze week met de vorige: slaap, voedingen, luiers en wat opvalt.</value></data>
   <data name="Summary.Prompt" xml:space="preserve"><value>Schrijf een korte samenvatting van de week van de baby voor een moeie ouder: hoe deze week zich verhoudt tot vorige week qua slaap, voedingen en luiers, wat belangrijk is over gezondheid of groei, en één zachte, praktische tip. Vier tot zes zinnen, warm en eenvoudig, zonder kopjes of lijsten. Gebruik alleen het logboek.</value></data>

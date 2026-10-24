@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using Coo.Domain.CareLog;
+using Coo.Domain.CareLog.Kinds.Development;
 using Coo.Domain.CareLog.Kinds.Diaper;
 using Coo.Domain.CareLog.Kinds.Feeding;
 using Coo.Domain.CareLog.Kinds.Health;
@@ -98,7 +99,8 @@ public sealed class BuildAdvisorContext(
         var entries = (await store!.ListAsync(household, now - DetailWindow - TimeSpan.FromDays(1), now.AddMinutes(1), cancellationToken))
             .OfType<LiveEntry>().Select(l => l.Entry)
             .Where(e => !e.IsDeleted && GetToday.IsAbout(e, baby))
-            .Where(e => e.Details is FeedingDetails or SleepDetails or DiaperDetails or PumpDetails or Coo.Domain.CareLog.Kinds.Bath.BathDetails)
+            .Where(e => e.Details is FeedingDetails or SleepDetails or DiaperDetails or PumpDetails or Coo.Domain.CareLog.Kinds.Bath.BathDetails
+                or Coo.Domain.CareLog.Kinds.Development.TummyDetails)
             // A session counts while any of it is in the window; a point, a breast feed, by when it happened.
             .Where(e => (e.Timing is SessionTiming s ? s.Range.End ?? now : e.Timing.OccurredAt) >= now - DetailWindow)
             .OrderBy(e => e.Timing.OccurredAt)
@@ -139,6 +141,8 @@ public sealed class BuildAdvisorContext(
                 text.AppendLine(CultureInfo.InvariantCulture, $"- {At(e.Timing.OccurredAt)}: {Describe(e, now)}");
         }
 
+        await AppendFoodsAndMilestonesAsync(text, household, baby, zone, now, cancellationToken);
+
         var profile = households is null ? null
             : (await households.ListBabiesAsync(household, cancellationToken)).FirstOrDefault(b => b.Id == baby);
         if (profile?.BirthDate is not { } birth)
@@ -162,6 +166,44 @@ public sealed class BuildAdvisorContext(
             var line = string.Create(En,
                 $"- {TimeZoneInfo.ConvertTime(entry.Timing.OccurredAt, zone).ToString("d MMM yyyy", En)} (age {age:0.0} months): {Part(GrowthMeasure.Weight, "weight", "kg")}{Part(GrowthMeasure.Length, "length", "cm")}{Part(GrowthMeasure.Head, "head", "cm")}");
             text.AppendLine(line.TrimEnd(' ', ';'));
+        }
+    }
+
+    /// <summary>
+    /// Every solid food tried, once each with the day it was first given and any reaction ever seen with it, and every
+    /// milestone with its date: what a question about allergies, weaning or development needs, however long ago.
+    /// </summary>
+    private async Task AppendFoodsAndMilestonesAsync(
+        StringBuilder text, HouseholdId household, BabyId baby, TimeZoneInfo zone, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        string Day(DateTimeOffset instant) => TimeZoneInfo.ConvertTime(instant, zone).ToString("d MMM yyyy", En);
+        var all = (await store!.ListAsync(household, now - TimeSpan.FromDays(3 * 366), now.AddMinutes(1), cancellationToken))
+            .OfType<LiveEntry>().Select(l => l.Entry)
+            .Where(e => !e.IsDeleted && e.Subject is BabySubject { BabyId: var id } && id == baby)
+            .OrderBy(e => e.Timing.OccurredAt)
+            .ToList();
+
+        var foods = all.Where(e => e.Details is SolidsDetails)
+            .GroupBy(e => ((SolidsDetails)e.Details).Food.ToLowerInvariant())
+            .Select(g =>
+            {
+                var first = g.First();
+                var reactions = g.Select(e => ((SolidsDetails)e.Details).Reaction).Where(r => r != SolidsReaction.None).Distinct().ToList();
+                var how = reactions.Count == 0 ? "" : $", {string.Join(", ", reactions.Select(r => r == SolidsReaction.Reaction ? "a reaction (rash, vomiting or swelling) seen" : r.ToString().ToLowerInvariant()))}";
+                return $"{((SolidsDetails)first.Details).Food} (first {Day(first.Timing.OccurredAt)}, {g.Count()}x{how})";
+            })
+            .ToList();
+        if (foods.Count > 0)
+            text.AppendLine(CultureInfo.InvariantCulture, $"Solid foods tried: {string.Join("; ", foods)}.");
+
+        var milestones = all.Where(e => e.Details is MilestoneDetails).ToList();
+        if (milestones.Count == 0)
+            return;
+        text.AppendLine("Milestones:");
+        foreach (var e in milestones)
+        {
+            var m = (MilestoneDetails)e.Details;
+            text.AppendLine(CultureInfo.InvariantCulture, $"- {Day(e.Timing.OccurredAt)}: {m.Title ?? m.Code.Replace('-', ' ')}");
         }
     }
 
@@ -196,6 +238,7 @@ public sealed class BuildAdvisorContext(
         VaccineDetails v => $"vaccine {v.Name}",
         VisitDetails v => v.With is { } with ? $"doctor visit ({with})" : "doctor visit",
         Coo.Domain.CareLog.Kinds.Bath.BathDetails => "bath",
+        TummyDetails when entry.Timing is SessionTiming s => $"tummy time of {Duration((s.Range.End ?? now) - s.Range.Start)}",
         _ => entry.KindCode.Value,
     };
 

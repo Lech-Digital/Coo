@@ -183,6 +183,39 @@ public sealed class ParseCareLogTextTests
     }
 
     [Fact]
+    public async Task ExecuteAsync_SolidsAndMilestone_ProposedWithFoodReactionAndPreset()
+    {
+        // Arrange
+        await MemberAsync();
+        _parser.Next = Parsed(
+            new ParsedEntry("Solids", null, null, null, null, null, null, null, TimeExpression.Now, null, "carrot, a rash", Name: "carrot puree", Dose: "3 spoons", Reaction: "reaction"),
+            new ParsedEntry("Milestone", null, null, null, null, null, null, null, TimeExpression.Now, null, "first smile", Milestone: "first-smile"));
+
+        // Act
+        var outcome = await Sut().ExecuteAsync(Parent, Request("carrot puree, 3 spoons, got a rash; and she smiled", AiActions.All), CancellationToken.None);
+
+        // Assert
+        var proposals = outcome.Response!.Proposals;
+        proposals.Should().HaveCount(2);
+        proposals[0].Should().Match<AiProposal>(p => p.Action == AiActions.SolidsLog && p.Name == "carrot puree" && p.Dose == "3 spoons" && p.Reaction == "reaction");
+        proposals[1].Should().Match<AiProposal>(p => p.Action == AiActions.MilestoneLog && p.Milestone == "first-smile");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_CustomMilestoneWithoutWords_IsNotProposed()
+    {
+        // Arrange
+        await MemberAsync();
+        _parser.Next = Parsed(new ParsedEntry("Milestone", null, null, null, null, null, null, null, TimeExpression.Now, null, "a first", Milestone: "custom"));
+
+        // Act
+        var outcome = await Sut().ExecuteAsync(Parent, Request("a first today", AiActions.All), CancellationToken.None);
+
+        // Assert
+        outcome.Response!.Proposals.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task ExecuteAsync_TemperatureNoBodyCanHave_IsNotProposed()
     {
         // Arrange

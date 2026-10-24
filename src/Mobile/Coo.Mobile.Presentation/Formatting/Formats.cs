@@ -103,11 +103,34 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
             VisitDetails { With: { } with } => Strings.Format("Entry.VisitWith", with),
             VisitDetails => Strings.Get("Kind.Visit"),
             Coo.Domain.CareLog.Kinds.Bath.BathDetails => Strings.Get("Kind.Bath"),
+            Coo.Domain.CareLog.Kinds.Development.TummyDetails when entry.Timing.IsInProgress => Strings.Get("Entry.TummyRunning"),
+            Coo.Domain.CareLog.Kinds.Development.TummyDetails => Strings.Format("Entry.Tummy", Duration(((SessionTiming)entry.Timing).Range.Duration(now))),
+            Coo.Domain.CareLog.Kinds.Development.SolidsDetails f => Solids(f),
+            Coo.Domain.CareLog.Kinds.Development.MilestoneDetails m => Milestone(m),
             _ => entry.KindCode.Value,
         };
     }
 
     private bool Imperial => unit == VolumeUnit.Ounces;
+
+    /// <summary>"Carrot puree · 3 spoons · liked", the reaction left out when there was nothing to say.</summary>
+    public static string Solids(Coo.Domain.CareLog.Kinds.Development.SolidsDetails solids)
+    {
+        ArgumentNullException.ThrowIfNull(solids);
+        var parts = new List<string> { solids.Food };
+        if (solids.Amount is { } amount)
+            parts.Add(amount);
+        if (solids.Reaction != Coo.Domain.CareLog.Kinds.Development.SolidsReaction.None)
+            parts.Add(Strings.Get("Solids." + solids.Reaction).ToLower(Strings.Culture));
+        return string.Join(" · ", parts);
+    }
+
+    /// <summary>A milestone's name: the parent's own words, or the preset's ("First smile").</summary>
+    public static string Milestone(Coo.Domain.CareLog.Kinds.Development.MilestoneDetails milestone)
+    {
+        ArgumentNullException.ThrowIfNull(milestone);
+        return milestone.Title ?? Strings.Get("Milestone." + milestone.Code);
+    }
 
     /// <summary>"4.38 kg · 58.4 cm · head 39.2 cm": what was measured, in the household's units.</summary>
     public string Growth(GrowthDetails growth)

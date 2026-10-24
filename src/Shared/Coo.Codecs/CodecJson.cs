@@ -2,6 +2,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Coo.Contracts.CareLog.Kinds.Bath;
+using Coo.Contracts.CareLog.Kinds.Development;
 using Coo.Contracts.CareLog.Kinds.Diaper;
 using Coo.Contracts.CareLog.Kinds.Feeding;
 using Coo.Contracts.CareLog.Kinds.Growth;
@@ -29,6 +30,9 @@ namespace Coo.Codecs;
 [JsonSerializable(typeof(VaccineDetailsV1))]
 [JsonSerializable(typeof(VisitDetailsV1))]
 [JsonSerializable(typeof(BathDetailsV1))]
+[JsonSerializable(typeof(TummyDetailsV1))]
+[JsonSerializable(typeof(SolidsDetailsV1))]
+[JsonSerializable(typeof(MilestoneDetailsV1))]
 internal sealed partial class CodecJsonContext : JsonSerializerContext;
 
 internal static class CodecJson

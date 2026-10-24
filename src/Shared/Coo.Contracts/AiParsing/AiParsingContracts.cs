@@ -74,6 +74,8 @@ public sealed record AiParseContext(IReadOnlyList<string> Running, string? LastB
 /// <param name="Dose">A medicine's dose as said ("400 IU").</param>
 /// <param name="Celsius">A temperature, converted to °C.</param>
 /// <param name="WeightGrams">A measurement, in grams and millimetres whatever unit was said.</param>
+/// <param name="Reaction">How a solid food went: "none", "liked", "disliked" or "reaction".</param>
+/// <param name="Milestone">A milestone's preset code ("first-smile"), or "custom".</param>
 public sealed record AiProposal(
     string Action,
     DateTimeOffset At,
@@ -91,7 +93,9 @@ public sealed record AiProposal(
     decimal? Celsius = null,
     int? WeightGrams = null,
     int? LengthMm = null,
-    int? HeadMm = null);
+    int? HeadMm = null,
+    string? Reaction = null,
+    string? Milestone = null);
 
 /// <param name="Unparsed">Fragments the model could not turn into an action.</param>
 /// <param name="ErrorCode">ai.daily-limit, ai.free-limit or ai.unavailable; the phone keeps the text as a pending note.</param>
@@ -161,6 +165,15 @@ public static class AiActions
     /// <summary>A bath at <see cref="AiProposal.At"/> (1.8).</summary>
     public const string BathLog = "bath.log";
 
+    /// <summary>Tummy time from <see cref="AiProposal.At"/> to <see cref="AiProposal.EndAt"/> (1.8).</summary>
+    public const string TummyLog = "tummy.log";
+
+    /// <summary>A solid food: <see cref="AiProposal.Name"/> the food, <see cref="AiProposal.Dose"/> the amount, and the reaction (1.8).</summary>
+    public const string SolidsLog = "solids.log";
+
+    /// <summary>A milestone: a preset in <see cref="AiProposal.Milestone"/>, or "custom" with <see cref="AiProposal.Name"/> (1.8).</summary>
+    public const string MilestoneLog = "milestone.log";
+
     /// <summary>The actions of 1.1, the first Tell Coo: what a phone that sends no list understands.</summary>
     public static IReadOnlyList<string> Original { get; } =
     [
@@ -168,7 +181,7 @@ public static class AiActions
     ];
 
     /// <summary>Everything this version knows: <see cref="Original"/> and health and growth.</summary>
-    public static IReadOnlyList<string> All { get; } = [.. Original, MedicineLog, TemperatureLog, GrowthLog, VaccineLog, VisitLog, BathLog];
+    public static IReadOnlyList<string> All { get; } = [.. Original, MedicineLog, TemperatureLog, GrowthLog, VaccineLog, VisitLog, BathLog, TummyLog, SolidsLog, MilestoneLog];
 }
 
 public static class AiWarnings
