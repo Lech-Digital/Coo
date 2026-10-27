@@ -130,7 +130,7 @@ Needs the server of the same day: it knows the new kinds of entry, and only then
 ## 1.1.0 (code 18) — 2026-10-23
 
 ### New
-- **Tell Coo**: say or type what happened — "Maja started on the left", "120 ml formula at two, then a wet diaper",
+- **Tell Coo**: say or type what happened — "Lena started on the left", "120 ml formula at two, then a wet diaper",
   "she woke up" — and Coo shows what it understood before anything is saved. Starts and stops act on what is running,
   like the buttons; entries already logged by your partner are spotted and left unticked. Works in all seven languages.
   Long-press Coo's icon for a "Tell Coo" shortcut. Without a connection, your words are kept and offered for review later.
