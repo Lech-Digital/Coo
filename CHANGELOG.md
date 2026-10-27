@@ -26,6 +26,12 @@ Needs the server of the same day: it knows the new kinds of entry, and only then
   every food tried and any reaction.
 - **Milestones**: first smile, rolling over, first tooth, first steps and more, or your own, on the day they happened.
 - Tell Coo understands baths, tummy time, solid food and milestones.
+- **Already use Coo? Sign in** on the welcome screen: a new phone goes straight to your family's log.
+
+### Fixed
+- Joining a family from an invitation link: the code shows on the sign-in step and stays filled in under "Enter a
+  code"; an account that is already in the family now gets its log at once, and the welcome screen gives way to
+  Today without restarting the app.
 
 ### Changed
 - Coo's own dialogs everywhere instead of Android's grey ones, and a word from Coo before Android asks for the

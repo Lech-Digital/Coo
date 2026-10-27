@@ -409,6 +409,7 @@ Jeśli link nie otworzy Coo, przejdź w Coo do Ustawienia → Rodzina → Dołą
   <data name="Join.Babies" xml:space="preserve"><value>W dzienniku tej rodziny: {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} zaprasza Cię do rodziny jako rodzica. Będziecie razem widzieć dziennik rodziny i dodawać do niego wpisy.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Obie rodziny są na tym telefonie. Przełączaj się między nimi w Ustawienia → Rodzina.</value></data>
+  <data name="Join.CodeLine" xml:space="preserve"><value>Kod zaproszenia: {0}</value></data>
   <data name="Join.Copied" xml:space="preserve"><value>Twoje wpisy są teraz także {0}.</value></data>
   <data name="Join.DeleteOld.few" xml:space="preserve"><value>Twoje wpisy są teraz także {1}. Usunąć starą rodzinę? Jej {0} wpisy dla: {2} zostaną usunięte z serwera Coo i z tego telefonu. Kopie zostaną.</value></data>
   <data name="Join.DeleteOld.many" xml:space="preserve"><value>Twoje wpisy są teraz także {1}. Usunąć starą rodzinę? Jej {0} wpisów dla: {2} zostanie usuniętych z serwera Coo i z tego telefonu. Kopie zostaną.</value></data>
@@ -698,11 +699,13 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Setup.Continue" xml:space="preserve"><value>Dalej</value></data>
   <data name="Setup.DefaultName" xml:space="preserve"><value>Maluszek</value></data>
   <data name="Setup.DueDate" xml:space="preserve"><value>Termin porodu</value></data>
+  <data name="Setup.Fetching" xml:space="preserve"><value>Zalogowano. Pobieram dziennik Twojej rodziny…</value></data>
   <data name="Setup.HaveInvitation" xml:space="preserve"><value>Masz zaproszenie? Wpisz kod</value></data>
   <data name="Setup.Hint" xml:space="preserve"><value>Na start nie potrzebujesz konta. Udostępnić rodzinie możesz później.</value></data>
   <data name="Setup.HintSignedIn" xml:space="preserve"><value>Dodaj dziecko, aby zacząć dziennik swojej rodziny.</value></data>
   <data name="Setup.Name" xml:space="preserve"><value>Imię</value></data>
   <data name="Setup.NotYet" xml:space="preserve"><value>Jeszcze nie</value></data>
+  <data name="Setup.SignIn" xml:space="preserve"><value>Już używasz Coo? Zaloguj się</value></data>
   <data name="Setup.Title" xml:space="preserve"><value>Witaj w Coo</value></data>
   <data name="Setup.Yes" xml:space="preserve"><value>Tak</value></data>
   <data name="Side.L" xml:space="preserve"><value>L</value></data>

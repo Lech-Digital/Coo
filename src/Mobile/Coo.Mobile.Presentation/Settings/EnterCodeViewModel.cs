@@ -23,6 +23,21 @@ public sealed partial class EnterCodeViewModel(JoinFamily join) : ObservableObje
 
     public static string ContinueText => Strings.Get("Setup.Continue");
 
+    /// <summary>The code from the link that opened Coo, so nobody types it again (owner's finding); empty when there is none.</summary>
+    public async Task<string> SuggestedAsync()
+    {
+        try
+        {
+            return (await join.SuggestedCodeAsync(CancellationToken.None))?.Display ?? "";
+        }
+#pragma warning disable CA1031 // A store that cannot be read only leaves the field empty.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+            return "";
+        }
+    }
+
     [RelayCommand]
     private async Task ContinueAsync()
     {

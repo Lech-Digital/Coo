@@ -61,6 +61,10 @@ public sealed partial class JoinViewModel : ObservableObject
     [ObservableProperty]
     private string _message = "";
 
+    /// <summary>"Invitation code: ABCD-EFGH" on the sign-in step; empty when there is no code to show.</summary>
+    [ObservableProperty]
+    private string _codeLine = "";
+
     [ObservableProperty]
     private bool _canRetry;
 
@@ -128,7 +132,12 @@ public sealed partial class JoinViewModel : ObservableObject
                 break;
             case JoinStage.Invitation:
                 if (await _join.NeedsSignInAsync(CancellationToken.None))
+                {
+                    // The code from the link shows already, before sign-in: the person sees which invitation this is.
+                    var code = await _join.SuggestedCodeAsync(CancellationToken.None);
+                    CodeLine = code is null ? "" : Strings.Format("Join.CodeLine", code.Display);
                     Step = JoinStep.SignIn;
+                }
                 else
                     await PreviewAsync();
                 break;

@@ -391,6 +391,7 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Join.Babies" xml:space="preserve"><value>Het logboek van dat gezin heeft: {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} heeft je uitgenodigd als ouder. Jullie zien allebei het logboek van het gezin en kunnen het aanvullen.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Beide gezinnen staan op deze telefoon. Wissel tussen ze in Instellingen → Gezin.</value></data>
+  <data name="Join.CodeLine" xml:space="preserve"><value>Uitnodigingscode: {0}</value></data>
   <data name="Join.Copied" xml:space="preserve"><value>Je items staan nu ook {0}.</value></data>
   <data name="Join.DeleteOld.one" xml:space="preserve"><value>Je items staan nu ook {1}. Je oude gezin verwijderen? {0} item voor {2} wordt van de server van Coo en van deze telefoon verwijderd. De kopieën blijven.</value></data>
   <data name="Join.DeleteOld.other" xml:space="preserve"><value>Je items staan nu ook {1}. Je oude gezin verwijderen? De {0} items voor {2} worden van de server van Coo en van deze telefoon verwijderd. De kopieën blijven.</value></data>
@@ -675,11 +676,13 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Setup.Continue" xml:space="preserve"><value>Doorgaan</value></data>
   <data name="Setup.DefaultName" xml:space="preserve"><value>Baby</value></data>
   <data name="Setup.DueDate" xml:space="preserve"><value>Uitgerekende datum</value></data>
+  <data name="Setup.Fetching" xml:space="preserve"><value>Je bent ingelogd. Het logboek van je gezin wordt opgehaald…</value></data>
   <data name="Setup.HaveInvitation" xml:space="preserve"><value>Heb je een uitnodiging? Voer een code in</value></data>
   <data name="Setup.Hint" xml:space="preserve"><value>Je hebt geen account nodig om te beginnen. Delen met familie kan later.</value></data>
   <data name="Setup.HintSignedIn" xml:space="preserve"><value>Voeg je baby toe om het logboek van je gezin te beginnen.</value></data>
   <data name="Setup.Name" xml:space="preserve"><value>Naam</value></data>
   <data name="Setup.NotYet" xml:space="preserve"><value>Nog niet</value></data>
+  <data name="Setup.SignIn" xml:space="preserve"><value>Gebruik je Coo al? Log in</value></data>
   <data name="Setup.Title" xml:space="preserve"><value>Welkom bij Coo</value></data>
   <data name="Setup.Yes" xml:space="preserve"><value>Ja</value></data>
   <data name="Side.L" xml:space="preserve"><value>L</value></data>

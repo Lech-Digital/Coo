@@ -249,6 +249,94 @@ public sealed class JoinFamilyTests : IDisposable
     }
 
     [Fact]
+    public async Task PreviewAsync_AlreadyAMemberOfAFamilyNotOnThePhoneYet_PullsItAndShowsIt()
+    {
+        // Arrange: the inviter's own account on a new phone; the family arrives with the pull.
+        await SignInAsync();
+        Pending();
+        _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([Settings(Home)]);
+        _sync.SyncNowAsync(Arg.Any<CancellationToken>()).Returns(_ =>
+        {
+            _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([Settings(Home), Settings(Joined)]);
+            return Task.CompletedTask;
+        });
+        _api.PreviewAsync(Code, Arg.Any<CancellationToken>()).Returns(new InvitationPreview(Joined, "Andrzej", ["Lena"], Role.Parent, Now.AddHours(72), true));
+        _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.AlreadyMember));
+
+        // Act
+        var preview = await Join().PreviewAsync(CancellationToken.None);
+
+        // Assert
+        preview.Status.Should().Be(PreviewStatus.AlreadyMember);
+        await _sync.Received(1).SyncNowAsync(Arg.Any<CancellationToken>());
+        await _moves.Received(1).ActivateAsync(Joined, Arg.Any<CancellationToken>());
+        _sync.Received(1).NotifyDataChanged();
+    }
+
+    [Fact]
+    public async Task AcceptAsync_AlreadyMemberAndThePullFails_StillSaysAlreadyMember()
+    {
+        // Arrange
+        await SignInAsync();
+        Pending();
+        _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([Settings(Home)]);
+        _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.AlreadyMember));
+        _sync.SyncNowAsync(Arg.Any<CancellationToken>()).ThrowsAsync(new IOException("offline"));
+
+        // Act
+        var accepted = await Join().AcceptAsync(Code, "Andrzej", CancellationToken.None);
+
+        // Assert
+        accepted.Status.Should().Be(AcceptStatus.AlreadyMember);
+        await _moves.DidNotReceiveWithAnyArgs().ActivateAsync(default, default);
+        _sync.Received(1).NotifyDataChanged();
+    }
+
+    [Fact]
+    public async Task AcceptAsync_AlreadyMemberOfAFamilyOnThePhone_DoesNotPullFirst()
+    {
+        // Arrange
+        await SignInAsync();
+        Pending();
+        _api.AcceptAsync(Code, Arg.Any<CancellationToken>()).Returns(new AcceptedInvitation(Joined, Role.Parent, AcceptOutcome.AlreadyMember));
+
+        // Act
+        await Join().AcceptAsync(Code, "Andrzej", CancellationToken.None);
+
+        // Assert
+        await _sync.DidNotReceiveWithAnyArgs().SyncNowAsync(default);
+    }
+
+    [Fact]
+    public async Task SuggestedCodeAsync_PendingInvitation_IsItsCode()
+    {
+        // Arrange
+        Pending();
+
+        // Act
+        var code = await Join().SuggestedCodeAsync(CancellationToken.None);
+
+        // Assert
+        code.Should().Be(Code);
+    }
+
+    [Fact]
+    public async Task SuggestedCodeAsync_InvitationDeclinedAfterItArrived_IsStillTheReceivedCode()
+    {
+        // Arrange: the link arrived, then Not now cleared the pending invitation.
+        var join = Join();
+        await join.ReceiveAsync("https://api.coo.lechdigital.nl/i/KMNPQRST", CancellationToken.None);
+        await join.DeclineAsync(CancellationToken.None);
+        _store.GetPendingInvitationAsync(Arg.Any<CancellationToken>()).Returns((PendingInvitation?)null);
+
+        // Act
+        var code = await join.SuggestedCodeAsync(CancellationToken.None);
+
+        // Assert
+        code!.Display.Should().Be("KMNP-QRST");
+    }
+
+    [Fact]
     public async Task PreviewAsync_AlreadyAMemberAfterALostAcceptAnswer_AcceptsAgainAndReopensAtTheChoice()
     {
         // Arrange: final review C2. The accept joined her, its answer was lost, the app restarted: the preview now says

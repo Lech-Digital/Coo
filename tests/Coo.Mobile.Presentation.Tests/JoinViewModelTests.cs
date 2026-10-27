@@ -104,6 +104,7 @@ public sealed class JoinViewModelTests : IDisposable
         // Assert
         model.Step.Should().Be(JoinStep.SignIn);
         JoinViewModel.SignInTitle.Should().Be("Sign in to join a family");
+        model.CodeLine.Should().Be("Invitation code: ABCD-EFGH");
     }
 
     [Fact]

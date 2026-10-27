@@ -391,6 +391,7 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Join.Babies" xml:space="preserve"><value>Their family's log has: {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} invited you to join as a parent. You'll both see the family's log and add to it.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Both families are on this phone. Switch between them in Settings → Family.</value></data>
+  <data name="Join.CodeLine" xml:space="preserve"><value>Invitation code: {0}</value></data>
   <data name="Join.Copied" xml:space="preserve"><value>Your entries are now {0} too.</value></data>
   <data name="Join.DeleteOld.one" xml:space="preserve"><value>Your entries are now {1} too. Delete your old family? Its {0} entry for {2} is deleted from Coo's server and this phone. The copies stay.</value></data>
   <data name="Join.DeleteOld.other" xml:space="preserve"><value>Your entries are now {1} too. Delete your old family? Its {0} entries for {2} are deleted from Coo's server and this phone. The copies stay.</value></data>
@@ -675,11 +676,13 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Setup.Continue" xml:space="preserve"><value>Continue</value></data>
   <data name="Setup.DefaultName" xml:space="preserve"><value>Baby</value></data>
   <data name="Setup.DueDate" xml:space="preserve"><value>Due date</value></data>
+  <data name="Setup.Fetching" xml:space="preserve"><value>You're signed in. Getting your family's log…</value></data>
   <data name="Setup.HaveInvitation" xml:space="preserve"><value>Have an invitation? Enter a code</value></data>
   <data name="Setup.Hint" xml:space="preserve"><value>No account needed to start. You can share with family later.</value></data>
   <data name="Setup.HintSignedIn" xml:space="preserve"><value>Add your baby to start your family's log.</value></data>
   <data name="Setup.Name" xml:space="preserve"><value>Name</value></data>
   <data name="Setup.NotYet" xml:space="preserve"><value>Not yet</value></data>
+  <data name="Setup.SignIn" xml:space="preserve"><value>Already use Coo? Sign in</value></data>
   <data name="Setup.Title" xml:space="preserve"><value>Welcome to Coo</value></data>
   <data name="Setup.Yes" xml:space="preserve"><value>Yes</value></data>
   <data name="Side.L" xml:space="preserve"><value>L</value></data>

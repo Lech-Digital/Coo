@@ -84,6 +84,16 @@ public sealed class JoinFamily(
 {
     public static readonly TimeSpan PendingLifetime = TimeSpan.FromHours(72);
 
+    /// <summary>
+    /// The last code this process received, kept after "Not now" too, so "Enter a code" shows it filled in. Memory only: the
+    /// stored pending invitation stays the one that counts.
+    /// </summary>
+    private static InvitationCode? _recent;
+
+    /// <summary>The code to fill in on "Enter a code": the pending invitation's, or the last one received while Coo ran.</summary>
+    public async Task<InvitationCode?> SuggestedCodeAsync(CancellationToken cancellationToken) =>
+        (await families.GetPendingInvitationAsync(cancellationToken))?.Code ?? _recent;
+
     /// <summary>A typed code, a pasted link, or an App Link's URL. False, with nothing stored and no request, when it holds no code.</summary>
     public async Task<bool> ReceiveAsync(string? text, CancellationToken cancellationToken)
     {
@@ -91,6 +101,7 @@ public sealed class JoinFamily(
         if (code.IsFailure)
             return false;
         await families.SetPendingInvitationAsync(new PendingInvitation(code.Value, time.GetUtcNow()), cancellationToken);
+        _recent = code.Value;
         return true;
     }
 
@@ -166,7 +177,7 @@ public sealed class JoinFamily(
         if (account.Generation != generation)
             return new JoinPreview(PreviewStatus.Unavailable);
         await families.SetPendingInvitationAsync(null, cancellationToken);
-        await ShowAsync(preview.Household, cancellationToken);
+        await ShowMemberFamilyAsync(preview.Household, cancellationToken);
         return new JoinPreview(PreviewStatus.AlreadyMember, preview);
     }
 
@@ -227,7 +238,7 @@ public sealed class JoinFamily(
         if (accepted.Outcome == AcceptOutcome.AlreadyMember)
         {
             await families.SetPendingInvitationAsync(null, cancellationToken);
-            await ShowAsync(accepted.Household, cancellationToken);
+            await ShowMemberFamilyAsync(accepted.Household, cancellationToken);
             return new JoinAccept(AcceptStatus.AlreadyMember);
         }
 
@@ -358,6 +369,29 @@ public sealed class JoinFamily(
         if (account.State is JoinPending)
             await account.TryCompleteJoinAsync(generation, cancellationToken);
         sync.RequestSync();
+    }
+
+    /// <summary>
+    /// Already a member (often the inviter's own account, signed in on a new phone): the family is fetched when its log is not on
+    /// the phone yet, then shown, so OK lands in it instead of the first-launch step (owner's finding on the Pixel 10).
+    /// </summary>
+    private async Task ShowMemberFamilyAsync(HouseholdId household, CancellationToken cancellationToken)
+    {
+        if (!(await households.ListHouseholdsAsync(cancellationToken)).Any(h => h.Id == household && !h.IsDeleted))
+        {
+            try
+            {
+                await list.RefreshAsync(cancellationToken);
+                await sync.SyncNowAsync(cancellationToken);
+            }
+#pragma warning disable CA1031 // Offline or not consented yet: the cycle pulls it later, and the pages follow when it does.
+            catch (Exception)
+#pragma warning restore CA1031
+            {
+            }
+        }
+
+        await ShowAsync(household, cancellationToken);
     }
 
     /// <summary>The family is shown, if its log is on the phone (it has settings), and the pages are told.</summary>

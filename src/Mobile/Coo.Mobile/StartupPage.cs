@@ -332,6 +332,11 @@ public sealed class StartupPage : ContentPage
                 }
 
                 _ = ShowSetupIfNoBabyAsync();
+
+                // And the other way: over the first-launch step, a family whose baby has just arrived (signed in to an
+                // account that has one, already a member of the invited family) opens Today with no restart (owner's
+                // finding on the Pixel 10).
+                _ = ShowShellIfBabyAsync();
             });
             _services.GetRequiredService<Sync.SyncPrompter>().Attach();
             var connectivity = _services.GetRequiredService<Coo.Mobile.Application.Sync.IConnectivityWatcher>();

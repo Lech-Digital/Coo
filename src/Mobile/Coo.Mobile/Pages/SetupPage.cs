@@ -42,12 +42,20 @@ public sealed class SetupPage : ContentPage
         var code = Ui.Text(SetupViewModel.HaveInvitationText, "BodyStrong", "Accent").Tap(l => l.Margin = new Thickness(0, 8, 0, 0));
         code.GestureRecognizers.Add(new TapGestureRecognizer { Command = model.EnterCodeCommand });
 
+        // Someone with a family already (a new phone, a reinstall): sign in and the family's log comes, no second baby.
+        var signIn = Ui.Text(SetupViewModel.SignInText, "BodyStrong", "Accent").Tap(l => l.Margin = new Thickness(0, 4, 0, 0));
+        signIn.GestureRecognizers.Add(new TapGestureRecognizer { Command = model.SignInCommand });
+        var status = Ui.Text("", "Body", "Ink2");
+        status.SetBinding(Label.TextProperty, nameof(SetupViewModel.Status));
+
         void Sync()
         {
             yes.SetDynamicResource(VisualElement.StyleProperty, model.HasArrived ? "PrimaryButton" : "GhostButton");
             notYet.SetDynamicResource(VisualElement.StyleProperty, model.HasArrived ? "GhostButton" : "PrimaryButton");
             birthLabel.IsVisible = birth.IsVisible = bornEarly.IsVisible = model.HasArrived;
             dueLabel.IsVisible = due.IsVisible = !model.HasArrived || model.BornEarly;
+            signIn.IsVisible = model.CanSignIn;
+            status.IsVisible = model.Status.Length > 0;
         }
 
         model.PropertyChanged += (_, _) => Sync();
@@ -75,6 +83,8 @@ public sealed class SetupPage : ContentPage
                     error,
                     go,
                     code,
+                    signIn,
+                    status,
                 },
             },
         };

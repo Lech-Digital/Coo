@@ -62,6 +62,12 @@ public sealed class EnterCodePage : ContentPage
             }
         };
         model.Accepted += (_, _) => Dispatcher.Dispatch(async () => await AcceptedAsync());
+        Dispatcher.Dispatch(async () =>
+        {
+            var suggested = await model.SuggestedAsync();
+            if (suggested.Length > 0 && string.IsNullOrEmpty(fieldEntry.Text))
+                fieldEntry.Text = suggested;
+        });
         Content = new ScrollView
         {
             Content = new VerticalStackLayout

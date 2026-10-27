@@ -189,6 +189,8 @@ public sealed class JoinPage : ContentPage
             case JoinStep.SignIn:
                 stack.Add(Ui.Text(JoinViewModel.SignInTitle, "Title"));
                 stack.Add(Ui.Text(JoinViewModel.SignInBody, "Body"));
+                if (_model.CodeLine.Length > 0)
+                    stack.Add(Ui.Text(_model.CodeLine, "BodyStrong"));
                 stack.Add(Button(JoinViewModel.SignInText, "PrimaryButton", () => _model.SignInCommand.ExecuteAsync(null)));
                 stack.Add(Button(JoinViewModel.NotNowText, "GhostButton", () => _model.NotNowCommand.ExecuteAsync(null)));
                 break;

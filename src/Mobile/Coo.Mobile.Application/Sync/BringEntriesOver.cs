@@ -120,6 +120,9 @@ public sealed class BringEntriesOver(ISessionStore sessions, IHouseholdMoves mov
         if (account.Generation != generation)
             return;
         await moves.ActivateAsync(session.AccountHousehold, cancellationToken);
+
+        // The pages follow at once: over the first-launch step, the family's log now shows instead.
+        sync.NotifyDataChanged();
         if (await account.TryCompleteJoinAsync(generation, cancellationToken))
             sync.RequestSync();
     }

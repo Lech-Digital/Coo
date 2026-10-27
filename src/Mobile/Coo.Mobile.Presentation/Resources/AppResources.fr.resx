@@ -391,6 +391,7 @@ Si le lien n'ouvre pas Coo, va dans Réglages → Famille → Rejoindre une fami
   <data name="Join.Babies" xml:space="preserve"><value>Le journal de cette famille contient : {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} vous invite à rejoindre la famille en tant que parent. Vous verrez tous les deux le journal de la famille et pourrez le compléter.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Les deux familles sont sur ce téléphone. Passez de l'une à l'autre dans Réglages → Famille.</value></data>
+  <data name="Join.CodeLine" xml:space="preserve"><value>Code d'invitation : {0}</value></data>
   <data name="Join.Copied" xml:space="preserve"><value>Vos entrées sont maintenant aussi {0}.</value></data>
   <data name="Join.DeleteOld.one" xml:space="preserve"><value>Vos entrées sont maintenant aussi {1}. Supprimer votre ancienne famille ? {0} entrée pour {2} sera supprimée du serveur de Coo et de ce téléphone. Les copies restent.</value></data>
   <data name="Join.DeleteOld.other" xml:space="preserve"><value>Vos entrées sont maintenant aussi {1}. Supprimer votre ancienne famille ? Ses {0} entrées pour {2} seront supprimées du serveur de Coo et de ce téléphone. Les copies restent.</value></data>
@@ -675,11 +676,13 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Setup.Continue" xml:space="preserve"><value>Continuer</value></data>
   <data name="Setup.DefaultName" xml:space="preserve"><value>Bébé</value></data>
   <data name="Setup.DueDate" xml:space="preserve"><value>Date prévue</value></data>
+  <data name="Setup.Fetching" xml:space="preserve"><value>Vous êtes connecté. Récupération du journal de votre famille…</value></data>
   <data name="Setup.HaveInvitation" xml:space="preserve"><value>Vous avez une invitation ? Saisir un code</value></data>
   <data name="Setup.Hint" xml:space="preserve"><value>Pas besoin de compte pour commencer. Vous pourrez partager avec la famille plus tard.</value></data>
   <data name="Setup.HintSignedIn" xml:space="preserve"><value>Ajoutez votre bébé pour commencer le journal de votre famille.</value></data>
   <data name="Setup.Name" xml:space="preserve"><value>Prénom</value></data>
   <data name="Setup.NotYet" xml:space="preserve"><value>Pas encore</value></data>
+  <data name="Setup.SignIn" xml:space="preserve"><value>Vous utilisez déjà Coo ? Se connecter</value></data>
   <data name="Setup.Title" xml:space="preserve"><value>Bienvenue dans Coo</value></data>
   <data name="Setup.Yes" xml:space="preserve"><value>Oui</value></data>
   <data name="Side.L" xml:space="preserve"><value>G</value></data>
