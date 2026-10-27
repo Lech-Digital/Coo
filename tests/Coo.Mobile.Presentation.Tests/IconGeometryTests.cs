@@ -1,12 +1,63 @@
 using System.Globalization;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using Coo.Mobile.Presentation.Theme;
 
 namespace Coo.Mobile.Presentation.Tests;
 
-/// <summary>Every icon path parses and stays inside its 24 × 24 grid (Spec 005 §7).</summary>
-public sealed class IconGeometryTests
+/// <summary>
+/// Every icon path parses and stays inside its 24 × 24 grid (Spec 005 §7), and is written so the drawing's parser reads
+/// it as meant.
+/// </summary>
+public sealed partial class IconGeometryTests
 {
     public static TheoryData<string> Icons => [.. IconGeometry.All.Keys];
+
+    /// <summary>Every icon, by its field name: <see cref="IconGeometry.All"/> lists only some of them.</summary>
+    public static TheoryData<string> Fields()
+    {
+        var data = new TheoryData<string>();
+        foreach (var field in typeof(IconGeometry).GetFields(BindingFlags.Public | BindingFlags.Static).Where(f => f.IsLiteral))
+            data.Add(field.Name);
+        return data;
+    }
+
+    [Theory]
+    [MemberData(nameof(Fields))]
+    public void Geometry_EveryIcon_WritesEachNumberInFull(string name)
+    {
+        // Arrange
+        var geometry = (string)typeof(IconGeometry).GetField(name)!.GetRawConstantValue()!;
+
+        // Act
+        var packed = PackedNumber().Match(geometry);
+
+        // Assert
+        packed.Success.Should().BeFalse($"{name} has \"{packed.Value}\"");
+    }
+
+    [Theory]
+    [InlineData("l6.1.7")]
+    [InlineData("l6.1-.7")]
+    [InlineData("M18 14l.9 2")]
+    public void Geometry_PackedNumber_IsCaught(string geometry)
+    {
+        // Act
+        var caught = PackedNumber().IsMatch(geometry);
+
+        // Assert
+        caught.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Geometry_NumbersInFull_AreNotCaught()
+    {
+        // Act
+        var caught = PackedNumber().IsMatch("M12 3l2.6 5.6 6.1 0.7-4.5 4.2");
+
+        // Assert
+        caught.Should().BeFalse();
+    }
 
     [Theory]
     [MemberData(nameof(Icons))]
@@ -100,6 +151,11 @@ public sealed class IconGeometryTests
 
         return points;
     }
+
+    // "6.1.7" (6.1 then 0.7), "-.7", "l.9": a number without its leading zero right after another number, a sign or a
+    // command. The drawing's parser misread them (the milestone star drew as a squiggle).
+    [GeneratedRegex(@"\d\.\d+\.\d|[-a-zA-Z\s,]\.\d")]
+    private static partial Regex PackedNumber();
 
     private static List<string> Tokenize(string data)
     {

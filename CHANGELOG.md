@@ -32,6 +32,9 @@ Needs the server of the same day: it knows the new kinds of entry, and only then
 - Joining a family from an invitation link: the code shows on the sign-in step and stays filled in under "Enter a
   code"; an account that is already in the family now gets its log at once, and the welcome screen gives way to
   Today without restarting the app.
+- Icons sit in the middle of their circles (the back arrow had moved down and right), the milestone star draws as a
+  star, and button labels such as "Switch & resume" fit instead of being cut off.
+- "Earlier…" scrolls, so Solid food and Milestone at the bottom can be reached.
 
 ### Changed
 - Coo's own dialogs everywhere instead of Android's grey ones, and a word from Coo before Android asks for the

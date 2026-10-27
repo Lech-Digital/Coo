@@ -2,7 +2,9 @@ namespace Coo.Mobile.Presentation.Theme;
 
 /// <summary>
 /// The line icons (design system §5), as SVG path data on a 24-unit grid, drawn by the host's <c>Icon</c> control
-/// with a 1.7 stroke, round caps and joins, and no fill (Spec 005 §7). Taken from <c>washi-ux.html</c>.
+/// with a 1.7 stroke, round caps and joins, and no fill (Spec 005 §7). Taken from <c>washi-ux.html</c>. Numbers are
+/// written out in full ("6.1 0.7", never "6.1.7"): the drawing's parser misread the packed form (the milestone star drew
+/// as a squiggle).
 /// </summary>
 public static class IconGeometry
 {
@@ -43,14 +45,14 @@ public static class IconGeometry
     public const string Solids = "M5 7a3 4 0 1 0 6 0a3 4 0 1 0 -6 0M8 11v10M13 13h8a4 4 0 0 1 -8 0z";
 
     /// <summary>A five-point star: a milestone.</summary>
-    public const string Milestone = "M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z";
+    public const string Milestone = "M12 3l2.6 5.6 6.1 0.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-0.7z";
 
     public const string Pump = "M5 5h14l-5 5v3h-4v-3zM10 13v6a2 2 0 0 0 4 0v-6";
     public const string Mic = "M9 6a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0zM5 11a7 7 0 0 0 14 0M12 18v3";
     public const string Today = "M4 11l8-7 8 7v9h-5v-6h-6v6H4z";
-    public const string Log = "M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01";
+    public const string Log = "M9 6h11M9 12h11M9 18h11M4.5 6h0.01M4.5 12h0.01M4.5 18h0.01";
     /// <summary>Two four-point stars: something the AI wrote.</summary>
-    public const string Sparkle = "M10 3l1.8 4.7L16.5 9.5l-4.7 1.8L10 16l-1.8-4.7L3.5 9.5l4.7-1.8zM18 14l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z";
+    public const string Sparkle = "M10 3l1.8 4.7L16.5 9.5l-4.7 1.8L10 16l-1.8-4.7L3.5 9.5l4.7-1.8zM18 14l0.9 2.1 2.1 0.9-2.1 0.9-0.9 2.1-0.9-2.1-2.1-0.9 2.1-0.9z";
 
     public const string Insights = "M5 20V11M11 20V5M17 20v-6M3 20h18";
     public const string Family = "M6 8a3 3 0 1 0 6 0a3 3 0 1 0-6 0M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 6";

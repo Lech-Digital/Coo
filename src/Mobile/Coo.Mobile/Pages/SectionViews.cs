@@ -247,6 +247,15 @@ internal static class SectionViews
                         (false, true) => "PrimaryButton",
                         _ => "GhostButton",
                     });
+
+                    // Three to a row leaves about 100 dp each: the pill's padding left "Switch & resume" no room (owner's
+                    // finding). Less padding, and a long label wraps instead of being cut.
+                    if (item.Actions.Count > 2)
+                    {
+                        button.Padding = new Thickness(8, 6);
+                        button.FontSize = night ? 15 : 14;
+                    }
+
                     actions.Add(button, i);
                 }
             }

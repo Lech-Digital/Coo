@@ -24,6 +24,9 @@ public sealed class Sheet : Grid
         _panel = new Border
         {
             VerticalOptions = LayoutOptions.End,
+
+            // Never up to the very top: the page shows above it, so it reads as a sheet.
+            Margin = new Thickness(0, 48, 0, 0),
             StrokeThickness = 0,
             Padding = new Thickness(24, 20, 24, 32),
             StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(28, 28, 0, 0) },
@@ -39,7 +42,9 @@ public sealed class Sheet : Grid
 
     public async Task ShowAsync(View content)
     {
-        _panel.Content = content;
+        // Scrolls when taller than the screen: Earlier… with every kind shown cut off Solid food and Milestone (seen on the
+        // emulator, 2026-10-27).
+        _panel.Content = content as ScrollView ?? new ScrollView { Content = content };
         if (IsVisible)
             return;
         IsVisible = true;
