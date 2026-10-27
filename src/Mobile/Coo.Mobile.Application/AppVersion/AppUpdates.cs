@@ -1,6 +1,9 @@
 namespace Coo.Mobile.Application.AppVersion;
 
-/// <summary>The server's word on versions (<c>/api/app-version</c>): below <see cref="Minimum"/> the app must update.</summary>
+/// <summary>
+/// The server's word on versions (<c>/api/app-version</c>): below <see cref="Minimum"/> the app must update; below
+/// <see cref="Latest"/> it is asked to.
+/// </summary>
 public sealed record AppVersionPolicy(int Latest, int Minimum);
 
 public interface IAppVersionApi
@@ -30,6 +33,9 @@ public static class UpdatePolicy
     /// <summary>Play's update priority from which an update is immediate.</summary>
     public const int ImmediatePriority = 4;
 
+    /// <summary>How often a newer version is suggested, when nothing else asks for it.</summary>
+    public static readonly TimeSpan SuggestEvery = TimeSpan.FromDays(1);
+
     public static UpdateAction Decide(
         int versionCode, AppVersionPolicy? server, bool playOffersUpdate, int playPriority, bool immediateAllowed, bool flexibleAllowed, bool flexibleOfferedThisSession)
     {
@@ -45,6 +51,16 @@ public static class UpdatePolicy
 
         return required ? UpdateAction.OpenStore : UpdateAction.None;
     }
+
+    /// <summary>
+    /// When <see cref="Decide"/> asks nothing but the server knows a newer version: "a new version is ready", once a day.
+    /// Play's in-app update can lag a release by hours, or not come at all (another track, a copy not from Play); a
+    /// phone on 1.0.0 heard nothing of 1.8.0 (owner's finding, 2026-10-27).
+    /// </summary>
+    public static bool ShouldSuggest(int versionCode, AppVersionPolicy? server, DateTimeOffset? lastSuggested, DateTimeOffset now) =>
+        server is { } s
+        && versionCode < s.Latest
+        && (lastSuggested is not { } last || now - last >= SuggestEvery || now < last);
 }
 
 /// <summary>

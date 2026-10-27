@@ -670,6 +670,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Settings.Units" xml:space="preserve"><value>Einheiten</value></data>
   <data name="Settings.Version" xml:space="preserve"><value>Coo {0} ({1})</value></data>
   <data name="Settings.Volume" xml:space="preserve"><value>Menge</value></data>
+  <data name="Setup.AddBabyInstead" xml:space="preserve"><value>Stattdessen hier ein Baby hinzufügen</value></data>
   <data name="Setup.Arrived" xml:space="preserve"><value>Ist das Baby schon da?</value></data>
   <data name="Setup.BirthDate" xml:space="preserve"><value>Geburtsdatum</value></data>
   <data name="Setup.BornEarly" xml:space="preserve"><value>Zu früh geboren? Errechneten Termin angeben</value></data>
@@ -799,6 +800,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Unit.Lb" xml:space="preserve"><value>lb</value></data>
   <data name="Unit.Ml" xml:space="preserve"><value>ml</value></data>
   <data name="Unit.Oz" xml:space="preserve"><value>oz</value></data>
+  <data name="Update.Available" xml:space="preserve"><value>Eine neue Version von Coo ist bei Google Play, mit Neuem zum Eintragen und Verbesserungen. Jetzt aktualisieren?</value></data>
   <data name="Update.Button" xml:space="preserve"><value>Aktualisieren</value></data>
   <data name="Update.Downloaded" xml:space="preserve"><value>Eine neue Version von Coo ist bereit. Starte neu, um sie zu installieren; das dauert nur Sekunden.</value></data>
   <data name="Update.Forced" xml:space="preserve"><value>Diese Version von Coo ist zu alt, um eure Einträge zu synchronisieren. Bitte aktualisiere sie in Google Play.</value></data>

@@ -48,14 +48,43 @@ public sealed class SetupPage : ContentPage
         var status = Ui.Text("", "Body", "Ink2");
         status.SetBinding(Label.TextProperty, nameof(SetupViewModel.Status));
 
+        // Signed in to an account with a family: no baby form, just the family's log on its way (owner's finding).
+        var spinner = new ActivityIndicator { IsRunning = true, HorizontalOptions = LayoutOptions.Start, Margin = new Thickness(0, 16, 0, 0) };
+        spinner.SetDynamicResource(ActivityIndicator.ColorProperty, "Accent");
+        var instead = Ui.Text(SetupViewModel.AddBabyInsteadText, "BodyStrong", "Accent").Tap(l => l.Margin = new Thickness(0, 24, 0, 0));
+        instead.GestureRecognizers.Add(new TapGestureRecognizer { Command = model.AddBabyInsteadCommand });
+
+        var hint = Ui.Text(model.Hint, "Body", "Ink2");
+        var form = new VerticalStackLayout
+        {
+            Spacing = 14,
+            Children =
+            {
+                Ui.Text(Strings.Get("Setup.Arrived"), "Section").Tap(l => l.Margin = new Thickness(0, 16, 0, 0)),
+                new HorizontalStackLayout { Spacing = 8, Children = { yes, notYet } },
+                Ui.Text(Strings.Get("Setup.Name"), "Label"),
+                name,
+                birthLabel,
+                birth,
+                bornEarly,
+                dueLabel,
+                due,
+                error,
+                go,
+                code,
+            },
+        };
+
         void Sync()
         {
             yes.SetDynamicResource(VisualElement.StyleProperty, model.HasArrived ? "PrimaryButton" : "GhostButton");
             notYet.SetDynamicResource(VisualElement.StyleProperty, model.HasArrived ? "GhostButton" : "PrimaryButton");
             birthLabel.IsVisible = birth.IsVisible = bornEarly.IsVisible = model.HasArrived;
             dueLabel.IsVisible = due.IsVisible = !model.HasArrived || model.BornEarly;
-            signIn.IsVisible = model.CanSignIn;
+            signIn.IsVisible = model.CanSignIn && !model.IsFetching;
             status.IsVisible = model.Status.Length > 0;
+            spinner.IsVisible = instead.IsVisible = model.IsFetching;
+            form.IsVisible = hint.IsVisible = !model.IsFetching;
         }
 
         model.PropertyChanged += (_, _) => Sync();
@@ -67,25 +96,7 @@ public sealed class SetupPage : ContentPage
             {
                 Padding = new Thickness(24, 64, 24, 32),
                 Spacing = 14,
-                Children =
-                {
-                    Ui.Text(Strings.Get("Setup.Title"), "Title"),
-                    Ui.Text(model.Hint, "Body", "Ink2"),
-                    Ui.Text(Strings.Get("Setup.Arrived"), "Section").Tap(l => l.Margin = new Thickness(0, 16, 0, 0)),
-                    new HorizontalStackLayout { Spacing = 8, Children = { yes, notYet } },
-                    Ui.Text(Strings.Get("Setup.Name"), "Label"),
-                    name,
-                    birthLabel,
-                    birth,
-                    bornEarly,
-                    dueLabel,
-                    due,
-                    error,
-                    go,
-                    code,
-                    signIn,
-                    status,
-                },
+                Children = { Ui.Text(Strings.Get("Setup.Title"), "Title"), hint, form, signIn, status, spinner, instead },
             },
         };
     }

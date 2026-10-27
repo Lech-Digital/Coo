@@ -53,6 +53,52 @@ public sealed class AppUpdatePolicyTests
     }
 
     [Fact]
+    public void ShouldSuggest_ServerKnowsANewerVersionAndNotAskedToday_Suggests()
+    {
+        // Act: 1.0.0 (17) and the server's latest is 1.8.0 (25); Play said nothing.
+        var never = UpdatePolicy.ShouldSuggest(17, new AppVersionPolicy(25, 15), null, Now);
+        var yesterday = UpdatePolicy.ShouldSuggest(17, new AppVersionPolicy(25, 15), Now.AddDays(-1), Now);
+
+        // Assert
+        never.Should().BeTrue();
+        yesterday.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(25, 25)]
+    [InlineData(26, 25)]
+    public void ShouldSuggest_AlreadyOnTheLatest_DoesNotSuggest(int versionCode, int latest)
+    {
+        // Act
+        var suggest = UpdatePolicy.ShouldSuggest(versionCode, new AppVersionPolicy(latest, 15), null, Now);
+
+        // Assert
+        suggest.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ShouldSuggest_SuggestedWithinTheDayOrServerUnreachable_DoesNotSuggest()
+    {
+        // Act
+        var recently = UpdatePolicy.ShouldSuggest(17, new AppVersionPolicy(25, 15), Now.AddHours(-3), Now);
+        var offline = UpdatePolicy.ShouldSuggest(17, null, null, Now);
+
+        // Assert
+        recently.Should().BeFalse();
+        offline.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ShouldSuggest_ClockMovedBackBeforeTheLastSuggestion_SuggestsAgain()
+    {
+        // Act
+        var suggest = UpdatePolicy.ShouldSuggest(17, new AppVersionPolicy(25, 15), Now.AddDays(3), Now);
+
+        // Assert
+        suggest.Should().BeTrue();
+    }
+
+    [Fact]
     public void ShouldAsk_AfterAWeekWithEnoughEntriesInTheDay_Asks()
     {
         // Act

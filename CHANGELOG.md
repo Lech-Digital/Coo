@@ -6,11 +6,22 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
   MAJOR for a change that needs the server to move with it or breaks sync with older phones, MINOR for features,
   PATCH for fixes.
 - **Version code** (`ApplicationVersion`) goes up by one with every upload and is never reused. Play refuses a code it
-  has seen. The server's `AppUpdates:Latest` (`src/Backend/Coo.Api/Hosting/AppUpdateEndpoints.cs`) follows it;
-  `AppUpdates:Minimum` is raised only when old versions must stop (they get the update screen).
+  has seen. The server's `AppUpdates:Latest` (`src/Backend/Coo.Api/Hosting/AppUpdateEndpoints.cs`) follows it, but
+  only once the release is live on Google Play, then deploy: from 1.8.1 the app suggests updating to that version
+  itself, and before then the store would have nothing new to show. `AppUpdates:Minimum` is raised only when old
+  versions must stop (they get the update screen).
 - Each release gets a section here, newest first, written for parents rather than developers where it ends up in
   Play's "What's new". That text, in all seven languages and ready to paste, goes in
   `store-assets/releases/<version>.md`.
+
+## 1.8.1 (code 26) — 2026-10-27
+
+### Fixed
+- **Signing in on the welcome screen gets your family's log.** Coo now syncs as soon as you sign in there, instead of
+  waiting for a baby to be added, and shows "Getting your family's log…" in place of the baby form until Today opens.
+  "Add a baby here instead" is there if the family has no baby yet.
+- **Coo tells you about a new version itself**, once a day, when Google Play has not offered it in the app (it can
+  lag a release by hours). Update opens Coo in Google Play.
 
 ## 1.8.0 (code 25) — 2026-10-24
 

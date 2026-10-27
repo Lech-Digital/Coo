@@ -197,6 +197,13 @@ public sealed class StartupPage : ContentPage
         prompter.JoinEnded -= OnJoinEnded;
         prompter.JoinEnded += OnJoinEnded;
 
+        // Signed in over this step (Already use Coo?, or an invitation's sign-in): sync starts now, not when a baby is saved,
+        // so the account's family is pulled, its sheets can show and Today follows (owner's finding on the Pixel 10: "getting
+        // your family's log" and nothing happened).
+        var account = _services.GetRequiredService<Coo.Mobile.Application.Auth.Account>();
+        account.Changed -= OnSetupAccountChanged;
+        account.Changed += OnSetupAccountChanged;
+
         // The prompter outlives the window: its handlers go with the window, so none runs for a dead one.
         window.Destroying -= OnWindowDestroying;
         window.Destroying += OnWindowDestroying;
@@ -251,8 +258,26 @@ public sealed class StartupPage : ContentPage
     }
 
     /// <summary>Setup is gone (Today replaced it, or the window is going): the join's end and the window's events no longer reach this page.</summary>
+    /// <summary>From whichever thread changed the account; sync starts on the main thread while the first-launch step shows.</summary>
+    private void OnSetupAccountChanged(object? sender, EventArgs e) => MainThread.BeginInvokeOnMainThread(() =>
+    {
+        try
+        {
+            if (_setupWindow is { Page: Pages.SetupPage }
+                && _services.GetRequiredService<Coo.Mobile.Application.Auth.Account>().State is not Coo.Mobile.Application.Auth.SignedOut)
+                StartSync();
+        }
+#pragma warning disable CA1031 // A main-thread callback must not end the app; sync starts with Today at the latest.
+        catch (Exception e)
+#pragma warning restore CA1031
+        {
+            global::Android.Util.Log.Warn("Coo", $"Sync did not start after sign-in: {e}");
+        }
+    });
+
     private void DetachSetup(Window window)
     {
+        _services.GetRequiredService<Coo.Mobile.Application.Auth.Account>().Changed -= OnSetupAccountChanged;
         _services.GetRequiredService<Sync.SyncPrompter>().JoinEnded -= OnJoinEnded;
         window.ModalPopped -= OnSetupModalPopped;
         window.Destroying -= OnWindowDestroying;

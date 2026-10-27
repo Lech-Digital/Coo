@@ -71,6 +71,7 @@ public sealed class SetupSignInTests : IDisposable
 
         // Assert
         model.Status.Should().Be("You're signed in. Getting your family's log…");
+        model.IsFetching.Should().BeTrue();
         model.CanSignIn.Should().BeFalse();
         model.Error.Should().BeEmpty();
         _sync.Received(1).RequestSync();
@@ -88,7 +89,25 @@ public sealed class SetupSignInTests : IDisposable
 
         // Assert
         model.Status.Should().Be("Add your baby to start your family's log.");
+        model.IsFetching.Should().BeFalse();
         model.CanSignIn.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task AddBabyInsteadCommand_WhileFetching_BringsTheFormBack()
+    {
+        // Arrange
+        Granted(Family, SignInOutcome.Existing);
+        var model = Setup();
+        await model.SignInCommand.ExecuteAsync(null);
+
+        // Act
+        model.AddBabyInsteadCommand.Execute(null);
+
+        // Assert
+        model.IsFetching.Should().BeFalse();
+        model.Status.Should().BeEmpty();
+        SetupViewModel.AddBabyInsteadText.Should().Be("Add a baby here instead");
     }
 
     [Fact]

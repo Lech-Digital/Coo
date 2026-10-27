@@ -670,6 +670,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Settings.Units" xml:space="preserve"><value>Units</value></data>
   <data name="Settings.Version" xml:space="preserve"><value>Coo {0} ({1})</value></data>
   <data name="Settings.Volume" xml:space="preserve"><value>Volume</value></data>
+  <data name="Setup.AddBabyInstead" xml:space="preserve"><value>Add a baby here instead</value></data>
   <data name="Setup.Arrived" xml:space="preserve"><value>Has the baby arrived?</value></data>
   <data name="Setup.BirthDate" xml:space="preserve"><value>Birth date</value></data>
   <data name="Setup.BornEarly" xml:space="preserve"><value>Born early? Add the due date</value></data>
@@ -799,6 +800,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Unit.Lb" xml:space="preserve"><value>lb</value></data>
   <data name="Unit.Ml" xml:space="preserve"><value>ml</value></data>
   <data name="Unit.Oz" xml:space="preserve"><value>oz</value></data>
+  <data name="Update.Available" xml:space="preserve"><value>A new version of Coo is on Google Play, with new things to log and fixes. Update now?</value></data>
   <data name="Update.Button" xml:space="preserve"><value>Update</value></data>
   <data name="Update.Downloaded" xml:space="preserve"><value>A new version of Coo is ready. Restart to install it; it takes a few seconds.</value></data>
   <data name="Update.Forced" xml:space="preserve"><value>This version of Coo is too old to keep your log in sync. Please update it in Google Play.</value></data>

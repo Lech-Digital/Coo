@@ -38,6 +38,13 @@ public sealed partial class SetupViewModel(
     [ObservableProperty]
     private bool _isSigningIn;
 
+    /// <summary>
+    /// Signed in to an account with a family: the baby form gives way to "getting your family's log", and the host shows
+    /// Today once the family's baby is on the phone. <see cref="AddBabyInsteadCommand"/> brings the form back.
+    /// </summary>
+    [ObservableProperty]
+    private bool _isFetching;
+
     public DateTime Today => time.GetLocalNow().Date;
 
     /// <summary>Raised when the baby is saved; the host then shows Today.</summary>
@@ -49,6 +56,8 @@ public sealed partial class SetupViewModel(
     public static string HaveInvitationText => Strings.Get("Setup.HaveInvitation");
 
     public static string SignInText => Strings.Get("Setup.SignIn");
+
+    public static string AddBabyInsteadText => Strings.Get("Setup.AddBabyInstead");
 
     /// <summary>Offered while signed out: someone who already has a family (a new phone, a reinstall) goes to it, not to a new baby.</summary>
     public bool CanSignIn => signIn is not null && account.State is SignedOut && !IsSigningIn;
@@ -79,7 +88,8 @@ public sealed partial class SetupViewModel(
             switch (await signIn.ExecuteAsync(CancellationToken.None))
             {
                 case SignInResult.SignedIn:
-                    Status = Strings.Get(account.State is JoinPending ? "Setup.Fetching" : "Setup.HintSignedIn");
+                    IsFetching = account.State is JoinPending;
+                    Status = Strings.Get(IsFetching ? "Setup.Fetching" : "Setup.HintSignedIn");
                     sync?.RequestSync();
                     break;
                 case SignInResult.Failed:
@@ -98,6 +108,14 @@ public sealed partial class SetupViewModel(
             IsSigningIn = false;
             OnPropertyChanged(nameof(CanSignIn));
         }
+    }
+
+    /// <summary>The family's log is not coming (no baby there, or it is taking too long): add the baby here after all.</summary>
+    [RelayCommand]
+    private void AddBabyInstead()
+    {
+        IsFetching = false;
+        Status = "";
     }
 
     [RelayCommand]
