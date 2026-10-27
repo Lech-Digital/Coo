@@ -12,6 +12,8 @@
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
+# Play release notes are text, kept with the listing.
+!store-assets/releases/
 x64/
 x86/
 [Ww][Ii][Nn]32/

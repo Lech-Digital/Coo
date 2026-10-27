@@ -1,15 +1,16 @@
-// Verifies every character count claimed in store-assets/PLAY-LISTING.md.
+// Verifies every character count claimed in store-assets/PLAY-LISTING.md, and the release notes in
+// store-assets/releases/*.md.
 //   node store-assets/_src/check-listing.mjs
 //
 // A field is a heading of the form  "### <name> — <count> / <limit>"  followed by a fenced block.
 // Counts are Unicode code points ([...text].length), the way Play Console counts: "–", "·", "ł"
 // and "ą" are one character each. Trailing newline of the block is not counted.
 //
-// Fields belong to the locale of the "## N. <Language> (<locale>) → …" section they sit in. Every
+// Fields belong to the locale of the "## <Language> (<locale>)" section they sit in. Every
 // locale in LOCALES must have an app name (/30), a short description (/80) and a full description
 // (/4,000). App names (all /30 fields, alternates included) must not carry promotional terms,
 // which Play's metadata policy forbids in the title. Competitor apps may not be named anywhere.
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -21,7 +22,7 @@ const OTHER_APPS = /\b(huckleberry|sprout\s*baby|nara\s*baby|glow\s*baby|ovia\s*
 
 const file = join(dirname(fileURLToPath(import.meta.url)), '..', 'PLAY-LISTING.md');
 const md = readFileSync(file, 'utf8');
-const section = /^## \d+\. .+? \(([a-z]{2}-[A-Z]{2})\)/gm;
+const section = /^## .+? \(([a-z]{2}-[A-Z]{2})\)/gm;
 const re = /^#{2,4} (.+?) — ([\d,]+) \/ ([\d,]+)\s*\n+```[a-z]*\n([\s\S]*?)\n```/gm;
 const num = (s) => Number(s.replace(/,/g, ''));
 
@@ -51,6 +52,23 @@ for (const l of LOCALES) {
   if (missing.length) { bad++; console.log(`BAD ${l}: missing field(s) with limit ${missing.join(', ')}`); }
 }
 if (OTHER_APPS.test(md)) { bad++; console.log('BAD listing file names a competitor app'); }
+
+// Release notes: one fenced block per file, each language between <locale> tags, at most 500 characters each.
+const releases = join(dirname(fileURLToPath(import.meta.url)), '..', 'releases');
+for (const name of readdirSync(releases).filter((f) => f.endsWith('.md')).sort()) {
+  const notes = readFileSync(join(releases, name), 'utf8');
+  for (const l of LOCALES) {
+    const m = notes.match(new RegExp(`^<${l}>\\n([\\s\\S]*?)\\n</${l}>$`, 'm'));
+    const n = m ? [...m[1]].length : 0;
+    const problems = [];
+    if (!m) problems.push('missing');
+    else if (n > 500) problems.push('over limit 500');
+    if (m && OTHER_APPS.test(m[1])) problems.push('names another app');
+    if (problems.length) bad++;
+    fields++;
+    console.log(`${problems.length ? 'BAD' : 'OK '} ${l.padEnd(5)} ${String(n).padStart(5)} / 500   ${name}${problems.length ? '  <- ' + problems.join(', ') : ''}`);
+  }
+}
 
 console.log(bad ? `\nFAILED: ${bad} problem(s)` : `\nSUCCESS: all ${fields} fields in ${LOCALES.length} languages match and are within limits`);
 process.exit(bad ? 1 : 0);

@@ -9,7 +9,8 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
   has seen. The server's `AppUpdates:Latest` (`src/Backend/Coo.Api/Hosting/AppUpdateEndpoints.cs`) follows it;
   `AppUpdates:Minimum` is raised only when old versions must stop (they get the update screen).
 - Each release gets a section here, newest first, written for parents rather than developers where it ends up in
-  Play's "What's new".
+  Play's "What's new". That text, in all seven languages and ready to paste, goes in
+  `store-assets/releases/<version>.md`.
 
 ## 1.8.0 (code 25) — 2026-10-24
 
