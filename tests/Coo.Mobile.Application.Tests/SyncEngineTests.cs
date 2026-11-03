@@ -151,9 +151,13 @@ public sealed class SyncEngineTests : IDisposable
         var removalBefore = _engine.Status.Removal;
         await _records.DidNotReceiveWithAnyArgs().DeleteAndReplaceAsync(default, default!, default);
         await _moves.DidNotReceiveWithAnyArgs().DeleteHouseholdAsync(default, default);
+        // Once deleted, the family is gone from the phone: the cycle the acknowledgement starts must not find it removed again.
+        _records.When(r => r.DeleteAndReplaceAsync(Household, Arg.Any<HouseholdSettings>(), Arg.Any<CancellationToken>()))
+            .Do(_ => _state.IsSoftLockedAsync(Household, Arg.Any<CancellationToken>()).Returns(false));
 
         // Act
         await _engine.AcknowledgeRemovalAsync(CancellationToken.None);
+        await _engine.WhenIdleAsync();
 
         // Assert
         removalBefore.Should().Be(Household);
