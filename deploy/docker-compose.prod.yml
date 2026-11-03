@@ -42,6 +42,11 @@ services:
       Billing__RtdnToken: ${BILLING_RTDN_TOKEN:-}
       # Accounts whose families get Premium without buying (comma-separated emails): the Play reviewers' test account.
       Billing__ComplimentaryEmails: ${BILLING_COMPLIMENTARY_EMAILS:-}
+      # App versions (/api/app-version): Latest is the version code live on Google Play (phones below it are offered the
+      # update once a day); Minimum forces it (phones below it get the update screen). Raise Minimum only once that version
+      # is live on Play, or older phones are locked out with nothing to install.
+      AppUpdates__Latest: ${APP_UPDATES_LATEST:-25}
+      AppUpdates__Minimum: ${APP_UPDATES_MINIMUM:-15}
       # Invitation codes (Spec 011b §10.3): the pepper of their stored hashes. The API refuses to start without it.
       Invitations__CodePepper: ${INVITATIONS_CODE_PEPPER:?set INVITATIONS_CODE_PEPPER in .env}
     networks:
