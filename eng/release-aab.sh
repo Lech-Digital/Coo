@@ -23,3 +23,17 @@ mkdir -p artifacts
 out="artifacts/coo-$version-$code.aab"
 cp src/Mobile/Coo.Mobile/bin/Release/net10.0-android/publish/com.lechdigital.coo-Signed.aab "$out"
 "$JAVA_HOME/bin/jarsigner" -verify "$out" >/dev/null && echo "Signed: $out"
+
+# Native debug symbols for Play (App bundle explorer -> this version -> Downloads -> Native debug symbols). Only
+# libxamarin-app has an unstripped twin (.dbg.so, same build ID); the .NET runtime and AOT libraries ship stripped and
+# Microsoft publishes no symbols for them. Play wants <abi>/<library name>.so inside the zip.
+symbols="artifacts/coo-$version-$code-native-debug-symbols.zip"
+staging="$(mktemp -d)"
+for abi in arm64-v8a x86_64; do
+  dbg="src/Mobile/Coo.Mobile/obj/Release/net10.0-android/app_shared_libraries/$abi/libxamarin-app.dbg.so"
+  [ -f "$dbg" ] && mkdir -p "$staging/$abi" && cp "$dbg" "$staging/$abi/libxamarin-app.so"
+done
+rm -f "$symbols"
+(cd "$staging" && zip -qr - .) > "$symbols"
+rm -rf "$staging"
+echo "Symbols: $symbols"
