@@ -132,6 +132,7 @@
   <data name="BringOver.InFamilyOf" xml:space="preserve"><value>en la familia de {0}</value></data>
   <data name="BringOver.InOtherFamily" xml:space="preserve"><value>en la otra familia</value></data>
   <data name="BringOver.InYourFamily" xml:space="preserve"><value>en tu familia</value></data>
+  <data name="BringOver.JoinHint" xml:space="preserve"><value>Traerlos elimina después tu familia anterior, para que el bebé esté en un solo sitio. Mantenerlos separados conserva las dos familias.</value></data>
   <data name="BringOver.Keep" xml:space="preserve"><value>Mantenerlos separados</value></data>
   <data name="BringOver.Moved" xml:space="preserve"><value>Tus registros ahora están {0}.</value></data>
   <data name="BringOver.Which" xml:space="preserve"><value>{0} en este teléfono es</value></data>
@@ -428,6 +429,7 @@ Si el enlace no abre Coo, ve a Ajustes → Familia → Unirse a una familia en C
   <data name="Join.Later" xml:space="preserve"><value>Puedes unirte más tarde con el mismo enlace, hasta el {0}.</value></data>
   <data name="Join.LeaveOld" xml:space="preserve"><value>Tus registros ahora también están {0}. ¿Salir de tu familia anterior? Su registro se eliminará de este teléfono. Los registros que añadiste se quedan en esa familia.</value></data>
   <data name="Join.Malformed" xml:space="preserve"><value>Revisa el código: tiene 8 letras y números, como ABCD-EFGH.</value></data>
+  <data name="Join.MovedOver" xml:space="preserve"><value>Tus registros ahora están {0}, y tu familia anterior se ha eliminado.</value></data>
   <data name="Join.NoBaby" xml:space="preserve"><value>El registro de esa familia aún no tiene ningún bebé.</value></data>
   <data name="Join.OK" xml:space="preserve"><value>Aceptar</value></data>
   <data name="Join.SignInBody" xml:space="preserve"><value>Tienes una invitación a una familia en Coo. Inicia sesión con tu cuenta de Google para verla.</value></data>

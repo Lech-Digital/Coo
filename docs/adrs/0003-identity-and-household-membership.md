@@ -14,7 +14,9 @@ bringing entries over from a household that has synced copies them as new record
 > it can, says how many entries have still not reached the server (they would be lost), and then removes from the phone
 > every family that is the account's or was ever on the server. A family that never synced (logged before signing in)
 > stays. Signing in again pulls everything back. An expired or revoked session still removes nothing: the person did not
-> choose to leave. (`SignOutOfPhone` in `Coo.Mobile.Application/Households`.)
+> choose to leave. (`SignOutOfPhone` in `Coo.Mobile.Application/Households`.) Also from 1.9.1, joining a family takes
+> the person's own family away by itself when she owns it alone: when it has no entries, and after her entries were
+> brought over (the second "delete your old family?" question is asked only when that fails). Keeping both stays a choice.
 
 ## Context
 

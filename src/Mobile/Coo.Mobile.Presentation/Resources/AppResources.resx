@@ -132,6 +132,7 @@
   <data name="BringOver.InFamilyOf" xml:space="preserve"><value>in {0}'s family</value></data>
   <data name="BringOver.InOtherFamily" xml:space="preserve"><value>in the other family</value></data>
   <data name="BringOver.InYourFamily" xml:space="preserve"><value>in your family</value></data>
+  <data name="BringOver.JoinHint" xml:space="preserve"><value>Bringing them over removes your old family afterwards, so the baby is in one place. Keeping them separate keeps both families.</value></data>
   <data name="BringOver.Keep" xml:space="preserve"><value>Keep them separate</value></data>
   <data name="BringOver.Moved" xml:space="preserve"><value>Your entries are now {0}.</value></data>
   <data name="BringOver.Which" xml:space="preserve"><value>{0} on this phone is</value></data>
@@ -428,6 +429,7 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Join.Later" xml:space="preserve"><value>You can join later with the same link, until {0}.</value></data>
   <data name="Join.LeaveOld" xml:space="preserve"><value>Your entries are now {0} too. Leave your old family? Its log is removed from this phone. Entries you added stay with that family.</value></data>
   <data name="Join.Malformed" xml:space="preserve"><value>Check the code: it's 8 letters and numbers, like ABCD-EFGH.</value></data>
+  <data name="Join.MovedOver" xml:space="preserve"><value>Your entries are now {0}, and your old family is gone.</value></data>
   <data name="Join.NoBaby" xml:space="preserve"><value>Their family's log has no baby yet.</value></data>
   <data name="Join.OK" xml:space="preserve"><value>OK</value></data>
   <data name="Join.SignInBody" xml:space="preserve"><value>You've been invited to a family on Coo. Sign in with your Google account to see the invitation.</value></data>

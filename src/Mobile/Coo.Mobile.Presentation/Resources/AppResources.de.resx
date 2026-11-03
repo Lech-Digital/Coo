@@ -132,6 +132,7 @@
   <data name="BringOver.InFamilyOf" xml:space="preserve"><value>in der Familie von {0}</value></data>
   <data name="BringOver.InOtherFamily" xml:space="preserve"><value>in der anderen Familie</value></data>
   <data name="BringOver.InYourFamily" xml:space="preserve"><value>in deiner Familie</value></data>
+  <data name="BringOver.JoinHint" xml:space="preserve"><value>Beim Übernehmen wird deine alte Familie danach entfernt, damit das Baby an einem Ort ist. Getrennt lassen behält beide Familien.</value></data>
   <data name="BringOver.Keep" xml:space="preserve"><value>Getrennt lassen</value></data>
   <data name="BringOver.Moved" xml:space="preserve"><value>Deine Einträge sind jetzt {0}.</value></data>
   <data name="BringOver.Which" xml:space="preserve"><value>{0} auf diesem Handy ist</value></data>
@@ -428,6 +429,7 @@ Wenn der Link Coo nicht öffnet, geh in Coo zu Einstellungen → Familie → Ein
   <data name="Join.Later" xml:space="preserve"><value>Du kannst später mit demselben Link beitreten, bis {0}.</value></data>
   <data name="Join.LeaveOld" xml:space="preserve"><value>Deine Einträge sind jetzt auch {0}. Deine alte Familie verlassen? Die Einträge dieser Familie werden von diesem Handy entfernt. Deine Einträge bleiben bei dieser Familie.</value></data>
   <data name="Join.Malformed" xml:space="preserve"><value>Prüfe den Code: Er hat 8 Buchstaben und Ziffern, etwa ABCD-EFGH.</value></data>
+  <data name="Join.MovedOver" xml:space="preserve"><value>Deine Einträge sind jetzt {0}, und deine alte Familie ist entfernt.</value></data>
   <data name="Join.NoBaby" xml:space="preserve"><value>In den Einträgen dieser Familie ist noch kein Baby.</value></data>
   <data name="Join.OK" xml:space="preserve"><value>OK</value></data>
   <data name="Join.SignInBody" xml:space="preserve"><value>Du hast eine Einladung in eine Familie bei Coo. Melde dich mit deinem Google-Konto an, um sie zu sehen.</value></data>

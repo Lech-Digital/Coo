@@ -165,9 +165,10 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
     }
 
     [Fact]
-    public async Task ExecuteAsync_SourceNotEmptyAfterTheMove_LeavesNothing()
+    public async Task ExecuteAsync_OnlyABabyLeftAfterTheMove_DeletesTheOldFamilyWithIt()
     {
-        // Arrange: a baby stayed behind (not empty): nothing is left, nothing discarded.
+        // Arrange: no entries are left, only the baby: the old family goes with it (owner, 2026-11-03: the joined family has
+        // the baby, so keeping it showed one baby twice).
         await SignInAsync();
         MovableAdoptedFamily();
         _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]), new LocalSummary(0, [new LocalBaby(MyLena, "Lena")]));
@@ -176,7 +177,7 @@ public sealed class BringFamilyEntriesOverTests : IDisposable
         await UseCase().ExecuteAsync(Home, Joined, new Dictionary<BabyId, BabyId?>(), CancellationToken.None);
 
         // Assert
-        await _api.DidNotReceiveWithAnyArgs().LeaveAsync(default, default, default);
+        await _api.Received(1).LeaveAsync(Home, true, Arg.Any<CancellationToken>());
     }
 
     [Fact]

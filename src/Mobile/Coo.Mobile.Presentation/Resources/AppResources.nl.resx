@@ -132,6 +132,7 @@
   <data name="BringOver.InFamilyOf" xml:space="preserve"><value>in het gezin van {0}</value></data>
   <data name="BringOver.InOtherFamily" xml:space="preserve"><value>in het andere gezin</value></data>
   <data name="BringOver.InYourFamily" xml:space="preserve"><value>in je gezin</value></data>
+  <data name="BringOver.JoinHint" xml:space="preserve"><value>Overzetten verwijdert daarna je oude gezin, zodat de baby op één plek staat. Apart houden bewaart beide gezinnen.</value></data>
   <data name="BringOver.Keep" xml:space="preserve"><value>Apart houden</value></data>
   <data name="BringOver.Moved" xml:space="preserve"><value>Je items staan nu {0}.</value></data>
   <data name="BringOver.Which" xml:space="preserve"><value>{0} op deze telefoon is</value></data>
@@ -428,6 +429,7 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Join.Later" xml:space="preserve"><value>Je kunt je later aansluiten met dezelfde link, tot {0}.</value></data>
   <data name="Join.LeaveOld" xml:space="preserve"><value>Je items staan nu ook {0}. Je oude gezin verlaten? Het logboek wordt van deze telefoon verwijderd. Items die jij hebt toegevoegd blijven bij dat gezin.</value></data>
   <data name="Join.Malformed" xml:space="preserve"><value>Controleer de code: die heeft 8 letters en cijfers, zoals ABCD-EFGH.</value></data>
+  <data name="Join.MovedOver" xml:space="preserve"><value>Je items staan nu {0}, en je oude gezin is verwijderd.</value></data>
   <data name="Join.NoBaby" xml:space="preserve"><value>Het logboek van dat gezin heeft nog geen baby.</value></data>
   <data name="Join.OK" xml:space="preserve"><value>OK</value></data>
   <data name="Join.SignInBody" xml:space="preserve"><value>Je bent uitgenodigd voor een gezin in Coo. Log in met je Google-account om de uitnodiging te zien.</value></data>

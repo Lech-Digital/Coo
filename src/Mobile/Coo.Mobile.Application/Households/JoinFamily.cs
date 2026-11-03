@@ -300,9 +300,9 @@ public sealed class JoinFamily(
         var choice = await bring.PrepareAsync(source, marker.Joined, cancellationToken);
         if (choice.Local.EntryCount == 0 && (choice.Local.Babies.Count == 0 || choice.Family.Count > 0))
         {
-            // Nothing to bring; an empty, never-synced account family is still left (§6, §6.1).
-            if (!synced)
-                await bring.LeaveEmptyAdoptedAsync(source, cancellationToken);
+            // Nothing to bring: an account family with no entries goes, synced or not, with a baby or without (§6.1, owner
+            // 2026-11-03); the joined family has the baby already.
+            await bring.LeaveEmptyAdoptedAsync(source, cancellationToken);
             await FinishAsync(marker.Joined, generation, cancellationToken);
             return new JoinChoice(ChoiceStatus.NothingAsked, marker.InviterName);
         }

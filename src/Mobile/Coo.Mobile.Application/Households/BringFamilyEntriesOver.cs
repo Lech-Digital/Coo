@@ -111,8 +111,10 @@ public sealed class BringFamilyEntriesOver(
     }
 
     /// <summary>
-    /// §6.1: her account's family that she alone owns, once empty, is left with <c>confirm: false</c>: the server deletes it only
-    /// when it holds no record. Refused or offline, it simply stays as a separate family; nothing is discarded, nothing asked.
+    /// §6.1: her account's family that she alone owns, once it has no entries, goes after a join (owner, 2026-11-03): a baby
+    /// added before joining, with nothing logged, used to keep it, and the joined family's baby showed twice in the switcher.
+    /// With no baby it is left with <c>confirm: false</c> (the server deletes it only when it holds no record); with only
+    /// babies, <c>confirm: true</c> deletes those duplicates too. Refused or offline, it simply stays as a separate family.
     /// </summary>
     public async Task LeaveEmptyAdoptedAsync(HouseholdId source, CancellationToken cancellationToken)
     {
@@ -123,11 +125,11 @@ public sealed class BringFamilyEntriesOver(
         if (membership is not { Role: Role.Owner, MemberCount: 1 })
             return;
         var left = await moves.SummaryAsync(source, cancellationToken);
-        if (left.EntryCount > 0 || left.Babies.Count > 0)
+        if (left.EntryCount > 0)
             return;
         try
         {
-            await api.LeaveAsync(source, confirm: false, cancellationToken);
+            await api.LeaveAsync(source, confirm: left.Babies.Count > 0, cancellationToken);
         }
         catch (Exception e) when (e is HouseholdRefusedException or HouseholdUnavailableException)
         {

@@ -26,6 +26,10 @@ Works with the server of 1.9.0 (no server change).
 - **"Show which family?"** reads clearly with several families, as a nanny or a grandparent has: each row shows the
   children, whose family it is and your role there ("Family of Andrzej · Caregiver"), and the shown family is
   highlighted. Bring its entries here and Remove from this phone moved behind "⋯".
+- **Joining a family no longer leaves a copy of your baby behind.** Your own family goes by itself once you join: at
+  once when nothing was logged in it, and after "Bring my entries over" once your entries are in the new family (it
+  used to ask a second time, and saying nothing kept it). "Keep them separate" still keeps both. A family you share with
+  someone else is never deleted for you.
 - Today's headline no longer stays in the big type after switching to a family without sleeps ("No sleep logged yet"
   filled half the screen).
 

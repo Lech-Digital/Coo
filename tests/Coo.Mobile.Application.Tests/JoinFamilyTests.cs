@@ -872,9 +872,9 @@ public sealed class JoinFamilyTests : IDisposable
     }
 
     [Fact]
-    public async Task DecideAsync_EmptySyncedFamily_AsksNothingAndLeavesNothing()
+    public async Task DecideAsync_EmptySyncedFamily_AsksNothingAndLeavesIt()
     {
-        // Arrange: a family that synced is never left without asking (§6.2).
+        // Arrange: her own family, synced but with nothing in it, goes once she joined (owner, 2026-11-03).
         await SignInAsync();
         Joining(Home);
         _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
@@ -888,7 +888,7 @@ public sealed class JoinFamilyTests : IDisposable
 
         // Assert
         choice.Status.Should().Be(ChoiceStatus.NothingAsked);
-        await _api.DidNotReceiveWithAnyArgs().LeaveAsync(default, default, default);
+        await _api.Received(1).LeaveAsync(Home, false, Arg.Any<CancellationToken>());
     }
 
     [Fact]

@@ -203,9 +203,9 @@ public sealed class JoinViewModelTests : IDisposable
     }
 
     [Fact]
-    public async Task JoinCommand_SyncedSourceWithEntries_AsksThenCopiesThenAsksToDeleteTheOldFamily()
+    public async Task JoinCommand_SyncedSourceWithEntries_AsksThenCopiesThenDeletesTheOldFamilyByItself()
     {
-        // Arrange: §6.2 end to end in the view models.
+        // Arrange: §6.2 end to end in the view models; the old family goes without a second question (owner, 2026-11-03).
         await SignInAsync();
         _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
         _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, new JoiningMarker(Joined, Home, "Andrzej"));
@@ -214,6 +214,8 @@ public sealed class JoinViewModelTests : IDisposable
         _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
         _records.CopyAsync(default!, default, default, default, default).ReturnsForAnyArgs(new CopyResult(40, 2));
         var model = Join();
+        string? toast = null;
+        model.BringOver.Finished += (_, t) => toast = t;
         await model.StartAsync();
 
         // Act
@@ -223,8 +225,33 @@ public sealed class JoinViewModelTests : IDisposable
         await model.BringOver.ConfirmCommand.ExecuteAsync(null);
 
         // Assert
-        model.Step.Should().Be(JoinStep.Choice);
         summary.Should().Be("This phone has 42 entries for Lena.");
+        await _api.Received(1).LeaveAsync(Home, true, Arg.Any<CancellationToken>());
+        toast.Should().Be("Your entries are now in Andrzej's family, and your old family is gone.");
+    }
+
+    [Fact]
+    public async Task JoinCommand_OldFamilyCannotBeDeletedOffline_AsksAsBefore()
+    {
+        // Arrange: offline after the copy: the old family stays, and the question lets her try again.
+        await SignInAsync();
+        _state.GetConsentAsync(Me, Arg.Any<CancellationToken>()).Returns(ConsentState.Given);
+        _store.GetJoiningAsync(Arg.Any<CancellationToken>()).Returns(null, new JoiningMarker(Joined, Home, "Andrzej"));
+        _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(42, [new LocalBaby(MyLena, "Lena")]));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(3, [new LocalBaby(TheirLena, "Lena")]));
+        _records.CopyAsync(default!, default, default, default, default).ReturnsForAnyArgs(new CopyResult(40, 2));
+        _api.LeaveAsync(Home, true, Arg.Any<CancellationToken>()).ThrowsAsync(new HouseholdUnavailableException("offline"));
+        var model = Join();
+        await model.StartAsync();
+
+        // Act
+        await model.JoinCommand.ExecuteAsync(null);
+        await model.BringOver.BringCommand.ExecuteAsync(null);
+        await model.BringOver.ConfirmCommand.ExecuteAsync(null);
+
+        // Assert
+        model.Step.Should().Be(JoinStep.Choice);
         model.BringOver.Step.Should().Be(BringOverStep.OldFamily);
         model.BringOver.Question.Should().Be("Your entries are now in Andrzej's family too. Delete your old family? Its 42 entries for Lena are deleted from Coo's server and this phone. The copies stay.");
         model.BringOver.QuestionNote.Should().Be("2 entries can't be brought over and are deleted with it.");

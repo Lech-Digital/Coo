@@ -1,3 +1,4 @@
+using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Components;
 using Coo.Mobile.Presentation.Settings;
 
@@ -18,7 +19,12 @@ internal static class BringOverViews
                 stack.Add(Ui.Text(model.FamilyLine, "Body"));
                 stack.Add(Button(FamilyBringOverViewModel.BringText, "PrimaryButton", () => run(() => model.BringCommand.ExecuteAsync(null))));
                 if (model.CanKeep)
+                {
                     stack.Add(Button(FamilyBringOverViewModel.KeepText, "GhostButton", () => run(() => model.KeepCommand.ExecuteAsync(null))));
+                    // What each answer does to the old family: it goes after a bring-over (owner, 2026-11-03), it stays when kept.
+                    stack.Add(Ui.Text(Strings.Get("BringOver.JoinHint"), "Meta", "Ink2"));
+                }
+
                 break;
             case BringOverStep.Mapping:
                 stack.Add(Ui.Text(model.Summary, "Title"));

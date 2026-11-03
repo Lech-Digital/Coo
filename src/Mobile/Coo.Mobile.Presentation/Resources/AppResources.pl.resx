@@ -139,6 +139,7 @@
   <data name="BringOver.InFamilyOf" xml:space="preserve"><value>w rodzinie: {0}</value></data>
   <data name="BringOver.InOtherFamily" xml:space="preserve"><value>w drugiej rodzinie</value></data>
   <data name="BringOver.InYourFamily" xml:space="preserve"><value>w Twojej rodzinie</value></data>
+  <data name="BringOver.JoinHint" xml:space="preserve"><value>Przeniesienie usuwa potem starą rodzinę, żeby dziecko było w jednym miejscu. Zostawienie osobno zachowuje obie rodziny.</value></data>
   <data name="BringOver.Keep" xml:space="preserve"><value>Zostaw je osobno</value></data>
   <data name="BringOver.Moved" xml:space="preserve"><value>Twoje wpisy są teraz {0}.</value></data>
   <data name="BringOver.Which" xml:space="preserve"><value>{0} na tym telefonie to</value></data>
@@ -448,6 +449,7 @@ Jeśli link nie otworzy Coo, przejdź w Coo do Ustawienia → Rodzina → Dołą
   <data name="Join.Later" xml:space="preserve"><value>Możesz dołączyć później tym samym linkiem, do {0}.</value></data>
   <data name="Join.LeaveOld" xml:space="preserve"><value>Twoje wpisy są teraz także {0}. Opuścić starą rodzinę? Jej dziennik zostanie usunięty z tego telefonu. Dodane przez Ciebie wpisy zostaną w tamtej rodzinie.</value></data>
   <data name="Join.Malformed" xml:space="preserve"><value>Sprawdź kod: ma 8 liter i cyfr, np. ABCD-EFGH.</value></data>
+  <data name="Join.MovedOver" xml:space="preserve"><value>Twoje wpisy są teraz {0}, a stara rodzina została usunięta.</value></data>
   <data name="Join.NoBaby" xml:space="preserve"><value>W dzienniku tej rodziny nie ma jeszcze dziecka.</value></data>
   <data name="Join.OK" xml:space="preserve"><value>OK</value></data>
   <data name="Join.SignInBody" xml:space="preserve"><value>Masz zaproszenie do rodziny w Coo. Zaloguj się kontem Google, aby je zobaczyć.</value></data>
