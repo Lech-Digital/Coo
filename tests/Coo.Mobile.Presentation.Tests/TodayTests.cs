@@ -364,7 +364,8 @@ public sealed class NightTimersTests
 
         // Assert
         section.NapIsPersonal.Should().BeTrue();
-        section.NextNap.Should().Be($"Nap likely {Now.AddMinutes(40):HH:mm}–{Now.AddMinutes(70):HH:mm}");
+        // In the phone's zone, as Today shows it: CI runs in UTC, the developer's Mac in Amsterdam.
+        section.NextNap.Should().Be($"Nap likely {Now.AddMinutes(40).ToLocalTime():HH:mm}–{Now.AddMinutes(70).ToLocalTime():HH:mm}");
         section.NapWhy.Should().Contain(line => line.Contains("Lena") && line.Contains("1 h 20 m"));
         section.NapWhy[^1].Should().Contain("not medical advice");
     }
