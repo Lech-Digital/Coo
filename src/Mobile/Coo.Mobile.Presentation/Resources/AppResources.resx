@@ -416,6 +416,8 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Join.AlreadyMember" xml:space="preserve"><value>You're already in this family.</value></data>
   <data name="Join.Babies" xml:space="preserve"><value>Their family's log has: {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} invited you to join as a parent. You'll both see the family's log and add to it.</value></data>
+  <data name="Join.BodyCaregiver" xml:space="preserve"><value>{0} invited you as a nanny or daycare. You'll log feeds, sleep and diapers and see the family's log.</value></data>
+  <data name="Join.BodyViewer" xml:space="preserve"><value>{0} invited you to follow along. You'll see the family's log; you won't change it.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Both families are on this phone. Switch between them in Settings → Family.</value></data>
   <data name="Join.CodeLine" xml:space="preserve"><value>Invitation code: {0}</value></data>
   <data name="Join.Copied" xml:space="preserve"><value>Your entries are now {0} too.</value></data>

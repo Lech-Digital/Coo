@@ -57,5 +57,8 @@ public interface IBillingService
 
     event Action? EntitlementChanged;
 
+    /// <summary>Signed out: what this phone remembered about Premium goes; the next sign-in asks again.</summary>
+    void Forget();
+
     void SetPremiumForDebug(bool isPremium);
 }

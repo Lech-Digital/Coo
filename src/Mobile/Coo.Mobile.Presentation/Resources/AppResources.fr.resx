@@ -416,6 +416,8 @@ Si le lien n'ouvre pas Coo, va dans Réglages → Famille → Rejoindre une fami
   <data name="Join.AlreadyMember" xml:space="preserve"><value>Vous faites déjà partie de cette famille.</value></data>
   <data name="Join.Babies" xml:space="preserve"><value>Le journal de cette famille contient : {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} vous invite à rejoindre la famille en tant que parent. Vous verrez tous les deux le journal de la famille et pourrez le compléter.</value></data>
+  <data name="Join.BodyCaregiver" xml:space="preserve"><value>{0} vous invite comme nounou ou crèche. Vous noterez repas, sommeil et couches et verrez le journal de la famille.</value></data>
+  <data name="Join.BodyViewer" xml:space="preserve"><value>{0} vous invite à suivre. Vous verrez le journal de la famille sans le modifier.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Les deux familles sont sur ce téléphone. Passez de l'une à l'autre dans Réglages → Famille.</value></data>
   <data name="Join.CodeLine" xml:space="preserve"><value>Code d'invitation : {0}</value></data>
   <data name="Join.Copied" xml:space="preserve"><value>Vos entrées sont maintenant aussi {0}.</value></data>

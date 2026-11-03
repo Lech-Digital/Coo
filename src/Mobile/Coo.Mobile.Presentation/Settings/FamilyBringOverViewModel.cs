@@ -129,7 +129,8 @@ public sealed partial class FamilyBringOverViewModel(LeaveFamily leave) : Observ
 
             // Joining (the flow that can keep both): the old family goes by itself once its entries are in the joined one
             // (owner, 2026-11-03: three Majas after joining Naïma's family). Offline or refused, the question below asks.
-            if (request.Keep is not null && outcome is { Path: BringPath.Copied, Question: OldFamilyQuestion.DeleteOld or OldFamilyQuestion.LeaveOld }
+            // Only her own family, owned alone, goes by itself; leaving a family someone else runs is always asked.
+            if (request.Keep is not null && outcome is { Path: BringPath.Copied, Question: OldFamilyQuestion.DeleteOld }
                 && (await leave.ExecuteAsync(request.Source, confirm: true, CancellationToken.None)).Succeeded)
             {
                 Finished?.Invoke(this, Strings.Format("Join.MovedOver", request.InTarget));

@@ -44,6 +44,7 @@ public sealed class SignOutOfPhone(SignOut signOut, Families families, IFamilyRe
         // Listed before signing out: afterwards the account's memberships are gone, and with them which families are its.
         var leaving = await LeavingAsync(cancellationToken);
         await signOut.ExecuteAsync(cancellationToken);
+        JoinFamily.ForgetSuggestedCode();
         if (leaving.Count == 0)
             return;
 

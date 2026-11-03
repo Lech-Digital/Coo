@@ -309,7 +309,13 @@ public sealed partial class JoinViewModel : ObservableObject
             case PreviewStatus.Ready:
                 (_preview, _code) = (result.Invitation!, result.Code);
                 Title = Strings.Format("Join.Title", _preview.InviterName);
-                Body = Strings.Format("Join.Body", _preview.InviterName);
+                // The invitation's role, as the inviter chose it: it always said "as a parent" (owner's test, 2026-11-03).
+                Body = Strings.Format(_preview.Role switch
+                {
+                    Role.Caregiver => "Join.BodyCaregiver",
+                    Role.Viewer => "Join.BodyViewer",
+                    _ => "Join.Body",
+                }, _preview.InviterName);
                 Babies = _preview.BabyNames.Count == 0 ? Strings.Get("Join.NoBaby") : Strings.Format("Join.Babies", string.Join(", ", _preview.BabyNames));
                 Step = JoinStep.Invitation;
                 break;

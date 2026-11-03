@@ -416,6 +416,8 @@ Si el enlace no abre Coo, ve a Ajustes → Familia → Unirse a una familia en C
   <data name="Join.AlreadyMember" xml:space="preserve"><value>Ya formas parte de esta familia.</value></data>
   <data name="Join.Babies" xml:space="preserve"><value>El registro de esa familia tiene: {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} te ha invitado a unirte a la familia como madre o padre. Compartiréis el registro de la familia y podréis añadir registros.</value></data>
+  <data name="Join.BodyCaregiver" xml:space="preserve"><value>{0} te ha invitado como niñera o guardería. Registrarás tomas, sueño y pañales y verás el registro de la familia.</value></data>
+  <data name="Join.BodyViewer" xml:space="preserve"><value>{0} te ha invitado a seguir el día. Verás el registro de la familia, sin cambiarlo.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Las dos familias están en este teléfono. Cambia entre ellas en Ajustes → Familia.</value></data>
   <data name="Join.CodeLine" xml:space="preserve"><value>Código de invitación: {0}</value></data>
   <data name="Join.Copied" xml:space="preserve"><value>Tus registros ahora también están {0}.</value></data>

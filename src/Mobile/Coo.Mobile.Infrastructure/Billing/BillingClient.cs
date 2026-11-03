@@ -25,7 +25,7 @@ internal sealed class BillingClient(HttpClient http) : IBillingApi
         }
     }
 
-    public async Task<bool> VerifyReceiptAsync(Guid householdId, string productId, string purchaseToken, CancellationToken cancellationToken)
+    public async Task<ReceiptOutcome> VerifyReceiptAsync(Guid householdId, string productId, string purchaseToken, CancellationToken cancellationToken)
     {
         try
         {
@@ -33,11 +33,18 @@ internal sealed class BillingClient(HttpClient http) : IBillingApi
                 VerifyUri,
                 JsonContent.Create(new VerifyReceiptDto(householdId, productId, purchaseToken), BillingJsonContext.Default.VerifyReceiptDto),
                 cancellationToken);
-            return response.IsSuccessStatusCode;
+            return response.StatusCode switch
+            {
+                _ when response.IsSuccessStatusCode => ReceiptOutcome.Recorded,
+                // Unauthorized: signed out (the handler refreshes a live session first). Premium is the family's, on the server.
+                System.Net.HttpStatusCode.Conflict or System.Net.HttpStatusCode.BadRequest or System.Net.HttpStatusCode.Forbidden
+                    or System.Net.HttpStatusCode.Unauthorized => ReceiptOutcome.Refused,
+                _ => ReceiptOutcome.Unreachable,
+            };
         }
         catch (Exception e) when (e is HttpRequestException or TaskCanceledException)
         {
-            return false;
+            return ReceiptOutcome.Unreachable;
         }
     }
 }

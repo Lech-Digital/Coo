@@ -63,6 +63,8 @@ public class BillingService(IServiceProvider? services = null) : IBillingService
 
     public void SetPremiumForDebug(bool isPremium) => Remember(isPremium, false, false);
 
+    public void Forget() => Remember(false, false, false);
+
     private static string BasePlanOf(PremiumPlan plan) => plan == PremiumPlan.Yearly ? "yearly" : "monthly";
 
     public async Task<IReadOnlyList<PremiumOffer>> GetOffersAsync(CancellationToken cancellationToken)
@@ -178,13 +180,15 @@ public class BillingService(IServiceProvider? services = null) : IBillingService
                 ? (await billing.GetPurchasesAsync(ItemType.Subscription))?.FirstOrDefault(p => p.ProductId == SubscriptionId && p.State == PurchaseState.Purchased)
                 : null;
 #pragma warning restore CA2016
-            if ((lifetime ?? subscription) is { } own)
+            // Again on every check: a purchase whose report did not reach the server (offline) gets there now, the server
+            // keeps the expiry up to date, and a purchase never acknowledged (paid after a pending payment, or the app closed
+            // mid-purchase) is acknowledged before Play's three days run out and it is refunded. A purchase made for another
+            // family is refused by the server, and then is not this family's Premium: one phone's Google account showed
+            // Premium in every family signed in on it (owner's test, 2026-11-03). Offline, it counts.
+            if ((lifetime ?? subscription) is { } own
+                && await RecordThenAcknowledgeAsync(billing, householdId, own, cancellationToken) != ReceiptOutcome.Refused)
             {
                 Remember(true, lifetime is not null, true);
-                // Again on every check: a purchase whose report did not reach the server (offline) gets there now, the
-                // server keeps the expiry up to date, and a purchase never acknowledged (paid after a pending payment, or
-                // the app closed mid-purchase) is acknowledged before Play's three days run out and it is refunded.
-                await RecordThenAcknowledgeAsync(billing, householdId, own, cancellationToken);
                 return true;
             }
 
@@ -213,11 +217,13 @@ public class BillingService(IServiceProvider? services = null) : IBillingService
     /// reached, Play refunds the purchase after three days rather than charging for a family that never got Premium. The
     /// server acknowledges it too; acknowledging twice is harmless.
     /// </summary>
-    private async Task RecordThenAcknowledgeAsync(IInAppBilling billing, HouseholdId householdId, InAppBillingPurchase purchase, CancellationToken cancellationToken)
+    private async Task<ReceiptOutcome> RecordThenAcknowledgeAsync(IInAppBilling billing, HouseholdId householdId, InAppBillingPurchase purchase, CancellationToken cancellationToken)
     {
-        var recorded = Api is { } api && await api.VerifyReceiptAsync(householdId.Value, purchase.ProductId, purchase.PurchaseToken, cancellationToken);
-        if (!recorded || purchase.IsAcknowledged.GetValueOrDefault())
-            return;
+        var outcome = Api is { } api
+            ? await api.VerifyReceiptAsync(householdId.Value, purchase.ProductId, purchase.PurchaseToken, cancellationToken)
+            : ReceiptOutcome.Unreachable;
+        if (outcome != ReceiptOutcome.Recorded || purchase.IsAcknowledged.GetValueOrDefault())
+            return outcome;
         try
         {
             // Lifetime is acknowledged, never consumed: consuming it would let it be bought again and lose it from this
@@ -231,6 +237,8 @@ public class BillingService(IServiceProvider? services = null) : IBillingService
             // The server acknowledged it already, or does on its hourly recheck.
             System.Diagnostics.Debug.WriteLine($"Could not acknowledge a purchase: {ex.Message}");
         }
+
+        return outcome;
     }
 
     private void Remember(bool isPremium, bool isLifetime, bool isPayer)

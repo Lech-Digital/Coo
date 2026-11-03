@@ -18,8 +18,12 @@ public sealed record FamilyOnPhone(
     /// <summary>Invite, remove, withdraw (an Owner or a Parent).</summary>
     public bool CanManage => Membership?.Role is Role.Owner or Role.Parent;
 
-    /// <summary>Spec 011b §6.3: a never-synced family moves; an account family that synced copies; another account's never.</summary>
-    public bool MayBeBroughtOver => !HasEverSynced || IsShared;
+    /// <summary>
+    /// Spec 011b §6.3: a never-synced family moves; the person's own family (she owns it) copies; any other never. A family
+    /// she is a parent, nanny or viewer in is someone else's log: a nanny joining a second family was offered to copy the
+    /// first family's log into it, and the old family would then have been left (owner's test, 2026-11-03).
+    /// </summary>
+    public bool MayBeBroughtOver => !HasEverSynced || IsOwner;
 }
 
 /// <summary>What a confirmation or the removal sheet says about a family's log on this phone.</summary>
@@ -155,10 +159,20 @@ public sealed class Families(
         foreach (var household in onPhone)
         {
             var babies = (await households.ListBabiesAsync(household.Id, cancellationToken)).Where(b => !b.IsDeleted).Select(b => b.Name).ToList();
+            var membership = memberships.FirstOrDefault(m => m.Household == household.Id);
+            var everSynced = await moves.HasEverSyncedAsync(household.Id, cancellationToken);
+
+            // The empty family the phone makes at its first start, left behind when the person signed in from the welcome
+            // screen and the account's family came: no baby, nothing logged, never on a server, not shown. It means nothing
+            // to anyone, so it is not listed ("No baby yet · On this phone only" in the switcher; owner, 2026-11-03).
+            if (household.Id != shown && membership is null && !everSynced && babies.Count == 0
+                && await moves.SummaryAsync(household.Id, cancellationToken) is { EntryCount: 0 })
+                continue;
+
             list.Add(new FamilyOnPhone(
-                household.Id, babies, memberships.FirstOrDefault(m => m.Household == household.Id), household.Id == shown,
+                household.Id, babies, membership, household.Id == shown,
                 await state.IsSoftLockedAsync(household.Id, cancellationToken), session?.AccountHousehold == household.Id,
-                await moves.HasEverSyncedAsync(household.Id, cancellationToken)));
+                everSynced));
         }
 
         return [.. list

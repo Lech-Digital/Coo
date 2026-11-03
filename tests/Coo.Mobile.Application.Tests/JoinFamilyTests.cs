@@ -892,6 +892,26 @@ public sealed class JoinFamilyTests : IDisposable
     }
 
     [Fact]
+    public async Task DecideAsync_ANannyJoiningASecondFamily_AsksNothingAndLeavesNothing()
+    {
+        // Arrange: the shown family is someone else's, where she is the nanny, with 40 entries (owner's test, 2026-11-03).
+        await SignInAsync();
+        Joining(Home);
+        _syncStore.HasPulledAsync(Joined, Arg.Any<CancellationToken>()).Returns(true);
+        _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
+        _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Caregiver, Now, "Andrzej", 2)]);
+        _moves.SummaryAsync(Home, Arg.Any<CancellationToken>()).Returns(new LocalSummary(40, []));
+        _moves.SummaryAsync(Joined, Arg.Any<CancellationToken>()).Returns(new LocalSummary(1, []));
+
+        // Act
+        var choice = await Join().DecideAsync(CancellationToken.None);
+
+        // Assert
+        choice.Status.Should().Be(ChoiceStatus.NothingAsked);
+        await _api.DidNotReceiveWithAnyArgs().LeaveAsync(default, default, default);
+    }
+
+    [Fact]
     public async Task DecideAsync_JoinedFamilyNotPulledYet_IsNotReadyAndPullsAgain()
     {
         // Arrange

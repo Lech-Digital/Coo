@@ -416,6 +416,8 @@ Wenn der Link Coo nicht öffnet, geh in Coo zu Einstellungen → Familie → Ein
   <data name="Join.AlreadyMember" xml:space="preserve"><value>Du bist schon in dieser Familie.</value></data>
   <data name="Join.Babies" xml:space="preserve"><value>In den Einträgen dieser Familie: {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} hat dich als Elternteil eingeladen. Ihr seht beide die Einträge der Familie und könnt sie ergänzen.</value></data>
+  <data name="Join.BodyCaregiver" xml:space="preserve"><value>{0} hat dich als Nanny oder Kita eingeladen. Du trägst Mahlzeiten, Schlaf und Windeln ein und siehst die Einträge der Familie.</value></data>
+  <data name="Join.BodyViewer" xml:space="preserve"><value>{0} hat dich eingeladen, mitzulesen. Du siehst die Einträge der Familie, änderst aber nichts.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Beide Familien sind auf diesem Handy. Wechsle zwischen ihnen unter Einstellungen → Familie.</value></data>
   <data name="Join.CodeLine" xml:space="preserve"><value>Einladungscode: {0}</value></data>
   <data name="Join.Copied" xml:space="preserve"><value>Deine Einträge sind jetzt auch {0}.</value></data>

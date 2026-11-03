@@ -90,6 +90,9 @@ public sealed class JoinFamily(
     /// </summary>
     private static InvitationCode? _recent;
 
+    /// <summary>Signed out: the next account on this phone is not offered this account's code.</summary>
+    internal static void ForgetSuggestedCode() => _recent = null;
+
     /// <summary>The code to fill in on "Enter a code": the pending invitation's, or the last one received while Coo ran.</summary>
     public async Task<InvitationCode?> SuggestedCodeAsync(CancellationToken cancellationToken) =>
         (await families.GetPendingInvitationAsync(cancellationToken))?.Code ?? _recent;
@@ -242,6 +245,9 @@ public sealed class JoinFamily(
             return new JoinAccept(AcceptStatus.AlreadyMember);
         }
 
+        // The code is used: "Enter a code" no longer suggests it (it came back filled in after the join).
+        _recent = null;
+
         // She is a member now: the join is stored whatever the token says, so nobody is a member without the choice (§5.3).
         // The marker goes in before the pending invitation goes, so the cycle's mid-join guard never lapses in between.
         await families.SetJoiningAsync(new JoiningMarker(accepted.Household, source, inviterName), CancellationToken.None);
@@ -285,9 +291,12 @@ public sealed class JoinFamily(
         var synced = await moves.HasEverSyncedAsync(source, cancellationToken);
         var session = await sessions.GetAsync(cancellationToken);
         // The session's own family is always the account's, even when the stored list is stale or not refreshed yet.
+        // Owned only: a family she is a parent, nanny or viewer in is someone else's, and is never offered (owner's test,
+        // 2026-11-03: a nanny joining a second family was asked to bring the first family's 40 entries over).
+        var membership = session is null ? null
+            : (await families.ListAsync(session.Profile.UserId, cancellationToken) ?? []).FirstOrDefault(m => m.Household == source);
         var accountFamily = session is not null
-            && (session.AccountHousehold == source
-                || (await families.ListAsync(session.Profile.UserId, cancellationToken) ?? []).Any(m => m.Household == source));
+            && (membership is { Role: Role.Owner } || (membership is null && session.AccountHousehold == source));
 
         // Rulings 2 and 3: the joined family itself, or a family of another account, is never offered; nor a pair already
         // copied (§6.2).

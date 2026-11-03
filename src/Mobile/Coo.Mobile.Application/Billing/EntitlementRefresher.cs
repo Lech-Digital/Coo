@@ -8,7 +8,8 @@ namespace Coo.Mobile.Application.Billing;
 /// half hour), and at once when the family on screen is another one than last time. Without this a trial that ended,
 /// a subscription a partner cancelled or a family switch showed the old answer until the next cold start.
 /// </summary>
-public sealed class EntitlementRefresher(IBillingService billing, IHouseholdStore households, TimeProvider time)
+/// <remarks>Signed out, there is no Premium: it is the family's, bought by a signed-in parent (owner's test, 2026-11-03).</remarks>
+public sealed class EntitlementRefresher(IBillingService billing, IHouseholdStore households, Auth.Account account, TimeProvider time)
 {
     public static readonly TimeSpan MinimumInterval = TimeSpan.FromMinutes(30);
 
@@ -23,6 +24,13 @@ public sealed class EntitlementRefresher(IBillingService billing, IHouseholdStor
             return null;
         try
         {
+            if (account.State is Auth.SignedOut)
+            {
+                billing.Forget();
+                _lastHousehold = null;
+                return false;
+            }
+
             var household = (await households.ListHouseholdsAsync(cancellationToken)).FirstOrDefault(h => !h.IsDeleted);
             if (household is null)
                 return null;

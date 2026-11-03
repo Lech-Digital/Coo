@@ -30,6 +30,17 @@ Works with the server of 1.9.0 (no server change).
   once when nothing was logged in it, and after "Bring my entries over" once your entries are in the new family (it
   used to ask a second time, and saying nothing kept it). "Keep them separate" still keeps both. A family you share with
   someone else is never deleted for you.
+- **A nanny joining a second family** keeps both: Coo no longer offers to copy the first family's log into the new one
+  (and then leave it). Entries are only ever brought over from your own family. The invitation says which role it is
+  for (parent, nanny or daycare, or family who follow along); it always said "parent".
+- **Premium belongs to the family it was bought for.** One phone's Google Play purchase showed Premium in every family
+  signed in on that phone. Signed out, there is no Premium.
+- The empty family a phone makes at its first start is no longer listed after signing in from the welcome screen ("No
+  baby yet · On this phone only").
+- "Enter a code" no longer comes back filled in with a code that was already used.
+- The bottle's one-tap amounts include the amount shown (a newborn's 15 ml is 15, 30, 45; it read 5, 20, 35, 50), and
+  the last bottle comes back as it was logged, to the 5 ml.
+- A long baby name no longer pushes into "coo Premium" and the night switch at the top.
 - Today's headline no longer stays in the big type after switching to a family without sleeps ("No sleep logged yet"
   filled half the screen).
 

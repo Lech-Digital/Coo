@@ -37,11 +37,12 @@ public sealed class CooPageHeader : Grid
         _services = services;
         _longPressBrand = longPressBrand;
 
+        // Brand at its size; the right side takes what is left and the baby chip shortens its name in it. With two Auto
+        // columns, "coo Premium" and a long name overlapped the moon (owner's phone, 2026-11-03).
         ColumnDefinitions =
         [
             new ColumnDefinition(GridLength.Auto),
             new ColumnDefinition(GridLength.Star),
-            new ColumnDefinition(GridLength.Auto),
         ];
         ColumnSpacing = 4;
         Padding = new Thickness(24, 16, 24, 8);
@@ -50,16 +51,19 @@ public sealed class CooPageHeader : Grid
         _themeSwitchContainer.VerticalOptions = LayoutOptions.Center;
         _babyChipContainer.VerticalOptions = LayoutOptions.Center;
 
-        var rightStack = new HorizontalStackLayout
+        _babyChipContainer.HorizontalOptions = LayoutOptions.End;
+        var rightStack = new Grid
         {
-            Spacing = 4,
+            ColumnSpacing = 4,
             VerticalOptions = LayoutOptions.Center,
-            HorizontalOptions = LayoutOptions.End,
-            Children = { _actionsLayout, _themeSwitchContainer, _babyChipContainer }
+            ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto), new(GridLength.Auto)],
         };
+        rightStack.Add(_actionsLayout, 1);
+        rightStack.Add(_themeSwitchContainer, 2);
+        rightStack.Add(_babyChipContainer, 3);
 
         Grid.SetColumn((BindableObject)_brandContainer, 0);
-        Grid.SetColumn((BindableObject)rightStack, 2);
+        Grid.SetColumn((BindableObject)rightStack, 1);
         Children.Add(_brandContainer);
         Children.Add(rightStack);
 
@@ -230,7 +234,14 @@ public sealed class CooPageHeader : Grid
                     Children =
                     {
                         avatar,
-                        Ui.Text($"{babyName} · {ageText}", "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center)
+                        Ui.Text($"{babyName} · {ageText}", "BodyStrong").Tap(l =>
+                        {
+                            l.VerticalOptions = LayoutOptions.Center;
+                            // One line, cut with "…": a long name pushed into the brand and the moon.
+                            l.MaxLines = 1;
+                            l.LineBreakMode = LineBreakMode.TailTruncation;
+                            l.MaximumWidthRequest = 140;
+                        })
                     }
                 };
 

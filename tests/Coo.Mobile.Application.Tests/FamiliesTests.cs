@@ -310,6 +310,38 @@ public sealed class FamiliesTests : IDisposable
         await _moves.DidNotReceiveWithAnyArgs().ActivateAsync(default, default);
     }
 
+    [Fact]
+    public async Task ListAsync_TheEmptyFamilyLeftFromTheFirstStart_IsNotListed()
+    {
+        // Arrange: signed in from the welcome screen: the account's family is shown, the phone's empty first family stays.
+        await SignInAsync();
+        OnPhone((Home, ["Maja"]), (Local, []));
+        _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1)]);
+        _moves.SummaryAsync(Local, Arg.Any<CancellationToken>()).Returns(new LocalSummary(0, []));
+
+        // Act
+        var list = await Families().ListAsync(CancellationToken.None);
+
+        // Assert
+        list.Select(f => f.Id).Should().Equal(Home);
+    }
+
+    [Fact]
+    public async Task ListAsync_APhoneOnlyFamilyWithEntriesButNoBaby_IsStillListed()
+    {
+        // Arrange: entries are never hidden, baby or not.
+        await SignInAsync();
+        OnPhone((Home, ["Maja"]), (Local, []));
+        _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Owner, Now, "Kasia", 1)]);
+        _moves.SummaryAsync(Local, Arg.Any<CancellationToken>()).Returns(new LocalSummary(4, []));
+
+        // Act
+        var list = await Families().ListAsync(CancellationToken.None);
+
+        // Assert
+        list.Select(f => f.Id).Should().Equal(Home, Local);
+    }
+
     private SignOutOfPhone SignOutOfPhone(ISyncControl sync) => new(new SignOut(_accounts, _account), Families(), _records, sync);
 
     private static ISyncControl ExclusiveRunsAtOnce()
@@ -668,6 +700,22 @@ public sealed class FamiliesTests : IDisposable
 
         // Assert
         families.Single().Should().Match<FamilyOnPhone>(f => !f.IsShared && f.IsHome);
+    }
+
+    [Theory]
+    [InlineData(Role.Caregiver)]
+    [InlineData(Role.Parent)]
+    [InlineData(Role.Viewer)]
+    public void MayBeBroughtOver_SomeoneElsesFamilyThatSynced_IsFalse(Role role)
+    {
+        // Arrange: a nanny's family is not hers to copy into another (owner's test, 2026-11-03).
+        var family = new FamilyOnPhone(Joined, ["Maja"], new FamilyMembership(Joined, role, Now, "Andrzej", 2), IsShown: true, IsSoftLocked: false, IsHome: false, HasEverSynced: true);
+
+        // Act
+        var may = family.MayBeBroughtOver;
+
+        // Assert
+        may.Should().BeFalse();
     }
 
     [Theory]

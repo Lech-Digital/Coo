@@ -335,7 +335,10 @@ public sealed partial class TodayViewModel : ObservableObject
         {
             var ounces = _household?.VolumeUnit == VolumeUnit.Ounces;
             var middle = _summary?.LastBottle?.Details is BottleFeed last ? ToUnit(last.Components[0].Volume) : TypicalBottle();
-            middle = Math.Round(middle / Step, MidpointRounding.AwayFromZero) * Step;
+            // To 5 ml (or half an ounce), not to the ±10 ml step: 15 ml became 20, and the chips read 5, 20, 35, 50 with the
+            // amount shown, 15, on none of them (owner's phone, 2026-11-03).
+            var grain = ounces ? 0.5m : 5m;
+            middle = Math.Max(grain, Math.Round(middle / grain, MidpointRounding.AwayFromZero) * grain);
             // Small bottles in small steps: a newborn goes 15, 30, 45 ml, not 15, 45, 75.
             var step = ounces ? (middle < 2m ? 0.5m : 1m) : (middle < 60m ? 15m : 30m);
             return [.. new[] { middle - step, middle, middle + step, middle + 2 * step }.Where(a => a > 0).Distinct()];
@@ -459,8 +462,11 @@ public sealed partial class TodayViewModel : ObservableObject
         }
     }
 
+    /// <summary>To half an ounce, or to 5 ml: to 10 ml, a newborn's 15 ml bottle came back as 20.</summary>
     private decimal ToUnit(Volume volume) =>
-        _household?.VolumeUnit == VolumeUnit.Ounces ? Math.Round(volume.Ounces * 2, MidpointRounding.AwayFromZero) / 2 : Math.Round(volume.Millilitres / 10) * 10;
+        _household?.VolumeUnit == VolumeUnit.Ounces
+            ? Math.Round(volume.Ounces * 2, MidpointRounding.AwayFromZero) / 2
+            : Math.Round(volume.Millilitres / 5, MidpointRounding.AwayFromZero) * 5;
 
     private Result<Volume> FromUnit(decimal amount) =>
         _household?.VolumeUnit == VolumeUnit.Ounces ? Volume.FromOunces(amount) : Volume.FromMillilitres(amount);

@@ -416,6 +416,8 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Join.AlreadyMember" xml:space="preserve"><value>Je hoort al bij dit gezin.</value></data>
   <data name="Join.Babies" xml:space="preserve"><value>Het logboek van dat gezin heeft: {0}.</value></data>
   <data name="Join.Body" xml:space="preserve"><value>{0} heeft je uitgenodigd als ouder. Jullie zien allebei het logboek van het gezin en kunnen het aanvullen.</value></data>
+  <data name="Join.BodyCaregiver" xml:space="preserve"><value>{0} heeft je uitgenodigd als oppas of opvang. Je logt voedingen, slaap en luiers en ziet het logboek van het gezin.</value></data>
+  <data name="Join.BodyViewer" xml:space="preserve"><value>{0} heeft je uitgenodigd om mee te kijken. Je ziet het logboek van het gezin, maar verandert niets.</value></data>
   <data name="Join.BothFamilies" xml:space="preserve"><value>Beide gezinnen staan op deze telefoon. Wissel tussen ze in Instellingen → Gezin.</value></data>
   <data name="Join.CodeLine" xml:space="preserve"><value>Uitnodigingscode: {0}</value></data>
   <data name="Join.Copied" xml:space="preserve"><value>Je items staan nu ook {0}.</value></data>

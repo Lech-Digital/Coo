@@ -124,7 +124,8 @@ public sealed class FamilySwitcherTests : IDisposable
         await section.RefreshAsync();
 
         // Assert
-        section.Rows.Single(r => r.Id == Joined).Actions.Should().Equal(FamilyRowAction.BringHere, FamilyRowAction.Leave);
+        // Not Bring here: a family she is a parent in is someone else's log (owner's test, 2026-11-03).
+        section.Rows.Single(r => r.Id == Joined).Actions.Should().Equal(FamilyRowAction.Leave);
     }
 
     [Fact]
