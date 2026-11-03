@@ -8,6 +8,14 @@ Amended by: Spec 011b §15.1 R1 (§6: invitation links are `https://api.coo.lech
 `coo.lechdigital.nl` has no DNS; the API serves `assetlinks.json` and an English fallback page with the code) and R5 (§7:
 bringing entries over from a household that has synced copies them as new records instead of rewriting them)
 
+> **Amendment, 2026-11-03 (owner): signing out takes the account's families off the phone.** Until 1.9.0, signing out
+> removed only the tokens and kept every local record. Signed out as one account and in as another, the first account's
+> family, its log and its members stayed on show ("on this phone only"). From 1.9.1, Settings → Sign out first pushes what
+> it can, says how many entries have still not reached the server (they would be lost), and then removes from the phone
+> every family that is the account's or was ever on the server. A family that never synced (logged before signing in)
+> stays. Signing in again pulls everything back. An expired or revoked session still removes nothing: the person did not
+> choose to leave. (`SignOutOfPhone` in `Coo.Mobile.Application/Households`.)
+
 ## Context
 
 ADR 0002 syncs data per household and authorises every push and pull against the caller's

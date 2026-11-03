@@ -16,7 +16,9 @@
   <data name="Account.SignInFailed" xml:space="preserve"><value>Inloggen is niet gelukt. Controleer je verbinding en probeer het opnieuw.</value></data>
   <data name="Account.SignInHint" xml:space="preserve"><value>Bewaar je logboek veilig en deel het met familie.</value></data>
   <data name="Account.SignOut" xml:space="preserve"><value>Uitloggen</value></data>
-  <data name="Account.SignOutConfirm" xml:space="preserve"><value>Uitloggen op deze telefoon? Je logboek blijft op deze telefoon.</value></data>
+  <data name="Account.SignOutConfirm" xml:space="preserve"><value>Uitloggen op deze telefoon? De logboeken van je gezinnen verdwijnen van deze telefoon; log opnieuw in om ze terug te krijgen. Een logboek van vóór het inloggen blijft.</value></data>
+  <data name="Account.SignOutUnsent.one" xml:space="preserve"><value>{0} item heeft de server nog niet bereikt en gaat verloren. Uitloggen haalt de logboeken van je gezinnen van deze telefoon. Toch uitloggen?</value></data>
+  <data name="Account.SignOutUnsent.other" xml:space="preserve"><value>{0} items hebben de server nog niet bereikt en gaan verloren. Uitloggen haalt de logboeken van je gezinnen van deze telefoon. Toch uitloggen?</value></data>
   <data name="Account.Title" xml:space="preserve"><value>Account</value></data>
   <data name="Action.Cancel" xml:space="preserve"><value>Annuleren</value></data>
   <data name="Action.Dismiss" xml:space="preserve"><value>Negeren</value></data>
@@ -303,6 +305,7 @@
   <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>Dit gezin verwijderen? Het logboek, {0} item, wordt van de server van Coo en van deze telefoon verwijderd. Dit kan niet ongedaan worden gemaakt.</value></data>
   <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>Dit gezin verwijderen? Het logboek, {0} items, wordt van de server van Coo en van deze telefoon verwijderd. Dit kan niet ongedaan worden gemaakt.</value></data>
   <data name="Family.DeleteShort" xml:space="preserve"><value>Verwijderen</value></data>
+  <data name="Family.FromOtherAccount" xml:space="preserve"><value>Van een ander account, nog op deze telefoon</value></data>
   <data name="Family.InvitationCode" xml:space="preserve"><value>Code {0} · gemaakt op {1}</value></data>
   <data name="Family.InvitationLine" xml:space="preserve"><value>Uitnodiging voor een ouder · tot {0}</value></data>
   <data name="Family.InvitationMade" xml:space="preserve"><value>Gemaakt op {0}</value></data>
@@ -315,6 +318,7 @@
   <data name="Family.LeaveShort" xml:space="preserve"><value>Verlaten</value></data>
   <data name="Family.LocalOnly" xml:space="preserve"><value>Alleen op deze telefoon</value></data>
   <data name="Family.Members" xml:space="preserve"><value>Leden</value></data>
+  <data name="Family.More" xml:space="preserve"><value>Meer voor dit gezin</value></data>
   <data name="Family.NoBaby" xml:space="preserve"><value>Nog geen baby</value></data>
   <data name="Family.Of" xml:space="preserve"><value>Gezin van {0}</value></data>
   <data name="Family.OnlyHere" xml:space="preserve"><value>Het logboek van dit gezin staat alleen op deze telefoon.</value></data>

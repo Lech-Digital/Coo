@@ -147,32 +147,58 @@ public sealed class FamilySwitcherPage : ContentPage
 #pragma warning restore CA1031
     }
 
+    /// <summary>
+    /// One family: the children's initial, their names, whose family it is and the person's role, and a check on the shown one.
+    /// A tap switches. Bring here and Remove sit behind "⋯" (owner, 2026-11-03): in the row they read as part of the choice,
+    /// and a nanny switching between several families should see families, not buttons.
+    /// </summary>
     private View RowView(FamilyRow row)
     {
-        var top = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 12 };
-        top.Add(Ui.Text(row.Label, row.IsShown ? "BodyStrong" : "Body").Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
+        var title = row.Title.Length > 0 ? row.Title : row.Label;
+        var look = Presentation.Theme.EventAppearance.For("feeding");
+        var initial = Ui.Text(title.Length > 0 ? title[..1].ToUpper(Strings.Culture) : "?", "BodyStrong", look.Ink);
+        initial.HorizontalOptions = LayoutOptions.Center;
+        initial.VerticalOptions = LayoutOptions.Center;
+        var avatar = Ui.Rounded(initial, look.Tint, 999, new Thickness(0));
+        avatar.WidthRequest = avatar.HeightRequest = 40;
+        avatar.VerticalOptions = LayoutOptions.Center;
+
+        var text = new VerticalStackLayout { Spacing = 2, VerticalOptions = LayoutOptions.Center };
+        text.Add(Ui.Text(title, "BodyStrong"));
+        if (row.Detail.Length > 0)
+            text.Add(Ui.Text(row.Detail, "Meta", "Ink2"));
+
+        var grid = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 12 };
+        grid.Add(avatar, 0);
+        grid.Add(text, 1);
         if (row.IsShown)
-            top.Add(Ui.Text("✓", "BodyStrong", "AccentInk").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
-
-        var content = new VerticalStackLayout { Spacing = 10, Children = { top } };
-        if (row.Actions.Count > 0)
         {
-            var actions = new HorizontalStackLayout { Spacing = 20 };
-            foreach (var action in row.Actions)
-            {
-                var link = Ui.Text(FamilySectionViewModel.ActionText(action), "Label", "AccentInk");
-                link.Padding = new Thickness(0, 6);
-                link.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => Dispatcher.Dispatch(async () => await RunAsync(() => ActAsync(row, action)))) });
-                actions.Add(link);
-            }
-
-            content.Add(actions);
+            grid.Add(Ui.Text("✓", "BodyStrong", "AccentInk").Tap(l => l.VerticalOptions = LayoutOptions.Center), 2);
+        }
+        else if (row.Actions.Count > 0)
+        {
+            var more = Ui.Text("⋯", "Title", "Ink2");
+            more.Padding = new Thickness(12, 0, 4, 6);
+            more.VerticalOptions = LayoutOptions.Center;
+            more.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => Dispatcher.Dispatch(async () => await RunAsync(() => MoreAsync(row)))) });
+            SemanticProperties.SetDescription(more, Strings.Get("Family.More"));
+            grid.Add(more, 2);
         }
 
-        var card = new Card(content);
+        var card = Ui.Rounded(grid, row.IsShown ? "AccentSoft" : "Surface", 16, new Thickness(12, 10), row.IsShown ? "Accent" : "Line");
         if (!row.IsShown)
             card.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => Dispatcher.Dispatch(async () => await RunAsync(() => ShowAsync(row)))) });
+        SemanticProperties.SetDescription(card, $"{title}, {row.Detail}");
         return card;
+    }
+
+    /// <summary>The row's other actions, as Coo's own choice sheet.</summary>
+    private async Task MoreAsync(FamilyRow row)
+    {
+        var index = await Components.CooDialog.ChooseAsync(
+            this, row.Title.Length > 0 ? row.Title : row.Label, [.. row.Actions.Select(FamilySectionViewModel.ActionText)], FamilySectionViewModel.CancelText);
+        if (index >= 0 && index < row.Actions.Count)
+            await ActAsync(row, row.Actions[index]);
     }
 
     /// <summary>The switch as before (§7.3): only the shown family changes; Today, Log and Settings follow.</summary>

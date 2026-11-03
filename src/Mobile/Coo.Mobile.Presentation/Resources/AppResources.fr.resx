@@ -16,7 +16,9 @@
   <data name="Account.SignInFailed" xml:space="preserve"><value>La connexion a échoué. Vérifiez votre connexion et réessayez.</value></data>
   <data name="Account.SignInHint" xml:space="preserve"><value>Gardez votre journal en sécurité et partagez-le avec la famille.</value></data>
   <data name="Account.SignOut" xml:space="preserve"><value>Se déconnecter</value></data>
-  <data name="Account.SignOutConfirm" xml:space="preserve"><value>Se déconnecter sur ce téléphone ? Votre journal reste sur ce téléphone.</value></data>
+  <data name="Account.SignOutConfirm" xml:space="preserve"><value>Se déconnecter sur ce téléphone ? Les journaux de vos familles quittent ce téléphone ; reconnectez-vous pour les retrouver. Un journal créé ici avant la connexion reste.</value></data>
+  <data name="Account.SignOutUnsent.one" xml:space="preserve"><value>{0} entrée n’a pas encore atteint le serveur et serait perdue. Se déconnecter retire les journaux de vos familles de ce téléphone. Se déconnecter quand même ?</value></data>
+  <data name="Account.SignOutUnsent.other" xml:space="preserve"><value>{0} entrées n’ont pas encore atteint le serveur et seraient perdues. Se déconnecter retire les journaux de vos familles de ce téléphone. Se déconnecter quand même ?</value></data>
   <data name="Account.Title" xml:space="preserve"><value>Compte</value></data>
   <data name="Action.Cancel" xml:space="preserve"><value>Annuler</value></data>
   <data name="Action.Dismiss" xml:space="preserve"><value>Ignorer</value></data>
@@ -303,6 +305,7 @@
   <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>Supprimer cette famille ? Son journal, {0} entrée, sera supprimé du serveur de Coo et de ce téléphone. C'est irréversible.</value></data>
   <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>Supprimer cette famille ? Son journal, {0} entrées, sera supprimé du serveur de Coo et de ce téléphone. C'est irréversible.</value></data>
   <data name="Family.DeleteShort" xml:space="preserve"><value>Supprimer</value></data>
+  <data name="Family.FromOtherAccount" xml:space="preserve"><value>D’un autre compte, encore sur ce téléphone</value></data>
   <data name="Family.InvitationCode" xml:space="preserve"><value>Code {0} · créée le {1}</value></data>
   <data name="Family.InvitationLine" xml:space="preserve"><value>Invitation pour un parent · jusqu'au {0}</value></data>
   <data name="Family.InvitationMade" xml:space="preserve"><value>Créée le {0}</value></data>
@@ -315,6 +318,7 @@
   <data name="Family.LeaveShort" xml:space="preserve"><value>Quitter</value></data>
   <data name="Family.LocalOnly" xml:space="preserve"><value>Uniquement sur ce téléphone</value></data>
   <data name="Family.Members" xml:space="preserve"><value>Membres</value></data>
+  <data name="Family.More" xml:space="preserve"><value>Plus pour cette famille</value></data>
   <data name="Family.NoBaby" xml:space="preserve"><value>Pas encore de bébé</value></data>
   <data name="Family.Of" xml:space="preserve"><value>Famille de {0}</value></data>
   <data name="Family.OnlyHere" xml:space="preserve"><value>Le journal de cette famille est uniquement sur ce téléphone.</value></data>

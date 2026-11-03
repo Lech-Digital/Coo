@@ -27,7 +27,9 @@ public enum FamilyRowAction
 }
 
 /// <summary>A row of the family switcher: the label as before ("Lena · Your family"), the shown one marked and not tappable.</summary>
-public sealed record FamilyRow(HouseholdId Id, string Label, bool IsShown, IReadOnlyList<FamilyRowAction> Actions);
+/// <param name="Title">The children: "Maja", "Maja, Tom", or "No baby yet".</param>
+/// <param name="Detail">Whose family and the person's place in it: "Your family", "Family of Kasia · Caregiver", "On this phone only".</param>
+public sealed record FamilyRow(HouseholdId Id, string Label, bool IsShown, IReadOnlyList<FamilyRowAction> Actions, string Title = "", string Detail = "");
 
 /// <summary>
 /// Settings → Family (Spec 011b §2), right after Account: which family is shown, its members, inviting, joining and bringing
@@ -96,7 +98,8 @@ public sealed partial class FamilySectionViewModel(
         Choices = [.. list.Where(f => !f.IsSoftLocked).Select(f => new FamilyChoice(f.Id, FamilyLabels.Choice(f)))];
         var shared = list.Count(f => f.IsShared);
         Rows = [.. list.Where(f => !f.IsSoftLocked).Select(f => new FamilyRow(
-            f.Id, FamilyLabels.Choice(f), f.IsShown, f.IsShown || shown is null ? [] : ActionsFor(f, shown, shared)))];
+            f.Id, FamilyLabels.Choice(f), f.IsShown, f.IsShown || shown is null ? [] : ActionsFor(f, shown, shared),
+            FamilyLabels.Title(f), FamilyLabels.Detail(f)))];
         _list = list;
     }
 

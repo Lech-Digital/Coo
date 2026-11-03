@@ -310,6 +310,73 @@ public sealed class FamiliesTests : IDisposable
         await _moves.DidNotReceiveWithAnyArgs().ActivateAsync(default, default);
     }
 
+    private SignOutOfPhone SignOutOfPhone(ISyncControl sync) => new(new SignOut(_accounts, _account), Families(), _records, sync);
+
+    private static ISyncControl ExclusiveRunsAtOnce()
+    {
+        var sync = Substitute.For<ISyncControl>();
+        sync.RunExclusiveAsync(Arg.Any<Func<CancellationToken, Task>>(), Arg.Any<CancellationToken>())
+            .Returns(call => call.Arg<Func<CancellationToken, Task>>()(CancellationToken.None));
+        return sync;
+    }
+
+    [Fact]
+    public async Task SignOutOfPhone_AnAccountFamilyAndThePhonesOwnLog_TakesOnlyTheAccountFamilyOff()
+    {
+        // Arrange: signed out as one account and in as another, the first one's family stayed on show (owner, 2026-11-03).
+        await SignInAsync();
+        OnPhone((Home, ["Maja"]), (Local, ["Maja"]));
+        _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Owner, Now, "Kasia", 2)]);
+        _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
+        _moves.HasEverSyncedAsync(Local, Arg.Any<CancellationToken>()).Returns(false);
+        var sync = ExclusiveRunsAtOnce();
+
+        // Act
+        await SignOutOfPhone(sync).ExecuteAsync(CancellationToken.None);
+
+        // Assert
+        _account.State.Should().BeOfType<SignedOut>();
+        await _moves.Received(1).DeleteHouseholdAsync(Home, Arg.Any<CancellationToken>());
+        await _moves.DidNotReceive().DeleteHouseholdAsync(Local, Arg.Any<CancellationToken>());
+        sync.Received().NotifyDataChanged();
+    }
+
+    [Fact]
+    public async Task SignOutOfPhone_OnlyAnAccountFamily_ReplacesItWithANewProvisionalFamily()
+    {
+        // Arrange
+        await SignInAsync();
+        OnPhone((Home, ["Maja"]));
+        _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Owner, Now, "Kasia", 2)]);
+        _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
+
+        // Act
+        await SignOutOfPhone(ExclusiveRunsAtOnce()).ExecuteAsync(CancellationToken.None);
+
+        // Assert: never no family at all; the welcome screen follows.
+        await _records.Received(1).DeleteAndReplaceAsync(Home, Arg.Any<HouseholdSettings>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SignOutOfPhone_UnsentAfterPush_CountsOnlyTheLeavingFamilies()
+    {
+        // Arrange: three entries never reached the server; the phone's own log does not leave, so it is not counted.
+        await SignInAsync();
+        OnPhone((Home, ["Maja"]), (Local, ["Maja"]));
+        _store.ListAsync(Me, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(Home, Role.Owner, Now, "Kasia", 2)]);
+        _moves.HasEverSyncedAsync(Home, Arg.Any<CancellationToken>()).Returns(true);
+        _records.CountPendingAsync(Arg.Is<IReadOnlyCollection<HouseholdId>>(h => h.Count == 1 && h.Contains(Home)), Arg.Any<CancellationToken>()).Returns(3);
+        var sync = Substitute.For<ISyncControl>();
+        sync.SyncNowAsync(Arg.Any<CancellationToken>()).ThrowsAsync(new HttpRequestException("offline"));
+
+        // Act
+        var unsent = await SignOutOfPhone(sync).UnsentAfterPushAsync(CancellationToken.None);
+
+        // Assert
+        unsent.Should().Be(3);
+        await sync.Received(1).SyncNowAsync(Arg.Any<CancellationToken>());
+    }
+
     [Fact]
     public async Task RemoveFromPhoneAsync_TheLastFamily_DeletesAndReplacesItWithANewProvisionalFamilyInOneCall()
     {

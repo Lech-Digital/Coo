@@ -32,6 +32,9 @@ public sealed class AccountViewModelTests : IDisposable
     private readonly MemorySessions _sessions = new();
     private readonly ISyncStatus _sync = Substitute.For<ISyncStatus>();
     private readonly IClockFormat _clock = Substitute.For<IClockFormat>();
+    private readonly IHouseholdMoves _moves = Substitute.For<IHouseholdMoves>();
+    private readonly IFamilyRecords _records = Substitute.For<IFamilyRecords>();
+    private readonly ISyncControl _control = Substitute.For<ISyncControl>();
     private readonly Account _account;
 
     public AccountViewModelTests()
@@ -181,16 +184,35 @@ public sealed class AccountViewModelTests : IDisposable
     }
 
     [Fact]
-    public void SignOutPrompt_Always_SaysTheLogStays()
+    public async Task SignOutPromptAsync_NothingUnsent_SaysTheFamiliesLogsLeaveThePhone()
     {
         // Arrange
         using var model = Model();
 
         // Act
-        var prompt = model.SignOutPrompt;
+        var prompt = await model.SignOutPromptAsync();
 
         // Assert
-        prompt.Should().Be(new ConfirmPrompt("Sign out", "Sign out on this phone? Your log stays on this phone.", "Sign out", "Cancel"));
+        prompt.Title.Should().Be("Sign out");
+        prompt.Message.Should().Contain("leave this phone").And.Contain("sign in again");
+    }
+
+    [Fact]
+    public async Task SignOutPromptAsync_EntriesNotOnTheServer_SaysHowManyWouldBeLost()
+    {
+        // Arrange: an account family on the phone with two records that never reached the server.
+        await _account.SignedInAsync(new StoredSession("a", Expires, "r", Profile, Household, JoinPending: false), CancellationToken.None);
+        _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns(
+            [HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, new DeviceId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1")))).Value]);
+        _moves.HasEverSyncedAsync(Household, Arg.Any<CancellationToken>()).Returns(true);
+        _records.CountPendingAsync(Arg.Any<IReadOnlyCollection<HouseholdId>>(), Arg.Any<CancellationToken>()).Returns(2);
+        using var model = Model();
+
+        // Act
+        var prompt = await model.SignOutPromptAsync();
+
+        // Assert
+        prompt.Message.Should().StartWith("2 entries have not reached the server yet");
     }
 
     [Fact]
@@ -350,7 +372,12 @@ public sealed class AccountViewModelTests : IDisposable
     private AccountViewModel Model() => new(
         _account,
         new SignIn(_api, _google, _households, _device, _deviceName, _account),
-        new SignOut(_accountApi, _account),
+        new SignOutOfPhone(
+            new SignOut(_accountApi, _account),
+            new Families(_account, Substitute.For<IFamilyStore>(), _accountApi, Substitute.For<IHouseholdApi>(), _sessions, _households, _moves,
+                Substitute.For<ISyncState>(), _records, new ProvisionalSettings(Substitute.For<IVersionClock>(), Substitute.For<IDeviceLocale>(), new Microsoft.Extensions.Time.Testing.FakeTimeProvider())),
+            _records,
+            _control),
         new DeleteAccount(_accountApi, _account),
         new RefreshAccount(_accountApi, _sessions, _account),
         _households,

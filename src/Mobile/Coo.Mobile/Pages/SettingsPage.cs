@@ -614,7 +614,7 @@ public sealed class SettingsPage : ContentPage
         _confirming = true;
         try
         {
-            var prompt = _account.SignOutPrompt;
+            var prompt = await _account.SignOutPromptAsync();
             if (await Components.CooDialog.ConfirmAsync(this, prompt.Title, prompt.Message, prompt.Accept, prompt.Cancel))
                 await _account.SignOutCommand.ExecuteAsync(null);
         }

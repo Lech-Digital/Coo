@@ -14,6 +14,21 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
   Play's "What's new". That text, in all seven languages and ready to paste, goes in
   `store-assets/releases/<version>.md`.
 
+## 1.9.1 (code 28) — 2026-11-03
+
+Works with the server of 1.9.0 (no server change).
+
+### Fixed
+- **Signing out takes your families' logs off this phone.** Before, they stayed: signing in with another Google account
+  afterwards still showed the first account's family and its members. Coo sends anything not sent yet first, and says
+  how many entries would be lost if some still have not reached the server. A log you kept on this phone before ever
+  signing in stays. Sign in again and everything comes back.
+- **"Show which family?"** reads clearly with several families, as a nanny or a grandparent has: each row shows the
+  children, whose family it is and your role there ("Family of Andrzej · Caregiver"), and the shown family is
+  highlighted. Bring its entries here and Remove from this phone moved behind "⋯".
+- Today's headline no longer stays in the big type after switching to a family without sleeps ("No sleep logged yet"
+  filled half the screen).
+
 ## 1.9.0 (code 27) — 2026-11-03
 
 Works with the current server; deploy the server of the same commit to share a baby's girl/boy choice between phones

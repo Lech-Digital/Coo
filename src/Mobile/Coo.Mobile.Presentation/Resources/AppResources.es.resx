@@ -16,7 +16,9 @@
   <data name="Account.SignInFailed" xml:space="preserve"><value>No se ha podido iniciar sesión. Comprueba la conexión y vuelve a intentarlo.</value></data>
   <data name="Account.SignInHint" xml:space="preserve"><value>Guarda tu registro a salvo y compártelo con la familia.</value></data>
   <data name="Account.SignOut" xml:space="preserve"><value>Cerrar sesión</value></data>
-  <data name="Account.SignOutConfirm" xml:space="preserve"><value>¿Cerrar sesión en este teléfono? Tu registro se queda en este teléfono.</value></data>
+  <data name="Account.SignOutConfirm" xml:space="preserve"><value>¿Cerrar sesión en este teléfono? Los registros de tus familias salen de este teléfono; vuelve a iniciar sesión para recuperarlos. Lo registrado aquí antes de iniciar sesión se queda.</value></data>
+  <data name="Account.SignOutUnsent.one" xml:space="preserve"><value>{0} registro aún no ha llegado al servidor y se perdería. Cerrar sesión quita los registros de tus familias de este teléfono. ¿Cerrar sesión igualmente?</value></data>
+  <data name="Account.SignOutUnsent.other" xml:space="preserve"><value>{0} registros aún no han llegado al servidor y se perderían. Cerrar sesión quita los registros de tus familias de este teléfono. ¿Cerrar sesión igualmente?</value></data>
   <data name="Account.Title" xml:space="preserve"><value>Cuenta</value></data>
   <data name="Action.Cancel" xml:space="preserve"><value>Cancelar</value></data>
   <data name="Action.Dismiss" xml:space="preserve"><value>Descartar</value></data>
@@ -303,6 +305,7 @@
   <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>¿Eliminar esta familia? Se eliminará {0} registro del servidor de Coo y de este teléfono. No se puede deshacer.</value></data>
   <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>¿Eliminar esta familia? Se eliminarán {0} registros del servidor de Coo y de este teléfono. No se puede deshacer.</value></data>
   <data name="Family.DeleteShort" xml:space="preserve"><value>Eliminar</value></data>
+  <data name="Family.FromOtherAccount" xml:space="preserve"><value>De otra cuenta, aún en este teléfono</value></data>
   <data name="Family.InvitationCode" xml:space="preserve"><value>Código {0} · creada el {1}</value></data>
   <data name="Family.InvitationLine" xml:space="preserve"><value>Invitación para un progenitor · hasta el {0}</value></data>
   <data name="Family.InvitationMade" xml:space="preserve"><value>Creada el {0}</value></data>
@@ -315,6 +318,7 @@
   <data name="Family.LeaveShort" xml:space="preserve"><value>Salir</value></data>
   <data name="Family.LocalOnly" xml:space="preserve"><value>Solo en este teléfono</value></data>
   <data name="Family.Members" xml:space="preserve"><value>Miembros</value></data>
+  <data name="Family.More" xml:space="preserve"><value>Más sobre esta familia</value></data>
   <data name="Family.NoBaby" xml:space="preserve"><value>Aún no hay bebé</value></data>
   <data name="Family.Of" xml:space="preserve"><value>Familia de {0}</value></data>
   <data name="Family.OnlyHere" xml:space="preserve"><value>El registro de esta familia solo está en este teléfono.</value></data>

@@ -210,17 +210,35 @@ internal static class SectionViews
         return Ui.Rounded(Ui.Text(s.Text, "Body"), "Surface", 12, new Thickness(16, 12), "Line").Tap(v => v.Margin = new Thickness(24, 8, 24, 0));
     }
 
-    private static View Hero(StatusHeroSection s) => new VerticalStackLayout
+    /// <summary>
+    /// "Awake for 1 h 05 m" in the big hero type; "No sleep logged yet" (no eyebrow) as a section title. The style follows the
+    /// eyebrow as it changes: chosen once, a family switch to one without sleeps showed that line in hero type, filling
+    /// half the screen (owner's phone, 2026-11-03).
+    /// </summary>
+    private static View Hero(StatusHeroSection s)
     {
-        Padding = new Thickness(24, 20, 24, 4),
-        Spacing = 6,
-        Children =
+        var value = Bound(s, nameof(StatusHeroSection.Value), s.Eyebrow.Length == 0 ? "Section" : "Hero");
+        void OnChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            Bound(s, nameof(StatusHeroSection.Eyebrow), "Label", upper: true),
-            Bound(s, nameof(StatusHeroSection.Value), s.Eyebrow.Length == 0 ? "Section" : "Hero"),
-            Bound(s, nameof(StatusHeroSection.Context), "Body"),
-        },
-    };
+            if (e.PropertyName == nameof(StatusHeroSection.Eyebrow))
+                value.SetDynamicResource(VisualElement.StyleProperty, s.Eyebrow.Length == 0 ? "Section" : "Hero");
+        }
+
+        // The section outlives its views: the handler goes with the label.
+        s.PropertyChanged += OnChanged;
+        value.Unloaded += (_, _) => s.PropertyChanged -= OnChanged;
+        return new VerticalStackLayout
+        {
+            Padding = new Thickness(24, 20, 24, 4),
+            Spacing = 6,
+            Children =
+            {
+                Bound(s, nameof(StatusHeroSection.Eyebrow), "Label", upper: true),
+                value,
+                Bound(s, nameof(StatusHeroSection.Context), "Body"),
+            },
+        };
+    }
 
     internal static View RunningCards(IReadOnlyList<RunningItem> items, bool night, SectionHost host)
     {

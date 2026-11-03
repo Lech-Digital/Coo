@@ -34,6 +34,22 @@ public sealed class FamilyLabelTests : IDisposable
     }
 
     [Fact]
+    public void Detail_FamiliesOfANanny_SayWhoseFamilyAndTheRole()
+    {
+        // Act
+        var own = FamilyLabels.Detail(Family(["Lena"], new FamilyMembership(Id, Role.Owner, Now, "Kasia", 1)));
+        var nanny = FamilyLabels.Detail(Family(["Tom"], new FamilyMembership(Id, Role.Caregiver, Now, "Andrzej", 3)));
+        var leftOver = FamilyLabels.Detail(Family(["Maja"], null));
+        var phoneOnly = FamilyLabels.Detail(new FamilyOnPhone(Id, ["Maja"], null, false, false, false, HasEverSynced: false));
+
+        // Assert
+        own.Should().Be("Your family");
+        nanny.Should().Be("Family of Andrzej · Caregiver");
+        leftOver.Should().Be("From another account, still on this phone");
+        phoneOnly.Should().Be("On this phone only");
+    }
+
+    [Fact]
     public void Second_OwnParentOtherAndLocal_ReadAsTheSpecSays()
     {
         // Act

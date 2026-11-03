@@ -16,7 +16,9 @@
   <data name="Account.SignInFailed" xml:space="preserve"><value>Die Anmeldung hat nicht geklappt. Prüfe deine Verbindung und versuche es noch einmal.</value></data>
   <data name="Account.SignInHint" xml:space="preserve"><value>Sichere deine Einträge und teile sie mit der Familie.</value></data>
   <data name="Account.SignOut" xml:space="preserve"><value>Abmelden</value></data>
-  <data name="Account.SignOutConfirm" xml:space="preserve"><value>Auf diesem Handy abmelden? Deine Einträge bleiben auf diesem Handy.</value></data>
+  <data name="Account.SignOutConfirm" xml:space="preserve"><value>Auf diesem Handy abmelden? Die Einträge deiner Familien verschwinden von diesem Handy; nach der nächsten Anmeldung sind sie wieder da. Was hier vor der Anmeldung eingetragen wurde, bleibt.</value></data>
+  <data name="Account.SignOutUnsent.one" xml:space="preserve"><value>{0} Eintrag ist noch nicht auf dem Server und ginge verloren. Beim Abmelden verschwinden die Einträge deiner Familien von diesem Handy. Trotzdem abmelden?</value></data>
+  <data name="Account.SignOutUnsent.other" xml:space="preserve"><value>{0} Einträge sind noch nicht auf dem Server und gingen verloren. Beim Abmelden verschwinden die Einträge deiner Familien von diesem Handy. Trotzdem abmelden?</value></data>
   <data name="Account.Title" xml:space="preserve"><value>Konto</value></data>
   <data name="Action.Cancel" xml:space="preserve"><value>Abbrechen</value></data>
   <data name="Action.Dismiss" xml:space="preserve"><value>Verwerfen</value></data>
@@ -303,6 +305,7 @@
   <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>Diese Familie löschen? Ihr Verlauf mit {0} Eintrag wird vom Server von Coo und von diesem Handy gelöscht. Das lässt sich nicht rückgängig machen.</value></data>
   <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>Diese Familie löschen? Ihr Verlauf mit {0} Einträgen wird vom Server von Coo und von diesem Handy gelöscht. Das lässt sich nicht rückgängig machen.</value></data>
   <data name="Family.DeleteShort" xml:space="preserve"><value>Löschen</value></data>
+  <data name="Family.FromOtherAccount" xml:space="preserve"><value>Von einem anderen Konto, noch auf diesem Handy</value></data>
   <data name="Family.InvitationCode" xml:space="preserve"><value>Code {0} · erstellt am {1}</value></data>
   <data name="Family.InvitationLine" xml:space="preserve"><value>Einladung für ein Elternteil · bis {0}</value></data>
   <data name="Family.InvitationMade" xml:space="preserve"><value>Erstellt am {0}</value></data>
@@ -315,6 +318,7 @@
   <data name="Family.LeaveShort" xml:space="preserve"><value>Verlassen</value></data>
   <data name="Family.LocalOnly" xml:space="preserve"><value>Nur auf diesem Handy</value></data>
   <data name="Family.Members" xml:space="preserve"><value>Mitglieder</value></data>
+  <data name="Family.More" xml:space="preserve"><value>Mehr zu dieser Familie</value></data>
   <data name="Family.NoBaby" xml:space="preserve"><value>Noch kein Baby</value></data>
   <data name="Family.Of" xml:space="preserve"><value>Familie von {0}</value></data>
   <data name="Family.OnlyHere" xml:space="preserve"><value>Die Einträge dieser Familie sind nur auf diesem Handy.</value></data>

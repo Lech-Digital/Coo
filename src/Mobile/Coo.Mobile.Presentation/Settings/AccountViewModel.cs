@@ -19,7 +19,7 @@ public sealed partial class AccountViewModel : ObservableObject, IDisposable
 {
     private readonly Account _account;
     private readonly SignIn _signIn;
-    private readonly SignOut _signOut;
+    private readonly SignOutOfPhone _signOut;
     private readonly DeleteAccount _deleteAccount;
     private readonly RefreshAccount _refresh;
     private readonly IHouseholdStore _households;
@@ -37,7 +37,7 @@ public sealed partial class AccountViewModel : ObservableObject, IDisposable
     private string _toast = "";
 
     public AccountViewModel(
-        Account account, SignIn signIn, SignOut signOut, DeleteAccount deleteAccount, RefreshAccount refresh, IHouseholdStore households,
+        Account account, SignIn signIn, SignOutOfPhone signOut, DeleteAccount deleteAccount, RefreshAccount refresh, IHouseholdStore households,
         ISyncStatus sync, IClockFormat clock)
     {
         _account = account;
@@ -105,8 +105,16 @@ public sealed partial class AccountViewModel : ObservableObject, IDisposable
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "The page binds to it on the instance.")]
-    public ConfirmPrompt SignOutPrompt =>
-        new(Strings.Get("Account.SignOut"), Strings.Get("Account.SignOutConfirm"), Strings.Get("Account.SignOut"), Strings.Get("Action.Cancel"));
+    /// <summary>
+    /// The sign-out confirmation, after a last push: the account's families leave the phone, and entries that never reached the
+    /// server would go with them, so their number is said when there are any.
+    /// </summary>
+    public async Task<ConfirmPrompt> SignOutPromptAsync()
+    {
+        var unsent = await _signOut.UnsentAfterPushAsync(CancellationToken.None);
+        var message = unsent > 0 ? Strings.Plural("Account.SignOutUnsent", unsent) : Strings.Get("Account.SignOutConfirm");
+        return new(Strings.Get("Account.SignOut"), message, Strings.Get("Account.SignOut"), Strings.Get("Action.Cancel"));
+    }
 
     private AccountProfile? Profile => State switch
     {

@@ -30,6 +30,24 @@ public static class FamilyLabels
     }
 
     /// <summary>
+    /// The switcher's second line (owner, 2026-11-03: three rows all reading "Maja" said nothing): whose family, and for
+    /// someone else's, the person's role in it, so a nanny with several families sees which is which. A family that was on
+    /// a server but is not the signed-in account's is said to be left over from another account, not "on this phone only".
+    /// </summary>
+    public static string Detail(FamilyOnPhone family)
+    {
+        ArgumentNullException.ThrowIfNull(family);
+        return family.Membership switch
+        {
+            null when family.HasEverSynced => Strings.Get("Family.FromOtherAccount"),
+            null => Strings.Get("Family.LocalOnly"),
+            { Role: Role.Owner } => Strings.Get("Family.Yours"),
+            { OwnerName.Length: > 0 } m => $"{Strings.Format("Family.Of", m.OwnerName)} · {RoleText(m.Role)}",
+            { } m => $"{Strings.Get("Family.Title")} · {RoleText(m.Role)}",
+        };
+    }
+
+    /// <summary>
     /// Where entries brought over now are (Spec 011b §6), preposition included: "in Andrzej's family", or "in the other family"
     /// when the name is not known.
     /// </summary>
