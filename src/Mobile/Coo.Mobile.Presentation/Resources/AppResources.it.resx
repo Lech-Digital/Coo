@@ -275,6 +275,9 @@
   <data name="Error.milestone.title-required" xml:space="preserve"><value>Scrivi cosa è successo.</value></data>
   <data name="Error.milestone.unknown" xml:space="preserve"><value>Scegli un traguardo.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>Una nota ha al massimo 500 caratteri.</value></data>
+  <data name="Error.plan.see-doctor" xml:space="preserve"><value>Parlane prima con il pediatra. Un piano del sonno può aspettare il suo parere.</value></data>
+  <data name="Error.plan.too-young" xml:space="preserve"><value>Un piano è possibile dalle 2 settimane. Fino ad allora, nutri a richiesta e lascia che il sonno venga da sé.</value></data>
+  <data name="Error.plan.unwell" xml:space="preserve"><value>Negli ultimi 3 giorni ci sono stati febbre o un farmaco. Inizia un piano quando il tuo bambino starà di nuovo bene.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Il tiralatte dura al massimo 4 ore. Controlla gli orari.</value></data>
   <data name="Error.quick.already-running" xml:space="preserve"><value>Già in corso.</value></data>
   <data name="Error.quick.no-baby" xml:space="preserve"><value>Apri Coo e aggiungi prima il tuo bambino.</value></data>
@@ -504,6 +507,100 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Photo.Privacy" xml:space="preserve"><value>La foto viene inviata al nostro server e all’IA Gemini di Google per essere letta, poi eliminata; non viene mai conservata. I nomi presenti non possono essere nascosti prima, quindi coprili se vuoi.</value></data>
   <data name="Photo.Take" xml:space="preserve"><value>Scatta una foto</value></data>
   <data name="Photo.Title" xml:space="preserve"><value>Leggi un libretto sanitario</value></data>
+  <data name="Plan.Accept" xml:space="preserve"><value>Provalo</value></data>
+  <data name="Plan.Adj.DropANap" xml:space="preserve"><value>{0} sta già lasciando un pisolino: prevedine uno in meno.</value></data>
+  <data name="Plan.Adj.EarlierBedtime" xml:space="preserve"><value>Anticipa l'ora della nanna di {0}.</value></data>
+  <data name="Plan.Adj.KeepGoing" xml:space="preserve"><value>Continua come previsto: i cambiamenti richiedono una o due settimane.</value></data>
+  <data name="Plan.Adj.LongerWindows" xml:space="preserve"><value>Tieni {0} sveglio {1} in più prima di ogni sonno.</value></data>
+  <data name="Plan.Adj.NewAgeSchedule" xml:space="preserve"><value>{0} è entrato in una nuova fascia d'età: passa alla giornata per questa età.</value></data>
+  <data name="Plan.Adj.ShorterLastNap" xml:space="preserve"><value>Sveglia {0} dall'ultimo pisolino dopo {1}.</value></data>
+  <data name="Plan.Answer" xml:space="preserve"><value>Rispondi alle domande qui sopra per vedere il piano.</value></data>
+  <data name="Plan.Approach" xml:space="preserve"><value>Come vuoi addormentare {0}?</value></data>
+  <data name="Plan.Approach.Chair" xml:space="preserve"><value>Metodo della sedia</value></data>
+  <data name="Plan.Approach.CheckAndConsole" xml:space="preserve"><value>Controllare e consolare</value></data>
+  <data name="Plan.Approach.Fading" xml:space="preserve"><value>Graduale: meno aiuto passo dopo passo</value></data>
+  <data name="Plan.Approach.NoCrying" xml:space="preserve"><value>Senza pianto</value></data>
+  <data name="Plan.Approach.Rhythm" xml:space="preserve"><value>Ritmo e routine</value></data>
+  <data name="Plan.Bedtime" xml:space="preserve"><value>Nanna</value></data>
+  <data name="Plan.BedtimeDetail" xml:space="preserve"><value>dopo {0} di veglia</value></data>
+  <data name="Plan.Before" xml:space="preserve"><value>Prima</value></data>
+  <data name="Plan.CheckIn" xml:space="preserve"><value>Controllo</value></data>
+  <data name="Plan.CheckInHint" xml:space="preserve"><value>La settimana prima del piano e gli ultimi giorni.</value></data>
+  <data name="Plan.Day" xml:space="preserve"><value>Giorno {0}</value></data>
+  <data name="Plan.Expect" xml:space="preserve"><value>Cosa aspettarsi</value></data>
+  <data name="Plan.Expect.NoCrying" xml:space="preserve"><value>Aspettati piccoli cambiamenti nell'arco di diverse settimane. Guarda i controlli più che le singole notti.</value></data>
+  <data name="Plan.Expect.Rhythm" xml:space="preserve"><value>La prima settimana riguarda i tempi: i pisolini possono essere irregolari finché le finestre si assestano. Mantieni la stessa routine ogni sera.</value></data>
+  <data name="Plan.Expect.Training" xml:space="preserve"><value>Le prime 2 o 3 notti sono spesso più difficili prima di migliorare. La maggior parte delle famiglie vede un cambiamento in 1 o 2 settimane se la routine resta uguale ogni sera.</value></data>
+  <data name="Plan.Goal.DropANap" xml:space="preserve"><value>Eliminare un pisolino</value></data>
+  <data name="Plan.Goal.EarlierBedtime" xml:space="preserve"><value>Andare a letto prima</value></data>
+  <data name="Plan.Goal.FallAsleepEasier" xml:space="preserve"><value>Addormentarsi più facilmente</value></data>
+  <data name="Plan.Goal.FewerNightWakings" xml:space="preserve"><value>Meno risvegli notturni</value></data>
+  <data name="Plan.Goal.LaterMorning" xml:space="preserve"><value>Svegliarsi più tardi</value></data>
+  <data name="Plan.Goal.LongerNaps" xml:space="preserve"><value>Pisolini più lunghi</value></data>
+  <data name="Plan.Goal.PredictableDay" xml:space="preserve"><value>Una giornata prevedibile</value></data>
+  <data name="Plan.Goals" xml:space="preserve"><value>Cosa vorresti cambiare?</value></data>
+  <data name="Plan.Guidance" xml:space="preserve"><value>Indicazioni generali da fonti pediatriche diffuse (AAP, NHS), non un parere medico.</value></data>
+  <data name="Plan.History" xml:space="preserve"><value>Piani passati</value></data>
+  <data name="Plan.Intro" xml:space="preserve"><value>Una giornata tipo per {0}, calcolata dal suo registro e dalla sua età, con controlli periodici.</value></data>
+  <data name="Plan.Keep" xml:space="preserve"><value>Lascia il piano così</value></data>
+  <data name="Plan.M.Bedtime" xml:space="preserve"><value>Nanna</value></data>
+  <data name="Plan.M.Day" xml:space="preserve"><value>Sonno diurno</value></data>
+  <data name="Plan.M.Longest" xml:space="preserve"><value>Tratto più lungo</value></data>
+  <data name="Plan.M.NapLength" xml:space="preserve"><value>Pisolino tipico</value></data>
+  <data name="Plan.M.Night" xml:space="preserve"><value>Sonno notturno</value></data>
+  <data name="Plan.M.NightWakings" xml:space="preserve"><value>Risvegli notturni</value></data>
+  <data name="Plan.Nap" xml:space="preserve"><value>Pisolino {0}</value></data>
+  <data name="Plan.NapDetail" xml:space="preserve"><value>dopo {0} di veglia · circa {1}</value></data>
+  <data name="Plan.NextCheckIn" xml:space="preserve"><value>Prossimo controllo: {0}</value></data>
+  <data name="Plan.No" xml:space="preserve"><value>No</value></data>
+  <data name="Plan.Note.BedtimeEarly" xml:space="preserve"><value>L'ora della nanna è prima del solito per l'età; va bene se la sveglia non è troppo presto.</value></data>
+  <data name="Plan.Note.BedtimeLate" xml:space="preserve"><value>L'ora della nanna è più tardi del solito per l'età. Iniziare prima la giornata la anticipa.</value></data>
+  <data name="Plan.Note.NapDropped" xml:space="preserve"><value>Un pisolino in meno, come richiesto: {0} è nell'età in cui si perde.</value></data>
+  <data name="Plan.Note.OwnNaps" xml:space="preserve"><value>Durata dei pisolini dal registro di {0}.</value></data>
+  <data name="Plan.Note.OwnWindows" xml:space="preserve"><value>Finestre di veglia dal registro di {0}, entro i limiti per l'età.</value></data>
+  <data name="Plan.Note.RhythmOnlyUnderFourMonths" xml:space="preserve"><value>Fino a 4 mesi: solo ritmo e routine. Il metodo scelto inizierà dopo.</value></data>
+  <data name="Plan.Now" xml:space="preserve"><value>Ora</value></data>
+  <data name="Plan.Ok" xml:space="preserve"><value>Capito</value></data>
+  <data name="Plan.Paused" xml:space="preserve"><value>In pausa: negli ultimi 3 giorni ci sono stati febbre o un farmaco. Segui ciò di cui ha bisogno il tuo bambino; il piano riprende da solo.</value></data>
+  <data name="Plan.Q.Breathing" xml:space="preserve"><value>Russare, respiro rumoroso o pause nel respiro?</value></data>
+  <data name="Plan.Q.Feeding" xml:space="preserve"><value>Preoccupazioni per l'alimentazione?</value></data>
+  <data name="Plan.Q.Weight" xml:space="preserve"><value>Preoccupazioni per l'aumento di peso?</value></data>
+  <data name="Plan.ReadOnly" xml:space="preserve"><value>I genitori avviano e modificano il piano; tu puoi seguirlo qui.</value></data>
+  <data name="Plan.RhythmOnly" xml:space="preserve"><value>Sotto i 4 mesi il piano è solo ritmo e routine: niente addestramento al sonno.</value></data>
+  <data name="Plan.Routine" xml:space="preserve"><value>Routine della nanna</value></data>
+  <data name="Plan.RoutineText" xml:space="preserve"><value>Gli stessi passi ogni sera, da 20 a 30 minuti: lavaggio o bagnetto, pigiama e pannolino pulito, poppata, una canzone o un libro, poi nella culla.
+Luci soffuse e voci basse nell'ultima ora; luce del giorno poco dopo il risveglio.
+Ogni tanto metti giù {0} assonnato ma sveglio, per esercitarsi ad addormentarsi nella culla.</value></data>
+  <data name="Plan.SafeSleep" xml:space="preserve"><value>Sonno sicuro, sempre: a pancia in su, su una superficie rigida e piana, niente di libero nella culla, nella vostra stanza per i primi 6 mesi.</value></data>
+  <data name="Plan.Safety" xml:space="preserve"><value>Prima del piano</value></data>
+  <data name="Plan.See" xml:space="preserve"><value>Vedi il piano</value></data>
+  <data name="Plan.Settling" xml:space="preserve"><value>L'addormentamento</value></data>
+  <data name="Plan.Start" xml:space="preserve"><value>Inizia questo piano</value></data>
+  <data name="Plan.StartCta" xml:space="preserve"><value>Inizia un piano del sonno</value></data>
+  <data name="Plan.Stop" xml:space="preserve"><value>Interrompi il piano</value></data>
+  <data name="Plan.StopConfirm" xml:space="preserve"><value>Interrompere questo piano? Resterà tra i piani passati.</value></data>
+  <data name="Plan.Text.Chair" xml:space="preserve"><value>Dopo la routine siediti su una sedia accanto alla culla finché {0} si addormenta; consola con la voce e una mano, e prendi in braccio solo se serve.
+Ogni 3 notti sposta la sedia più lontano: a metà strada dalla porta, alla porta, poi appena fuori.
+Rispondi ai risvegli notturni come all'ora della nanna.</value></data>
+  <data name="Plan.Text.CheckAndConsole" xml:space="preserve"><value>Dopo la routine metti giù {0} sveglio ed esci dalla stanza.
+Se {0} piange, torna dopo qualche minuto, consola brevemente con la voce e una mano senza prendere in braccio, ed esci di nuovo. Gli intervalli li scegli tu; molti iniziano con 3 minuti e li allungano un po' nelle notti successive.
+Entra sempre se sembra dolore o malessere, o per un pannolino sporco.</value></data>
+  <data name="Plan.Text.Fading" xml:space="preserve"><value>Addormenta {0} come fai ora, poi aiuta un po' meno ogni 2 o 3 notti: il cullare diventa tenere fermo, il tenere diventa picchiettare nella culla, il picchiettare diventa una mano appoggiata su {0}, poi stare seduti accanto.
+Se {0} si agita molto, torna indietro di un passo per una notte.
+Resti nella stanza finché {0} non dorme.</value></data>
+  <data name="Plan.Text.NoCrying" xml:space="preserve"><value>{0} non viene mai lasciato piangere: consoli ogni volta.
+Il piano agisce con i tempi (le finestre di veglia giuste, nanna prima se è troppo stanco) e la routine, con passi molto piccoli di meno aiuto, come nel metodo graduale.
+I progressi sono più lenti che con altri metodi, spesso settimane invece di giorni. È normale.</value></data>
+  <data name="Plan.Text.Rhythm" xml:space="preserve"><value>Rispetta gli orari previsti e la routine, e addormenta {0} come funziona per voi adesso: cullare, allattare o tenere in braccio va bene.
+Inizia a rallentare poco prima di ogni pisolino previsto; sbadigli, sguardo fisso o occhi strofinati vogliono dire che è ora.
+Giornate luminose e vivaci, notti buie e tranquille; poppate notturne calme e brevi.</value></data>
+  <data name="Plan.TodayCheckIn" xml:space="preserve"><value>controllo pronto</value></data>
+  <data name="Plan.TodayLine" xml:space="preserve"><value>Piano del sonno · giorno {0}</value></data>
+  <data name="Plan.TodayNext" xml:space="preserve"><value>{0} alle {1}</value></data>
+  <data name="Plan.WakeUp" xml:space="preserve"><value>A che ora inizia la giornata?</value></data>
+  <data name="Plan.WakeUpAt" xml:space="preserve"><value>Sveglia</value></data>
+  <data name="Plan.WakeUpUsual" xml:space="preserve"><value>Come al solito</value></data>
+  <data name="Plan.Yes" xml:space="preserve"><value>Sì</value></data>
   <data name="Premium.Active" xml:space="preserve"><value>Coo Premium è attivo per tutta la famiglia. Grazie per sostenere Coo!</value></data>
   <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Fino a 100 domande al Consulente al giorno (3 senza Premium), con risposte che conoscono il tuo registro</value></data>
   <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Un avatar illustrato del tuo bambino, disegnato da una foto</value></data>

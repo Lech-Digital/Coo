@@ -344,6 +344,24 @@ public sealed class CareLogStoreTests
         watch.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(2));
     }
 
+    [Fact]
+    public async Task ListKindAsync_SleepPlansAmongOtherEntries_ReturnsOnlyThePlansNewestFirst()
+    {
+        // Arrange: a plan from last year and one from today, with a diaper in between.
+        await using var db = await TestDatabase.CreateAsync();
+        var plan = Coo.Domain.CareLog.Kinds.SleepPlan.SleepPlanDetails.Create(
+            [Coo.Domain.Insights.SleepPlanGoal.LongerNaps], Coo.Domain.Insights.SettlingApproach.Fading, null).Value;
+        var old = await Create(db, EntrySubject.Baby(TestDatabase.Baby), plan, EntryTiming.Point(T0.AddYears(-1)));
+        await db.DiaperAsync(T0.AddDays(-1));
+        var current = await Create(db, EntrySubject.Baby(TestDatabase.Baby), plan, EntryTiming.Point(T0));
+
+        // Act
+        var plans = await db.Store.ListKindAsync(TestDatabase.Household, Coo.Domain.CareLog.Kinds.SleepPlan.SleepPlanKind.Instance.Code, CancellationToken.None);
+
+        // Assert
+        plans.Select(p => p.Id).Should().Equal(current.Id, old.Id);
+    }
+
     private static async Task<CareEntry> Create(TestDatabase db, EntrySubject subject, EntryDetails details, EntryTiming? timing)
     {
         var entry = CareEntry.Create(await db.NewIdAsync(), TestDatabase.Household, subject, details, timing,

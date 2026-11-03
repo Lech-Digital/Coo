@@ -249,6 +249,55 @@ public sealed class SleepPlannerTests
     }
 
     [Fact]
+    public void Adjust_EarlierBedtimeAndLongerWindows_MovesTheDayAndKeepsWindowsWithinHerAge()
+    {
+        // Arrange
+        var day = EightMonthDay();
+
+        // Act
+        var adjusted = SleepPlanner.Adjust(day, [new(PlanAdjustmentKind.LongerWindows, 15), new(PlanAdjustmentKind.EarlierBedtime, 15)]);
+
+        // Assert
+        Assert.Equal(day.WakeUp, adjusted.WakeUp);
+        Assert.All(adjusted.Naps.Select(n => n.WindowBefore).Append(adjusted.LastWindow),
+            w => Assert.InRange(w, day.Windows.Low, day.Windows.High));
+        Assert.Equal(Min(day.Naps[0].WindowBefore + TimeSpan.FromMinutes(15), day.Windows.High), adjusted.Naps[0].WindowBefore);
+        Assert.Equal(adjusted.Naps[^1].Start.Add(adjusted.Naps[^1].Length).Add(adjusted.LastWindow), adjusted.Bedtime);
+    }
+
+    [Fact]
+    public void Adjust_ManyLongerWindows_StopsAtTheHighEndOfHerAge()
+    {
+        // Arrange
+        var day = EightMonthDay();
+
+        // Act
+        var adjusted = SleepPlanner.Adjust(day, Enumerable.Repeat(new PlanAdjustment(PlanAdjustmentKind.LongerWindows, 15), 20));
+
+        // Assert
+        Assert.All(adjusted.Naps, n => Assert.Equal(day.Windows.High, n.WindowBefore));
+        Assert.Equal(day.Windows.High, adjusted.LastWindow);
+    }
+
+    [Fact]
+    public void Adjust_ShorterLastNapOrNothingToChange_ShortensOnlyTheLastNapOrReturnsTheSameDay()
+    {
+        // Arrange
+        var day = EightMonthDay();
+
+        // Act
+        var shorter = SleepPlanner.Adjust(day, [new(PlanAdjustmentKind.ShorterLastNap, 30)]);
+        var same = SleepPlanner.Adjust(day, [new(PlanAdjustmentKind.KeepGoing), new(PlanAdjustmentKind.NewAgeSchedule)]);
+
+        // Assert
+        Assert.Equal(TimeSpan.FromMinutes(30), shorter.Naps[^1].Length);
+        Assert.Equal(day.Naps[0], shorter.Naps[0]);
+        Assert.Same(day, same);
+    }
+
+    private static TimeSpan Min(TimeSpan a, TimeSpan b) => a < b ? a : b;
+
+    [Fact]
     public void CheckIn_AWeekOfPlan_ComparesTheWeekBeforeWithTheDaysSince()
     {
         // Arrange: a week with a night waking, then a week of plan without.

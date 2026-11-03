@@ -173,9 +173,7 @@ public sealed class LogPage : ContentPage
 
     private async void OpenEntry(Coo.Domain.Common.EntryId id)
     {
-        var page = _services.GetRequiredService<EditPage>();
-        await page.OpenAsync(id);
-        await Navigation.PushAsync(page);
+        await Navigation.PushAsync(await EditPage.ForEntryAsync(_services, id));
     }
 
     private void Render()

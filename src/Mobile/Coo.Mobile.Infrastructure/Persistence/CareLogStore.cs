@@ -57,6 +57,26 @@ internal sealed class CareLogStore(LocalDatabase database, TimeProvider time, Lo
         return entries;
     }
 
+    public async Task<IReadOnlyList<StoredEntry>> ListKindAsync(HouseholdId household, EntryKindCode kind, CancellationToken cancellationToken)
+    {
+        await using var connection = await database.OpenAsync(cancellationToken);
+        var rows = await ReadRowsAsync(
+            connection,
+            $"""
+            SELECT {CareEntryRow.SelectColumns} FROM care_entries
+            WHERE household_id = $household AND is_deleted = 0 AND kind = $kind
+            ORDER BY start_utc_ms DESC;
+            """,
+            cancellationToken,
+            ("$household", Columns.Id(household.Value)),
+            ("$kind", kind.Value));
+
+        var entries = new List<StoredEntry>(rows.Count);
+        foreach (var row in rows)
+            entries.Add(await ClassifyAndRecordAsync(connection, row, cancellationToken));
+        return entries;
+    }
+
     public async Task<bool> DeleteAsync(EntryId id, HlcStamp version, CancellationToken cancellationToken)
     {
         await using var connection = await database.OpenAsync(cancellationToken);

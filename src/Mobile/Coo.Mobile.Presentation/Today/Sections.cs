@@ -364,6 +364,10 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
     [ObservableProperty]
     private IReadOnlyList<string> _napWhy = [];
 
+    /// <summary>"Sleep plan · day 3 · nap 2 at 13:15" while a plan runs (Spec 019 §2.3); a tap opens it.</summary>
+    [ObservableProperty]
+    private string _planLine = "";
+
     [ObservableProperty]
     private bool _hasContent;
 
@@ -373,6 +377,7 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         var t = snapshot.Today;
+        PlanLine = SleepPlan.SleepPlanViewModel.TodayLine(snapshot.Plan, TimeOnly.FromDateTime(snapshot.Now.DateTime), snapshot.Formats) ?? "";
 
         // 1. Next breast side
         if (t?.LastFeed is { Details: BreastFeed bf })
@@ -438,7 +443,7 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
             }
         }
 
-        HasContent = !string.IsNullOrEmpty(NextSide) || !string.IsNullOrEmpty(SinceFeed) || !string.IsNullOrEmpty(NextNap);
+        HasContent = !string.IsNullOrEmpty(NextSide) || !string.IsNullOrEmpty(SinceFeed) || !string.IsNullOrEmpty(NextNap) || !string.IsNullOrEmpty(PlanLine);
     }
 
     /// <summary>"2–3 h" or "60–90 min": the age-typical wake window.</summary>

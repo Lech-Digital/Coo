@@ -19,4 +19,12 @@ public sealed class FamilyLogAccess(Account account, IFamilyStore store) : ILogA
         var memberships = await store.ListAsync(profile.UserId, cancellationToken);
         return memberships?.FirstOrDefault(m => m.Household == household) is not { Role: Role.Viewer };
     }
+
+    public async Task<bool> CanPlanAsync(HouseholdId household, CancellationToken cancellationToken)
+    {
+        if (account.State is not SignedIn { Profile: var profile })
+            return true;
+        var memberships = await store.ListAsync(profile.UserId, cancellationToken);
+        return memberships?.FirstOrDefault(m => m.Household == household) is not { Role: Role.Caregiver or Role.Viewer };
+    }
 }

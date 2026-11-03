@@ -25,7 +25,8 @@ internal sealed record SectionHost(
     Action OpenVoice,
     Action OpenHealth,
     Action<NextUpSection> OpenSleepWhy,
-    Action OpenPremium);
+    Action OpenPremium,
+    Action? OpenSleepPlan = null);
 
 /// <summary>
 /// A view that redraws when its source changes, coalesced to one redraw per change burst. Off screen it only notes the
@@ -527,6 +528,17 @@ internal static class SectionViews
             else if (s.NapUpsell)
                 napRow.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(host.OpenPremium) });
             stack.Add(napRow);
+        }
+
+        if (!string.IsNullOrEmpty(s.PlanLine))
+        {
+            var planRow = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 8 };
+            planRow.Add(new Icon(IconGeometry.Sleep, "SleepInk", 18) { VerticalOptions = LayoutOptions.Center }, 0);
+            planRow.Add(Ui.Text(s.PlanLine, "Body", "Accent").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
+            planRow.Add(new Icon(IconGeometry.ChevronRight, "Ink2", 16) { VerticalOptions = LayoutOptions.Center }, 2);
+            if (host.OpenSleepPlan is { } open)
+                planRow.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(open) });
+            stack.Add(planRow);
         }
 
         var card = new Card(stack);

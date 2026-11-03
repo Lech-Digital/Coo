@@ -267,6 +267,56 @@ public static class SleepPlanner
     }
 
     /// <summary>
+    /// The planned day with the changes the parent accepted at check-ins, oldest first, each kept within her age's range:
+    /// longer windows up to the band's high end, an earlier bedtime by a shorter last window down to the low end, the
+    /// last nap kept short. <see cref="PlanAdjustmentKind.DropANap"/> and <see cref="PlanAdjustmentKind.NewAgeSchedule"/>
+    /// change what is planned, not the day, so the caller plans again for them; here they and
+    /// <see cref="PlanAdjustmentKind.KeepGoing"/> change nothing.
+    /// </summary>
+    public static SleepPlanDay Adjust(SleepPlanDay day, IEnumerable<PlanAdjustment> accepted)
+    {
+        ArgumentNullException.ThrowIfNull(day);
+        ArgumentNullException.ThrowIfNull(accepted);
+        var windows = day.Naps.Select(n => n.WindowBefore).Append(day.LastWindow).ToList();
+        var lengths = day.Naps.Select(n => n.Length).ToList();
+        var changed = false;
+        foreach (var adjustment in accepted)
+        {
+            var by = TimeSpan.FromMinutes(adjustment.Minutes);
+            switch (adjustment.Kind)
+            {
+                case PlanAdjustmentKind.LongerWindows:
+                    for (var i = 0; i < windows.Count; i++)
+                        windows[i] = windows[i] + by > day.Windows.High ? Max(windows[i], day.Windows.High) : windows[i] + by;
+                    changed = true;
+                    break;
+                case PlanAdjustmentKind.EarlierBedtime:
+                    windows[^1] = windows[^1] - by < day.Windows.Low ? Min(windows[^1], day.Windows.Low) : windows[^1] - by;
+                    changed = true;
+                    break;
+                case PlanAdjustmentKind.ShorterLastNap when lengths.Count > 0:
+                    lengths[^1] = Min(lengths[^1], Clamp(by, TimeSpan.FromMinutes(20), TimeSpan.FromHours(3)));
+                    changed = true;
+                    break;
+            }
+        }
+
+        if (!changed)
+            return day;
+
+        var naps = new List<PlannedNap>(lengths.Count);
+        var at = day.WakeUp;
+        for (var i = 0; i < lengths.Count; i++)
+        {
+            var start = at.Add(windows[i]);
+            naps.Add(new PlannedNap(windows[i], start, lengths[i]));
+            at = start.Add(lengths[i]);
+        }
+
+        return day with { Naps = naps, LastWindow = windows[^1], Bedtime = at.Add(windows[^1]) };
+    }
+
+    /// <summary>
     /// What the log shows from <paramref name="from"/> to <paramref name="to"/>: per night (a night counted on the day it
     /// began), per day, and the usual bedtime and wake-up. Days with no sleep logged are left out.
     /// </summary>
@@ -431,4 +481,8 @@ public static class SleepPlanner
     private static TimeSpan RoundToFive(TimeSpan value) => TimeSpan.FromMinutes(Math.Round(value.TotalMinutes / 5) * 5);
 
     private static TimeSpan Clamp(TimeSpan value, TimeSpan min, TimeSpan max) => value < min ? min : value > max ? max : value;
+
+    private static TimeSpan Max(TimeSpan a, TimeSpan b) => a > b ? a : b;
+
+    private static TimeSpan Min(TimeSpan a, TimeSpan b) => a < b ? a : b;
 }

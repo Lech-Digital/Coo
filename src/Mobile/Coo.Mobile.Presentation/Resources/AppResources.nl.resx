@@ -275,6 +275,9 @@
   <data name="Error.milestone.title-required" xml:space="preserve"><value>Schrijf wat er gebeurde.</value></data>
   <data name="Error.milestone.unknown" xml:space="preserve"><value>Kies een mijlpaal.</value></data>
   <data name="Error.note.too-long" xml:space="preserve"><value>Een notitie heeft hoogstens 500 tekens.</value></data>
+  <data name="Error.plan.see-doctor" xml:space="preserve"><value>Praat eerst met je huisarts of het consultatiebureau. Een slaapplan kan wachten tot zij hebben gekeken.</value></data>
+  <data name="Error.plan.too-young" xml:space="preserve"><value>Een plan kan vanaf 2 weken oud. Tot die tijd: voeden op verzoek en slapen zoals het komt.</value></data>
+  <data name="Error.plan.unwell" xml:space="preserve"><value>Er was koorts of een medicijn in de afgelopen 3 dagen. Start een plan als je baby weer beter is.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Kolven duurt hoogstens 4 uur. Controleer de tijden.</value></data>
   <data name="Error.quick.already-running" xml:space="preserve"><value>Loopt al.</value></data>
   <data name="Error.quick.no-baby" xml:space="preserve"><value>Open Coo en voeg eerst je baby toe.</value></data>
@@ -504,6 +507,100 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Photo.Privacy" xml:space="preserve"><value>De foto gaat naar onze server en Googles Gemini-AI om gelezen te worden, en wordt daarna verwijderd; hij wordt nooit bewaard. Namen erop kunnen niet eerst verborgen worden, dus dek ze af als je wilt.</value></data>
   <data name="Photo.Take" xml:space="preserve"><value>Foto maken</value></data>
   <data name="Photo.Title" xml:space="preserve"><value>Gezondheidsgegevens lezen</value></data>
+  <data name="Plan.Accept" xml:space="preserve"><value>Proberen</value></data>
+  <data name="Plan.Adj.DropANap" xml:space="preserve"><value>{0} laat al een dutje vallen: plan er één minder.</value></data>
+  <data name="Plan.Adj.EarlierBedtime" xml:space="preserve"><value>Haal bedtijd {0} naar voren.</value></data>
+  <data name="Plan.Adj.KeepGoing" xml:space="preserve"><value>Ga door zoals gepland: veranderingen kosten een week of twee.</value></data>
+  <data name="Plan.Adj.LongerWindows" xml:space="preserve"><value>Houd {0} voor elke slaap {1} langer wakker.</value></data>
+  <data name="Plan.Adj.NewAgeSchedule" xml:space="preserve"><value>{0} zit in een nieuwe leeftijdsfase: stap over op de dag voor deze leeftijd.</value></data>
+  <data name="Plan.Adj.ShorterLastNap" xml:space="preserve"><value>Maak {0} na {1} wakker uit het laatste dutje.</value></data>
+  <data name="Plan.Answer" xml:space="preserve"><value>Beantwoord de vragen hierboven om het plan te zien.</value></data>
+  <data name="Plan.Approach" xml:space="preserve"><value>Hoe wil je {0} laten inslapen?</value></data>
+  <data name="Plan.Approach.Chair" xml:space="preserve"><value>Stoelmethode</value></data>
+  <data name="Plan.Approach.CheckAndConsole" xml:space="preserve"><value>Kijken en troosten</value></data>
+  <data name="Plan.Approach.Fading" xml:space="preserve"><value>Afbouwen: stap voor stap minder hulp</value></data>
+  <data name="Plan.Approach.NoCrying" xml:space="preserve"><value>Zonder huilen</value></data>
+  <data name="Plan.Approach.Rhythm" xml:space="preserve"><value>Ritme en routine</value></data>
+  <data name="Plan.Bedtime" xml:space="preserve"><value>Bedtijd</value></data>
+  <data name="Plan.BedtimeDetail" xml:space="preserve"><value>na {0} wakker</value></data>
+  <data name="Plan.Before" xml:space="preserve"><value>Voor</value></data>
+  <data name="Plan.CheckIn" xml:space="preserve"><value>Check-in</value></data>
+  <data name="Plan.CheckInHint" xml:space="preserve"><value>De week voor het plan, en de laatste dagen.</value></data>
+  <data name="Plan.Day" xml:space="preserve"><value>Dag {0}</value></data>
+  <data name="Plan.Expect" xml:space="preserve"><value>Wat je kunt verwachten</value></data>
+  <data name="Plan.Expect.NoCrying" xml:space="preserve"><value>Verwacht kleine veranderingen over meerdere weken. Kijk naar de check-ins in plaats van naar losse nachten.</value></data>
+  <data name="Plan.Expect.Rhythm" xml:space="preserve"><value>De eerste week draait om timing: dutjes kunnen onregelmatig zijn tot de wakkere tijden zich zetten. Houd de routine elke avond hetzelfde.</value></data>
+  <data name="Plan.Expect.Training" xml:space="preserve"><value>De eerste 2 of 3 nachten zijn vaak zwaarder voordat het beter wordt. De meeste gezinnen zien binnen 1 tot 2 weken verschil als de routine elke avond hetzelfde blijft.</value></data>
+  <data name="Plan.Goal.DropANap" xml:space="preserve"><value>Een dutje laten vallen</value></data>
+  <data name="Plan.Goal.EarlierBedtime" xml:space="preserve"><value>Eerder naar bed</value></data>
+  <data name="Plan.Goal.FallAsleepEasier" xml:space="preserve"><value>Makkelijker inslapen</value></data>
+  <data name="Plan.Goal.FewerNightWakings" xml:space="preserve"><value>Minder vaak wakker in de nacht</value></data>
+  <data name="Plan.Goal.LaterMorning" xml:space="preserve"><value>Later wakker in de ochtend</value></data>
+  <data name="Plan.Goal.LongerNaps" xml:space="preserve"><value>Langere dutjes</value></data>
+  <data name="Plan.Goal.PredictableDay" xml:space="preserve"><value>Een voorspelbare dag</value></data>
+  <data name="Plan.Goals" xml:space="preserve"><value>Wat wil je veranderen?</value></data>
+  <data name="Plan.Guidance" xml:space="preserve"><value>Algemene richtlijnen uit gangbare kinderartsbronnen (AAP, NHS), geen medisch advies.</value></data>
+  <data name="Plan.History" xml:space="preserve"><value>Eerdere plannen</value></data>
+  <data name="Plan.Intro" xml:space="preserve"><value>Een dagschema voor {0}, berekend uit het eigen logboek en de leeftijd, met regelmatige check-ins.</value></data>
+  <data name="Plan.Keep" xml:space="preserve"><value>Plan zo houden</value></data>
+  <data name="Plan.M.Bedtime" xml:space="preserve"><value>Bedtijd</value></data>
+  <data name="Plan.M.Day" xml:space="preserve"><value>Dagslaap</value></data>
+  <data name="Plan.M.Longest" xml:space="preserve"><value>Langste stuk</value></data>
+  <data name="Plan.M.NapLength" xml:space="preserve"><value>Gewoon dutje</value></data>
+  <data name="Plan.M.Night" xml:space="preserve"><value>Nachtslaap</value></data>
+  <data name="Plan.M.NightWakings" xml:space="preserve"><value>Keren wakker in de nacht</value></data>
+  <data name="Plan.Nap" xml:space="preserve"><value>Dutje {0}</value></data>
+  <data name="Plan.NapDetail" xml:space="preserve"><value>na {0} wakker · ongeveer {1}</value></data>
+  <data name="Plan.NextCheckIn" xml:space="preserve"><value>Volgende check-in: {0}</value></data>
+  <data name="Plan.No" xml:space="preserve"><value>Nee</value></data>
+  <data name="Plan.Note.BedtimeEarly" xml:space="preserve"><value>Bedtijd is vroeger dan gebruikelijk voor deze leeftijd; prima als de ochtend niet te vroeg begint.</value></data>
+  <data name="Plan.Note.BedtimeLate" xml:space="preserve"><value>Bedtijd is later dan gebruikelijk voor deze leeftijd. Eerder opstaan haalt hem naar voren.</value></data>
+  <data name="Plan.Note.NapDropped" xml:space="preserve"><value>Eén dutje minder, zoals gevraagd: {0} is op de leeftijd waarop dat dutje verdwijnt.</value></data>
+  <data name="Plan.Note.OwnNaps" xml:space="preserve"><value>Lengte van de dutjes uit het logboek van {0}.</value></data>
+  <data name="Plan.Note.OwnWindows" xml:space="preserve"><value>Wakkere tijden uit het logboek van {0}, binnen de grenzen voor deze leeftijd.</value></data>
+  <data name="Plan.Note.RhythmOnlyUnderFourMonths" xml:space="preserve"><value>Tot 4 maanden alleen ritme en routine. De gekozen aanpak begint daarna.</value></data>
+  <data name="Plan.Now" xml:space="preserve"><value>Nu</value></data>
+  <data name="Plan.Ok" xml:space="preserve"><value>Begrepen</value></data>
+  <data name="Plan.Paused" xml:space="preserve"><value>Gepauzeerd: er was koorts of een medicijn in de afgelopen 3 dagen. Volg wat je baby nodig heeft; het plan gaat daarna vanzelf verder.</value></data>
+  <data name="Plan.Q.Breathing" xml:space="preserve"><value>Snurken, luidruchtig ademen of ademstops?</value></data>
+  <data name="Plan.Q.Feeding" xml:space="preserve"><value>Zorgen over de voeding?</value></data>
+  <data name="Plan.Q.Weight" xml:space="preserve"><value>Zorgen over de gewichtstoename?</value></data>
+  <data name="Plan.ReadOnly" xml:space="preserve"><value>Ouders starten en wijzigen het plan; jij kunt het hier volgen.</value></data>
+  <data name="Plan.RhythmOnly" xml:space="preserve"><value>Onder de 4 maanden is het plan alleen ritme en routine: geen slaaptraining.</value></data>
+  <data name="Plan.Routine" xml:space="preserve"><value>Bedtijdroutine</value></data>
+  <data name="Plan.RoutineText" xml:space="preserve"><value>Elke avond dezelfde stappen, 20 tot 30 minuten: wassen of badje, pyjama en schone luier, voeding, een liedje of boekje, dan in bed.
+Gedempt licht en zachte stemmen in het laatste uur; daglicht kort na het wakker worden.
+Leg {0} af en toe slaperig maar wakker neer, om het inslapen in bed te oefenen.</value></data>
+  <data name="Plan.SafeSleep" xml:space="preserve"><value>Veilig slapen, altijd: op de rug, op een stevige, vlakke ondergrond, niets los in bed, de eerste 6 maanden op jullie kamer.</value></data>
+  <data name="Plan.Safety" xml:space="preserve"><value>Voor het plan</value></data>
+  <data name="Plan.See" xml:space="preserve"><value>Plan bekijken</value></data>
+  <data name="Plan.Settling" xml:space="preserve"><value>Inslapen</value></data>
+  <data name="Plan.Start" xml:space="preserve"><value>Dit plan starten</value></data>
+  <data name="Plan.StartCta" xml:space="preserve"><value>Slaapplan starten</value></data>
+  <data name="Plan.Stop" xml:space="preserve"><value>Plan stoppen</value></data>
+  <data name="Plan.StopConfirm" xml:space="preserve"><value>Dit plan stoppen? Het blijft bij de eerdere plannen.</value></data>
+  <data name="Plan.Text.Chair" xml:space="preserve"><value>Ga na de routine op een stoel naast het bed zitten tot {0} slaapt; troost met je stem en een hand, en pak {0} alleen op als het nodig is.
+Zet de stoel elke 3 nachten verder weg: halverwege de deur, bij de deur, dan net erbuiten.
+Reageer op wakker worden in de nacht op dezelfde manier als bij het slapengaan.</value></data>
+  <data name="Plan.Text.CheckAndConsole" xml:space="preserve"><value>Leg {0} na de routine wakker in bed en verlaat de kamer.
+Als {0} huilt, ga dan na een paar minuten terug, troost kort met je stem en een hand zonder op te pakken, en ga weer weg. De tussenpozen kies je zelf; veel ouders beginnen met 3 minuten en maken ze over de nachten iets langer.
+Ga altijd kijken bij iets wat klinkt als pijn of ziekte, of bij een vieze luier.</value></data>
+  <data name="Plan.Text.Fading" xml:space="preserve"><value>Laat {0} inslapen zoals nu en help dan elke 2 tot 3 nachten iets minder: wiegen wordt stil vasthouden, vasthouden wordt klopjes in bed, klopjes worden een hand op {0}, daarna zit je ernaast.
+Als {0} erg van streek raakt, ga dan één nacht een stap terug.
+Je blijft in de kamer tot {0} slaapt.</value></data>
+  <data name="Plan.Text.NoCrying" xml:space="preserve"><value>{0} wordt nooit alleen gelaten met huilen: je troost elke keer.
+Het plan werkt via timing (de juiste wakkere tijden, eerder naar bed bij oververmoeidheid) en de routine, met heel kleine stappen minder hulp, zoals bij afbouwen.
+Vooruitgang gaat langzamer dan met andere aanpakken, vaak weken in plaats van dagen. Dat hoort erbij.</value></data>
+  <data name="Plan.Text.Rhythm" xml:space="preserve"><value>Houd je aan de geplande tijden en de routine, en laat {0} inslapen zoals het nu bij jullie werkt: wiegen, voeden of vasthouden is prima.
+Begin iets voor elk gepland dutje rustiger te worden; gapen, staren of in de ogen wrijven betekent dat het tijd is.
+Dagen licht en levendig, nachten donker en rustig; nachtvoedingen rustig en kort.</value></data>
+  <data name="Plan.TodayCheckIn" xml:space="preserve"><value>check-in klaar</value></data>
+  <data name="Plan.TodayLine" xml:space="preserve"><value>Slaapplan · dag {0}</value></data>
+  <data name="Plan.TodayNext" xml:space="preserve"><value>{0} om {1}</value></data>
+  <data name="Plan.WakeUp" xml:space="preserve"><value>Hoe laat begint de dag?</value></data>
+  <data name="Plan.WakeUpAt" xml:space="preserve"><value>Wakker worden</value></data>
+  <data name="Plan.WakeUpUsual" xml:space="preserve"><value>Zoals gewoonlijk</value></data>
+  <data name="Plan.Yes" xml:space="preserve"><value>Ja</value></data>
   <data name="Premium.Active" xml:space="preserve"><value>Coo Premium is actief voor je hele gezin. Bedankt dat je Coo steunt!</value></data>
   <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Tot 100 vragen per dag aan de Adviseur (3 zonder Premium), met antwoorden die je logboek kennen</value></data>
   <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Een getekende avatar van je baby, gemaakt van een foto</value></data>

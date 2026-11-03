@@ -160,10 +160,12 @@ public sealed class TodayPage : ContentPage
             LiveView.Release(old as IVisualTreeElement);
         _sections.Children.Clear();
         foreach (var section in _model.Sections)
-            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model, SwitchToLog, SwitchToAdvisor, OpenVoice, OpenHealth, OpenSleepWhy, OpenPremium)));
+            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model, SwitchToLog, SwitchToAdvisor, OpenVoice, OpenHealth, OpenSleepWhy, OpenPremium, OpenSleepPlan)));
         _built = [.. _model.Sections];
         _builtLanguage = Strings.Language;
     }
+
+    private void OpenSleepPlan() => Dispatcher.Dispatch(async () => await Navigation.PushAsync(_services.GetRequiredService<SleepPlanPage>()));
 
     private void SwitchToLog() => Dispatcher.Dispatch(async () => await Shell.Current.GoToAsync("//log"));
 
@@ -171,9 +173,7 @@ public sealed class TodayPage : ContentPage
 
     private async void OpenEntry(EntryId id)
     {
-        var page = _services.GetRequiredService<EditPage>();
-        await page.OpenAsync(id);
-        await Navigation.PushAsync(page);
+        await Navigation.PushAsync(await EditPage.ForEntryAsync(_services, id));
     }
 
     private async void OpenAttention() => await Navigation.PushAsync(_services.GetRequiredService<AttentionPage>());

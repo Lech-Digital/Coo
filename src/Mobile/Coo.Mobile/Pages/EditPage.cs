@@ -37,6 +37,20 @@ public sealed class EditPage : ContentPage
     }
 
     /// <summary>Opens an existing entry.</summary>
+    /// <summary>
+    /// The page an entry opens: a sleep plan opens the plan (Spec 019), not the form; every other entry its form.
+    /// </summary>
+    public static async Task<Page> ForEntryAsync(IServiceProvider services, Coo.Domain.Common.EntryId id)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        var stored = await services.GetRequiredService<Coo.Mobile.Application.CareLog.ICareLogStore>().FindAsync(id, CancellationToken.None);
+        if (stored is Coo.Mobile.Application.CareLog.LiveEntry { Entry.Details: Coo.Domain.CareLog.Kinds.SleepPlan.SleepPlanDetails })
+            return services.GetRequiredService<SleepPlanPage>();
+        var page = services.GetRequiredService<EditPage>();
+        await page.OpenAsync(id);
+        return page;
+    }
+
     public async Task OpenAsync(Coo.Domain.Common.EntryId id)
     {
         await _model.LoadAsync(id);

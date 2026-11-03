@@ -85,6 +85,8 @@ public sealed partial class TodayViewModel : ObservableObject
     private string? _avatarRef;
     private readonly Coo.Mobile.Application.Insights.GetSleepPrediction? _getSleep;
     private Coo.Domain.Insights.SleepPrediction? _sleep;
+    private readonly Coo.Mobile.Application.Insights.GetSleepPlan? _getPlan;
+    private Coo.Mobile.Application.Insights.SleepPlanToday? _plan;
     private readonly Coo.Mobile.Application.CareLog.ILogAccess? _logAccess;
 
     /// <summary>Set by the page: Coo's own explanation before Android asks for notifications; false is "Not now".</summary>
@@ -100,9 +102,11 @@ public sealed partial class TodayViewModel : ObservableObject
         IDevicePreferences preferences, Coo.Mobile.Application.Households.BabyAvatarSyncService? avatarSync = null,
         Coo.Mobile.Application.Insights.GetSleepPrediction? getSleep = null,
         Coo.Mobile.Application.Notifications.IReminderScheduler? notifications = null,
-        Coo.Mobile.Application.CareLog.ILogAccess? logAccess = null)
+        Coo.Mobile.Application.CareLog.ILogAccess? logAccess = null,
+        Coo.Mobile.Application.Insights.GetSleepPlan? getPlan = null)
     {
         _logAccess = logAccess;
+        _getPlan = getPlan;
         _billing = billing;
         _getSleep = getSleep;
         _preferences = preferences;
@@ -210,6 +214,9 @@ public sealed partial class TodayViewModel : ObservableObject
             _summary = _summary with { TodayEntries = [.. _summary.TodayEntries.Where(e => !_undo.IsPendingDelete(e.Id))] };
         _sleep = _baby.IsBorn && _getSleep is not null
             ? await _getSleep.ExecuteAsync(_household.Id, _baby, Zone(), _time.GetLocalNow(), CancellationToken.None)
+            : null;
+        _plan = _baby.IsBorn && _getPlan is not null
+            ? await _getPlan.ExecuteAsync(_household.Id, _baby, Zone(), _time.GetLocalNow(), CancellationToken.None)
             : null;
         IsViewOnly = _logAccess is not null && !await _logAccess.CanLogAsync(_household.Id, CancellationToken.None);
         _attentionCount = (await _attention.ExecuteAsync(_household.Id, _time.GetLocalNow(), CancellationToken.None)).Count;
@@ -446,7 +453,7 @@ public sealed partial class TodayViewModel : ObservableObject
         Tick();
     }
 
-    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep, IsViewOnly);
+    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep, IsViewOnly, _plan);
 
     private Formats Formats() => new(_clock.Is24Hour, _household?.VolumeUnit ?? VolumeUnit.Millilitres);
 

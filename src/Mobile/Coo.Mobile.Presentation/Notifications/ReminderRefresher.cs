@@ -27,7 +27,8 @@ public sealed class ReminderRefresher(
     IHomeWidget widget,
     ITimerNotifications timers,
     IClockFormat clock,
-    TimeProvider time) : IDisposable
+    TimeProvider time,
+    GetSleepPlan? getPlan = null) : IDisposable
 {
     private readonly SemaphoreSlim _gate = new(1, 1);
     private int _requested;
@@ -101,6 +102,8 @@ public sealed class ReminderRefresher(
             var quiet = (await preferences.GetAppearanceAsync(cancellationToken)).QuietHours;
             if (!chosen.NapWindow)
                 sleep = null;
+            else if (getPlan is not null)
+                sleep = SleepPlans.FollowPlan(sleep, await getPlan.ExecuteAsync(household.Id, baby, zone, now, cancellationToken), now, zone);
             var planned = ReminderPlanner.Plan(today, sleep, chosen, quiet, zone, now);
             await scheduler.ReplaceAllAsync([.. planned.Select(p => Notice(p, baby.Name, formats, zone))], cancellationToken);
         }

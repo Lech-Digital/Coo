@@ -15,6 +15,14 @@ public interface ICareLogStore
     /// <summary>The household's live, read-only and quarantined entries starting in [windowStart, windowEnd), newest first.</summary>
     Task<IReadOnlyList<StoredEntry>> ListAsync(HouseholdId household, DateTimeOffset windowStart, DateTimeOffset windowEnd, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// The household's entries of one kind, whenever they started, newest first: for the few kinds that are settings more
+    /// than events (a sleep plan), so finding them does not read the whole log. The default reads the log, for fakes.
+    /// </summary>
+    async Task<IReadOnlyList<StoredEntry>> ListKindAsync(HouseholdId household, EntryKindCode kind, CancellationToken cancellationToken) =>
+        [.. (await ListAsync(household, DateTimeOffset.UnixEpoch, DateTimeOffset.MaxValue.AddYears(-1), cancellationToken))
+            .Where(e => e is not LiveEntry live || live.Entry.KindCode == kind)];
+
     /// <summary>Writes a tombstone for any stored entry, including read-only and quarantined ones, without decoding it.</summary>
     /// <returns>False when there is no such entry, or it is already deleted.</returns>
     Task<bool> DeleteAsync(EntryId id, HlcStamp version, CancellationToken cancellationToken);
@@ -101,4 +109,10 @@ public interface IDuplicateDismissalStore
 public interface ILogAccess
 {
     Task<bool> CanLogAsync(HouseholdId household, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Whether this person starts, changes and stops the family's plans, such as a sleep plan (Spec 019 §11.3): an owner
+    /// or a parent. A caregiver or a viewer follows them.
+    /// </summary>
+    Task<bool> CanPlanAsync(HouseholdId household, CancellationToken cancellationToken) => CanLogAsync(household, cancellationToken);
 }

@@ -25,6 +25,9 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
     public string Time(DateTimeOffset instant, TimeZoneInfo zone) =>
         TimeZoneInfo.ConvertTime(instant, zone).ToString(is24Hour ? "HH:mm" : "h:mm tt", Strings.Culture);
 
+    /// <summary>A wall-clock time of a plan, "19:15" or "7:15 PM".</summary>
+    public string Time(TimeOnly time) => time.ToString(is24Hour ? "HH:mm" : "h:mm tt", Strings.Culture);
+
     /// <summary>"1 h 20 m", or "45 m".</summary>
     public static string Duration(TimeSpan span)
     {

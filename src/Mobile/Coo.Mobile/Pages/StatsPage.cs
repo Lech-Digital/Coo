@@ -20,6 +20,7 @@ public sealed class StatsPage : ContentPage
     private readonly Coo.Mobile.Presentation.Reports.ReportViewModel _report;
     private readonly AveragesViewModel _averages;
     private readonly Coo.Mobile.Presentation.Growth.GrowthViewModel _growth;
+    private readonly Coo.Mobile.Presentation.SleepPlan.SleepPlanViewModel _plan;
     private readonly IServiceProvider _services;
     private readonly VerticalStackLayout _content = new() { Padding = new Thickness(24, 0, 24, 0), Spacing = 16 };
     private readonly ScrollView _page;
@@ -44,6 +45,7 @@ public sealed class StatsPage : ContentPage
         _report = services.GetRequiredService<Coo.Mobile.Presentation.Reports.ReportViewModel>();
         _averages = services.GetRequiredService<AveragesViewModel>();
         _growth = services.GetRequiredService<Coo.Mobile.Presentation.Growth.GrowthViewModel>();
+        _plan = services.GetRequiredService<Coo.Mobile.Presentation.SleepPlan.SleepPlanViewModel>();
         _services = services;
         Shell.SetNavBarIsVisible(this, false);
         _page = new ScrollView
@@ -62,11 +64,12 @@ public sealed class StatsPage : ContentPage
         _report.PropertyChanged += OnChanged;
         _averages.PropertyChanged += OnChanged;
         _growth.PropertyChanged += OnChanged;
+        _plan.PropertyChanged += OnChanged;
         _undo.DataChanged += OnDataChanged;
         _theme.PaletteChanged += OnPaletteChanged;
         _language.Changed += OnLanguageChanged;
         _pageHeader.Refresh();
-        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync());
+        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync());
         if (_content.Children.Count == 0 || _renderedLanguage != Strings.Language)
             QueueRender();
     }
@@ -79,6 +82,7 @@ public sealed class StatsPage : ContentPage
         _report.PropertyChanged -= OnChanged;
         _averages.PropertyChanged -= OnChanged;
         _growth.PropertyChanged -= OnChanged;
+        _plan.PropertyChanged -= OnChanged;
         _undo.DataChanged -= OnDataChanged;
         _theme.PaletteChanged -= OnPaletteChanged;
         _language.Changed -= OnLanguageChanged;
@@ -89,7 +93,7 @@ public sealed class StatsPage : ContentPage
     private void OnDataChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
     {
         _summary.Invalidate();
-        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync());
+        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync());
     });
 
     // The chart is drawn with the palette's colours, not resources.
@@ -97,7 +101,7 @@ public sealed class StatsPage : ContentPage
 
     private void OnLanguageChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
     {
-        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync());
+        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync());
         QueueRender();
     });
 
@@ -148,6 +152,31 @@ public sealed class StatsPage : ContentPage
         }
 
         return new Card(stack);
+    }
+
+    /// <summary>The sleep plan (Spec 019 §7): the day of a running plan, or the way to start one; a tap opens it.</summary>
+    private Card? SleepPlanCard()
+    {
+        if (!_plan.IsReady || !_plan.IsBorn)
+            return null;
+        var stack = new VerticalStackLayout { Spacing = 6 };
+        var title = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 8 };
+        var look = EventAppearance.For("sleepplan");
+        title.Add(Ui.Rounded(new Icon(IconGeometry.Sleep, look.Ink, 16), look.Tint, 10, new Thickness(6)).Tap(b => b.VerticalOptions = LayoutOptions.Center), 0);
+        title.Add(Ui.Text(Strings.Get("Kind.SleepPlan"), "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
+        title.Add(new Icon(IconGeometry.ChevronRight, "Ink2", 18).Tap(i => i.VerticalOptions = LayoutOptions.Center), 2);
+        stack.Add(title);
+        var line = _plan.CurrentLine();
+        stack.Add(line is null
+            ? Ui.Text(_plan.CanChange ? Strings.Get("Plan.StartCta") : Strings.Get("Plan.ReadOnly"), "Meta", "Ink2")
+            : Ui.Text(line, "Body", look.Ink));
+        var card = new Card(stack);
+        card.GestureRecognizers.Add(new TapGestureRecognizer
+        {
+            Command = new Command(async () => await Navigation.PushAsync(_services.GetRequiredService<SleepPlanPage>())),
+        });
+        SemanticProperties.SetDescription(card, Strings.Get("Kind.SleepPlan"));
+        return card;
     }
 
     /// <summary>Growth among the other numbers: the latest weight and its percentile; a tap opens the chart.</summary>
@@ -412,6 +441,8 @@ public sealed class StatsPage : ContentPage
         _content.Add(AveragesCard());
         if (GrowthCard() is { } growth)
             _content.Add(growth);
+        if (SleepPlanCard() is { } plan)
+            _content.Add(plan);
         _content.Add(header);
         _content.Add(grainBar);
         _chipRow.Content = chips;

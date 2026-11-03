@@ -25,6 +25,11 @@ public static class ServiceCollectionExtensions
         services.AddTransient<Import.ExportLog>();
         services.AddSingleton<ILogAccess, Households.FamilyLogAccess>();
         services.AddTransient<Insights.GetSleepPrediction>();
+        services.AddTransient<Insights.GetSleepPlan>();
+        services.AddTransient<Insights.PreviewSleepPlan>();
+        services.AddTransient<Insights.StartSleepPlan>();
+        services.AddTransient<Insights.AnswerSleepCheckIn>();
+        services.AddTransient<Insights.StopSleepPlan>();
         services.AddTransient<Growth.GetGrowth>();
         services.AddTransient<Reports.BuildCareReport>();
         services.AddTransient<GetDay>();
