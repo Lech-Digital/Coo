@@ -111,7 +111,11 @@ public sealed class PremiumPage : ContentPage
             if (_model.Selected is not null)
             {
                 var button = Ui.Rounded(Ui.Text(_model.BuyLabel, "BodyStrong", "Ground").Tap(l => l.HorizontalOptions = LayoutOptions.Center), "Accent", 8, new Thickness(16));
-                button.GestureRecognizers.Add(new TapGestureRecognizer { Command = _model.PurchaseCommand });
+                button.GestureRecognizers.Add(new TapGestureRecognizer
+                {
+                    // Coo's loading page under Google Play's sheet, until the server has confirmed the purchase.
+                    Command = new Command(async () => await LoadingOverlay.RunAsync(Strings.Get("Loading.Premium"), () => _model.PurchaseCommand.ExecuteAsync(null))),
+                });
                 stack.Add(button);
                 stack.Add(Ui.Text(_model.IsSignedIn ? _model.Terms : Strings.Get("Premium.SignInWhy"), "Meta", "Ink2"));
             }
@@ -127,7 +131,10 @@ public sealed class PremiumPage : ContentPage
         {
             var restore = Ui.Text(Strings.Get("Premium.Restore"), "Meta", "Accent");
             restore.Padding = new Thickness(0, 8);
-            restore.GestureRecognizers.Add(new TapGestureRecognizer { Command = _model.RestoreCommand });
+            restore.GestureRecognizers.Add(new TapGestureRecognizer
+            {
+                Command = new Command(async () => await LoadingOverlay.RunAsync(Strings.Get("Loading.Premium"), () => _model.RestoreCommand.ExecuteAsync(null))),
+            });
             stack.Add(restore);
         }
 

@@ -453,6 +453,10 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Kind.Tummy" xml:space="preserve"><value>Tummy time</value></data>
   <data name="Kind.Vaccine" xml:space="preserve"><value>Vaccino</value></data>
   <data name="Kind.Visit" xml:space="preserve"><value>Visita medica</value></data>
+  <data name="Loading.Family" xml:space="preserve"><value>Caricamento del registro della famiglia…</value></data>
+  <data name="Loading.Premium" xml:space="preserve"><value>Verifica di Premium con Google Play…</value></data>
+  <data name="Loading.SignOut" xml:space="preserve"><value>Uscita in corso…</value></data>
+  <data name="Loading.Switch" xml:space="preserve"><value>Apertura della famiglia…</value></data>
   <data name="MedReminder.AddTime" xml:space="preserve"><value>Aggiungi orario</value></data>
   <data name="MedReminder.Days" xml:space="preserve"><value>{0} giorni</value></data>
   <data name="MedReminder.Dose" xml:space="preserve"><value>Dose (facoltativa)</value></data>

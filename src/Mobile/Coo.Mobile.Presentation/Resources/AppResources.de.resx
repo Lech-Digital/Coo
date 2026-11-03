@@ -453,6 +453,10 @@ Wenn der Link Coo nicht öffnet, geh in Coo zu Einstellungen → Familie → Ein
   <data name="Kind.Tummy" xml:space="preserve"><value>Bauchlage</value></data>
   <data name="Kind.Vaccine" xml:space="preserve"><value>Impfung</value></data>
   <data name="Kind.Visit" xml:space="preserve"><value>Arztbesuch</value></data>
+  <data name="Loading.Family" xml:space="preserve"><value>Die Einträge deiner Familie werden geladen…</value></data>
+  <data name="Loading.Premium" xml:space="preserve"><value>Premium wird bei Google Play geprüft…</value></data>
+  <data name="Loading.SignOut" xml:space="preserve"><value>Abmelden…</value></data>
+  <data name="Loading.Switch" xml:space="preserve"><value>Familie wird geöffnet…</value></data>
   <data name="MedReminder.AddTime" xml:space="preserve"><value>Uhrzeit hinzufügen</value></data>
   <data name="MedReminder.Days" xml:space="preserve"><value>{0} Tage</value></data>
   <data name="MedReminder.Dose" xml:space="preserve"><value>Dosis (optional)</value></data>

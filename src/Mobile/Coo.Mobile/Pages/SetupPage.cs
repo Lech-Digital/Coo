@@ -83,6 +83,17 @@ public sealed class SetupPage : ContentPage
             },
         };
 
+        // Signed in to an account with a family: Coo's loading page until the family's log is here and Today opens, with
+        // "Add a baby here instead" under it (owner, 2026-11-03: the screens jumped while the log arrived).
+        var night = Microsoft.Maui.Controls.Application.Current?.Handler?.MauiContext?.Services
+            .GetService<Coo.Mobile.Presentation.Theme.ThemeController>()?.Current == Coo.Mobile.Presentation.Theme.PaletteKind.Night;
+        var loading = new Grid { IsVisible = false, RowDefinitions = [new(GridLength.Star), new(GridLength.Auto)] };
+        loading.SetDynamicResource(VisualElement.BackgroundColorProperty, "Ground");
+        loading.Add(new LoadingView(Strings.Get("Loading.Family"), night), 0, 0);
+        instead.HorizontalOptions = LayoutOptions.Center;
+        instead.Margin = new Thickness(0, 0, 0, 48);
+        loading.Add(instead, 0, 1);
+
         void Sync()
         {
             yes.SetDynamicResource(VisualElement.StyleProperty, model.HasArrived ? "PrimaryButton" : "GhostButton");
@@ -93,20 +104,30 @@ public sealed class SetupPage : ContentPage
             dueLabel.IsVisible = due.IsVisible = !model.HasArrived || model.BornEarly;
             signIn.IsVisible = model.CanSignIn && !model.IsFetching;
             status.IsVisible = model.Status.Length > 0;
-            spinner.IsVisible = instead.IsVisible = model.IsFetching;
+            spinner.IsVisible = false;
+            instead.IsVisible = model.IsFetching;
+            loading.IsVisible = model.IsFetching;
             form.IsVisible = hint.IsVisible = !model.IsFetching;
         }
 
         model.PropertyChanged += (_, _) => Sync();
+
         Sync();
 
-        Content = new ScrollView
+        Content = new Grid
         {
-            Content = new VerticalStackLayout
+            Children =
             {
-                Padding = new Thickness(24, 64, 24, 32),
-                Spacing = 14,
-                Children = { Ui.Text(Strings.Get("Setup.Title"), "Title"), hint, form, signIn, status, spinner, instead },
+                new ScrollView
+                {
+                    Content = new VerticalStackLayout
+                    {
+                        Padding = new Thickness(24, 64, 24, 32),
+                        Spacing = 14,
+                        Children = { Ui.Text(Strings.Get("Setup.Title"), "Title"), hint, form, signIn, status, spinner },
+                    },
+                },
+                loading,
             },
         };
     }

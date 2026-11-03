@@ -37,3 +37,7 @@ rm -f "$symbols"
 (cd "$staging" && zip -qr - .) > "$symbols"
 rm -rf "$staging"
 echo "Symbols: $symbols"
+
+# R8's mapping (Play Console: App bundle explorer -> the version -> Downloads -> ReTrace mapping file), when R8 ran.
+mapping=$(ls -t src/Mobile/Coo.Mobile/bin/Release/net10.0-android/mapping.txt src/Mobile/Coo.Mobile/bin/Release/net10.0-android/*/mapping.txt 2>/dev/null | head -1 || true)
+if [ -n "$mapping" ]; then cp "$mapping" "artifacts/coo-$version-$code-mapping.txt" && echo "Mapping: artifacts/coo-$version-$code-mapping.txt"; fi

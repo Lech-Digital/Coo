@@ -12,9 +12,9 @@
 
     <ApplicationTitle>Coo</ApplicationTitle>
     <ApplicationId>com.lechdigital.coo</ApplicationId>
-    <ApplicationDisplayVersion>1.9.1</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>1.9.2</ApplicationDisplayVersion>
     <!-- Every build that leaves this machine bumps both (CHANGELOG.md): the name by SemVer, the code by one, never reused. -->
-    <ApplicationVersion>28</ApplicationVersion>
+    <ApplicationVersion>29</ApplicationVersion>
     <!-- The informational version is the display version plus the commit, e.g. 0.13.0+<commit> (SourceLink), shown in About like the API's /health. -->
     <Version>$(ApplicationDisplayVersion)</Version>
 
@@ -38,6 +38,14 @@
     <CooIncludeDebugScreen>true</CooIncludeDebugScreen>
   </PropertyGroup>
 
+  <!-- R8 shrinks and obfuscates the Java side in store builds (Play's DEX optimisation check, 2026-11-03). Its mapping
+       goes into the AAB's metadata, so Play retraces crash reports. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <AndroidLinkTool>r8</AndroidLinkTool>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <ProguardConfiguration Include="Platforms\Android\proguard.cfg" />
+  </ItemGroup>
   <ItemGroup Condition="'$(CooIncludeDebugScreen)' != 'true'">
     <Compile Remove="DebugScreen/**" />
   </ItemGroup>

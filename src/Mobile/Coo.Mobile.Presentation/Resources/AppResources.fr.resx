@@ -453,6 +453,10 @@ Si le lien n'ouvre pas Coo, va dans Réglages → Famille → Rejoindre une fami
   <data name="Kind.Tummy" xml:space="preserve"><value>Temps sur le ventre</value></data>
   <data name="Kind.Vaccine" xml:space="preserve"><value>Vaccin</value></data>
   <data name="Kind.Visit" xml:space="preserve"><value>Visite médicale</value></data>
+  <data name="Loading.Family" xml:space="preserve"><value>Chargement du journal de votre famille…</value></data>
+  <data name="Loading.Premium" xml:space="preserve"><value>Vérification de Premium avec Google Play…</value></data>
+  <data name="Loading.SignOut" xml:space="preserve"><value>Déconnexion…</value></data>
+  <data name="Loading.Switch" xml:space="preserve"><value>Ouverture de la famille…</value></data>
   <data name="MedReminder.AddTime" xml:space="preserve"><value>Ajouter une heure</value></data>
   <data name="MedReminder.Days" xml:space="preserve"><value>{0} jours</value></data>
   <data name="MedReminder.Dose" xml:space="preserve"><value>Dose (facultatif)</value></data>

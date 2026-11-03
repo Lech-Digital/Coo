@@ -207,7 +207,7 @@ public sealed class FamilySwitcherPage : ContentPage
         // Only once the sheet has really gone (review M3): with another sheet over it, nothing switches.
         if (_model is null || !await CloseAsync())
             return;
-        await _model.SwitchCommand.ExecuteAsync(new FamilyChoice(row.Id, row.Label));
+        await LoadingOverlay.RunAsync(Strings.Get("Loading.Switch"), () => _model.SwitchCommand.ExecuteAsync(new FamilyChoice(row.Id, row.Label)));
     }
 
     private async Task ActAsync(FamilyRow row, FamilyRowAction action)

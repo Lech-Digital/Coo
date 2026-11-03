@@ -14,7 +14,20 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
   Play's "What's new". That text, in all seven languages and ready to paste, goes in
   `store-assets/releases/<version>.md`.
 
-## 1.9.1 (code 28) — 2026-11-03
+## 1.9.2 (code 29) — 2026-11-03
+
+Everything in 1.9.1 (never uploaded), and:
+
+### New
+- **A loading page** while Coo signs you in and fetches your family's log, signs out, switches families, or checks
+  Premium with Google Play: Coo's mark and a line on what is happening, instead of screens jumping one after another.
+
+### Changed
+- Store builds run R8 (`AndroidLinkTool=r8`, `Platforms/Android/proguard.cfg`), so unused Java code is removed from the
+  app (Play's DEX optimisation check). .NET for Android keeps `-dontobfuscate` in its own rules, because C# finds Java
+  methods by name; Play's "obfuscation" share stays at 0% for that reason.
+
+## 1.9.1 (code 28) — 2026-11-03 (not uploaded; shipped in 1.9.2)
 
 Works with the server of 1.9.0 (no server change).
 

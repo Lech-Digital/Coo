@@ -453,6 +453,10 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Kind.Tummy" xml:space="preserve"><value>Buikligging</value></data>
   <data name="Kind.Vaccine" xml:space="preserve"><value>Vaccinatie</value></data>
   <data name="Kind.Visit" xml:space="preserve"><value>Doktersbezoek</value></data>
+  <data name="Loading.Family" xml:space="preserve"><value>Het logboek van je gezin wordt opgehaald…</value></data>
+  <data name="Loading.Premium" xml:space="preserve"><value>Premium wordt gecontroleerd bij Google Play…</value></data>
+  <data name="Loading.SignOut" xml:space="preserve"><value>Uitloggen…</value></data>
+  <data name="Loading.Switch" xml:space="preserve"><value>Gezin wordt geopend…</value></data>
   <data name="MedReminder.AddTime" xml:space="preserve"><value>Tijd toevoegen</value></data>
   <data name="MedReminder.Days" xml:space="preserve"><value>{0} dagen</value></data>
   <data name="MedReminder.Dose" xml:space="preserve"><value>Dosis (optioneel)</value></data>

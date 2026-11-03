@@ -474,6 +474,10 @@ Jeśli link nie otworzy Coo, przejdź w Coo do Ustawienia → Rodzina → Dołą
   <data name="Kind.Tummy" xml:space="preserve"><value>Leżenie na brzuszku</value></data>
   <data name="Kind.Vaccine" xml:space="preserve"><value>Szczepienie</value></data>
   <data name="Kind.Visit" xml:space="preserve"><value>Wizyta lekarska</value></data>
+  <data name="Loading.Family" xml:space="preserve"><value>Wczytuję dziennik Twojej rodziny…</value></data>
+  <data name="Loading.Premium" xml:space="preserve"><value>Sprawdzam Premium w Google Play…</value></data>
+  <data name="Loading.SignOut" xml:space="preserve"><value>Wylogowywanie…</value></data>
+  <data name="Loading.Switch" xml:space="preserve"><value>Otwieram rodzinę…</value></data>
   <data name="MedReminder.AddTime" xml:space="preserve"><value>Dodaj godzinę</value></data>
   <data name="MedReminder.Days" xml:space="preserve"><value>{0} dni</value></data>
   <data name="MedReminder.Dose" xml:space="preserve"><value>Dawka (opcjonalnie)</value></data>

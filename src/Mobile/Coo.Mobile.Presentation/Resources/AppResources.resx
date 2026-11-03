@@ -453,6 +453,10 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Kind.Tummy" xml:space="preserve"><value>Tummy time</value></data>
   <data name="Kind.Vaccine" xml:space="preserve"><value>Vaccine</value></data>
   <data name="Kind.Visit" xml:space="preserve"><value>Doctor visit</value></data>
+  <data name="Loading.Family" xml:space="preserve"><value>Getting your family's log…</value></data>
+  <data name="Loading.Premium" xml:space="preserve"><value>Checking Premium with Google Play…</value></data>
+  <data name="Loading.SignOut" xml:space="preserve"><value>Signing out…</value></data>
+  <data name="Loading.Switch" xml:space="preserve"><value>Opening the family…</value></data>
   <data name="MedReminder.AddTime" xml:space="preserve"><value>Add a time</value></data>
   <data name="MedReminder.Days" xml:space="preserve"><value>{0} days</value></data>
   <data name="MedReminder.Dose" xml:space="preserve"><value>Dose (optional)</value></data>

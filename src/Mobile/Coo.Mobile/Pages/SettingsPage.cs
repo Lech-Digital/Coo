@@ -498,7 +498,7 @@ public sealed class SettingsPage : ContentPage
         {
             yield return Row(
                 new VerticalStackLayout { Spacing = 2, Children = { Ui.Text(Strings.Get("Account.SignIn"), "BodyStrong"), Ui.Text(_account.StatusLine, "Meta", "Ink2") } },
-                () => _account.SignInCommand.ExecuteAsync(null));
+                SignInAsync);
             yield break;
         }
 
@@ -606,6 +606,30 @@ public sealed class SettingsPage : ContentPage
         }
     }
 
+    /// <summary>
+    /// Google's sheet, then Coo's loading page until the account's families are on the phone (at most 20 seconds), so the
+    /// pages do not jump from this phone's family to the account's one by one.
+    /// </summary>
+    private async Task SignInAsync()
+    {
+        await _account.SignInCommand.ExecuteAsync(null);
+        if (!_account.IsSignedIn)
+            return;
+        await Components.LoadingOverlay.RunAsync(Strings.Get("Loading.Family"), async () =>
+        {
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+            try
+            {
+                await _services.GetRequiredService<Coo.Mobile.Application.Sync.ISyncControl>().SyncNowAsync(timeout.Token);
+            }
+#pragma warning disable CA1031 // Offline or slow: the pages fill in when sync catches up.
+            catch (Exception)
+#pragma warning restore CA1031
+            {
+            }
+        });
+    }
+
     private async Task ConfirmSignOutAsync()
     {
         // One dialog at a time: a second tap while the first is being prepared or shown does nothing.
@@ -616,7 +640,7 @@ public sealed class SettingsPage : ContentPage
         {
             var prompt = await _account.SignOutPromptAsync();
             if (await Components.CooDialog.ConfirmAsync(this, prompt.Title, prompt.Message, prompt.Accept, prompt.Cancel))
-                await _account.SignOutCommand.ExecuteAsync(null);
+                await Components.LoadingOverlay.RunAsync(Strings.Get("Loading.SignOut"), () => _account.SignOutCommand.ExecuteAsync(null));
         }
         finally
         {

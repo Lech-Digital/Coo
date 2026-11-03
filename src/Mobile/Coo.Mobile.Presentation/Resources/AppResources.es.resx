@@ -453,6 +453,10 @@ Si el enlace no abre Coo, ve a Ajustes → Familia → Unirse a una familia en C
   <data name="Kind.Tummy" xml:space="preserve"><value>Boca abajo</value></data>
   <data name="Kind.Vaccine" xml:space="preserve"><value>Vacuna</value></data>
   <data name="Kind.Visit" xml:space="preserve"><value>Visita médica</value></data>
+  <data name="Loading.Family" xml:space="preserve"><value>Cargando el registro de tu familia…</value></data>
+  <data name="Loading.Premium" xml:space="preserve"><value>Comprobando Premium con Google Play…</value></data>
+  <data name="Loading.SignOut" xml:space="preserve"><value>Cerrando sesión…</value></data>
+  <data name="Loading.Switch" xml:space="preserve"><value>Abriendo la familia…</value></data>
   <data name="MedReminder.AddTime" xml:space="preserve"><value>Añadir hora</value></data>
   <data name="MedReminder.Days" xml:space="preserve"><value>{0} días</value></data>
   <data name="MedReminder.Dose" xml:space="preserve"><value>Dosis (opcional)</value></data>
