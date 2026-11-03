@@ -34,9 +34,10 @@ two.
 | 16 | **Reports (PDF)** | 016 | The pediatrician report, designed first. | Done (1.3.0) |
 | 17 | **Wear OS companion** | 017 | ADR 0009. | — |
 | 18 | **Release** | 018 | Signing, the Play listing in seven languages, the privacy policy, closed testing. Store assets per `store-assets/PLAN.md` (demo build, screenshots, feature graphic, listing in seven languages). | — |
+| 19 | **Sleep plans** | 019 (accepted) | An open-ended plan per baby: a computed schedule (wake-up, nap windows, bedtime), a routine and a gentle settling approach, reminders that follow it, a day-3 then weekly check-in that measures the log and suggests one bounded change. Free; the Advisor's personal wording is Premium. **Test:** a 2-month and a 6-month baby on seeded logs. | Spec accepted 2026-11-03 |
 
 Increments 1–7 and 9 need no server and no accounts. By the end of increment 7, the app is a usable
-**single-phone baby log**. Everything after that adds the family and the smart features. Premium covers the sleep prediction and the AI features; everything else stays free (owner, 2026-10-02).
+**single-phone baby log**. Everything after that adds the family and the smart features. Premium covers the sleep prediction and the AI features; everything else stays free (owner, 2026-10-02). From 2026-11-03 the rule is: free unless it costs money to run (AI); Premium also keeps Coo independent and ad-free.
 
 ## Owner setup tasks that take calendar time
 
