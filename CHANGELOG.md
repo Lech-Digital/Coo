@@ -14,6 +14,16 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
   Play's "What's new". That text, in all seven languages and ready to paste, goes in
   `store-assets/releases/<version>.md`.
 
+## Unreleased
+
+### Changed
+- **Personal nap times are free**: when the next nap or bedtime is likely, on Today, in the widget, and the nap
+  reminder. They are worked out on your phone and cost nothing to run.
+
+### Fixed
+- **"Log a few more days for a personal suggestion" no longer stays for weeks.** Your baby's own nap window shows once
+  there are three of her windows on three days; a baby whose windows vary a lot gets a wider window instead of none.
+
 ## 1.9.2 (code 29) — 2026-11-03
 
 Everything in 1.9.1 (never uploaded), and:

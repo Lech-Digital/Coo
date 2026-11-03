@@ -21,7 +21,6 @@ public sealed class ReminderRefresher(
     IHouseholdStore households,
     GetToday getToday,
     GetSleepPrediction getSleep,
-    IBillingService billing,
     IReminderSettingsStore settings,
     IDevicePreferences preferences,
     IReminderScheduler scheduler,
@@ -74,8 +73,8 @@ public sealed class ReminderRefresher(
             var formats = new Formats(clock.Is24Hour, household.VolumeUnit);
             var today = baby.IsBorn ? await getToday.ExecuteAsync(household.Id, baby.Id, zone, now, cancellationToken) : null;
 
-            // The personal prediction is Premium (ADR 0008 §7): the widget's next-sleep line and the nap reminder.
-            var sleep = baby.IsBorn && billing.IsPremiumCached
+            // The personal prediction, free since 1.9.3 (owner, 2026-11-03): the widget's next-sleep line and the nap reminder.
+            var sleep = baby.IsBorn
                 ? await getSleep.ExecuteAsync(household.Id, baby, zone, now, cancellationToken)
                 : null;
             var running = Running(today, formats, zone);
@@ -85,7 +84,7 @@ public sealed class ReminderRefresher(
                 AwakeSince = today?.Running.Any(e => e.Details is SleepDetails) == true ? null : today?.AwakeSince,
                 AsleepSince = today?.Running.FirstOrDefault(e => e.Details is SleepDetails)?.Timing.OccurredAt,
                 Running = running,
-                NextSleep = sleep is { Confidence: Coo.Domain.Insights.PredictionConfidence.High }
+                NextSleep = sleep is { IsPersonal: true }
                     ? Strings.Format(sleep.IsBedtime ? "Today.BedLikely" : "Today.NapLikely", formats.Time(sleep.Earliest, zone), formats.Time(sleep.Latest, zone))
                     : "",
                 Labels = labels,

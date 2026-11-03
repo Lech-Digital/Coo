@@ -61,7 +61,18 @@ public sealed record SleepPrediction(
     int Observations,
     WakeWindowBand Prior,
     bool ShortNapAdjusted,
-    string Version);
+    string Version)
+{
+    /// <summary>The fewest of the baby's own windows, on as many days, before the window is shown as hers.</summary>
+    public const int MinimumPersonalWindows = 3;
+
+    /// <summary>
+    /// Enough of this baby's own windows (at least three, on three days) to show the window as hers. Confidence only
+    /// sets how wide it is: a young baby's windows often vary by more than the High spread, and requiring High kept a
+    /// three-week log on "log a few more days" (owner, 2026-11-03).
+    /// </summary>
+    public bool IsPersonal => PersonalMedian is not null && Observations >= MinimumPersonalWindows && DaysUsed >= MinimumPersonalWindows;
+}
 
 /// <summary>One observed wake window: from waking to the next sleep, at its position in the day.</summary>
 internal sealed record WakeWindowObservation(int Position, DateTimeOffset From, TimeSpan Length, bool EndedAtNight);

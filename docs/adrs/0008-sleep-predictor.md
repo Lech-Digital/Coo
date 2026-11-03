@@ -19,6 +19,13 @@ Status: Accepted — amended 2026-10-02 (see below)
 > length (divided by 0.85) so it does not skew the median; no prediction while awake in the night (after the night
 > window opens and before 05:00 following a night sleep). Real histories must still confirm the targets.
 
+> **Amendment, 2026-11-03 (owner): personal nap times are free, and shown from three of the baby's own windows.** The
+> prediction runs on the phone and costs nothing, so by the owner's rule (Premium only for what costs money to run) it
+> is free: Today, the widget and the nap reminder. And it is shown once there are at least three of the baby's own
+> windows at this place in the day, on three days (`SleepPrediction.IsPersonal`); confidence only sets the band's
+> width. Requiring High confidence (spread within 30 minutes) kept a 2-month-old with three weeks of logs on "log a few
+> more days": young babies' windows vary by more.
+
 ## Context
 
 The sleep predictor is a Premium feature. It suggests when the next nap window opens, and when

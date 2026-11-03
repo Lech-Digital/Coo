@@ -413,7 +413,8 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
             var band = WakeWindowPrior.For(BabyAge.On(snapshot.Baby, today).CorrectedDays);
             var typical = Strings.Format("Today.NapTypical", age, Range(band));
             var sleep = snapshot.Sleep;
-            if (snapshot.IsPremium && sleep is { Confidence: PredictionConfidence.High })
+            // Free (owner, 2026-11-03): computed on the phone, it costs nothing to run.
+            if (sleep is { IsPersonal: true })
             {
                 var due = snapshot.Now > sleep.Latest;
                 NextNap = (sleep.IsBedtime, due) switch
@@ -428,11 +429,12 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
                 NapWhyTitle = Strings.Get(sleep.IsBedtime ? "Why.TitleBed" : "Why.TitleNap");
                 NapWhy = Explain(sleep, snapshot, typical);
             }
-            else if (sleep is not null || !snapshot.IsPremium)
+            else
             {
+                // "Log a few more days" only while her own windows are too few; a gap in the log (the window's place in
+                // the day unknown) shows the typical window alone.
                 NextNap = typical;
-                NapWindow = Strings.Get(snapshot.IsPremium ? "Today.NapLearning" : "Today.NapPremium");
-                NapUpsell = !snapshot.IsPremium;
+                NapWindow = sleep is { IsPersonal: false } ? Strings.Get("Today.NapLearning") : "";
             }
         }
 

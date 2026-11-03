@@ -69,7 +69,7 @@ public sealed class PremiumPage : ContentPage
         var intro = !_model.IsPremium ? "Premium.Pitch" : _model.IsLifetime ? "Premium.LifetimeActive" : "Premium.Active";
         stack.Add(Ui.Text(Strings.Get(intro), _model.IsPremium ? "BodyStrong" : "Body"));
         var benefits = new VerticalStackLayout { Spacing = 10 };
-        foreach (var key in new[] { "Premium.Benefit.Naps", "Premium.Benefit.TellCoo", "Premium.Benefit.Advisor", "Premium.Benefit.Avatar", "Premium.Benefit.Family", "Premium.Benefit.Support" })
+        foreach (var key in new[] { "Premium.Benefit.TellCoo", "Premium.Benefit.Advisor", "Premium.Benefit.Avatar", "Premium.Benefit.Family", "Premium.Benefit.Support" })
         {
             var row = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 10 };
             row.Add(Ui.Text("✓", "BodyStrong", "Accent"), 0);

@@ -112,13 +112,6 @@ public sealed class RemindersPage : ContentPage
     /// </summary>
     private View NapCard(Coo.Mobile.Application.Notifications.ReminderSettings settings)
     {
-        if (!_model.IsPremium)
-        {
-            var locked = Toggle("Reminders.Nap", Strings.Get("Reminders.NapPremium"), false, new Command(async () =>
-                await Navigation.PushAsync(_services.GetRequiredService<PremiumPage>())));
-            return locked;
-        }
-
         var nap = new VerticalStackLayout { Spacing = 8 };
         nap.Add(Toggle("Reminders.Nap", Strings.Get("Reminders.NapHint"), settings.NapWindow, _model.ToggleNapCommand));
         if (settings.NapWindow)

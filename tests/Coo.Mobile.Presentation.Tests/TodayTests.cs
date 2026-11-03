@@ -335,7 +335,7 @@ public sealed class NightTimersTests
     }
 
     [Fact]
-    public void NextUpSection_WithoutPremium_ShowsTheTypicalWakeWindowAndTheWayToPremium()
+    public void NextUpSection_NoPrediction_ShowsTheTypicalWakeWindowWithoutAPremiumNudge()
     {
         // Arrange
         var section = new NextUpSection();
@@ -348,8 +348,22 @@ public sealed class NightTimersTests
         section.NextSide.Should().Contain("right", "alternates from previous left side");
         section.SinceFeed.Should().Contain("45 m");
         section.NextNap.Should().Contain("60–90 min");
-        section.NapUpsell.Should().BeTrue();
+        section.NapUpsell.Should().BeFalse();
         section.NapIsPersonal.Should().BeFalse();
+    }
+
+    [Fact]
+    public void NextUpSection_WithoutPremium_ShowsThePersonalWindowToo()
+    {
+        // Arrange: personal nap times are free (owner, 2026-11-03).
+        var section = new NextUpSection();
+
+        // Act
+        section.Update(NextUpSnapshot(isPremium: false, Prediction(PredictionConfidence.High)));
+
+        // Assert
+        section.NapIsPersonal.Should().BeTrue();
+        section.NextNap.Should().StartWith("Nap likely");
     }
 
     [Fact]
@@ -371,13 +385,29 @@ public sealed class NightTimersTests
     }
 
     [Fact]
-    public void NextUpSection_PremiumLowConfidence_ShowsTheTypicalWindowNeverATime()
+    public void NextUpSection_LowConfidenceWithWeeksOfWindows_StillShowsHerOwnWindow()
     {
-        // Arrange
+        // Arrange: a young baby's windows vary by more than the High spread; three weeks of them are still hers (owner,
+        // 2026-11-03: "it still says log a few more days").
         var section = new NextUpSection();
 
         // Act
-        section.Update(NextUpSnapshot(isPremium: true, Prediction(PredictionConfidence.Low)));
+        section.Update(NextUpSnapshot(isPremium: false, Prediction(PredictionConfidence.Low)));
+
+        // Assert
+        section.NapIsPersonal.Should().BeTrue();
+        section.NextNap.Should().StartWith("Nap likely");
+    }
+
+    [Fact]
+    public void NextUpSection_TooFewOwnWindows_ShowsTheTypicalWindowAndAsksForMoreDays()
+    {
+        // Arrange: two windows, on two days.
+        var section = new NextUpSection();
+        var few = Prediction(PredictionConfidence.Low) with { Observations = 2, DaysUsed = 2 };
+
+        // Act
+        section.Update(NextUpSnapshot(isPremium: true, few));
 
         // Assert
         section.NapIsPersonal.Should().BeFalse();

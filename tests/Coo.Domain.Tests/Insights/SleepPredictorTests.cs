@@ -26,6 +26,26 @@ public sealed class SleepPredictorTests
         return sleeps;
     }
 
+    [Theory]
+    [InlineData(3, 3, true)]
+    [InlineData(9, 6, true)]
+    [InlineData(2, 2, false)]
+    [InlineData(5, 2, false)]
+    public void IsPersonal_OwnWindowsOnDays_NeedsThreeOfEach(int observations, int days, bool expected)
+    {
+        // Arrange: a low-confidence prediction (a young baby's windows vary widely) is still hers once there are enough.
+        var prediction = new SleepPrediction(
+            2, false, DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch,
+            PredictionConfidence.Low, TimeSpan.FromMinutes(80), TimeSpan.FromMinutes(80), days, observations,
+            WakeWindowPrior.For(61), false, SleepPredictor.Version);
+
+        // Act
+        var personal = prediction.IsPersonal;
+
+        // Assert
+        Assert.Equal(expected, personal);
+    }
+
     [Fact]
     public void Predict_NoSleepsLogged_ReturnsNull()
     {
