@@ -46,32 +46,46 @@ internal sealed class BillingStore(IDbContextFactory<CooDbContext> contexts, Tim
         await database.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Subscription>> ListDueForRecheckAsync(DateTime now, int limit, CancellationToken cancellationToken)
+    {
+        await using var database = await contexts.CreateDbContextAsync(cancellationToken);
+        var (hourAgo, dayAgo, tomorrow, lastWeek) = (now.AddHours(-1), now.AddDays(-1), now.AddDays(1), now.AddDays(-7));
+        var (expired, paused) = (nameof(SubscriptionStatus.Expired), nameof(SubscriptionStatus.Paused));
+        var records = await database.Subscriptions.AsNoTracking()
+            .Where(s => (s.ExpiryDate > lastWeek || s.Status != expired) && s.UpdatedAt <= hourAgo
+                && (s.ExpiryDate < tomorrow || s.CreatedAt > lastWeek || s.Status == paused || s.UpdatedAt <= dayAgo))
+            .OrderBy(s => s.ExpiryDate)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+        return [.. records.Select(ToSubscription)];
+    }
+
+    private static Subscription ToSubscription(SubscriptionRecord record) => new(
+        record.PurchaseToken,
+        new HouseholdId(record.HouseholdId),
+        record.UserId,
+        record.ProductId,
+        Enum.Parse<SubscriptionStatus>(record.Status),
+        record.ExpiryDate,
+        record.CreatedAt,
+        record.UpdatedAt);
+
     public async Task<Subscription?> FindSubscriptionAsync(string purchaseToken, CancellationToken cancellationToken)
     {
         await using var database = await contexts.CreateDbContextAsync(cancellationToken);
         var record = await database.Subscriptions.AsNoTracking().FirstOrDefaultAsync(s => s.PurchaseToken == purchaseToken, cancellationToken);
-        if (record is null) return null;
-
-        return new Subscription(
-            record.PurchaseToken,
-            new HouseholdId(record.HouseholdId),
-            record.UserId,
-            record.ProductId,
-            Enum.Parse<SubscriptionStatus>(record.Status),
-            record.ExpiryDate,
-            record.CreatedAt,
-            record.UpdatedAt
-        );
+        return record is null ? null : ToSubscription(record);
     }
 
     public async Task<bool> IsHouseholdPremiumAsync(HouseholdId householdId, CancellationToken cancellationToken)
     {
         await using var database = await contexts.CreateDbContextAsync(cancellationToken);
         var now = timeProvider.GetUtcNow().UtcDateTime;
+        // Products.Grants, as SQL: a cancelled subscription still grants until its paid period ends (ADR 0004 §3).
         var bought = await database.Subscriptions
             .AsNoTracking()
             .AnyAsync(s => s.HouseholdId == householdId.Value &&
-                           (s.Status == nameof(SubscriptionStatus.Active) || s.Status == nameof(SubscriptionStatus.GracePeriod)) &&
+                           (s.Status == nameof(SubscriptionStatus.Active) || s.Status == nameof(SubscriptionStatus.GracePeriod) || s.Status == nameof(SubscriptionStatus.Canceled)) &&
                            s.ExpiryDate > now,
                 cancellationToken);
         if (bought || _complimentary.Length == 0)

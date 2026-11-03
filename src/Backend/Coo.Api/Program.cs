@@ -74,8 +74,10 @@ builder.Services.AddInvitationRateLimiting(StartupChecks.SelectInvitationLimits(
 // Account deletion runs in the membership store's locked transaction: no scoped account store any more.
 builder.Services.AddSingleton<DeleteAccount>();
 
-// Billing (Increment 12)
+// Billing (Increment 12): Production refuses to start without the Play Developer API key (ADR 0004 §5).
+StartupChecks.RequirePlayCredentials(builder.Configuration[StartupChecks.PlayCredentialsKey], builder.Environment.IsProduction());
 builder.Services.AddSingleton<Coo.Api.Application.Billing.VerifyReceipt>();
+builder.Services.AddSingleton<Coo.Api.Application.Billing.RecheckPurchases>();
 // AI logging (ADR 0005 §7): the daily allowances are configuration.
 builder.Services.AddSingleton(new Coo.Api.Application.AiParsing.AiParsingLimitsOptions(
     builder.Configuration.GetValue("AiParsing:PremiumPerDay", 100), builder.Configuration.GetValue("AiParsing:FreePerDay", 5)));
@@ -88,6 +90,7 @@ if (!verifyOnly)
     builder.Services.AddHostedService<IntegrityScanJob>();
     builder.Services.AddHostedService<AuthNonceCleanupJob>();
     builder.Services.AddHostedService<SyncHistoryCleanupJob>();
+    builder.Services.AddHostedService<PurchaseRecheckJob>();
 }
 
 var app = builder.Build();

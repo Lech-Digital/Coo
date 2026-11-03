@@ -47,6 +47,54 @@ public sealed class FamilyStoreTests
     }
 
     [Fact]
+    public async Task ReplaceAsync_AViewerMembership_IsStoredAndReadBack()
+    {
+        // Arrange: 1.6.0 added viewers, but the table's check still refused them until 0006.
+        await using var db = await TestDatabase.CreateAsync();
+        var store = new FamilyStore(db.Database);
+
+        // Act
+        await store.ReplaceAsync(Me, [new FamilyMembership(Home, Role.Viewer, Now, "Kasia", 3)], CancellationToken.None);
+        var mine = await store.ListAsync(Me, CancellationToken.None);
+
+        // Assert
+        mine.Should().Equal(new FamilyMembership(Home, Role.Viewer, Now, "Kasia", 3));
+    }
+
+    [Fact]
+    public async Task TourState_MarkSeen_IsRememberedAndRepeatable()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var tour = new TourStateStore(db.Database);
+        var before = await tour.HasSeenAsync(CancellationToken.None);
+
+        // Act
+        await tour.MarkSeenAsync(CancellationToken.None);
+        await tour.MarkSeenAsync(CancellationToken.None);
+
+        // Assert
+        before.Should().BeFalse();
+        (await tour.HasSeenAsync(CancellationToken.None)).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SaveBabyAsync_WithASex_ReadsItBack()
+    {
+        // Arrange
+        await using var db = await TestDatabase.CreateAsync();
+        var baby = BabyProfile.Create(TestDatabase.Baby, Home, "Maja", [], new DateOnly(2026, 10, 20), null,
+            await db.Device.NextAsync(CancellationToken.None), new DateOnly(2026, 11, 3), BabySex.Girl).Value;
+
+        // Act
+        await db.Households.SaveBabyAsync(baby, CancellationToken.None);
+        var read = await db.Households.ListBabiesAsync(Home, CancellationToken.None);
+
+        // Assert
+        read.Should().ContainSingle().Which.Sex.Should().Be(BabySex.Girl);
+    }
+
+    [Fact]
     public async Task ReplaceAsync_AnEmptyList_IsKnownAndEmpty()
     {
         // Arrange: after a removal from the only family (§8.4).
@@ -187,7 +235,7 @@ public sealed class FamilyStoreTests
             await db.Device.NextAsync(CancellationToken.None), new DateOnly(2026, 10, 1)).Value, CancellationToken.None);
         await db.ExecuteAsync("INSERT INTO app_state (key, value) VALUES ('active_household', 'h');");
         var tables = new[] { "care_entries", "outbox", "app_state", "sync_cursors", "sync_rejections", "baby_profiles", "household_settings", "duplicate_dismissals" };
-        await db.ExecuteAsync("DROP TABLE family_memberships; PRAGMA user_version = 4;");
+        await db.ExecuteAsync("DROP TABLE family_memberships; ALTER TABLE baby_profiles DROP COLUMN sex; PRAGMA user_version = 4;");
         var before = new List<long>();
         foreach (var table in tables)
             before.Add(await db.ScalarAsync($"SELECT count(*) FROM {table};"));

@@ -34,7 +34,8 @@ public sealed record DayCare(
     int Diapers,
     int Wet,
     int Dirty,
-    decimal PumpedMl);
+    decimal PumpedMl,
+    int Bottles = 0);
 
 /// <summary>
 /// A day, week or month of the trends chart, as daily averages over <see cref="DaysCounted"/>: the days in it that
@@ -179,6 +180,7 @@ public sealed class GetCareTrends(ICareLogStore store)
                     }
                     else if (feed is BottleFeed bottle)
                     {
+                        feeds.Bottles++;
                         feeds.BottleMl += bottle.Total.Millilitres;
                     }
 
@@ -207,7 +209,7 @@ public sealed class GetCareTrends(ICareLogStore store)
             var t = days.TryGetValue(date, out var found) ? found : new Tally();
             result[date] = new DayCare(
                 date, t.HasEntries, t.Sleep, t.Sleeps, t.LongestSleep, t.Feeds, t.BreastFeeds, t.BreastTime, t.BottleMl,
-                t.Diapers, t.Wet, t.Dirty, t.PumpedMl);
+                t.Diapers, t.Wet, t.Dirty, t.PumpedMl, t.Bottles);
         }
 
         return result;
@@ -268,6 +270,8 @@ public sealed class GetCareTrends(ICareLogStore store)
 
         public decimal BottleMl { get; set; }
 
+        public int Bottles { get; set; }
+
         public int Diapers { get; set; }
 
         public int Wet { get; set; }
@@ -275,5 +279,70 @@ public sealed class GetCareTrends(ICareLogStore store)
         public int Dirty { get; set; }
 
         public decimal PumpedMl { get; set; }
+    }
+}
+
+/// <summary>
+/// "On an average day" over the last few days, as a doctor asks it: how much milk from bottles and in how many bottles,
+/// how many feeds, how much sleep, how many diapers. Days nobody logged are left out, and today counts only while no
+/// earlier day has entries, like the trends.
+/// </summary>
+public sealed record DailyAverages(
+    DateOnly From,
+    DateOnly To,
+    int DaysCounted,
+    bool IncludesToday,
+    decimal BottleMl,
+    double Bottles,
+    double Feeds,
+    double BreastFeeds,
+    TimeSpan AverageBreastFeed,
+    TimeSpan Sleep,
+    TimeSpan LongestSleep,
+    double Diapers,
+    double Wet,
+    double Dirty,
+    decimal PumpedMl)
+{
+    public bool HasData => DaysCounted > 0;
+
+    /// <summary>The average bottle, or null when no bottle was logged.</summary>
+    public decimal? MlPerBottle => Bottles > 0 ? BottleMl / (decimal)Bottles : null;
+}
+
+/// <summary>The daily averages over the <c>days</c> days before today (today itself while nothing earlier is logged).</summary>
+public sealed class GetDailyAverages(GetCareTrends trends)
+{
+    public async Task<DailyAverages> ExecuteAsync(
+        HouseholdId household, BabyId baby, int days, TimeZoneInfo zone, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(days, 1);
+        var today = DayMath.DateOf(now, zone);
+        var from = today.AddDays(-days);
+        var all = await trends.DaysAsync(household, baby, from, today, zone, now, cancellationToken);
+        var over = all.Values.Where(d => d.Date < today && d.HasEntries).ToList();
+        var includesToday = over.Count == 0 && all.TryGetValue(today, out var t) && t.HasEntries;
+        var counted = includesToday ? [all[today]] : over;
+        var n = counted.Count;
+        if (n == 0)
+            return new DailyAverages(from, today.AddDays(-1), 0, false, 0, 0, 0, 0, default, default, default, 0, 0, 0, 0);
+
+        var breastFeeds = counted.Sum(d => d.BreastFeeds);
+        return new DailyAverages(
+            from,
+            includesToday ? today : today.AddDays(-1),
+            n,
+            includesToday,
+            counted.Sum(d => d.BottleMl) / n,
+            (double)counted.Sum(d => d.Bottles) / n,
+            (double)counted.Sum(d => d.Feeds) / n,
+            (double)breastFeeds / n,
+            breastFeeds > 0 ? TimeSpan.FromTicks(counted.Sum(d => d.BreastTime.Ticks) / breastFeeds) : TimeSpan.Zero,
+            TimeSpan.FromTicks(counted.Sum(d => d.Sleep.Ticks) / n),
+            TimeSpan.FromTicks(counted.Max(d => d.LongestSleep.Ticks)),
+            (double)counted.Sum(d => d.Diapers) / n,
+            (double)counted.Sum(d => d.Wet) / n,
+            (double)counted.Sum(d => d.Dirty) / n,
+            counted.Sum(d => d.PumpedMl) / n);
     }
 }

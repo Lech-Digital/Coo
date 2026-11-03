@@ -30,6 +30,8 @@ internal static class TestApi
             host.UseSetting(StartupChecks.SigningKeysSection + ":k1", SigningKey);
             host.UseSetting(StartupChecks.FingerprintsSection + ":0", Fingerprint);
             host.UseSetting(StartupChecks.CodePepperKey, CodePepper);
+            // Production refuses to start without a Play key; tests replace the validator that would use it.
+            host.UseSetting(StartupChecks.PlayCredentialsKey, "{}");
             var l = limits ?? new InvitationLimits(1000, 1000, 1000);
             host.UseSetting("Invitations:PerUserPerHour", l.PerUserPerHour.ToString(CultureInfo.InvariantCulture));
             host.UseSetting("Invitations:PerAddressPerHour", l.PerAddressPerHour.ToString(CultureInfo.InvariantCulture));

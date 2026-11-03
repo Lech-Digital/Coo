@@ -18,7 +18,17 @@ public sealed class StatsPage : ContentPage
     private readonly CooPageHeader _pageHeader;
     private readonly WeeklySummaryViewModel _summary;
     private readonly Coo.Mobile.Presentation.Reports.ReportViewModel _report;
+    private readonly AveragesViewModel _averages;
+    private readonly Coo.Mobile.Presentation.Growth.GrowthViewModel _growth;
+    private readonly IServiceProvider _services;
     private readonly VerticalStackLayout _content = new() { Padding = new Thickness(24, 0, 24, 0), Spacing = 16 };
+    private readonly ScrollView _page;
+
+    /// <summary>
+    /// One chip row for the page's life: a new one per redraw started scrolled to the left, so tapping "Pumped" at the
+    /// end threw the row back to "Sleep" (owner, 2026-11-03).
+    /// </summary>
+    private readonly ScrollView _chipRow = new() { Orientation = ScrollOrientation.Horizontal, HorizontalScrollBarVisibility = ScrollBarVisibility.Never, Margin = new Thickness(-24, 0), Padding = new Thickness(24, 0) };
     private bool _renderQueued;
     private string? _renderedLanguage;
 
@@ -32,11 +42,15 @@ public sealed class StatsPage : ContentPage
         _summary = services.GetRequiredService<WeeklySummaryViewModel>();
         _summary.EnsureConsentAsync = () => AdvisorPage.AskConsentAsync(this);
         _report = services.GetRequiredService<Coo.Mobile.Presentation.Reports.ReportViewModel>();
+        _averages = services.GetRequiredService<AveragesViewModel>();
+        _growth = services.GetRequiredService<Coo.Mobile.Presentation.Growth.GrowthViewModel>();
+        _services = services;
         Shell.SetNavBarIsVisible(this, false);
-        Content = new ScrollView
+        _page = new ScrollView
         {
             Content = new VerticalStackLayout { Padding = new Thickness(0, 0, 0, 24), Spacing = 16, Children = { _pageHeader, _content } },
         };
+        Content = _page;
     }
 
     protected override async void OnAppearing()
@@ -46,11 +60,13 @@ public sealed class StatsPage : ContentPage
         _trends.PropertyChanged += OnChanged;
         _summary.PropertyChanged += OnChanged;
         _report.PropertyChanged += OnChanged;
+        _averages.PropertyChanged += OnChanged;
+        _growth.PropertyChanged += OnChanged;
         _undo.DataChanged += OnDataChanged;
         _theme.PaletteChanged += OnPaletteChanged;
         _language.Changed += OnLanguageChanged;
         _pageHeader.Refresh();
-        await _trends.RefreshAsync();
+        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync());
         if (_content.Children.Count == 0 || _renderedLanguage != Strings.Language)
             QueueRender();
     }
@@ -61,6 +77,8 @@ public sealed class StatsPage : ContentPage
         _trends.PropertyChanged -= OnChanged;
         _summary.PropertyChanged -= OnChanged;
         _report.PropertyChanged -= OnChanged;
+        _averages.PropertyChanged -= OnChanged;
+        _growth.PropertyChanged -= OnChanged;
         _undo.DataChanged -= OnDataChanged;
         _theme.PaletteChanged -= OnPaletteChanged;
         _language.Changed -= OnLanguageChanged;
@@ -71,7 +89,7 @@ public sealed class StatsPage : ContentPage
     private void OnDataChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
     {
         _summary.Invalidate();
-        await _trends.RefreshAsync();
+        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync());
     });
 
     // The chart is drawn with the palette's colours, not resources.
@@ -79,9 +97,85 @@ public sealed class StatsPage : ContentPage
 
     private void OnLanguageChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
     {
-        await _trends.RefreshAsync();
+        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync());
         QueueRender();
     });
+
+    /// <summary>
+    /// "On an average day": what a doctor asks first, at the top. Milk from bottles a day and per bottle, feeds, sleep,
+    /// diapers, over the last 7, 14 or 30 days.
+    /// </summary>
+    private Card AveragesCard()
+    {
+        var stack = new VerticalStackLayout { Spacing = 10 };
+        stack.Add(Ui.Text(Strings.Get("Averages.Title"), "BodyStrong"));
+        var periods = new Grid { ColumnSpacing = 8 };
+        for (var i = 0; i < AveragesViewModel.Periods.Count; i++)
+        {
+            var days = AveragesViewModel.Periods[i];
+            var chip = new Button { Text = Strings.Format("Report.Days", days), Command = _averages.SetDaysCommand, CommandParameter = days, HeightRequest = 36 };
+            chip.SetDynamicResource(VisualElement.StyleProperty, _averages.Days == days ? "PrimaryButton" : "GhostButton");
+            chip.Padding = new Thickness(4, 0);
+            periods.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+            periods.Add(chip, i);
+        }
+
+        stack.Add(periods);
+        stack.Add(Ui.Text(_averages.Caption, "Meta", "Ink2"));
+        foreach (var row in _averages.Rows)
+        {
+            var look = EventAppearance.For(row.KindCode);
+            var grid = new Grid
+            {
+                ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)],
+                RowDefinitions = [new(GridLength.Auto), new(GridLength.Auto)],
+                ColumnSpacing = 12,
+                RowSpacing = 2,
+                Padding = new Thickness(0, 4),
+            };
+            grid.Add(Ui.Rounded(new Icon(look.Icon, look.Ink, 16), look.Tint, 10, new Thickness(6)).Tap(b => b.VerticalOptions = LayoutOptions.Center), 0, 0);
+            grid.Add(Ui.Text(row.Name, "Body").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1, 0);
+            grid.Add(Ui.Text(row.Value, "BodyStrong", look.Ink).Tap(l => l.VerticalOptions = LayoutOptions.Center), 2, 0);
+            if (row.Detail.Length > 0)
+            {
+                var detail = Ui.Text(row.Detail, "Meta", "Ink2");
+                grid.Add(detail, 1, 1);
+                Grid.SetColumnSpan(detail, 2);
+            }
+
+            SemanticProperties.SetDescription(grid, $"{row.Name}: {row.Value}. {row.Detail}");
+            stack.Add(grid);
+        }
+
+        return new Card(stack);
+    }
+
+    /// <summary>Growth among the other numbers: the latest weight and its percentile; a tap opens the chart.</summary>
+    private Card? GrowthCard()
+    {
+        if (!_growth.HasBirth)
+            return null;
+        var stack = new VerticalStackLayout { Spacing = 6 };
+        var title = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 8 };
+        var look = EventAppearance.For("growth");
+        title.Add(Ui.Rounded(new Icon(IconGeometry.Chart, look.Ink, 16), look.Tint, 10, new Thickness(6)).Tap(b => b.VerticalOptions = LayoutOptions.Center), 0);
+        title.Add(Ui.Text(Strings.Get("Growth.Chart"), "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
+        title.Add(new Icon(IconGeometry.ChevronRight, "Ink2", 18).Tap(i => i.VerticalOptions = LayoutOptions.Center), 2);
+        stack.Add(title);
+        if (_growth.Sex is null)
+            stack.Add(Ui.Text(Strings.Get("Growth.WhichChartHint"), "Meta", "Ink2"));
+        else if (_growth.Rows.Count == 0)
+            stack.Add(Ui.Text(Strings.Get("Growth.Empty"), "Meta", "Ink2"));
+        else
+            stack.Add(Ui.Text($"{_growth.Latest} · {_growth.Rows[0].Date}", "Body", look.Ink));
+        var card = new Card(stack);
+        card.GestureRecognizers.Add(new TapGestureRecognizer
+        {
+            Command = new Command(async () => await Navigation.PushAsync(_services.GetRequiredService<GrowthPage>())),
+        });
+        SemanticProperties.SetDescription(card, Strings.Get("Growth.Chart"));
+        return card;
+    }
 
     /// <summary>"This week, in words": a button until written, then the Advisor's few sentences.</summary>
     private Card SummaryCard()
@@ -210,7 +304,8 @@ public sealed class StatsPage : ContentPage
             ColumnSpacing = 8,
             VerticalOptions = LayoutOptions.Center,
         };
-        header.Add(Ui.Text(Strings.Get("Stats.Title"), "Title").Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
+        // The arrows page through the trends, so they sit on the trends' own heading, under the averages and growth.
+        header.Add(Ui.Text(Strings.Get("Stats.Trends"), "Section").Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
         header.Add(Nav(IconGeometry.ChevronLeft, trends.PreviousCommand, true), 1);
         header.Add(Nav(IconGeometry.ChevronRight, trends.NextCommand, trends.CanGoNext), 2);
 
@@ -310,13 +405,27 @@ public sealed class StatsPage : ContentPage
             rows.Add(row.IsSelected ? Ui.Rounded(grid, rowLook.Tint, 14, new Thickness(0)) : grid);
         }
 
+        // Where the page and the chip row were: a redraw (a chip, a bar, a period) keeps both where the finger left them.
+        var (chipX, pageY) = (_chipRow.ScrollX, _page.ScrollY);
         _content.Children.Clear();
+        _content.Add(Ui.Text(Strings.Get("Stats.Title"), "Title"));
+        _content.Add(AveragesCard());
+        if (GrowthCard() is { } growth)
+            _content.Add(growth);
         _content.Add(header);
         _content.Add(grainBar);
-        _content.Add(new ScrollView { Orientation = ScrollOrientation.Horizontal, HorizontalScrollBarVisibility = ScrollBarVisibility.Never, Content = chips, Margin = new Thickness(-24, 0), Padding = new Thickness(24, 0) });
+        _chipRow.Content = chips;
+        _content.Add(_chipRow);
         _content.Add(new Card(headline));
         _content.Add(new Card(rows));
         _content.Add(SummaryCard());
         _content.Add(ReportCard());
+        Dispatcher.Dispatch(async () =>
+        {
+            if (chipX > 0)
+                await _chipRow.ScrollToAsync(chipX, 0, false);
+            if (pageY > 0)
+                await _page.ScrollToAsync(0, pageY, false);
+        });
     }
 }

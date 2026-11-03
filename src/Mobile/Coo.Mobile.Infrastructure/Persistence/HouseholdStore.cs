@@ -78,7 +78,7 @@ internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time, 
         await using var connection = await database.OpenAsync(cancellationToken);
         await using var command = connection.Command(
             """
-            SELECT id, household_id, name, nicknames, birth_date, due_date, version_wall_ms, version_counter, version_device, is_deleted
+            SELECT id, household_id, name, nicknames, birth_date, due_date, version_wall_ms, version_counter, version_device, is_deleted, sex
             FROM baby_profiles WHERE household_id = $household AND is_deleted = 0 ORDER BY coalesce(birth_date, due_date), name;
             """,
             null,
@@ -95,7 +95,8 @@ internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time, 
                 r.IsDBNull(4) ? null : DateOnly.ParseExact(r.GetString(4), "yyyy-MM-dd", CultureInfo.InvariantCulture),
                 r.IsDBNull(5) ? null : DateOnly.ParseExact(r.GetString(5), "yyyy-MM-dd", CultureInfo.InvariantCulture),
                 Columns.ParseStamp(r.GetInt64(6), r.GetInt64(7), r.GetString(8))!.Value,
-                r.GetInt64(9) == 1));
+                r.GetInt64(9) == 1,
+                BabySexText.Parse(r.IsDBNull(10) ? null : r.GetString(10))));
         }
 
         return list;
@@ -108,10 +109,10 @@ internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time, 
         await using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync(cancellationToken);
         await connection.ExecuteAsync(
             """
-            INSERT INTO baby_profiles (id, household_id, name, nicknames, birth_date, due_date, version_wall_ms, version_counter, version_device, is_deleted)
-            VALUES ($id, $household, $name, $nicknames, $birth, $due, $version_wall_ms, $version_counter, $version_device, $deleted)
+            INSERT INTO baby_profiles (id, household_id, name, nicknames, birth_date, due_date, sex, version_wall_ms, version_counter, version_device, is_deleted)
+            VALUES ($id, $household, $name, $nicknames, $birth, $due, $sex, $version_wall_ms, $version_counter, $version_device, $deleted)
             ON CONFLICT (id) DO UPDATE SET name = excluded.name, nicknames = excluded.nicknames, birth_date = excluded.birth_date,
-                due_date = excluded.due_date, version_wall_ms = excluded.version_wall_ms, version_counter = excluded.version_counter,
+                due_date = excluded.due_date, sex = excluded.sex, version_wall_ms = excluded.version_wall_ms, version_counter = excluded.version_counter,
                 version_device = excluded.version_device, is_deleted = excluded.is_deleted;
             """,
             cancellationToken,
@@ -123,6 +124,7 @@ internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time, 
                 ("$nicknames", JsonSerializer.Serialize(baby.Nicknames.ToList(), StringListJson.Default.ListString)),
                 ("$birth", baby.BirthDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
                 ("$due", baby.DueDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+                ("$sex", BabySexText.Text(baby.Sex)),
                 .. Columns.Stamp(baby.Version),
                 ("$deleted", baby.IsDeleted ? 1 : 0),
             ]);

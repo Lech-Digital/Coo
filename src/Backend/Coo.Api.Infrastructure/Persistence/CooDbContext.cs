@@ -187,6 +187,7 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
             {
                 t.HasCheckConstraint("ck_baby_profiles_date", "birth_date IS NOT NULL OR due_date IS NOT NULL");
                 t.HasCheckConstraint("ck_baby_profiles_seq", "seq >= 1");
+                t.HasCheckConstraint("ck_baby_profiles_sex", "sex IS NULL OR sex IN ('girl', 'boy')");
             });
             e.HasKey(b => b.Id);
             e.Property(b => b.Id).HasColumnName("id").ValueGeneratedNever();
@@ -195,6 +196,7 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
             e.Property(b => b.Nicknames).HasColumnName("nicknames");
             e.Property(b => b.BirthDate).HasColumnName("birth_date");
             e.Property(b => b.DueDate).HasColumnName("due_date");
+            e.Property(b => b.Sex).HasColumnName("sex");
             SyncColumns(e);
             e.HasOne<HouseholdRecord>().WithMany().HasForeignKey(b => b.HouseholdId)
                 .HasConstraintName("fk_baby_profiles_households").OnDelete(DeleteBehavior.Cascade);

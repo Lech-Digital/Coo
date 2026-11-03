@@ -21,9 +21,15 @@ public sealed record GrowthRow(Coo.Domain.Common.EntryId Id, string Date, string
 /// The growth chart: weight, length or head circumference against the WHO percentile lines for the first two years,
 /// in the household's units for the text (the chart itself is in kg and cm, as WHO draws it).
 /// </summary>
+/// <remarks>
+/// The standard (girls' or boys') is the baby's sex, chosen once with the baby and shared with the family. A phone from
+/// before that kept its own choice; that choice is used until the baby has one.
+/// </remarks>
 public sealed partial class GrowthViewModel(
-    IHouseholdStore households, GetGrowth getGrowth, IGrowthChartPreference preference, IClockFormat clock, TimeProvider time) : ObservableObject
+    IHouseholdStore households, GetGrowth getGrowth, IGrowthChartPreference preference, IClockFormat clock, TimeProvider time,
+    SetBabySex? setBabySex = null) : ObservableObject
 {
+    private BabyProfile? _baby;
     private IReadOnlyList<(CareEntry Entry, GrowthDetails Details)> _entries = [];
     private DateOnly? _birth;
     private Formats _formats = new(true, VolumeUnit.Millilitres);
@@ -60,9 +66,15 @@ public sealed partial class GrowthViewModel(
 
     public async Task LoadAsync()
     {
-        Sex = await preference.GetAsync(CancellationToken.None);
         var household = (await households.ListHouseholdsAsync(CancellationToken.None)).FirstOrDefault(h => !h.IsDeleted);
         var baby = household is null ? null : (await households.ListBabiesAsync(household.Id, CancellationToken.None)).FirstOrDefault(b => !b.IsDeleted);
+        _baby = baby;
+        Sex = baby?.Sex switch
+        {
+            BabySex.Girl => ChartSex.Girl,
+            BabySex.Boy => ChartSex.Boy,
+            _ => await preference.GetAsync(CancellationToken.None),
+        };
         (BabyName, _birth) = (baby?.Name ?? "", baby?.BirthDate);
         _formats = new Formats(clock.Is24Hour, household?.VolumeUnit ?? VolumeUnit.Millilitres);
         _entries = household is null || baby?.BirthDate is not { } birth
@@ -82,6 +94,9 @@ public sealed partial class GrowthViewModel(
     private async Task SetSex(ChartSex sex)
     {
         await preference.SetAsync(sex, CancellationToken.None);
+        // On the baby, so the family's other phones and the baby page have it too.
+        if (_baby is not null && setBabySex is not null)
+            await setBabySex.ExecuteAsync(_baby, sex == ChartSex.Girl ? BabySex.Girl : BabySex.Boy, CancellationToken.None);
         Sex = sex;
         Rebuild();
     }

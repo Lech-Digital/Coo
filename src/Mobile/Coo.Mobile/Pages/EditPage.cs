@@ -110,12 +110,16 @@ public sealed class EditPage : ContentPage
                 form.Add(Field(Minutes("Feed.Right"), Number(nameof(EditViewModel.RightMinutes))));
                 break;
             case "diaper":
-                form.Add(Choices(new (string, Action, bool)[]
+                // Wet or dirty: a dirty diaper is usually wet too, and nobody can tell, so "both" is no longer offered
+                // (owner, 2026-11-03). An entry already saved as both keeps that choice.
+                var contents = new List<(string, Action, bool)>
                 {
                     (Strings.Get("Diaper.Wet"), () => _model.Contents = DiaperContents.Wet, _model.Contents == DiaperContents.Wet),
                     (Strings.Get("Diaper.Dirty"), () => _model.Contents = DiaperContents.Dirty, _model.Contents == DiaperContents.Dirty),
-                    (Strings.Get("Diaper.Mixed"), () => _model.Contents = DiaperContents.Mixed, _model.Contents == DiaperContents.Mixed),
-                }));
+                };
+                if (_model.Contents == DiaperContents.Mixed)
+                    contents.Add((Strings.Get("Diaper.Mixed"), () => _model.Contents = DiaperContents.Mixed, true));
+                form.Add(Choices([.. contents]));
                 break;
             case "tummy":
                 if (!_model.IsRunning)

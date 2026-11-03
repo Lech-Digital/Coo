@@ -4,6 +4,15 @@ using Coo.Domain.Common.Versioning;
 namespace Coo.Domain.Households;
 
 /// <summary>
+/// The baby's sex, for the WHO growth standards, which differ for girls and boys. Optional: unset, the growth chart asks.
+/// </summary>
+public enum BabySex
+{
+    Girl,
+    Boy,
+}
+
+/// <summary>
 /// A baby in a household (Spec 001 §5.1), born or still expected (Spec 006 §3a). An expected baby has a due date and
 /// no birth date yet; <see cref="RecordBirth"/> turns it into a born one.
 /// </summary>
@@ -22,13 +31,14 @@ public sealed class BabyProfile : SyncedRecord<BabyId>
 
     private BabyProfile(
         BabyId id, HouseholdId householdId, string name, IReadOnlyList<string> nicknames,
-        DateOnly? birthDate, DateOnly? dueDate, HlcStamp version, bool isDeleted)
+        DateOnly? birthDate, DateOnly? dueDate, HlcStamp version, bool isDeleted, BabySex? sex)
         : base(id, householdId, version, isDeleted)
     {
         Name = name;
         Nicknames = nicknames;
         BirthDate = birthDate;
         DueDate = dueDate;
+        Sex = sex;
     }
 
     public string Name { get; private set; }
@@ -47,9 +57,12 @@ public sealed class BabyProfile : SyncedRecord<BabyId>
 
     public bool IsBorn => BirthDate is not null;
 
+    /// <summary>Chosen once with the baby, for the growth chart's standard; shared with the family like the name.</summary>
+    public BabySex? Sex { get; private set; }
+
     public static Result<BabyProfile> Create(
         BabyId id, HouseholdId householdId, string name, IEnumerable<string> nicknames,
-        DateOnly? birthDate, DateOnly? dueDate, HlcStamp version, DateOnly today)
+        DateOnly? birthDate, DateOnly? dueDate, HlcStamp version, DateOnly today, BabySex? sex = null)
     {
         ArgumentNullException.ThrowIfNull(nicknames);
 
@@ -61,7 +74,7 @@ public sealed class BabyProfile : SyncedRecord<BabyId>
             () => CheckDates(birthDate, dueDate, today));
 
         return outcome.IsSuccess
-            ? new BabyProfile(id, householdId, cleanName!, cleanNicknames!.AsReadOnly()!, birthDate, dueDate, version, isDeleted: false)
+            ? new BabyProfile(id, householdId, cleanName!, cleanNicknames!.AsReadOnly()!, birthDate, dueDate, version, isDeleted: false, sex)
             : Result<BabyProfile>.Failure(outcome.Error!);
     }
 
@@ -77,6 +90,9 @@ public sealed class BabyProfile : SyncedRecord<BabyId>
         var clean = nicknames.Select(CleanName).ToList();
         return Apply(version, () => CheckNicknames(Name, clean), () => Nicknames = clean!.AsReadOnly()!);
     }
+
+    /// <summary>Sets or clears the sex the growth chart uses.</summary>
+    public Result SetSex(BabySex? sex, HlcStamp version) => Apply(version, () => Result.Success, () => Sex = sex);
 
     /// <summary>The baby has arrived. The due date is kept, for corrected age.</summary>
     public Result RecordBirth(DateOnly birthDate, HlcStamp version, DateOnly today) =>
@@ -122,8 +138,8 @@ public sealed class BabyProfile : SyncedRecord<BabyId>
 
     internal static BabyProfile Rehydrate(
         BabyId id, HouseholdId householdId, string name, IReadOnlyList<string> nicknames,
-        DateOnly? birthDate, DateOnly? dueDate, HlcStamp version, bool isDeleted) =>
-        new(id, householdId, name, nicknames, birthDate, dueDate, version, isDeleted);
+        DateOnly? birthDate, DateOnly? dueDate, HlcStamp version, bool isDeleted, BabySex? sex = null) =>
+        new(id, householdId, name, nicknames, birthDate, dueDate, version, isDeleted, sex);
 
     private Result Apply(HlcStamp version, Func<Result> rules, Action change)
     {

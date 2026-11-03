@@ -32,6 +32,10 @@ public sealed partial class BabyProfileViewModel : ObservableObject
     [ObservableProperty]
     private bool _isBorn;
 
+    /// <summary>Girl or boy, for the growth chart's standard; null until chosen.</summary>
+    [ObservableProperty]
+    private Coo.Domain.Households.BabySex? _sex;
+
     [ObservableProperty]
     private DateTime _birthDate;
 
@@ -100,6 +104,7 @@ public sealed partial class BabyProfileViewModel : ObservableObject
         Name = _baby.Name;
         Nicknames = string.Join(", ", _baby.Nicknames);
         IsBorn = _baby.IsBorn;
+        Sex = _baby.Sex;
         BirthDate = (_baby.BirthDate ?? DateOnly.FromDateTime(Today)).ToDateTime(TimeOnly.MinValue);
         HasDueDate = _baby.DueDate is not null;
         DueDate = (_baby.DueDate ?? DateOnly.FromDateTime(Today)).ToDateTime(TimeOnly.MinValue);
@@ -205,6 +210,9 @@ public sealed partial class BabyProfileViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void ChooseSex(Coo.Domain.Households.BabySex sex) => Sex = sex;
+
+    [RelayCommand]
     private async Task Save()
     {
         if (_baby is null)
@@ -212,7 +220,8 @@ public sealed partial class BabyProfileViewModel : ObservableObject
         var nicknames = Nicknames.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         var change = new BabyProfileChange(
             Name, nicknames, IsBorn ? DateOnly.FromDateTime(BirthDate) : null,
-            !IsBorn || HasDueDate ? DateOnly.FromDateTime(DueDate) : null);
+            !IsBorn || HasDueDate ? DateOnly.FromDateTime(DueDate) : null,
+            Sex);
         var result = await _update.ExecuteAsync(_baby, change, CancellationToken.None);
         Error = result.IsFailure ? Strings.Error(result.Error!.Code) : "";
         if (result.IsSuccess)

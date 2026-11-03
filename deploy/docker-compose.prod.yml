@@ -35,9 +35,10 @@ services:
       # Play App Signing's certificate (Play Console → Setup → App signing): Play-installed builds are signed with it,
       # so invitation links open in them only once it is here (Increment 18). Empty is skipped.
       AppLinks__Sha256CertFingerprints__1: ${APPLINKS_SHA256_PLAY:-}
-      # Billing (Spec 012): the Play Developer API service account (JSON, one line) verifies purchases; without it no
-      # purchase reaches the server. The RTDN token is the ?token= of the Pub/Sub push URL; without it the webhook is off.
-      GooglePlay__CredentialsJson: ${GOOGLE_PLAY_CREDENTIALS_JSON:-}
+      # Billing (Spec 012): the Play Developer API service account (JSON, one line) verifies purchases. The API refuses to
+      # start without it (ADR 0004 §5), and compose refuses before replacing the running container. The RTDN token is the
+      # ?token= of the Pub/Sub push URL; without it the webhook is off and the hourly recheck keeps purchases current.
+      GooglePlay__CredentialsJson: ${GOOGLE_PLAY_CREDENTIALS_JSON:?set GOOGLE_PLAY_CREDENTIALS_JSON in .env}
       Billing__RtdnToken: ${BILLING_RTDN_TOKEN:-}
       # Accounts whose families get Premium without buying (comma-separated emails): the Play reviewers' test account.
       Billing__ComplimentaryEmails: ${BILLING_COMPLIMENTARY_EMAILS:-}

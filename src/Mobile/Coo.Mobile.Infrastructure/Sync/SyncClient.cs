@@ -91,7 +91,7 @@ internal sealed class SyncClient(HttpClient http) : ISyncApi, IConsentApi
                 CareEntry = new CareEntryDto(c.Kind, c.SubjectBabyId, c.SubjectPerson, c.IsSession, c.StartAt, c.EndAt, c.LoggedBy, c.Source,
                     c.SourcePromptVersion, c.Note, Element(c.DetailsJson)),
             },
-            BabyProfilePayload b => dto with { BabyProfile = new BabyProfileDto(b.Name, b.Nicknames, b.BirthDate, b.DueDate) },
+            BabyProfilePayload b => dto with { BabyProfile = new BabyProfileDto(b.Name, b.Nicknames, b.BirthDate, b.DueDate, b.Sex) },
             HouseholdSettingsPayload s => dto with { HouseholdSettings = new HouseholdSettingsDto(s.VolumeUnit, s.TimeZoneId, s.HiddenKinds) },
             DismissalPayload d => dto with { DuplicateDismissal = new DuplicateDismissalDto(d.EntryA, d.EntryB) },
             _ => dto,
@@ -116,7 +116,7 @@ internal sealed class SyncClient(HttpClient http) : ISyncApi, IConsentApi
             SyncEntityTypes.CareEntry when record.CareEntry is { Details.ValueKind: not JsonValueKind.Undefined } c => new CareEntryPayload(
                 c.Kind, c.SubjectBabyId, c.SubjectPerson, c.IsSession, c.StartAt, c.EndAt, c.LoggedBy, c.Source, c.SourcePromptVersion, c.Note,
                 c.Details.GetRawText()),
-            SyncEntityTypes.BabyProfile when record.BabyProfile is { } b => new BabyProfilePayload(b.Name, b.Nicknames ?? [], b.BirthDate, b.DueDate),
+            SyncEntityTypes.BabyProfile when record.BabyProfile is { } b => new BabyProfilePayload(b.Name, b.Nicknames ?? [], b.BirthDate, b.DueDate, b.Sex),
             SyncEntityTypes.HouseholdSettings when record.HouseholdSettings is { } s => new HouseholdSettingsPayload(s.VolumeUnit, s.TimeZoneId, s.HiddenKinds ?? []),
             SyncEntityTypes.DuplicateDismissal when record.DuplicateDismissal is { } d => new DismissalPayload(d.EntryA, d.EntryB),
             _ => null,

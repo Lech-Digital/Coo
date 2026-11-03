@@ -40,6 +40,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IDevicePreferences, DevicePreferences>();
         services.AddSingleton<Coo.Mobile.Application.Notifications.IReminderSettingsStore, ReminderSettingsStore>();
         services.AddSingleton<Coo.Mobile.Application.Growth.IGrowthChartPreference, GrowthChartPreferenceStore>();
+        services.AddSingleton<Coo.Mobile.Application.Preferences.ITourState, TourStateStore>();
         services.AddSingleton<Coo.Mobile.Application.AiLogging.ISpeechLanguagePreference, SpeechLanguagePreferenceStore>();
         services.AddSingleton<IDuplicateDismissalStore, DuplicateDismissalStore>();
 

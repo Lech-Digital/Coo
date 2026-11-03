@@ -4,6 +4,7 @@ using Coo.Codecs;
 using Coo.Contracts.Sync;
 using Coo.Domain.Common;
 using Coo.Domain.Common.Versioning;
+using Coo.Domain.Households;
 using Npgsql;
 using NpgsqlTypes;
 
@@ -228,10 +229,10 @@ internal sealed class SyncStore(NpgsqlDataSource dataSource) : ISyncStore
             case BabyProfileWrite baby:
                 command.CommandText =
                     """
-                    INSERT INTO baby_profiles (id, household_id, name, nicknames, birth_date, due_date, version_wall_ms, version_counter, version_device, is_deleted, seq)
-                    VALUES (@id, @household, @name, @nicknames, @birth, @due, @wall, @counter, @device, false, @seq)
+                    INSERT INTO baby_profiles (id, household_id, name, nicknames, birth_date, due_date, sex, version_wall_ms, version_counter, version_device, is_deleted, seq)
+                    VALUES (@id, @household, @name, @nicknames, @birth, @due, @sex, @wall, @counter, @device, false, @seq)
                     ON CONFLICT (id) DO UPDATE SET name = excluded.name, nicknames = excluded.nicknames, birth_date = excluded.birth_date,
-                        due_date = excluded.due_date, version_wall_ms = excluded.version_wall_ms, version_counter = excluded.version_counter,
+                        due_date = excluded.due_date, sex = coalesce(excluded.sex, baby_profiles.sex), version_wall_ms = excluded.version_wall_ms, version_counter = excluded.version_counter,
                         version_device = excluded.version_device, is_deleted = false, seq = excluded.seq
                     WHERE baby_profiles.household_id = excluded.household_id
                         AND (baby_profiles.version_wall_ms, baby_profiles.version_counter, baby_profiles.version_device)
@@ -242,6 +243,8 @@ internal sealed class SyncStore(NpgsqlDataSource dataSource) : ISyncStore
                 command.Parameters.AddWithValue("nicknames", baby.Baby.Nicknames.ToArray());
                 command.Parameters.AddWithValue("birth", NpgsqlDbType.Date, (object?)baby.Baby.BirthDate ?? DBNull.Value);
                 command.Parameters.AddWithValue("due", NpgsqlDbType.Date, (object?)baby.Baby.DueDate ?? DBNull.Value);
+                // A phone from before 1.9.0 sends no sex: coalesce keeps the one already chosen (the app offers no "unset").
+                command.Parameters.AddWithValue("sex", NpgsqlDbType.Text, (object?)(baby.Baby.Sex switch { BabySex.Girl => "girl", BabySex.Boy => "boy", _ => null }) ?? DBNull.Value);
                 break;
             case HouseholdSettingsWrite settings:
                 command.CommandText =
@@ -381,7 +384,7 @@ internal sealed class SyncStore(NpgsqlDataSource dataSource) : ISyncStore
     {
         await using var command = new NpgsqlCommand(
             """
-            SELECT id, name, nicknames, birth_date, due_date, version_wall_ms, version_counter, version_device, is_deleted, seq
+            SELECT id, name, nicknames, birth_date, due_date, version_wall_ms, version_counter, version_device, is_deleted, seq, sex
             FROM baby_profiles WHERE household_id = @h AND seq > @cursor ORDER BY seq LIMIT @limit;
             """, connection, transaction);
         AddPage(command, household, cursor, limit);
@@ -390,7 +393,8 @@ internal sealed class SyncStore(NpgsqlDataSource dataSource) : ISyncStore
         while (await r.ReadAsync(cancellationToken))
         {
             var payload = new BabyProfilePayload(
-                r.GetString(1), r.GetFieldValue<string[]>(2), r.IsDBNull(3) ? null : r.GetFieldValue<DateOnly>(3), r.IsDBNull(4) ? null : r.GetFieldValue<DateOnly>(4));
+                r.GetString(1), r.GetFieldValue<string[]>(2), r.IsDBNull(3) ? null : r.GetFieldValue<DateOnly>(3), r.IsDBNull(4) ? null : r.GetFieldValue<DateOnly>(4),
+                r.IsDBNull(10) ? null : r.GetString(10));
             list.Add(new PulledRecord(SyncEntityTypes.BabyProfile, r.GetGuid(0), Stamp(r, 5), r.GetBoolean(8), r.GetInt64(9), payload));
         }
 

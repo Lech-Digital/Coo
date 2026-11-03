@@ -460,5 +460,8 @@ public sealed class ParseCareLogTextTests
         public Task<Subscription?> FindSubscriptionAsync(string purchaseToken, CancellationToken cancellationToken) => Task.FromResult<Subscription?>(null);
 
         public Task<bool> IsHouseholdPremiumAsync(HouseholdId householdId, CancellationToken cancellationToken) => Task.FromResult(false);
+
+        public Task<IReadOnlyList<Subscription>> ListDueForRecheckAsync(DateTime now, int limit, CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlyList<Subscription>>([]);
     }
 }

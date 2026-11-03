@@ -8,12 +8,12 @@ namespace Coo.Mobile.Application.Households;
 public sealed class SetUpBaby(IHouseholdStore households, IVersionClock clock, TimeProvider time)
 {
     public async Task<Result<BabyProfile>> ExecuteAsync(
-        HouseholdId household, string name, DateOnly? birthDate, DateOnly? dueDate, CancellationToken cancellationToken)
+        HouseholdId household, string name, DateOnly? birthDate, DateOnly? dueDate, BabySex? sex, CancellationToken cancellationToken)
     {
         var now = time.GetLocalNow();
         var created = BabyProfile.Create(
             new BabyId(Guid.CreateVersion7(time.GetUtcNow())), household, name, [], birthDate, dueDate,
-            await clock.NextAsync(cancellationToken), DateOnly.FromDateTime(now.DateTime));
+            await clock.NextAsync(cancellationToken), DateOnly.FromDateTime(now.DateTime), sex);
 
         if (created.IsSuccess)
             await households.SaveBabyAsync(created.Value, cancellationToken);

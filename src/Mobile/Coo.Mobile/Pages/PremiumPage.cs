@@ -9,9 +9,13 @@ public sealed class PremiumPage : ContentPage
     private readonly PremiumViewModel _model;
     private readonly ContentView _body = new();
 
-    public PremiumPage(PremiumViewModel model)
+    public PremiumPage(PremiumViewModel model, IServiceProvider services)
     {
         _model = model;
+        // Buying needs a signed-in parent: Settings' sign-in, run from here, then the purchase carries on.
+        _model.SignInAsync = async () =>
+            await services.GetRequiredService<Coo.Mobile.Application.Auth.SignIn>().ExecuteAsync(CancellationToken.None)
+                == Coo.Mobile.Application.Auth.SignInResult.SignedIn;
         Shell.SetNavBarIsVisible(this, false);
         
         var root = new Grid();
@@ -65,7 +69,7 @@ public sealed class PremiumPage : ContentPage
         var intro = !_model.IsPremium ? "Premium.Pitch" : _model.IsLifetime ? "Premium.LifetimeActive" : "Premium.Active";
         stack.Add(Ui.Text(Strings.Get(intro), _model.IsPremium ? "BodyStrong" : "Body"));
         var benefits = new VerticalStackLayout { Spacing = 10 };
-        foreach (var key in new[] { "Premium.Benefit.Advisor", "Premium.Benefit.Avatar", "Premium.Benefit.Family", "Premium.Benefit.Support" })
+        foreach (var key in new[] { "Premium.Benefit.Naps", "Premium.Benefit.TellCoo", "Premium.Benefit.Advisor", "Premium.Benefit.Avatar", "Premium.Benefit.Family", "Premium.Benefit.Support" })
         {
             var row = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 10 };
             row.Add(Ui.Text("✓", "BodyStrong", "Accent"), 0);
@@ -77,14 +81,26 @@ public sealed class PremiumPage : ContentPage
 
         if (_model.IsPremium && !_model.IsLifetime)
         {
-            var manage = Ui.Rounded(Ui.Text(Strings.Get("Premium.Manage"), "BodyStrong").Tap(l => l.HorizontalOptions = LayoutOptions.Center), "Surface", 8, new Thickness(16), "Line");
-            manage.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await Launcher.Default.OpenAsync(ManageUri)) });
-            stack.Add(manage);
+            // Only the payer's own Google account has the subscription to manage; everyone else is told who has it.
+            if (_model.IsPayer)
+            {
+                var manage = Ui.Rounded(Ui.Text(Strings.Get("Premium.Manage"), "BodyStrong").Tap(l => l.HorizontalOptions = LayoutOptions.Center), "Surface", 8, new Thickness(16), "Line");
+                manage.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await Launcher.Default.OpenAsync(ManageUri)) });
+                stack.Add(manage);
+            }
+            else
+            {
+                stack.Add(Ui.Text(Strings.Get("Premium.ViaFamily"), "Meta", "Ink2"));
+            }
 #if DEBUG
             var expireButton = Ui.Rounded(Ui.Text("DEV: Expire Premium", "BodyStrong", "Ground").Tap(l => l.HorizontalOptions = LayoutOptions.Center), "AccentInk", 8, new Thickness(16));
             expireButton.GestureRecognizers.Add(new TapGestureRecognizer { Command = _model.DevExpireCommand });
             stack.Add(expireButton);
 #endif
+        }
+        else if (!_model.IsPremium && !_model.CanBuy)
+        {
+            stack.Add(Ui.Text(Strings.Get("Premium.OnlyParents"), "Body", "Ink2"));
         }
         else if (!_model.IsPremium)
         {
@@ -97,12 +113,23 @@ public sealed class PremiumPage : ContentPage
                 var button = Ui.Rounded(Ui.Text(_model.BuyLabel, "BodyStrong", "Ground").Tap(l => l.HorizontalOptions = LayoutOptions.Center), "Accent", 8, new Thickness(16));
                 button.GestureRecognizers.Add(new TapGestureRecognizer { Command = _model.PurchaseCommand });
                 stack.Add(button);
-                stack.Add(Ui.Text(_model.Terms, "Meta", "Ink2"));
+                stack.Add(Ui.Text(_model.IsSignedIn ? _model.Terms : Strings.Get("Premium.SignInWhy"), "Meta", "Ink2"));
             }
         }
 
+        if (!string.IsNullOrEmpty(_model.Notice))
+            stack.Add(Ui.Text(_model.Notice, "Body", "Ink"));
         if (!string.IsNullOrEmpty(_model.Error))
             stack.Add(Ui.Text(_model.Error, "Body", "AccentInk"));
+
+        // Bought on another phone, or before a reinstall: Play's purchases on this account, read again.
+        if (!_model.IsPremium && _model.IsSignedIn)
+        {
+            var restore = Ui.Text(Strings.Get("Premium.Restore"), "Meta", "Accent");
+            restore.Padding = new Thickness(0, 8);
+            restore.GestureRecognizers.Add(new TapGestureRecognizer { Command = _model.RestoreCommand });
+            stack.Add(restore);
+        }
 
         _body.Content = stack;
     }

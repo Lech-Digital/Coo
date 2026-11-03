@@ -19,6 +19,11 @@ public sealed class SetupPage : ContentPage
         nameEntry.SetDynamicResource(Entry.PlaceholderColorProperty, "Ink2");
         var name = Ui.Rounded(nameEntry, "Surface", 12, new Thickness(16, 4), "Line");
 
+        // Girl or boy, once, with the baby: the growth chart's standard, shared with the family. Optional.
+        var girl = Choice(Strings.Get("Baby.Girl"), () => model.ChooseSexCommand.Execute(Coo.Domain.Households.BabySex.Girl));
+        var boy = Choice(Strings.Get("Baby.Boy"), () => model.ChooseSexCommand.Execute(Coo.Domain.Households.BabySex.Boy));
+        var sexHint = Ui.Text(Strings.Get("Baby.SexHint"), "Meta", "Ink2");
+
         var birthPicker = DatePicker(nameof(SetupViewModel.BirthDate), max: model.Today);
         var birth = Ui.Rounded(birthPicker, "Surface", 12, new Thickness(16, 4), "Line");
         var bornEarly = new HorizontalStackLayout { Spacing = 8 };
@@ -64,6 +69,9 @@ public sealed class SetupPage : ContentPage
                 new HorizontalStackLayout { Spacing = 8, Children = { yes, notYet } },
                 Ui.Text(Strings.Get("Setup.Name"), "Label"),
                 name,
+                Ui.Text(Strings.Get("Baby.Sex"), "Label"),
+                new HorizontalStackLayout { Spacing = 8, Children = { girl, boy } },
+                sexHint,
                 birthLabel,
                 birth,
                 bornEarly,
@@ -79,6 +87,8 @@ public sealed class SetupPage : ContentPage
         {
             yes.SetDynamicResource(VisualElement.StyleProperty, model.HasArrived ? "PrimaryButton" : "GhostButton");
             notYet.SetDynamicResource(VisualElement.StyleProperty, model.HasArrived ? "GhostButton" : "PrimaryButton");
+            girl.SetDynamicResource(VisualElement.StyleProperty, model.Sex == Coo.Domain.Households.BabySex.Girl ? "PrimaryButton" : "GhostButton");
+            boy.SetDynamicResource(VisualElement.StyleProperty, model.Sex == Coo.Domain.Households.BabySex.Boy ? "PrimaryButton" : "GhostButton");
             birthLabel.IsVisible = birth.IsVisible = bornEarly.IsVisible = model.HasArrived;
             dueLabel.IsVisible = due.IsVisible = !model.HasArrived || model.BornEarly;
             signIn.IsVisible = model.CanSignIn && !model.IsFetching;

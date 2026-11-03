@@ -22,7 +22,8 @@ public sealed record CareEntryPayload(
     string Kind, Guid? SubjectBabyId, string? SubjectPerson, bool IsSession, DateTimeOffset StartAt, DateTimeOffset? EndAt,
     string LoggedBy, string Source, string? SourcePromptVersion, string? Note, string DetailsJson) : ChangePayload;
 
-public sealed record BabyProfilePayload(string Name, IReadOnlyList<string> Nicknames, DateOnly? BirthDate, DateOnly? DueDate) : ChangePayload;
+/// <param name="Sex">"girl" or "boy"; null when not chosen, or from a phone from before 1.9.0.</param>
+public sealed record BabyProfilePayload(string Name, IReadOnlyList<string> Nicknames, DateOnly? BirthDate, DateOnly? DueDate, string? Sex = null) : ChangePayload;
 
 public sealed record HouseholdSettingsPayload(string VolumeUnit, string TimeZoneId, IReadOnlyList<string> HiddenKinds) : ChangePayload;
 

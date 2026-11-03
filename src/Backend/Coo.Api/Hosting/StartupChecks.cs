@@ -180,4 +180,22 @@ internal static class StartupChecks
             ? number
             : throw new InvalidOperationException($"{key} is '{value}': it must be a positive whole number.");
     }
+
+    public const string PlayCredentialsKey = "GooglePlay:CredentialsJson";
+    public const string RtdnTokenKey = "Billing:RtdnToken";
+
+    /// <summary>
+    /// The Play Developer API key (ADR 0004 §5, fail closed): Production refuses to start without it, since without it no
+    /// purchase is ever recorded and paying families quietly get nothing. Elsewhere it may be missing, and every purchase
+    /// check answers "unavailable".
+    /// </summary>
+    public static void RequirePlayCredentials(string? credentialsJson, bool isProduction)
+    {
+        if (isProduction && string.IsNullOrWhiteSpace(credentialsJson))
+        {
+            throw new InvalidOperationException(
+                $"{PlayCredentialsKey} is not set. In production it comes from /opt/coo/.env (GOOGLE_PLAY_CREDENTIALS_JSON, the "
+                + "coo-play-billing service account's key on one line) through deploy/docker-compose.prod.yml (DEPLOY.md, \"Billing\").");
+        }
+    }
 }

@@ -132,6 +132,26 @@ Check after a deploy:
 
 Expected: the JSON lists `com.lechdigital.coo` with the fingerprint; `1`.
 
+## Billing (ADR 0004)
+
+- `GOOGLE_PLAY_CREDENTIALS_JSON` in `/opt/coo/.env`: the `coo-play-billing@coo-app-510411` service account's key, as one
+  line (`jq -c . coo-play-billing.json`). **The API refuses to start without it**, and compose refuses before it touches
+  the running container. In Play Console → Users and permissions, the account needs **View financial data** (to read
+  purchases) and **Manage orders and subscriptions** (to acknowledge them; without it Google refunds every purchase after
+  three days).
+- `BILLING_RTDN_TOKEN`: the `?token=` of the Pub/Sub push subscription. Set up once:
+  1. Google Cloud (project `coo-app-510411`) → Pub/Sub → topic `play-billing`; grant
+     `google-play-developer-notifications@system.gserviceaccount.com` the **Pub/Sub Publisher** role on it.
+  2. A **push** subscription on it to `https://api.coo.lechdigital.nl/api/billing/rtdn?token=<BILLING_RTDN_TOKEN>`.
+  3. Play Console → CooApp → Monetisation setup → Real-time developer notifications: topic
+     `projects/coo-app-510411/topics/play-billing`, "Subscriptions, voided purchases and all one-time products"; then
+     **Send test notification** and look for a 200 in the Pub/Sub subscription's metrics.
+
+  Without it the webhook answers 401 and the API logs a warning at start; the hourly recheck (`PurchaseRecheckJob`)
+  still re-reads every purchase that is about to run out, ran out lately, is new or was not checked for a day, so
+  renewals and refunds arrive within an hour or a day instead of seconds.
+- `BILLING_COMPLIMENTARY_EMAILS`: accounts whose families get Premium without buying (the Play reviewers' account).
+
 ## First deployment: the Caddy block (once)
 
 On the very first deploy, `deploy-prod.sh` ends with `DEPLOY FAILED`: its health check goes through Caddy, which has

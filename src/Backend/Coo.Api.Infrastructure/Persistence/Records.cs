@@ -145,6 +145,9 @@ internal sealed class BabyProfileRecord
 
     public DateOnly? DueDate { get; init; }
 
+    /// <summary>"girl" or "boy", for the growth chart; null until chosen.</summary>
+    public string? Sex { get; init; }
+
     public required long VersionWallMs { get; init; }
 
     public required int VersionCounter { get; init; }

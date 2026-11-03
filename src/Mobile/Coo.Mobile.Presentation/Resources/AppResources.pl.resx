@@ -99,13 +99,30 @@
   <data name="Avatar.Preset" xml:space="preserve"><value>Wybierz ilustrację</value></data>
   <data name="Avatar.Remove" xml:space="preserve"><value>Usuń zdjęcie</value></data>
   <data name="Avatar.Title" xml:space="preserve"><value>Zdjęcie dziecka</value></data>
+  <data name="Averages.Bottles" xml:space="preserve"><value>Butelki dziennie: {0}{1}</value></data>
+  <data name="Averages.Breastfeeds" xml:space="preserve"><value>{0} piersią, średnio po {1}</value></data>
+  <data name="Averages.Diapers" xml:space="preserve"><value>Pieluchy</value></data>
+  <data name="Averages.Each" xml:space="preserve"><value>, średnio {0} każda</value></data>
+  <data name="Averages.Feeds" xml:space="preserve"><value>Karmienia</value></data>
+  <data name="Averages.LastDays" xml:space="preserve"><value>Ostatnie {0} dni</value></data>
+  <data name="Averages.Longest" xml:space="preserve"><value>najdłuższy sen {0}</value></data>
+  <data name="Averages.Milk" xml:space="preserve"><value>Mleko z butelki</value></data>
+  <data name="Averages.Nothing" xml:space="preserve"><value>Nic nie zapisano w ostatnich {0} dniach.</value></data>
+  <data name="Averages.Pumped" xml:space="preserve"><value>Odciągnięte</value></data>
+  <data name="Averages.Sleep" xml:space="preserve"><value>Sen</value></data>
+  <data name="Averages.Title" xml:space="preserve"><value>Przeciętnego dnia</value></data>
   <data name="Awake.Hint" xml:space="preserve"><value>Przy karmieniu przez sen lub sennej zmianie pieluchy wybierz „Nadal śpi”.</value></data>
   <data name="Awake.StillAsleep" xml:space="preserve"><value>Nadal śpi</value></data>
   <data name="Awake.Title" xml:space="preserve"><value>{0} śpi</value></data>
   <data name="Awake.WokeUp" xml:space="preserve"><value>Pobudka</value></data>
+  <data name="Baby.Boy" xml:space="preserve"><value>Chłopiec</value></data>
+  <data name="Baby.Girl" xml:space="preserve"><value>Dziewczynka</value></data>
   <data name="Baby.Nicknames" xml:space="preserve"><value>Inne imiona, których używacie</value></data>
   <data name="Baby.NicknamesHint" xml:space="preserve"><value>Do 5, oddzielone przecinkami</value></data>
+  <data name="Baby.Sex" xml:space="preserve"><value>Dziewczynka czy chłopiec?</value></data>
+  <data name="Baby.SexHint" xml:space="preserve"><value>Do siatki centylowej: dziewczynki i chłopcy rosną według innych krzywych. Możesz to pominąć.</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Witaj, {0}</value></data>
+  <data name="Bottle.Last" xml:space="preserve"><value>Ostatnia butelka {0}</value></data>
   <data name="BringOver.AddNew" xml:space="preserve"><value>Dodaj jako nowe dziecko</value></data>
   <data name="BringOver.Bring" xml:space="preserve"><value>Przenieś moje wpisy</value></data>
   <data name="BringOver.ChooseTarget" xml:space="preserve"><value>Do której rodziny przenieść wpisy?</value></data>
@@ -338,9 +355,13 @@
   <data name="Family.WithdrawConfirm" xml:space="preserve"><value>Wycofać to zaproszenie? Link i kod przestaną działać.</value></data>
   <data name="Family.You" xml:space="preserve"><value>{0} (ty)</value></data>
   <data name="Family.Yours" xml:space="preserve"><value>Twoja rodzina</value></data>
+  <data name="Feed.Ago" xml:space="preserve"><value>{0} temu</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Butelka</value></data>
   <data name="Feed.BreastHint" xml:space="preserve"><value>Uruchamia stoper dla tej strony</value></data>
+  <data name="Feed.JustNow" xml:space="preserve"><value>przed chwilą</value></data>
+  <data name="Feed.LastFeed" xml:space="preserve"><value>Ostatnie karmienie {0}</value></data>
   <data name="Feed.Left" xml:space="preserve"><value>Lewa</value></data>
+  <data name="Feed.Next" xml:space="preserve"><value>Teraz ta</value></data>
   <data name="Feed.Right" xml:space="preserve"><value>Prawa</value></data>
   <data name="Growth.Add" xml:space="preserve"><value>Dodaj pomiar</value></data>
   <data name="Growth.Boys" xml:space="preserve"><value>Chłopcy</value></data>
@@ -493,13 +514,18 @@ Jeśli link nie otworzy Coo, przejdź w Coo do Ustawienia → Rodzina → Dołą
   <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Do 100 pytań do Doradcy dziennie (3 bez Premium), z odpowiedziami opartymi na Waszym dzienniku</value></data>
   <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Ilustrowany awatar dziecka, narysowany na podstawie zdjęcia</value></data>
   <data name="Premium.Benefit.Family" xml:space="preserve"><value>Jeden zakup obejmuje całą rodzinę</value></data>
+  <data name="Premium.Benefit.Naps" xml:space="preserve"><value>Własne pory drzemek Twojego dziecka, wyliczone z zapisanych snów, i przypomnienie przed kolejną drzemką</value></data>
   <data name="Premium.Benefit.Support" xml:space="preserve"><value>Pozwala Coo pozostać niezależnym i bez reklam</value></data>
+  <data name="Premium.Benefit.TellCoo" xml:space="preserve"><value>Mów Coo, co się wydarzyło, do 100 razy dziennie, w tym 60 razy głosem (5 bez Premium)</value></data>
   <data name="Premium.BuyLifetime" xml:space="preserve"><value>Kup raz</value></data>
   <data name="Premium.LifetimeActive" xml:space="preserve"><value>Masz Coo Premium na zawsze. Dziękujemy!</value></data>
   <data name="Premium.LifetimeTerms" xml:space="preserve"><value>Jedna płatność, bez odnawiania. Premium zostaje z Twoją rodziną na zawsze.</value></data>
   <data name="Premium.Loading" xml:space="preserve"><value>Wczytywanie…</value></data>
   <data name="Premium.Manage" xml:space="preserve"><value>Zarządzaj subskrypcją</value></data>
+  <data name="Premium.NothingToRestore" xml:space="preserve"><value>Na tym koncie Google nie znaleziono zakupu Coo Premium.</value></data>
   <data name="Premium.Once" xml:space="preserve"><value>{0}, jednorazowo</value></data>
+  <data name="Premium.OnlyParents" xml:space="preserve"><value>Premium może kupić rodzic w Twojej rodzinie; wtedy ma je cała rodzina.</value></data>
+  <data name="Premium.Pending" xml:space="preserve"><value>Google Play czeka na płatność. Premium zacznie działać, gdy tylko zostanie opłacone.</value></data>
   <data name="Premium.PerMonth" xml:space="preserve"><value>{0} / miesiąc</value></data>
   <data name="Premium.PerYear" xml:space="preserve"><value>{0} / rok</value></data>
   <data name="Premium.Pitch" xml:space="preserve"><value>Zapisywanie, synchronizacja i udostępnianie rodzinie pozostają bezpłatne. Premium dodaje:</value></data>
@@ -508,11 +534,15 @@ Jeśli link nie otworzy Coo, przejdź w Coo do Ustawienia → Rodzina → Dołą
   <data name="Premium.Plan.Yearly" xml:space="preserve"><value>Rocznie</value></data>
   <data name="Premium.Price" xml:space="preserve"><value>{0}, odnawia się automatycznie. Anuluj w dowolnym momencie w Google Play.</value></data>
   <data name="Premium.PurchaseFailed" xml:space="preserve"><value>Zakup się nie udał. Spróbuj ponownie.</value></data>
+  <data name="Premium.Restore" xml:space="preserve"><value>Przywróć zakupy</value></data>
   <data name="Premium.Save" xml:space="preserve"><value>Oszczędzasz {0}%</value></data>
+  <data name="Premium.SignInToBuy" xml:space="preserve"><value>Zaloguj się, aby kupić</value></data>
+  <data name="Premium.SignInWhy" xml:space="preserve"><value>Najpierw zaloguj się przez Google: wtedy Premium należy do Twojej rodziny, na każdym jej telefonie.</value></data>
   <data name="Premium.StartTrial" xml:space="preserve"><value>Wypróbuj 7 dni za darmo</value></data>
   <data name="Premium.Subscribe" xml:space="preserve"><value>Subskrybuj</value></data>
   <data name="Premium.Title" xml:space="preserve"><value>Coo Premium</value></data>
   <data name="Premium.TrialTerms" xml:space="preserve"><value>Za darmo przez 7 dni, potem {0}. Odnawia się automatycznie; anuluj w Google Play przed końcem okresu próbnego, a nic nie zapłacisz.</value></data>
+  <data name="Premium.ViaFamily" xml:space="preserve"><value>Premium kupił ktoś z Twojej rodziny. Ta osoba może je zmienić lub anulować w Google Play.</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Ile?</value></data>
   <data name="Quick.Action.BreastStop" xml:space="preserve"><value>Karmienie zakończone</value></data>
   <data name="Quick.Action.PumpStop" xml:space="preserve"><value>Odciąganie zakończone</value></data>
@@ -718,6 +748,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Solids.None" xml:space="preserve"><value>Nic szczególnego</value></data>
   <data name="Solids.Reaction" xml:space="preserve"><value>Reakcja</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statystyki</value></data>
+  <data name="Stats.Trends" xml:space="preserve"><value>Trendy</value></data>
   <data name="Summary.Hint" xml:space="preserve"><value>Doradca porównuje ten tydzień z poprzednim: sen, karmienia, pieluchy i to, co warto zauważyć.</value></data>
   <data name="Summary.Prompt" xml:space="preserve"><value>Napisz krótkie podsumowanie tygodnia dziecka dla zmęczonego rodzica: jak ten tydzień wypada na tle poprzedniego pod względem snu, karmień i pieluch, co ważne w zdrowiu lub wzroście, oraz jedną łagodną, praktyczną wskazówkę. Cztery do sześciu zdań, ciepło i prosto, bez nagłówków i list. Korzystaj tylko z dziennika.</value></data>
   <data name="Summary.Title" xml:space="preserve"><value>Ten tydzień w kilku słowach</value></data>
@@ -765,6 +796,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Today.BedDue" xml:space="preserve"><value>Pora spania jest teraz prawdopodobna</value></data>
   <data name="Today.BedLikely" xml:space="preserve"><value>Pora spania prawdopodobnie {0}–{1}</value></data>
   <data name="Today.DailyProgress" xml:space="preserve"><value>Postęp dnia</value></data>
+  <data name="Today.FedJustNow" xml:space="preserve"><value>Karmienie przed chwilą</value></data>
   <data name="Today.NapDue" xml:space="preserve"><value>Drzemka jest teraz prawdopodobna</value></data>
   <data name="Today.NapLearning" xml:space="preserve"><value>Zapisuj jeszcze kilka dni, by dostać osobistą podpowiedź.</value></data>
   <data name="Today.NapLikely" xml:space="preserve"><value>Drzemka prawdopodobnie {0}–{1}</value></data>
@@ -792,6 +824,31 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedMl" xml:space="preserve"><value>ml odciągnięte</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz odciągnięte</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>snu</value></data>
+  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Pytaj o sen, karmienie i rozwój. Odpowiedzi uwzględniają dziennik dziecka. Informacje ogólne, nie porada lekarska.</value></data>
+  <data name="Tour.Advisor.Title" xml:space="preserve"><value>Doradca</value></data>
+  <data name="Tour.Diapers.Body" xml:space="preserve"><value>Mokra lub brudna jednym dotknięciem, z dziennym licznikiem. Kąpiele, czas na brzuszku i kamienie milowe są w Wcześniej…, gdzie zapiszesz też to, co już było.</value></data>
+  <data name="Tour.Diapers.Title" xml:space="preserve"><value>Pieluchy, kąpiele i kamienie milowe</value></data>
+  <data name="Tour.Done" xml:space="preserve"><value>Gotowe</value></data>
+  <data name="Tour.Family.Body" xml:space="preserve"><value>Zaloguj się w Ustawieniach i zaproś partnera, nianię lub dziadków. Wpisy synchronizują się między telefonami w kilka sekund, a aplikacja działa offline.</value></data>
+  <data name="Tour.Family.Title" xml:space="preserve"><value>Wspólny dziennik</value></data>
+  <data name="Tour.Feeding.Body" xml:space="preserve"><value>Dotknij Karmienie: Lewa lub Prawa włącza stoper karmienia piersią, z pauzami i zmianą strony. Butelki w ml lub oz, laktator z ilością i rozszerzanie diety.</value></data>
+  <data name="Tour.Feeding.Title" xml:space="preserve"><value>Karmienie</value></data>
+  <data name="Tour.Growth.Body" xml:space="preserve"><value>Waga, długość i obwód głowy na siatkach centylowych WHO, z centylami. Leki, temperatura i szczepienia w Zdrowie; zdjęcie książeczki je uzupełni.</value></data>
+  <data name="Tour.Growth.Title" xml:space="preserve"><value>Wzrost i zdrowie</value></data>
+  <data name="Tour.LogFaster.Body" xml:space="preserve"><value>Powiedz Coo: „120 ml mleka modyfikowanego o drugiej” i sprawdź przed zapisaniem. Widżety i pasek powiadomień zapisują i zatrzymują stopery; przypomnienia o karmieniu, pieluchach i lekach.</value></data>
+  <data name="Tour.LogFaster.Title" xml:space="preserve"><value>Szybsze zapisywanie</value></data>
+  <data name="Tour.Next" xml:space="preserve"><value>Następna wskazówka</value></data>
+  <data name="Tour.Position" xml:space="preserve"><value>{0} z {1}</value></data>
+  <data name="Tour.Previous" xml:space="preserve"><value>Poprzednia wskazówka</value></data>
+  <data name="Tour.Skip" xml:space="preserve"><value>Pomiń</value></data>
+  <data name="Tour.Sleep.Body" xml:space="preserve"><value>Dotknij Sen, by mierzyć drzemki i sen nocny. Dziś pokazuje okno aktywności dla wieku dziecka i kiedy prawdopodobna jest kolejna drzemka.</value></data>
+  <data name="Tour.Sleep.Title" xml:space="preserve"><value>Sen dziecka</value></data>
+  <data name="Tour.Start" xml:space="preserve"><value>Zaczynamy</value></data>
+  <data name="Tour.Stats.Body" xml:space="preserve"><value>Przeciętny dzień z 7, 14 lub 30 dni: mleko dziennie i na butelkę, karmienia, sen i pieluchy. Trendy i raport PDF dla pediatry.</value></data>
+  <data name="Tour.Stats.Title" xml:space="preserve"><value>Statystyki</value></data>
+  <data name="Tour.Title" xml:space="preserve"><value>Jak działa Coo</value></data>
+  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Zapisuj karmienie piersią, butelki, sen, pieluchy i laktator, śledź wzrost dziecka i dziel się dziennikiem z rodziną. Działa offline; na start nie potrzeba konta.</value></data>
+  <data name="Tour.Welcome.Title" xml:space="preserve"><value>Witaj w Coo</value></data>
   <data name="Trend.Average" xml:space="preserve"><value>średnio {0}</value></data>
   <data name="Trend.Bottle" xml:space="preserve"><value>Butelka na dobę</value></data>
   <data name="Trend.BreastFeed" xml:space="preserve"><value>Długość karmienia piersią</value></data>

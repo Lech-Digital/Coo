@@ -87,6 +87,9 @@ public sealed class BabyPage : ContentPage
         var avatarHero = BuildAvatarHero();
         var name = TextEntry(nameof(BabyProfileViewModel.Name), Strings.Get("Setup.Name"));
 
+        var girl = new Button { Text = Strings.Get("Baby.Girl"), Command = _model.ChooseSexCommand, CommandParameter = Coo.Domain.Households.BabySex.Girl };
+        var boy = new Button { Text = Strings.Get("Baby.Boy"), Command = _model.ChooseSexCommand, CommandParameter = Coo.Domain.Households.BabySex.Boy };
+
         var birthLabel = Ui.Text(Strings.Get("Setup.BirthDate"), "Label");
         var birth = DatePicker(nameof(BabyProfileViewModel.BirthDate), max: _model.Today);
         var early = new CheckBox();
@@ -103,13 +106,15 @@ public sealed class BabyPage : ContentPage
 
         void Sync()
         {
+            girl.SetDynamicResource(VisualElement.StyleProperty, _model.Sex == Coo.Domain.Households.BabySex.Girl ? "PrimaryButton" : "GhostButton");
+            boy.SetDynamicResource(VisualElement.StyleProperty, _model.Sex == Coo.Domain.Households.BabySex.Boy ? "PrimaryButton" : "GhostButton");
             birthLabel.IsVisible = birth.IsVisible = bornEarly.IsVisible = _model.IsBorn;
             dueLabel.IsVisible = due.IsVisible = !_model.IsBorn || _model.HasDueDate;
         }
 
         _model.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName is nameof(BabyProfileViewModel.HasDueDate) or nameof(BabyProfileViewModel.IsBorn))
+            if (e.PropertyName is nameof(BabyProfileViewModel.HasDueDate) or nameof(BabyProfileViewModel.IsBorn) or nameof(BabyProfileViewModel.Sex))
                 Sync();
             if (e.PropertyName is nameof(BabyProfileViewModel.AvatarRef))
                 RebuildAvatarHero(avatarHero);
@@ -126,6 +131,9 @@ public sealed class BabyPage : ContentPage
                 avatarHero,
                 Ui.Text(Strings.Get("Setup.Name"), "Label").Tap(l => l.Margin = new Thickness(0, 8, 0, 0)),
                 name,
+                Ui.Text(Strings.Get("Baby.Sex"), "Label"),
+                new HorizontalStackLayout { Spacing = 8, Children = { girl, boy } },
+                Ui.Text(Strings.Get("Baby.SexHint"), "Meta", "Ink2"),
                 birthLabel,
                 birth,
                 bornEarly,

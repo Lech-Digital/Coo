@@ -94,13 +94,30 @@
   <data name="Avatar.Preset" xml:space="preserve"><value>Kies een illustratie</value></data>
   <data name="Avatar.Remove" xml:space="preserve"><value>Foto verwijderen</value></data>
   <data name="Avatar.Title" xml:space="preserve"><value>Foto van de baby</value></data>
+  <data name="Averages.Bottles" xml:space="preserve"><value>Flessen per dag: {0}{1}</value></data>
+  <data name="Averages.Breastfeeds" xml:space="preserve"><value>{0} aan de borst, gemiddeld {1}</value></data>
+  <data name="Averages.Diapers" xml:space="preserve"><value>Luiers</value></data>
+  <data name="Averages.Each" xml:space="preserve"><value>, zo’n {0} per fles</value></data>
+  <data name="Averages.Feeds" xml:space="preserve"><value>Voedingen</value></data>
+  <data name="Averages.LastDays" xml:space="preserve"><value>Laatste {0} dagen</value></data>
+  <data name="Averages.Longest" xml:space="preserve"><value>langste periode {0}</value></data>
+  <data name="Averages.Milk" xml:space="preserve"><value>Melk uit de fles</value></data>
+  <data name="Averages.Nothing" xml:space="preserve"><value>Niets gelogd in de laatste {0} dagen.</value></data>
+  <data name="Averages.Pumped" xml:space="preserve"><value>Gekolfd</value></data>
+  <data name="Averages.Sleep" xml:space="preserve"><value>Slaap</value></data>
+  <data name="Averages.Title" xml:space="preserve"><value>Op een gemiddelde dag</value></data>
   <data name="Awake.Hint" xml:space="preserve"><value>Bij een droomvoeding of een slaperige verschoning kies je ‘Slaapt nog’.</value></data>
   <data name="Awake.StillAsleep" xml:space="preserve"><value>Slaapt nog</value></data>
   <data name="Awake.Title" xml:space="preserve"><value>{0} slaapt</value></data>
   <data name="Awake.WokeUp" xml:space="preserve"><value>Wakker</value></data>
+  <data name="Baby.Boy" xml:space="preserve"><value>Jongen</value></data>
+  <data name="Baby.Girl" xml:space="preserve"><value>Meisje</value></data>
   <data name="Baby.Nicknames" xml:space="preserve"><value>Andere namen die jullie gebruiken</value></data>
   <data name="Baby.NicknamesHint" xml:space="preserve"><value>Maximaal 5, gescheiden door komma’s</value></data>
+  <data name="Baby.Sex" xml:space="preserve"><value>Meisje of jongen?</value></data>
+  <data name="Baby.SexHint" xml:space="preserve"><value>Voor de groeicurve: meisjes en jongens groeien volgens andere curves. Je kunt dit overslaan.</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Welkom, {0}</value></data>
+  <data name="Bottle.Last" xml:space="preserve"><value>Laatste fles {0}</value></data>
   <data name="BringOver.AddNew" xml:space="preserve"><value>Toevoegen als nieuwe baby</value></data>
   <data name="BringOver.Bring" xml:space="preserve"><value>Mijn items overzetten</value></data>
   <data name="BringOver.ChooseTarget" xml:space="preserve"><value>Items naar welk gezin overzetten?</value></data>
@@ -324,9 +341,13 @@
   <data name="Family.WithdrawConfirm" xml:space="preserve"><value>Deze uitnodiging intrekken? De link en de code werken dan niet meer.</value></data>
   <data name="Family.You" xml:space="preserve"><value>{0} (jij)</value></data>
   <data name="Family.Yours" xml:space="preserve"><value>Je gezin</value></data>
+  <data name="Feed.Ago" xml:space="preserve"><value>{0} geleden</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Fles</value></data>
   <data name="Feed.BreastHint" xml:space="preserve"><value>Start een timer aan die kant</value></data>
+  <data name="Feed.JustNow" xml:space="preserve"><value>zojuist</value></data>
+  <data name="Feed.LastFeed" xml:space="preserve"><value>Laatste voeding {0}</value></data>
   <data name="Feed.Left" xml:space="preserve"><value>Links</value></data>
+  <data name="Feed.Next" xml:space="preserve"><value>Volgende</value></data>
   <data name="Feed.Right" xml:space="preserve"><value>Rechts</value></data>
   <data name="Growth.Add" xml:space="preserve"><value>Meting toevoegen</value></data>
   <data name="Growth.Boys" xml:space="preserve"><value>Jongens</value></data>
@@ -473,13 +494,18 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Tot 100 vragen per dag aan de Adviseur (3 zonder Premium), met antwoorden die je logboek kennen</value></data>
   <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Een getekende avatar van je baby, gemaakt van een foto</value></data>
   <data name="Premium.Benefit.Family" xml:space="preserve"><value>Eén aankoop geldt voor je hele gezin</value></data>
+  <data name="Premium.Benefit.Naps" xml:space="preserve"><value>De eigen dutjestijden van je baby, geleerd van de slaap die je logt, en een herinnering vóór het volgende dutje</value></data>
   <data name="Premium.Benefit.Support" xml:space="preserve"><value>Houdt Coo onafhankelijk en reclamevrij</value></data>
+  <data name="Premium.Benefit.TellCoo" xml:space="preserve"><value>Vertel Coo tot 100 keer per dag wat er gebeurde, waarvan 60 keer met je stem (5 zonder Premium)</value></data>
   <data name="Premium.BuyLifetime" xml:space="preserve"><value>Eenmalig kopen</value></data>
   <data name="Premium.LifetimeActive" xml:space="preserve"><value>Je hebt Coo Premium voor altijd. Bedankt!</value></data>
   <data name="Premium.LifetimeTerms" xml:space="preserve"><value>Eén betaling, niets wordt verlengd. Premium blijft voorgoed bij je gezin.</value></data>
   <data name="Premium.Loading" xml:space="preserve"><value>Laden…</value></data>
   <data name="Premium.Manage" xml:space="preserve"><value>Abonnement beheren</value></data>
+  <data name="Premium.NothingToRestore" xml:space="preserve"><value>Er is geen aankoop van Coo Premium gevonden op dit Google-account.</value></data>
   <data name="Premium.Once" xml:space="preserve"><value>{0}, eenmalig</value></data>
+  <data name="Premium.OnlyParents" xml:space="preserve"><value>Een ouder in je gezin kan Premium kopen; dan heeft het hele gezin het.</value></data>
+  <data name="Premium.Pending" xml:space="preserve"><value>Google Play wacht op de betaling. Premium start zodra die binnen is.</value></data>
   <data name="Premium.PerMonth" xml:space="preserve"><value>{0} / maand</value></data>
   <data name="Premium.PerYear" xml:space="preserve"><value>{0} / jaar</value></data>
   <data name="Premium.Pitch" xml:space="preserve"><value>Loggen, synchroniseren en delen met je gezin blijven gratis. Premium voegt toe:</value></data>
@@ -488,11 +514,15 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Premium.Plan.Yearly" xml:space="preserve"><value>Jaarlijks</value></data>
   <data name="Premium.Price" xml:space="preserve"><value>{0}, wordt automatisch verlengd. Op elk moment op te zeggen in Google Play.</value></data>
   <data name="Premium.PurchaseFailed" xml:space="preserve"><value>De aankoop is niet gelukt. Probeer het opnieuw.</value></data>
+  <data name="Premium.Restore" xml:space="preserve"><value>Aankopen herstellen</value></data>
   <data name="Premium.Save" xml:space="preserve"><value>Bespaar {0}%</value></data>
+  <data name="Premium.SignInToBuy" xml:space="preserve"><value>Inloggen om te kopen</value></data>
+  <data name="Premium.SignInWhy" xml:space="preserve"><value>Log eerst in met Google: dan hoort Premium bij je gezin, op elke telefoon ervan.</value></data>
   <data name="Premium.StartTrial" xml:space="preserve"><value>7 dagen gratis proberen</value></data>
   <data name="Premium.Subscribe" xml:space="preserve"><value>Abonneren</value></data>
   <data name="Premium.Title" xml:space="preserve"><value>Coo Premium</value></data>
   <data name="Premium.TrialTerms" xml:space="preserve"><value>7 dagen gratis, daarna {0}. Wordt automatisch verlengd; zeg voor het einde van de proefperiode op in Google Play en je betaalt niets.</value></data>
+  <data name="Premium.ViaFamily" xml:space="preserve"><value>Premium is gekocht door iemand in je gezin. Die kan het wijzigen of opzeggen in Google Play.</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Hoeveel?</value></data>
   <data name="Quick.Action.BreastStop" xml:space="preserve"><value>Voeding klaar</value></data>
   <data name="Quick.Action.PumpStop" xml:space="preserve"><value>Kolven klaar</value></data>
@@ -695,6 +725,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Solids.None" xml:space="preserve"><value>Niets bijzonders</value></data>
   <data name="Solids.Reaction" xml:space="preserve"><value>Een reactie</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statistieken</value></data>
+  <data name="Stats.Trends" xml:space="preserve"><value>Trends</value></data>
   <data name="Summary.Hint" xml:space="preserve"><value>De Adviseur vergelijkt deze week met de vorige: slaap, voedingen, luiers en wat opvalt.</value></data>
   <data name="Summary.Prompt" xml:space="preserve"><value>Schrijf een korte samenvatting van de week van de baby voor een moeie ouder: hoe deze week zich verhoudt tot vorige week qua slaap, voedingen en luiers, wat belangrijk is over gezondheid of groei, en één zachte, praktische tip. Vier tot zes zinnen, warm en eenvoudig, zonder kopjes of lijsten. Gebruik alleen het logboek.</value></data>
   <data name="Summary.Title" xml:space="preserve"><value>Deze week, in woorden</value></data>
@@ -739,6 +770,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Today.BedDue" xml:space="preserve"><value>Bedtijd is nu waarschijnlijk</value></data>
   <data name="Today.BedLikely" xml:space="preserve"><value>Bedtijd waarschijnlijk {0}–{1}</value></data>
   <data name="Today.DailyProgress" xml:space="preserve"><value>Dagelijkse voortgang</value></data>
+  <data name="Today.FedJustNow" xml:space="preserve"><value>Net gevoed</value></data>
   <data name="Today.NapDue" xml:space="preserve"><value>Een dutje is nu waarschijnlijk</value></data>
   <data name="Today.NapLearning" xml:space="preserve"><value>Log nog een paar dagen voor een persoonlijke suggestie.</value></data>
   <data name="Today.NapLikely" xml:space="preserve"><value>Dutje waarschijnlijk {0}–{1}</value></data>
@@ -764,6 +796,31 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedMl" xml:space="preserve"><value>ml gekolfd</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz gekolfd</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>slaap</value></data>
+  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Vraag over slaap, voeding en ontwikkeling. De antwoorden houden rekening met het logboek van je baby. Algemene informatie, geen medisch advies.</value></data>
+  <data name="Tour.Advisor.Title" xml:space="preserve"><value>Adviseur</value></data>
+  <data name="Tour.Diapers.Body" xml:space="preserve"><value>Nat of vies in één tik, met het dagtotaal. Badjes, buikligging en mijlpalen staan onder Eerder…, waar je ook logt wat al gebeurd is.</value></data>
+  <data name="Tour.Diapers.Title" xml:space="preserve"><value>Luiers, badjes en mijlpalen</value></data>
+  <data name="Tour.Done" xml:space="preserve"><value>Klaar</value></data>
+  <data name="Tour.Family.Body" xml:space="preserve"><value>Log in bij Instellingen en nodig je partner, een oppas of de grootouders uit. Items staan binnen seconden op elke telefoon, en de app werkt offline.</value></data>
+  <data name="Tour.Family.Title" xml:space="preserve"><value>Gedeeld babylogboek</value></data>
+  <data name="Tour.Feeding.Body" xml:space="preserve"><value>Tik op Voeding: Links of Rechts start de borstvoedingstimer, met pauzes en wisselen. Flessen in ml of oz, kolven met hoeveelheid en vaste voeding.</value></data>
+  <data name="Tour.Feeding.Title" xml:space="preserve"><value>Borst- en flesvoeding</value></data>
+  <data name="Tour.Growth.Body" xml:space="preserve"><value>Gewicht, lengte en hoofdomtrek op de WHO-groeicurves, met percentielen. Medicijnen, temperatuur en vaccinaties onder Gezondheid; een foto van het groeiboekje vult ze in.</value></data>
+  <data name="Tour.Growth.Title" xml:space="preserve"><value>Groei en gezondheid</value></data>
+  <data name="Tour.LogFaster.Body" xml:space="preserve"><value>Zeg het tegen Coo: “120 ml kunstvoeding om twee uur”, en controleer het voordat het wordt bewaard. Widgets en de meldingenbalk loggen en stoppen timers; herinneringen voor voedingen, luiers en medicijnen.</value></data>
+  <data name="Tour.LogFaster.Title" xml:space="preserve"><value>Sneller loggen</value></data>
+  <data name="Tour.Next" xml:space="preserve"><value>Volgende tip</value></data>
+  <data name="Tour.Position" xml:space="preserve"><value>{0} van {1}</value></data>
+  <data name="Tour.Previous" xml:space="preserve"><value>Vorige tip</value></data>
+  <data name="Tour.Skip" xml:space="preserve"><value>Overslaan</value></data>
+  <data name="Tour.Sleep.Body" xml:space="preserve"><value>Tik op Slaap om dutjes en nachtslaap te timen. Vandaag toont de wakkertijd voor de leeftijd van je baby en wanneer het volgende dutje waarschijnlijk is.</value></data>
+  <data name="Tour.Sleep.Title" xml:space="preserve"><value>Babyslaap</value></data>
+  <data name="Tour.Start" xml:space="preserve"><value>Beginnen</value></data>
+  <data name="Tour.Stats.Body" xml:space="preserve"><value>Een gemiddelde dag over 7, 14 of 30 dagen: melk per dag en per fles, voedingen, slaap en luiers. Trends en een pdf-rapport voor de kinderarts.</value></data>
+  <data name="Tour.Stats.Title" xml:space="preserve"><value>Statistieken</value></data>
+  <data name="Tour.Title" xml:space="preserve"><value>Zo werkt Coo</value></data>
+  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Houd borstvoeding, flessen, slaap, luiers en kolven bij, volg de groei van je baby en deel het logboek met je gezin. Werkt offline; je hebt geen account nodig om te beginnen.</value></data>
+  <data name="Tour.Welcome.Title" xml:space="preserve"><value>Welkom bij Coo</value></data>
   <data name="Trend.Average" xml:space="preserve"><value>gemiddeld {0}</value></data>
   <data name="Trend.Bottle" xml:space="preserve"><value>Fles per dag</value></data>
   <data name="Trend.BreastFeed" xml:space="preserve"><value>Duur borstvoeding</value></data>

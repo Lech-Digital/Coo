@@ -11,7 +11,8 @@ public sealed record CareEntryDto(
     string Kind, Guid? SubjectBabyId, string? SubjectPerson, bool IsSession, DateTimeOffset StartAt, DateTimeOffset? EndAt,
     string LoggedBy, string Source, string? SourcePromptVersion, string? Note, JsonElement Details);
 
-public sealed record BabyProfileDto(string Name, IReadOnlyList<string> Nicknames, DateOnly? BirthDate, DateOnly? DueDate);
+/// <param name="Sex">"girl" or "boy", for the growth chart (1.9.0); null when not chosen. Older phones and servers omit it.</param>
+public sealed record BabyProfileDto(string Name, IReadOnlyList<string> Nicknames, DateOnly? BirthDate, DateOnly? DueDate, string? Sex = null);
 
 /// <summary><see cref="VolumeUnit"/> is <c>ml</c> or <c>oz</c>; <see cref="HiddenKinds"/> are kind codes.</summary>
 public sealed record HouseholdSettingsDto(string VolumeUnit, string TimeZoneId, IReadOnlyList<string> HiddenKinds);

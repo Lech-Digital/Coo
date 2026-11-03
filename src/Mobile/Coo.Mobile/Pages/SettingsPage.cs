@@ -362,6 +362,13 @@ public sealed class SettingsPage : ContentPage
 
         contentStack.Add(Header("Settings.About"));
         contentStack.Add(_versionLabel);
+        // "How Coo works": the tour from the first start, again (owner, 2026-11-03).
+        contentStack.Add(Row(Ui.Text(Strings.Get("Tour.Title"), "Body"), async () =>
+        {
+            var tour = _services.GetRequiredService<TourPage>();
+            ((Coo.Mobile.Presentation.Tour.TourViewModel)tour.BindingContext!).IsReplay = true;
+            await Navigation.PushAsync(tour);
+        }));
         contentStack.Add(Row(Ui.Text(Strings.Get("Settings.Licences"), "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<LicencesPage>())));
         contentStack.Add(Row(Ui.Text(Strings.Get("Settings.Feedback"), "Body"), () => _model.SendFeedbackCommand.ExecuteAsync(null)));
         contentStack.Add(Row(Ui.Text(Strings.Get("Settings.Privacy"), "Body"), () => _model.OpenPrivacyCommand.ExecuteAsync(null)));

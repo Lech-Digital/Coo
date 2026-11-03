@@ -44,7 +44,9 @@ public sealed class Sheet : Grid
     {
         // Scrolls when taller than the screen: Earlier… with every kind shown cut off Solid food and Milestone (seen on the
         // emulator, 2026-10-27).
-        _panel.Content = content as ScrollView ?? new ScrollView { Content = content };
+        // Start, not Fill: a filling ScrollView took the whole screen height, and Feed and Bottle showed a page of empty
+        // sheet under three buttons (owner, 2026-11-03). Now the sheet is as tall as what it holds, up to the margin.
+        _panel.Content = content as ScrollView ?? new ScrollView { Content = content, VerticalOptions = LayoutOptions.Start };
         if (IsVisible)
             return;
         IsVisible = true;

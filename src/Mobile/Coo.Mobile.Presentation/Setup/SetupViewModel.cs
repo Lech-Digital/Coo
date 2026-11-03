@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Coo.Domain.Households;
 using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.Households;
 using Coo.Mobile.Presentation.Localization;
@@ -25,6 +26,10 @@ public sealed partial class SetupViewModel(
     [ObservableProperty]
     private bool _bornEarly;
 
+    /// <summary>Girl or boy, for the growth chart; optional, and a second tap clears it.</summary>
+    [ObservableProperty]
+    private BabySex? _sex;
+
     [ObservableProperty]
     private DateTime _dueDate = time.GetLocalNow().Date.AddDays(60);
 
@@ -46,6 +51,9 @@ public sealed partial class SetupViewModel(
     private bool _isFetching;
 
     public DateTime Today => time.GetLocalNow().Date;
+
+    [RelayCommand]
+    private void ChooseSex(BabySex sex) => Sex = Sex == sex ? null : sex;
 
     /// <summary>Raised when the baby is saved; the host then shows Today.</summary>
     public event EventHandler? Completed;
@@ -126,7 +134,7 @@ public sealed partial class SetupViewModel(
         DateOnly? birth = HasArrived ? DateOnly.FromDateTime(BirthDate) : null;
         DateOnly? due = !HasArrived || BornEarly ? DateOnly.FromDateTime(DueDate) : null;
 
-        var result = await setUpBaby.ExecuteAsync(household.Id, name, birth, due, CancellationToken.None);
+        var result = await setUpBaby.ExecuteAsync(household.Id, name, birth, due, Sex, CancellationToken.None);
         if (result.IsFailure)
         {
             Error = Strings.Error(result.Error!.Code);

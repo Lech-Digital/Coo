@@ -29,6 +29,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<Reports.BuildCareReport>();
         services.AddTransient<GetDay>();
         services.AddTransient<GetCareTrends>();
+        services.AddTransient<GetDailyAverages>();
         services.AddTransient<Advisor.BuildAdvisorContext>();
         services.AddTransient<Demo.SeedDemoLog>();
         services.AddTransient<AiLogging.PrepareQuickLog>();
@@ -36,6 +37,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<SetUpBaby>();
         services.AddTransient<RecordBirth>();
         services.AddTransient<UpdateBabyProfile>();
+        services.AddTransient<SetBabySex>();
         services.AddTransient<ChangeVolumeUnit>();
         services.AddTransient<SetHiddenKinds>();
         services.AddTransient<GetAttention>();
@@ -46,6 +48,7 @@ public static class ServiceCollectionExtensions
 
         // Sign-in and sessions (Spec 010 §6).
         services.AddSingleton<Account>();
+        services.AddSingleton<Billing.EntitlementRefresher>();
         services.AddTransient<SignIn>();
         services.AddTransient<SignOut>();
         services.AddTransient<DeleteAccount>();

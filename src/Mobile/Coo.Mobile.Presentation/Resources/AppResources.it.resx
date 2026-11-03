@@ -94,13 +94,30 @@
   <data name="Avatar.Preset" xml:space="preserve"><value>Scegli un’illustrazione</value></data>
   <data name="Avatar.Remove" xml:space="preserve"><value>Rimuovi la foto</value></data>
   <data name="Avatar.Title" xml:space="preserve"><value>Foto del bambino</value></data>
+  <data name="Averages.Bottles" xml:space="preserve"><value>Biberon al giorno: {0}{1}</value></data>
+  <data name="Averages.Breastfeeds" xml:space="preserve"><value>{0} al seno, in media {1} ciascuna</value></data>
+  <data name="Averages.Diapers" xml:space="preserve"><value>Pannolini</value></data>
+  <data name="Averages.Each" xml:space="preserve"><value>, circa {0} ciascuno</value></data>
+  <data name="Averages.Feeds" xml:space="preserve"><value>Poppate</value></data>
+  <data name="Averages.LastDays" xml:space="preserve"><value>Ultimi {0} giorni</value></data>
+  <data name="Averages.Longest" xml:space="preserve"><value>tratto più lungo {0}</value></data>
+  <data name="Averages.Milk" xml:space="preserve"><value>Latte dal biberon</value></data>
+  <data name="Averages.Nothing" xml:space="preserve"><value>Niente registrato negli ultimi {0} giorni.</value></data>
+  <data name="Averages.Pumped" xml:space="preserve"><value>Tirato</value></data>
+  <data name="Averages.Sleep" xml:space="preserve"><value>Sonno</value></data>
+  <data name="Averages.Title" xml:space="preserve"><value>In una giornata media</value></data>
   <data name="Awake.Hint" xml:space="preserve"><value>Per una poppata nel sonno o un cambio assonnato, scegli «Dorme ancora».</value></data>
   <data name="Awake.StillAsleep" xml:space="preserve"><value>Dorme ancora</value></data>
   <data name="Awake.Title" xml:space="preserve"><value>{0} sta dormendo</value></data>
   <data name="Awake.WokeUp" xml:space="preserve"><value>Sveglio</value></data>
+  <data name="Baby.Boy" xml:space="preserve"><value>Bambino</value></data>
+  <data name="Baby.Girl" xml:space="preserve"><value>Bambina</value></data>
   <data name="Baby.Nicknames" xml:space="preserve"><value>Altri nomi che usate</value></data>
   <data name="Baby.NicknamesHint" xml:space="preserve"><value>Fino a 5, separati da virgole</value></data>
+  <data name="Baby.Sex" xml:space="preserve"><value>Bambina o bambino?</value></data>
+  <data name="Baby.SexHint" xml:space="preserve"><value>Per la curva di crescita: bambine e bambini seguono curve diverse. Puoi saltarlo.</value></data>
   <data name="Birth.Title" xml:space="preserve"><value>Benvenuto, {0}</value></data>
+  <data name="Bottle.Last" xml:space="preserve"><value>Ultimo biberon {0}</value></data>
   <data name="BringOver.AddNew" xml:space="preserve"><value>Aggiungi come nuovo bambino</value></data>
   <data name="BringOver.Bring" xml:space="preserve"><value>Porta le mie voci</value></data>
   <data name="BringOver.ChooseTarget" xml:space="preserve"><value>In quale famiglia portare le voci?</value></data>
@@ -324,9 +341,13 @@
   <data name="Family.WithdrawConfirm" xml:space="preserve"><value>Ritirare questo invito? Il link e il codice smetteranno di funzionare.</value></data>
   <data name="Family.You" xml:space="preserve"><value>{0} (tu)</value></data>
   <data name="Family.Yours" xml:space="preserve"><value>La tua famiglia</value></data>
+  <data name="Feed.Ago" xml:space="preserve"><value>{0} fa</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Biberon</value></data>
   <data name="Feed.BreastHint" xml:space="preserve"><value>Avvia un timer su quel lato</value></data>
+  <data name="Feed.JustNow" xml:space="preserve"><value>proprio ora</value></data>
+  <data name="Feed.LastFeed" xml:space="preserve"><value>Ultima poppata {0}</value></data>
   <data name="Feed.Left" xml:space="preserve"><value>Sinistro</value></data>
+  <data name="Feed.Next" xml:space="preserve"><value>Prossimo</value></data>
   <data name="Feed.Right" xml:space="preserve"><value>Destro</value></data>
   <data name="Growth.Add" xml:space="preserve"><value>Aggiungi misura</value></data>
   <data name="Growth.Boys" xml:space="preserve"><value>Bambini</value></data>
@@ -473,13 +494,18 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Fino a 100 domande al Consulente al giorno (3 senza Premium), con risposte che conoscono il tuo registro</value></data>
   <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Un avatar illustrato del tuo bambino, disegnato da una foto</value></data>
   <data name="Premium.Benefit.Family" xml:space="preserve"><value>Un solo acquisto copre tutta la famiglia</value></data>
+  <data name="Premium.Benefit.Naps" xml:space="preserve"><value>Gli orari dei sonnellini del tuo bambino, imparati dai sonni che registri, e un promemoria prima del prossimo</value></data>
   <data name="Premium.Benefit.Support" xml:space="preserve"><value>Mantiene Coo indipendente e senza pubblicità</value></data>
+  <data name="Premium.Benefit.TellCoo" xml:space="preserve"><value>Racconta a Coo cosa è successo fino a 100 volte al giorno, 60 a voce (5 senza Premium)</value></data>
   <data name="Premium.BuyLifetime" xml:space="preserve"><value>Acquista una volta</value></data>
   <data name="Premium.LifetimeActive" xml:space="preserve"><value>Hai Coo Premium a vita. Grazie!</value></data>
   <data name="Premium.LifetimeTerms" xml:space="preserve"><value>Un solo pagamento, nessun rinnovo. Premium resta alla tua famiglia per sempre.</value></data>
   <data name="Premium.Loading" xml:space="preserve"><value>Caricamento…</value></data>
   <data name="Premium.Manage" xml:space="preserve"><value>Gestisci abbonamento</value></data>
+  <data name="Premium.NothingToRestore" xml:space="preserve"><value>Nessun acquisto di Coo Premium trovato su questo account Google.</value></data>
   <data name="Premium.Once" xml:space="preserve"><value>{0}, una volta sola</value></data>
+  <data name="Premium.OnlyParents" xml:space="preserve"><value>Un genitore della tua famiglia può acquistare Premium; poi ce l’ha tutta la famiglia.</value></data>
+  <data name="Premium.Pending" xml:space="preserve"><value>Google Play è in attesa del pagamento. Premium inizia appena viene pagato.</value></data>
   <data name="Premium.PerMonth" xml:space="preserve"><value>{0} / mese</value></data>
   <data name="Premium.PerYear" xml:space="preserve"><value>{0} / anno</value></data>
   <data name="Premium.Pitch" xml:space="preserve"><value>Registro, sincronizzazione e condivisione in famiglia restano gratuiti. Premium aggiunge:</value></data>
@@ -488,11 +514,15 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Premium.Plan.Yearly" xml:space="preserve"><value>Annuale</value></data>
   <data name="Premium.Price" xml:space="preserve"><value>{0}, si rinnova automaticamente. Disdici quando vuoi su Google Play.</value></data>
   <data name="Premium.PurchaseFailed" xml:space="preserve"><value>L’acquisto non è andato a buon fine. Riprova.</value></data>
+  <data name="Premium.Restore" xml:space="preserve"><value>Ripristina acquisti</value></data>
   <data name="Premium.Save" xml:space="preserve"><value>Risparmi il {0}%</value></data>
+  <data name="Premium.SignInToBuy" xml:space="preserve"><value>Accedi per acquistare</value></data>
+  <data name="Premium.SignInWhy" xml:space="preserve"><value>Prima accedi con Google: così Premium appartiene alla tua famiglia, su ogni suo telefono.</value></data>
   <data name="Premium.StartTrial" xml:space="preserve"><value>Prova 7 giorni gratis</value></data>
   <data name="Premium.Subscribe" xml:space="preserve"><value>Abbonati</value></data>
   <data name="Premium.Title" xml:space="preserve"><value>Coo Premium</value></data>
   <data name="Premium.TrialTerms" xml:space="preserve"><value>Gratis per 7 giorni, poi {0}. Si rinnova automaticamente; disdici su Google Play prima della fine della prova e non paghi nulla.</value></data>
+  <data name="Premium.ViaFamily" xml:space="preserve"><value>Premium è stato acquistato da qualcuno della tua famiglia, che può modificarlo o annullarlo in Google Play.</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Quanto?</value></data>
   <data name="Quick.Action.BreastStop" xml:space="preserve"><value>Poppata finita</value></data>
   <data name="Quick.Action.PumpStop" xml:space="preserve"><value>Tiralatte finito</value></data>
@@ -695,6 +725,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Solids.None" xml:space="preserve"><value>Niente di speciale</value></data>
   <data name="Solids.Reaction" xml:space="preserve"><value>Una reazione</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statistiche</value></data>
+  <data name="Stats.Trends" xml:space="preserve"><value>Andamento</value></data>
   <data name="Summary.Hint" xml:space="preserve"><value>Il Consulente confronta questa settimana con la precedente: sonno, poppate, pannolini e ciò che merita attenzione.</value></data>
   <data name="Summary.Prompt" xml:space="preserve"><value>Scrivi un breve riassunto della settimana del bambino per un genitore stanco: come questa settimana si confronta con la precedente per sonno, poppate e pannolini, cosa conta per salute o crescita, e un consiglio pratico e gentile. Da quattro a sei frasi, calde e semplici, senza titoli né elenchi. Usa solo il registro.</value></data>
   <data name="Summary.Title" xml:space="preserve"><value>Questa settimana, in parole</value></data>
@@ -739,6 +770,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Today.BedDue" xml:space="preserve"><value>È probabile che sia ora della nanna</value></data>
   <data name="Today.BedLikely" xml:space="preserve"><value>Nanna probabile {0}–{1}</value></data>
   <data name="Today.DailyProgress" xml:space="preserve"><value>Progresso giornaliero</value></data>
+  <data name="Today.FedJustNow" xml:space="preserve"><value>Ha appena mangiato</value></data>
   <data name="Today.NapDue" xml:space="preserve"><value>Un pisolino è probabile adesso</value></data>
   <data name="Today.NapLearning" xml:space="preserve"><value>Registra ancora qualche giorno per un suggerimento personale.</value></data>
   <data name="Today.NapLikely" xml:space="preserve"><value>Pisolino probabile {0}–{1}</value></data>
@@ -764,6 +796,31 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedMl" xml:space="preserve"><value>ml estratti</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz estratti</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>sonno</value></data>
+  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Chiedi di sonno, alimentazione e sviluppo. Le risposte tengono conto del diario del bambino. Informazioni generali, non un parere medico.</value></data>
+  <data name="Tour.Advisor.Title" xml:space="preserve"><value>Consulente</value></data>
+  <data name="Tour.Diapers.Body" xml:space="preserve"><value>Bagnato o sporco con un tocco, con il totale del giorno. Bagnetto, pancia in giù e traguardi sono in Prima…, che registra anche ciò che è già successo.</value></data>
+  <data name="Tour.Diapers.Title" xml:space="preserve"><value>Pannolini, bagnetto e traguardi</value></data>
+  <data name="Tour.Done" xml:space="preserve"><value>Fatto</value></data>
+  <data name="Tour.Family.Body" xml:space="preserve"><value>Accedi in Impostazioni e invita il partner, una tata o i nonni. Le voci arrivano su ogni telefono in pochi secondi, e l’app funziona offline.</value></data>
+  <data name="Tour.Family.Title" xml:space="preserve"><value>Diario condiviso</value></data>
+  <data name="Tour.Feeding.Body" xml:space="preserve"><value>Tocca Poppata: Sinistro o Destro avvia il timer di allattamento, con pause e cambio di lato. Biberon in ml o oz, tiralatte con quantità e svezzamento.</value></data>
+  <data name="Tour.Feeding.Title" xml:space="preserve"><value>Allattamento e biberon</value></data>
+  <data name="Tour.Growth.Body" xml:space="preserve"><value>Peso, lunghezza e circonferenza cranica sulle curve dell’OMS, con percentili. Farmaci, temperatura e vaccini in Salute; una foto del libretto li compila.</value></data>
+  <data name="Tour.Growth.Title" xml:space="preserve"><value>Crescita e salute</value></data>
+  <data name="Tour.LogFaster.Body" xml:space="preserve"><value>Dillo a Coo: «120 ml di latte artificiale alle due», e controlla prima di salvare. Widget e barra delle notifiche registrano e fermano i timer; promemoria per poppate, pannolini e farmaci.</value></data>
+  <data name="Tour.LogFaster.Title" xml:space="preserve"><value>Registra più in fretta</value></data>
+  <data name="Tour.Next" xml:space="preserve"><value>Consiglio successivo</value></data>
+  <data name="Tour.Position" xml:space="preserve"><value>{0} di {1}</value></data>
+  <data name="Tour.Previous" xml:space="preserve"><value>Consiglio precedente</value></data>
+  <data name="Tour.Skip" xml:space="preserve"><value>Salta</value></data>
+  <data name="Tour.Sleep.Body" xml:space="preserve"><value>Tocca Sonno per cronometrare sonnellini e notte. Oggi mostra la finestra di veglia per l’età del bambino e quando è probabile il prossimo sonnellino.</value></data>
+  <data name="Tour.Sleep.Title" xml:space="preserve"><value>Sonno del bambino</value></data>
+  <data name="Tour.Start" xml:space="preserve"><value>Inizia</value></data>
+  <data name="Tour.Stats.Body" xml:space="preserve"><value>Una giornata media su 7, 14 o 30 giorni: latte al giorno e per biberon, poppate, sonno e pannolini. Andamento e report PDF per il pediatra.</value></data>
+  <data name="Tour.Stats.Title" xml:space="preserve"><value>Statistiche</value></data>
+  <data name="Tour.Title" xml:space="preserve"><value>Come funziona Coo</value></data>
+  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Registra allattamento, biberon, sonno, pannolini e tiralatte, segui la crescita del bambino e condividi il diario con la famiglia. Funziona offline; per iniziare non serve un account.</value></data>
+  <data name="Tour.Welcome.Title" xml:space="preserve"><value>Benvenuti in Coo</value></data>
   <data name="Trend.Average" xml:space="preserve"><value>media {0}</value></data>
   <data name="Trend.Bottle" xml:space="preserve"><value>Biberon al giorno</value></data>
   <data name="Trend.BreastFeed" xml:space="preserve"><value>Durata della poppata</value></data>

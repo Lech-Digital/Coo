@@ -155,7 +155,6 @@ public sealed class ReminderRefresher(
         [
             new(Strings.Get("Diaper.Wet"), QuickAction.Wet),
             new(Strings.Get("Diaper.Dirty"), QuickAction.Dirty),
-            new(Strings.Get("Diaper.Mixed"), QuickAction.Mixed),
         ],
         ReminderKind.Bath => [new(Strings.Get("Reminder.Bath.Done"), QuickAction.Bath)],
         ReminderKind.Medicine when reminder.Medicine is { } m => [new(Strings.Get("Reminder.Medicine.Given"), QuickAction.Medicine, m.Name, m.Dose)],

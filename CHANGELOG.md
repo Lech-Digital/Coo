@@ -14,6 +14,42 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
   Play's "What's new". That text, in all seven languages and ready to paste, goes in
   `store-assets/releases/<version>.md`.
 
+## 1.9.0 (code 27) — 2026-11-03
+
+Works with the current server; deploy the server of the same commit to share a baby's girl/boy choice between phones
+(migration `AddBabySex`) and to get the billing fixes below. The server now refuses to start without
+`GOOGLE_PLAY_CREDENTIALS_JSON` (DEPLOY.md, "Billing").
+
+### New
+- **How Coo works**: a short tour of what Coo does, one tip per screen, shown the first time Coo opens (Skip at the
+  top, Previous tip and Next tip at the bottom, or swipe) and again from Settings → About.
+- **"On an average day" at the top of Stats**: milk from bottles a day and per bottle, feeds, sleep and diapers over
+  the last 7, 14 or 30 days. The answer to the doctor's "how much does she drink a day?".
+- **The growth chart in Stats**, with the latest measurement and its percentile.
+- **Girl or boy, once, with the baby** (welcome screen and the baby page), shared with the family. The growth chart
+  uses it instead of asking on every phone.
+- **Restore purchases** on the Premium screen.
+
+### Changed
+- **Feed and Bottle sheets** are as tall as what they hold. Feed shows the last feed and marks the side to offer next;
+  Bottle shows the last bottle, starts at that amount or at a typical one for the baby's age (15 ml for a newborn, not
+  120 ml), and has one-tap amounts.
+- **Diapers are Wet or Dirty.** "Both" is gone: a dirty diaper is usually wet too, and nobody can tell. Entries already
+  saved as both keep it.
+- "Fed just now" instead of "0 m since last feed".
+- The Premium screen lists what Premium really adds (personal nap times and the nap reminder, Tell Coo's allowance),
+  asks you to sign in before buying so the whole family gets it, and shows buying only to parents.
+
+### Fixed
+- **Premium**: a cancelled subscription keeps Premium for the whole family until the paid period ends (it stopped at
+  once for everyone but the payer); a payment that was still pending, or a purchase interrupted by closing the app, is
+  completed later instead of being refunded by Google after three days; closing Google Play's sheet no longer says the
+  purchase failed; Premium is checked again when Coo comes back to the screen, not only at a cold start.
+- Server: purchases are acknowledged by the server once recorded, re-read from Google every hour when about to renew,
+  new or not checked for a day, and a Google outage answers "try again" instead of "invalid purchase".
+- Stats: tapping a chip or a bar no longer throws the chip row back to the start or the page to the top.
+- A family member invited as a viewer: the phone can store its family list (it was refused).
+
 ## 1.8.1 (code 26) — 2026-10-27
 
 ### Fixed

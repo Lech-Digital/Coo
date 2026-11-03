@@ -27,6 +27,30 @@ public sealed class StartupChecksTests
         act.Should().Throw<InvalidOperationException>().WithMessage("*Auth:GoogleWebClientId*");
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void RequirePlayCredentials_ProductionWithoutTheKey_ThrowsNamingTheSetting(string? json)
+    {
+        // Arrange: without the key no purchase is ever recorded, and paying families quietly get nothing.
+
+        // Act
+        var act = () => StartupChecks.RequirePlayCredentials(json, isProduction: true);
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>().WithMessage("*GooglePlay:CredentialsJson*");
+    }
+
+    [Fact]
+    public void RequirePlayCredentials_DevelopmentWithoutTheKey_Starts()
+    {
+        // Act
+        var act = () => StartupChecks.RequirePlayCredentials(null, isProduction: false);
+
+        // Assert
+        act.Should().NotThrow();
+    }
+
     [Fact]
     public void SelectAuth_ProductionWithoutKeys_ThrowsNamingTheSetting()
     {

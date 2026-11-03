@@ -389,7 +389,10 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
         if (t?.LastFeed is { } feed)
         {
             var elapsed = snapshot.Now - feed.Timing.OccurredAt;
-            if (elapsed >= TimeSpan.Zero)
+            // Under a minute "0 m since last feed" read like a fault: the feed was just logged.
+            if (elapsed >= TimeSpan.Zero && elapsed < TimeSpan.FromMinutes(1))
+                SinceFeed = Strings.Get("Today.FedJustNow");
+            else if (elapsed >= TimeSpan.Zero)
                 SinceFeed = Strings.Format("Today.SinceFeed", Formats.Duration(elapsed));
             else
                 SinceFeed = "";
@@ -759,7 +762,6 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
         [
             new("diaper", Strings.Get("Diaper.Wet"), new AsyncRelayCommand(() => actions.LogDiaperAsync(DiaperContents.Wet))),
             new("diaper", Strings.Get("Diaper.Dirty"), new AsyncRelayCommand(() => actions.LogDiaperAsync(DiaperContents.Dirty))),
-            new("diaper", Strings.Get("Diaper.Mixed"), new AsyncRelayCommand(() => actions.LogDiaperAsync(DiaperContents.Mixed))),
             new("feeding", Strings.Get("Night.FeedL"), new AsyncRelayCommand(() => actions.StartBreastAsync(BreastSide.Left))),
             new("feeding", Strings.Get("Night.FeedR"), new AsyncRelayCommand(() => actions.StartBreastAsync(BreastSide.Right))),
             new("feeding", Strings.Get("Feed.Bottle"), new AsyncRelayCommand(() =>

@@ -8,7 +8,8 @@ namespace Coo.Mobile.Platform.Billing;
 /// <summary>
 /// Premium through Google Play (Spec 012): a subscription with a monthly and a yearly base plan, or a one-time lifetime
 /// product. A purchase is made with the household's ID as Play's obfuscated account ID and handed to the server, which
-/// verifies it and gives Premium to the whole family; this phone also remembers it, so Premium shows offline.
+/// verifies it, gives Premium to the whole family and acknowledges it with Google; this phone acknowledges it too, but
+/// only once the server has it (grant, then acknowledge: ADR 0004 §4), and remembers it, so Premium shows offline.
 /// </summary>
 public class BillingService(IServiceProvider? services = null) : IBillingService
 {
@@ -16,17 +17,51 @@ public class BillingService(IServiceProvider? services = null) : IBillingService
     public const string LifetimeId = "premium_lifetime";
     private const string PremiumPreferenceKey = "billing.is_premium";
     private const string LifetimePreferenceKey = "billing.is_lifetime";
+    private const string PayerPreferenceKey = "billing.is_payer";
+    private const string ConfirmedPreferenceKey = "billing.confirmed_at";
 
-    public bool IsPremiumCached { get; private set; } = Microsoft.Maui.Storage.Preferences.Default.Get(PremiumPreferenceKey, false);
+    /// <summary>
+    /// How long Premium heard from Play or the server holds without hearing it again (ADR 0004 §8: offline, the cached
+    /// answer holds a few days past its period). A month: long enough for a phone left offline, short enough that a
+    /// partner's cancelled subscription does not hold here for good.
+    /// </summary>
+    public static readonly TimeSpan OfflineGrace = TimeSpan.FromDays(35);
+
+    private bool _isPremium = Microsoft.Maui.Storage.Preferences.Default.Get(PremiumPreferenceKey, false);
+
+    public bool IsPremiumCached => _isPremium && (IsLifetimeCached || !IsStale);
 
     public bool IsLifetimeCached { get; private set; } = Microsoft.Maui.Storage.Preferences.Default.Get(LifetimePreferenceKey, false);
+
+    public bool IsPayerCached { get; private set; } = Microsoft.Maui.Storage.Preferences.Default.Get(PayerPreferenceKey, false);
 
     public event Action? EntitlementChanged;
 
     // Resolved late: the billing API is registered by Infrastructure, after Platform.
     private IBillingApi? Api => services?.GetService<IBillingApi>();
 
-    public void SetPremiumForDebug(bool isPremium) => Remember(isPremium, false);
+    // The host's clock (only the composition root makes the real one); without services, nothing goes stale.
+    private TimeProvider? Time => services?.GetService<TimeProvider>();
+
+    private bool IsStale
+    {
+        get
+        {
+            if (Time is not { } time)
+                return false;
+            var confirmed = Microsoft.Maui.Storage.Preferences.Default.Get(ConfirmedPreferenceKey, 0L);
+            // Never recorded (a phone from before 1.9.0): counts from now, so an update does not take Premium away.
+            if (confirmed == 0)
+            {
+                Microsoft.Maui.Storage.Preferences.Default.Set(ConfirmedPreferenceKey, time.GetUtcNow().ToUnixTimeMilliseconds());
+                return false;
+            }
+
+            return time.GetUtcNow() - DateTimeOffset.FromUnixTimeMilliseconds(confirmed) > OfflineGrace;
+        }
+    }
+
+    public void SetPremiumForDebug(bool isPremium) => Remember(isPremium, false, false);
 
     private static string BasePlanOf(PremiumPlan plan) => plan == PremiumPlan.Yearly ? "yearly" : "monthly";
 
@@ -69,14 +104,14 @@ public class BillingService(IServiceProvider? services = null) : IBillingService
         }
     }
 
-    public async Task<bool> PurchasePremiumAsync(HouseholdId householdId, PremiumPlan plan, CancellationToken cancellationToken)
+    public async Task<PurchaseOutcome> PurchasePremiumAsync(HouseholdId householdId, PremiumPlan plan, CancellationToken cancellationToken)
     {
         var billing = CrossInAppBilling.Current;
         try
         {
 #pragma warning disable CA2016
             if (!await billing.ConnectAsync(true))
-                return false;
+                return PurchaseOutcome.Failed;
 
             var lifetime = plan == PremiumPlan.Lifetime;
             var productId = lifetime ? LifetimeId : SubscriptionId;
@@ -90,29 +125,38 @@ public class BillingService(IServiceProvider? services = null) : IBillingService
                 var chosen = details.FirstOrDefault(d => !string.IsNullOrEmpty(d.OfferId) && d.PricingPhases?.Any(p => p.PriceAmountMicros == 0) == true)
                     ?? details.FirstOrDefault(d => string.IsNullOrEmpty(d.OfferId));
                 if (chosen is null)
-                    return false;
+                    return PurchaseOutcome.Failed;
                 offerToken = chosen.OfferToken;
             }
 
             var purchase = await billing.PurchaseAsync(productId, lifetime ? ItemType.InAppPurchase : ItemType.Subscription, householdId.Value.ToString(), null, offerToken);
-            if (purchase is not { State: PurchaseState.Purchased })
-                return false;
-
-            // Unacknowledged purchases are refunded by Play after three days. Lifetime is acknowledged, never consumed:
-            // consuming it would let it be bought again and lose it from this account's purchases.
-            if (!purchase.IsAcknowledged.GetValueOrDefault())
-                await billing.FinalizePurchaseAsync([purchase.PurchaseToken]);
 #pragma warning restore CA2016
-
-            Remember(true, lifetime || IsLifetimeCached);
-            if (Api is { } api)
-                await api.VerifyReceiptAsync(householdId.Value, productId, purchase.PurchaseToken, cancellationToken);
-            return true;
+            switch (purchase?.State)
+            {
+                case PurchaseState.Purchased:
+                    Remember(true, lifetime || IsLifetimeCached, true);
+                    await RecordThenAcknowledgeAsync(billing, householdId, purchase, cancellationToken);
+                    return PurchaseOutcome.Purchased;
+                case PurchaseState.PaymentPending or PurchaseState.Deferred:
+                    // Not paid yet, and not to be acknowledged yet: CheckEntitlementAsync finds it once it is paid.
+                    return PurchaseOutcome.Pending;
+                default:
+                    return PurchaseOutcome.Failed;
+            }
+        }
+        catch (InAppBillingPurchaseException ex) when (ex.PurchaseError == PurchaseError.UserCancelled)
+        {
+            return PurchaseOutcome.Cancelled;
+        }
+        catch (InAppBillingPurchaseException ex) when (ex.PurchaseError == PurchaseError.AlreadyOwned)
+        {
+            // Bought before on this Google account (another phone, or before a reinstall): that purchase counts.
+            return await CheckEntitlementAsync(householdId, cancellationToken) ? PurchaseOutcome.Purchased : PurchaseOutcome.Failed;
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Failed to purchase premium: {ex}");
-            return false;
+            return PurchaseOutcome.Failed;
         }
         finally
         {
@@ -136,18 +180,20 @@ public class BillingService(IServiceProvider? services = null) : IBillingService
 #pragma warning restore CA2016
             if ((lifetime ?? subscription) is { } own)
             {
-                Remember(true, lifetime is not null);
-                // Again on every check: a purchase whose report did not reach the server (offline) gets there now,
-                // and the server keeps the expiry up to date. It refuses a purchase made for another family.
-                if (Api is { } api)
-                    await api.VerifyReceiptAsync(householdId.Value, own.ProductId, own.PurchaseToken, cancellationToken);
+                Remember(true, lifetime is not null, true);
+                // Again on every check: a purchase whose report did not reach the server (offline) gets there now, the
+                // server keeps the expiry up to date, and a purchase never acknowledged (paid after a pending payment, or
+                // the app closed mid-purchase) is acknowledged before Play's three days run out and it is refunded.
+                await RecordThenAcknowledgeAsync(billing, householdId, own, cancellationToken);
                 return true;
             }
 
             // Not bought on this Google account: another member of the family may have bought it.
-            // Unknown (offline, signed out) keeps what this phone remembers.
+            // Unknown (offline, signed out) keeps what this phone remembers, for OfflineGrace.
             if (Api is { } server && await server.CheckEntitlementAsync(householdId.Value, cancellationToken) is { } isPremium)
-                Remember(isPremium, false);
+                Remember(isPremium, false, false);
+            else if (connected && IsPayerCached)
+                Remember(false, false, false); // Play answered, and this account's own purchase is gone (expired or refunded).
 
             return IsPremiumCached;
         }
@@ -162,17 +208,50 @@ public class BillingService(IServiceProvider? services = null) : IBillingService
         }
     }
 
-    private void Remember(bool isPremium, bool isLifetime)
+    /// <summary>
+    /// Reports the purchase to the server, then acknowledges it with Play only if the server has it: if the server is never
+    /// reached, Play refunds the purchase after three days rather than charging for a family that never got Premium. The
+    /// server acknowledges it too; acknowledging twice is harmless.
+    /// </summary>
+    private async Task RecordThenAcknowledgeAsync(IInAppBilling billing, HouseholdId householdId, InAppBillingPurchase purchase, CancellationToken cancellationToken)
     {
+        var recorded = Api is { } api && await api.VerifyReceiptAsync(householdId.Value, purchase.ProductId, purchase.PurchaseToken, cancellationToken);
+        if (!recorded || purchase.IsAcknowledged.GetValueOrDefault())
+            return;
+        try
+        {
+            // Lifetime is acknowledged, never consumed: consuming it would let it be bought again and lose it from this
+            // account's purchases.
+#pragma warning disable CA2016
+            await billing.FinalizePurchaseAsync([purchase.PurchaseToken]);
+#pragma warning restore CA2016
+        }
+        catch (Exception ex)
+        {
+            // The server acknowledged it already, or does on its hourly recheck.
+            System.Diagnostics.Debug.WriteLine($"Could not acknowledge a purchase: {ex.Message}");
+        }
+    }
+
+    private void Remember(bool isPremium, bool isLifetime, bool isPayer)
+    {
+        if (Time is { } time)
+            Microsoft.Maui.Storage.Preferences.Default.Set(ConfirmedPreferenceKey, time.GetUtcNow().ToUnixTimeMilliseconds());
+        if (IsPayerCached != isPayer)
+        {
+            IsPayerCached = isPayer;
+            Microsoft.Maui.Storage.Preferences.Default.Set(PayerPreferenceKey, isPayer);
+        }
+
         if (IsLifetimeCached != isLifetime)
         {
             IsLifetimeCached = isLifetime;
             Microsoft.Maui.Storage.Preferences.Default.Set(LifetimePreferenceKey, isLifetime);
         }
 
-        if (IsPremiumCached == isPremium)
+        if (_isPremium == isPremium)
             return;
-        IsPremiumCached = isPremium;
+        _isPremium = isPremium;
         Microsoft.Maui.Storage.Preferences.Default.Set(PremiumPreferenceKey, isPremium);
         EntitlementChanged?.Invoke();
     }

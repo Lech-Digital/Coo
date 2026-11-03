@@ -273,7 +273,7 @@ internal sealed class SyncStore(LocalDatabase database) : ISyncStore
             case SyncEntityTypes.BabyProfile:
                 {
                     await using var command = connection.Command(
-                        "SELECT name, nicknames, birth_date, due_date, version_wall_ms, version_counter, version_device, is_deleted FROM baby_profiles WHERE id = $id;",
+                        "SELECT name, nicknames, birth_date, due_date, version_wall_ms, version_counter, version_device, is_deleted, sex FROM baby_profiles WHERE id = $id;",
                         null, ("$id", id));
                     await using var r = await command.ExecuteReaderAsync(cancellationToken);
                     if (!await r.ReadAsync(cancellationToken) || Columns.ParseStamp(r.GetInt64(4), r.GetInt64(5), r.GetString(6)) is not { } version)
@@ -281,7 +281,8 @@ internal sealed class SyncStore(LocalDatabase database) : ISyncStore
                     if (!TryDate(r, 2, out var birth) || !TryDate(r, 3, out var due))
                         return null;
                     return new State(version, r.GetInt64(7) == 1, new BabyProfilePayload(
-                        r.GetString(0), JsonSerializer.Deserialize(r.GetString(1), StringListJson.Default.ListString) ?? [], birth, due));
+                        r.GetString(0), JsonSerializer.Deserialize(r.GetString(1), StringListJson.Default.ListString) ?? [], birth, due,
+                        r.IsDBNull(8) ? null : r.GetString(8)));
                 }
 
             case SyncEntityTypes.HouseholdSettings:
@@ -412,17 +413,18 @@ internal sealed class SyncStore(LocalDatabase database) : ISyncStore
             case BabyProfilePayload b:
                 return connection.ExecuteAsync(
                     """
-                    INSERT INTO baby_profiles (id, household_id, name, nicknames, birth_date, due_date, version_wall_ms, version_counter, version_device, is_deleted)
-                    VALUES ($id, $h, $name, $nicknames, $birth, $due, $version_wall_ms, $version_counter, $version_device, $deleted)
+                    INSERT INTO baby_profiles (id, household_id, name, nicknames, birth_date, due_date, sex, version_wall_ms, version_counter, version_device, is_deleted)
+                    VALUES ($id, $h, $name, $nicknames, $birth, $due, $sex, $version_wall_ms, $version_counter, $version_device, $deleted)
                     ON CONFLICT (id) DO UPDATE SET household_id = excluded.household_id, name = excluded.name, nicknames = excluded.nicknames,
-                        birth_date = excluded.birth_date, due_date = excluded.due_date, version_wall_ms = excluded.version_wall_ms,
+                        birth_date = excluded.birth_date, due_date = excluded.due_date, sex = excluded.sex, version_wall_ms = excluded.version_wall_ms,
                         version_counter = excluded.version_counter, version_device = excluded.version_device, is_deleted = excluded.is_deleted;
                     """,
                     cancellationToken, transaction,
                     [
                         ("$id", id), ("$h", h), ("$name", b.Name), ("$nicknames", JsonSerializer.Serialize(b.Nicknames.ToList(), StringListJson.Default.ListString)),
                         ("$birth", b.BirthDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
-                        ("$due", b.DueDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)), .. Columns.Stamp(record.Version), ("$deleted", deleted),
+                        ("$due", b.DueDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+                        ("$sex", BabySexText.Text(BabySexText.Parse(b.Sex))), .. Columns.Stamp(record.Version), ("$deleted", deleted),
                     ]);
 
             case HouseholdSettingsPayload s:

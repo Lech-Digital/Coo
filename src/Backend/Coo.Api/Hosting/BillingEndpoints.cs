@@ -34,6 +34,8 @@ public static class BillingEndpoints
                 VerifyReceiptOutcome.NotAMember => Results.Forbid(),
                 VerifyReceiptOutcome.OtherHousehold => Results.Conflict(new { Code = "billing.other-household" }),
                 VerifyReceiptOutcome.UnknownProduct => Results.BadRequest(new { Code = "billing.unknown-product" }),
+                // Nothing was decided: the app keeps the purchase and reports it again on its next check.
+                VerifyReceiptOutcome.Unavailable => Results.Json(new { Code = "billing.unavailable" }, statusCode: StatusCodes.Status503ServiceUnavailable),
                 _ => Results.BadRequest(new { Code = "billing.invalid-purchase" }),
             };
         }).RequireAuthorization();
@@ -81,8 +83,9 @@ public static class BillingEndpoints
             var changed = notification?.SubscriptionNotification?.PurchaseToken
                 ?? notification?.OneTimeProductNotification?.PurchaseToken
                 ?? notification?.VoidedPurchaseNotification?.PurchaseToken;
-            if (changed is { Length: > 0 } purchaseToken)
-                await useCase.ExecuteAsync(purchaseToken, cancellationToken);
+            // Google unreachable: 503, and Pub/Sub delivers the notification again (for up to 7 days).
+            if (changed is { Length: > 0 } purchaseToken && !await useCase.ExecuteAsync(purchaseToken, cancellationToken))
+                return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
 
             return Results.Ok();
         });

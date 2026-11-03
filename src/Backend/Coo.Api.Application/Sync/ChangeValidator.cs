@@ -118,7 +118,8 @@ public static class ChangeValidator
     {
         var created = BabyProfile.Create(
             new BabyId(change.EntityId), household, p.Name, p.Nicknames ?? [], p.BirthDate, p.DueDate, change.Version,
-            DateOnly.FromDateTime(now.UtcDateTime));
+            DateOnly.FromDateTime(now.UtcDateTime),
+            p.Sex switch { "girl" => BabySex.Girl, "boy" => BabySex.Boy, _ => null });
         return created.IsSuccess ? new BabyProfileWrite(created.Value) : Reject(created.Error!.Code);
     }
 

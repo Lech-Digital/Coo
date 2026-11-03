@@ -199,6 +199,10 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("seq");
 
+                    b.Property<string>("Sex")
+                        .HasColumnType("text")
+                        .HasColumnName("sex");
+
                     b.Property<int>("VersionCounter")
                         .HasColumnType("integer")
                         .HasColumnName("version_counter");
@@ -222,6 +226,8 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
                             t.HasCheckConstraint("ck_baby_profiles_date", "birth_date IS NOT NULL OR due_date IS NOT NULL");
 
                             t.HasCheckConstraint("ck_baby_profiles_seq", "seq >= 1");
+
+                            t.HasCheckConstraint("ck_baby_profiles_sex", "sex IS NULL OR sex IN ('girl', 'boy')");
                         });
                 });
 

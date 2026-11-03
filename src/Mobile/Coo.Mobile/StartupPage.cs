@@ -103,6 +103,28 @@ public sealed class StartupPage : ContentPage
         inbox.MarkReady();
         if (openJoin)
             await OpenJoinAsync(held == Joining.HeldLink.Malformed);
+        else
+            await ShowTourOnceAsync(window);
+    }
+
+    /// <summary>
+    /// "How Coo works" over the welcome screen, the first time Coo starts on this phone (owner, 2026-11-03). Not over an
+    /// invitation's join flow: someone joining a family came for that first; Settings has the tour for later.
+    /// </summary>
+    private async Task ShowTourOnceAsync(Window window)
+    {
+        try
+        {
+            if (await _services.GetRequiredService<Coo.Mobile.Application.Preferences.ITourState>().HasSeenAsync(CancellationToken.None)
+                || window.Page is not Pages.SetupPage setup)
+                return;
+            await setup.Navigation.PushModalAsync(_services.GetRequiredService<Pages.TourPage>(), animated: false);
+        }
+        catch (Exception ex)
+        {
+            // The tour is a nicety: a failure leaves the welcome screen as it was.
+            System.Diagnostics.Debug.WriteLine($"Tour not shown: {ex.Message}");
+        }
     }
 
     /// <summary>The held link stored, and whether the join flow opens at start. A failure opens nothing: the next start tries again.</summary>
@@ -447,21 +469,12 @@ public sealed class StartupPage : ContentPage
         await _services.GetRequiredService<Coo.Mobile.Presentation.Log.LogViewModel>().RefreshAsync();
         await _services.GetRequiredService<Coo.Mobile.Presentation.Settings.SettingsViewModel>().RefreshAsync();
 
-        // Check billing entitlement in background if household is available
+        // Whether the family on screen has Premium (ADR 0004), in the background; again on resume and on sign-in (App).
         _ = Task.Run(async () =>
         {
             try
             {
-                var households = _services.GetService<IHouseholdStore>();
-                var billing = _services.GetService<Coo.Mobile.Application.Billing.IBillingService>();
-                if (households != null && billing != null)
-                {
-                    var household = (await households.ListHouseholdsAsync(CancellationToken.None)).FirstOrDefault(h => !h.IsDeleted);
-                    if (household != null)
-                    {
-                        await billing.CheckEntitlementAsync(household.Id, CancellationToken.None);
-                    }
-                }
+                await _services.GetRequiredService<Coo.Mobile.Application.Billing.EntitlementRefresher>().RefreshAsync(force: true, CancellationToken.None);
             }
             catch (Exception ex)
             {

@@ -492,44 +492,126 @@ public sealed class TodayPage : ContentPage
             await _sheet.ShowAsync(content);
     }
 
-    private View FeedSheet() => Panel(
-        Strings.Get("Kind.Feed"),
-        Row(
-            Big(Strings.Get("Feed.Left"), _model.StartBreastCommand, BreastSide.Left, "feeding"),
-            Big(Strings.Get("Feed.Right"), _model.StartBreastCommand, BreastSide.Right, "feeding")),
-        Ui.Text(Strings.Get("Feed.BreastHint"), "Meta"),
-        Ghost(Strings.Get("Feed.Bottle"), _model.OpenBottleCommand),
-        EarlierLink("feeding"));
+    /// <summary>
+    /// Feed: the two sides first, the one to offer next marked; then the bottle; the last feed above them, so the sheet
+    /// answers "which side, and how long ago" without going back to Today.
+    /// </summary>
+    private View FeedSheet()
+    {
+        var children = new List<View>();
+        if (_model.LastFeedLine is { Length: > 0 } last)
+            children.Add(Ui.Text(last, "Meta", "Ink2"));
+        children.Add(Row(SideButton(BreastSide.Left), SideButton(BreastSide.Right)));
+        children.Add(Ui.Text(Strings.Get("Feed.BreastHint"), "Meta", "Ink2"));
+        children.Add(WideRow(Coo.Mobile.Presentation.Theme.IconGeometry.Feed, Strings.Get("Feed.Bottle"), _model.OpenBottleCommand, "feeding"));
+        children.Add(EarlierLink("feeding"));
+        return Panel(Strings.Get("Kind.Feed"), [.. children]);
+    }
 
+    /// <summary>A side to start a timer on, in the feed colours; the suggested one outlined and labelled "Next".</summary>
+    private View SideButton(BreastSide side)
+    {
+        var look = Coo.Mobile.Presentation.Theme.EventAppearance.For("feeding");
+        var suggested = _model.SuggestedSide == side;
+        var stack = new VerticalStackLayout { Spacing = 2, VerticalOptions = LayoutOptions.Center };
+        stack.Add(Ui.Text(Strings.Get(side == BreastSide.Left ? "Feed.Left" : "Feed.Right"), "BodyStrong", look.Ink).Tap(l => l.HorizontalOptions = LayoutOptions.Center));
+        if (suggested)
+            stack.Add(Ui.Text(Strings.Get("Feed.Next"), "Meta", look.Ink).Tap(l => l.HorizontalOptions = LayoutOptions.Center));
+        var card = Ui.Rounded(stack, look.Tint, 20, new Thickness(12, 14), suggested ? look.Ink : null);
+        card.MinimumHeightRequest = 72;
+        card.StrokeThickness = suggested ? 2 : 0;
+        card.GestureRecognizers.Add(new TapGestureRecognizer { Command = _model.StartBreastCommand, CommandParameter = side });
+        SemanticProperties.SetDescription(card, suggested ? $"{Strings.Get(side == BreastSide.Left ? "Feed.Left" : "Feed.Right")}, {Strings.Get("Feed.Next")}" : Strings.Get(side == BreastSide.Left ? "Feed.Left" : "Feed.Right"));
+        return card;
+    }
+
+    /// <summary>A full-width row with the kind's icon, a label and a chevron: a second choice under the big buttons.</summary>
+    private static View WideRow(string icon, string text, System.Windows.Input.ICommand command, string kindCode)
+    {
+        var look = Coo.Mobile.Presentation.Theme.EventAppearance.For(kindCode);
+        var grid = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 12 };
+        grid.Add(Ui.Rounded(new Icon(icon, look.Ink, 18), look.Tint, 10, new Thickness(6)).Tap(b => b.VerticalOptions = LayoutOptions.Center), 0);
+        grid.Add(Ui.Text(text, "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
+        grid.Add(new Icon(Coo.Mobile.Presentation.Theme.IconGeometry.ChevronRight, "Ink2", 18).Tap(i => i.VerticalOptions = LayoutOptions.Center), 2);
+        var row = Ui.Rounded(grid, "Surface", 16, new Thickness(14, 10), "Line");
+        row.GestureRecognizers.Add(new TapGestureRecognizer { Command = command });
+        SemanticProperties.SetDescription(row, text);
+        return row;
+    }
+
+    /// <summary>Wet or dirty. No "both": a dirty diaper is usually wet too, and nobody can tell (owner, 2026-11-03).</summary>
     private View DiaperSheet() => Panel(
         Strings.Get("Kind.Diaper"),
         Row(
             Big(Strings.Get("Diaper.Wet"), _model.LogDiaperCommand, DiaperContents.Wet, "diaper"),
-            Big(Strings.Get("Diaper.Dirty"), _model.LogDiaperCommand, DiaperContents.Dirty, "diaper"),
-            Big(Strings.Get("Diaper.Mixed"), _model.LogDiaperCommand, DiaperContents.Mixed, "diaper")),
+            Big(Strings.Get("Diaper.Dirty"), _model.LogDiaperCommand, DiaperContents.Dirty, "diaper")),
         EarlierLink("diaper"));
 
+    /// <summary>
+    /// Bottle: which milk, how much (one tap on an amount near the last bottle, or − and +), log. The last bottle is
+    /// named above, so "same as last time" needs no memory.
+    /// </summary>
     private View BottleSheet()
     {
-        var milk = new HorizontalStackLayout { Spacing = 8 };
-        foreach (var (choice, key) in new[] { (BottleMilk.Formula, "Milk.Formula"), (BottleMilk.Breast, "Milk.Breast"), (BottleMilk.Both, "Milk.Both") })
+        var children = new List<View>();
+        if (_model.LastBottleLine is { Length: > 0 } last)
+            children.Add(Ui.Text(last, "Meta", "Ink2"));
+
+        var milk = new Grid { ColumnSpacing = 8 };
+        var choices = new[] { (BottleMilk.Formula, "Milk.Formula"), (BottleMilk.Breast, "Milk.Breast"), (BottleMilk.Both, "Milk.Both") };
+        for (var i = 0; i < choices.Length; i++)
         {
-            var button = new Button { Text = Strings.Get(key) };
+            var (choice, key) = choices[i];
+            var button = new Button { Text = Strings.Get(key), Padding = new Thickness(4, 0) };
             button.SetDynamicResource(VisualElement.StyleProperty, _model.Milk == choice ? "PrimaryButton" : "GhostButton");
+            button.Padding = new Thickness(4, 0);
             button.Clicked += async (_, _) =>
             {
                 _model.Milk = choice;
                 await _sheet.ShowAsync(BottleSheet());
             };
-            milk.Add(button);
+            milk.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+            milk.Add(button, i);
         }
 
-        var children = new List<View> { milk, Stepper(() => _model.BottleAmount, _model.ChangeAmountCommand, _model.Milk == BottleMilk.Both ? Strings.Get("Milk.Breast") : null) };
-        if (_model.Milk == BottleMilk.Both)
+        children.Add(milk);
+        children.Add(Stepper(() => _model.BottleAmount, _model.ChangeAmountCommand, _model.Milk == BottleMilk.Both ? Strings.Get("Milk.Breast") : null));
+        if (_model.Milk != BottleMilk.Both)
+            children.Add(QuickAmounts());
+        else
             children.Add(Stepper(() => _model.SecondAmount, _model.ChangeSecondAmountCommand, Strings.Get("Milk.Formula")));
         children.Add(Primary(Strings.Get("Action.LogBottle"), _model.LogBottleCommand));
         children.Add(EarlierLink("feeding", bottle: true));
         return Panel(Strings.Get("Feed.Bottle"), [.. children]);
+    }
+
+    /// <summary>Amounts one tap away, the chosen one filled.</summary>
+    private View QuickAmounts()
+    {
+        var look = Coo.Mobile.Presentation.Theme.EventAppearance.For("feeding");
+        var grid = new Grid { ColumnSpacing = 8 };
+        var amounts = _model.QuickAmounts;
+        for (var i = 0; i < amounts.Count; i++)
+        {
+            var amount = amounts[i];
+            var chosen = amount == _model.BottleAmount;
+            var chip = Ui.Rounded(
+                Ui.Text($"{amount:0.#}", chosen ? "BodyStrong" : "Body", look.Ink).Tap(l => l.HorizontalOptions = LayoutOptions.Center),
+                chosen ? look.Tint : "Surface", 999, new Thickness(4, 8), chosen ? look.Ink : "Line");
+            chip.GestureRecognizers.Add(new TapGestureRecognizer
+            {
+                Command = new Command(async () =>
+                {
+                    _model.SetAmountCommand.Execute(amount);
+                    await _sheet.ShowAsync(BottleSheet());
+                }),
+            });
+            SemanticProperties.SetDescription(chip, $"{amount:0.#} {_model.UnitLabel}");
+            grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+            grid.Add(chip, i);
+        }
+
+        return grid;
     }
 
     private View PumpSheet()
@@ -574,10 +656,13 @@ public sealed class TodayPage : ContentPage
         {
             var b = new Button { Text = sign == "+" ? "+" : "−", WidthRequest = 64, FontSize = 24 };
             b.SetDynamicResource(VisualElement.StyleProperty, "GhostButton");
-            b.Clicked += (_, _) =>
+            b.Clicked += async (_, _) =>
             {
                 change.Execute(sign);
                 number.Text = $"{value():0.#} {_model.UnitLabel}";
+                // The quick amounts show which one is chosen: the bottle sheet is drawn again.
+                if (_model.Sheet == HomeSheet.Bottle && _model.Milk != BottleMilk.Both)
+                    await _sheet.ShowAsync(BottleSheet());
             };
             return b;
         }

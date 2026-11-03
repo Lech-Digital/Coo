@@ -75,7 +75,10 @@ public partial class App : Microsoft.Maui.Controls.Application
                 engine.Resumed();
                 prompter.Resumed();
             });
+            RefreshEntitlement(force: false);
         };
+        // Signing in or out, or joining a family, can change which family is shown and whether it has Premium.
+        _services.GetRequiredService<Coo.Mobile.Application.Auth.Account>().Changed += (_, _) => RefreshEntitlement(force: true);
         window.Stopped += (_, _) =>
         {
             IsForeground = false;
@@ -87,6 +90,19 @@ public partial class App : Microsoft.Maui.Controls.Application
         };
         return window;
     }
+
+    /// <summary>Asks again whether the family on screen has Premium (a trial ended, a partner cancelled), in the background.</summary>
+    private void RefreshEntitlement(bool force) => _ = Task.Run(async () =>
+    {
+        try
+        {
+            await _services.GetRequiredService<Coo.Mobile.Application.Billing.EntitlementRefresher>().RefreshAsync(force, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Entitlement refresh failed: {ex.Message}");
+        }
+    });
 
     /// <summary>
     /// Whether a Coo window is on screen: set when a window is created (a recreated activity gets no Resumed) and on

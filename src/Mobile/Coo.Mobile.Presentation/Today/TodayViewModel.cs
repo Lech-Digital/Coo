@@ -283,14 +283,72 @@ public sealed partial class TodayViewModel : ObservableObject
         Sheet = HomeSheet.Bottle;
     }
 
-    /// <summary>Last bottle's amounts and milk, or a sensible start; also when the night row asks for the sheet.</summary>
+    /// <summary>
+    /// The last bottle's amounts and milk (of the last week, even when a breastfeed came after it), or else what a baby of
+    /// this age typically takes; also when the night row asks for the sheet.
+    /// </summary>
     private void PrefillBottle()
     {
-        var last = _summary?.LastFeed?.Details as BottleFeed;
-        BottleAmount = last is null ? (_household?.VolumeUnit == VolumeUnit.Ounces ? 4m : 120m) : ToUnit(last.Components[0].Volume);
+        var last = _summary?.LastBottle?.Details as BottleFeed;
+        BottleAmount = last is null ? TypicalBottle() : ToUnit(last.Components[0].Volume);
         SecondAmount = last is { Components.Count: > 1 } ? ToUnit(last.Components[1].Volume) : BottleAmount;
         Milk = last is null ? BottleMilk.Formula : last.Components.Count > 1 ? BottleMilk.Both
             : last.Components[0].Milk == Coo.Domain.CareLog.Kinds.Feeding.Milk.Formula ? BottleMilk.Formula : BottleMilk.Breast;
+    }
+
+    /// <summary>The side to offer first on the Feed sheet: the other one than the last breastfeed ended on.</summary>
+    public BreastSide? SuggestedSide => _summary?.LastFeed?.Details is BreastFeed bf
+        ? bf.LastSide == BreastSide.Left ? BreastSide.Right : BreastSide.Left
+        : null;
+
+    /// <summary>"Last feed 2 h 10 m ago · Right side" for the Feed sheet; empty before the first feed.</summary>
+    public string LastFeedLine
+    {
+        get
+        {
+            if (_summary?.LastFeed is not { } feed)
+                return "";
+            var ago = _time.GetUtcNow() - feed.Timing.OccurredAt;
+            var when = ago < TimeSpan.FromMinutes(1) ? Strings.Get("Feed.JustNow") : Strings.Format("Feed.Ago", Coo.Mobile.Presentation.Formatting.Formats.Duration(ago));
+            var what = feed.Details switch
+            {
+                BreastFeed bf => Coo.Mobile.Presentation.Formatting.Formats.Side(bf.LastSide, shortForm: false),
+                BottleFeed bottle => $"{Formats().Volume(bottle.Total)} · {Coo.Mobile.Presentation.Formatting.Formats.MilkName(bottle.Components)}",
+                _ => "",
+            };
+            return Strings.Format("Feed.LastFeed", what.Length > 0 ? $"{when} · {what}" : when);
+        }
+    }
+
+    /// <summary>"Last bottle 90 ml · Breast milk · 10:37" for the Bottle sheet; empty when there was none this week.</summary>
+    public string LastBottleLine => _summary?.LastBottle is { Details: BottleFeed bottle } entry
+        ? Strings.Format("Bottle.Last", $"{Formats().Volume(bottle.Total)} · {Coo.Mobile.Presentation.Formatting.Formats.MilkName(bottle.Components)} · {Formats().Time(entry.Timing.OccurredAt)}")
+        : "";
+
+    /// <summary>
+    /// One-tap amounts around what this baby takes: the last bottle (or the typical one for the age) with a step of 30 ml
+    /// (1 oz) either side, and one more above (half that step for small bottles), so most bottles are one tap instead of several on "+".
+    /// </summary>
+    public IReadOnlyList<decimal> QuickAmounts
+    {
+        get
+        {
+            var ounces = _household?.VolumeUnit == VolumeUnit.Ounces;
+            var middle = _summary?.LastBottle?.Details is BottleFeed last ? ToUnit(last.Components[0].Volume) : TypicalBottle();
+            middle = Math.Round(middle / Step, MidpointRounding.AwayFromZero) * Step;
+            // Small bottles in small steps: a newborn goes 15, 30, 45 ml, not 15, 45, 75.
+            var step = ounces ? (middle < 2m ? 0.5m : 1m) : (middle < 60m ? 15m : 30m);
+            return [.. new[] { middle - step, middle, middle + step, middle + 2 * step }.Where(a => a > 0).Distinct()];
+        }
+    }
+
+    [RelayCommand]
+    private void SetAmount(decimal amount) => BottleAmount = Math.Max(Step, amount);
+
+    private decimal TypicalBottle()
+    {
+        var ageDays = _baby?.BirthDate is { } born ? DateOnly.FromDateTime(Today).DayNumber - born.DayNumber : 0;
+        return _household?.VolumeUnit == VolumeUnit.Ounces ? BottleSizes.TypicalOunces(ageDays) : BottleSizes.TypicalMillilitres(ageDays);
     }
 
     [RelayCommand]

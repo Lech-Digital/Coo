@@ -1,4 +1,7 @@
 using Coo.Domain.Common;
+using Coo.Domain.Common.Versioning;
+using Coo.Domain.Households;
+using Coo.Mobile.Application.Auth;
 using Coo.Mobile.Application.Billing;
 using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Preferences;
@@ -14,6 +17,19 @@ public sealed class PremiumViewModelTests : IDisposable
 {
     private readonly IBillingService _billing = Substitute.For<IBillingService>();
     private readonly IHouseholdStore _households = Substitute.For<IHouseholdStore>();
+    private readonly IFamilyStore _families = Substitute.For<IFamilyStore>();
+    private readonly Account _account = new(new MemorySessions());
+
+    private PremiumViewModel NewModel() => new(_billing, _households, _account, _families);
+
+    private async Task SignInAsync(Role role, HouseholdId household)
+    {
+        var user = new UserId(Guid.Parse("0190a000-0000-7000-8000-0000000000a1"));
+        await _account.SignedInAsync(
+            new StoredSession("a", DateTimeOffset.MaxValue, "r", new AccountProfile(user, "Ann", "ann@example.com"), household, JoinPending: false),
+            CancellationToken.None);
+        _families.ListAsync(user, Arg.Any<CancellationToken>()).Returns([new FamilyMembership(household, role, DateTimeOffset.MinValue, "Ann", 2)]);
+    }
 
     public PremiumViewModelTests() => Strings.Use(new LanguagePreference("en"), null);
 
@@ -58,9 +74,10 @@ public sealed class PremiumViewModelTests : IDisposable
     public async Task InitializeAsync_PlayHasNoYearlyPlan_ChoosesTheFirstOfferedAndItsTerms()
     {
         // Arrange
+        await SignInAsync(Role.Owner, new HouseholdId(Guid.Parse("0190a000-0000-7000-8000-0000000000b2")));
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([]);
         _billing.GetOffersAsync(Arg.Any<CancellationToken>()).Returns([new PremiumOffer(PremiumPlan.Monthly, "€4.79", 4_790_000, false)]);
-        var model = new PremiumViewModel(_billing, _households);
+        var model = NewModel();
 
         // Act
         await model.InitializeAsync();
@@ -77,7 +94,7 @@ public sealed class PremiumViewModelTests : IDisposable
         // Arrange
         _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([]);
         _billing.GetOffersAsync(Arg.Any<CancellationToken>()).Returns([]);
-        var model = new PremiumViewModel(_billing, _households);
+        var model = NewModel();
 
         // Act
         await model.InitializeAsync();
@@ -85,5 +102,86 @@ public sealed class PremiumViewModelTests : IDisposable
         // Assert
         model.Selected.Should().BeNull();
         model.Terms.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task InitializeAsync_SignedOut_AsksToSignInBeforeBuying()
+    {
+        // Arrange: a purchase made signed out could never reach the family on the server.
+        _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([]);
+        _billing.GetOffersAsync(Arg.Any<CancellationToken>()).Returns([new PremiumOffer(PremiumPlan.Yearly, "€29.99", 29_990_000, true)]);
+        var model = NewModel();
+
+        // Act
+        await model.InitializeAsync();
+
+        // Assert
+        model.IsSignedIn.Should().BeFalse();
+        model.CanBuy.Should().BeTrue();
+        model.BuyLabel.Should().Be("Sign in to buy");
+    }
+
+    [Theory]
+    [InlineData(Role.Caregiver)]
+    [InlineData(Role.Viewer)]
+    public async Task InitializeAsync_SignedInAsCaregiverOrViewer_CannotBuy(Role role)
+    {
+        // Arrange
+        var household = SettingsFor(out var id);
+        await SignInAsync(role, id);
+        _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([household]);
+        _billing.GetOffersAsync(Arg.Any<CancellationToken>()).Returns([]);
+        var model = NewModel();
+
+        // Act
+        await model.InitializeAsync();
+
+        // Assert
+        model.IsSignedIn.Should().BeTrue();
+        model.CanBuy.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task InitializeAsync_SignedInAsParent_CanBuyAndSeesThePlanLabel()
+    {
+        // Arrange
+        var household = SettingsFor(out var id);
+        await SignInAsync(Role.Parent, id);
+        _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([household]);
+        _billing.GetOffersAsync(Arg.Any<CancellationToken>()).Returns([new PremiumOffer(PremiumPlan.Yearly, "€29.99", 29_990_000, true)]);
+        var model = NewModel();
+
+        // Act
+        await model.InitializeAsync();
+
+        // Assert
+        model.CanBuy.Should().BeTrue();
+        model.BuyLabel.Should().Be("Start 7 days free");
+    }
+
+    [Fact]
+    public async Task RestoreCommand_NothingBoughtOnThisAccount_SaysSo()
+    {
+        // Arrange
+        var household = SettingsFor(out var id);
+        await SignInAsync(Role.Owner, id);
+        _households.ListHouseholdsAsync(Arg.Any<CancellationToken>()).Returns([household]);
+        _billing.CheckEntitlementAsync(id, Arg.Any<CancellationToken>()).Returns(false);
+        _billing.GetOffersAsync(Arg.Any<CancellationToken>()).Returns([]);
+        var model = NewModel();
+
+        // Act
+        await model.RestoreCommand.ExecuteAsync(null);
+
+        // Assert
+        model.IsPremium.Should().BeFalse();
+        model.Notice.Should().NotBeEmpty();
+        await _billing.Received().CheckEntitlementAsync(id, Arg.Any<CancellationToken>());
+    }
+
+    private static HouseholdSettings SettingsFor(out HouseholdId id)
+    {
+        id = new HouseholdId(Guid.Parse("0190a000-0000-7000-8000-0000000000b1"));
+        return HouseholdSettings.Create(id, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, new DeviceId(Guid.Parse("0190a000-0000-7000-8000-0000000000c1")))).Value;
     }
 }

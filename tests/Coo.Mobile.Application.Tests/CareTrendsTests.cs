@@ -190,6 +190,83 @@ public sealed class CareTrendsTests
         end.Should().Be(new DateOnly(2026, 2, 28));
     }
 
+    [Fact]
+    public async Task GetDailyAverages_BottlesOnEarlierDays_GivesMilkPerDayAndPerBottleWithoutToday()
+    {
+        // Arrange: the doctor's question. Two days of 6 x 100 ml and 4 x 150 ml; today's bottle is not over yet.
+        var entries = new List<CareEntry>();
+        for (var h = 0; h < 6; h++)
+            entries.Add(Bottle(At(20, 6 + (2 * h)), 100));
+        for (var h = 0; h < 4; h++)
+            entries.Add(Bottle(At(21, 6 + (3 * h)), 150));
+        entries.Add(Bottle(At(22, 9), 500));
+        var averages = new GetDailyAverages(Trends(entries));
+
+        // Act
+        var result = await averages.ExecuteAsync(Household, Baby, 7, Amsterdam, Now, CancellationToken.None);
+
+        // Assert
+        result.DaysCounted.Should().Be(2);
+        result.IncludesToday.Should().BeFalse();
+        result.BottleMl.Should().Be(600m);
+        result.Bottles.Should().Be(5);
+        result.MlPerBottle.Should().Be(120m);
+    }
+
+    [Fact]
+    public async Task GetDailyAverages_OnlyTodayLogged_CountsTodaySoFar()
+    {
+        // Arrange: a first day with Coo.
+        var averages = new GetDailyAverages(Trends([Bottle(At(22, 9), 90), Diaper(At(22, 10), DiaperContents.Dirty)]));
+
+        // Act
+        var result = await averages.ExecuteAsync(Household, Baby, 7, Amsterdam, Now, CancellationToken.None);
+
+        // Assert
+        result.IncludesToday.Should().BeTrue();
+        result.DaysCounted.Should().Be(1);
+        result.Dirty.Should().Be(1);
+        result.Wet.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task GetDailyAverages_NothingLogged_HasNoData()
+    {
+        // Arrange
+        var averages = new GetDailyAverages(Trends([]));
+
+        // Act
+        var result = await averages.ExecuteAsync(Household, Baby, 14, Amsterdam, Now, CancellationToken.None);
+
+        // Assert
+        result.HasData.Should().BeFalse();
+        result.MlPerBottle.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(0, 15)]
+    [InlineData(5, 45)]
+    [InlineData(20, 90)]
+    [InlineData(400, 180)]
+    public void TypicalMillilitres_ByAge_StartsSmallForANewborn(int ageDays, int expected)
+    {
+        // Act
+        var ml = BottleSizes.TypicalMillilitres(ageDays);
+
+        // Assert
+        ml.Should().Be(expected);
+    }
+
+    [Fact]
+    public void TypicalOunces_Newborn_IsHalfAnOunce()
+    {
+        // Act
+        var oz = BottleSizes.TypicalOunces(0);
+
+        // Assert
+        oz.Should().Be(0.5m);
+    }
+
     private static DateTimeOffset At(int day, int hour) => new(2026, 10, day, hour, 0, 0, Cest);
 
     private static GetCareTrends Trends(IReadOnlyList<CareEntry> entries)

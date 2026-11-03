@@ -206,5 +206,129 @@ public sealed class BillingApiTests(AuthApi api) : IClassFixture<AuthApi>
         Assert.False(forOther!.IsPremium);
     }
 
+    [Fact]
+    public async Task Entitlements_SubscriptionCancelledButPaidUntilLater_StaysPremiumUntilItsPeriodEnds()
+    {
+        // Arrange: the payer turned off renewal; Google reports it cancelled, paid for 20 more days.
+        var now = api.Factory.Services.GetRequiredService<TimeProvider>().GetUtcNow().UtcDateTime;
+        var googlePlay = Substitute.For<IGooglePlayValidator>();
+        googlePlay.VerifyPurchaseAsync(Products.Premium, "token-cancel", Arg.Any<CancellationToken>())
+            .Returns(new GooglePlayPurchaseInfo("token-cancel", Products.Premium, now.AddDays(20), SubscriptionStatus.Canceled, false));
+        var factory = api.Factory.WithWebHostBuilder(host => host.ConfigureTestServices(services => services.AddSingleton(googlePlay)));
+        using var client = factory.CreateClient();
+        var session = await SyncCalls.SignInWithConsentAsync(client, "billing-cancel", Calls.Id(9041), Calls.Id(9042));
+
+        // Act
+        await Calls.SendAsync(client, HttpMethod.Post, new Uri("/api/billing/verify-receipt", UriKind.Relative), session.AccessToken,
+            new { HouseholdId = session.HouseholdId, ProductId = Products.Premium, PurchaseToken = "token-cancel" });
+        var status = await (await Calls.SendAsync(client, HttpMethod.Get, new Uri($"/api/billing/entitlements/{session.HouseholdId}", UriKind.Relative), session.AccessToken, null))
+            .Content.ReadFromJsonAsync<EntitlementResponse>();
+
+        // Assert
+        Assert.True(status!.IsPremium);
+    }
+
+    [Fact]
+    public async Task VerifyReceipt_UnacknowledgedPurchase_IsRecordedThenAcknowledged()
+    {
+        // Arrange
+        var now = api.Factory.Services.GetRequiredService<TimeProvider>().GetUtcNow().UtcDateTime;
+        var googlePlay = Substitute.For<IGooglePlayValidator>();
+        googlePlay.VerifyPurchaseAsync(Products.Premium, "token-ack", Arg.Any<CancellationToken>())
+            .Returns(new GooglePlayPurchaseInfo("token-ack", Products.Premium, now.AddDays(7), SubscriptionStatus.Active, true, NeedsAcknowledgement: true));
+        var factory = api.Factory.WithWebHostBuilder(host => host.ConfigureTestServices(services => services.AddSingleton(googlePlay)));
+        using var client = factory.CreateClient();
+        var session = await SyncCalls.SignInWithConsentAsync(client, "billing-ack", Calls.Id(9043), Calls.Id(9044));
+
+        // Act
+        var res = await Calls.SendAsync(client, HttpMethod.Post, new Uri("/api/billing/verify-receipt", UriKind.Relative), session.AccessToken,
+            new { HouseholdId = session.HouseholdId, ProductId = Products.Premium, PurchaseToken = "token-ack" });
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+        await googlePlay.Received(1).AcknowledgeAsync(Products.Premium, "token-ack", Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task VerifyReceipt_WhenGooglePlayIsUnavailable_Answers503AndGrantsNothing()
+    {
+        // Arrange
+        var googlePlay = Substitute.For<IGooglePlayValidator>();
+        googlePlay.VerifyPurchaseAsync(Products.Premium, "token-down", Arg.Any<CancellationToken>())
+            .Returns<GooglePlayPurchaseInfo?>(_ => throw new PlayUnavailableException("down"));
+        var factory = api.Factory.WithWebHostBuilder(host => host.ConfigureTestServices(services => services.AddSingleton(googlePlay)));
+        using var client = factory.CreateClient();
+        var session = await SyncCalls.SignInWithConsentAsync(client, "billing-down", Calls.Id(9045), Calls.Id(9046));
+
+        // Act
+        var res = await Calls.SendAsync(client, HttpMethod.Post, new Uri("/api/billing/verify-receipt", UriKind.Relative), session.AccessToken,
+            new { HouseholdId = session.HouseholdId, ProductId = Products.Premium, PurchaseToken = "token-down" });
+        var status = await (await Calls.SendAsync(client, HttpMethod.Get, new Uri($"/api/billing/entitlements/{session.HouseholdId}", UriKind.Relative), session.AccessToken, null))
+            .Content.ReadFromJsonAsync<EntitlementResponse>();
+
+        // Assert
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, res.StatusCode);
+        Assert.False(status!.IsPremium);
+    }
+
+    [Fact]
+    public async Task RTDN_WhenGooglePlayIsUnavailable_Answers503SoPubSubRetries()
+    {
+        // Arrange
+        var now = api.Factory.Services.GetRequiredService<TimeProvider>().GetUtcNow().UtcDateTime;
+        var googlePlay = Substitute.For<IGooglePlayValidator>();
+        googlePlay.VerifyPurchaseAsync(Products.Premium, "token-retry", Arg.Any<CancellationToken>())
+            .Returns(new GooglePlayPurchaseInfo("token-retry", Products.Premium, now.AddDays(30), SubscriptionStatus.Active, true));
+        var factory = api.Factory.WithWebHostBuilder(host =>
+        {
+            host.UseSetting("Billing:RtdnToken", "push-secret");
+            host.ConfigureTestServices(services => services.AddSingleton(googlePlay));
+        });
+        using var client = factory.CreateClient();
+        var session = await SyncCalls.SignInWithConsentAsync(client, "billing-retry", Calls.Id(9047), Calls.Id(9048));
+        await Calls.SendAsync(client, HttpMethod.Post, new Uri("/api/billing/verify-receipt", UriKind.Relative), session.AccessToken,
+            new { HouseholdId = session.HouseholdId, ProductId = Products.Premium, PurchaseToken = "token-retry" });
+        googlePlay.VerifyPurchaseAsync(Products.Premium, "token-retry", Arg.Any<CancellationToken>())
+            .Returns<GooglePlayPurchaseInfo?>(_ => throw new PlayUnavailableException("down"));
+        var payload = new { Message = new { Data = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new { SubscriptionNotification = new { PurchaseToken = "token-retry" } }))) } };
+
+        // Act
+        var res = await client.PostAsJsonAsync("/api/billing/rtdn?token=push-secret", payload);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, res.StatusCode);
+    }
+
+    [Fact]
+    public async Task RecheckPurchases_RenewedWithoutANotification_TakesGooglesNewExpiry()
+    {
+        // Arrange: a subscription about to run out, checked over an hour ago; Google has renewed it, and no RTDN came.
+        var time = api.Factory.Services.GetRequiredService<TimeProvider>();
+        var now = time.GetUtcNow().UtcDateTime;
+        var googlePlay = Substitute.For<IGooglePlayValidator>();
+        var factory = api.Factory.WithWebHostBuilder(host => host.ConfigureTestServices(services => services.AddSingleton(googlePlay)));
+        using var client = factory.CreateClient();
+        var session = await SyncCalls.SignInWithConsentAsync(client, "billing-recheck", Calls.Id(9049), Calls.Id(9050));
+        var store = factory.Services.GetRequiredService<IBillingStore>();
+        await store.SaveSubscriptionAsync(
+            new Subscription("token-renew", new Coo.Domain.Common.HouseholdId(session.HouseholdId), session.User.Id, Products.Premium,
+                SubscriptionStatus.Active, now.AddMinutes(-5), now.AddDays(-30), now.AddHours(-2)),
+            CancellationToken.None);
+        googlePlay.VerifyPurchaseAsync(Products.Premium, "token-renew", Arg.Any<CancellationToken>())
+            .Returns(new GooglePlayPurchaseInfo("token-renew", Products.Premium, now.AddDays(30), SubscriptionStatus.Active, true));
+
+        // Act
+        var (rechecked, failed) = await factory.Services.GetRequiredService<RecheckPurchases>().ExecuteAsync(CancellationToken.None);
+        var saved = await store.FindSubscriptionAsync("token-renew", CancellationToken.None);
+        var status = await (await Calls.SendAsync(client, HttpMethod.Get, new Uri($"/api/billing/entitlements/{session.HouseholdId}", UriKind.Relative), session.AccessToken, null))
+            .Content.ReadFromJsonAsync<EntitlementResponse>();
+
+        // Assert
+        Assert.True(rechecked >= 1);
+        Assert.Equal(0, failed);
+        Assert.True(saved!.ExpiryDate > now.AddDays(29));
+        Assert.True(status!.IsPremium);
+    }
+
     private sealed record EntitlementResponse(bool IsPremium);
 }

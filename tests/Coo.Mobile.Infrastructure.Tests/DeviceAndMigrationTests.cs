@@ -321,6 +321,7 @@ public sealed class DismissalAndOutboxTests
                     version_counter INTEGER NOT NULL, version_device TEXT NOT NULL) STRICT;
                 INSERT INTO outbox SELECT * FROM outbox_old;
                 DROP TABLE outbox_old;
+                ALTER TABLE baby_profiles DROP COLUMN sex;
                 PRAGMA user_version = 2;
                 """,
                 CancellationToken.None);

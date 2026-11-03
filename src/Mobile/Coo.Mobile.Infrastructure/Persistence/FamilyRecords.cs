@@ -56,15 +56,16 @@ internal sealed class FamilyRecords(LocalDatabase database, TimeProvider time, L
                 targetBabies.Add(reader.GetString(0));
         }
 
-        var sourceBabies = new List<(string Id, string Name, string Nicknames, string? Birth, string? Due)>();
+        var sourceBabies = new List<(string Id, string Name, string Nicknames, string? Birth, string? Due, string? Sex)>();
         await using (var command = connection.Command(
-            "SELECT id, name, nicknames, birth_date, due_date FROM baby_profiles WHERE household_id = $s AND is_deleted = 0 ORDER BY id;", transaction, ("$s", source)))
+            "SELECT id, name, nicknames, birth_date, due_date, sex FROM baby_profiles WHERE household_id = $s AND is_deleted = 0 ORDER BY id;", transaction, ("$s", source)))
         await using (var reader = await command.ExecuteReaderAsync(cancellationToken))
         {
             while (await reader.ReadAsync(cancellationToken))
             {
                 sourceBabies.Add((reader.GetString(0), reader.GetString(1), reader.GetString(2),
-                    reader.IsDBNull(3) ? null : reader.GetString(3), reader.IsDBNull(4) ? null : reader.GetString(4)));
+                    reader.IsDBNull(3) ? null : reader.GetString(3), reader.IsDBNull(4) ? null : reader.GetString(4),
+                    reader.IsDBNull(5) ? null : reader.GetString(5)));
             }
         }
 
@@ -82,11 +83,11 @@ internal sealed class FamilyRecords(LocalDatabase database, TimeProvider time, L
             var stamp = Next();
             await connection.ExecuteAsync(
                 """
-                INSERT INTO baby_profiles (id, household_id, name, nicknames, birth_date, due_date, version_wall_ms, version_counter, version_device, is_deleted)
-                VALUES ($id, $t, $name, $nicknames, $birth, $due, $version_wall_ms, $version_counter, $version_device, 0);
+                INSERT INTO baby_profiles (id, household_id, name, nicknames, birth_date, due_date, sex, version_wall_ms, version_counter, version_device, is_deleted)
+                VALUES ($id, $t, $name, $nicknames, $birth, $due, $sex, $version_wall_ms, $version_counter, $version_device, 0);
                 """,
                 cancellationToken, transaction,
-                [("$id", newId), ("$t", target), ("$name", baby.Name), ("$nicknames", baby.Nicknames), ("$birth", baby.Birth), ("$due", baby.Due), .. Columns.Stamp(stamp)]);
+                [("$id", newId), ("$t", target), ("$name", baby.Name), ("$nicknames", baby.Nicknames), ("$birth", baby.Birth), ("$due", baby.Due), ("$sex", baby.Sex), .. Columns.Stamp(stamp)]);
             await Outbox.AppendAsync(connection, transaction, SyncedEntityType.BabyProfile, Guid.Parse(newId), false, stamp, time, cancellationToken);
             babyMap[baby.Id] = newId;
         }

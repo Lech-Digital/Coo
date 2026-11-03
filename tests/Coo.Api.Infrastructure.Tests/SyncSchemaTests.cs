@@ -26,7 +26,7 @@ public sealed class SyncSchemaTests(PostgresServer server)
         columns.Split(',').Should().BeEquivalentTo(
             "baby_profiles.id", "baby_profiles.household_id", "baby_profiles.name", "baby_profiles.nicknames", "baby_profiles.birth_date",
             "baby_profiles.due_date", "baby_profiles.version_wall_ms", "baby_profiles.version_counter", "baby_profiles.version_device",
-            "baby_profiles.is_deleted", "baby_profiles.seq",
+            "baby_profiles.is_deleted", "baby_profiles.seq", "baby_profiles.sex",
             "household_settings.household_id", "household_settings.volume_unit", "household_settings.time_zone_id",
             "household_settings.hidden_kinds", "household_settings.version_wall_ms", "household_settings.version_counter",
             "household_settings.version_device", "household_settings.is_deleted", "household_settings.seq",

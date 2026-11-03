@@ -12,7 +12,8 @@ public static class SettingsErrors
 }
 
 /// <summary>What the baby page saves (Spec 009 §3.1).</summary>
-public sealed record BabyProfileChange(string Name, IReadOnlyList<string> Nicknames, DateOnly? BirthDate, DateOnly? DueDate);
+/// <param name="Sex">Null keeps what the baby has: the page offers no way back to "not set".</param>
+public sealed record BabyProfileChange(string Name, IReadOnlyList<string> Nicknames, DateOnly? BirthDate, DateOnly? DueDate, BabySex? Sex = null);
 
 /// <summary>The baby page's Save: every field in one write, with its outbox row.</summary>
 public sealed class UpdateBabyProfile(IHouseholdStore households, IVersionClock clock, TimeProvider time)
@@ -23,6 +24,23 @@ public sealed class UpdateBabyProfile(IHouseholdStore households, IVersionClock 
         ArgumentNullException.ThrowIfNull(change);
         var today = DateOnly.FromDateTime(time.GetLocalNow().DateTime);
         var result = baby.Revise(change.Name, change.Nicknames, change.BirthDate, change.DueDate, await clock.NextAsync(cancellationToken), today);
+        if (result.IsSuccess && change.Sex is { } sex && sex != baby.Sex)
+            result = baby.SetSex(sex, await clock.NextAsync(cancellationToken));
+        if (result.IsSuccess)
+            await households.SaveBabyAsync(baby, cancellationToken);
+        return result;
+    }
+}
+
+/// <summary>The growth chart's "girls or boys": kept on the baby, so it is chosen once for the whole family.</summary>
+public sealed class SetBabySex(IHouseholdStore households, IVersionClock clock)
+{
+    public async Task<Result> ExecuteAsync(BabyProfile baby, BabySex sex, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(baby);
+        if (baby.Sex == sex)
+            return Result.Success;
+        var result = baby.SetSex(sex, await clock.NextAsync(cancellationToken));
         if (result.IsSuccess)
             await households.SaveBabyAsync(baby, cancellationToken);
         return result;

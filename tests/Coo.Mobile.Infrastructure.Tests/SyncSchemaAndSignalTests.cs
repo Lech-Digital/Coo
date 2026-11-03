@@ -53,6 +53,7 @@ public sealed class SyncSchemaAndSignalTests
                 DROP TABLE family_memberships;
                 DROP TABLE sync_rejections;
                 DROP TABLE sync_cursors;
+                ALTER TABLE baby_profiles DROP COLUMN sex;
                 PRAGMA user_version = 3;
                 """,
                 CancellationToken.None);
@@ -69,7 +70,11 @@ public sealed class SyncSchemaAndSignalTests
         // Assert
         (await db.ScalarAsync("PRAGMA user_version;")).Should().Be(Persistence.SchemaMigrator.LatestVersion);
         foreach (var table in tables)
-            (await DumpAsync(db, table)).Should().Equal(before[table], $"migration 0004 leaves {table} untouched");
+        {
+            // 0006 adds baby_profiles.sex, empty for every baby that was already there.
+            var expected = table == "baby_profiles" ? before[table].Select(row => row + "|NULL").ToList() : before[table];
+            (await DumpAsync(db, table)).Should().Equal(expected, $"migrations 0004 to 0006 keep {table}'s rows");
+        }
         before["outbox"].Should().HaveCount(6);
         (await db.ScalarAsync("SELECT count(*) FROM sqlite_master WHERE type = 'index' AND name IN ('ix_outbox_entity', 'ix_sync_rejections_household');"))
             .Should().Be(2);
