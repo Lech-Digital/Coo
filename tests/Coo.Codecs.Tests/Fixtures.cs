@@ -62,6 +62,13 @@ internal static class Fixtures
         ["solids/v1/food-only.json"] = Coo.Domain.CareLog.Kinds.Development.SolidsDetails.Create("Carrot puree", null, Coo.Domain.CareLog.Kinds.Development.SolidsReaction.None).Value,
         ["milestone/v1/preset.json"] = Coo.Domain.CareLog.Kinds.Development.MilestoneDetails.Create("first-smile", null).Value,
         ["milestone/v1/custom.json"] = Coo.Domain.CareLog.Kinds.Development.MilestoneDetails.Create("custom", "Clapped hands").Value,
+        ["sleepplan/v1/running.json"] = Coo.Domain.CareLog.Kinds.SleepPlan.SleepPlanDetails.Create(
+            [Coo.Domain.Insights.SleepPlanGoal.EarlierBedtime, Coo.Domain.Insights.SleepPlanGoal.FewerNightWakings],
+            Coo.Domain.Insights.SettlingApproach.Fading, new TimeOnly(7, 0)).Value,
+        ["sleepplan/v1/stopped.json"] = Coo.Domain.CareLog.Kinds.SleepPlan.SleepPlanDetails.Create(
+            [Coo.Domain.Insights.SleepPlanGoal.LongerNaps], Coo.Domain.Insights.SettlingApproach.Rhythm, null,
+            [new Coo.Domain.CareLog.Kinds.SleepPlan.AcceptedAdjustment(new DateOnly(2026, 11, 10), Coo.Domain.Insights.PlanAdjustmentKind.LongerWindows, 15)],
+            new DateOnly(2026, 12, 1)).Value,
         ["visit/v1/with.json"] = VisitDetails.Create("Paediatrician").Value,
         ["visit/v1/empty.json"] = VisitDetails.Create(null).Value,
     };

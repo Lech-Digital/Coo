@@ -239,6 +239,8 @@ S = {
 'Kind.Tummy': ('Tummy time', 'Bauchlage', 'Temps sur le ventre', 'Boca abajo', 'Tummy time', 'Leżenie na brzuszku', 'Buikligging'),
 'Kind.Solids': ('Solid food', 'Beikost', 'Diversification', 'Comida sólida', 'Pappa', 'Posiłek stały', 'Vast voedsel'),
 'Kind.Milestone': ('Milestone', 'Meilenstein', 'Étape', 'Hito', 'Traguardo', 'Kamień milowy', 'Mijlpaal'),
+    'Kind.SleepPlan': ('Sleep plan', 'Schlafplan', 'Plan de sommeil', 'Plan de sueño', 'Piano del sonno', 'Plan snu', 'Slaapplan'),
+    'Entry.SleepPlanStopped': ('Sleep plan stopped', 'Schlafplan beendet', 'Plan de sommeil arrêté', 'Plan de sueño detenido', 'Piano del sonno interrotto', 'Plan snu zakończony', 'Slaapplan gestopt'),
 'Entry.Tummy': ('Tummy time {0}', 'Bauchlage {0}', 'Sur le ventre {0}', 'Boca abajo {0}', 'Tummy time {0}', 'Na brzuszku {0}', 'Buikligging {0}'),
 'Entry.TummyRunning': ('Tummy time · running', 'Bauchlage · läuft', 'Sur le ventre · en cours', 'Boca abajo · en curso', 'Tummy time · in corso', 'Na brzuszku · trwa', 'Buikligging · loopt'),
 'Hero.Tummy': ('Tummy time', 'Bauchlage', 'Sur le ventre', 'Boca abajo', 'Tummy time', 'Na brzuszku', 'Buikligging'),

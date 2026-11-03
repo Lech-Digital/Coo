@@ -239,6 +239,8 @@ public sealed class BuildAdvisorContext(
         VisitDetails v => v.With is { } with ? $"doctor visit ({with})" : "doctor visit",
         Coo.Domain.CareLog.Kinds.Bath.BathDetails => "bath",
         TummyDetails when entry.Timing is SessionTiming s => $"tummy time of {Duration((s.Range.End ?? now) - s.Range.Start)}",
+        Coo.Domain.CareLog.Kinds.SleepPlan.SleepPlanDetails p =>
+            $"sleep plan{(p.IsRunning ? "" : " (stopped)")}: goals {string.Join(", ", p.Goals)}, approach {p.Approach}",
         _ => entry.KindCode.Value,
     };
 

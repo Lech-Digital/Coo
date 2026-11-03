@@ -30,6 +30,7 @@ public static class EntryKinds
         TummyKind.Instance,
         SolidsKind.Instance,
         MilestoneKind.Instance,
+        Kinds.SleepPlan.SleepPlanKind.Instance,
     ];
 
     public static IEntryKind? Find(EntryKindCode code) => All.FirstOrDefault(k => k.Code == code);

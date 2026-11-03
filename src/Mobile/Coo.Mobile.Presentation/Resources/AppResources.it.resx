@@ -229,6 +229,7 @@
   <data name="Entry.ReadOnly" xml:space="preserve"><value>Da una versione più recente di Coo</value></data>
   <data name="Entry.Running" xml:space="preserve"><value>in corso</value></data>
   <data name="Entry.Sleep" xml:space="preserve"><value>Sonno · {0}</value></data>
+  <data name="Entry.SleepPlanStopped" xml:space="preserve"><value>Piano del sonno interrotto</value></data>
   <data name="Entry.Sleeping" xml:space="preserve"><value>Dorme</value></data>
   <data name="Entry.Temperature" xml:space="preserve"><value>Temperatura · {0}</value></data>
   <data name="Entry.Tummy" xml:space="preserve"><value>Tummy time {0}</value></data>
@@ -448,6 +449,7 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Kind.Milestone" xml:space="preserve"><value>Traguardo</value></data>
   <data name="Kind.Pump" xml:space="preserve"><value>Tiralatte</value></data>
   <data name="Kind.Sleep" xml:space="preserve"><value>Sonno</value></data>
+  <data name="Kind.SleepPlan" xml:space="preserve"><value>Piano del sonno</value></data>
   <data name="Kind.Solids" xml:space="preserve"><value>Pappa</value></data>
   <data name="Kind.Temperature" xml:space="preserve"><value>Temperatura</value></data>
   <data name="Kind.Tummy" xml:space="preserve"><value>Tummy time</value></data>

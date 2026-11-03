@@ -21,6 +21,8 @@ pump/v1/total.json
 sleep/v1/nap.json
 sleep/v1/night.json
 sleep/v1/no-override.json
+sleepplan/v1/running.json
+sleepplan/v1/stopped.json
 solids/v1/food-only.json
 solids/v1/reaction.json
 temperature/v1/fever.json

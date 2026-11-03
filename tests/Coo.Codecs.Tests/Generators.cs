@@ -40,6 +40,17 @@ internal static class Generators
         ["vaccine"] = Gen.Elements("DTaP-IPV-Hib-HepB", "MMR", "Rotavirus", "Pneumococcal").Select(n => (EntryDetails)VaccineDetails.Create(n).Value),
         ["bath"] = Gen.Constant((EntryDetails)new Coo.Domain.CareLog.Kinds.Bath.BathDetails()),
         ["tummy"] = Gen.Constant((EntryDetails)new Coo.Domain.CareLog.Kinds.Development.TummyDetails()),
+        ["sleepplan"] =
+            from goals in Gen.SubListOf(Enum.GetValues<Coo.Domain.Insights.SleepPlanGoal>()).Where(g => g.Count > 0)
+            from approach in Gen.Elements(Enum.GetValues<Coo.Domain.Insights.SettlingApproach>())
+            from wakeUp in Gen.Elements<TimeOnly?>(null, new TimeOnly(6, 30), new TimeOnly(7, 0))
+            from adjusted in Gen.Elements(0, 1, 2)
+            from stopped in Gen.Elements<DateOnly?>(null, new DateOnly(2026, 12, 1))
+            select (EntryDetails)Coo.Domain.CareLog.Kinds.SleepPlan.SleepPlanDetails.Create(
+                goals, approach, wakeUp,
+                Enumerable.Range(0, adjusted).Select(i => new Coo.Domain.CareLog.Kinds.SleepPlan.AcceptedAdjustment(
+                    new DateOnly(2026, 11, 3).AddDays(7 * i), Coo.Domain.Insights.PlanAdjustmentKind.LongerWindows, 15)),
+                stopped).Value,
         ["solids"] =
             from food in Gen.Elements("Carrot puree", "Banana", "Pindakaas", "Jabłko", "Avocado")
             from amount in Gen.Elements<string?>(null, "3 spoons", "half a jar")

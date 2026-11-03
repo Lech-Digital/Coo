@@ -229,6 +229,7 @@
   <data name="Entry.ReadOnly" xml:space="preserve"><value>From a newer version of Coo</value></data>
   <data name="Entry.Running" xml:space="preserve"><value>running</value></data>
   <data name="Entry.Sleep" xml:space="preserve"><value>Sleep · {0}</value></data>
+  <data name="Entry.SleepPlanStopped" xml:space="preserve"><value>Sleep plan stopped</value></data>
   <data name="Entry.Sleeping" xml:space="preserve"><value>Sleeping</value></data>
   <data name="Entry.Temperature" xml:space="preserve"><value>Temperature · {0}</value></data>
   <data name="Entry.Tummy" xml:space="preserve"><value>Tummy time {0}</value></data>
@@ -448,6 +449,7 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Kind.Milestone" xml:space="preserve"><value>Milestone</value></data>
   <data name="Kind.Pump" xml:space="preserve"><value>Pump</value></data>
   <data name="Kind.Sleep" xml:space="preserve"><value>Sleep</value></data>
+  <data name="Kind.SleepPlan" xml:space="preserve"><value>Sleep plan</value></data>
   <data name="Kind.Solids" xml:space="preserve"><value>Solid food</value></data>
   <data name="Kind.Temperature" xml:space="preserve"><value>Temperature</value></data>
   <data name="Kind.Tummy" xml:space="preserve"><value>Tummy time</value></data>

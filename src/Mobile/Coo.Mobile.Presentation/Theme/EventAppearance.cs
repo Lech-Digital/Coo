@@ -25,6 +25,7 @@ public sealed record EventAppearance(string TokenPrefix, string Icon)
         ["tummy"] = new("Diaper", IconGeometry.Tummy),
         ["solids"] = new("Feed", IconGeometry.Solids),
         ["milestone"] = new("Pump", IconGeometry.Milestone),
+        ["sleepplan"] = new("Sleep", IconGeometry.Sleep),
     };
 
     public string Tint => TokenPrefix == "Accent" ? "AccentSoft" : TokenPrefix + "Tint";

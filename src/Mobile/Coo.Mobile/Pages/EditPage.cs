@@ -331,6 +331,7 @@ public sealed class EditPage : ContentPage
         "tummy" => "Kind.Tummy",
         "solids" => "Kind.Solids",
         "milestone" => "Kind.Milestone",
+        "sleepplan" => "Kind.SleepPlan",
         _ => "Kind.Pump",
     };
 }

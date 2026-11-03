@@ -120,6 +120,12 @@ public sealed class ExportLog(IHouseholdStore households, ICareLogStore store)
                 row[0] = "Milestone";
                 row[9] = milestone.Title ?? milestone.Code.Replace('-', ' ');
                 break;
+            case Coo.Domain.CareLog.Kinds.SleepPlan.SleepPlanDetails plan:
+                // The goals as the name, the approach as the dose: enough to read back what was planned.
+                row[0] = "Sleep plan";
+                row[9] = string.Join(" ", plan.Goals);
+                row[10] = plan.Approach.ToString();
+                break;
             case VisitDetails visit:
                 row[0] = "Doctor visit";
                 row[9] = visit.With ?? "";

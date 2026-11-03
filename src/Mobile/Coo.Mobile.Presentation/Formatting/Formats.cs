@@ -107,6 +107,8 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
             Coo.Domain.CareLog.Kinds.Development.TummyDetails => Strings.Format("Entry.Tummy", Duration(((SessionTiming)entry.Timing).Range.Duration(now))),
             Coo.Domain.CareLog.Kinds.Development.SolidsDetails f => Solids(f),
             Coo.Domain.CareLog.Kinds.Development.MilestoneDetails m => Milestone(m),
+            Coo.Domain.CareLog.Kinds.SleepPlan.SleepPlanDetails { IsRunning: false } => Strings.Get("Entry.SleepPlanStopped"),
+            Coo.Domain.CareLog.Kinds.SleepPlan.SleepPlanDetails => Strings.Get("Kind.SleepPlan"),
             _ => entry.KindCode.Value,
         };
     }
