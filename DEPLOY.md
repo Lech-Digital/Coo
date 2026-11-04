@@ -7,13 +7,13 @@ The backend runs on the Hetzner host behind the Caddy that already serves Coldst
 
 - `lechdigital-prod` (in `~/.ssh/config`, also still `coldstart-prod`): Hetzner cx23, **167.233.145.128**, 4 GB.
 - Coo lives at `/opt/coo`, as the compose project `coo`.
-- `coo-api` joins the shared `coldstart_default` network, so Caddy can reach it by container name.
+- `coo-api` joins the shared `lechdigital_edge` network, so Caddy can reach it by container name.
 - PostgreSQL is only on the private `coo_internal` network.
 - DNS: `api.coo.lechdigital.nl` → A → `167.233.145.128` (created 2026-10-01).
 
 ```mermaid
 graph LR
-    Internet -->|HTTPS| Caddy[coldstart-caddy-1]
+    Internet -->|HTTPS| Caddy[lechdigital-caddy]
     Caddy -->|coo-api:8080| Api[coo-api]
     Api --> Pg[(coo-postgres)]
     Backup[coo-backup] --> Pg
@@ -21,10 +21,10 @@ graph LR
 
 ## Every deploy
 
-**From GitHub (preferred, once lechdigital-infra's setup is done):** Actions → **Deploy (production)** → Run workflow.
+**From GitHub:** every push to `main` deploys (work on a branch; merging is the approval); Actions → **Deploy
+(production)** → Run workflow redeploys.
 It runs every test (the CI workflow), then lechdigital-infra's `deploy-app.yml` builds the image on GitHub, streams it to
-the server, starts it as `coo-api:<commit>` and waits until `/health` reports the commit. Nothing deploys on a push; the
-button is the approval. The workflow must be on `main` for the button to appear. The server and the edge Caddy are
+the server, starts it as `coo-api:<commit>` and waits until `/health` reports the commit. The server and the edge Caddy are
 described in [lechdigital-infra](https://github.com/Lech-Digital/lechdigital-infra).
 
 **From the Mac (fallback):**
@@ -58,7 +58,7 @@ database password):
 `deploy-prod.sh` adds both when they are missing: the client ID from the script, the key with `openssl rand -base64 32`
 **on the server**, never printed. Check that they are there (names only):
 
-    ssh coldstart-prod "grep -o '^AUTH_[A-Z0-9_]*=' /opt/coo/.env"
+    ssh lechdigital-prod "grep -o '^AUTH_[A-Z0-9_]*=' /opt/coo/.env"
 
 **Rotating the signing key** without signing anyone out (ADR 0003 §4): add `AUTH_SIGNING_KEY_K2` to `.env` (generated on
 the server as above), add `Auth__SigningKeys__k2: ${AUTH_SIGNING_KEY_K2}` and `Auth__ActiveSigningKeyId: k2` to the
@@ -83,7 +83,7 @@ No new settings. The `Sync` migration runs at start-up like the others: it adds 
 
 Check after a deploy (read-only):
 
-    ssh coldstart-prod "docker exec coo-postgres psql -U coo -d coo -tAc \"SELECT count(*) FROM information_schema.tables WHERE table_name IN ('applied_changes','consents','baby_profiles')\""
+    ssh lechdigital-prod "docker exec coo-postgres psql -U coo -d coo -tAc \"SELECT count(*) FROM information_schema.tables WHERE table_name IN ('applied_changes','consents','baby_profiles')\""
 
 Expected: `3`.
 
@@ -136,7 +136,7 @@ instead of Coo on Play installs.
 Check after a deploy:
 
     curl -s https://api.coo.lechdigital.nl/.well-known/assetlinks.json
-    ssh coldstart-prod "docker exec coo-postgres psql -U coo -d coo -tAc \"SELECT count(*) FROM information_schema.tables WHERE table_name = 'invitations'\""
+    ssh lechdigital-prod "docker exec coo-postgres psql -U coo -d coo -tAc \"SELECT count(*) FROM information_schema.tables WHERE table_name = 'invitations'\""
 
 Expected: the JSON lists `com.lechdigital.coo` with the fingerprint; `1`.
 
@@ -163,7 +163,7 @@ Expected: the JSON lists `com.lechdigital.coo` with the fingerprint; `1`.
 ## First deployment: the Caddy block (once)
 
 On the very first deploy, `deploy-prod.sh` ends with `DEPLOY FAILED`: its health check goes through Caddy, which has
-no route yet. Check the containers with `ssh coldstart-prod 'docker ps'`, add the block below, and the next deploy
+no route yet. Check the containers with `ssh lechdigital-prod 'docker ps'`, add the block below, and the next deploy
 passes.
 
 Caddy is `coldstart-caddy-1`, its config `/opt/coldstart/Caddyfile`. Append:
@@ -182,7 +182,7 @@ collision that once made Coldstart serve PurePrep's API).
 Back up, validate, then **reload, never restart**: this Caddy is the only way in for every site on the host.
 
 ```sh
-ssh coldstart-prod 'cp /opt/coldstart/Caddyfile /opt/coldstart/Caddyfile.bak-$(date +%F)
+ssh lechdigital-prod 'cp /opt/coldstart/Caddyfile /opt/coldstart/Caddyfile.bak-$(date +%F)
 docker exec coldstart-caddy-1 caddy validate --config /etc/caddy/Caddyfile &&
 docker exec coldstart-caddy-1 caddy reload --config /etc/caddy/Caddyfile'
 ```
@@ -205,9 +205,9 @@ done
 - **A real restore,** if it is ever needed:
 
   ```sh
-  ssh coldstart-prod 'cd /opt/coo && docker compose --env-file .env -f deploy/docker-compose.prod.yml stop coo-api'
-  ssh coldstart-prod 'docker exec coo-backup pg_restore -h coo-postgres -U coo -d coo --clean --if-exists /backups/<dump>'
-  ssh coldstart-prod 'cd /opt/coo && docker compose --env-file .env -f deploy/docker-compose.prod.yml start coo-api'
+  ssh lechdigital-prod 'cd /opt/coo && docker compose --env-file .env -f deploy/docker-compose.prod.yml stop coo-api'
+  ssh lechdigital-prod 'docker exec coo-backup pg_restore -h coo-postgres -U coo -d coo --clean --if-exists /backups/<dump>'
+  ssh lechdigital-prod 'cd /opt/coo && docker compose --env-file .env -f deploy/docker-compose.prod.yml start coo-api'
   ```
 
 ## The integrity scan
@@ -215,7 +215,7 @@ done
 It runs inside the API every day; failures are logged by row ID. On demand:
 
 ```sh
-ssh coldstart-prod 'docker exec coo-api dotnet Coo.Api.dll verify'
+ssh lechdigital-prod 'docker exec coo-api dotnet Coo.Api.dll verify'
 ```
 
 The exit code is 0 when every row decodes, and 1 when any row does not.
@@ -223,6 +223,6 @@ The exit code is 0 when every row decodes, and 1 when any row does not.
 ## Logs
 
 ```sh
-ssh coldstart-prod 'cd /opt/coo && docker compose --env-file .env -f deploy/docker-compose.prod.yml logs --tail 50 coo-api'
-ssh coldstart-prod 'docker logs --tail 5 coo-backup'
+ssh lechdigital-prod 'cd /opt/coo && docker compose --env-file .env -f deploy/docker-compose.prod.yml logs --tail 50 coo-api'
+ssh lechdigital-prod 'docker logs --tail 5 coo-backup'
 ```

@@ -1,6 +1,6 @@
-# Coo backend, production stack (Spec 008 §2). It runs beside Coldstart, PurePrep and CoreChoice on the same
-# Hetzner host and reuses Coldstart's Caddy (the `coldstart_default` network) for HTTPS. Caddy proxies
-# api.coo.lechdigital.nl to the CONTAINER name `coo-api`.
+# Coo backend, production stack (Spec 008 §2). It runs beside PurePrep, CoreChoice, Cult of Comfort and Coldstart on the
+# same Hetzner host (lechdigital-prod) behind the edge Caddy of Lech-Digital/lechdigital-infra (the `lechdigital_edge`
+# network). Caddy proxies api.coo.lechdigital.nl to the CONTAINER name `coo-api`.
 #
 # Names are product-prefixed (ADR 0001 §5): Compose publishes service names as DNS aliases on the shared
 # network, and a generic name such as "web" or "db" once hijacked a neighbour's traffic.
@@ -52,7 +52,7 @@ services:
       Invitations__CodePepper: ${INVITATIONS_CODE_PEPPER:?set INVITATIONS_CODE_PEPPER in .env}
     networks:
       - coo_internal
-      - coldstart_default
+      - lechdigital_edge
     expose:
       - "8080"
     mem_limit: 384m
@@ -116,8 +116,8 @@ networks:
   coo_internal:
     name: coo_internal
     internal: true
-  # Coldstart's Caddy lives on this network; joining it lets Caddy reach coo-api by its container name.
-  coldstart_default:
+  # The edge Caddy lives on this network; joining it lets Caddy reach coo-api by its container name.
+  lechdigital_edge:
     external: true
 
 volumes:
