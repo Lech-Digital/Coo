@@ -16,9 +16,11 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 
 ## Unreleased
 
-**Deploy the server first**: it must know the new `sleepplan` and `milkbag` entry kinds before any phone sends one, and it adds
-`advisor_usages.plan_count` and `better_count` (migrations `AddSleepPlanUsage`, `AddAdvisorBetterCount`). Publish the site's privacy update (sleep plans) with the
-release.
+## 1.10.0 (code 30) — 2026-11-04
+
+The server is deployed already (370dd48: the `sleepplan` and `milkbag` entry kinds, migrations `AddSleepPlanUsage` and
+`AddAdvisorBetterCount`, the Advisor's models and 17-second deadline). Publish the site's privacy update (sleep plans,
+the milk stash) with the release. Raise `AppUpdates:Latest` to 30 only once this is live on Google Play.
 
 ### New
 - **Sleep plans** (Spec 019), free: a plan for your baby's day from her own log and her age (wake-up, each nap,
