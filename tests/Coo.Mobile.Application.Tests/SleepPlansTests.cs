@@ -195,16 +195,71 @@ public sealed class SleepPlansTests
         withoutPlan.Should().BeSameAs(predicted);
     }
 
+    /// <summary>
+    /// Spec 019 §10's deliverable, without a phone: a baby at 2 and at 6 months with two weeks of logged sleep (bedtime at
+    /// 21:30, two night wakings), a plan started, and on day 3 a check-in with measures from both weeks and one bounded
+    /// suggestion; at 2 months the plan is rhythm and routine only.
+    /// </summary>
+    [Theory]
+    [InlineData(2)]
+    [InlineData(6)]
+    public async Task Deliverable_SeededLog_PlanAndDayThreeCheckInMeasureAndSuggestOneBoundedChange(int months)
+    {
+        // Arrange
+        var born = DateOnly.FromDateTime(Now.Date).AddMonths(-months);
+        var baby = BabyProfile.Create(BabyId, Household, "Laura", [], born, null, new HlcStamp(1, 0, Device), born).Value;
+        var dayThree = Now.AddDays(2);
+        Seed(Now.AddDays(-14), dayThree, napsPerDay: months < 4 ? 4 : 2);
+
+        // Act
+        var started = await Start().ExecuteAsync(Household, baby, Intake, false, Amsterdam, Now, CancellationToken.None);
+        var first = await Get().ExecuteAsync(Household, baby, Amsterdam, Now, CancellationToken.None);
+        var due = await Get().ExecuteAsync(Household, baby, Amsterdam, dayThree, CancellationToken.None);
+
+        // Assert
+        started.IsSuccess.Should().BeTrue();
+        first!.Approach.Should().Be(months < 4 ? SettlingApproach.Rhythm : SettlingApproach.Fading);
+        first.Day!.Naps.Should().NotBeEmpty();
+        first.Day.Bedtime.Should().BeOnOrBefore(new TimeOnly(21, 0), "the plan moves the late bedtime toward her age's");
+        var checkIn = due!.CheckIn;
+        checkIn.Should().NotBeNull();
+        checkIn!.Before.Days.Should().BeGreaterThan(0);
+        checkIn.Now.Days.Should().BeGreaterThan(0);
+        checkIn.Before.NightWakings.Should().NotBeNull();
+        checkIn.Suggestion.Minutes.Should().BeInRange(0, 30, "a check-in suggests a small change");
+    }
+
+    /// <summary>Every day: wake at 06:30, naps of an hour spread over the day, bedtime 21:30 with two wakings in the night.</summary>
+    private void Seed(DateTimeOffset from, DateTimeOffset to, int napsPerDay)
+    {
+        for (var day = TimeZoneInfo.ConvertTime(from, Amsterdam).Date; day < TimeZoneInfo.ConvertTime(to, Amsterdam).Date; day = day.AddDays(1))
+        {
+            DateTimeOffset At(double hours) => new(day.AddHours(hours), Amsterdam.GetUtcOffset(day.AddHours(hours)));
+            var gap = 12.0 / (napsPerDay + 1);
+            for (var nap = 1; nap <= napsPerDay; nap++)
+                Sleep(At(6.5 + (gap * nap)), At(7.5 + (gap * nap) - 0.5));
+            Sleep(At(21.5), At(25));
+            Sleep(At(25.25), At(28));
+            Sleep(At(28.25), At(30.5));
+        }
+
+        void Sleep(DateTimeOffset start, DateTimeOffset end)
+        {
+            if (end <= Now.AddDays(2))
+                _store.Add(Make(new SleepDetails(), EntryTiming.Session(TimeRange.Create(start, end).Value), end > Now ? end : Now));
+        }
+    }
+
     private StartSleepPlan Start() => new(_store, new PreviewSleepPlan(_store), new LogEntry(_store, _clock, _time), Revise());
 
     private GetSleepPlan Get() => new(_store);
 
     private ReviseEntry Revise() => new(_store, _clock, _time);
 
-    private CareEntry Make(EntryDetails details, EntryTiming timing) =>
+    private CareEntry Make(EntryDetails details, EntryTiming timing, DateTimeOffset? recordedAt = null) =>
         CareEntry.Create(
             new EntryId(Guid.CreateVersion7(Now.AddMilliseconds(++_wall))), Household, EntrySubject.Baby(BabyId), details, timing,
-            PersonRef.ThisDevicesPerson, EntrySource.Manual, new HlcStamp(++_wall, 0, Device), Now).Value;
+            PersonRef.ThisDevicesPerson, EntrySource.Manual, new HlcStamp(++_wall, 0, Device), recordedAt ?? Now).Value;
 
     private sealed class MemoryStore : ICareLogStore
     {
