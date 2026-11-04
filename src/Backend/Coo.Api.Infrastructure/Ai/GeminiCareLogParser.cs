@@ -44,6 +44,12 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
 
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(10) };
 
+    /// <summary>
+    /// Extraction needs no reasoning: Gemini 3's default thinking made a call take 13–24 s under load (2026-11-04), past these
+    /// timeouts.
+    /// </summary>
+    private static readonly object MinimalThinking = new { thinkingLevel = "minimal" };
+
     // Reading a photo takes longer than a sentence, and still within the phone's 20 seconds.
     private static readonly HttpClient ImageHttp = new() { Timeout = TimeSpan.FromSeconds(18) };
 
@@ -230,7 +236,7 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
         {
             systemInstruction = new { parts = new[] { new { text = SystemPrompt } } },
             contents = new[] { new { role = "user", parts = new[] { new { text = $"Context:\n{prompt.Context}\nText:\n{prompt.Text}" } } } },
-            generationConfig = new { temperature = 0.0, seed = 7, responseMimeType = "application/json", responseSchema = ResponseSchema },
+            generationConfig = new { temperature = 0.0, seed = 7, thinkingConfig = MinimalThinking, responseMimeType = "application/json", responseSchema = ResponseSchema },
         };
         return await SendAsync(body, Http, json => Read(json), cancellationToken);
     }
@@ -253,7 +259,7 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
                     },
                 },
             },
-            generationConfig = new { temperature = 0.0, seed = 7, responseMimeType = "application/json", responseSchema = ImageSchema },
+            generationConfig = new { temperature = 0.0, seed = 7, thinkingConfig = MinimalThinking, responseMimeType = "application/json", responseSchema = ImageSchema },
         };
         return await SendAsync(body, ImageHttp, json => Read(json) with { PromptVersion = ImagePromptVersion }, cancellationToken);
     }
@@ -279,7 +285,7 @@ internal sealed partial class GeminiCareLogParser(IConfiguration configuration, 
                     },
                 },
             },
-            generationConfig = new { temperature = 0.0, seed = 7, responseMimeType = "application/json", responseSchema = SpeechSchema },
+            generationConfig = new { temperature = 0.0, seed = 7, thinkingConfig = MinimalThinking, responseMimeType = "application/json", responseSchema = SpeechSchema },
         };
 
         // The transcript travels in ParsedText's one unparsed slot: SendAsync's error handling stays in one place.

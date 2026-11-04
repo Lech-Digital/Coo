@@ -19,7 +19,15 @@ internal sealed class AdvisorService(
 {
     // One client for the process: a new HttpClient per question exhausts sockets under load.
     private static readonly HttpClient Gemini = new() { Timeout = TimeSpan.FromSeconds(60) };
-    private static readonly Uri AskUri = new("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent");
+
+    /// <summary>
+    /// Tried in turn when one is busy (503 "high demand") or rate-limited. On 2026-11-04 gemini-flash-lite-latest (then
+    /// 3.5-flash-lite) took 13–24 s under load; the app waits 20 s, so a busy model must not hold the whole answer.
+    /// </summary>
+    private static readonly string[] DefaultModels = ["gemini-flash-lite-latest", "gemini-3.1-flash-lite"];
+
+    /// <summary>The whole answer, every model and retry included, inside the phone's 20-second request.</summary>
+    internal static readonly TimeSpan Deadline = TimeSpan.FromSeconds(17);
 
     public async Task<AskAdvisorResponse> AskAsync(HouseholdId householdId, UserId user, AskAdvisorRequest request, CancellationToken cancellationToken)
     {
@@ -57,7 +65,8 @@ internal sealed class AdvisorService(
         {
             systemInstruction = new { parts = new[] { new { text = system } } },
             contents,
-            generationConfig = new { temperature = 0.4 },
+            // Gemini 3 thinks by default, which made an answer take 13–24 s; an Advisor answer needs little of it.
+            generationConfig = new { temperature = 0.4, thinkingConfig = new { thinkingLevel = "minimal" } },
         };
 
         var text = await GenerateAsync(apiKey, body, cancellationToken);
@@ -98,7 +107,7 @@ internal sealed class AdvisorService(
         {
             systemInstruction = new { parts = new[] { new { text = SleepPlanPrompt.System(request.Kind, request.Language) } } },
             contents = new[] { new { role = "user", parts = new[] { new { text = SleepPlanPrompt.User(request.Facts) } } } },
-            generationConfig = new { temperature = 0.3 },
+            generationConfig = new { temperature = 0.3, thinkingConfig = new { thinkingLevel = "minimal" } },
         };
         // A reply that quotes a time the plan does not have is not shown: the phone keeps the stored texts.
         var text = SleepPlanPrompt.Accept(await GenerateAsync(apiKey, body, cancellationToken), request.Facts);
@@ -110,35 +119,39 @@ internal sealed class AdvisorService(
         return new SleepPlanWordsResponse(text);
     }
 
-    /// <summary>Gemini's text for <paramref name="body"/>, with two retries when it is busy; null when there is none.</summary>
-    private static async Task<string?> GenerateAsync(string apiKey, object body, CancellationToken cancellationToken)
+    /// <summary>
+    /// Gemini's text for <paramref name="body"/>: each model in turn while one is busy, all within <see cref="Deadline"/>;
+    /// null when there is none, which the phone shows as "the Advisor is unavailable, try again" rather than timing out.
+    /// </summary>
+    private async Task<string?> GenerateAsync(string apiKey, object body, CancellationToken cancellationToken)
     {
+        var models = config.GetSection("Advisor:Models").Get<string[]>() is { Length: > 0 } configured ? configured : DefaultModels;
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        deadline.CancelAfter(Deadline);
         try
         {
-            HttpResponseMessage? response = null;
-            for (var attempt = 1; attempt <= 3; attempt++)
+            for (var attempt = 0; attempt < models.Length * 2; attempt++)
             {
-                response?.Dispose();
-                using var message = new HttpRequestMessage(HttpMethod.Post, AskUri) { Content = System.Net.Http.Json.JsonContent.Create(body) };
+                var uri = new Uri($"https://generativelanguage.googleapis.com/v1beta/models/{models[attempt % models.Length]}:generateContent");
+                using var message = new HttpRequestMessage(HttpMethod.Post, uri) { Content = System.Net.Http.Json.JsonContent.Create(body) };
                 // In a header, not the URL, so the key never lands in a log line.
                 message.Headers.Add("x-goog-api-key", apiKey);
-                response = await Gemini.SendAsync(message, cancellationToken);
-                if (response.IsSuccessStatusCode
-                    || response.StatusCode is not (System.Net.HttpStatusCode.ServiceUnavailable or System.Net.HttpStatusCode.TooManyRequests)
-                    || attempt == 3)
-                    break;
-                await Task.Delay(400 * attempt, cancellationToken);
-            }
-
-            using (response)
-            {
-                if (response is null || !response.IsSuccessStatusCode)
+                using var response = await Gemini.SendAsync(message, deadline.Token);
+                if (response.StatusCode is System.Net.HttpStatusCode.ServiceUnavailable or System.Net.HttpStatusCode.TooManyRequests)
+                    continue;
+                if (!response.IsSuccessStatusCode)
                     return null;
 
-                using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+                using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(deadline.Token));
                 var text = doc.RootElement.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString();
                 return string.IsNullOrWhiteSpace(text) ? null : text.Trim();
             }
+
+            return null;
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return null;
         }
         catch (Exception e) when (e is HttpRequestException or JsonException or KeyNotFoundException or IndexOutOfRangeException or InvalidOperationException
                                        or TaskCanceledException { InnerException: TimeoutException })
