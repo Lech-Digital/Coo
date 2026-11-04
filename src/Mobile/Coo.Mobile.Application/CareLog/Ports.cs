@@ -23,6 +23,13 @@ public interface ICareLogStore
         [.. (await ListAsync(household, DateTimeOffset.UnixEpoch, DateTimeOffset.MaxValue.AddYears(-1), cancellationToken))
             .Where(e => e is not LiveEntry live || live.Entry.KindCode == kind)];
 
+    /// <summary>
+    /// An entry's stored version and whether it is a tombstone; null when the phone never had it. For writes that carry
+    /// their own version (the watch, ADR 0009 §2): an older state must not bring a deleted entry back.
+    /// </summary>
+    Task<(HlcStamp Version, bool IsDeleted)?> FindVersionAsync(EntryId id, CancellationToken cancellationToken) =>
+        Task.FromResult<(HlcStamp, bool)?>(null);
+
     /// <summary>Writes a tombstone for any stored entry, including read-only and quarantined ones, without decoding it.</summary>
     /// <returns>False when there is no such entry, or it is already deleted.</returns>
     Task<bool> DeleteAsync(EntryId id, HlcStamp version, CancellationToken cancellationToken);

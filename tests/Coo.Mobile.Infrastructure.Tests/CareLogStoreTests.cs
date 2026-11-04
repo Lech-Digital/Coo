@@ -211,6 +211,26 @@ public sealed class CareLogStoreTests
     }
 
     [Fact]
+    public async Task FindVersionAsync_LiveDeletedAndUnknown_ReturnsTheVersionAndWhetherItIsATombstone()
+    {
+        // Arrange: ADR 0009 §2, a watch state is compared with the stored version, tombstones included.
+        await using var db = await TestDatabase.CreateAsync();
+        var (live, gone) = (await db.DiaperAsync(T0), await db.DiaperAsync(T0.AddMinutes(1)));
+        var deletedAt = await Next(db);
+        await db.Store.DeleteAsync(gone.Id, deletedAt, CancellationToken.None);
+
+        // Act
+        var liveVersion = await db.Store.FindVersionAsync(live.Id, CancellationToken.None);
+        var goneVersion = await db.Store.FindVersionAsync(gone.Id, CancellationToken.None);
+        var unknown = await db.Store.FindVersionAsync(new Coo.Domain.Common.EntryId(Guid.Parse("019a4f2e-8c00-7000-8000-0000000000ff")), CancellationToken.None);
+
+        // Assert
+        liveVersion.Should().Be((live.Version, false));
+        goneVersion.Should().Be((deletedAt, true));
+        unknown.Should().BeNull();
+    }
+
+    [Fact]
     public async Task WriteAll_SaveTombstoneAndRestore_WritesEachWithItsOutboxRow()
     {
         // Arrange

@@ -36,6 +36,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<CareLog.AddMilkBag>();
         services.AddTransient<CareLog.ChangeMilkBag>();
         services.AddTransient<CareLog.GetHandover>();
+        services.AddTransient<Wearables.ApplyWatchState>();
         services.AddTransient<Growth.GetGrowth>();
         services.AddTransient<Reports.BuildCareReport>();
         services.AddTransient<GetDay>();

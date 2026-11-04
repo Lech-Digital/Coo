@@ -32,7 +32,7 @@ two.
 | 15b | **Night and weekly summaries** | 015b | Premium, AI: a written summary of the night, and a weekly summary, with ADR 0005's privacy rules. Designed in its own spec (owner, 2026-10-02). | — |
 | 15c | **Baby Advisor & Milestones** | 015c | Dedicated Advisor tab. Multi-turn AI chat with conversation history and instant cancellation, dynamic age-based developmental milestone guide, age-targeted quick ask pills with rotation, shared header bar with Day/Night toggle & baby chip. | Done |
 | 16 | **Reports (PDF)** | 016 | The pediatrician report, designed first. | Done (1.3.0) |
-| 17 | **Wear OS companion** | 017 | ADR 0009. | — |
+| 17 | **Wear OS companion** | 017 | ADR 0009. | Phone side built 2026-11-04 (contract, fixtures, snapshot, applying watch states); the Android glue and the Kotlin app need a watch to test |
 | 18 | **Release** | 018 | Signing, the Play listing in seven languages, the privacy policy, closed testing. Store assets per `store-assets/PLAN.md` (demo build, screenshots, feature graphic, listing in seven languages). | — |
 | 19 | **Sleep plans** | 019 (accepted) | An open-ended plan per baby: a computed schedule (wake-up, nap windows, bedtime), a routine and a gentle settling approach, reminders that follow it, a day-3 then weekly check-in that measures the log and suggests one bounded change. Free; the Advisor's personal wording is Premium. **Test:** a 2-month and a 6-month baby on seeded logs. | Built 2026-11-04 (stages 1–5: planner, the `sleepplan` kind, the plan page, Today, Stats, reminders, the Premium words); the phone test with seeded logs is open |
 

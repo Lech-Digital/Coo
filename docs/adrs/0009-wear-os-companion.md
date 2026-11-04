@@ -8,6 +8,26 @@ Status: Accepted — amended 2026-10-02 (see below)
 > 0004, amended). §4's Premium gating is superseded: the watch shows its logging surfaces to every household. The rule
 > that an entry from the watch is never dropped stays.
 
+> **Amendment, 2026-11-04 (revisited after sleep plans, twins, the milk stash and the handover).** The design stands; what
+> changed:
+> - **The phone side is built**: the messages (`Coo.Contracts/Wearables`, schema 1), the golden fixtures
+>   (`wearables/contract-fixtures/`, round-tripped by `WatchContractTests`), the snapshot (`WatchSnapshots`), the
+>   handling of a watch state (`ApplyWatchState`) and the `IWearableBridge` port. A state is compared with the stored
+>   version, tombstones included (`ICareLogStore.FindVersionAsync`), so a create overtaken by its delete never returns.
+> - **Stopping a phone timer on the watch sends only the end.** A feed started on the phone has its side switches and
+>   pauses there; a full state from the watch would overwrite them. The phone applies the watch's end (and version) to
+>   the running entry. Entries the watch created are still sent as full states.
+> - **Twins**: the snapshot lists the babies with the one in focus on the phone first; the watch opens on that baby, and
+>   its switcher changes only what the watch logs for.
+> - **Free**: the next nap window is in the snapshot whenever it is the baby's own (personal nap times are free, ADR
+>   0008's amendment of 2026-11-03).
+> - **Not on the watch**: the sleep plan, the milk stash and the handover stay on the phone; the watch is for logging at
+>   night with one hand.
+> - **Still to build**, in this order: the Android glue in `Coo.Mobile.Platform/Wearables` (a `WearableListenerService`
+>   for `/entries/*`, publishing `/snapshot` after writes and sync, with `Xamarin.GooglePlayServices.Wearable`), then the
+>   Kotlin app in `wearables/wearos/`. Both need a physical Wear OS watch or the emulator's paired-phone setup to test,
+>   which this machine does not have yet.
+
 
 ## Context
 

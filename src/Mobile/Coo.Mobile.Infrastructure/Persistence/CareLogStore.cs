@@ -35,6 +35,17 @@ internal sealed class CareLogStore(LocalDatabase database, TimeProvider time, Lo
         return rows.Count == 0 ? null : await ClassifyAndRecordAsync(connection, rows[0], cancellationToken);
     }
 
+    public async Task<(HlcStamp Version, bool IsDeleted)?> FindVersionAsync(EntryId id, CancellationToken cancellationToken)
+    {
+        await using var connection = await database.OpenAsync(cancellationToken);
+        await using var command = connection.Command(
+            "SELECT version_wall_ms, version_counter, version_device, is_deleted FROM care_entries WHERE id = $id;", null, ("$id", Columns.Id(id.Value)));
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        if (!await reader.ReadAsync(cancellationToken) || Columns.ParseStamp(reader.GetInt64(0), reader.GetInt64(1), reader.GetString(2)) is not { } version)
+            return null;
+        return (version, reader.GetInt64(3) == 1);
+    }
+
     public async Task<IReadOnlyList<StoredEntry>> ListAsync(
         HouseholdId household, DateTimeOffset windowStart, DateTimeOffset windowEnd, CancellationToken cancellationToken)
     {
