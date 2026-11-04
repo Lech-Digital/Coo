@@ -30,6 +30,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<Insights.StartSleepPlan>();
         services.AddTransient<Insights.AnswerSleepCheckIn>();
         services.AddTransient<Insights.StopSleepPlan>();
+        services.AddTransient<Insights.WriteSleepPlanWords>();
         services.AddTransient<Growth.GetGrowth>();
         services.AddTransient<Reports.BuildCareReport>();
         services.AddTransient<GetDay>();

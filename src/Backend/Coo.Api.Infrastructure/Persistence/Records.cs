@@ -324,6 +324,9 @@ internal sealed class AdvisorUsageRecord
     public required DateOnly Date { get; init; }
 
     public required int QuestionCount { get; set; }
+
+    /// <summary>Sleep plan texts written today (Spec 019 §4), counted apart from questions.</summary>
+    public int PlanCount { get; set; }
 }
 
 /// <summary><c>baby_avatars</c>: tracks synced avatar/photo per baby across the family household.</summary>

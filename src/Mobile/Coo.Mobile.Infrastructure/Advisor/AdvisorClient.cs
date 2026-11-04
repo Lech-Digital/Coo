@@ -6,6 +6,7 @@ namespace Coo.Mobile.Infrastructure.Advisor;
 internal sealed class AdvisorClient(HttpClient http) : IAdvisorApi
 {
     private static readonly Uri AskUri = new("api/advisor/ask", UriKind.Relative);
+    private static readonly Uri SleepPlanUri = new("api/advisor/sleep-plan", UriKind.Relative);
     private static readonly Uri GenerateAvatarUri = new("api/advisor/generate-avatar", UriKind.Relative);
 
     public async Task<AskAdvisorResponse> AskAsync(AskAdvisorRequest request, CancellationToken cancellationToken)
@@ -18,6 +19,20 @@ internal sealed class AdvisorClient(HttpClient http) : IAdvisorApi
         response.EnsureSuccessStatusCode();
         var answer = await response.Content.ReadFromJsonAsync(AdvisorJsonContext.Default.AskAdvisorResponse, cancellationToken);
         return answer ?? new AskAdvisorResponse();
+    }
+
+    public async Task<SleepPlanWordsResponse> WriteSleepPlanAsync(SleepPlanWordsRequest request, CancellationToken cancellationToken)
+    {
+        using var message = new HttpRequestMessage(HttpMethod.Post, SleepPlanUri)
+        {
+            Content = JsonContent.Create(request, AdvisorJsonContext.Default.SleepPlanWordsRequest)
+        };
+        using var response = await http.SendAsync(message, cancellationToken);
+        if (response.StatusCode == System.Net.HttpStatusCode.PaymentRequired)
+            return new SleepPlanWordsResponse { ErrorCode = "premium_required" };
+        response.EnsureSuccessStatusCode();
+        var words = await response.Content.ReadFromJsonAsync(AdvisorJsonContext.Default.SleepPlanWordsResponse, cancellationToken);
+        return words ?? new SleepPlanWordsResponse();
     }
 
     public async Task<GenerateAvatarResponse> GenerateAvatarAsync(GenerateAvatarRequest request, CancellationToken cancellationToken)

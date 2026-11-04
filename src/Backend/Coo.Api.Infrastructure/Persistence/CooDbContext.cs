@@ -348,6 +348,7 @@ internal sealed class CooDbContext(DbContextOptions<CooDbContext> options) : Ide
             e.Property(a => a.UserId).HasColumnName("user_id");
             e.Property(a => a.Date).HasColumnName("date");
             e.Property(a => a.QuestionCount).HasColumnName("question_count");
+            e.Property(a => a.PlanCount).HasColumnName("plan_count").HasDefaultValue(0);
             e.HasOne<CooUser>().WithMany().HasForeignKey(a => a.UserId)
                 .HasConstraintName("fk_advisor_usages_users").OnDelete(DeleteBehavior.Cascade);
         });

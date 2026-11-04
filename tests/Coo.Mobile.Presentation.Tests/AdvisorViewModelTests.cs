@@ -18,6 +18,9 @@ public sealed class AdvisorViewModelTests
 
         public string? LastQuestion { get; private set; }
 
+        public Task<SleepPlanWordsResponse> WriteSleepPlanAsync(SleepPlanWordsRequest request, CancellationToken cancellationToken) =>
+            Task.FromResult(new SleepPlanWordsResponse());
+
         public async Task<AskAdvisorResponse> AskAsync(AskAdvisorRequest request, CancellationToken cancellationToken)
         {
             CallCount++;

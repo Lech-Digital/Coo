@@ -18,5 +18,8 @@ public record GenerateAvatarResponse(string? ImageBase64, string? ErrorCode);
 public interface IAdvisorService
 {
     Task<AskAdvisorResponse> AskAsync(HouseholdId householdId, UserId user, AskAdvisorRequest request, CancellationToken cancellationToken);
+    /// <summary>The sleep plan's words (Spec 019 §4): Premium, with its own daily allowance.</summary>
+    Task<SleepPlanWordsResponse> WriteSleepPlanAsync(HouseholdId householdId, UserId user, SleepPlanWordsRequest request, CancellationToken cancellationToken);
+
     Task<GenerateAvatarResponse> GenerateAvatarAsync(HouseholdId householdId, GenerateAvatarRequest request, CancellationToken cancellationToken);
 }

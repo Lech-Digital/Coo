@@ -30,6 +30,9 @@ public sealed class AdvisorPage : ContentPage
     /// <summary>The Advisor's consent (Advisor.ConsentBody), asked before the first question and remembered on this phone.</summary>
     private Task<bool> EnsureConsentAsync() => AskConsentAsync(this);
 
+    /// <summary>Whether the Advisor's consent was given on this phone.</summary>
+    internal static bool HasConsent => Preferences.Default.Get(ConsentKey, false);
+
     /// <summary>The same consent from any page that sends the log to the Advisor (Stats' weekly summary too).</summary>
     internal static async Task<bool> AskConsentAsync(Page page)
     {

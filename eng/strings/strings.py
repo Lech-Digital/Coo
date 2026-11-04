@@ -973,6 +973,9 @@ S = {
 'Plan.TodayLine': ('Sleep plan · day {0}', 'Schlafplan · Tag {0}', 'Plan de sommeil · jour {0}', 'Plan de sueño · día {0}', 'Piano del sonno · giorno {0}', 'Plan snu · dzień {0}', 'Slaapplan · dag {0}'),
 'Plan.TodayNext': ('{0} at {1}', '{0} um {1}', '{0} à {1}', '{0} a las {1}', '{0} alle {1}', '{0} o {1}', '{0} om {1}'),
 'Plan.TodayCheckIn': ('check-in ready', 'Check-in bereit', 'bilan prêt', 'revisión lista', 'controllo pronto', 'podsumowanie gotowe', 'check-in klaar'),
+'Plan.Write': ('Write it', 'Schreiben', 'Écrire', 'Escribir', 'Scrivi', 'Napisz', 'Schrijven'),
+'Plan.Personal': ('Written for {0}', 'Für {0} geschrieben', 'Écrit pour {0}', 'Escrito para {0}', 'Scritto per {0}', 'Napisane dla: {0}', 'Geschreven voor {0}'),
+'Plan.PersonalHint': ('With Premium, the Advisor writes this plan and each check-in for {0}, from the log.', 'Mit Premium schreibt der Berater diesen Plan und jedes Check-in für {0}, aus den Einträgen.', 'Avec Premium, le Conseiller écrit ce plan et chaque bilan pour {0}, à partir du journal.', 'Con Premium, el Asesor escribe este plan y cada revisión para {0}, a partir del registro.', 'Con Premium, il Consulente scrive questo piano e ogni controllo per {0}, dal diario.', 'Z Premium Doradca pisze ten plan i każde podsumowanie dla: {0}, na podstawie dziennika.', 'Met Premium schrijft de Adviseur dit plan en elke check-in voor {0}, uit het logboek.'),
 }
 
 # Plural keys: per language, the categories that language uses (ADR 0006 §4).

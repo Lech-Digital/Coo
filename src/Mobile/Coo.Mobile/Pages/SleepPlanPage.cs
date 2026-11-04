@@ -25,6 +25,9 @@ public sealed class SleepPlanPage : ContentPage
     public SleepPlanPage(SleepPlanViewModel model, ThemeController theme)
     {
         (_model, _theme) = (model, theme);
+        // The plan's words go to the Advisor: its consent, asked once, covers them (Spec 019 §9).
+        _model.EnsureConsentAsync = () => AdvisorPage.AskConsentAsync(this);
+        _model.HasConsent = () => AdvisorPage.HasConsent;
         Shell.SetNavBarIsVisible(this, false);
         _scroll = new ScrollView { Content = _body };
         Content = _scroll;
@@ -113,7 +116,24 @@ public sealed class SleepPlanPage : ContentPage
             stack.Add(new Card(Ui.Text(Strings.Get("Plan.Paused"), "Body")));
 
         stack.Add(Ui.Text(Strings.Format("Plan.NextCheckIn", SleepPlanViewModel.Date(plan.NextCheckIn)), "Meta", "Ink2"));
+        // Premium (Spec 019 §4): the plan in the Advisor's words, above the reviewed texts it was written from.
+        if (_model.PlanWords.Length > 0)
+            stack.Add(TextCard(Strings.Format("Plan.Personal", _model.BabyName), _model.PlanWords));
+        else if (_model.CanWriteWords || _model.IsWriting)
+        {
+            var write = new Button { Text = Strings.Get(_model.IsWriting ? "Summary.Writing" : "Plan.Write"), IsEnabled = !_model.IsWriting };
+            write.SetDynamicResource(StyleProperty, "GhostButton");
+            write.Clicked += async (_, _) => await _model.WriteWordsAsync();
+            stack.Add(new Card(new VerticalStackLayout
+            {
+                Spacing = 8,
+                Children = { Ui.Text(Strings.Format("Plan.PersonalHint", _model.BabyName), "Body", "Ink2"), write },
+            }));
+        }
+
         AddTexts(stack, plan.Approach);
+        if (!_model.IsPremium)
+            stack.Add(Ui.Text(Strings.Format("Plan.PersonalHint", _model.BabyName), "Meta", "Ink2"));
 
         if (_model.CanChange)
         {
@@ -241,6 +261,8 @@ public sealed class SleepPlanPage : ContentPage
 
         table.AddRowDefinition(new RowDefinition(GridLength.Auto));
         stack.Add(table);
+        foreach (var paragraph in _model.CheckInWords.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+            stack.Add(Ui.Text(paragraph, "Body"));
         stack.Add(Ui.Text(_model.Suggestion(checkIn.Suggestion), "BodyStrong"));
         if (_model.CanChange)
         {

@@ -562,6 +562,8 @@ Wenn der Link Coo nicht öffnet, geh in Coo zu Einstellungen → Familie → Ein
   <data name="Plan.Now" xml:space="preserve"><value>Jetzt</value></data>
   <data name="Plan.Ok" xml:space="preserve"><value>Verstanden</value></data>
   <data name="Plan.Paused" xml:space="preserve"><value>Pausiert: In den letzten 3 Tagen gab es Fieber oder ein Medikament. Richte dich nach deinem Baby; der Plan geht danach von selbst weiter.</value></data>
+  <data name="Plan.Personal" xml:space="preserve"><value>Für {0} geschrieben</value></data>
+  <data name="Plan.PersonalHint" xml:space="preserve"><value>Mit Premium schreibt der Berater diesen Plan und jedes Check-in für {0}, aus den Einträgen.</value></data>
   <data name="Plan.Q.Breathing" xml:space="preserve"><value>Schnarchen, laute Atmung oder Atempausen?</value></data>
   <data name="Plan.Q.Feeding" xml:space="preserve"><value>Sorgen beim Füttern oder Stillen?</value></data>
   <data name="Plan.Q.Weight" xml:space="preserve"><value>Sorgen bei der Gewichtszunahme?</value></data>
@@ -600,6 +602,7 @@ Tage hell und lebhaft, Nächte dunkel und ruhig; nächtliches Füttern ruhig und
   <data name="Plan.WakeUp" xml:space="preserve"><value>Wann soll der Tag beginnen?</value></data>
   <data name="Plan.WakeUpAt" xml:space="preserve"><value>Aufwachen</value></data>
   <data name="Plan.WakeUpUsual" xml:space="preserve"><value>Wie sonst auch</value></data>
+  <data name="Plan.Write" xml:space="preserve"><value>Schreiben</value></data>
   <data name="Plan.Yes" xml:space="preserve"><value>Ja</value></data>
   <data name="Premium.Active" xml:space="preserve"><value>Coo Premium ist für deine ganze Familie aktiv. Danke, dass du Coo unterstützt!</value></data>
   <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Bis zu 100 Fragen an den Berater pro Tag (3 ohne Premium), mit Antworten, die eure Einträge kennen</value></data>

@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Coo.Domain.Common;
 using Coo.Domain.Households;
 using Coo.Domain.Insights;
+using Coo.Mobile.Application.Billing;
 using Coo.Mobile.Application.CareLog;
 using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Insights;
@@ -27,7 +28,8 @@ public sealed record PastPlanRow(string Dates, string Summary);
 /// </summary>
 public sealed partial class SleepPlanViewModel(
     IHouseholdStore households, GetSleepPlan get, PreviewSleepPlan preview, StartSleepPlan start, AnswerSleepCheckIn answer,
-    StopSleepPlan stop, ILogAccess access, IClockFormat clock, TimeProvider time) : ObservableObject
+    StopSleepPlan stop, ILogAccess access, IClockFormat clock, TimeProvider time, WriteSleepPlanWords? words = null,
+    IBillingService? billing = null) : ObservableObject
 {
     /// <summary>The three yes/no questions of §6: feeding, weight, breathing.</summary>
     public const int Questions = 3;
@@ -74,6 +76,18 @@ public sealed partial class SleepPlanViewModel(
     [ObservableProperty]
     private bool _isBusy;
 
+    /// <summary>The running plan in the Advisor's words (Premium, Spec 019 §4); empty without them.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanWriteWords))]
+    private string _planWords = "";
+
+    /// <summary>The due check-in in the Advisor's words; empty without them.</summary>
+    [ObservableProperty]
+    private string _checkInWords = "";
+
+    /// <summary>Premium: the plan can be written in the Advisor's words.</summary>
+    public bool IsPremium => billing?.IsPremiumCached ?? false;
+
     public bool IsUnderFourMonths { get; private set; }
 
     public IReadOnlySet<SleepPlanGoal> Goals => _goals;
@@ -107,8 +121,81 @@ public sealed partial class SleepPlanViewModel(
         History = [.. (await get.HistoryAsync(household.Id, baby.Id, zone, CancellationToken.None)).Select(p => new PastPlanRow(
             $"{Date(p.StartedOn)} – {Date(p.StoppedOn)}",
             string.Join(" · ", [ApproachName(p.Details.Approach), .. p.Details.Goals.Select(GoalName)])))];
+        (PlanWords, CheckInWords) = ("", "");
         IsReady = true;
+        if (Current is { } plan)
+            _ = LoadWordsAsync(household.Id, baby, plan, BabyAge.On(baby, SleepPlans.Today(now, zone)).CorrectedDays / 7, zone, send: HasConsent?.Invoke() == true);
     }
+
+    /// <summary>
+    /// The Advisor's words for the plan and a due check-in: kept ones at once; new ones are written only with Premium and
+    /// once the Advisor's consent was given (<paramref name="send"/>), since the plan's facts leave the phone. Never in the
+    /// way: without them the page shows the stored texts.
+    /// </summary>
+    private async Task LoadWordsAsync(HouseholdId household, BabyProfile baby, SleepPlanToday plan, int weeks, TimeZoneInfo zone, bool send)
+    {
+        if (words is null)
+            return;
+        try
+        {
+            var language = Strings.Language;
+            var planFacts = SleepPlanFacts.Plan(plan, weeks);
+            if (await Write(SleepPlanWordsKind.Plan, planFacts) is { } planText && Current?.Entry.Id == plan.Entry.Id)
+                PlanWords = WithName(planText);
+            if (plan.CheckIn is not { } checkIn)
+                return;
+            if (await Write(SleepPlanWordsKind.CheckIn, SleepPlanFacts.CheckIn(plan, checkIn, weeks)) is { } checkInText
+                && Current?.Entry.Id == plan.Entry.Id && Current.CheckIn is not null)
+                CheckInWords = WithName(checkInText);
+
+            async Task<string?> Write(SleepPlanWordsKind kind, string facts)
+            {
+                var key = SleepPlanFacts.Key(plan, kind, language, facts);
+                return send
+                    ? await words.ExecuteAsync(household, baby.Id, kind, key, facts, language, zone.Id, CancellationToken.None)
+                    : await words.KeptAsync(key, CancellationToken.None);
+            }
+        }
+#pragma warning disable CA1031 // The words are extra: a failure leaves the stored texts, and must not end the page.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+        }
+    }
+
+    /// <summary>Asks for the Advisor's consent once, then writes the plan's words (the page's "Write it").</summary>
+    public async Task WriteWordsAsync()
+    {
+        if (!CanWriteWords || _household is not { } household || _baby is not { } baby || Current is not { } plan)
+            return;
+        if (EnsureConsentAsync is { } consent && !await consent())
+            return;
+        IsWriting = true;
+        try
+        {
+            var now = time.GetUtcNow();
+            await LoadWordsAsync(household, baby, plan, BabyAge.On(baby, SleepPlans.Today(now, time.LocalTimeZone)).CorrectedDays / 7, time.LocalTimeZone, send: true);
+        }
+        finally
+        {
+            IsWriting = false;
+        }
+    }
+
+    /// <summary>The page's consent dialog (the Advisor's own); null sends without asking (tests).</summary>
+    public Func<Task<bool>>? EnsureConsentAsync { get; set; }
+
+    /// <summary>Whether the Advisor's consent was given on this phone: then new words are written without a tap.</summary>
+    public Func<bool>? HasConsent { get; set; }
+
+    /// <summary>Premium, a plan without its words yet: the page offers "Write it".</summary>
+    public bool CanWriteWords => IsPremium && words is not null && Current is not null && PlanWords.Length == 0 && !IsWriting;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanWriteWords))]
+    private bool _isWriting;
+
+    private string WithName(string text) => text.Replace(SleepPlanFacts.Baby, BabyName, StringComparison.Ordinal);
 
     public void ToggleGoal(SleepPlanGoal goal)
     {
@@ -189,27 +276,35 @@ public sealed partial class SleepPlanViewModel(
     }
 
     /// <summary>The planned day as rows: wake-up, each nap with its window and length, bedtime.</summary>
-    public IReadOnlyList<PlanRow> Rows(SleepPlanDay day)
+    public IReadOnlyList<PlanRow> Rows(SleepPlanDay day) => Rows(day, _formats);
+
+    public static IReadOnlyList<PlanRow> Rows(SleepPlanDay day, Formats formats)
     {
         ArgumentNullException.ThrowIfNull(day);
-        var rows = new List<PlanRow> { new(Strings.Get("Plan.WakeUpAt"), _formats.Time(day.WakeUp), "", "sleep") };
+        ArgumentNullException.ThrowIfNull(formats);
+        var rows = new List<PlanRow> { new(Strings.Get("Plan.WakeUpAt"), formats.Time(day.WakeUp), "", "sleep") };
         rows.AddRange(day.Naps.Select((nap, i) => new PlanRow(
-            Strings.Format("Plan.Nap", i + 1), _formats.Time(nap.Start),
+            Strings.Format("Plan.Nap", i + 1), formats.Time(nap.Start),
             Strings.Format("Plan.NapDetail", Formats.Duration(nap.WindowBefore), Formats.Duration(nap.Length)), "sleep")));
-        rows.Add(new PlanRow(Strings.Get("Plan.Bedtime"), _formats.Time(day.Bedtime), Strings.Format("Plan.BedtimeDetail", Formats.Duration(day.LastWindow)), "sleep"));
+        rows.Add(new PlanRow(Strings.Get("Plan.Bedtime"), formats.Time(day.Bedtime), Strings.Format("Plan.BedtimeDetail", Formats.Duration(day.LastWindow)), "sleep"));
         return rows;
     }
 
     /// <summary>Why the planned times are what they are.</summary>
-    public IReadOnlyList<string> Notes(SleepPlanDay day)
+    public IReadOnlyList<string> Notes(SleepPlanDay day) => Notes(day, BabyName);
+
+    public static IReadOnlyList<string> Notes(SleepPlanDay day, string name)
     {
         ArgumentNullException.ThrowIfNull(day);
-        return [.. day.Notes.Select(n => Strings.Format("Plan.Note." + n, BabyName))];
+        return [.. day.Notes.Select(n => Strings.Format("Plan.Note." + n, name))];
     }
 
-    public IReadOnlyList<MeasureRow> Measures(SleepCheckIn checkIn)
+    public IReadOnlyList<MeasureRow> Measures(SleepCheckIn checkIn) => Measures(checkIn, _formats);
+
+    public static IReadOnlyList<MeasureRow> Measures(SleepCheckIn checkIn, Formats formats)
     {
         ArgumentNullException.ThrowIfNull(checkIn);
+        ArgumentNullException.ThrowIfNull(formats);
         var (b, n) = (checkIn.Before, checkIn.Now);
         var rows = new List<MeasureRow>
         {
@@ -218,29 +313,33 @@ public sealed partial class SleepPlanViewModel(
             new(Strings.Get("Plan.M.Night"), Span(b.NightSleep), Span(n.NightSleep)),
             new(Strings.Get("Plan.M.Day"), Span(b.DaySleep), Span(n.DaySleep)),
             new(Strings.Get("Plan.M.NapLength"), Span(b.NapLength), Span(n.NapLength)),
-            new(Strings.Get("Plan.M.Bedtime"), b.Bedtime is { } bb ? _formats.Time(bb) : "–", n.Bedtime is { } nb ? _formats.Time(nb) : "–"),
+            new(Strings.Get("Plan.M.Bedtime"), b.Bedtime is { } bb ? formats.Time(bb) : "–", n.Bedtime is { } nb ? formats.Time(nb) : "–"),
         };
         return [.. rows.Where(r => r.Before != "–" || r.Now != "–")];
     }
 
     /// <summary>The suggestion in words: "Move bedtime 15 m earlier."</summary>
-    public string Suggestion(PlanAdjustment adjustment)
+    public string Suggestion(PlanAdjustment adjustment) => Suggestion(adjustment, BabyName);
+
+    public static string Suggestion(PlanAdjustment adjustment, string name)
     {
         ArgumentNullException.ThrowIfNull(adjustment);
         var minutes = Formats.Duration(TimeSpan.FromMinutes(adjustment.Minutes));
         return adjustment.Kind switch
         {
             PlanAdjustmentKind.EarlierBedtime => Strings.Format("Plan.Adj.EarlierBedtime", minutes),
-            PlanAdjustmentKind.LongerWindows => Strings.Format("Plan.Adj.LongerWindows", BabyName, minutes),
-            PlanAdjustmentKind.ShorterLastNap => Strings.Format("Plan.Adj.ShorterLastNap", BabyName, minutes),
-            PlanAdjustmentKind.NewAgeSchedule => Strings.Format("Plan.Adj.NewAgeSchedule", BabyName),
-            PlanAdjustmentKind.DropANap => Strings.Format("Plan.Adj.DropANap", BabyName),
+            PlanAdjustmentKind.LongerWindows => Strings.Format("Plan.Adj.LongerWindows", name, minutes),
+            PlanAdjustmentKind.ShorterLastNap => Strings.Format("Plan.Adj.ShorterLastNap", name, minutes),
+            PlanAdjustmentKind.NewAgeSchedule => Strings.Format("Plan.Adj.NewAgeSchedule", name),
+            PlanAdjustmentKind.DropANap => Strings.Format("Plan.Adj.DropANap", name),
             _ => Strings.Get("Plan.Adj.KeepGoing"),
         };
     }
 
     /// <summary>The stored text of an approach (Spec 019 §5), with the baby's name.</summary>
     public string SettlingText(SettlingApproach approach) => Strings.Format("Plan.Text." + approach, BabyName);
+
+    public static string SettlingText(SettlingApproach approach, string name) => Strings.Format("Plan.Text." + approach, name);
 
     public static string ExpectText(SettlingApproach approach) => Strings.Get(approach switch
     {
@@ -250,6 +349,8 @@ public sealed partial class SleepPlanViewModel(
     });
 
     public string RoutineText => Strings.Format("Plan.RoutineText", BabyName);
+
+    public static string Routine(string name) => Strings.Format("Plan.RoutineText", name);
 
     public static string Date(DateOnly day) => day.ToString("d MMM", Strings.Culture);
 

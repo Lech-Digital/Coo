@@ -60,6 +60,59 @@ internal sealed class AdvisorService(
             generationConfig = new { temperature = 0.4 },
         };
 
+        var text = await GenerateAsync(apiKey, body, cancellationToken);
+        if (text is null)
+            return new AskAdvisorResponse(null, "advisor.unavailable");
+
+        // Counted only once answered: a failure does not use up a question.
+        usage.QuestionCount++;
+        await db.SaveChangesAsync(cancellationToken);
+        return new AskAdvisorResponse(text);
+    }
+
+    public async Task<SleepPlanWordsResponse> WriteSleepPlanAsync(
+        HouseholdId householdId, UserId user, SleepPlanWordsRequest request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        if (!await billingStore.IsHouseholdPremiumAsync(householdId, cancellationToken))
+            return new SleepPlanWordsResponse(null, "premium_required");
+
+        var apiKey = config["Gemini:ApiKey"];
+        if (string.IsNullOrEmpty(apiKey))
+            return new SleepPlanWordsResponse(null, "advisor.unavailable");
+
+        await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
+        var zone = TimeZoneInfo.TryFindSystemTimeZoneById(request.TimeZoneId, out var found) ? found : TimeZoneInfo.Utc;
+        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(timeProvider.GetUtcNow(), zone).DateTime);
+        var usage = await db.AdvisorUsages.FirstOrDefaultAsync(u => u.UserId == user.Value && u.Date == today, cancellationToken);
+        if (usage is null)
+        {
+            usage = new AdvisorUsageRecord { UserId = user.Value, Date = today, QuestionCount = 0 };
+            db.AdvisorUsages.Add(usage);
+        }
+
+        if (usage.PlanCount >= SleepPlanPrompt.DailyTexts)
+            return new SleepPlanWordsResponse(null, "advisor.daily-limit", SleepPlanPrompt.DailyTexts);
+
+        var body = new
+        {
+            systemInstruction = new { parts = new[] { new { text = SleepPlanPrompt.System(request.Kind, request.Language) } } },
+            contents = new[] { new { role = "user", parts = new[] { new { text = SleepPlanPrompt.User(request.Facts) } } } },
+            generationConfig = new { temperature = 0.3 },
+        };
+        // A reply that quotes a time the plan does not have is not shown: the phone keeps the stored texts.
+        var text = SleepPlanPrompt.Accept(await GenerateAsync(apiKey, body, cancellationToken), request.Facts);
+        if (text is null)
+            return new SleepPlanWordsResponse(null, "advisor.unavailable");
+
+        usage.PlanCount++;
+        await db.SaveChangesAsync(cancellationToken);
+        return new SleepPlanWordsResponse(text);
+    }
+
+    /// <summary>Gemini's text for <paramref name="body"/>, with two retries when it is busy; null when there is none.</summary>
+    private static async Task<string?> GenerateAsync(string apiKey, object body, CancellationToken cancellationToken)
+    {
         try
         {
             HttpResponseMessage? response = null;
@@ -80,23 +133,17 @@ internal sealed class AdvisorService(
             using (response)
             {
                 if (response is null || !response.IsSuccessStatusCode)
-                    return new AskAdvisorResponse(null, "advisor.unavailable");
+                    return null;
 
                 using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
                 var text = doc.RootElement.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString();
-                if (string.IsNullOrWhiteSpace(text))
-                    return new AskAdvisorResponse(null, "advisor.unavailable");
-
-                // Counted only once answered: a failure does not use up a question.
-                usage.QuestionCount++;
-                await db.SaveChangesAsync(cancellationToken);
-                return new AskAdvisorResponse(text.Trim());
+                return string.IsNullOrWhiteSpace(text) ? null : text.Trim();
             }
         }
         catch (Exception e) when (e is HttpRequestException or JsonException or KeyNotFoundException or IndexOutOfRangeException or InvalidOperationException
                                        or TaskCanceledException { InnerException: TimeoutException })
         {
-            return new AskAdvisorResponse(null, "advisor.unavailable");
+            return null;
         }
     }
 

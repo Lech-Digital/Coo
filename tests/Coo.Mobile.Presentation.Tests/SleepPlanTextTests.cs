@@ -80,6 +80,62 @@ public sealed class SleepPlanTextTests : IDisposable
         none.Should().BeNull();
     }
 
+    [Fact]
+    public void Facts_PlanInPolish_AreEnglishWith24HourTimesAndNoName()
+    {
+        // Arrange
+        Strings.Use(new LanguagePreference("pl"), null);
+        var plan = Running(dayNumber: 3, checkIn: null);
+
+        // Act
+        var facts = SleepPlanFacts.Plan(plan, 26);
+
+        // Assert
+        facts.Should().Contain("Baby: {baby}, 26 weeks old");
+        facts.Should().Contain($"Bedtime {plan.Day!.Bedtime:HH:mm}");
+        facts.Should().Contain($"Nap 1 {plan.Day.Naps[0].Start:HH:mm}");
+        facts.Should().Contain("Settling approach: Fading");
+        facts.Should().NotContain("Drzemka", "the facts are English whatever the app's language");
+        Strings.Language.Should().Be("pl", "the app's language is back after the facts");
+    }
+
+    [Fact]
+    public void Facts_CheckIn_CarryTheMeasuresAndTheSuggestion()
+    {
+        // Arrange
+        var now = Empty with { Days = 3, NightWakings = 1.5 };
+        var before = Empty with { Days = 7, NightWakings = 3 };
+        var checkIn = new SleepCheckIn(before, now, new PlanAdjustment(PlanAdjustmentKind.EarlierBedtime, 15));
+        var plan = Running(dayNumber: 3, checkIn);
+
+        // Act
+        var facts = SleepPlanFacts.CheckIn(plan, checkIn, 26);
+
+        // Assert
+        facts.Should().Contain("Check-in on day 3");
+        facts.Should().Contain("3 before, 1.5 now");
+        facts.Should().Contain("Suggested change: Move bedtime 15 m earlier");
+    }
+
+    [Fact]
+    public void Key_DifferentLanguageOrFacts_IsADifferentKey()
+    {
+        // Arrange
+        var plan = Running(dayNumber: 3, checkIn: null);
+
+        // Act
+        var en = SleepPlanFacts.Key(plan, SleepPlanWordsKind.Plan, "en", "facts");
+        var again = SleepPlanFacts.Key(plan, SleepPlanWordsKind.Plan, "en", "facts");
+        var pl = SleepPlanFacts.Key(plan, SleepPlanWordsKind.Plan, "pl", "facts");
+        var changed = SleepPlanFacts.Key(plan, SleepPlanWordsKind.Plan, "en", "facts, bedtime moved");
+        var checkIn = SleepPlanFacts.Key(plan, SleepPlanWordsKind.CheckIn, "en", "facts");
+
+        // Assert
+        again.Should().Be(en);
+        new[] { pl, changed, checkIn }.Should().NotContain(en).And.OnlyHaveUniqueItems();
+        en.Should().StartWith(plan.Entry.Id.Value.ToString("N"));
+    }
+
     private static readonly SleepMeasures Empty = new(0, null, null, null, null, null, null, null, null);
 
     private static SleepPlanToday Running(int dayNumber, SleepCheckIn? checkIn)

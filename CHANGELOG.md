@@ -16,6 +16,20 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 
 ## Unreleased
 
+**Deploy the server first**: it must know the new `sleepplan` entry kind before any phone sends a plan, and it adds
+`advisor_usages.plan_count` (migration `AddSleepPlanUsage`). Publish the site's privacy update (sleep plans) with the
+release.
+
+### New
+- **Sleep plans** (Spec 019), free: a plan for your baby's day from her own log and her age (wake-up, each nap,
+  bedtime), a bedtime routine and a gentle settling approach you choose (fading, chair, check and console, or no
+  crying; under 4 months rhythm and routine only), with three safety questions first. A check-in on day 3 and then
+  every week shows what changed in the log and suggests one small change. Today shows the plan's day and the next
+  planned sleep, the nap reminder follows the plan, and past plans are kept. Parents start and change a plan;
+  caregivers follow it.
+- **With Premium**, the Advisor writes the plan and each check-in in words for your baby, from the plan's numbers
+  (never her name); a reply that quotes a time the plan does not have is not shown.
+
 ### Changed
 - **Personal nap times are free**: when the next nap or bedtime is likely, on Today, in the widget, and the nap
   reminder. They are worked out on your phone and cost nothing to run.

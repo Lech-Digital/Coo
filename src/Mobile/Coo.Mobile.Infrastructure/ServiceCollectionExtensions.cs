@@ -91,6 +91,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Coo.Mobile.Application.AiLogging.IAiParseApi>(sp => new AiLogging.AiParseClient(Authenticated(sp)));
         services.AddSingleton<Coo.Mobile.Application.AiLogging.IPendingNoteStore, Persistence.PendingNoteStore>();
         services.AddSingleton<IAdvisorThreadStore, AdvisorThreadStore>();
+        services.AddSingleton<Coo.Mobile.Application.Insights.ISleepPlanWordsStore, SleepPlanWordsStore>();
 
         // Baby Avatar
         services.AddSingleton<Coo.Mobile.Application.Households.IBabyAvatarApi>(sp => new Households.BabyAvatarClient(Authenticated(sp)));

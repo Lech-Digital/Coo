@@ -583,6 +583,8 @@ Jeśli link nie otworzy Coo, przejdź w Coo do Ustawienia → Rodzina → Dołą
   <data name="Plan.Now" xml:space="preserve"><value>Teraz</value></data>
   <data name="Plan.Ok" xml:space="preserve"><value>Rozumiem</value></data>
   <data name="Plan.Paused" xml:space="preserve"><value>Wstrzymany: w ostatnich 3 dniach była gorączka lub lek. Kieruj się potrzebami dziecka; plan wróci sam.</value></data>
+  <data name="Plan.Personal" xml:space="preserve"><value>Napisane dla: {0}</value></data>
+  <data name="Plan.PersonalHint" xml:space="preserve"><value>Z Premium Doradca pisze ten plan i każde podsumowanie dla: {0}, na podstawie dziennika.</value></data>
   <data name="Plan.Q.Breathing" xml:space="preserve"><value>Chrapanie, głośny oddech lub przerwy w oddychaniu?</value></data>
   <data name="Plan.Q.Feeding" xml:space="preserve"><value>Masz obawy związane z karmieniem?</value></data>
   <data name="Plan.Q.Weight" xml:space="preserve"><value>Masz obawy związane z przyrostem wagi?</value></data>
@@ -621,6 +623,7 @@ Dni jasne i aktywne, noce ciemne i ciche; nocne karmienia spokojne i krótkie.</
   <data name="Plan.WakeUp" xml:space="preserve"><value>O której ma zaczynać się dzień?</value></data>
   <data name="Plan.WakeUpAt" xml:space="preserve"><value>Pobudka</value></data>
   <data name="Plan.WakeUpUsual" xml:space="preserve"><value>Jak zwykle</value></data>
+  <data name="Plan.Write" xml:space="preserve"><value>Napisz</value></data>
   <data name="Plan.Yes" xml:space="preserve"><value>Tak</value></data>
   <data name="Premium.Active" xml:space="preserve"><value>Coo Premium jest aktywne dla całej rodziny. Dziękujemy za wsparcie Coo!</value></data>
   <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Do 100 pytań do Doradcy dziennie (3 bez Premium), z odpowiedziami opartymi na Waszym dzienniku</value></data>

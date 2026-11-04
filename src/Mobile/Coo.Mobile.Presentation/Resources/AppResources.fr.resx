@@ -562,6 +562,8 @@ Si le lien n'ouvre pas Coo, va dans Réglages → Famille → Rejoindre une fami
   <data name="Plan.Now" xml:space="preserve"><value>Maintenant</value></data>
   <data name="Plan.Ok" xml:space="preserve"><value>Compris</value></data>
   <data name="Plan.Paused" xml:space="preserve"><value>En pause : fièvre ou médicament ces 3 derniers jours. Suivez les besoins de votre bébé ; le plan reprendra tout seul.</value></data>
+  <data name="Plan.Personal" xml:space="preserve"><value>Écrit pour {0}</value></data>
+  <data name="Plan.PersonalHint" xml:space="preserve"><value>Avec Premium, le Conseiller écrit ce plan et chaque bilan pour {0}, à partir du journal.</value></data>
   <data name="Plan.Q.Breathing" xml:space="preserve"><value>Ronflements, respiration bruyante ou pauses respiratoires ?</value></data>
   <data name="Plan.Q.Feeding" xml:space="preserve"><value>Des inquiétudes pour l'alimentation ?</value></data>
   <data name="Plan.Q.Weight" xml:space="preserve"><value>Des inquiétudes pour la prise de poids ?</value></data>
@@ -600,6 +602,7 @@ Journées claires et animées, nuits sombres et calmes ; tétées de nuit calmes
   <data name="Plan.WakeUp" xml:space="preserve"><value>À quelle heure commence la journée ?</value></data>
   <data name="Plan.WakeUpAt" xml:space="preserve"><value>Réveil</value></data>
   <data name="Plan.WakeUpUsual" xml:space="preserve"><value>Comme d'habitude</value></data>
+  <data name="Plan.Write" xml:space="preserve"><value>Écrire</value></data>
   <data name="Plan.Yes" xml:space="preserve"><value>Oui</value></data>
   <data name="Premium.Active" xml:space="preserve"><value>Coo Premium est actif pour toute votre famille. Merci de soutenir Coo !</value></data>
   <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Jusqu’à 100 questions au Conseiller par jour (3 sans Premium), avec des réponses qui connaissent votre journal</value></data>

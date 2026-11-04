@@ -562,6 +562,8 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Plan.Now" xml:space="preserve"><value>Nu</value></data>
   <data name="Plan.Ok" xml:space="preserve"><value>Begrepen</value></data>
   <data name="Plan.Paused" xml:space="preserve"><value>Gepauzeerd: er was koorts of een medicijn in de afgelopen 3 dagen. Volg wat je baby nodig heeft; het plan gaat daarna vanzelf verder.</value></data>
+  <data name="Plan.Personal" xml:space="preserve"><value>Geschreven voor {0}</value></data>
+  <data name="Plan.PersonalHint" xml:space="preserve"><value>Met Premium schrijft de Adviseur dit plan en elke check-in voor {0}, uit het logboek.</value></data>
   <data name="Plan.Q.Breathing" xml:space="preserve"><value>Snurken, luidruchtig ademen of ademstops?</value></data>
   <data name="Plan.Q.Feeding" xml:space="preserve"><value>Zorgen over de voeding?</value></data>
   <data name="Plan.Q.Weight" xml:space="preserve"><value>Zorgen over de gewichtstoename?</value></data>
@@ -600,6 +602,7 @@ Dagen licht en levendig, nachten donker en rustig; nachtvoedingen rustig en kort
   <data name="Plan.WakeUp" xml:space="preserve"><value>Hoe laat begint de dag?</value></data>
   <data name="Plan.WakeUpAt" xml:space="preserve"><value>Wakker worden</value></data>
   <data name="Plan.WakeUpUsual" xml:space="preserve"><value>Zoals gewoonlijk</value></data>
+  <data name="Plan.Write" xml:space="preserve"><value>Schrijven</value></data>
   <data name="Plan.Yes" xml:space="preserve"><value>Ja</value></data>
   <data name="Premium.Active" xml:space="preserve"><value>Coo Premium is actief voor je hele gezin. Bedankt dat je Coo steunt!</value></data>
   <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Tot 100 vragen per dag aan de Adviseur (3 zonder Premium), met antwoorden die je logboek kennen</value></data>

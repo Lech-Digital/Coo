@@ -37,6 +37,31 @@ internal static partial class AdvisorEndpoints
             return Results.Ok(response);
         });
 
+        // Spec 019 §4: the sleep plan's words, Premium. The phone sends computed facts with the baby as {baby}.
+        advisor.MapPost("/sleep-plan", async Task<IResult> (
+            HttpRequest http,
+            ClaimsPrincipal principal,
+            SyncAccess access,
+            IAdvisorService advisorService,
+            CancellationToken cancellationToken) =>
+        {
+            var request = await AuthEndpoints.TryReadJsonAsync<SleepPlanWordsHttpRequest>(http, cancellationToken);
+            if (request is null || string.IsNullOrWhiteSpace(request.Facts) || request.HouseholdId == Guid.Empty || request.BabyId == Guid.Empty
+                || !Enum.TryParse<SleepPlanWordsKind>(request.Kind, ignoreCase: true, out var kind))
+                return Results.BadRequest(new { Code = "advisor.malformed" });
+
+            var household = new HouseholdId(request.HouseholdId);
+            var user = AuthEndpoints.UserOf(principal);
+            var allowed = await access.CheckAsync(user, household, cancellationToken);
+            if (allowed.Denial != AccessDenial.None)
+                return Results.Forbid();
+
+            var response = await advisorService.WriteSleepPlanAsync(
+                household, user, new SleepPlanWordsRequest(request.BabyId, request.TimeZoneId ?? "UTC", kind, request.Facts, request.Language),
+                cancellationToken);
+            return response.ErrorCode == "premium_required" ? Results.StatusCode(402) : Results.Ok(response);
+        });
+
         advisor.MapPost("/generate-avatar", async Task<IResult> (
             HttpRequest http,
             ClaimsPrincipal principal,
@@ -94,6 +119,19 @@ public class AskAdvisorHttpRequest
     public string? TimeZoneId { get; set; }
     public List<AdvisorMessageHistory>? History { get; set; }
     public string? Context { get; set; }
+    public string? Language { get; set; }
+}
+
+public class SleepPlanWordsHttpRequest
+{
+    public Guid HouseholdId { get; set; }
+    public Guid BabyId { get; set; }
+
+    /// <summary>"plan" or "checkin".</summary>
+    public string? Kind { get; set; }
+
+    public string? Facts { get; set; }
+    public string? TimeZoneId { get; set; }
     public string? Language { get; set; }
 }
 
