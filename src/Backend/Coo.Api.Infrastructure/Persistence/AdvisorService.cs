@@ -20,14 +20,8 @@ internal sealed class AdvisorService(
     // One client for the process: a new HttpClient per question exhausts sockets under load.
     private static readonly HttpClient Gemini = new() { Timeout = TimeSpan.FromSeconds(60) };
 
-    /// <summary>
-    /// Tried in turn when one is busy (503 "high demand") or rate-limited. On 2026-11-04 gemini-flash-lite-latest (then
-    /// 3.5-flash-lite) took 13–24 s under load; the app waits 20 s, so a busy model must not hold the whole answer.
-    /// </summary>
-    private static readonly string[] DefaultModels = ["gemini-flash-lite-latest", "gemini-3.1-flash-lite"];
-
-    /// <summary>The whole answer, every model and retry included, inside the phone's 20-second request.</summary>
-    internal static readonly TimeSpan Deadline = TimeSpan.FromSeconds(17);
+    /// <summary>A sleep plan's words: asked for only by apps that wait a minute (1.10 on).</summary>
+    private static readonly TimeSpan PlanDeadline = TimeSpan.FromSeconds(40);
 
     public async Task<AskAdvisorResponse> AskAsync(HouseholdId householdId, UserId user, AskAdvisorRequest request, CancellationToken cancellationToken)
     {
@@ -69,12 +63,20 @@ internal sealed class AdvisorService(
             generationConfig = new { temperature = 0.4, thinkingConfig = new { thinkingLevel = "minimal" } },
         };
 
-        var text = await GenerateAsync(apiKey, body, cancellationToken);
+        // Premium's better model while the month's better answers last (AdvisorPrompt.PremiumBetterPerMonth).
+        var monthStart = new DateOnly(today.Year, today.Month, 1);
+        var better = isPremium
+            && await db.AdvisorUsages.Where(u => u.UserId == user.Value && u.Date >= monthStart).SumAsync(u => u.BetterCount, cancellationToken)
+                < AdvisorPrompt.PremiumBetterPerMonth;
+        var models = better ? AdvisorPrompt.PremiumModels : AdvisorPrompt.Models;
+        var (text, model) = await GenerateAsync(apiKey, body, models, AdvisorPrompt.Deadline(request.WaitSeconds), cancellationToken);
         if (text is null)
             return new AskAdvisorResponse(null, "advisor.unavailable");
 
         // Counted only once answered: a failure does not use up a question.
         usage.QuestionCount++;
+        if (better && model == AdvisorPrompt.PremiumModels[0])
+            usage.BetterCount++;
         await db.SaveChangesAsync(cancellationToken);
         return new AskAdvisorResponse(text);
     }
@@ -110,7 +112,7 @@ internal sealed class AdvisorService(
             generationConfig = new { temperature = 0.3, thinkingConfig = new { thinkingLevel = "minimal" } },
         };
         // A reply that quotes a time the plan does not have is not shown: the phone keeps the stored texts.
-        var text = SleepPlanPrompt.Accept(await GenerateAsync(apiKey, body, cancellationToken), request.Facts);
+        var text = SleepPlanPrompt.Accept((await GenerateAsync(apiKey, body, AdvisorPrompt.Models, PlanDeadline, cancellationToken)).Text, request.Facts);
         if (text is null)
             return new SleepPlanWordsResponse(null, "advisor.unavailable");
 
@@ -123,16 +125,18 @@ internal sealed class AdvisorService(
     /// Gemini's text for <paramref name="body"/>: each model in turn while one is busy, all within <see cref="Deadline"/>;
     /// null when there is none, which the phone shows as "the Advisor is unavailable, try again" rather than timing out.
     /// </summary>
-    private async Task<string?> GenerateAsync(string apiKey, object body, CancellationToken cancellationToken)
+    /// <returns>The text and the model that wrote it; (null, null) when none did in time.</returns>
+    private static async Task<(string? Text, string? Model)> GenerateAsync(
+        string apiKey, object body, IReadOnlyList<string> models, TimeSpan within, CancellationToken cancellationToken)
     {
-        var models = config.GetSection("Advisor:Models").Get<string[]>() is { Length: > 0 } configured ? configured : DefaultModels;
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        deadline.CancelAfter(Deadline);
+        deadline.CancelAfter(within);
         try
         {
-            for (var attempt = 0; attempt < models.Length * 2; attempt++)
+            for (var attempt = 0; attempt < models.Count * 2; attempt++)
             {
-                var uri = new Uri($"https://generativelanguage.googleapis.com/v1beta/models/{models[attempt % models.Length]}:generateContent");
+                var model = models[attempt % models.Count];
+                var uri = new Uri($"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent");
                 using var message = new HttpRequestMessage(HttpMethod.Post, uri) { Content = System.Net.Http.Json.JsonContent.Create(body) };
                 // In a header, not the URL, so the key never lands in a log line.
                 message.Headers.Add("x-goog-api-key", apiKey);
@@ -140,23 +144,23 @@ internal sealed class AdvisorService(
                 if (response.StatusCode is System.Net.HttpStatusCode.ServiceUnavailable or System.Net.HttpStatusCode.TooManyRequests)
                     continue;
                 if (!response.IsSuccessStatusCode)
-                    return null;
+                    return (null, null);
 
                 using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(deadline.Token));
                 var text = doc.RootElement.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString();
-                return string.IsNullOrWhiteSpace(text) ? null : text.Trim();
+                return string.IsNullOrWhiteSpace(text) ? (null, null) : (text.Trim(), model);
             }
 
-            return null;
+            return (null, null);
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            return null;
+            return (null, null);
         }
         catch (Exception e) when (e is HttpRequestException or JsonException or KeyNotFoundException or IndexOutOfRangeException or InvalidOperationException
                                        or TaskCanceledException { InnerException: TimeoutException })
         {
-            return null;
+            return (null, null);
         }
     }
 

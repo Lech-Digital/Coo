@@ -18,6 +18,9 @@ public class AskAdvisorRequest
     public List<AdvisorMessageHistory>? History { get; set; }
     public string? Context { get; set; }
     public string? Language { get; set; }
+
+    /// <summary>How long this phone waits for the answer; older apps send nothing and wait 20 s.</summary>
+    public int? WaitSeconds { get; set; }
 }
 
 public class GenerateAvatarRequest

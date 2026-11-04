@@ -17,7 +17,7 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 ## Unreleased
 
 **Deploy the server first**: it must know the new `sleepplan` and `milkbag` entry kinds before any phone sends one, and it adds
-`advisor_usages.plan_count` (migration `AddSleepPlanUsage`). Publish the site's privacy update (sleep plans) with the
+`advisor_usages.plan_count` and `better_count` (migrations `AddSleepPlanUsage`, `AddAdvisorBetterCount`). Publish the site's privacy update (sleep plans) with the
 release.
 
 ### New
@@ -55,6 +55,11 @@ release.
   person (the night your partner did, the grandparents' afternoon), until "Got it".
 
 ### Changed
+- **The Advisor waits for a busy Gemini**: up to a minute instead of 20 seconds, and says "unavailable, try again" rather
+  than "couldn't reach the Advisor" when Google's AI is overloaded. Answers come from the fastest model first, and Tell
+  Coo reads what you say faster too.
+- **With Premium, better Advisor answers**: up to 60 a month from a stronger model (Gemini 3.6 Flash), then the standard
+  one.
 - **Bottle amounts in steps of 5 ml**: + and − on the bottle go 75, 80, 85 instead of 75, 85, 95 (ounces stay at ½ oz).
 - **Personal nap times are free**: when the next nap or bedtime is likely, on Today, in the widget, and the nap
   reminder. They are worked out on your phone and cost nothing to run.

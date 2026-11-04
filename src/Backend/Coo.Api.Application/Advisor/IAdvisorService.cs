@@ -6,8 +6,10 @@ public record AdvisorMessageHistory(string Text, bool IsUser);
 
 /// <param name="Context">The phone's summary of the baby's recent log (sleep, feeds, diapers per day), in plain text.</param>
 /// <param name="Language">The app's language, two letters: the answer is written in it.</param>
+/// <param name="WaitSeconds">How long the phone waits for the answer (1.10 on); null for older apps, which wait 20 s.</param>
 public record AskAdvisorRequest(
-    string Question, Guid BabyId, string TimeZoneId, List<AdvisorMessageHistory>? History = null, string? Context = null, string? Language = null);
+    string Question, Guid BabyId, string TimeZoneId, List<AdvisorMessageHistory>? History = null, string? Context = null, string? Language = null,
+    int? WaitSeconds = null);
 
 /// <summary>An answer, or an <see cref="ErrorCode"/> the app shows in its own words (advisor.daily-limit, advisor.unavailable).</summary>
 public record AskAdvisorResponse(string? Answer, string? ErrorCode = null, int? Limit = null);

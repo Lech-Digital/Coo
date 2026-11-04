@@ -55,4 +55,28 @@ public sealed class AdvisorPromptTests
         // Assert
         system.Length.Should().BeLessThan(AdvisorPrompt.MaxContextLength + 4000);
     }
+
+    [Theory]
+    [InlineData(null, 17)]
+    [InlineData(20, 17)]
+    [InlineData(60, 55)]
+    [InlineData(5, 17)]
+    [InlineData(300, 55)]
+    public void Deadline_WhatThePhoneWaits_LeavesAMarginButNeverLessThanToday(int? waitSeconds, int expected)
+    {
+        // Act
+        var deadline = AdvisorPrompt.Deadline(waitSeconds);
+
+        // Assert
+        deadline.Should().Be(TimeSpan.FromSeconds(expected));
+    }
+
+    [Fact]
+    public void Models_PremiumTriesTheBetterModelThenEveryonesInTheSameOrder()
+    {
+        // Assert
+        AdvisorPrompt.Models[0].Should().Be("gemini-3.1-flash-lite", "the fastest and cheapest under load on 2026-11-04");
+        AdvisorPrompt.PremiumModels.Should().Equal(["gemini-3.6-flash", .. AdvisorPrompt.Models]);
+        AdvisorPrompt.PremiumBetterPerMonth.Should().BeInRange(1, 60, "60 better answers at 2027 prices is about a third of a yearly Premium");
+    }
 }

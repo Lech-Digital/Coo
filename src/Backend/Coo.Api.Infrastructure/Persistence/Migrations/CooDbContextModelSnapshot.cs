@@ -33,6 +33,12 @@ namespace Coo.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("date")
                         .HasColumnName("date");
 
+                    b.Property<int>("BetterCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("better_count");
+
                     b.Property<int>("PlanCount")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")

@@ -5,12 +5,17 @@ namespace Coo.Mobile.Infrastructure.Advisor;
 
 internal sealed class AdvisorClient(HttpClient http) : IAdvisorApi
 {
+    /// <summary>How long the phone waits for an Advisor answer; the request tells the server (<c>WaitSeconds</c>).</summary>
+    public static readonly TimeSpan Timeout = TimeSpan.FromSeconds(60);
+
     private static readonly Uri AskUri = new("api/advisor/ask", UriKind.Relative);
     private static readonly Uri SleepPlanUri = new("api/advisor/sleep-plan", UriKind.Relative);
     private static readonly Uri GenerateAvatarUri = new("api/advisor/generate-avatar", UriKind.Relative);
 
     public async Task<AskAdvisorResponse> AskAsync(AskAdvisorRequest request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
+        request.WaitSeconds ??= (int)Timeout.TotalSeconds;
         using var message = new HttpRequestMessage(HttpMethod.Post, AskUri)
         {
             Content = JsonContent.Create(request, AdvisorJsonContext.Default.AskAdvisorRequest)

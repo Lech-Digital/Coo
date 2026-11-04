@@ -11,6 +11,33 @@ public static class AdvisorPrompt
     public const int MaxHistoryMessages = 20;
     public const int MaxHistoryMessageLength = 2000;
 
+    /// <summary>
+    /// Every Advisor answer, tried in turn while one is busy (Gemini's 503 "high demand"). 3.1-flash-lite first: on
+    /// 2026-11-04 it answered in 0.6-5 s where -latest (3.5-flash-lite, which thinks by default) took 16-40 s, and it is the
+    /// cheaper of the two ($0.25 / $1.50 per million tokens in / out).
+    /// </summary>
+    public static readonly IReadOnlyList<string> Models = ["gemini-3.1-flash-lite", "gemini-flash-lite-latest"];
+
+    /// <summary>
+    /// Premium's better answers: Gemini 3.6 Flash ($0.75 / $3.75 per million tokens until 2027, then $1.50 / $7.50), then
+    /// the same models as everyone when it is busy or the month's better answers are used.
+    /// </summary>
+    public static readonly IReadOnlyList<string> PremiumModels = ["gemini-3.6-flash", .. Models];
+
+    /// <summary>
+    /// Better answers per member per month. An answer is about 6,000 tokens in (the log summary, the conversation) and
+    /// 400 out: about $0.006 on 3.6 Flash today, $0.012 from 2027. 60 a month is at most $0.72 a month in 2027, a third of
+    /// what a yearly Premium brings after Play's 15% (EUR 29.99 / 12 * 0.85, about $2.30); the rest of the month's answers
+    /// are on 3.1-flash-lite at about $0.002.
+    /// </summary>
+    public const int PremiumBetterPerMonth = 60;
+
+    /// <summary>
+    /// How long to try for an answer: a little less than the phone waits (WaitSeconds, sent from 1.10), so it hears
+    /// "unavailable" rather than timing out; older apps wait 20 s and send nothing.
+    /// </summary>
+    public static TimeSpan Deadline(int? waitSeconds) => TimeSpan.FromSeconds(Math.Clamp((waitSeconds ?? 20) - 3, 17, 55));
+
     private static readonly Dictionary<string, string> Languages = new()
     {
         ["en"] = "English",

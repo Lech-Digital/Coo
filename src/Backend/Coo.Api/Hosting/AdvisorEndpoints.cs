@@ -32,7 +32,7 @@ internal static partial class AdvisorEndpoints
                 return Results.Forbid();
 
             var advisorRequest = new AskAdvisorRequest(
-                request.Question, request.BabyId, request.TimeZoneId ?? "UTC", request.History, request.Context, request.Language);
+                request.Question, request.BabyId, request.TimeZoneId ?? "UTC", request.History, request.Context, request.Language, request.WaitSeconds);
             var response = await advisorService.AskAsync(household, user, advisorRequest, cancellationToken);
             return Results.Ok(response);
         });
@@ -120,6 +120,7 @@ public class AskAdvisorHttpRequest
     public List<AdvisorMessageHistory>? History { get; set; }
     public string? Context { get; set; }
     public string? Language { get; set; }
+    public int? WaitSeconds { get; set; }
 }
 
 public class SleepPlanWordsHttpRequest

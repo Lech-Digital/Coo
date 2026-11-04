@@ -64,11 +64,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IAuthApi>(_ => new AuthClient(new HttpClient { BaseAddress = apiBaseAddress, Timeout = HttpTimeout }));
         services.AddSingleton(sp => new TokenRefresher(
             sp.GetRequiredService<ISessionStore>(), sp.GetRequiredService<IAuthApi>(), sp.GetRequiredService<Account>(), sp.GetRequiredService<TimeProvider>()));
-        HttpClient Authenticated(IServiceProvider sp) =>
+        HttpClient Authenticated(IServiceProvider sp, TimeSpan? timeout = null) =>
             new(new AuthenticatingHandler(sp.GetRequiredService<TokenRefresher>()) { InnerHandler = new HttpClientHandler() })
             {
                 BaseAddress = apiBaseAddress,
-                Timeout = HttpTimeout,
+                Timeout = timeout ?? HttpTimeout,
             };
 
         services.AddSingleton<IAccountApi>(sp => new AccountClient(Authenticated(sp)));
@@ -84,7 +84,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IHouseholdApi>(sp => new HouseholdClient(Authenticated(sp)));
 
         // Advisor
-        services.AddSingleton<IAdvisorApi>(sp => new AdvisorClient(Authenticated(sp)));
+        // A minute: Gemini under load took 13-24 s on 2026-11-04, past the 20 s of every other call. The server is told how
+        // long the phone waits (AskAdvisorRequest.WaitSeconds) and answers "unavailable" before then.
+        services.AddSingleton<IAdvisorApi>(sp => new AdvisorClient(Authenticated(sp, AdvisorClient.Timeout)));
         services.AddSingleton<Coo.Mobile.Application.Billing.IBillingApi>(sp => new Billing.BillingClient(Authenticated(sp)));
 
         // AI logging (ADR 0005): the parse endpoint, and words kept on the phone until they can be parsed.
