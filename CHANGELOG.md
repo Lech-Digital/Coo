@@ -20,7 +20,7 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 
 The server is deployed already (370dd48: the `sleepplan` and `milkbag` entry kinds, migrations `AddSleepPlanUsage` and
 `AddAdvisorBetterCount`, the Advisor's models and 17-second deadline). Publish the site's privacy update (sleep plans,
-the milk stash) with the release. Raise `AppUpdates:Latest` to 30 only once this is live on Google Play.
+the milk stash) with the release. Live on Google Play 2026-11-04; `AppUpdates:Latest` 30 (server `.env` and the compose default), `Minimum` stays 29.
 
 ### New
 - **Sleep plans** (Spec 019), free: a plan for your baby's day from her own log and her age (wake-up, each nap,
