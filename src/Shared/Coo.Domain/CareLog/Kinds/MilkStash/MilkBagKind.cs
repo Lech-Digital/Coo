@@ -25,8 +25,11 @@ public sealed record MilkBagDetails : EntryDetails
 {
     public const int MaxLabelLength = 40;
 
-    private MilkBagDetails(Volume volume, MilkPlace place, DateTimeOffset? thawedAt, DateOnly? usedOn, DateOnly? discardedOn, string? label) =>
-        (Volume, Place, ThawedAt, UsedOn, DiscardedOn, Label) = (volume, place, thawedAt, usedOn, discardedOn, label);
+    public const int MaxNumber = 999;
+
+    private MilkBagDetails(
+        Volume volume, MilkPlace place, DateTimeOffset? thawedAt, DateOnly? usedOn, DateOnly? discardedOn, string? label, int? number) =>
+        (Volume, Place, ThawedAt, UsedOn, DiscardedOn, Label, Number) = (volume, place, thawedAt, usedOn, discardedOn, label, number);
 
     public Volume Volume { get; }
 
@@ -42,10 +45,14 @@ public sealed record MilkBagDetails : EntryDetails
     /// <summary>The parent's own note on the bag, such as "night milk".</summary>
     public string? Label { get; }
 
+    /// <summary>The number written on the container, so three bags in the fridge can be told apart ("#2").</summary>
+    public int? Number { get; }
+
     public bool IsInStock => UsedOn is null && DiscardedOn is null;
 
     public static Result<MilkBagDetails> Create(
-        Volume volume, MilkPlace place, DateTimeOffset? thawedAt = null, DateOnly? usedOn = null, DateOnly? discardedOn = null, string? label = null)
+        Volume volume, MilkPlace place, DateTimeOffset? thawedAt = null, DateOnly? usedOn = null, DateOnly? discardedOn = null, string? label = null,
+        int? number = null)
     {
         if (volume.Millilitres <= 0 || volume.Millilitres > MilkStorage.MaxBagMl)
             return Result<MilkBagDetails>.Failure(MilkBagErrors.Volume);
@@ -58,32 +65,51 @@ public sealed record MilkBagDetails : EntryDetails
         var trimmed = string.IsNullOrWhiteSpace(label) ? null : label.Trim();
         if (trimmed?.Length > MaxLabelLength)
             return Result<MilkBagDetails>.Failure(MilkBagErrors.LabelTooLong);
+        if (number is < 1 or > MaxNumber)
+            return Result<MilkBagDetails>.Failure(MilkBagErrors.Number);
         // To the millisecond, as stored: the codec's write gate compares the decoded value with this one.
         var thawed = thawedAt is { } t ? DateTimeOffset.FromUnixTimeMilliseconds(t.ToUnixTimeMilliseconds()) : (DateTimeOffset?)null;
-        return new MilkBagDetails(volume, place, thawed, usedOn, discardedOn, trimmed);
+        return new MilkBagDetails(volume, place, thawed, usedOn, discardedOn, trimmed, number);
     }
 
+    /// <summary>
+    /// The number for a new bag: the lowest not on a bag still in stock, so the numbers on the containers stay short and a
+    /// used bag's number comes free again.
+    /// </summary>
+    public static int NextNumber(IEnumerable<int?> inStock)
+    {
+        ArgumentNullException.ThrowIfNull(inStock);
+        var taken = inStock.OfType<int>().ToHashSet();
+        var next = 1;
+        while (taken.Contains(next) && next < MaxNumber)
+            next++;
+        return next;
+    }
+
+    /// <summary>What the parent can correct: how much is left (part of it used), the number on the container, the note.</summary>
+    public Result<MilkBagDetails> Edit(Volume volume, int? number, string? label) => Create(volume, Place, ThawedAt, UsedOn, DiscardedOn, label, number);
+
     /// <summary>Into the freezer: only milk that was never thawed.</summary>
-    public Result<MilkBagDetails> Freeze() => Create(Volume, MilkPlace.Freezer, ThawedAt, UsedOn, DiscardedOn, Label);
+    public Result<MilkBagDetails> Freeze() => Create(Volume, MilkPlace.Freezer, ThawedAt, UsedOn, DiscardedOn, Label, Number);
 
     /// <summary>Out of the freezer into the fridge, thawing from <paramref name="at"/>.</summary>
     public Result<MilkBagDetails> Thaw(DateTimeOffset at) =>
         Place == MilkPlace.Freezer
-            ? Create(Volume, MilkPlace.Fridge, at, UsedOn, DiscardedOn, Label)
+            ? Create(Volume, MilkPlace.Fridge, at, UsedOn, DiscardedOn, Label, Number)
             : Result<MilkBagDetails>.Failure(MilkBagErrors.NotFrozen);
 
-    public Result<MilkBagDetails> Use(DateOnly on) => Create(Volume, Place, ThawedAt, on, null, Label);
+    public Result<MilkBagDetails> Use(DateOnly on) => Create(Volume, Place, ThawedAt, on, null, Label, Number);
 
-    public Result<MilkBagDetails> Discard(DateOnly on) => Create(Volume, Place, ThawedAt, null, on, Label);
+    public Result<MilkBagDetails> Discard(DateOnly on) => Create(Volume, Place, ThawedAt, null, on, Label, Number);
 
     /// <summary>Back in stock: a "used" tapped by mistake.</summary>
-    public Result<MilkBagDetails> Restock() => Create(Volume, Place, ThawedAt, null, null, Label);
+    public Result<MilkBagDetails> Restock() => Create(Volume, Place, ThawedAt, null, null, Label, Number);
 
     public bool Equals(MilkBagDetails? other) =>
         other is not null && Volume == other.Volume && Place == other.Place && ThawedAt == other.ThawedAt && UsedOn == other.UsedOn
-        && DiscardedOn == other.DiscardedOn && Label == other.Label;
+        && DiscardedOn == other.DiscardedOn && Label == other.Label && Number == other.Number;
 
-    public override int GetHashCode() => HashCode.Combine(Volume, Place, ThawedAt, UsedOn, DiscardedOn, Label);
+    public override int GetHashCode() => HashCode.Combine(Volume, Place, ThawedAt, UsedOn, DiscardedOn, Label, Number);
 }
 
 /// <summary>
@@ -140,6 +166,7 @@ public static class MilkBagErrors
     public const string NotFrozen = "milkbag.not-frozen";
     public const string UsedAndDiscarded = "milkbag.used-and-discarded";
     public const string LabelTooLong = "milkbag.label-too-long";
+    public const string Number = "milkbag.number";
 }
 
 /// <summary>

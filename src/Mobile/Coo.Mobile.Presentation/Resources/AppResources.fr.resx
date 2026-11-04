@@ -872,6 +872,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Stash.AmountNeeded" xml:space="preserve"><value>Indiquez la quantité de lait du sachet.</value></data>
   <data name="Stash.Dates" xml:space="preserve"><value>Tiré {0} · à utiliser avant {1}</value></data>
   <data name="Stash.Discard" xml:space="preserve"><value>Jeter</value></data>
+  <data name="Stash.Edit" xml:space="preserve"><value>Modifier</value></data>
   <data name="Stash.Empty" xml:space="preserve"><value>Pas encore de lait en réserve. Ajoutez un sachet quand vous mettez du lait au réfrigérateur ou au congélateur.</value></data>
   <data name="Stash.Expired.one" xml:space="preserve"><value>{0} périmé</value></data>
   <data name="Stash.Expired.other" xml:space="preserve"><value>{0} périmés</value></data>
@@ -883,7 +884,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Stash.Guidance" xml:space="preserve"><value>La date suit les recommandations des CDC : 4 jours au réfrigérateur, environ 6 mois au congélateur, 24 heures une fois décongelé, et le lait décongelé ne se recongèle jamais. Jetez un lait qui sent l’aigre, ou un biberon entamé après 2 heures.</value></data>
   <data name="Stash.Hint" xml:space="preserve"><value>Sachets au réfrigérateur et au congélateur, les plus anciens d’abord, avec une alerte avant la date.</value></data>
   <data name="Stash.LabelHint" xml:space="preserve"><value>Étiquette (facultatif)</value></data>
+  <data name="Stash.Left" xml:space="preserve"><value>Quantité restante</value></data>
+  <data name="Stash.Number" xml:space="preserve"><value>Numéro sur le récipient</value></data>
+  <data name="Stash.NumberRange" xml:space="preserve"><value>Le numéro va de 1 à {0}, ou laissez vide.</value></data>
   <data name="Stash.Open" xml:space="preserve"><value>Réserve de lait</value></data>
+  <data name="Stash.Save" xml:space="preserve"><value>Enregistrer</value></data>
   <data name="Stash.SoonTag" xml:space="preserve"><value>À utiliser bientôt</value></data>
   <data name="Stash.Thaw" xml:space="preserve"><value>Décongeler</value></data>
   <data name="Stash.Thawed" xml:space="preserve"><value>Décongelé, au réfrigérateur</value></data>

@@ -872,6 +872,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Stash.AmountNeeded" xml:space="preserve"><value>Enter how much milk is in the bag.</value></data>
   <data name="Stash.Dates" xml:space="preserve"><value>Expressed {0} · use by {1}</value></data>
   <data name="Stash.Discard" xml:space="preserve"><value>Throw away</value></data>
+  <data name="Stash.Edit" xml:space="preserve"><value>Edit</value></data>
   <data name="Stash.Empty" xml:space="preserve"><value>No milk in the stash yet. Add a bag when you store milk in the fridge or freezer.</value></data>
   <data name="Stash.Expired.one" xml:space="preserve"><value>{0} past its use-by</value></data>
   <data name="Stash.Expired.other" xml:space="preserve"><value>{0} past their use-by</value></data>
@@ -883,7 +884,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Stash.Guidance" xml:space="preserve"><value>Use-by follows CDC guidance: 4 days in the fridge, about 6 months in the freezer, 24 hours once thawed, and thawed milk is never frozen again. Throw away milk that smells sour or a bottle the baby drank from after 2 hours.</value></data>
   <data name="Stash.Hint" xml:space="preserve"><value>Fridge and freezer bags, the oldest first, with a warning before milk expires.</value></data>
   <data name="Stash.LabelHint" xml:space="preserve"><value>Label (optional)</value></data>
+  <data name="Stash.Left" xml:space="preserve"><value>Amount left</value></data>
+  <data name="Stash.Number" xml:space="preserve"><value>Number on the container</value></data>
+  <data name="Stash.NumberRange" xml:space="preserve"><value>The number is 1 to {0}, or leave it empty.</value></data>
   <data name="Stash.Open" xml:space="preserve"><value>Milk stash</value></data>
+  <data name="Stash.Save" xml:space="preserve"><value>Save</value></data>
   <data name="Stash.SoonTag" xml:space="preserve"><value>Use soon</value></data>
   <data name="Stash.Thaw" xml:space="preserve"><value>Thaw</value></data>
   <data name="Stash.Thawed" xml:space="preserve"><value>Thawed, in the fridge</value></data>

@@ -41,13 +41,15 @@ release.
 - **Milk stash** (Stats → Milk stash): the bags of expressed milk in the fridge and freezer, the one to use first on
   top, with its use-by (4 days in the fridge, about 6 months frozen, 24 hours once thawed, as the CDC advises). Mark a
   bag used, freeze, thaw or throw it away; everyone in the family sees the same stash, and Today says when a bag
-  should be used soon.
+  should be used soon. Each bag gets a number to write on the container (#1, #2, #3; a used bag's number comes free
+  again), and Edit changes the number, the note, or how much is left after part of it was used.
 
 - **The nanny's handover**: when a nanny or daycare logs for your baby, Today shows "Today with Anna" at pick-up: feeds
   and how much from bottles, naps and how long, diapers, medicines and her notes, from her first entry to her last.
   "Seen" puts it away until she logs more. A caregiver sees her own day and can share it as a message.
 
 ### Changed
+- **Bottle amounts in steps of 5 ml**: + and − on the bottle go 75, 80, 85 instead of 75, 85, 95 (ounces stay at ½ oz).
 - **Personal nap times are free**: when the next nap or bedtime is likely, on Today, in the widget, and the nap
   reminder. They are worked out on your phone and cost nothing to run.
 

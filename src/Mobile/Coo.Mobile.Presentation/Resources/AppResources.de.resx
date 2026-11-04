@@ -872,6 +872,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Stash.AmountNeeded" xml:space="preserve"><value>Gib an, wie viel Milch im Beutel ist.</value></data>
   <data name="Stash.Dates" xml:space="preserve"><value>Abgepumpt {0} · verbrauchen bis {1}</value></data>
   <data name="Stash.Discard" xml:space="preserve"><value>Wegwerfen</value></data>
+  <data name="Stash.Edit" xml:space="preserve"><value>Bearbeiten</value></data>
   <data name="Stash.Empty" xml:space="preserve"><value>Noch keine Milch im Vorrat. Füge einen Beutel hinzu, wenn du Milch in den Kühlschrank oder ins Gefrierfach legst.</value></data>
   <data name="Stash.Expired.one" xml:space="preserve"><value>{0} abgelaufen</value></data>
   <data name="Stash.Expired.other" xml:space="preserve"><value>{0} abgelaufen</value></data>
@@ -883,7 +884,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Stash.Guidance" xml:space="preserve"><value>Das Verbrauchsdatum folgt den CDC-Empfehlungen: 4 Tage im Kühlschrank, etwa 6 Monate im Gefrierfach, 24 Stunden nach dem Auftauen, und aufgetaute Milch wird nie wieder eingefroren. Wirf Milch weg, die sauer riecht, oder eine angetrunkene Flasche nach 2 Stunden.</value></data>
   <data name="Stash.Hint" xml:space="preserve"><value>Beutel in Kühlschrank und Gefrierfach, die ältesten zuerst, mit Hinweis vor dem Ablaufen.</value></data>
   <data name="Stash.LabelHint" xml:space="preserve"><value>Notiz (optional)</value></data>
+  <data name="Stash.Left" xml:space="preserve"><value>Verbleibende Menge</value></data>
+  <data name="Stash.Number" xml:space="preserve"><value>Nummer auf dem Behälter</value></data>
+  <data name="Stash.NumberRange" xml:space="preserve"><value>Die Nummer ist 1 bis {0}, oder leer lassen.</value></data>
   <data name="Stash.Open" xml:space="preserve"><value>Milchvorrat</value></data>
+  <data name="Stash.Save" xml:space="preserve"><value>Speichern</value></data>
   <data name="Stash.SoonTag" xml:space="preserve"><value>Bald verbrauchen</value></data>
   <data name="Stash.Thaw" xml:space="preserve"><value>Auftauen</value></data>
   <data name="Stash.Thawed" xml:space="preserve"><value>Aufgetaut, im Kühlschrank</value></data>

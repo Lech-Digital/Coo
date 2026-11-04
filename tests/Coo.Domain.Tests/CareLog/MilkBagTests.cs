@@ -102,4 +102,33 @@ public sealed class MilkBagTests
         back.Should().Be(bag);
         discarded.IsInStock.Should().BeFalse();
     }
+
+    [Theory]
+    [InlineData(new int[0], 1)]
+    [InlineData(new[] { 1, 2, 3 }, 4)]
+    [InlineData(new[] { 1, 3 }, 2)]
+    [InlineData(new[] { 2, 7 }, 1)]
+    public void NextNumber_BagsInStock_IsTheLowestFree(int[] taken, int expected)
+    {
+        // Act
+        var next = MilkBagDetails.NextNumber(taken.Select(n => (int?)n).Append(null));
+
+        // Assert
+        next.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Edit_PartUsedAndRenumbered_KeepsWhereItIsAndItsThaw()
+    {
+        // Arrange
+        var thawed = Bag(MilkPlace.Freezer).Thaw(Expressed.AddDays(10)).Value;
+
+        // Act
+        var edited = thawed.Edit(Volume.FromMillilitres(60).Value, 4, "left").Value;
+        var tooHigh = thawed.Edit(Volume.FromMillilitres(60).Value, 1000, null);
+
+        // Assert
+        (edited.Volume.Millilitres, edited.Number, edited.Label, edited.Place, edited.ThawedAt).Should().Be((60m, 4, "left", MilkPlace.Fridge, thawed.ThawedAt));
+        tooHigh.Error!.Code.Should().Be(MilkBagErrors.Number);
+    }
 }

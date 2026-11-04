@@ -70,7 +70,7 @@ internal static class Fixtures
             [new Coo.Domain.CareLog.Kinds.SleepPlan.AcceptedAdjustment(new DateOnly(2026, 11, 10), Coo.Domain.Insights.PlanAdjustmentKind.LongerWindows, 15)],
             new DateOnly(2026, 12, 1)).Value,
         ["milkbag/v1/frozen.json"] = Coo.Domain.CareLog.Kinds.MilkStash.MilkBagDetails.Create(
-            Volume.FromMillilitres(120).Value, Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace.Freezer, label: "night milk").Value,
+            Volume.FromMillilitres(120).Value, Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace.Freezer, label: "night milk", number: 2).Value,
         ["milkbag/v1/thawed-used.json"] = Coo.Domain.CareLog.Kinds.MilkStash.MilkBagDetails.Create(
             Volume.FromMillilitres(90).Value, Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace.Fridge,
             DateTimeOffset.FromUnixTimeMilliseconds(1793091600000), new DateOnly(2026, 11, 5)).Value,

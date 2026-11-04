@@ -67,6 +67,43 @@ public sealed class MilkStashTests
     }
 
     [Fact]
+    public async Task Add_ThreeBagsThenOneUsed_NumbersThemAndReusesTheFreeNumber()
+    {
+        // Arrange: three containers in the fridge (owner, 2026-11-04: "how do we recognize them?").
+        var first = (await Add(90, MilkPlace.Fridge, Now.AddHours(-3))).Value.Id;
+        await Add(100, MilkPlace.Fridge, Now.AddHours(-2));
+        await Add(110, MilkPlace.Fridge, Now.AddHours(-1));
+        await new ChangeMilkBag(new ReviseEntry(_store, _clock, _time)).ExecuteAsync(first, MilkBagChange.Use, Now, Amsterdam, CancellationToken.None);
+
+        // Act
+        await Add(120, MilkPlace.Fridge, Now);
+        var stash = await new GetMilkStash(_store).ExecuteAsync(Household, Now, CancellationToken.None);
+
+        // Assert
+        stash.Bags.Select(b => (b.Details.Volume.Millilitres, b.Details.Number)).Should().BeEquivalentTo(
+            [(100m, (int?)2), (110m, (int?)3), (120m, (int?)1)]);
+    }
+
+    [Fact]
+    public async Task Edit_HalfABagUsed_KeepsTheRestWithItsNewNumberAndNote()
+    {
+        // Arrange
+        var bag = (await Add(150, MilkPlace.Fridge, Now.AddHours(-1))).Value.Id;
+        var change = new ChangeMilkBag(new ReviseEntry(_store, _clock, _time));
+
+        // Act
+        var edited = await change.EditAsync(bag, Volume.FromMillilitres(70).Value, 5, "left side", CancellationToken.None);
+        var refused = await change.EditAsync(bag, Volume.FromMillilitres(70).Value, 0, null, CancellationToken.None);
+        var stash = await new GetMilkStash(_store).ExecuteAsync(Household, Now, CancellationToken.None);
+
+        // Assert
+        edited.IsSuccess.Should().BeTrue();
+        refused.IsFailure.Should().BeTrue();
+        var details = stash.Bags.Single().Details;
+        (details.Volume.Millilitres, details.Number, details.Label).Should().Be((70m, 5, "left side"));
+    }
+
+    [Fact]
     public async Task Add_ExpiredMilk_StaysInTheStashMarkedExpired()
     {
         // Arrange: five days in the fridge.
@@ -81,7 +118,7 @@ public sealed class MilkStashTests
     }
 
     private Task<Result<CareEntry>> Add(decimal ml, MilkPlace place, DateTimeOffset expressed) =>
-        new AddMilkBag(new LogEntry(_store, _clock, _time)).ExecuteAsync(Household, Volume.FromMillilitres(ml).Value, place, expressed, null, CancellationToken.None);
+        new AddMilkBag(new LogEntry(_store, _clock, _time), new GetMilkStash(_store)).ExecuteAsync(Household, Volume.FromMillilitres(ml).Value, place, expressed, null, CancellationToken.None);
 
     private sealed class MemoryStore : ICareLogStore
     {

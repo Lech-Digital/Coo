@@ -5,7 +5,7 @@ namespace Coo.Contracts.CareLog.Kinds.MilkStash;
 /// <summary>
 /// <c>milkbag</c> v1: a bag of expressed milk in the family's stash. Volume in millilitres; where it is kept
 /// (<c>"fridge"</c> or <c>"freezer"</c>); when it was thawed (Unix milliseconds, UTC); the days it was used or thrown
-/// away (<c>yyyy-MM-dd</c>); and the parent's label.
+/// away (<c>yyyy-MM-dd</c>); the parent's label; and the number on the container.
 /// </summary>
 public sealed record MilkBagDetailsV1
 {
@@ -23,4 +23,7 @@ public sealed record MilkBagDetailsV1
     public string? DiscardedOn { get; init; }
 
     public string? Label { get; init; }
+
+    /// <summary>The number on the container, 1 to 999.</summary>
+    public int? Number { get; init; }
 }

@@ -37,7 +37,8 @@ public sealed class MilkStashTextTests : IDisposable
         string[] keys = ["Kind.MilkBag", "Entry.MilkBagFridge", "Entry.MilkBagFreezer", "Entry.MilkBagUsed", "Entry.MilkBagDiscarded",
             "Stash.Fridge", "Stash.Freezer", "Stash.Thawed", "Stash.Dates", "Stash.Empty", "Stash.Add", "Stash.Amount", "Stash.Expressed",
             "Stash.LabelHint", "Stash.AmountNeeded", "Stash.Use", "Stash.Freeze", "Stash.Thaw", "Stash.Discard", "Stash.UseFirst",
-            "Stash.ExpiredTag", "Stash.SoonTag", "Stash.Guidance", "Stash.Open", "Stash.Hint"];
+            "Stash.ExpiredTag", "Stash.SoonTag", "Stash.Guidance", "Stash.Open", "Stash.Hint", "Stash.Edit", "Stash.Save", "Stash.Left",
+            "Stash.Number", "Stash.NumberRange"];
 
         // Act
         var missing = keys.Where(k => Strings.Get(k) == k).ToList();

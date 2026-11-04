@@ -30,6 +30,7 @@ internal sealed class MilkBagCodec : EntryDetailsCodec<MilkBagDetails, MilkBagDe
         UsedOn = Day(details.UsedOn),
         DiscardedOn = Day(details.DiscardedOn),
         Label = details.Label,
+        Number = details.Number,
     };
 
     protected override DecodeOutcome FromDto(MilkBagDetailsV1 dto)
@@ -51,7 +52,7 @@ internal sealed class MilkBagCodec : EntryDetailsCodec<MilkBagDetails, MilkBagDe
             return new Malformed(DecodeReasons.Invalid("discardedOn"));
 
         var thawed = dto.ThawedAtMs is { } ms ? DateTimeOffset.FromUnixTimeMilliseconds(ms) : (DateTimeOffset?)null;
-        var details = MilkBagDetails.Create(volume.Value, place.Value, thawed, used, discarded, dto.Label);
+        var details = MilkBagDetails.Create(volume.Value, place.Value, thawed, used, discarded, dto.Label, dto.Number);
         return details.IsSuccess ? Ok(details.Value) : new Malformed(details.Error!.Code);
     }
 

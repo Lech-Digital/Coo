@@ -13,7 +13,9 @@ using Coo.Mobile.Presentation.Localization;
 namespace Coo.Mobile.Presentation.MilkStash;
 
 /// <summary>One bag on the stash page: "120 ml · Fridge", "Expressed Mon 08:30 · use by Fri 08:30", and how fresh it is.</summary>
-public sealed record MilkBagRow(EntryId Id, string Amount, string Where, string Dates, MilkFreshness Freshness, MilkPlace Place, bool IsThawed, string? Label);
+/// <param name="Number">"#2", the number on the container; empty for a bag without one.</param>
+public sealed record MilkBagRow(
+    EntryId Id, string Amount, string Where, string Dates, MilkFreshness Freshness, MilkPlace Place, bool IsThawed, string? Label, string Number = "");
 
 /// <summary>
 /// The milk stash: the fridge and freezer stock, the bag to use first at the top, use-by warnings, and adding bags. Anyone
@@ -62,6 +64,19 @@ public sealed partial class MilkStashViewModel(
     [ObservableProperty]
     private string _error = "";
 
+    /// <summary>The bag being edited on the page; null when none is.</summary>
+    [ObservableProperty]
+    private EntryId? _editing;
+
+    /// <summary>The edit's fields: how much is left (in the family's unit), the number on the container, the note.</summary>
+    public string EditAmount { get; set; } = "";
+
+    public string EditNumber { get; set; } = "";
+
+    public string EditLabel { get; set; } = "";
+
+    private readonly Dictionary<EntryId, MilkBagDetails> _details = [];
+
     /// <summary>Pumping is a kind the family logs: Stats shows the stash's card.</summary>
     [ObservableProperty]
     private bool _isPumpShown = true;
@@ -88,6 +103,9 @@ public sealed partial class MilkStashViewModel(
         IsPumpShown = Coo.Mobile.Presentation.Today.KindVisibility.IsShown(household, "pump");
         CanChange = await access.CanLogAsync(household.Id, CancellationToken.None);
         var stash = await get.ExecuteAsync(household.Id, time.GetUtcNow(), CancellationToken.None);
+        _details.Clear();
+        foreach (var bag in stash.Bags)
+            _details[bag.Entry.Id] = bag.Details;
         Bags = [.. stash.Bags.Select(Row)];
         Totals = TotalsLine(stash, _formats);
         Warning = WarningLine(stash);
@@ -137,6 +155,62 @@ public sealed partial class MilkStashViewModel(
     }
 
     public void ChoosePlace(MilkPlace place) => Place = place;
+
+    /// <summary>Opens a bag's edit with what it holds now.</summary>
+    public void StartEdit(EntryId bag)
+    {
+        if (!CanChange || !_details.TryGetValue(bag, out var details))
+            return;
+        EditAmount = (_formats.Unit == VolumeUnit.Ounces ? Math.Round(details.Volume.Ounces, 1) : details.Volume.Millilitres).ToString("0.#", Strings.Culture);
+        EditNumber = details.Number?.ToString(CultureInfo.InvariantCulture) ?? "";
+        EditLabel = details.Label ?? "";
+        Error = "";
+        Editing = bag;
+    }
+
+    public void CancelEdit() => (Editing, Error) = (null, "");
+
+    /// <summary>Saves how much is left, the number and the note; a wrong amount or number says so and keeps the edit open.</summary>
+    public async Task<bool> SaveEditAsync()
+    {
+        if (Editing is not { } bag || !CanChange)
+            return false;
+        if (!decimal.TryParse(EditAmount, NumberStyles.Number, Strings.Culture, out var amount) || amount <= 0)
+        {
+            Error = Strings.Get("Stash.AmountNeeded");
+            return false;
+        }
+
+        int? number = null;
+        if (EditNumber.Trim().Length > 0)
+        {
+            if (!int.TryParse(EditNumber.Trim(), NumberStyles.Integer, Strings.Culture, out var n) || n is < 1 or > MilkBagDetails.MaxNumber)
+            {
+                Error = Strings.Format("Stash.NumberRange", MilkBagDetails.MaxNumber);
+                return false;
+            }
+
+            number = n;
+        }
+
+        var volume = _formats.Unit == VolumeUnit.Ounces ? Volume.FromOunces(amount) : Volume.FromMillilitres(amount);
+        if (volume.IsFailure)
+        {
+            Error = Strings.Error(volume.Error!.Code);
+            return false;
+        }
+
+        var result = await change.EditAsync(bag, volume.Value, number, EditLabel, CancellationToken.None);
+        if (result.IsFailure)
+        {
+            Error = Strings.Error(result.Error!.Code);
+            return false;
+        }
+
+        (Editing, Error) = (null, "");
+        await LoadAsync();
+        return true;
+    }
 
     /// <summary>"Fridge 210 ml · Freezer 1050 ml", only the places with milk; empty for an empty stash.</summary>
     public static string TotalsLine(MilkStashSummary stash, Formats formats)
@@ -190,7 +264,7 @@ public sealed partial class MilkStashViewModel(
         var dates = Strings.Format("Stash.Dates", When(bag.ExpressedAt), When(bag.UseBy));
         return new MilkBagRow(
             bag.Entry.Id, _formats.Volume(bag.Details.Volume), where, dates, bag.Freshness, bag.Details.Place, bag.Details.ThawedAt is not null,
-            bag.Details.Label);
+            bag.Details.Label, bag.Details.Number is { } n ? $"#{n}" : "");
     }
 
     /// <summary>"Mon 3 Nov 08:30" in this phone's zone.</summary>

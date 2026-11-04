@@ -109,7 +109,7 @@ public sealed class MilkStashPage : ContentPage
         var look = EventAppearance.For("milkbag");
         var stack = new VerticalStackLayout { Spacing = 6 };
         var title = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 8 };
-        title.Add(Ui.Text($"{bag.Amount} · {bag.Where}", "BodyStrong", look.Ink), 0);
+        title.Add(Ui.Text(bag.Number.Length > 0 ? $"{bag.Number} · {bag.Amount} · {bag.Where}" : $"{bag.Amount} · {bag.Where}", "BodyStrong", look.Ink), 0);
         var tag = bag.Freshness switch
         {
             MilkFreshness.Expired => Strings.Get("Stash.ExpiredTag"),
@@ -123,7 +123,11 @@ public sealed class MilkStashPage : ContentPage
             stack.Add(Ui.Text(label, "Body"));
         stack.Add(Ui.Text(bag.Dates, "Meta", "Ink2"));
 
-        if (_model.CanChange)
+        if (_model.CanChange && _model.Editing == bag.Id)
+        {
+            stack.Add(EditForm());
+        }
+        else if (_model.CanChange)
         {
             var buttons = new FlexLayout { Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap };
             if (bag.Freshness != MilkFreshness.Expired)
@@ -133,10 +137,41 @@ public sealed class MilkStashPage : ContentPage
             if (bag.Place == MilkPlace.Freezer)
                 buttons.Add(Button(Strings.Get("Stash.Thaw"), "GhostButton", () => _model.ChangeAsync(bag.Id, MilkBagChange.Thaw)));
             buttons.Add(Button(Strings.Get("Stash.Discard"), "GhostButton", () => _model.ChangeAsync(bag.Id, MilkBagChange.Discard)));
+            buttons.Add(Button(Strings.Get("Stash.Edit"), "GhostButton", () =>
+            {
+                _model.StartEdit(bag.Id);
+                return Task.CompletedTask;
+            }));
             stack.Add(buttons);
         }
 
         return new Card(stack);
+    }
+
+    /// <summary>Inside the bag's card: how much is left, the number on the container, the note; Save or Cancel.</summary>
+    private VerticalStackLayout EditForm()
+    {
+        var form = new VerticalStackLayout { Spacing = 8 };
+        var amount = new Entry { Text = _model.EditAmount, Keyboard = Keyboard.Numeric, Placeholder = $"{Strings.Get("Stash.Left")} ({_model.UnitLabel})" };
+        amount.TextChanged += (_, e) => _model.EditAmount = e.NewTextValue ?? "";
+        var number = new Entry { Text = _model.EditNumber, Keyboard = Keyboard.Numeric, Placeholder = Strings.Get("Stash.Number"), MaxLength = 3 };
+        number.TextChanged += (_, e) => _model.EditNumber = e.NewTextValue ?? "";
+        var label = new Entry { Text = _model.EditLabel, Placeholder = Strings.Get("Stash.LabelHint"), MaxLength = MilkBagDetails.MaxLabelLength };
+        label.TextChanged += (_, e) => _model.EditLabel = e.NewTextValue ?? "";
+        form.Add(Ui.Text(Strings.Get("Stash.Left"), "Meta", "Ink2"));
+        form.Add(amount);
+        form.Add(Ui.Text(Strings.Get("Stash.Number"), "Meta", "Ink2"));
+        form.Add(number);
+        form.Add(label);
+        var buttons = new FlexLayout { Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap };
+        buttons.Add(Button(Strings.Get("Stash.Save"), "PrimaryButton", _model.SaveEditAsync));
+        buttons.Add(Button(Strings.Get("Action.Cancel"), "GhostButton", () =>
+        {
+            _model.CancelEdit();
+            return Task.CompletedTask;
+        }));
+        form.Add(buttons);
+        return form;
     }
 
     private Card AddCard()

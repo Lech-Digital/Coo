@@ -872,6 +872,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Stash.AmountNeeded" xml:space="preserve"><value>Indica quanto latte c’è nella sacca.</value></data>
   <data name="Stash.Dates" xml:space="preserve"><value>Tirato {0} · da usare entro {1}</value></data>
   <data name="Stash.Discard" xml:space="preserve"><value>Butta</value></data>
+  <data name="Stash.Edit" xml:space="preserve"><value>Modifica</value></data>
   <data name="Stash.Empty" xml:space="preserve"><value>Ancora nessun latte in scorta. Aggiungi una sacca quando metti il latte in frigo o in freezer.</value></data>
   <data name="Stash.Expired.one" xml:space="preserve"><value>{0} scaduta</value></data>
   <data name="Stash.Expired.other" xml:space="preserve"><value>{0} scadute</value></data>
@@ -883,7 +884,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Stash.Guidance" xml:space="preserve"><value>La scadenza segue le indicazioni dei CDC: 4 giorni in frigo, circa 6 mesi in freezer, 24 ore dopo lo scongelamento, e il latte scongelato non si ricongela mai. Butta il latte che odora di acido o un biberon iniziato dopo 2 ore.</value></data>
   <data name="Stash.Hint" xml:space="preserve"><value>Sacche in frigo e in freezer, le più vecchie prima, con un avviso prima della scadenza.</value></data>
   <data name="Stash.LabelHint" xml:space="preserve"><value>Etichetta (facoltativa)</value></data>
+  <data name="Stash.Left" xml:space="preserve"><value>Quantità rimasta</value></data>
+  <data name="Stash.Number" xml:space="preserve"><value>Numero sul contenitore</value></data>
+  <data name="Stash.NumberRange" xml:space="preserve"><value>Il numero va da 1 a {0}, oppure lascialo vuoto.</value></data>
   <data name="Stash.Open" xml:space="preserve"><value>Scorta di latte</value></data>
+  <data name="Stash.Save" xml:space="preserve"><value>Salva</value></data>
   <data name="Stash.SoonTag" xml:space="preserve"><value>Da usare presto</value></data>
   <data name="Stash.Thaw" xml:space="preserve"><value>Scongela</value></data>
   <data name="Stash.Thawed" xml:space="preserve"><value>Scongelato, in frigo</value></data>

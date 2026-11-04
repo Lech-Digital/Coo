@@ -112,7 +112,7 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
             Coo.Domain.CareLog.Kinds.Development.MilestoneDetails m => Milestone(m),
             Coo.Domain.CareLog.Kinds.SleepPlan.SleepPlanDetails { IsRunning: false } => Strings.Get("Entry.SleepPlanStopped"),
             Coo.Domain.CareLog.Kinds.SleepPlan.SleepPlanDetails => Strings.Get("Kind.SleepPlan"),
-            Coo.Domain.CareLog.Kinds.MilkStash.MilkBagDetails b => Strings.Format(
+            Coo.Domain.CareLog.Kinds.MilkStash.MilkBagDetails b => (b.Number is { } n ? $"#{n} · " : "") + Strings.Format(
                 b.UsedOn is not null ? "Entry.MilkBagUsed" : b.DiscardedOn is not null ? "Entry.MilkBagDiscarded"
                 : b.Place == Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace.Freezer ? "Entry.MilkBagFreezer" : "Entry.MilkBagFridge",
                 Volume(b.Volume)),

@@ -48,13 +48,18 @@ public sealed class GetMilkStash(ICareLogStore store)
     }
 }
 
-/// <summary>A bag into the stash, from when the milk was expressed; one per bag, so a pumping of 240 ml may be two.</summary>
-public sealed class AddMilkBag(LogEntry log)
+/// <summary>
+/// A bag into the stash, from when the milk was expressed; one per bag, so a pumping of 240 ml may be two. It gets the
+/// lowest number no bag in stock has, to write on the container.
+/// </summary>
+public sealed class AddMilkBag(LogEntry log, GetMilkStash stash)
 {
     public async Task<Result<CareEntry>> ExecuteAsync(
         HouseholdId household, Volume volume, MilkPlace place, DateTimeOffset expressedAt, string? label, CancellationToken cancellationToken)
     {
-        var details = MilkBagDetails.Create(volume, place, label: label);
+        var inStock = await stash.ExecuteAsync(household, expressedAt, cancellationToken);
+        var number = MilkBagDetails.NextNumber(inStock.Bags.Select(b => b.Details.Number));
+        var details = MilkBagDetails.Create(volume, place, label: label, number: number);
         if (details.IsFailure)
             return Result<CareEntry>.Failure(details.Error!);
         return await log.ExecuteAsync(
@@ -76,6 +81,10 @@ public enum MilkBagChange
 
 public sealed class ChangeMilkBag(ReviseEntry revise)
 {
+    /// <summary>Corrects how much is left, the number on the container, or the note.</summary>
+    public Task<Result<CareEntry>> EditAsync(EntryId bag, Volume volume, int? number, string? label, CancellationToken cancellationToken) =>
+        revise.ExecuteAsync(bag, (e, version, at) => e.Revise<MilkBagDetails>(b => b.Edit(volume, number, label), version, at), cancellationToken);
+
     public Task<Result<CareEntry>> ExecuteAsync(EntryId bag, MilkBagChange change, DateTimeOffset now, TimeZoneInfo zone, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(zone);

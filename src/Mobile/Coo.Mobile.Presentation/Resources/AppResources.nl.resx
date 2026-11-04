@@ -872,6 +872,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Stash.AmountNeeded" xml:space="preserve"><value>Vul in hoeveel melk er in het zakje zit.</value></data>
   <data name="Stash.Dates" xml:space="preserve"><value>Afgekolfd {0} · gebruiken voor {1}</value></data>
   <data name="Stash.Discard" xml:space="preserve"><value>Weggooien</value></data>
+  <data name="Stash.Edit" xml:space="preserve"><value>Bewerken</value></data>
   <data name="Stash.Empty" xml:space="preserve"><value>Nog geen melk in de voorraad. Voeg een zakje toe als je melk in de koelkast of vriezer legt.</value></data>
   <data name="Stash.Expired.one" xml:space="preserve"><value>{0} over de datum</value></data>
   <data name="Stash.Expired.other" xml:space="preserve"><value>{0} over de datum</value></data>
@@ -883,7 +884,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Stash.Guidance" xml:space="preserve"><value>De datum volgt de richtlijnen van de CDC: 4 dagen in de koelkast, ongeveer 6 maanden in de vriezer, 24 uur na ontdooien, en ontdooide melk wordt nooit opnieuw ingevroren. Gooi melk weg die zuur ruikt, of een aangebroken fles na 2 uur.</value></data>
   <data name="Stash.Hint" xml:space="preserve"><value>Zakjes in koelkast en vriezer, de oudste eerst, met een waarschuwing voordat melk verloopt.</value></data>
   <data name="Stash.LabelHint" xml:space="preserve"><value>Label (optioneel)</value></data>
+  <data name="Stash.Left" xml:space="preserve"><value>Hoeveelheid over</value></data>
+  <data name="Stash.Number" xml:space="preserve"><value>Nummer op de verpakking</value></data>
+  <data name="Stash.NumberRange" xml:space="preserve"><value>Het nummer is 1 tot {0}, of laat het leeg.</value></data>
   <data name="Stash.Open" xml:space="preserve"><value>Melkvoorraad</value></data>
+  <data name="Stash.Save" xml:space="preserve"><value>Opslaan</value></data>
   <data name="Stash.SoonTag" xml:space="preserve"><value>Snel gebruiken</value></data>
   <data name="Stash.Thaw" xml:space="preserve"><value>Ontdooien</value></data>
   <data name="Stash.Thawed" xml:space="preserve"><value>Ontdooid, in de koelkast</value></data>

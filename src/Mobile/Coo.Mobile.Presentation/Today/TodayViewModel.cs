@@ -269,7 +269,8 @@ public sealed partial class TodayViewModel : ObservableObject
 
     public bool IsShown(string kindCode) => _household is null || KindVisibility.IsShown(_household, kindCode);
 
-    private decimal Step => _household?.VolumeUnit == VolumeUnit.Ounces ? 0.5m : 10m;
+    /// <summary>The bottle's +/− step: 5 ml, so 75, 80, 85 can all be reached (owner, 2026-11-04: "I want the step there to be 5").</summary>
+    private decimal Step => _household?.VolumeUnit == VolumeUnit.Ounces ? 0.5m : 5m;
 
     /// <summary>Loads everything from the store. Called on appearing and after every action.</summary>
     public async Task RefreshAsync()
@@ -445,7 +446,7 @@ public sealed partial class TodayViewModel : ObservableObject
         {
             var ounces = _household?.VolumeUnit == VolumeUnit.Ounces;
             var middle = _summary?.LastBottle?.Details is BottleFeed last ? ToUnit(last.Components[0].Volume) : TypicalBottle();
-            // To 5 ml (or half an ounce), not to the ±10 ml step: 15 ml became 20, and the chips read 5, 20, 35, 50 with the
+            // To 5 ml (or half an ounce): rounding to a 10 ml step made 15 ml 20, and the chips read 5, 20, 35, 50 with the
             // amount shown, 15, on none of them (owner's phone, 2026-11-03).
             var grain = ounces ? 0.5m : 5m;
             middle = Math.Max(grain, Math.Round(middle / grain, MidpointRounding.AwayFromZero) * grain);
