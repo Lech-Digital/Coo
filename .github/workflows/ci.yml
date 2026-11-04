@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # The production deploy runs these first (.github/workflows/deploy.yml).
+  workflow_call:
 
 permissions:
   contents: read

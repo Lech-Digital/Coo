@@ -1,0 +1,23 @@
+# Deploys the Coo backend to lechdigital-prod, only when someone presses "Run workflow" (the one-click approval):
+# every test first (the CI workflow), then lechdigital-infra's deploy-app workflow builds the image on GitHub, streams it
+# to the server and waits until https://api.coo.lechdigital.nl/health reports this commit.
+# deploy/deploy-prod.sh still works from a Mac, for when GitHub is down.
+name: Deploy (production)
+
+on: workflow_dispatch
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: test
+    uses: Lech-Digital/lechdigital-infra/.github/workflows/deploy-app.yml@main
+    with:
+      app: coo
+      image: coo-api
+      health-url: https://api.coo.lechdigital.nl/health
+    secrets: inherit

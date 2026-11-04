@@ -16,7 +16,8 @@ services:
       dockerfile: Dockerfile
       args:
         GIT_SHA: ${GIT_SHA:-unknown}
-    image: coo-api
+    # Tagged with the commit by the deploy workflow (lechdigital-infra); deploy-prod.sh builds :latest.
+    image: coo-api:${IMAGE_TAG:-latest}
     container_name: coo-api
     restart: unless-stopped
     depends_on:

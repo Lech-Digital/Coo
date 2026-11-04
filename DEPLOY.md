@@ -5,7 +5,7 @@ The backend runs on the Hetzner host behind the Caddy that already serves Coldst
 
 ## The host
 
-- `coldstart-prod` (in `~/.ssh/config`): Hetzner, **167.233.145.128**, 4 GB.
+- `lechdigital-prod` (in `~/.ssh/config`, also still `coldstart-prod`): Hetzner cx23, **167.233.145.128**, 4 GB.
 - Coo lives at `/opt/coo`, as the compose project `coo`.
 - `coo-api` joins the shared `coldstart_default` network, so Caddy can reach it by container name.
 - PostgreSQL is only on the private `coo_internal` network.
@@ -20,6 +20,14 @@ graph LR
 ```
 
 ## Every deploy
+
+**From GitHub (preferred, once lechdigital-infra's setup is done):** Actions → **Deploy (production)** → Run workflow.
+It runs every test (the CI workflow), then lechdigital-infra's `deploy-app.yml` builds the image on GitHub, streams it to
+the server, starts it as `coo-api:<commit>` and waits until `/health` reports the commit. Nothing deploys on a push; the
+button is the approval. The workflow must be on `main` for the button to appear. The server and the edge Caddy are
+described in [lechdigital-infra](https://github.com/Lech-Digital/lechdigital-infra).
+
+**From the Mac (fallback):**
 
 ```sh
 ./deploy/deploy-prod.sh --confirm
