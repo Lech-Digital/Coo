@@ -27,6 +27,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IHomeSection, BabyHeaderSection>();
         services.AddSingleton<IHomeSection, SiblingsSection>();
         services.AddSingleton<IHomeSection, HandoverSection>();
+        services.AddSingleton<IHomeSection, LastNightSection>();
         services.AddSingleton<IHomeSection, DueDateSection>();
         services.AddSingleton<IHomeSection, StatusHeroSection>();
         services.AddSingleton<IHomeSection, NightSection>();

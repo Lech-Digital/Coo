@@ -68,7 +68,18 @@ public sealed class HomeActions(LogEntry log, ReviseEntry revise, TimeProvider t
 
     public void RequestRecordBirth() => SheetRequested?.Invoke(this, (HomeSheet.RecordBirth, null));
 
-    public Task StartBreastAsync(BreastSide side) => NeedsAwake(() => LogAsync(BreastFeed.Start(side, time.GetLocalNow()), null, EntrySource.Timer, Strings.Get(side == BreastSide.Left ? "Hero.FeedingLeft" : "Hero.FeedingRight")));
+    /// <summary>
+    /// A breastfeed; with "Log for both" on, a tandem feed: the shown baby on <paramref name="side"/>, the next on the other
+    /// side (a third on the first side again). Each runs, switches and stops on its own afterwards.
+    /// </summary>
+    public Task StartBreastAsync(BreastSide side)
+    {
+        var now = time.GetLocalNow();
+        var other = side == BreastSide.Left ? BreastSide.Right : BreastSide.Left;
+        return NeedsAwake(() => LogAsync(
+            BreastFeed.Start(side, now), null, EntrySource.Timer, Strings.Get(side == BreastSide.Left ? "Hero.FeedingLeft" : "Hero.FeedingRight"),
+            forAll: true, perBaby: i => BreastFeed.Start(i % 2 == 0 ? side : other, now)));
+    }
 
     public Task LogBottleAsync(BottleFeed bottle, Formats formats)
     {
@@ -87,7 +98,7 @@ public sealed class HomeActions(LogEntry log, ReviseEntry revise, TimeProvider t
         LogAsync(new PumpDetails(), EntryTiming.Session(TimeRange.Open(time.GetLocalNow())), EntrySource.Timer, Strings.Get("Hero.Pumping"), caregiver: true);
 
     public Task StartTummyAsync() =>
-        LogAsync(new Coo.Domain.CareLog.Kinds.Development.TummyDetails(), EntryTiming.Session(TimeRange.Open(time.GetLocalNow())), EntrySource.Timer, Strings.Get("Hero.Tummy"));
+        LogAsync(new Coo.Domain.CareLog.Kinds.Development.TummyDetails(), EntryTiming.Session(TimeRange.Open(time.GetLocalNow())), EntrySource.Timer, Strings.Get("Hero.Tummy"), forAll: true);
 
     public Task SwitchSideAsync(EntryId id) =>
         ReviseAsync(id, (e, v, now) => e.Revise<BreastFeed>(d => d.SwitchSide(time.GetLocalNow()), v, now), Strings.Get("Action.SwitchSide") ?? "Switched side");
@@ -137,17 +148,21 @@ public sealed class HomeActions(LogEntry log, ReviseEntry revise, TimeProvider t
     }
 
     /// <param name="forAll">Twins and siblings: with "Log for both" on, the same entry for each of <see cref="HomeContext.Also"/>.</param>
-    private async Task LogAsync(EntryDetails details, EntryTiming? timing, EntrySource source, string what, bool caregiver = false, bool forAll = false)
+    /// <param name="perBaby">The details for the n-th baby (0 is the shown one) when they differ, as a tandem feed's sides do.</param>
+    private async Task LogAsync(
+        EntryDetails details, EntryTiming? timing, EntrySource source, string what, bool caregiver = false, bool forAll = false,
+        Func<int, EntryDetails>? perBaby = null)
     {
         var context = Context ?? throw new InvalidOperationException("Today has no household or baby yet.");
         BabyId[] babies = caregiver || !forAll || context.Also is not { Count: > 0 } also ? [context.Baby] : [context.Baby, .. also];
         var created = new List<EntryId>();
         Result<CareEntry>? failed = null;
-        foreach (var baby in babies)
+        for (var i = 0; i < babies.Length; i++)
         {
-            var subject = caregiver ? EntrySubject.Caregiver(PersonRef.ThisDevicesPerson) : EntrySubject.Baby(baby);
+            var subject = caregiver ? EntrySubject.Caregiver(PersonRef.ThisDevicesPerson) : EntrySubject.Baby(babies[i]);
             var result = await log.ExecuteAsync(
-                new LogEntryCommand(context.Household, subject, details, timing, PersonRef.ThisDevicesPerson, source), CancellationToken.None);
+                new LogEntryCommand(context.Household, subject, perBaby?.Invoke(i) ?? details, timing, PersonRef.ThisDevicesPerson, source),
+                CancellationToken.None);
             if (result.IsSuccess)
                 created.Add(result.Value.Id);
             else

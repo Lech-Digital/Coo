@@ -113,6 +113,8 @@
   <data name="Awake.StillAsleep" xml:space="preserve"><value>Still asleep</value></data>
   <data name="Awake.Title" xml:space="preserve"><value>{0} is asleep</value></data>
   <data name="Awake.WokeUp" xml:space="preserve"><value>Woke up</value></data>
+  <data name="Away.GotIt" xml:space="preserve"><value>Got it</value></data>
+  <data name="Away.Title" xml:space="preserve"><value>While you were away · {0}</value></data>
   <data name="Baby.Boy" xml:space="preserve"><value>Boy</value></data>
   <data name="Baby.Girl" xml:space="preserve"><value>Girl</value></data>
   <data name="Baby.Nicknames" xml:space="preserve"><value>Other names you call them</value></data>
@@ -513,9 +515,19 @@ If the link doesn't open Coo, go to Settings → Family → Join a family in Coo
   <data name="Night.AwakeSince" xml:space="preserve"><value>Awake since</value></data>
   <data name="Night.FeedL" xml:space="preserve"><value>Feed L</value></data>
   <data name="Night.FeedR" xml:space="preserve"><value>Feed R</value></data>
+  <data name="Night.Feeds.one" xml:space="preserve"><value>{0} feed in the night</value></data>
+  <data name="Night.Feeds.other" xml:space="preserve"><value>{0} feeds in the night</value></data>
   <data name="Night.LastDiaper" xml:space="preserve"><value>Last diaper</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Last feed</value></data>
-  <data name="Night.Title" xml:space="preserve"><value>{0} · Night mode</value></data>
+  <data name="Night.Longest" xml:space="preserve"><value>longest {0}</value></data>
+  <data name="Night.Slept" xml:space="preserve"><value>{0} asleep</value></data>
+  <data name="Night.Through" xml:space="preserve"><value>slept through</value></data>
+  <data name="Night.Title" xml:space="preserve"><value>Last night</value></data>
+  <data name="Night.VsBedtime" xml:space="preserve"><value>Bedtime {0}; before the plan {1}.</value></data>
+  <data name="Night.VsSleep" xml:space="preserve"><value>Before the plan: {0} a night.</value></data>
+  <data name="Night.VsWakings" xml:space="preserve"><value>Before the plan: {0} wakings a night.</value></data>
+  <data name="Night.Woke.one" xml:space="preserve"><value>woke {0} time</value></data>
+  <data name="Night.Woke.other" xml:space="preserve"><value>woke {0} times</value></data>
   <data name="Permission.CameraBody" xml:space="preserve"><value>To take the photo you are about to take, and nothing else. Android asks you next.</value></data>
   <data name="Permission.CameraTitle" xml:space="preserve"><value>Coo needs the camera</value></data>
   <data name="Permission.Continue" xml:space="preserve"><value>Continue</value></data>
@@ -659,6 +671,8 @@ Days bright and lively, nights dark and quiet; night feeds calm and short.</valu
   <data name="Premium.TrialTerms" xml:space="preserve"><value>Free for 7 days, then {0}. Renews automatically; cancel anytime in Google Play before the trial ends and you pay nothing.</value></data>
   <data name="Premium.ViaFamily" xml:space="preserve"><value>Premium was bought by someone in your family. They can change or cancel it in Google Play.</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>How much?</value></data>
+  <data name="Pump.NotStored" xml:space="preserve"><value>Not stored</value></data>
+  <data name="Pump.Stash" xml:space="preserve"><value>Put it in the milk stash</value></data>
   <data name="Quick.Action.BreastStop" xml:space="preserve"><value>Feeding finished</value></data>
   <data name="Quick.Action.PumpStop" xml:space="preserve"><value>Pumping finished</value></data>
   <data name="Quick.Action.SleepStart" xml:space="preserve"><value>Fell asleep</value></data>
@@ -868,6 +882,8 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Solids.None" xml:space="preserve"><value>Nothing special</value></data>
   <data name="Solids.Reaction" xml:space="preserve"><value>A reaction</value></data>
   <data name="Stash.Add" xml:space="preserve"><value>Add a bag</value></data>
+  <data name="Stash.AddedFreezer" xml:space="preserve"><value>Bag #{0} in the freezer, {1}: write #{0} on the container.</value></data>
+  <data name="Stash.AddedFridge" xml:space="preserve"><value>Bag #{0} in the fridge, {1}: write #{0} on the container.</value></data>
   <data name="Stash.Amount" xml:space="preserve"><value>Amount</value></data>
   <data name="Stash.AmountNeeded" xml:space="preserve"><value>Enter how much milk is in the bag.</value></data>
   <data name="Stash.Dates" xml:space="preserve"><value>Expressed {0} · use by {1}</value></data>

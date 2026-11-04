@@ -113,6 +113,8 @@
   <data name="Awake.StillAsleep" xml:space="preserve"><value>Slaapt nog</value></data>
   <data name="Awake.Title" xml:space="preserve"><value>{0} slaapt</value></data>
   <data name="Awake.WokeUp" xml:space="preserve"><value>Wakker</value></data>
+  <data name="Away.GotIt" xml:space="preserve"><value>Begrepen</value></data>
+  <data name="Away.Title" xml:space="preserve"><value>Terwijl je weg was · {0}</value></data>
   <data name="Baby.Boy" xml:space="preserve"><value>Jongen</value></data>
   <data name="Baby.Girl" xml:space="preserve"><value>Meisje</value></data>
   <data name="Baby.Nicknames" xml:space="preserve"><value>Andere namen die jullie gebruiken</value></data>
@@ -513,9 +515,19 @@ Als de link Coo niet opent, ga in Coo naar Instellingen → Gezin → Aansluiten
   <data name="Night.AwakeSince" xml:space="preserve"><value>Wakker sinds</value></data>
   <data name="Night.FeedL" xml:space="preserve"><value>Voeding L</value></data>
   <data name="Night.FeedR" xml:space="preserve"><value>Voeding R</value></data>
+  <data name="Night.Feeds.one" xml:space="preserve"><value>{0} voeding in de nacht</value></data>
+  <data name="Night.Feeds.other" xml:space="preserve"><value>{0} voedingen in de nacht</value></data>
   <data name="Night.LastDiaper" xml:space="preserve"><value>Laatste luier</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Laatste voeding</value></data>
-  <data name="Night.Title" xml:space="preserve"><value>{0} · Nachtmodus</value></data>
+  <data name="Night.Longest" xml:space="preserve"><value>langste {0}</value></data>
+  <data name="Night.Slept" xml:space="preserve"><value>{0} geslapen</value></data>
+  <data name="Night.Through" xml:space="preserve"><value>doorgeslapen</value></data>
+  <data name="Night.Title" xml:space="preserve"><value>Afgelopen nacht</value></data>
+  <data name="Night.VsBedtime" xml:space="preserve"><value>Bedtijd {0}; voor het plan {1}.</value></data>
+  <data name="Night.VsSleep" xml:space="preserve"><value>Voor het plan: {0} per nacht.</value></data>
+  <data name="Night.VsWakings" xml:space="preserve"><value>Voor het plan: {0} keer wakker per nacht.</value></data>
+  <data name="Night.Woke.one" xml:space="preserve"><value>{0} keer wakker</value></data>
+  <data name="Night.Woke.other" xml:space="preserve"><value>{0} keer wakker</value></data>
   <data name="Permission.CameraBody" xml:space="preserve"><value>Voor de foto die je zo maakt, en niets anders. Android vraagt het je zo.</value></data>
   <data name="Permission.CameraTitle" xml:space="preserve"><value>Coo heeft de camera nodig</value></data>
   <data name="Permission.Continue" xml:space="preserve"><value>Doorgaan</value></data>
@@ -659,6 +671,8 @@ Dagen licht en levendig, nachten donker en rustig; nachtvoedingen rustig en kort
   <data name="Premium.TrialTerms" xml:space="preserve"><value>7 dagen gratis, daarna {0}. Wordt automatisch verlengd; zeg voor het einde van de proefperiode op in Google Play en je betaalt niets.</value></data>
   <data name="Premium.ViaFamily" xml:space="preserve"><value>Premium is gekocht door iemand in je gezin. Die kan het wijzigen of opzeggen in Google Play.</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Hoeveel?</value></data>
+  <data name="Pump.NotStored" xml:space="preserve"><value>Niet bewaard</value></data>
+  <data name="Pump.Stash" xml:space="preserve"><value>In de melkvoorraad zetten</value></data>
   <data name="Quick.Action.BreastStop" xml:space="preserve"><value>Voeding klaar</value></data>
   <data name="Quick.Action.PumpStop" xml:space="preserve"><value>Kolven klaar</value></data>
   <data name="Quick.Action.SleepStart" xml:space="preserve"><value>In slaap gevallen</value></data>
@@ -868,6 +882,8 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Solids.None" xml:space="preserve"><value>Niets bijzonders</value></data>
   <data name="Solids.Reaction" xml:space="preserve"><value>Een reactie</value></data>
   <data name="Stash.Add" xml:space="preserve"><value>Zakje toevoegen</value></data>
+  <data name="Stash.AddedFreezer" xml:space="preserve"><value>Zakje #{0} in de vriezer, {1}: schrijf #{0} op de verpakking.</value></data>
+  <data name="Stash.AddedFridge" xml:space="preserve"><value>Zakje #{0} in de koelkast, {1}: schrijf #{0} op de verpakking.</value></data>
   <data name="Stash.Amount" xml:space="preserve"><value>Hoeveelheid</value></data>
   <data name="Stash.AmountNeeded" xml:space="preserve"><value>Vul in hoeveel melk er in het zakje zit.</value></data>
   <data name="Stash.Dates" xml:space="preserve"><value>Afgekolfd {0} · gebruiken voor {1}</value></data>

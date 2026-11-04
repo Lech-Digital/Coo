@@ -113,6 +113,8 @@
   <data name="Awake.StillAsleep" xml:space="preserve"><value>Dort encore</value></data>
   <data name="Awake.Title" xml:space="preserve"><value>{0} dort</value></data>
   <data name="Awake.WokeUp" xml:space="preserve"><value>Réveillé</value></data>
+  <data name="Away.GotIt" xml:space="preserve"><value>Compris</value></data>
+  <data name="Away.Title" xml:space="preserve"><value>Pendant votre absence · {0}</value></data>
   <data name="Baby.Boy" xml:space="preserve"><value>Garçon</value></data>
   <data name="Baby.Girl" xml:space="preserve"><value>Fille</value></data>
   <data name="Baby.Nicknames" xml:space="preserve"><value>Autres petits noms</value></data>
@@ -513,9 +515,19 @@ Si le lien n'ouvre pas Coo, va dans Réglages → Famille → Rejoindre une fami
   <data name="Night.AwakeSince" xml:space="preserve"><value>Éveillé depuis</value></data>
   <data name="Night.FeedL" xml:space="preserve"><value>Tétée G</value></data>
   <data name="Night.FeedR" xml:space="preserve"><value>Tétée D</value></data>
+  <data name="Night.Feeds.one" xml:space="preserve"><value>{0} repas dans la nuit</value></data>
+  <data name="Night.Feeds.other" xml:space="preserve"><value>{0} repas dans la nuit</value></data>
   <data name="Night.LastDiaper" xml:space="preserve"><value>Dernière couche</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Dernier repas</value></data>
-  <data name="Night.Title" xml:space="preserve"><value>{0} · Mode nuit</value></data>
+  <data name="Night.Longest" xml:space="preserve"><value>plus long {0}</value></data>
+  <data name="Night.Slept" xml:space="preserve"><value>{0} de sommeil</value></data>
+  <data name="Night.Through" xml:space="preserve"><value>nuit complète</value></data>
+  <data name="Night.Title" xml:space="preserve"><value>La nuit dernière</value></data>
+  <data name="Night.VsBedtime" xml:space="preserve"><value>Coucher à {0} ; avant le plan {1}.</value></data>
+  <data name="Night.VsSleep" xml:space="preserve"><value>Avant le plan : {0} par nuit.</value></data>
+  <data name="Night.VsWakings" xml:space="preserve"><value>Avant le plan : {0} réveils par nuit.</value></data>
+  <data name="Night.Woke.one" xml:space="preserve"><value>{0} réveil</value></data>
+  <data name="Night.Woke.other" xml:space="preserve"><value>{0} réveils</value></data>
   <data name="Permission.CameraBody" xml:space="preserve"><value>Pour la photo que vous allez prendre, et rien d’autre. Android vous le demande ensuite.</value></data>
   <data name="Permission.CameraTitle" xml:space="preserve"><value>Coo a besoin de l’appareil photo</value></data>
   <data name="Permission.Continue" xml:space="preserve"><value>Continuer</value></data>
@@ -659,6 +671,8 @@ Journées claires et animées, nuits sombres et calmes ; tétées de nuit calmes
   <data name="Premium.TrialTerms" xml:space="preserve"><value>Gratuit pendant 7 jours, puis {0}. Renouvelé automatiquement ; résiliez dans Google Play avant la fin de l’essai et vous ne payez rien.</value></data>
   <data name="Premium.ViaFamily" xml:space="preserve"><value>Premium a été acheté par un membre de votre famille, qui peut le modifier ou l’annuler dans Google Play.</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Combien ?</value></data>
+  <data name="Pump.NotStored" xml:space="preserve"><value>Pas conservé</value></data>
+  <data name="Pump.Stash" xml:space="preserve"><value>Mettre dans la réserve de lait</value></data>
   <data name="Quick.Action.BreastStop" xml:space="preserve"><value>Tétée terminée</value></data>
   <data name="Quick.Action.PumpStop" xml:space="preserve"><value>Tire-lait terminé</value></data>
   <data name="Quick.Action.SleepStart" xml:space="preserve"><value>Endormi</value></data>
@@ -868,6 +882,8 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Solids.None" xml:space="preserve"><value>Rien de spécial</value></data>
   <data name="Solids.Reaction" xml:space="preserve"><value>Une réaction</value></data>
   <data name="Stash.Add" xml:space="preserve"><value>Ajouter un sachet</value></data>
+  <data name="Stash.AddedFreezer" xml:space="preserve"><value>Sachet n°{0} au congélateur, {1} : écrivez {0} sur le récipient.</value></data>
+  <data name="Stash.AddedFridge" xml:space="preserve"><value>Sachet n°{0} au réfrigérateur, {1} : écrivez {0} sur le récipient.</value></data>
   <data name="Stash.Amount" xml:space="preserve"><value>Quantité</value></data>
   <data name="Stash.AmountNeeded" xml:space="preserve"><value>Indiquez la quantité de lait du sachet.</value></data>
   <data name="Stash.Dates" xml:space="preserve"><value>Tiré {0} · à utiliser avant {1}</value></data>

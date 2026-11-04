@@ -64,6 +64,10 @@ public sealed partial class MilkStashViewModel(
     [ObservableProperty]
     private string _error = "";
 
+    /// <summary>After adding: "Bag #3 in the fridge, 120 ml: write #3 on the container."</summary>
+    [ObservableProperty]
+    private string _added = "";
+
     /// <summary>The bag being edited on the page; null when none is.</summary>
     [ObservableProperty]
     private EntryId? _editing;
@@ -141,12 +145,15 @@ public sealed partial class MilkStashViewModel(
         }
 
         ResetForm();
+        var details = (MilkBagDetails)result.Value.Details;
+        Added = Strings.Format(details.Place == MilkPlace.Freezer ? "Stash.AddedFreezer" : "Stash.AddedFridge", details.Number ?? 0, _formats.Volume(details.Volume));
         await LoadAsync();
         return true;
     }
 
     public async Task ChangeAsync(EntryId bag, MilkBagChange what)
     {
+        Added = "";
         if (!CanChange)
             return;
         var result = await change.ExecuteAsync(bag, what, time.GetUtcNow(), time.LocalTimeZone, CancellationToken.None);

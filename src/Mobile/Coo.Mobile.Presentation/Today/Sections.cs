@@ -210,7 +210,9 @@ public sealed partial class BabyHeaderSection : ObservableObject, IHomeSection
 }
 
 /// <summary>One handover card: "Today with Anna", its lines, the text to share, and whose day it is.</summary>
-public sealed record HandoverCard(Guid Person, string Title, IReadOnlyList<string> Lines, string Span, string ShareText, bool IsMine, DateTimeOffset Last);
+/// <param name="IsAway">"While you were away": its button is "Got it", and it puts every such card away.</param>
+public sealed record HandoverCard(
+    Guid Person, string Title, IReadOnlyList<string> Lines, string Span, string ShareText, bool IsMine, DateTimeOffset Last, bool IsAway = false);
 
 /// <summary>
 /// The end-of-day handover (nanny, daycare): to a parent, each caregiver's day with the baby until marked seen; to a
@@ -230,7 +232,10 @@ public sealed partial class HandoverSection : ObservableObject, IHomeSection
         ArgumentNullException.ThrowIfNull(snapshot);
         var view = snapshot.Handover ?? HandoverView.None;
         var baby = snapshot.Baby.Name;
-        var cards = view.FromCaregivers.Select(d => Card(d, Strings.Format("Handover.From", d.Name), mine: false, snapshot.Formats))
+        var away = (snapshot.Away ?? []).Select(d =>
+            Card(d, Strings.Format("Away.Title", d.Name.Length > 0 ? d.Name : Strings.Get("Who.Other")), mine: false, snapshot.Formats) with { IsAway = true });
+        var cards = away
+            .Concat(view.FromCaregivers.Select(d => Card(d, Strings.Format("Handover.From", d.Name), mine: false, snapshot.Formats)))
             .Concat(view.Mine is { } mine ? [Card(mine, Strings.Format("Handover.Mine", baby), mine: true, snapshot.Formats)] : [])
             .ToList();
         if (!cards.SequenceEqual(Cards, CardComparer.Instance))
@@ -272,9 +277,62 @@ public sealed partial class HandoverSection : ObservableObject, IHomeSection
         public static readonly CardComparer Instance = new();
 
         public bool Equals(HandoverCard? x, HandoverCard? y) =>
-            x is not null && y is not null && x.Person == y.Person && x.ShareText == y.ShareText && x.IsMine == y.IsMine;
+            x is not null && y is not null && x.Person == y.Person && x.ShareText == y.ShareText && x.IsMine == y.IsMine && x.IsAway == y.IsAway;
 
         public int GetHashCode(HandoverCard obj) => HashCode.Combine(obj.Person, obj.ShareText);
+    }
+}
+
+/// <summary>
+/// The morning note (Spec 019 §2.3): last night in two lines, until noon. "10 h 20 m asleep · woke 2 times · longest
+/// 4 h 10 m", then, while a sleep plan runs, last night against the week before it; otherwise the night feeds.
+/// </summary>
+public sealed partial class LastNightSection : ObservableObject, IHomeSection
+{
+    public int Order => 22;
+
+    [ObservableProperty]
+    private string _first = "";
+
+    [ObservableProperty]
+    private string _second = "";
+
+    public bool AppliesTo(HomeStage stage, PaletteKind palette) => stage == HomeStage.Born;
+
+    public void Update(HomeSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        (First, Second) = snapshot.Night is { } night ? Lines(night, snapshot.Formats) : ("", "");
+    }
+
+    public static (string First, string Second) Lines(Coo.Mobile.Application.Insights.LastNight night, Formats formats)
+    {
+        ArgumentNullException.ThrowIfNull(night);
+        ArgumentNullException.ThrowIfNull(formats);
+        var n = night.Night;
+        var wakings = (int)Math.Round(n.NightWakings ?? 0);
+        var parts = new List<string> { Strings.Format("Night.Slept", Formats.Duration(n.NightSleep ?? TimeSpan.Zero)) };
+        parts.Add(wakings == 0 ? Strings.Get("Night.Through") : Strings.Plural("Night.Woke", wakings));
+        if (wakings > 0 && n.LongestStretch is { } longest)
+            parts.Add(Strings.Format("Night.Longest", Formats.Duration(longest)));
+        var first = string.Join(" · ", parts);
+
+        var second = "";
+        if (night.BeforePlan is { } before)
+        {
+            if (night.Goals.Contains(SleepPlanGoal.FewerNightWakings) && before.NightWakings is { } was)
+                second = Strings.Format("Night.VsWakings", was.ToString("0.#", Strings.Culture));
+            else if (night.Goals.Contains(SleepPlanGoal.EarlierBedtime) && n.Bedtime is { } bed && before.Bedtime is { } wasBed)
+                second = Strings.Format("Night.VsBedtime", formats.Time(bed), formats.Time(wasBed));
+            else if (before.NightSleep is { } wasSleep)
+                second = Strings.Format("Night.VsSleep", Formats.Duration(wasSleep));
+        }
+        else if (night.Feeds > 0)
+        {
+            second = Strings.Plural("Night.Feeds", night.Feeds);
+        }
+
+        return (first, second);
     }
 }
 

@@ -68,22 +68,40 @@ internal sealed class DevicePreferences(LocalDatabase database) : IDevicePrefere
             cancellationToken, null, ("$k", LanguageKey), ("$v", preference.Language ?? SystemLanguage));
     }
 
-    public async Task<DateTimeOffset?> GetHandoverSeenAsync(Guid person, CancellationToken cancellationToken)
+    public Task<DateTimeOffset?> GetHandoverSeenAsync(Guid person, CancellationToken cancellationToken) => GetInstantAsync($"handover_seen:{person:D}", cancellationToken);
+
+    public Task SetHandoverSeenAsync(Guid person, DateTimeOffset lastSeen, CancellationToken cancellationToken) =>
+        SetInstantAsync($"handover_seen:{person:D}", lastSeen, cancellationToken);
+
+    public Task<DateTimeOffset?> GetLastActiveAsync(CancellationToken cancellationToken) => GetInstantAsync("last_active", cancellationToken);
+
+    public Task SetLastActiveAsync(DateTimeOffset at, CancellationToken cancellationToken) => SetInstantAsync("last_active", at, cancellationToken);
+
+    public Task<DateTimeOffset?> GetAwaySinceAsync(CancellationToken cancellationToken) => GetInstantAsync("away_since", cancellationToken);
+
+    public Task SetAwaySinceAsync(DateTimeOffset? since, CancellationToken cancellationToken) => SetInstantAsync("away_since", since, cancellationToken);
+
+    private async Task<DateTimeOffset?> GetInstantAsync(string key, CancellationToken cancellationToken)
     {
         await using var connection = await database.OpenAsync(cancellationToken);
-        var value = (string?)await connection.ScalarAsync("SELECT value FROM app_state WHERE key = $k;", cancellationToken, null, ("$k", $"handover_seen:{person:D}"));
+        var value = (string?)await connection.ScalarAsync("SELECT value FROM app_state WHERE key = $k;", cancellationToken, null, ("$k", key));
         return long.TryParse(value, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var ms)
             ? DateTimeOffset.FromUnixTimeMilliseconds(ms)
             : null;
     }
 
-    public async Task SetHandoverSeenAsync(Guid person, DateTimeOffset lastSeen, CancellationToken cancellationToken)
+    private async Task SetInstantAsync(string key, DateTimeOffset? at, CancellationToken cancellationToken)
     {
         await using var connection = await database.OpenAsync(cancellationToken);
+        if (at is not { } instant)
+        {
+            await connection.ExecuteAsync("DELETE FROM app_state WHERE key = $k;", cancellationToken, null, ("$k", key));
+            return;
+        }
+
         await connection.ExecuteAsync(
             "INSERT INTO app_state (key, value) VALUES ($k, $v) ON CONFLICT (key) DO UPDATE SET value = excluded.value;",
-            cancellationToken, null, ("$k", $"handover_seen:{person:D}"),
-            ("$v", lastSeen.ToUnixTimeMilliseconds().ToString(System.Globalization.CultureInfo.InvariantCulture)));
+            cancellationToken, null, ("$k", key), ("$v", instant.ToUnixTimeMilliseconds().ToString(System.Globalization.CultureInfo.InvariantCulture)));
     }
 
     public async Task<string?> GetBabyAvatarAsync(Guid babyId, CancellationToken cancellationToken)

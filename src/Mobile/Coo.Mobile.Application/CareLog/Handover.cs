@@ -39,6 +39,42 @@ public sealed record HandoverView(IReadOnlyList<HandoverDay> FromCaregivers, Han
 }
 
 /// <summary>
+/// "While you were away" (owner, 2026-11-04): after a few hours without Coo, what the others logged meanwhile, per person:
+/// the night the other parent did, or the grandparents' afternoon. Caregivers are left out: their day is the handover's.
+/// </summary>
+public sealed class GetAway(IFamilyStore families, ISessionStore sessions, ICareLogStore store)
+{
+    /// <summary>How long without Coo before Today summarises what happened meanwhile.</summary>
+    public static readonly TimeSpan AwayAfter = TimeSpan.FromHours(3);
+
+    /// <summary>An absence older than this is history, not news.</summary>
+    public static readonly TimeSpan ForgetAfter = TimeSpan.FromHours(24);
+
+    public async Task<IReadOnlyList<HandoverDay>> ExecuteAsync(
+        HouseholdId household, BabyId baby, DateTimeOffset since, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        if (await sessions.GetAsync(cancellationToken) is not { } session)
+            return [];
+        var me = session.Profile.UserId;
+        var members = await families.ListMemberNamesAsync(household, cancellationToken);
+        var entries = (await store.ListAsync(household, since - TimeSpan.FromDays(1), now.AddMinutes(1), cancellationToken))
+            .OfType<LiveEntry>()
+            .Select(l => l.Entry)
+            .Where(e => e.Subject is BabySubject { BabyId: var b } && b == baby)
+            .Where(e => (e.Timing is SessionTiming { Range.End: { } end } ? end : e.Timing.OccurredAt) >= since)
+            .Where(e => e.LoggedBy is UserPerson { UserId: var u } && u != me)
+            .ToList();
+        return [.. entries
+            .GroupBy(e => ((UserPerson)e.LoggedBy).UserId)
+            .Select(g => (Person: g.Key, Member: members.FirstOrDefault(m => m.UserId == g.Key), Entries: g))
+            .Where(p => p.Member?.Role != Role.Caregiver)
+            .Select(p => GetHandover.Day(p.Person, p.Member?.Name ?? "", p.Entries, now))
+            .OfType<HandoverDay>()
+            .OrderBy(d => d.First)];
+    }
+}
+
+/// <summary>
 /// The end-of-day handover for a nanny or daycare: built on the phone from today's synced entries and the family's roles.
 /// Nothing is sent; the parent sees it on Today, the caregiver can share their own day as text.
 /// </summary>

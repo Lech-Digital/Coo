@@ -113,6 +113,8 @@
   <data name="Awake.StillAsleep" xml:space="preserve"><value>Sigue dormido</value></data>
   <data name="Awake.Title" xml:space="preserve"><value>{0} está durmiendo</value></data>
   <data name="Awake.WokeUp" xml:space="preserve"><value>Se despertó</value></data>
+  <data name="Away.GotIt" xml:space="preserve"><value>Entendido</value></data>
+  <data name="Away.Title" xml:space="preserve"><value>Mientras no estabas · {0}</value></data>
   <data name="Baby.Boy" xml:space="preserve"><value>Niño</value></data>
   <data name="Baby.Girl" xml:space="preserve"><value>Niña</value></data>
   <data name="Baby.Nicknames" xml:space="preserve"><value>Otros nombres que usáis</value></data>
@@ -513,9 +515,19 @@ Si el enlace no abre Coo, ve a Ajustes → Familia → Unirse a una familia en C
   <data name="Night.AwakeSince" xml:space="preserve"><value>Despierto desde</value></data>
   <data name="Night.FeedL" xml:space="preserve"><value>Toma I</value></data>
   <data name="Night.FeedR" xml:space="preserve"><value>Toma D</value></data>
+  <data name="Night.Feeds.one" xml:space="preserve"><value>{0} toma por la noche</value></data>
+  <data name="Night.Feeds.other" xml:space="preserve"><value>{0} tomas por la noche</value></data>
   <data name="Night.LastDiaper" xml:space="preserve"><value>Último pañal</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Última toma</value></data>
-  <data name="Night.Title" xml:space="preserve"><value>{0} · Modo noche</value></data>
+  <data name="Night.Longest" xml:space="preserve"><value>lo más largo {0}</value></data>
+  <data name="Night.Slept" xml:space="preserve"><value>{0} dormida</value></data>
+  <data name="Night.Through" xml:space="preserve"><value>durmió de un tirón</value></data>
+  <data name="Night.Title" xml:space="preserve"><value>Anoche</value></data>
+  <data name="Night.VsBedtime" xml:space="preserve"><value>A dormir a las {0}; antes del plan, {1}.</value></data>
+  <data name="Night.VsSleep" xml:space="preserve"><value>Antes del plan: {0} por noche.</value></data>
+  <data name="Night.VsWakings" xml:space="preserve"><value>Antes del plan: {0} despertares por noche.</value></data>
+  <data name="Night.Woke.one" xml:space="preserve"><value>se despertó {0} vez</value></data>
+  <data name="Night.Woke.other" xml:space="preserve"><value>se despertó {0} veces</value></data>
   <data name="Permission.CameraBody" xml:space="preserve"><value>Para la foto que vas a hacer, y nada más. Android te lo pedirá ahora.</value></data>
   <data name="Permission.CameraTitle" xml:space="preserve"><value>Coo necesita la cámara</value></data>
   <data name="Permission.Continue" xml:space="preserve"><value>Continuar</value></data>
@@ -659,6 +671,8 @@ Días luminosos y animados, noches oscuras y tranquilas; tomas nocturnas tranqui
   <data name="Premium.TrialTerms" xml:space="preserve"><value>Gratis durante 7 días, después {0}. Se renueva automáticamente; cancela en Google Play antes de que acabe la prueba y no pagarás nada.</value></data>
   <data name="Premium.ViaFamily" xml:space="preserve"><value>Premium lo compró alguien de tu familia. Esa persona puede cambiarlo o cancelarlo en Google Play.</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>¿Cuánto?</value></data>
+  <data name="Pump.NotStored" xml:space="preserve"><value>No guardada</value></data>
+  <data name="Pump.Stash" xml:space="preserve"><value>Guardar en la reserva de leche</value></data>
   <data name="Quick.Action.BreastStop" xml:space="preserve"><value>Toma terminada</value></data>
   <data name="Quick.Action.PumpStop" xml:space="preserve"><value>Extracción terminada</value></data>
   <data name="Quick.Action.SleepStart" xml:space="preserve"><value>Se durmió</value></data>
@@ -868,6 +882,8 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Solids.None" xml:space="preserve"><value>Nada especial</value></data>
   <data name="Solids.Reaction" xml:space="preserve"><value>Una reacción</value></data>
   <data name="Stash.Add" xml:space="preserve"><value>Añadir una bolsa</value></data>
+  <data name="Stash.AddedFreezer" xml:space="preserve"><value>Bolsa n.º {0} en el congelador, {1}: escribe {0} en el recipiente.</value></data>
+  <data name="Stash.AddedFridge" xml:space="preserve"><value>Bolsa n.º {0} en la nevera, {1}: escribe {0} en el recipiente.</value></data>
   <data name="Stash.Amount" xml:space="preserve"><value>Cantidad</value></data>
   <data name="Stash.AmountNeeded" xml:space="preserve"><value>Indica cuánta leche hay en la bolsa.</value></data>
   <data name="Stash.Dates" xml:space="preserve"><value>Extraída {0} · usar antes de {1}</value></data>

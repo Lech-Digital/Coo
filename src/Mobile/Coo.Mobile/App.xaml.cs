@@ -65,11 +65,13 @@ public partial class App : Microsoft.Maui.Controls.Application
             {
                 _services.GetService<TodayViewModel>()?.CheckDayChanged();
                 _services.GetService<LogViewModel>()?.ResetToToday();
-                _services.GetService<UndoService>()?.ExternalChange();
             }
             catch
             {
             }
+
+            // "While you were away": noted first, then the refresh it shows in.
+            _ = ResumedAsync();
             Lifecycle((engine, prompter) =>
             {
                 engine.Resumed();
@@ -82,6 +84,7 @@ public partial class App : Microsoft.Maui.Controls.Application
         window.Stopped += (_, _) =>
         {
             IsForeground = false;
+            _ = _services.GetService<TodayViewModel>()?.NoteLeftAsync();
             Lifecycle((engine, prompter) =>
             {
                 engine.Backgrounded();
@@ -103,6 +106,19 @@ public partial class App : Microsoft.Maui.Controls.Application
             System.Diagnostics.Debug.WriteLine($"Entitlement refresh failed: {ex.Message}");
         }
     });
+
+    private async Task ResumedAsync()
+    {
+        try
+        {
+            if (_services.GetService<TodayViewModel>() is { } today)
+                await today.NoteActiveAsync();
+            _services.GetService<UndoService>()?.ExternalChange();
+        }
+        catch
+        {
+        }
+    }
 
     /// <summary>
     /// Whether a Coo window is on screen: set when a window is created (a recreated activity gets no Resumed) and on

@@ -63,6 +63,16 @@ public interface IDevicePreferences
     Task<DateTimeOffset?> GetHandoverSeenAsync(Guid person, CancellationToken cancellationToken) => Task.FromResult<DateTimeOffset?>(null);
 
     Task SetHandoverSeenAsync(Guid person, DateTimeOffset lastSeen, CancellationToken cancellationToken) => Task.CompletedTask;
+
+    /// <summary>"While you were away": when this person last had Coo open on this phone.</summary>
+    Task<DateTimeOffset?> GetLastActiveAsync(CancellationToken cancellationToken) => Task.FromResult<DateTimeOffset?>(null);
+
+    Task SetLastActiveAsync(DateTimeOffset at, CancellationToken cancellationToken) => Task.CompletedTask;
+
+    /// <summary>The start of the absence Today summarises, until "Got it"; null when there is none.</summary>
+    Task<DateTimeOffset?> GetAwaySinceAsync(CancellationToken cancellationToken) => Task.FromResult<DateTimeOffset?>(null);
+
+    Task SetAwaySinceAsync(DateTimeOffset? since, CancellationToken cancellationToken) => Task.CompletedTask;
 }
 
 /// <summary>Whether the phone shows 24-hour times. It follows the Android setting, not the language (ADR 0006 §5).</summary>

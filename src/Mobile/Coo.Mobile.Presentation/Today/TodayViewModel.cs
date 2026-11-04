@@ -47,6 +47,18 @@ public sealed partial class TodayViewModel : ObservableObject
     private BabyProfile? _baby;
     private TodaySummary? _summary;
     private EntryId? _pumpForYield;
+    private readonly Coo.Mobile.Application.CareLog.AddMilkBag? _addBag;
+    private readonly Coo.Mobile.Application.Insights.GetLastNight? _getNight;
+    private readonly Coo.Mobile.Application.CareLog.GetAway? _getAway;
+    private Coo.Mobile.Application.Insights.LastNight? _night;
+    private IReadOnlyList<Coo.Mobile.Application.CareLog.HandoverDay> _away = [];
+
+    /// <summary>The pumped milk goes into the stash: the fridge, the freezer, or not stored (null).</summary>
+    [ObservableProperty]
+    private Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace? _stashPlace;
+
+    /// <summary>The pump sheet offers the stash: it can add a bag, and the family logs pumping.</summary>
+    public bool CanStash => _addBag is not null && !IsViewOnly;
     private AwakeCheck? _awakeCheck;
 
     [ObservableProperty]
@@ -115,8 +127,13 @@ public sealed partial class TodayViewModel : ObservableObject
         Coo.Mobile.Application.Insights.GetSleepPlan? getPlan = null,
         Coo.Mobile.Application.Households.BabyFocus? focus = null,
         Coo.Mobile.Application.CareLog.GetMilkStash? getStash = null,
-        Coo.Mobile.Application.CareLog.GetHandover? getHandover = null)
+        Coo.Mobile.Application.CareLog.GetHandover? getHandover = null,
+        Coo.Mobile.Application.CareLog.AddMilkBag? addBag = null,
+        Coo.Mobile.Application.Insights.GetLastNight? getNight = null,
+        Coo.Mobile.Application.CareLog.GetAway? getAway = null)
     {
+        _addBag = addBag;
+        (_getNight, _getAway) = (getNight, getAway);
         _getStash = getStash;
         _getHandover = getHandover;
         _logAccess = logAccess;
@@ -220,6 +237,54 @@ public sealed partial class TodayViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Coo is on screen (Today appears, the app comes back): after <see cref="Coo.Mobile.Application.CareLog.GetAway.AwayAfter"/>
+    /// without it, Today summarises what the others logged since. Background syncs never count as being here.
+    /// </summary>
+    public async Task NoteActiveAsync()
+    {
+        var now = _time.GetUtcNow();
+        if (await _preferences.GetLastActiveAsync(CancellationToken.None) is { } last
+            && now - last >= Coo.Mobile.Application.CareLog.GetAway.AwayAfter)
+            await _preferences.SetAwaySinceAsync(last, CancellationToken.None);
+        await _preferences.SetLastActiveAsync(now, CancellationToken.None);
+    }
+
+    /// <summary>Coo goes to the background: the absence counts from now.</summary>
+    public Task NoteLeftAsync() => _preferences.SetLastActiveAsync(_time.GetUtcNow(), CancellationToken.None);
+
+    /// <summary>"Got it" on "While you were away".</summary>
+    public async Task DismissAwayAsync()
+    {
+        await _preferences.SetAwaySinceAsync(null, CancellationToken.None);
+        await RefreshAsync();
+    }
+
+    private async Task<IReadOnlyList<Coo.Mobile.Application.CareLog.HandoverDay>> AwayAsync()
+    {
+        if (_getAway is null || _household is null || _baby is not { IsBorn: true })
+            return [];
+        try
+        {
+            var now = _time.GetUtcNow();
+            if (await _preferences.GetAwaySinceAsync(CancellationToken.None) is not { } since)
+                return [];
+            if (now - since > Coo.Mobile.Application.CareLog.GetAway.ForgetAfter)
+            {
+                await _preferences.SetAwaySinceAsync(null, CancellationToken.None);
+                return [];
+            }
+
+            return await _getAway.ExecuteAsync(_household.Id, _baby.Id, since, now, CancellationToken.None);
+        }
+#pragma warning disable CA1031 // A courtesy card: a failed read must never stop Today from drawing.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+            return [];
+        }
+    }
+
     /// <summary>"Seen" on a caregiver's day: hidden until she logs something newer.</summary>
     public async Task MarkHandoverSeenAsync(Guid person, DateTimeOffset last)
     {
@@ -313,6 +378,10 @@ public sealed partial class TodayViewModel : ObservableObject
             : null;
         _siblingGlances = await GlancesAsync();
         _handover = await HandoverAsync();
+        _night = _getNight is not null
+            ? await _getNight.ExecuteAsync(_household.Id, _baby, _plan, Zone(), _time.GetUtcNow(), CancellationToken.None)
+            : null;
+        _away = await AwayAsync();
         _stash = _getStash is not null && KindVisibility.IsShown(_household, "pump")
             ? await _getStash.ExecuteAsync(_household.Id, _time.GetUtcNow(), CancellationToken.None)
             : null;
@@ -496,20 +565,63 @@ public sealed partial class TodayViewModel : ObservableObject
     private Task LogDiaper(Coo.Domain.CareLog.Kinds.Diaper.DiaperContents contents) => _actions.LogDiaperAsync(contents);
 
     [RelayCommand]
-    private Task SavePumpYield(bool skip)
+    private void ChooseStash(string place) => StashPlace = place switch
+    {
+        "fridge" => Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace.Fridge,
+        "freezer" => Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace.Freezer,
+        _ => null,
+    };
+
+    [RelayCommand]
+    private async Task SavePumpYield(bool skip)
     {
         if (_pumpForYield is not { } id)
-            return Task.CompletedTask;
+            return;
         if (skip)
-            return _actions.EndSessionAsync(id);
+        {
+            await _actions.EndSessionAsync(id);
+            return;
+        }
 
         var left = ParseVolume(PumpLeft);
         var right = ParseVolume(PumpRight);
         if (left is null && right is null)
-            return _actions.EndSessionAsync(id);
+        {
+            await _actions.EndSessionAsync(id);
+            return;
+        }
 
         var yield = PumpYield.BySide(left, right);
-        return yield.IsSuccess ? _actions.EndSessionAsync(id, yield.Value) : ShowError(yield.Error!.Code);
+        if (yield.IsFailure)
+        {
+            await ShowError(yield.Error!.Code);
+            return;
+        }
+
+        var startedAt = _summary?.Running.FirstOrDefault(e => e.Id == id)?.Timing.OccurredAt ?? _time.GetUtcNow();
+        await _actions.EndSessionAsync(id, yield.Value);
+        await StashAsync(yield.Value.Total, startedAt);
+    }
+
+    /// <summary>
+    /// The pumped milk into the stash, as one bag from when the pumping started; the toast says the bag's number, to write
+    /// on the container (owner, 2026-11-04).
+    /// </summary>
+    private async Task StashAsync(Volume total, DateTimeOffset expressedAt)
+    {
+        if (_addBag is null || _household is null || StashPlace is not { } place)
+            return;
+        var bag = await _addBag.ExecuteAsync(_household.Id, total, place, expressedAt, null, CancellationToken.None);
+        if (bag.IsFailure)
+        {
+            Toast = Strings.Error(bag.Error!.Code);
+            return;
+        }
+
+        var details = (Coo.Domain.CareLog.Kinds.MilkStash.MilkBagDetails)bag.Value.Details;
+        _undo.Say(Strings.Format(place == Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace.Freezer ? "Stash.AddedFreezer" : "Stash.AddedFridge",
+            details.Number ?? 0, Formats().Volume(total)));
+        await RefreshAsync();
     }
 
     [RelayCommand]
@@ -528,7 +640,7 @@ public sealed partial class TodayViewModel : ObservableObject
         if (sheet == HomeSheet.PumpYield)
         {
             _pumpForYield = entry;
-            (PumpLeft, PumpRight) = ("", "");
+            (PumpLeft, PumpRight, StashPlace) = ("", "", null);
         }
 
         if (sheet == HomeSheet.RecordBirth)
@@ -557,7 +669,7 @@ public sealed partial class TodayViewModel : ObservableObject
         Tick();
     }
 
-    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep, IsViewOnly, _plan, _sleepRecord, _siblingGlances, _logForAll, _stash, _handover);
+    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep, IsViewOnly, _plan, _sleepRecord, _siblingGlances, _logForAll, _stash, _handover, _night, _away);
 
     private Formats Formats() => new(_clock.Is24Hour, _household?.VolumeUnit ?? VolumeUnit.Millilitres);
 

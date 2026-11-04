@@ -83,6 +83,8 @@ public sealed class MilkStashPage : ContentPage
             return;
         }
 
+        if (_model.Added.Length > 0)
+            stack.Add(Ui.Rounded(Ui.Text(_model.Added, "BodyStrong"), "AccentSoft", 14, new Thickness(14, 10)));
         if (_model.Totals.Length > 0)
             stack.Add(Ui.Text(_model.Totals, "Title"));
         if (_model.Warning.Length > 0)

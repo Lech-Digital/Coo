@@ -71,4 +71,45 @@ public sealed class HandoverTextTests : IDisposable
         lines[1].Should().StartWith("2 drzemki");
         lines[2].Should().StartWith("4 pieluchy");
     }
+
+    [Fact]
+    public void NightLines_WithAndWithoutAPlan_ReadAsTheMorningNote()
+    {
+        // Arrange
+        var night = new Coo.Domain.Insights.SleepMeasures(1, 2, TimeSpan.FromMinutes(250), TimeSpan.FromMinutes(620), null, null, null, new TimeOnly(19, 40), new TimeOnly(6, 30));
+        var before = night with { NightWakings = 3.4, Bedtime = new TimeOnly(20, 15) };
+        var plain = new Coo.Mobile.Application.Insights.LastNight(night, 2, null, []);
+        var planned = new Coo.Mobile.Application.Insights.LastNight(night, 2, before, [Coo.Domain.Insights.SleepPlanGoal.FewerNightWakings]);
+        var bedtime = new Coo.Mobile.Application.Insights.LastNight(night, 0, before, [Coo.Domain.Insights.SleepPlanGoal.EarlierBedtime]);
+
+        // Act
+        var a = LastNightSection.Lines(plain, Ml);
+        var b = LastNightSection.Lines(planned, Ml);
+        var c = LastNightSection.Lines(bedtime, Ml);
+
+        // Assert
+        a.Should().Be(("10 h 20 m asleep · woke 2 times · longest 4 h 10 m", "2 feeds in the night"));
+        b.Second.Should().Be("Before the plan: 3.4 wakings a night.");
+        c.Second.Should().Be("Bedtime 19:40; before the plan 20:15.");
+    }
+
+    [Fact]
+    public void Update_ThePartnerDidTheNight_ShowsAWhileYouWereAwayCard()
+    {
+        // Arrange
+        var section = new HandoverSection();
+        var household = new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a1"));
+        var stamp = new Coo.Domain.Common.Versioning.HlcStamp(1, 0, new DeviceId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1")));
+        var baby = BabyProfile.Create(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b1")), household, "Laura", [], new DateOnly(2026, 5, 1), null,
+            stamp, new DateOnly(2026, 11, 4)).Value;
+        var settings = HouseholdSettings.Create(household, VolumeUnit.Millilitres, "Europe/Amsterdam", stamp).Value;
+        var kasia = Day() with { Name = "Kasia" };
+
+        // Act
+        section.Update(new HomeSnapshot(settings, baby, null, Now, Theme.PaletteKind.Day, Ml, Away: [kasia, Day() with { Name = "" }]));
+
+        // Assert
+        section.Cards.Select(c => c.Title).Should().Equal("While you were away · Kasia", "While you were away · Another parent");
+        section.Cards.Should().OnlyContain(c => c.IsAway && !c.IsMine);
+    }
 }

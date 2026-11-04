@@ -74,6 +74,7 @@ public sealed class TodayPage : ContentPage
         _model.Sections.CollectionChanged += OnSectionsChanged;
         _model.PropertyChanged += OnModelChanged;
         _language.Changed += OnLanguageChanged;
+        await _model.NoteActiveAsync();
         await _model.RefreshAsync();
 
         // The section views update themselves; they are rebuilt only when the sections or the language changed.
@@ -642,11 +643,52 @@ public sealed class TodayPage : ContentPage
             return Ui.Rounded(entry, "Surface", 12, new Thickness(16, 4), "Line");
         }
 
-        return Panel(
-            Strings.Get("Pump.HowMuch"),
+        var views = new List<View>
+        {
             Amount(Strings.Get("Feed.Left"), nameof(TodayViewModel.PumpLeft)),
             Amount(Strings.Get("Feed.Right"), nameof(TodayViewModel.PumpRight)),
-            Row(Ghost(Strings.Get("Action.Skip"), _model.SavePumpYieldCommand, true), Primary(Strings.Get("Action.Save"), _model.SavePumpYieldCommand, false)));
+        };
+
+        // Into the milk stash at once: a bag with its number, to write on the container.
+        if (_model.CanStash)
+        {
+            views.Add(Ui.Text(Strings.Get("Pump.Stash"), "Meta", "Ink2"));
+            var choices = new (string Code, string Key)[] { ("none", "Pump.NotStored"), ("fridge", "Stash.Fridge"), ("freezer", "Stash.Freezer") };
+            var buttons = new List<Button>();
+            void Restyle()
+            {
+                for (var i = 0; i < choices.Length; i++)
+                {
+                    var chosen = choices[i].Code switch
+                    {
+                        "fridge" => _model.StashPlace == Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace.Fridge,
+                        "freezer" => _model.StashPlace == Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace.Freezer,
+                        _ => _model.StashPlace is null,
+                    };
+                    buttons[i].SetDynamicResource(StyleProperty, chosen ? "PrimaryButton" : "GhostButton");
+                }
+            }
+
+            var row = new Grid { ColumnSpacing = 8 };
+            foreach (var (code, key) in choices)
+            {
+                var button = new Button { Text = Strings.Get(key), Padding = new Thickness(4, 0) };
+                button.Clicked += (_, _) =>
+                {
+                    _model.ChooseStashCommand.Execute(code);
+                    Restyle();
+                };
+                row.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+                row.Add(button, buttons.Count);
+                buttons.Add(button);
+            }
+
+            Restyle();
+            views.Add(row);
+        }
+
+        views.Add(Row(Ghost(Strings.Get("Action.Skip"), _model.SavePumpYieldCommand, true), Primary(Strings.Get("Action.Save"), _model.SavePumpYieldCommand, false)));
+        return Panel(Strings.Get("Pump.HowMuch"), [.. views]);
     }
 
     /// <summary>"Zosia is asleep · since 20:05": woke up, or still asleep (Spec 006 §5a). Tap outside cancels.</summary>

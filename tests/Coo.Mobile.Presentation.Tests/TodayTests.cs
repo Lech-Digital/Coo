@@ -64,7 +64,7 @@ public sealed class TodayTests
     }
 
     [Fact]
-    public async Task LogDiaperAsync_LogForBoth_SavesOneForEachTwinButABreastFeedOnlyForTheShownOne()
+    public async Task LogDiaperAsync_LogForBoth_SavesOneForEachTwinAndABreastFeedAsATandemFeed()
     {
         // Arrange
         var mia = new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
@@ -83,10 +83,10 @@ public sealed class TodayTests
         saved.Clear();
         await actions.StartBreastAsync(BreastSide.Left);
 
-        // Assert
+        // Assert: a tandem feed, Lena on the side tapped and Mia on the other.
         diapers.Select(e => ((BabySubject)e.Subject).BabyId).Should().Equal(Baby, mia);
         toast.Should().EndWith("· Lena, Mia");
-        saved.Should().ContainSingle("a breastfeed is one baby's, on one side").Which.Subject.Should().Be(EntrySubject.Baby(Baby));
+        saved.Select(e => (((BabySubject)e.Subject).BabyId, ((BreastFeed)e.Details).LastSide)).Should().Equal((Baby, BreastSide.Left), (mia, BreastSide.Right));
     }
 
     [Fact]

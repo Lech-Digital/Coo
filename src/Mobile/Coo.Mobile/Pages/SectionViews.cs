@@ -129,6 +129,7 @@ internal static class SectionViews
         BabyHeaderSection s => Live(s, () => Header(s, host)),
         SiblingsSection s => Live(s, () => Siblings(s, host)),
         HandoverSection s => Live(s, () => Handover(s, host)),
+        LastNightSection s => Live(s, () => LastNight(s)),
         DueDateSection s => Live(s, () => DueDate(s)),
         StatusHeroSection s => Live(s, () => Hero(s), nameof(StatusHeroSection.Eyebrow), nameof(StatusHeroSection.Value), nameof(StatusHeroSection.Context)),
         RunningSection s => Live(s, () => RunningCards(s.Items, night: false, host)),
@@ -194,6 +195,23 @@ internal static class SectionViews
         return grid;
     }
 
+    /// <summary>The morning note: last night in two lines, in the sleep colours.</summary>
+    private static View LastNight(LastNightSection s)
+    {
+        if (s.First.Length == 0)
+            return new ContentView();
+        var look = EventAppearance.For("sleep");
+        var stack = new VerticalStackLayout { Spacing = 4 };
+        var title = new HorizontalStackLayout { Spacing = 8 };
+        title.Add(new Icon(IconGeometry.Sleep, look.Ink, 18) { VerticalOptions = LayoutOptions.Center });
+        title.Add(Ui.Text(Strings.Get("Night.Title"), "BodyStrong", look.Ink).Tap(l => l.VerticalOptions = LayoutOptions.Center));
+        stack.Add(title);
+        stack.Add(Ui.Text(s.First, "Body"));
+        if (s.Second.Length > 0)
+            stack.Add(Ui.Text(s.Second, "Meta", "Ink2"));
+        return Ui.Rounded(stack, look.Tint, 18, new Thickness(16, 12)).Tap(v => v.Margin = new Thickness(24, 12, 24, 0));
+    }
+
     /// <summary>The nanny's handover: a card per caregiver's day for a parent (Seen hides it), or the caregiver's own (Share).</summary>
     private static View Handover(HandoverSection s, SectionHost host)
     {
@@ -209,11 +227,13 @@ internal static class SectionViews
             body.Add(title);
             foreach (var line in card.Lines)
                 body.Add(Ui.Text(line, "Body"));
-            var button = new Button { Text = Strings.Get(card.IsMine ? "Handover.Share" : "Handover.Seen"), HorizontalOptions = LayoutOptions.Start };
+            var button = new Button { Text = Strings.Get(card.IsMine ? "Handover.Share" : card.IsAway ? "Away.GotIt" : "Handover.Seen"), HorizontalOptions = LayoutOptions.Start };
             button.SetDynamicResource(VisualElement.StyleProperty, "GhostButton");
             var (person, last, text) = (card.Person, card.Last, card.ShareText);
             if (card.IsMine)
                 button.Clicked += (_, _) => host.ShareText?.Invoke(text);
+            else if (card.IsAway)
+                button.Clicked += async (_, _) => await host.Today.DismissAwayAsync();
             else
                 button.Clicked += async (_, _) => await host.Today.MarkHandoverSeenAsync(person, last);
             body.Add(button);

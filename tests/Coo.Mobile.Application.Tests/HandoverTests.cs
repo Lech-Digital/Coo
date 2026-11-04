@@ -85,6 +85,34 @@ public sealed class HandoverTests
         signedOut.Should().Be(HandoverView.None);
     }
 
+    [Fact]
+    public async Task Away_ThePartnerDidTheNight_SummarisesHerEntriesSinceIWasLastHere()
+    {
+        // Arrange: Kasia (owner) did the night; I am another parent, away since 22:00; the nanny's entries are the handover's.
+        var me = new UserId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000c3"));
+        _families.ListMemberNamesAsync(Household, Arg.Any<CancellationToken>()).Returns([
+            new FamilyMemberName(Parent, "Kasia", Role.Owner), new FamilyMemberName(Nanny, "Anna", Role.Caregiver), new FamilyMemberName(me, "Andrzej", Role.Parent)]);
+        SignedIn(me, Role.Parent);
+        var kasia = new UserPerson(Parent);
+        var since = Now.AddHours(-9);
+        var store = Substitute.For<ICareLogStore>();
+        store.ListAsync(Household, Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>()).Returns([
+            new LiveEntry(Make(Laura, kasia, new DiaperDetails(DiaperContents.Wet), EntryTiming.Point(since.AddHours(-1)))),
+            new LiveEntry(Make(Laura, kasia, BottleFeed.Of(Milk.Formula, Volume.FromMillilitres(120).Value).Value, EntryTiming.Point(since.AddHours(4)))),
+            new LiveEntry(Make(Laura, kasia, new DiaperDetails(DiaperContents.Dirty), EntryTiming.Point(since.AddHours(4.2)))),
+            new LiveEntry(Make(Laura, new UserPerson(me), new DiaperDetails(DiaperContents.Wet), EntryTiming.Point(since.AddHours(5)))),
+            new LiveEntry(Make(Laura, new UserPerson(Nanny), new DiaperDetails(DiaperContents.Wet), EntryTiming.Point(since.AddHours(6)))),
+        ]);
+
+        // Act
+        var away = await new GetAway(_families, _sessions, store).ExecuteAsync(Household, Laura, since, Now, CancellationToken.None);
+
+        // Assert
+        var night = away.Should().ContainSingle().Subject;
+        night.Name.Should().Be("Kasia");
+        (night.Feeds, night.BottleMl, night.Diapers, night.Dirty).Should().Be((1, 120m, 1, 1));
+    }
+
     private GetHandover Use() => new(_families, _sessions);
 
     private void SignedIn(UserId user, Role role)

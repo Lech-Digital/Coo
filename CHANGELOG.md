@@ -35,18 +35,24 @@ release.
 
 - **Twins and siblings**: tap the baby's name at the top to choose which baby Coo shows; every tab follows. Today shows
   the others at a glance ("Mia · asleep 40 m · fed 1 h 20 m ago", a tap switches), "Log for both" logs a diaper,
-  bottle or sleep for each of them at once (one Undo takes them all back), and Stats puts their average days side by
-  side.
+  bottle, sleep or tummy time for each of them at once (one Undo takes them all back); a breastfeed becomes a tandem
+  feed, one baby on each side. Stats puts their average days side by side.
 
 - **Milk stash** (Stats → Milk stash): the bags of expressed milk in the fridge and freezer, the one to use first on
   top, with its use-by (4 days in the fridge, about 6 months frozen, 24 hours once thawed, as the CDC advises). Mark a
   bag used, freeze, thaw or throw it away; everyone in the family sees the same stash, and Today says when a bag
   should be used soon. Each bag gets a number to write on the container (#1, #2, #3; a used bag's number comes free
-  again), and Edit changes the number, the note, or how much is left after part of it was used.
+  again), and Edit changes the number, the note, or how much is left after part of it was used. After pumping, choose
+  Fridge or Freezer with the amount and the bag goes straight into the stash, its number in the message.
 
 - **The nanny's handover**: when a nanny or daycare logs for your baby, Today shows "Today with Anna" at pick-up: feeds
   and how much from bottles, naps and how long, diapers, medicines and her notes, from her first entry to her last.
   "Seen" puts it away until she logs more. A caregiver sees her own day and can share it as a message.
+
+- **Last night**, every morning until noon on Today: how long your baby slept, how often she woke, the longest stretch
+  and the night feeds; with a sleep plan, last night against the week before the plan.
+- **While you were away**: open Coo after three hours or more and Today shows what the others logged meanwhile, per
+  person (the night your partner did, the grandparents' afternoon), until "Got it".
 
 ### Changed
 - **Bottle amounts in steps of 5 ml**: + and − on the bottle go 75, 80, 85 instead of 75, 85, 95 (ounces stay at ½ oz).
