@@ -11,7 +11,8 @@ using Coo.Mobile.Presentation.Localization;
 namespace Coo.Mobile.Presentation.Today;
 
 /// <summary>The household and baby that Today acts on.</summary>
-public sealed record HomeContext(HouseholdId Household, BabyId Baby);
+/// <param name="Also">Twins and siblings: "Log for both" is on, and a diaper, bottle or sleep is logged for these babies too.</param>
+public sealed record HomeContext(HouseholdId Household, BabyId Baby, IReadOnlyList<BabyId>? Also = null);
 
 /// <summary>The sheet Today shows, if any (Spec 006 §5). Sheets are in-page overlays, never modal pages (§2).</summary>
 public enum HomeSheet
@@ -73,14 +74,14 @@ public sealed class HomeActions(LogEntry log, ReviseEntry revise, TimeProvider t
     {
         ArgumentNullException.ThrowIfNull(bottle);
         ArgumentNullException.ThrowIfNull(formats);
-        return NeedsAwake(() => LogAsync(bottle, EntryTiming.Point(time.GetLocalNow()), EntrySource.Manual, Strings.Format("Entry.Bottle", Formats.MilkName(bottle.Components), formats.Volume(bottle.Total))));
+        return NeedsAwake(() => LogAsync(bottle, EntryTiming.Point(time.GetLocalNow()), EntrySource.Manual, Strings.Format("Entry.Bottle", Formats.MilkName(bottle.Components), formats.Volume(bottle.Total)), forAll: true));
     }
 
     public Task LogDiaperAsync(DiaperContents contents) =>
-        NeedsAwake(() => LogAsync(new DiaperDetails(contents), EntryTiming.Point(time.GetLocalNow()), EntrySource.Manual, Strings.Format("Entry.Diaper", Formats.Contents(contents))));
+        NeedsAwake(() => LogAsync(new DiaperDetails(contents), EntryTiming.Point(time.GetLocalNow()), EntrySource.Manual, Strings.Format("Entry.Diaper", Formats.Contents(contents)), forAll: true));
 
     public Task StartSleepAsync() =>
-        LogAsync(new SleepDetails(), EntryTiming.Session(TimeRange.Open(time.GetLocalNow())), EntrySource.Timer, Strings.Get("Hero.Sleeping"));
+        LogAsync(new SleepDetails(), EntryTiming.Session(TimeRange.Open(time.GetLocalNow())), EntrySource.Timer, Strings.Get("Hero.Sleeping"), forAll: true);
 
     public Task StartPumpAsync() =>
         LogAsync(new PumpDetails(), EntryTiming.Session(TimeRange.Open(time.GetLocalNow())), EntrySource.Timer, Strings.Get("Hero.Pumping"), caregiver: true);
@@ -135,19 +136,37 @@ public sealed class HomeActions(LogEntry log, ReviseEntry revise, TimeProvider t
         return Task.CompletedTask;
     }
 
-    private async Task LogAsync(EntryDetails details, EntryTiming? timing, EntrySource source, string what, bool caregiver = false)
+    /// <param name="forAll">Twins and siblings: with "Log for both" on, the same entry for each of <see cref="HomeContext.Also"/>.</param>
+    private async Task LogAsync(EntryDetails details, EntryTiming? timing, EntrySource source, string what, bool caregiver = false, bool forAll = false)
     {
         var context = Context ?? throw new InvalidOperationException("Today has no household or baby yet.");
-        var subject = caregiver ? EntrySubject.Caregiver(PersonRef.ThisDevicesPerson) : EntrySubject.Baby(context.Baby);
-        var result = await log.ExecuteAsync(
-            new LogEntryCommand(context.Household, subject, details, timing, PersonRef.ThisDevicesPerson, source), CancellationToken.None);
-        var message = result.IsSuccess ? Strings.Format("Toast.Logged", what) : Strings.Error(result.Error?.Code);
+        BabyId[] babies = caregiver || !forAll || context.Also is not { Count: > 0 } also ? [context.Baby] : [context.Baby, .. also];
+        var created = new List<EntryId>();
+        Result<CareEntry>? failed = null;
+        foreach (var baby in babies)
+        {
+            var subject = caregiver ? EntrySubject.Caregiver(PersonRef.ThisDevicesPerson) : EntrySubject.Baby(baby);
+            var result = await log.ExecuteAsync(
+                new LogEntryCommand(context.Household, subject, details, timing, PersonRef.ThisDevicesPerson, source), CancellationToken.None);
+            if (result.IsSuccess)
+                created.Add(result.Value.Id);
+            else
+                failed ??= result;
+        }
 
-        // A quick log can be undone for 5 seconds; Undo writes a tombstone (Spec 007 §5).
-        if (result.IsSuccess && undo is not null)
-            undo.OfferUndoForLog(result.Value.Id, message);
-        Done?.Invoke(this, new(result.IsSuccess, undo is not null && result.IsSuccess ? "" : message));
+        var succeeded = created.Count > 0;
+        var message = succeeded ? Strings.Format("Toast.Logged", what) : Strings.Error(failed?.Error?.Code);
+        if (succeeded && babies.Length > 1 && BabyNames is { } names)
+            message += " · " + string.Join(", ", babies.Select(names));
+
+        // A quick log can be undone for 5 seconds; Undo writes a tombstone for each (Spec 007 §5).
+        if (succeeded && undo is not null)
+            undo.OfferUndoForLog(created, message);
+        Done?.Invoke(this, new(succeeded, undo is not null && succeeded ? "" : message));
     }
+
+    /// <summary>Set by Today: a baby's name, for the toast of a log for several babies.</summary>
+    public Func<BabyId, string>? BabyNames { get; set; }
 
     private async Task ReviseAsync(EntryId id, Func<CareEntry, Coo.Domain.Common.Versioning.HlcStamp, DateTimeOffset, Result> change, string what)
     {

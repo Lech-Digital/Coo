@@ -89,6 +89,10 @@ public sealed partial class TodayViewModel : ObservableObject
     private readonly Coo.Mobile.Application.Insights.GetSleepPlan? _getPlan;
     private Coo.Mobile.Application.Insights.SleepPlanToday? _plan;
     private readonly Coo.Mobile.Application.CareLog.ILogAccess? _logAccess;
+    private readonly Coo.Mobile.Application.Households.BabyFocus? _focus;
+    private List<BabyProfile> _siblings = [];
+    private IReadOnlyList<SiblingGlance> _siblingGlances = [];
+    private bool _logForAll;
 
     /// <summary>Set by the page: Coo's own explanation before Android asks for notifications; false is "Not now".</summary>
     public Func<Task<bool>>? PrimeNotificationsAsync { get; set; }
@@ -104,9 +108,13 @@ public sealed partial class TodayViewModel : ObservableObject
         Coo.Mobile.Application.Insights.GetSleepPrediction? getSleep = null,
         Coo.Mobile.Application.Notifications.IReminderScheduler? notifications = null,
         Coo.Mobile.Application.CareLog.ILogAccess? logAccess = null,
-        Coo.Mobile.Application.Insights.GetSleepPlan? getPlan = null)
+        Coo.Mobile.Application.Insights.GetSleepPlan? getPlan = null,
+        Coo.Mobile.Application.Households.BabyFocus? focus = null)
     {
         _logAccess = logAccess;
+        _focus = focus;
+        if (_focus is not null)
+            _focus.Changed += async () => await RefreshAsync();
         _getPlan = getPlan;
         _billing = billing;
         _getSleep = getSleep;
@@ -162,6 +170,45 @@ public sealed partial class TodayViewModel : ObservableObject
 
     public BabyProfile? Baby => _baby;
 
+    /// <summary>The family's other babies (twins, siblings), for the chip's picker.</summary>
+    public IReadOnlyList<BabyProfile> Siblings => _siblings;
+
+    /// <summary>Shows another of the family's babies: every screen follows (<see cref="Coo.Mobile.Application.Households.BabyFocus"/>).</summary>
+    public async Task FocusAsync(BabyId baby)
+    {
+        if (_focus is not null)
+        {
+            await _focus.FocusAsync(baby, CancellationToken.None);
+            return;
+        }
+
+        await _households.FocusBabyAsync(baby, CancellationToken.None);
+        await RefreshAsync();
+    }
+
+    /// <summary>Twins and siblings: turns "Log for both" on or off; it stays until changed or the app restarts.</summary>
+    public async Task ToggleLogForAllAsync()
+    {
+        _logForAll = !_logForAll;
+        await RefreshAsync();
+    }
+
+    /// <summary>Each born sibling's day at a glance: asleep or awake and for how long, and the last feed.</summary>
+    private async Task<IReadOnlyList<SiblingGlance>> GlancesAsync()
+    {
+        if (_household is null || _siblings.Count == 0)
+            return [];
+        var now = _time.GetLocalNow();
+        var glances = new List<SiblingGlance>();
+        foreach (var sibling in _siblings)
+        {
+            var summary = sibling.IsBorn ? await _getToday.ExecuteAsync(_household.Id, sibling.Id, Zone(), now, CancellationToken.None) : null;
+            glances.Add(new SiblingGlance(sibling.Id, sibling.Name, SiblingsSection.Line(summary, now), sibling.IsBorn));
+        }
+
+        return glances;
+    }
+
     public HomeStage Stage => _baby?.IsBorn == false ? HomeStage.Expecting : HomeStage.Born;
 
     /// <summary>True when the household has no baby yet: the host shows setup (Spec 006 §3).</summary>
@@ -192,6 +239,7 @@ public sealed partial class TodayViewModel : ObservableObject
 
         var babies = (await _households.ListBabiesAsync(_household.Id, CancellationToken.None)).Where(b => !b.IsDeleted).ToList();
         _baby = babies.Count > 0 ? babies[0] : null;
+        _siblings = [.. babies.Skip(1)];
         NeedsSetup = _baby is null;
         OnPropertyChanged(nameof(NeedsSetup));
         OnPropertyChanged(nameof(Baby));
@@ -205,7 +253,12 @@ public sealed partial class TodayViewModel : ObservableObject
             _ = _avatarSync.SyncBabyAvatarAsync(_household.Id.Value, _baby.Id.Value, CancellationToken.None);
         }
 
-        _actions.Context = new HomeContext(_household.Id, _baby.Id);
+        // Twins and siblings: "Log for both" logs a diaper, bottle or sleep for every born baby of the family.
+        var others = _siblings.Where(b => b.IsBorn).ToList();
+        _logForAll &= others.Count > 0 && _baby.IsBorn;
+        _actions.Context = new HomeContext(_household.Id, _baby.Id, _logForAll ? [.. others.Select(b => b.Id)] : null);
+        var names = babies.ToDictionary(b => b.Id, b => b.Name);
+        _actions.BabyNames = id => names.GetValueOrDefault(id, "");
         _summary = _baby.IsBorn
             ? await _getToday.ExecuteAsync(_household.Id, _baby.Id, Zone(), _time.GetLocalNow(), CancellationToken.None)
             : null;
@@ -216,6 +269,7 @@ public sealed partial class TodayViewModel : ObservableObject
         _sleep = _baby.IsBorn && _getSleep is not null
             ? await _getSleep.ExecuteAsync(_household.Id, _baby, Zone(), _time.GetLocalNow(), CancellationToken.None)
             : null;
+        _siblingGlances = await GlancesAsync();
         _sleepRecord = _sleep is { IsPersonal: true } && _getSleep is not null
             ? await _getSleep.TrackRecordAsync(_household.Id, _baby, Zone(), _time.GetLocalNow(), CancellationToken.None)
             : null;
@@ -457,7 +511,7 @@ public sealed partial class TodayViewModel : ObservableObject
         Tick();
     }
 
-    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep, IsViewOnly, _plan, _sleepRecord);
+    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep, IsViewOnly, _plan, _sleepRecord, _siblingGlances, _logForAll);
 
     private Formats Formats() => new(_clock.Is24Hour, _household?.VolumeUnit ?? VolumeUnit.Millilitres);
 

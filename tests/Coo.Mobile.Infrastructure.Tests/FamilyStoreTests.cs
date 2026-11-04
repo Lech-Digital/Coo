@@ -95,6 +95,28 @@ public sealed class FamilyStoreTests
     }
 
     [Fact]
+    public async Task FocusBabyAsync_TheYoungerTwin_IsListedFirstFromThenOn()
+    {
+        // Arrange: twins, the elder by name first until one is chosen.
+        await using var db = await TestDatabase.CreateAsync();
+        var born = new DateOnly(2026, 10, 20);
+        var lena = BabyProfile.Create(TestDatabase.Baby, Home, "Lena", [], born, null, await db.Device.NextAsync(CancellationToken.None), born).Value;
+        var mia = BabyProfile.Create(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9")), Home, "Mia", [], born, null,
+            await db.Device.NextAsync(CancellationToken.None), born).Value;
+        await db.Households.SaveBabyAsync(lena, CancellationToken.None);
+        await db.Households.SaveBabyAsync(mia, CancellationToken.None);
+        var before = await db.Households.ListBabiesAsync(Home, CancellationToken.None);
+
+        // Act
+        await db.Households.FocusBabyAsync(mia.Id, CancellationToken.None);
+        var after = await db.Households.ListBabiesAsync(Home, CancellationToken.None);
+
+        // Assert
+        before.Select(b => b.Name).Should().Equal("Lena", "Mia");
+        after.Select(b => b.Name).Should().Equal("Mia", "Lena");
+    }
+
+    [Fact]
     public async Task ReplaceAsync_AnEmptyList_IsKnownAndEmpty()
     {
         // Arrange: after a removal from the only family (§8.4).

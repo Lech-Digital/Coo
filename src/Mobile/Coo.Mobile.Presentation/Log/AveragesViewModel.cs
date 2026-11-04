@@ -12,6 +12,9 @@ namespace Coo.Mobile.Presentation.Log;
 /// <summary>One line of "On an average day": the kind's colour, what, how much, and the detail under it.</summary>
 public sealed record AverageRow(string KindCode, string Name, string Value, string Detail);
 
+/// <summary>Twins and siblings, side by side: one measure ("Sleep"), and each baby's value in the order of <c>CompareNames</c>.</summary>
+public sealed record CompareRow(string KindCode, string Name, IReadOnlyList<string> Values);
+
 /// <summary>
 /// The top of Stats: an average day over the last 7, 14 or 30 days, written as a doctor asks ("How much does she drink
 /// a day?"): milk from bottles a day and per bottle, feeds, sleep, diapers. Before this, the answer needed the right chip,
@@ -33,19 +36,50 @@ public sealed partial class AveragesViewModel(IHouseholdStore households, GetDai
     [ObservableProperty]
     private string _caption = "";
 
+    /// <summary>Twins and siblings: every born baby of the family, the shown one first; empty with one baby.</summary>
+    [ObservableProperty]
+    private IReadOnlyList<string> _compareNames = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<CompareRow> _compare = [];
+
     public async Task RefreshAsync()
     {
         var household = (await households.ListHouseholdsAsync(CancellationToken.None)).FirstOrDefault(h => !h.IsDeleted);
         if (household is null)
             return;
-        var baby = (await households.ListBabiesAsync(household.Id, CancellationToken.None)).FirstOrDefault(b => !b.IsDeleted);
-        if (baby is null)
+        var babies = (await households.ListBabiesAsync(household.Id, CancellationToken.None)).Where(b => !b.IsDeleted).ToList();
+        if (babies.Count == 0)
             return;
+        var baby = babies[0];
 
         _unit = household.VolumeUnit;
         var zone = TimeZoneInfo.FindSystemTimeZoneById(household.TimeZoneId);
+        bool IsShown(string kind) => KindVisibility.IsShown(household, kind);
         var result = await averages.ExecuteAsync(household.Id, baby.Id, Days, zone, time.GetLocalNow(), CancellationToken.None);
-        Show(result, kind => KindVisibility.IsShown(household, kind));
+        Show(result, IsShown);
+
+        // Side by side: the same average day for each born baby of the family.
+        var born = babies.Where(b => b.IsBorn).ToList();
+        if (born.Count < 2 || !baby.IsBorn)
+        {
+            (CompareNames, Compare) = ([], []);
+            return;
+        }
+
+        var each = new List<IReadOnlyList<AverageRow>>();
+        foreach (var b in born)
+            each.Add(RowsFor(b.Id == baby.Id ? result : await averages.ExecuteAsync(household.Id, b.Id, Days, zone, time.GetLocalNow(), CancellationToken.None), IsShown));
+        (CompareNames, Compare) = ([.. born.Select(b => b.Name)], SideBySide(each));
+    }
+
+    /// <summary>Lines up each baby's rows by measure; a measure one of them has no entries for shows "–".</summary>
+    public static IReadOnlyList<CompareRow> SideBySide(IReadOnlyList<IReadOnlyList<AverageRow>> each)
+    {
+        ArgumentNullException.ThrowIfNull(each);
+        var measures = each.SelectMany(rows => rows.Select(r => (r.KindCode, r.Name))).Distinct().ToList();
+        return [.. measures.Select(m => new CompareRow(
+            m.KindCode, m.Name, [.. each.Select(rows => rows.FirstOrDefault(r => r.Name == m.Name)?.Value ?? "–")]))];
     }
 
     [RelayCommand]
@@ -73,7 +107,13 @@ public sealed partial class AveragesViewModel(IHouseholdStore households, GetDai
         Caption = a.IncludesToday
             ? $"{Strings.Get("Section.Today")} · {Strings.Get("Trend.SoFar")}"
             : $"{Strings.Format("Averages.LastDays", Days)} · {logged}";
+        Rows = RowsFor(a, isShown);
+    }
 
+    private List<AverageRow> RowsFor(DailyAverages a, Func<string, bool> isShown)
+    {
+        if (!a.HasData)
+            return [];
         var rows = new List<AverageRow>();
         if (isShown("feeding") && a.Bottles > 0)
         {
@@ -98,7 +138,7 @@ public sealed partial class AveragesViewModel(IHouseholdStore households, GetDai
         if (isShown("pump") && a.PumpedMl > 0)
             rows.Add(new AverageRow("pump", Strings.Get("Averages.Pumped"), Volume(a.PumpedMl), ""));
 
-        Rows = rows;
+        return rows;
     }
 
     private string Volume(decimal millilitres) => _unit == VolumeUnit.Ounces

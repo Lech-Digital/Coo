@@ -24,7 +24,13 @@ public sealed class CooPageHeader : Grid
     private ThemeController? _theme;
     private IHouseholdStore? _households;
     private Coo.Mobile.Application.Households.BabyAvatarSyncService? _avatarSync;
+    private BabyFocus? _focus;
+    private List<Coo.Domain.Households.BabyProfile> _babies = [];
     private Action? _longPressBrand;
+    private int _cachedBabyCount;
+
+    /// <summary>Twins and siblings: another baby was chosen (here or on another tab); the page reloads for her.</summary>
+    public event Action? BabyChanged;
 
     private bool? _cachedIsPremium;
     private PaletteKind? _cachedPalette;
@@ -84,6 +90,10 @@ public sealed class CooPageHeader : Grid
         _theme = _services.GetService<ThemeController>();
         _households = _services.GetService<IHouseholdStore>();
         _avatarSync = _services.GetService<Coo.Mobile.Application.Households.BabyAvatarSyncService>();
+        _focus = _services.GetService<BabyFocus>();
+
+        if (_focus != null)
+            _focus.Changed += OnFocusChanged;
 
         if (_billing != null)
             _billing.EntitlementChanged += OnEntitlementChanged;
@@ -101,6 +111,9 @@ public sealed class CooPageHeader : Grid
 
     public void DetachServices()
     {
+        if (_focus != null)
+            _focus.Changed -= OnFocusChanged;
+
         if (_billing != null)
             _billing.EntitlementChanged -= OnEntitlementChanged;
 
@@ -109,6 +122,31 @@ public sealed class CooPageHeader : Grid
 
         if (_avatarSync != null)
             _avatarSync.AvatarChanged -= OnAvatarChanged;
+    }
+
+    private void OnFocusChanged() => Dispatcher.Dispatch(() =>
+    {
+        _ = UpdateBabyChipAsync();
+        BabyChanged?.Invoke();
+    });
+
+    /// <summary>The chip's picker, with two or more babies: which one this phone shows.</summary>
+    private async Task ChooseBabyAsync()
+    {
+        if (_focus is null || _babies.Count < 2 || FindPage() is not { } page)
+            return;
+        var others = _babies.Skip(1).ToList();
+        var choice = await CooDialog.ChooseAsync(page, Strings.Get("Sibling.Choose"), [.. others.Select(b => b.Name)]);
+        if (choice >= 0 && choice < others.Count)
+            await _focus.FocusAsync(others[choice].Id, CancellationToken.None);
+    }
+
+    private Page? FindPage()
+    {
+        Element? element = this;
+        while (element is not null and not Page)
+            element = element.Parent;
+        return element as Page;
     }
 
     private void OnAvatarChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(() =>
@@ -204,6 +242,7 @@ public sealed class CooPageHeader : Grid
                 return;
             }
 
+            _babies = babies;
             var baby = babies[0];
             var babyName = baby.Name;
             var initialText = babyName.Length > 0 ? babyName[..1].ToUpper(Strings.Culture) : "";
@@ -217,8 +256,12 @@ public sealed class CooPageHeader : Grid
                 ? await preferences.GetBabyAvatarAsync(baby.Id.Value, CancellationToken.None)
                 : null;
 
-            if (babyName == _cachedBabyName && ageText == _cachedAgeText && avatarRef == _cachedAvatarRef && _babyChipContainer.Content != null)
+            if (babyName == _cachedBabyName && ageText == _cachedAgeText && avatarRef == _cachedAvatarRef && babies.Count == _cachedBabyCount
+                && _babyChipContainer.Content != null)
                 return;
+
+            _cachedBabyCount = babies.Count;
+            var hasSiblings = babies.Count > 1;
 
             _cachedBabyName = babyName;
             _cachedAgeText = ageText;
@@ -234,7 +277,7 @@ public sealed class CooPageHeader : Grid
                     Children =
                     {
                         avatar,
-                        Ui.Text($"{babyName} · {ageText}", "BodyStrong").Tap(l =>
+                        Ui.Text(hasSiblings ? $"{babyName} · {ageText} ▾" : $"{babyName} · {ageText}", "BodyStrong").Tap(l =>
                         {
                             l.VerticalOptions = LayoutOptions.Center;
                             // One line, cut with "…": a long name pushed into the brand and the moon.
@@ -245,7 +288,10 @@ public sealed class CooPageHeader : Grid
                     }
                 };
 
-                _babyChipContainer.Content = Ui.Rounded(chipContent, "Surface", 999, new Thickness(5, 5, 14, 5), "Line");
+                var chip = Ui.Rounded(chipContent, "Surface", 999, new Thickness(5, 5, 14, 5), "Line");
+                if (hasSiblings)
+                    chip.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await ChooseBabyAsync()) });
+                _babyChipContainer.Content = chip;
             });
         }
         catch (Exception)

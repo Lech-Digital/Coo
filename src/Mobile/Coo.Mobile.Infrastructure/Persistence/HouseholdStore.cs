@@ -73,13 +73,22 @@ internal sealed class HouseholdStore(LocalDatabase database, TimeProvider time, 
         await Outbox.AppendAsync(connection, transaction, SyncedEntityType.HouseholdSettings, settings.Id.Value, settings.IsDeleted, settings.Version, time, cancellationToken);
     }
 
+    public async Task FocusBabyAsync(BabyId baby, CancellationToken cancellationToken)
+    {
+        await using var connection = await database.OpenAsync(cancellationToken);
+        await connection.ExecuteAsync(
+            "INSERT INTO app_state (key, value) VALUES ('focused_baby', $v) ON CONFLICT (key) DO UPDATE SET value = excluded.value;",
+            cancellationToken, null, ("$v", Columns.Id(baby.Value)));
+    }
+
     public async Task<IReadOnlyList<BabyProfile>> ListBabiesAsync(HouseholdId household, CancellationToken cancellationToken)
     {
         await using var connection = await database.OpenAsync(cancellationToken);
         await using var command = connection.Command(
             """
             SELECT id, household_id, name, nicknames, birth_date, due_date, version_wall_ms, version_counter, version_device, is_deleted, sex
-            FROM baby_profiles WHERE household_id = $household AND is_deleted = 0 ORDER BY coalesce(birth_date, due_date), name;
+            FROM baby_profiles WHERE household_id = $household AND is_deleted = 0
+            ORDER BY coalesce(id = (SELECT value FROM app_state WHERE key = 'focused_baby'), 0) DESC, coalesce(birth_date, due_date), name;
             """,
             null,
             ("$household", Columns.Id(household.Value)));

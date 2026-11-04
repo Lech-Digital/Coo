@@ -46,6 +46,7 @@ public sealed class StatsPage : ContentPage
         _averages = services.GetRequiredService<AveragesViewModel>();
         _growth = services.GetRequiredService<Coo.Mobile.Presentation.Growth.GrowthViewModel>();
         _plan = services.GetRequiredService<Coo.Mobile.Presentation.SleepPlan.SleepPlanViewModel>();
+        _pageHeader.BabyChanged += () => Dispatcher.Dispatch(async () => await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync()));
         _services = services;
         Shell.SetNavBarIsVisible(this, false);
         _page = new ScrollView
@@ -152,6 +153,36 @@ public sealed class StatsPage : ContentPage
         }
 
         return new Card(stack);
+    }
+
+    /// <summary>Twins and siblings: the average day for each born baby, a column each, for the period chosen above.</summary>
+    private Card? SideBySideCard()
+    {
+        if (_averages.CompareNames.Count < 2 || _averages.Compare.Count == 0)
+            return null;
+        var names = _averages.CompareNames;
+        var table = new Grid { ColumnSpacing = 12, RowSpacing = 8 };
+        table.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+        for (var i = 0; i < names.Count; i++)
+        {
+            table.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
+            table.Add(Ui.Text(names[i], "Meta", "Ink2").Tap(l => { l.MaxLines = 1; l.LineBreakMode = LineBreakMode.TailTruncation; l.MaximumWidthRequest = 90; }), i + 1, 0);
+        }
+
+        table.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+        var row = 1;
+        foreach (var measure in _averages.Compare)
+        {
+            var look = EventAppearance.For(measure.KindCode);
+            table.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+            table.Add(Ui.Text(measure.Name, "Body"), 0, row);
+            for (var i = 0; i < measure.Values.Count; i++)
+                table.Add(Ui.Text(measure.Values[i], "BodyStrong", look.Ink), i + 1, row);
+            SemanticProperties.SetDescription(table, string.Join(". ", _averages.Compare.Select(m => $"{m.Name}: {string.Join(", ", names.Zip(m.Values, (n, v) => $"{n} {v}"))}")));
+            row++;
+        }
+
+        return new Card(new VerticalStackLayout { Spacing = 10, Children = { Ui.Text(Strings.Get("Averages.SideBySide"), "BodyStrong"), table } });
     }
 
     /// <summary>The sleep plan (Spec 019 §7): the day of a running plan, or the way to start one; a tap opens it.</summary>
@@ -439,6 +470,8 @@ public sealed class StatsPage : ContentPage
         _content.Children.Clear();
         _content.Add(Ui.Text(Strings.Get("Stats.Title"), "Title"));
         _content.Add(AveragesCard());
+        if (SideBySideCard() is { } twins)
+            _content.Add(twins);
         if (GrowthCard() is { } growth)
             _content.Add(growth);
         if (SleepPlanCard() is { } plan)

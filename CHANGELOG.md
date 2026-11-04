@@ -33,6 +33,11 @@ release.
 - **How right the nap times have been**: "Why this time?" now says how many of the last two weeks' nap and bedtime
   windows were right for your baby ("12 of 15"), worked out on your phone from your own log.
 
+- **Twins and siblings**: tap the baby's name at the top to choose which baby Coo shows; every tab follows. Today shows
+  the others at a glance ("Mia · asleep 40 m · fed 1 h 20 m ago", a tap switches), "Log for both" logs a diaper,
+  bottle or sleep for each of them at once (one Undo takes them all back), and Stats puts their average days side by
+  side.
+
 ### Changed
 - **Personal nap times are free**: when the next nap or bedtime is likely, on Today, in the widget, and the nap
   reminder. They are worked out on your phone and cost nothing to run.

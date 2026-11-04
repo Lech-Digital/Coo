@@ -26,7 +26,8 @@ internal sealed record SectionHost(
     Action OpenHealth,
     Action<NextUpSection> OpenSleepWhy,
     Action OpenPremium,
-    Action? OpenSleepPlan = null);
+    Action? OpenSleepPlan = null,
+    Action? ChooseBaby = null);
 
 /// <summary>
 /// A view that redraws when its source changes, coalesced to one redraw per change burst. Off screen it only notes the
@@ -124,6 +125,7 @@ internal static class SectionViews
     public static View Create(IHomeSection section, SectionHost host) => section switch
     {
         BabyHeaderSection s => Live(s, () => Header(s, host)),
+        SiblingsSection s => Live(s, () => Siblings(s, host)),
         DueDateSection s => Live(s, () => DueDate(s)),
         StatusHeroSection s => Live(s, () => Hero(s), nameof(StatusHeroSection.Eyebrow), nameof(StatusHeroSection.Value), nameof(StatusHeroSection.Context)),
         RunningSection s => Live(s, () => RunningCards(s.Items, night: false, host)),
@@ -176,14 +178,48 @@ internal static class SectionViews
         var chip = Ui.Rounded(new HorizontalStackLayout
         {
             Spacing = 8,
-            Children = { avatar, Ui.Text($"{s.BabyName} · {s.Age}", "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center) },
+            Children = { avatar, Ui.Text(s.HasSiblings ? $"{s.BabyName} · {s.Age} ▾" : $"{s.BabyName} · {s.Age}", "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center) },
         }, "Surface", 999, new Thickness(5, 5, 14, 5), "Line");
+        // Twins and siblings: the chip chooses which baby this phone shows.
+        if (s.HasSiblings && host.ChooseBaby is { } choose)
+            chip.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(choose) });
 
         var grid = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto)], ColumnSpacing = 4, Padding = new Thickness(24, 16, 24, 8) };
         grid.Add(mark, 0);
         grid.Add(ThemeSwitch(host), 1);
         grid.Add(chip, 2);
         return grid;
+    }
+
+    /// <summary>Twins and siblings: one row per other baby, "Mia · asleep 40 m · fed 1 h 20 m ago"; a tap shows her.</summary>
+    private static View Siblings(SiblingsSection s, SectionHost host)
+    {
+        if (s.Siblings.Count == 0)
+            return new ContentView();
+        var stack = new VerticalStackLayout { Spacing = 8, Margin = new Thickness(24, 4, 24, 0) };
+        foreach (var sibling in s.Siblings)
+        {
+            var row = Ui.Rounded(new HorizontalStackLayout
+            {
+                Spacing = 6,
+                Children = { Ui.Text(sibling.Name, "BodyStrong"), Ui.Text("· " + sibling.Line, "Body", "Ink2") },
+            }, "Surface", 14, new Thickness(14, 10), "Line");
+            var id = sibling.Id;
+            row.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await host.Today.FocusAsync(id)) });
+            SemanticProperties.SetDescription(row, $"{Strings.Get("Sibling.Choose")} {sibling.Name}: {sibling.Line}");
+            stack.Add(row);
+        }
+
+        // "Log for both": diapers, bottles and sleeps go to each of them, until turned off.
+        if (s.LogForAllLabel.Length > 0)
+        {
+            var toggle = new Button { Text = (s.LogForAll ? "✓ " : "") + s.LogForAllLabel, HorizontalOptions = LayoutOptions.Start };
+            toggle.SetDynamicResource(VisualElement.StyleProperty, s.LogForAll ? "PrimaryButton" : "GhostButton");
+            toggle.Clicked += async (_, _) => await host.Today.ToggleLogForAllAsync();
+            stack.Add(toggle);
+        }
+
+        return stack;
     }
 
     private static View DueDate(DueDateSection s)

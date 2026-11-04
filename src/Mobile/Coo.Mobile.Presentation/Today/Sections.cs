@@ -191,6 +191,10 @@ public sealed partial class BabyHeaderSection : ObservableObject, IHomeSection
     [ObservableProperty]
     private string? _avatarRef;
 
+    /// <summary>Twins or siblings: the chip opens the picker.</summary>
+    [ObservableProperty]
+    private bool _hasSiblings;
+
     public bool AppliesTo(HomeStage stage, PaletteKind palette) => palette == PaletteKind.Day || stage == HomeStage.Expecting;
 
     public void Update(HomeSnapshot snapshot)
@@ -201,6 +205,59 @@ public sealed partial class BabyHeaderSection : ObservableObject, IHomeSection
         Age = snapshot.Baby.IsBorn ? Formats.Age(snapshot.Baby, DateOnly.FromDateTime(snapshot.Now.LocalDateTime)) : Strings.Get("Expecting.Eyebrow");
         IsPremium = snapshot.IsPremium;
         AvatarRef = snapshot.AvatarRef;
+        HasSiblings = snapshot.Siblings is { Count: > 0 };
+    }
+}
+
+/// <summary>Twins and siblings: the family's other babies at a glance, each a tap away (day and night).</summary>
+public sealed partial class SiblingsSection : ObservableObject, IHomeSection
+{
+    public int Order => 5;
+
+    [ObservableProperty]
+    private IReadOnlyList<SiblingGlance> _siblings = [];
+
+    /// <summary>"Log for both" is on: a diaper, bottle or sleep goes to every born baby.</summary>
+    [ObservableProperty]
+    private bool _logForAll;
+
+    /// <summary>"Log for both", or "Log for all" with three or more; empty when no other baby is born or this one is not.</summary>
+    [ObservableProperty]
+    private string _logForAllLabel = "";
+
+    public bool AppliesTo(HomeStage stage, PaletteKind palette) => true;
+
+    public void Update(HomeSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        var next = snapshot.Siblings ?? [];
+        if (!next.SequenceEqual(Siblings))
+            Siblings = next;
+        LogForAll = snapshot.LogForAll;
+        var born = snapshot.Baby.IsBorn && !snapshot.ViewOnly ? next.Count(g => g.IsBorn) : 0;
+        LogForAllLabel = born switch
+        {
+            0 => "",
+            1 => Strings.Get("Sibling.LogBoth"),
+            _ => Strings.Get("Sibling.LogAll"),
+        };
+    }
+
+    /// <summary>"asleep 40 m · fed 1 h 20 m ago", "feeding", or "no entries today" for a sibling's day.</summary>
+    public static string Line(TodaySummary? summary, DateTimeOffset now)
+    {
+        if (summary is null)
+            return Strings.Get("Expecting.Eyebrow");
+        var parts = new List<string>();
+        if (summary.Running.FirstOrDefault(e => e.Details is SleepDetails) is { } sleep)
+            parts.Add(Strings.Format("Sibling.Asleep", Formats.Duration(now - sleep.Timing.OccurredAt)));
+        else if (summary.AwakeSince is { } awake)
+            parts.Add(Strings.Format("Sibling.Awake", Formats.Duration(now - awake)));
+        if (summary.Running.Any(e => e.Details is FeedingDetails))
+            parts.Add(Strings.Get("Sibling.Feeding"));
+        else if (summary.LastFeed is { } feed && now >= feed.Timing.OccurredAt)
+            parts.Add(Strings.Format("Sibling.Fed", Formats.Duration(now - feed.Timing.OccurredAt)));
+        return parts.Count > 0 ? string.Join(" · ", parts) : Strings.Get("Sibling.Nothing");
     }
 }
 

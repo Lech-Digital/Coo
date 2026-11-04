@@ -55,6 +55,7 @@ public sealed class AdvisorPage : ContentPage
     {
         // 1. Shared standard Page Header
         _pageHeader = new CooPageHeader(_services);
+        _pageHeader.BabyChanged += () => Dispatcher.Dispatch(async () => await _model.InitializeAsync());
 
         // Subheader action bar for Advisor (History drawer button + New chat button)
         var historyIcon = new Label

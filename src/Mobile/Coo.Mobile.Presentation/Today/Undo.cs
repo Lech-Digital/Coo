@@ -73,12 +73,19 @@ public sealed class UndoService(DeleteEntry delete, ReviseEntry revise, UndoFeed
         DataChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    public void OfferUndoForLog(EntryId created, string message) =>
+    public void OfferUndoForLog(EntryId created, string message) => OfferUndoForLog([created], message);
+
+    /// <summary>One log written for several babies at once (twins): Undo takes them all back.</summary>
+    public void OfferUndoForLog(IReadOnlyCollection<EntryId> created, string message)
+    {
+        ArgumentNullException.ThrowIfNull(created);
         Offer(message, async () =>
         {
-            await delete.ExecuteAsync(created, CancellationToken.None);
+            foreach (var id in created)
+                await delete.ExecuteAsync(id, CancellationToken.None);
             return true;
         });
+    }
 
     /// <summary>
     /// Offers to put back what an edit changed: details, timing and note, each as its own revision. <paramref name="before"/>

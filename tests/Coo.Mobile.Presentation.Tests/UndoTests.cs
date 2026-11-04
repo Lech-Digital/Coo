@@ -88,6 +88,29 @@ public sealed class UndoTests : IDisposable
     }
 
     [Fact]
+    public async Task OfferUndoForLog_OneLogForTwins_UndoTakesBothBack()
+    {
+        // Arrange
+        var lena = Diaper();
+        var mia = Diaper();
+        foreach (var entry in new[] { lena, mia })
+        {
+            _store.FindAsync(entry.Id, Arg.Any<CancellationToken>()).Returns(new LiveEntry(entry));
+            _store.DeleteAsync(entry.Id, Arg.Any<HlcStamp>(), Arg.Any<CancellationToken>()).Returns(true);
+        }
+
+        using var undo = Undo();
+
+        // Act
+        undo.OfferUndoForLog([lena.Id, mia.Id], "Logged · Diaper · Lena, Mia");
+        await undo.UndoAsync();
+
+        // Assert
+        await _store.Received(1).DeleteAsync(lena.Id, Arg.Any<HlcStamp>(), Arg.Any<CancellationToken>());
+        await _store.Received(1).DeleteAsync(mia.Id, Arg.Any<HlcStamp>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task OfferUndoForEdit_Undo_WritesThePreviousValuesAsANewRevision()
     {
         // Arrange: the entry was wet; an edit made it dirty.

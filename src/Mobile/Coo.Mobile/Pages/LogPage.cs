@@ -34,6 +34,7 @@ public sealed class LogPage : ContentPage
         _theme = theme;
         _services = services;
         _pageHeader = new CooPageHeader(services);
+        _pageHeader.BabyChanged += () => Dispatcher.Dispatch(async () => await _model.RefreshAsync());
         Shell.SetNavBarIsVisible(this, false);
 
         var outerStack = new VerticalStackLayout

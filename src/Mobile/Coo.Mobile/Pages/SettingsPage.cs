@@ -62,6 +62,7 @@ public sealed class SettingsPage : ContentPage
         _undo = undo;
         _services = services;
         _pageHeader = new CooPageHeader(services);
+        _pageHeader.BabyChanged += () => Dispatcher.Dispatch(async () => await _model.RefreshAsync());
         Shell.SetNavBarIsVisible(this, false);
 
         var root = new Grid();

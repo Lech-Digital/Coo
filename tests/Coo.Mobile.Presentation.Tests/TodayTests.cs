@@ -64,6 +64,75 @@ public sealed class TodayTests
     }
 
     [Fact]
+    public async Task LogDiaperAsync_LogForBoth_SavesOneForEachTwinButABreastFeedOnlyForTheShownOne()
+    {
+        // Arrange
+        var mia = new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9"));
+        var actions = Actions();
+        actions.Context = new HomeContext(Household, Baby, [mia]);
+        actions.BabyNames = id => id == Baby ? "Lena" : "Mia";
+        var saved = new List<CareEntry>();
+        await _store.SaveAsync(Arg.Do<CareEntry>(saved.Add), Arg.Any<CancellationToken>());
+        ActionOutcome? outcome = null;
+        actions.Done += (_, o) => outcome = o;
+
+        // Act
+        await actions.LogDiaperAsync(Coo.Domain.CareLog.Kinds.Diaper.DiaperContents.Wet);
+        var diapers = saved.ToList();
+        var toast = outcome!.Message;
+        saved.Clear();
+        await actions.StartBreastAsync(BreastSide.Left);
+
+        // Assert
+        diapers.Select(e => ((BabySubject)e.Subject).BabyId).Should().Equal(Baby, mia);
+        toast.Should().EndWith("· Lena, Mia");
+        saved.Should().ContainSingle("a breastfeed is one baby's, on one side").Which.Subject.Should().Be(EntrySubject.Baby(Baby));
+    }
+
+    [Fact]
+    public void SiblingLine_ATwinAsleepAfterAFeed_SaysHowLongAndWhenSheAte()
+    {
+        // Arrange
+        var sleep = Entry(new Coo.Domain.CareLog.Kinds.Sleep.SleepDetails(), EntryTiming.Session(TimeRange.Open(Now.AddMinutes(-40))));
+        var feed = Entry(BottleFeed.Of(Milk.Formula, Volume.FromMillilitres(120).Value).Value, EntryTiming.Point(Now.AddMinutes(-80)));
+        var asleep = new TodaySummary([sleep], feed, null, sleep, null, null, [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc));
+        var awake = new TodaySummary([], null, null, null, null, Now.AddMinutes(-65), [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc));
+        var empty = new TodaySummary([], null, null, null, null, null, [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc));
+
+        // Act
+        var asleepLine = SiblingsSection.Line(asleep, Now);
+        var awakeLine = SiblingsSection.Line(awake, Now);
+        var emptyLine = SiblingsSection.Line(empty, Now);
+
+        // Assert
+        asleepLine.Should().Be("asleep 40 m · fed 1 h 20 m ago");
+        awakeLine.Should().Be("awake 1 h 5 m");
+        emptyLine.Should().Be("nothing logged today");
+    }
+
+    [Fact]
+    public void Update_TwinsInTheFamily_ShowTheOtherAndOpenThePicker()
+    {
+        // Arrange
+        var header = new BabyHeaderSection();
+        var siblings = new SiblingsSection();
+        var mia = new SiblingGlance(new BabyId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000b9")), "Mia", "asleep 40 m");
+        var snapshot = Snapshot(null!, PaletteKind.Day) with { Siblings = [mia] };
+
+        // Act
+        header.Update(snapshot);
+        siblings.Update(snapshot);
+        var alone = new BabyHeaderSection();
+        alone.Update(Snapshot(null!, PaletteKind.Day));
+
+        // Assert
+        header.HasSiblings.Should().BeTrue();
+        siblings.Siblings.Should().ContainSingle().Which.Name.Should().Be("Mia");
+        alone.HasSiblings.Should().BeFalse();
+        siblings.AppliesTo(HomeStage.Born, PaletteKind.Night).Should().BeTrue("twins wake at night too");
+    }
+
+    [Fact]
     public void Update_ExpectedBabyDueInSixWeeks_ShowsTheCountdown()
     {
         // Arrange
@@ -115,8 +184,8 @@ public sealed class TodayTests
         };
     }
 
-    private CareEntry Entry(EntryDetails details) =>
-        CareEntry.Create(new EntryId(Guid.CreateVersion7(Now)), Household, EntrySubject.Baby(Baby), details, null,
+    private CareEntry Entry(EntryDetails details, EntryTiming? timing = null) =>
+        CareEntry.Create(new EntryId(Guid.CreateVersion7(Now)), Household, EntrySubject.Baby(Baby), details, timing,
             PersonRef.ThisDevicesPerson, EntrySource.Timer, new HlcStamp(++_wall, 0, Device), Now).Value;
 
     private static HouseholdSettings Settings() =>

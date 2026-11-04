@@ -106,6 +106,7 @@
   <data name="Averages.Milk" xml:space="preserve"><value>Melk uit de fles</value></data>
   <data name="Averages.Nothing" xml:space="preserve"><value>Niets gelogd in de laatste {0} dagen.</value></data>
   <data name="Averages.Pumped" xml:space="preserve"><value>Gekolfd</value></data>
+  <data name="Averages.SideBySide" xml:space="preserve"><value>Naast elkaar</value></data>
   <data name="Averages.Sleep" xml:space="preserve"><value>Slaap</value></data>
   <data name="Averages.Title" xml:space="preserve"><value>Op een gemiddelde dag</value></data>
   <data name="Awake.Hint" xml:space="preserve"><value>Bij een droomvoeding of een slaperige verschoning kies je ‘Slaapt nog’.</value></data>
@@ -830,6 +831,14 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Setup.SignIn" xml:space="preserve"><value>Gebruik je Coo al? Log in</value></data>
   <data name="Setup.Title" xml:space="preserve"><value>Welkom bij Coo</value></data>
   <data name="Setup.Yes" xml:space="preserve"><value>Ja</value></data>
+  <data name="Sibling.Asleep" xml:space="preserve"><value>slaapt al {0}</value></data>
+  <data name="Sibling.Awake" xml:space="preserve"><value>wakker sinds {0}</value></data>
+  <data name="Sibling.Choose" xml:space="preserve"><value>Toon</value></data>
+  <data name="Sibling.Fed" xml:space="preserve"><value>{0} geleden gevoed</value></data>
+  <data name="Sibling.Feeding" xml:space="preserve"><value>drinkt</value></data>
+  <data name="Sibling.LogAll" xml:space="preserve"><value>Voor allemaal loggen</value></data>
+  <data name="Sibling.LogBoth" xml:space="preserve"><value>Voor beiden loggen</value></data>
+  <data name="Sibling.Nothing" xml:space="preserve"><value>vandaag niets gelogd</value></data>
   <data name="Side.L" xml:space="preserve"><value>L</value></data>
   <data name="Side.Left" xml:space="preserve"><value>links</value></data>
   <data name="Side.R" xml:space="preserve"><value>R</value></data>

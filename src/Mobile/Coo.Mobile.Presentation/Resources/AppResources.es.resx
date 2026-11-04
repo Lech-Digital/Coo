@@ -106,6 +106,7 @@
   <data name="Averages.Milk" xml:space="preserve"><value>Leche en biberón</value></data>
   <data name="Averages.Nothing" xml:space="preserve"><value>Nada registrado en los últimos {0} días.</value></data>
   <data name="Averages.Pumped" xml:space="preserve"><value>Extraída</value></data>
+  <data name="Averages.SideBySide" xml:space="preserve"><value>Lado a lado</value></data>
   <data name="Averages.Sleep" xml:space="preserve"><value>Sueño</value></data>
   <data name="Averages.Title" xml:space="preserve"><value>En un día medio</value></data>
   <data name="Awake.Hint" xml:space="preserve"><value>Para una toma dormida o un cambio medio dormido, elige «Sigue dormido».</value></data>
@@ -830,6 +831,14 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Setup.SignIn" xml:space="preserve"><value>¿Ya usas Coo? Inicia sesión</value></data>
   <data name="Setup.Title" xml:space="preserve"><value>Te damos la bienvenida a Coo</value></data>
   <data name="Setup.Yes" xml:space="preserve"><value>Sí</value></data>
+  <data name="Sibling.Asleep" xml:space="preserve"><value>duerme desde hace {0}</value></data>
+  <data name="Sibling.Awake" xml:space="preserve"><value>despierto desde hace {0}</value></data>
+  <data name="Sibling.Choose" xml:space="preserve"><value>Mostrar</value></data>
+  <data name="Sibling.Fed" xml:space="preserve"><value>comió hace {0}</value></data>
+  <data name="Sibling.Feeding" xml:space="preserve"><value>comiendo</value></data>
+  <data name="Sibling.LogAll" xml:space="preserve"><value>Registrar para todos</value></data>
+  <data name="Sibling.LogBoth" xml:space="preserve"><value>Registrar para los dos</value></data>
+  <data name="Sibling.Nothing" xml:space="preserve"><value>nada registrado hoy</value></data>
   <data name="Side.L" xml:space="preserve"><value>I</value></data>
   <data name="Side.Left" xml:space="preserve"><value>izquierdo</value></data>
   <data name="Side.R" xml:space="preserve"><value>D</value></data>

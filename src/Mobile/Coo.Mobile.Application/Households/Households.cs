@@ -16,7 +16,14 @@ public interface IHouseholdStore
     /// <summary>Saves the settings and appends their outbox row, in one transaction.</summary>
     Task SaveSettingsAsync(HouseholdSettings settings, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// The household's babies, the one in focus on this phone (<see cref="FocusBabyAsync"/>) first, then by birth: callers
+    /// that show one baby take the first live one, so every screen follows the parent's choice.
+    /// </summary>
     Task<IReadOnlyList<BabyProfile>> ListBabiesAsync(HouseholdId household, CancellationToken cancellationToken);
+
+    /// <summary>Twins and siblings: which baby this phone shows. Local to the phone, never synced.</summary>
+    Task FocusBabyAsync(BabyId baby, CancellationToken cancellationToken) => Task.CompletedTask;
 
     /// <summary>Saves the baby and appends its outbox row, in one transaction.</summary>
     Task SaveBabyAsync(BabyProfile baby, CancellationToken cancellationToken);
