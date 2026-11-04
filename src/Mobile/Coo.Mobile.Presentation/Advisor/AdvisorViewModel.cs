@@ -471,7 +471,7 @@ public partial class AdvisorViewModel(
 
     internal static string ErrorText(string? code, int? limit) => code switch
     {
-        "advisor.daily-limit" => Strings.Format("Advisor.Error.daily-limit", limit ?? 100),
+        "advisor.daily-limit" => Strings.Format("Advisor.Error.daily-limit", limit ?? 20),
         "advisor.free-limit" => Strings.Format("Advisor.Error.free-limit", limit ?? 3),
         _ => Strings.Get("Advisor.Error.unavailable"),
     };

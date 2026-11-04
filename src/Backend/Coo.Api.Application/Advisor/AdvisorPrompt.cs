@@ -4,7 +4,11 @@ namespace Coo.Api.Application.Advisor;
 public static class AdvisorPrompt
 {
     public const int FreeDailyQuestions = 3;
-    public const int PremiumDailyQuestions = 100;
+    /// <summary>
+    /// 20 a day keeps the worst month under what Premium brings in (owner, 2026-11-04): 600 answers at about $0.002, plus
+    /// at most 60 better ones at $0.012 (2027 prices), is about $2 against about $2.30 a month after Play's fee.
+    /// </summary>
+    public const int PremiumDailyQuestions = 20;
     public const int MaxQuestionLength = 1000;
     /// <summary>The phone's log summary: two days entry by entry, two weeks by day, four weeks by week (about 4,000 tokens).</summary>
     public const int MaxContextLength = 16000;

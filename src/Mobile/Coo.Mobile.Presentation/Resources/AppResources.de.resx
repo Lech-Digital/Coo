@@ -41,7 +41,7 @@
   <data name="Advisor.Disclaimer" xml:space="preserve"><value>Allgemeine Informationen, keine ärztliche Beratung. Wenn du dir Sorgen machst, ruf deine Ärztin oder deinen Arzt an; im Notfall die 112.</value></data>
   <data name="Advisor.Done" xml:space="preserve"><value>Fertig</value></data>
   <data name="Advisor.Error.daily-limit" xml:space="preserve"><value>Das waren die {0} Fragen für heute. Frag morgen wieder.</value></data>
-  <data name="Advisor.Error.free-limit" xml:space="preserve"><value>Das waren die {0} kostenlosen Fragen für heute. Mit Coo Premium sind es bis zu 100 am Tag.</value></data>
+  <data name="Advisor.Error.free-limit" xml:space="preserve"><value>Das waren die {0} kostenlosen Fragen für heute. Mit Coo Premium sind es bis zu 20 am Tag.</value></data>
   <data name="Advisor.Error.offline" xml:space="preserve"><value>Der Berater ist nicht erreichbar. Prüf deine Verbindung und versuch es noch einmal.</value></data>
   <data name="Advisor.Error.unavailable" xml:space="preserve"><value>Der Berater kann gerade nicht antworten. Bitte versuch es gleich noch einmal.</value></data>
   <data name="Advisor.GuideSummary" xml:space="preserve"><value>Trag in den Einstellungen das Geburtsdatum ein, um die Meilensteine für das Alter zu sehen.</value></data>
@@ -638,7 +638,7 @@ Tage hell und lebhaft, Nächte dunkel und ruhig; nächtliches Füttern ruhig und
   <data name="Plan.Write" xml:space="preserve"><value>Schreiben</value></data>
   <data name="Plan.Yes" xml:space="preserve"><value>Ja</value></data>
   <data name="Premium.Active" xml:space="preserve"><value>Coo Premium ist für deine ganze Familie aktiv. Danke, dass du Coo unterstützt!</value></data>
-  <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Bis zu 100 Fragen an den Berater pro Tag (3 ohne Premium), mit Antworten, die eure Einträge kennen</value></data>
+  <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Bis zu 20 Fragen an den Berater pro Tag (3 ohne Premium), mit Antworten, die eure Einträge kennen</value></data>
   <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Ein gezeichneter Avatar deines Babys, nach einem Foto</value></data>
   <data name="Premium.Benefit.Family" xml:space="preserve"><value>Ein Kauf gilt für alle in deiner Familie</value></data>
   <data name="Premium.Benefit.Naps" xml:space="preserve"><value>Die eigenen Schlafzeiten deines Babys, gelernt aus dem eingetragenen Schlaf, und eine Erinnerung vor dem nächsten Schläfchen</value></data>

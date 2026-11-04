@@ -41,7 +41,7 @@
   <data name="Advisor.Disclaimer" xml:space="preserve"><value>Información general, no consejo médico. Si te preocupa tu bebé, llama a tu médico; en una emergencia, al 112.</value></data>
   <data name="Advisor.Done" xml:space="preserve"><value>Listo</value></data>
   <data name="Advisor.Error.daily-limit" xml:space="preserve"><value>Ya has hecho las {0} preguntas de hoy. Vuelve mañana.</value></data>
-  <data name="Advisor.Error.free-limit" xml:space="preserve"><value>Ya has hecho las {0} preguntas gratis de hoy. Coo Premium te da hasta 100 al día.</value></data>
+  <data name="Advisor.Error.free-limit" xml:space="preserve"><value>Ya has hecho las {0} preguntas gratis de hoy. Coo Premium te da hasta 20 al día.</value></data>
   <data name="Advisor.Error.offline" xml:space="preserve"><value>No se ha podido contactar con el Asesor. Revisa tu conexión e inténtalo de nuevo.</value></data>
   <data name="Advisor.Error.unavailable" xml:space="preserve"><value>El Asesor no puede responder ahora. Inténtalo de nuevo en un momento.</value></data>
   <data name="Advisor.GuideSummary" xml:space="preserve"><value>Añade la fecha de nacimiento en Ajustes para ver los hitos de su edad.</value></data>
@@ -638,7 +638,7 @@ Días luminosos y animados, noches oscuras y tranquilas; tomas nocturnas tranqui
   <data name="Plan.Write" xml:space="preserve"><value>Escribir</value></data>
   <data name="Plan.Yes" xml:space="preserve"><value>Sí</value></data>
   <data name="Premium.Active" xml:space="preserve"><value>Coo Premium está activo para toda tu familia. ¡Gracias por apoyar Coo!</value></data>
-  <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Hasta 100 preguntas al Asesor al día (3 sin Premium), con respuestas que conocen tu registro</value></data>
+  <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Hasta 20 preguntas al Asesor al día (3 sin Premium), con respuestas que conocen tu registro</value></data>
   <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Un avatar ilustrado de tu bebé, dibujado a partir de una foto</value></data>
   <data name="Premium.Benefit.Family" xml:space="preserve"><value>Una compra cubre a toda tu familia</value></data>
   <data name="Premium.Benefit.Naps" xml:space="preserve"><value>Las horas de siesta propias de tu bebé, aprendidas de los sueños que registras, y un aviso antes de la próxima siesta</value></data>

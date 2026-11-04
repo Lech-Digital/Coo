@@ -41,7 +41,7 @@
   <data name="Advisor.Disclaimer" xml:space="preserve"><value>Informazioni generali, non un parere medico. Se sei preoccupato, chiama il medico; in emergenza il 112.</value></data>
   <data name="Advisor.Done" xml:space="preserve"><value>Fatto</value></data>
   <data name="Advisor.Error.daily-limit" xml:space="preserve"><value>Hai fatto le {0} domande di oggi. Riprova domani.</value></data>
-  <data name="Advisor.Error.free-limit" xml:space="preserve"><value>Hai usato le {0} domande gratuite di oggi. Coo Premium ne offre fino a 100 al giorno.</value></data>
+  <data name="Advisor.Error.free-limit" xml:space="preserve"><value>Hai usato le {0} domande gratuite di oggi. Coo Premium ne offre fino a 20 al giorno.</value></data>
   <data name="Advisor.Error.offline" xml:space="preserve"><value>Impossibile raggiungere il Consulente. Controlla la connessione e riprova.</value></data>
   <data name="Advisor.Error.unavailable" xml:space="preserve"><value>Il Consulente non può rispondere ora. Riprova tra poco.</value></data>
   <data name="Advisor.GuideSummary" xml:space="preserve"><value>Aggiungi la data di nascita nelle Impostazioni per vedere le tappe della sua età.</value></data>
@@ -638,7 +638,7 @@ Giornate luminose e vivaci, notti buie e tranquille; poppate notturne calme e br
   <data name="Plan.Write" xml:space="preserve"><value>Scrivi</value></data>
   <data name="Plan.Yes" xml:space="preserve"><value>Sì</value></data>
   <data name="Premium.Active" xml:space="preserve"><value>Coo Premium è attivo per tutta la famiglia. Grazie per sostenere Coo!</value></data>
-  <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Fino a 100 domande al Consulente al giorno (3 senza Premium), con risposte che conoscono il tuo registro</value></data>
+  <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Fino a 20 domande al Consulente al giorno (3 senza Premium), con risposte che conoscono il tuo registro</value></data>
   <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Un avatar illustrato del tuo bambino, disegnato da una foto</value></data>
   <data name="Premium.Benefit.Family" xml:space="preserve"><value>Un solo acquisto copre tutta la famiglia</value></data>
   <data name="Premium.Benefit.Naps" xml:space="preserve"><value>Gli orari dei sonnellini del tuo bambino, imparati dai sonni che registri, e un promemoria prima del prossimo</value></data>

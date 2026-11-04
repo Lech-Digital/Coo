@@ -59,7 +59,8 @@ release.
   than "couldn't reach the Advisor" when Google's AI is overloaded. Answers come from the fastest model first, and Tell
   Coo reads what you say faster too.
 - **With Premium, better Advisor answers**: up to 60 a month from a stronger model (Gemini 3.6 Flash), then the standard
-  one.
+  one. Premium's Advisor allowance is 20 questions a day (was 100), so the AI costs of the heaviest month stay within
+  what Premium brings in.
 - **Bottle amounts in steps of 5 ml**: + and − on the bottle go 75, 80, 85 instead of 75, 85, 95 (ounces stay at ½ oz).
 - **Personal nap times are free**: when the next nap or bedtime is likely, on Today, in the widget, and the nap
   reminder. They are worked out on your phone and cost nothing to run.

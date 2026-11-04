@@ -42,7 +42,7 @@
   <data name="Advisor.Disclaimer" xml:space="preserve"><value>Ogólne informacje, nie porada lekarska. Jeśli martwisz się o dziecko, zadzwoń do lekarza; w nagłym wypadku na 112.</value></data>
   <data name="Advisor.Done" xml:space="preserve"><value>Gotowe</value></data>
   <data name="Advisor.Error.daily-limit" xml:space="preserve"><value>To już {0} pytań na dziś. Zapytaj jutro.</value></data>
-  <data name="Advisor.Error.free-limit" xml:space="preserve"><value>To już {0} darmowe pytania na dziś. Coo Premium daje do 100 dziennie.</value></data>
+  <data name="Advisor.Error.free-limit" xml:space="preserve"><value>To już {0} darmowe pytania na dziś. Coo Premium daje do 20 dziennie.</value></data>
   <data name="Advisor.Error.offline" xml:space="preserve"><value>Nie udało się połączyć z Doradcą. Sprawdź połączenie i spróbuj ponownie.</value></data>
   <data name="Advisor.Error.unavailable" xml:space="preserve"><value>Doradca nie może teraz odpowiedzieć. Spróbuj za chwilę.</value></data>
   <data name="Advisor.GuideSummary" xml:space="preserve"><value>Dodaj datę urodzenia w Ustawieniach, aby zobaczyć kamienie milowe dla wieku dziecka.</value></data>
@@ -665,7 +665,7 @@ Dni jasne i aktywne, noce ciemne i ciche; nocne karmienia spokojne i krótkie.</
   <data name="Plan.Write" xml:space="preserve"><value>Napisz</value></data>
   <data name="Plan.Yes" xml:space="preserve"><value>Tak</value></data>
   <data name="Premium.Active" xml:space="preserve"><value>Coo Premium jest aktywne dla całej rodziny. Dziękujemy za wsparcie Coo!</value></data>
-  <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Do 100 pytań do Doradcy dziennie (3 bez Premium), z odpowiedziami opartymi na Waszym dzienniku</value></data>
+  <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Do 20 pytań do Doradcy dziennie (3 bez Premium), z odpowiedziami opartymi na Waszym dzienniku</value></data>
   <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Ilustrowany awatar dziecka, narysowany na podstawie zdjęcia</value></data>
   <data name="Premium.Benefit.Family" xml:space="preserve"><value>Jeden zakup obejmuje całą rodzinę</value></data>
   <data name="Premium.Benefit.Naps" xml:space="preserve"><value>Własne pory drzemek Twojego dziecka, wyliczone z zapisanych snów, i przypomnienie przed kolejną drzemką</value></data>

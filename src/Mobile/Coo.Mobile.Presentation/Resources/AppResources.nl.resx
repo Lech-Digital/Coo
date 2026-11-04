@@ -41,7 +41,7 @@
   <data name="Advisor.Disclaimer" xml:space="preserve"><value>Algemene informatie, geen medisch advies. Maak je je zorgen, bel je huisarts; bij nood 112.</value></data>
   <data name="Advisor.Done" xml:space="preserve"><value>Klaar</value></data>
   <data name="Advisor.Error.daily-limit" xml:space="preserve"><value>Dat waren de {0} vragen van vandaag. Vraag morgen weer.</value></data>
-  <data name="Advisor.Error.free-limit" xml:space="preserve"><value>Dat waren de {0} gratis vragen van vandaag. Met Coo Premium heb je er tot 100 per dag.</value></data>
+  <data name="Advisor.Error.free-limit" xml:space="preserve"><value>Dat waren de {0} gratis vragen van vandaag. Met Coo Premium heb je er tot 20 per dag.</value></data>
   <data name="Advisor.Error.offline" xml:space="preserve"><value>De Adviseur is niet bereikbaar. Controleer je verbinding en probeer het opnieuw.</value></data>
   <data name="Advisor.Error.unavailable" xml:space="preserve"><value>De Adviseur kan nu niet antwoorden. Probeer het zo opnieuw.</value></data>
   <data name="Advisor.GuideSummary" xml:space="preserve"><value>Voeg de geboortedatum toe in Instellingen om de mijlpalen voor die leeftijd te zien.</value></data>
@@ -638,7 +638,7 @@ Dagen licht en levendig, nachten donker en rustig; nachtvoedingen rustig en kort
   <data name="Plan.Write" xml:space="preserve"><value>Schrijven</value></data>
   <data name="Plan.Yes" xml:space="preserve"><value>Ja</value></data>
   <data name="Premium.Active" xml:space="preserve"><value>Coo Premium is actief voor je hele gezin. Bedankt dat je Coo steunt!</value></data>
-  <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Tot 100 vragen per dag aan de Adviseur (3 zonder Premium), met antwoorden die je logboek kennen</value></data>
+  <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Tot 20 vragen per dag aan de Adviseur (3 zonder Premium), met antwoorden die je logboek kennen</value></data>
   <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Een getekende avatar van je baby, gemaakt van een foto</value></data>
   <data name="Premium.Benefit.Family" xml:space="preserve"><value>Eén aankoop geldt voor je hele gezin</value></data>
   <data name="Premium.Benefit.Naps" xml:space="preserve"><value>De eigen dutjestijden van je baby, geleerd van de slaap die je logt, en een herinnering vóór het volgende dutje</value></data>
