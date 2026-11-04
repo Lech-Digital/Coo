@@ -77,12 +77,14 @@ ssh "$HOST" "set -e; mkdir -p $REMOTE_DIR/deploy $REMOTE_DIR/backups $REMOTE_DIR
 
 # ---- Sync -------------------------------------------------------------------------------------
 echo "==> Syncing source ($SHA)"
-rsync -az --delete --exclude 'bin/' --exclude 'obj/' --exclude '.DS_Store' \
+rsync -rlptz --delete --exclude 'bin/' --exclude 'obj/' --exclude '.DS_Store' \
   "$ROOT/src/Shared" "$ROOT/src/Backend" "$HOST:$REMOTE_DIR/src/"
-rsync -az --delete "$ROOT/eng/banned-non-host" "$HOST:$REMOTE_DIR/eng/"
-rsync -az "$ROOT/Dockerfile" "$ROOT/.dockerignore" "$ROOT/NuGet.config" "$ROOT/Directory.Build.props" \
+rsync -rlptz --delete "$ROOT/eng/banned-non-host" "$HOST:$REMOTE_DIR/eng/"
+rsync -rlptz "$ROOT/Dockerfile" "$ROOT/.dockerignore" "$ROOT/NuGet.config" "$ROOT/Directory.Build.props" \
   "$ROOT/Directory.Packages.props" "$ROOT/BannedSymbols.txt" "$ROOT/.editorconfig" "$HOST:$REMOTE_DIR/"
-rsync -az "$ROOT/deploy/docker-compose.prod.yml" "$HOST:$REMOTE_DIR/deploy/"
+rsync -rlptz "$ROOT/deploy/docker-compose.prod.yml" "$HOST:$REMOTE_DIR/deploy/"
+# Copied as root without owners: hand everything to `deploy`, which GitHub's deploy (lechdigital-infra) logs in as.
+ssh "$HOST" "id deploy >/dev/null 2>&1 && find $REMOTE_DIR -path $REMOTE_DIR/backups -prune -o ! -user deploy -print0 | xargs -0 -r chown deploy:deploy || true"
 
 # ---- Build & restart --------------------------------------------------------------------------
 echo "==> Rebuilding containers"
