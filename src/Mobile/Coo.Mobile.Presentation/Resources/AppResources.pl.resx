@@ -231,6 +231,10 @@
   <data name="Entry.Diaper" xml:space="preserve"><value>Pielucha · {0}</value></data>
   <data name="Entry.Fever" xml:space="preserve"><value>Gorączka · {0}</value></data>
   <data name="Entry.Growth" xml:space="preserve"><value>Wzrost · {0}</value></data>
+  <data name="Entry.MilkBagDiscarded" xml:space="preserve"><value>{0} z zapasu, wyrzucone</value></data>
+  <data name="Entry.MilkBagFreezer" xml:space="preserve"><value>{0} w zamrażarce</value></data>
+  <data name="Entry.MilkBagFridge" xml:space="preserve"><value>{0} w lodówce</value></data>
+  <data name="Entry.MilkBagUsed" xml:space="preserve"><value>{0} z zapasu, zużyte</value></data>
   <data name="Entry.Nap" xml:space="preserve"><value>Drzemka · {0}</value></data>
   <data name="Entry.Parts.few" xml:space="preserve"><value>w {0} częściach</value></data>
   <data name="Entry.Parts.many" xml:space="preserve"><value>w {0} częściach</value></data>
@@ -472,6 +476,7 @@ Jeśli link nie otworzy Coo, przejdź w Coo do Ustawienia → Rodzina → Dołą
   <data name="Kind.Growth" xml:space="preserve"><value>Wzrost</value></data>
   <data name="Kind.Medicine" xml:space="preserve"><value>Lek</value></data>
   <data name="Kind.Milestone" xml:space="preserve"><value>Kamień milowy</value></data>
+  <data name="Kind.MilkBag" xml:space="preserve"><value>Zapas mleka</value></data>
   <data name="Kind.Pump" xml:space="preserve"><value>Laktator</value></data>
   <data name="Kind.Sleep" xml:space="preserve"><value>Sen</value></data>
   <data name="Kind.SleepPlan" xml:space="preserve"><value>Plan snu</value></data>
@@ -871,6 +876,32 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Solids.Liked" xml:space="preserve"><value>Smakowało</value></data>
   <data name="Solids.None" xml:space="preserve"><value>Nic szczególnego</value></data>
   <data name="Solids.Reaction" xml:space="preserve"><value>Reakcja</value></data>
+  <data name="Stash.Add" xml:space="preserve"><value>Dodaj woreczek</value></data>
+  <data name="Stash.Amount" xml:space="preserve"><value>Ilość</value></data>
+  <data name="Stash.AmountNeeded" xml:space="preserve"><value>Podaj, ile mleka jest w woreczku.</value></data>
+  <data name="Stash.Dates" xml:space="preserve"><value>Odciągnięte {0} · zużyć do {1}</value></data>
+  <data name="Stash.Discard" xml:space="preserve"><value>Wyrzuć</value></data>
+  <data name="Stash.Empty" xml:space="preserve"><value>W zapasie nie ma jeszcze mleka. Dodaj woreczek, gdy włożysz mleko do lodówki lub zamrażarki.</value></data>
+  <data name="Stash.Expired.few" xml:space="preserve"><value>{0} po terminie</value></data>
+  <data name="Stash.Expired.many" xml:space="preserve"><value>{0} po terminie</value></data>
+  <data name="Stash.Expired.one" xml:space="preserve"><value>{0} po terminie</value></data>
+  <data name="Stash.ExpiredTag" xml:space="preserve"><value>Po terminie</value></data>
+  <data name="Stash.Expressed" xml:space="preserve"><value>Odciągnięte</value></data>
+  <data name="Stash.Freeze" xml:space="preserve"><value>Zamroź</value></data>
+  <data name="Stash.Freezer" xml:space="preserve"><value>Zamrażarka</value></data>
+  <data name="Stash.Fridge" xml:space="preserve"><value>Lodówka</value></data>
+  <data name="Stash.Guidance" xml:space="preserve"><value>Termin przydatności według zaleceń CDC: 4 dni w lodówce, około 6 miesięcy w zamrażarce, 24 godziny po rozmrożeniu, a rozmrożonego mleka nigdy nie zamraża się ponownie. Wyrzuć mleko, które pachnie kwaśno, lub napoczętą butelkę po 2 godzinach.</value></data>
+  <data name="Stash.Hint" xml:space="preserve"><value>Woreczki w lodówce i zamrażarce, najstarsze pierwsze, z ostrzeżeniem przed terminem.</value></data>
+  <data name="Stash.LabelHint" xml:space="preserve"><value>Etykieta (opcjonalnie)</value></data>
+  <data name="Stash.Open" xml:space="preserve"><value>Zapas mleka</value></data>
+  <data name="Stash.SoonTag" xml:space="preserve"><value>Zużyj wkrótce</value></data>
+  <data name="Stash.Thaw" xml:space="preserve"><value>Rozmroź</value></data>
+  <data name="Stash.Thawed" xml:space="preserve"><value>Rozmrożone, w lodówce</value></data>
+  <data name="Stash.Use" xml:space="preserve"><value>Zużyte</value></data>
+  <data name="Stash.UseFirst" xml:space="preserve"><value>Zużyj najpierw</value></data>
+  <data name="Stash.UseSoon.few" xml:space="preserve"><value>{0} woreczki do zużycia wkrótce</value></data>
+  <data name="Stash.UseSoon.many" xml:space="preserve"><value>{0} woreczków do zużycia wkrótce</value></data>
+  <data name="Stash.UseSoon.one" xml:space="preserve"><value>{0} woreczek do zużycia wkrótce</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statystyki</value></data>
   <data name="Stats.Trends" xml:space="preserve"><value>Trendy</value></data>
   <data name="Summary.Hint" xml:space="preserve"><value>Doradca porównuje ten tydzień z poprzednim: sen, karmienia, pieluchy i to, co warto zauważyć.</value></data>

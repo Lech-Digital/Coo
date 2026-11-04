@@ -705,6 +705,7 @@ public sealed partial class EditViewModel(
         "solids" => "Kind.Solids",
         "milestone" => "Kind.Milestone",
         "sleepplan" => "Kind.SleepPlan",
+        "milkbag" => "Kind.MilkBag",
         _ => "Kind.Pump",
     };
 }

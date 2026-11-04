@@ -425,6 +425,10 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
     [ObservableProperty]
     private string _planLine = "";
 
+    /// <summary>"Milk stash · 1 bag to use soon": only when a bag needs using or throwing away; a tap opens the stash.</summary>
+    [ObservableProperty]
+    private string _stashLine = "";
+
     [ObservableProperty]
     private bool _hasContent;
 
@@ -435,6 +439,7 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
         ArgumentNullException.ThrowIfNull(snapshot);
         var t = snapshot.Today;
         PlanLine = SleepPlan.SleepPlanViewModel.TodayLine(snapshot.Plan, TimeOnly.FromDateTime(snapshot.Now.DateTime), snapshot.Formats) ?? "";
+        StashLine = MilkStash.MilkStashViewModel.TodayLine(snapshot.Stash) ?? "";
 
         // 1. Next breast side
         if (t?.LastFeed is { Details: BreastFeed bf })
@@ -500,7 +505,7 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
             }
         }
 
-        HasContent = !string.IsNullOrEmpty(NextSide) || !string.IsNullOrEmpty(SinceFeed) || !string.IsNullOrEmpty(NextNap) || !string.IsNullOrEmpty(PlanLine);
+        HasContent = !string.IsNullOrEmpty(NextSide) || !string.IsNullOrEmpty(SinceFeed) || !string.IsNullOrEmpty(NextNap) || !string.IsNullOrEmpty(PlanLine) || !string.IsNullOrEmpty(StashLine);
     }
 
     /// <summary>"2–3 h" or "60–90 min": the age-typical wake window.</summary>

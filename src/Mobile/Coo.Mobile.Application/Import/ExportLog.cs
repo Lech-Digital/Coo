@@ -84,6 +84,13 @@ public sealed class ExportLog(IHouseholdStore households, ICareLogStore store)
                 row[0] = "Pump";
                 row[6] = Number(pump.Yield?.Total.Millilitres);
                 break;
+            case Coo.Domain.CareLog.Kinds.MilkStash.MilkBagDetails bag:
+                // The place as the name; used or thrown away as the dose, so the stash reads back.
+                row[0] = "Milk stash";
+                row[6] = Number(bag.Volume.Millilitres);
+                row[9] = bag.Place.ToString();
+                row[10] = bag.UsedOn is { } used ? $"used {used:yyyy-MM-dd}" : bag.DiscardedOn is { } gone ? $"discarded {gone:yyyy-MM-dd}" : "";
+                break;
             case MedicineDetails medicine:
                 row[0] = "Medicine";
                 row[9] = medicine.Name;

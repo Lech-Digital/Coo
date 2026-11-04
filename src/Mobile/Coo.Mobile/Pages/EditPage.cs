@@ -46,6 +46,8 @@ public sealed class EditPage : ContentPage
         var stored = await services.GetRequiredService<Coo.Mobile.Application.CareLog.ICareLogStore>().FindAsync(id, CancellationToken.None);
         if (stored is Coo.Mobile.Application.CareLog.LiveEntry { Entry.Details: Coo.Domain.CareLog.Kinds.SleepPlan.SleepPlanDetails })
             return services.GetRequiredService<SleepPlanPage>();
+        if (stored is Coo.Mobile.Application.CareLog.LiveEntry { Entry.Details: Coo.Domain.CareLog.Kinds.MilkStash.MilkBagDetails })
+            return services.GetRequiredService<MilkStashPage>();
         var page = services.GetRequiredService<EditPage>();
         await page.OpenAsync(id);
         return page;
@@ -346,6 +348,7 @@ public sealed class EditPage : ContentPage
         "solids" => "Kind.Solids",
         "milestone" => "Kind.Milestone",
         "sleepplan" => "Kind.SleepPlan",
+        "milkbag" => "Kind.MilkBag",
         _ => "Kind.Pump",
     };
 }

@@ -15,6 +15,7 @@ public sealed record EventAppearance(string TokenPrefix, string Icon)
         ["diaper"] = new("Diaper", IconGeometry.Diaper),
         ["sleep"] = new("Sleep", IconGeometry.Sleep),
         ["pump"] = new("Pump", IconGeometry.Pump),
+        ["milkbag"] = new("Pump", IconGeometry.Pump),
         // Growth and health reuse the four kinds' palettes rather than adding colour tokens.
         ["growth"] = new("Pump", IconGeometry.Growth),
         ["medicine"] = new("Diaper", IconGeometry.Medicine),

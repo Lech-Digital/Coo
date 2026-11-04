@@ -160,7 +160,7 @@ public sealed class TodayPage : ContentPage
             LiveView.Release(old as IVisualTreeElement);
         _sections.Children.Clear();
         foreach (var section in _model.Sections)
-            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model, SwitchToLog, SwitchToAdvisor, OpenVoice, OpenHealth, OpenSleepWhy, OpenPremium, OpenSleepPlan, ChooseBaby)));
+            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model, SwitchToLog, SwitchToAdvisor, OpenVoice, OpenHealth, OpenSleepWhy, OpenPremium, OpenSleepPlan, ChooseBaby, OpenMilkStash)));
         _built = [.. _model.Sections];
         _builtLanguage = Strings.Language;
     }
@@ -175,6 +175,8 @@ public sealed class TodayPage : ContentPage
         if (choice >= 0 && choice < siblings.Count)
             await _model.FocusAsync(siblings[choice].Id);
     });
+
+    private void OpenMilkStash() => Dispatcher.Dispatch(async () => await Navigation.PushAsync(_services.GetRequiredService<MilkStashPage>()));
 
     private void OpenSleepPlan() => Dispatcher.Dispatch(async () => await Navigation.PushAsync(_services.GetRequiredService<SleepPlanPage>()));
 

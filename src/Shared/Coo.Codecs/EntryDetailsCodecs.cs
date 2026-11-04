@@ -25,6 +25,7 @@ public static class EntryDetailsCodecs
         SolidsCodec.Instance,
         MilestoneCodec.Instance,
         SleepPlanCodec.Instance,
+        MilkBagCodec.Instance,
     ];
 
     public static IEntryDetailsCodec? For(EntryKindCode kind) => All.FirstOrDefault(c => c.Kind == kind);

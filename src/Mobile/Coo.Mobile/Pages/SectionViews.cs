@@ -27,7 +27,8 @@ internal sealed record SectionHost(
     Action<NextUpSection> OpenSleepWhy,
     Action OpenPremium,
     Action? OpenSleepPlan = null,
-    Action? ChooseBaby = null);
+    Action? ChooseBaby = null,
+    Action? OpenMilkStash = null);
 
 /// <summary>
 /// A view that redraws when its source changes, coalesced to one redraw per change burst. Off screen it only notes the
@@ -575,6 +576,17 @@ internal static class SectionViews
             if (host.OpenSleepPlan is { } open)
                 planRow.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(open) });
             stack.Add(planRow);
+        }
+
+        if (!string.IsNullOrEmpty(s.StashLine))
+        {
+            var stashRow = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 8 };
+            stashRow.Add(new Icon(IconGeometry.Pump, "PumpInk", 18) { VerticalOptions = LayoutOptions.Center }, 0);
+            stashRow.Add(Ui.Text(s.StashLine, "Body", "Accent").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
+            stashRow.Add(new Icon(IconGeometry.ChevronRight, "Ink2", 16) { VerticalOptions = LayoutOptions.Center }, 2);
+            if (host.OpenMilkStash is { } open)
+                stashRow.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(open) });
+            stack.Add(stashRow);
         }
 
         var card = new Card(stack);

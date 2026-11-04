@@ -221,6 +221,10 @@
   <data name="Entry.Diaper" xml:space="preserve"><value>Pañal · {0}</value></data>
   <data name="Entry.Fever" xml:space="preserve"><value>Fiebre · {0}</value></data>
   <data name="Entry.Growth" xml:space="preserve"><value>Crecimiento · {0}</value></data>
+  <data name="Entry.MilkBagDiscarded" xml:space="preserve"><value>{0} de la reserva, desechada</value></data>
+  <data name="Entry.MilkBagFreezer" xml:space="preserve"><value>{0} en el congelador</value></data>
+  <data name="Entry.MilkBagFridge" xml:space="preserve"><value>{0} en la nevera</value></data>
+  <data name="Entry.MilkBagUsed" xml:space="preserve"><value>{0} de la reserva, usada</value></data>
   <data name="Entry.Nap" xml:space="preserve"><value>Siesta · {0}</value></data>
   <data name="Entry.Parts.one" xml:space="preserve"><value>en {0} parte</value></data>
   <data name="Entry.Parts.other" xml:space="preserve"><value>en {0} partes</value></data>
@@ -451,6 +455,7 @@ Si el enlace no abre Coo, ve a Ajustes → Familia → Unirse a una familia en C
   <data name="Kind.Growth" xml:space="preserve"><value>Crecimiento</value></data>
   <data name="Kind.Medicine" xml:space="preserve"><value>Medicina</value></data>
   <data name="Kind.Milestone" xml:space="preserve"><value>Hito</value></data>
+  <data name="Kind.MilkBag" xml:space="preserve"><value>Reserva de leche</value></data>
   <data name="Kind.Pump" xml:space="preserve"><value>Extracción</value></data>
   <data name="Kind.Sleep" xml:space="preserve"><value>Sueño</value></data>
   <data name="Kind.SleepPlan" xml:space="preserve"><value>Plan de sueño</value></data>
@@ -847,6 +852,30 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Solids.Liked" xml:space="preserve"><value>Le gustó</value></data>
   <data name="Solids.None" xml:space="preserve"><value>Nada especial</value></data>
   <data name="Solids.Reaction" xml:space="preserve"><value>Una reacción</value></data>
+  <data name="Stash.Add" xml:space="preserve"><value>Añadir una bolsa</value></data>
+  <data name="Stash.Amount" xml:space="preserve"><value>Cantidad</value></data>
+  <data name="Stash.AmountNeeded" xml:space="preserve"><value>Indica cuánta leche hay en la bolsa.</value></data>
+  <data name="Stash.Dates" xml:space="preserve"><value>Extraída {0} · usar antes de {1}</value></data>
+  <data name="Stash.Discard" xml:space="preserve"><value>Desechar</value></data>
+  <data name="Stash.Empty" xml:space="preserve"><value>Aún no hay leche en la reserva. Añade una bolsa cuando guardes leche en la nevera o el congelador.</value></data>
+  <data name="Stash.Expired.one" xml:space="preserve"><value>{0} caducada</value></data>
+  <data name="Stash.Expired.other" xml:space="preserve"><value>{0} caducadas</value></data>
+  <data name="Stash.ExpiredTag" xml:space="preserve"><value>Caducada</value></data>
+  <data name="Stash.Expressed" xml:space="preserve"><value>Extraída</value></data>
+  <data name="Stash.Freeze" xml:space="preserve"><value>Congelar</value></data>
+  <data name="Stash.Freezer" xml:space="preserve"><value>Congelador</value></data>
+  <data name="Stash.Fridge" xml:space="preserve"><value>Nevera</value></data>
+  <data name="Stash.Guidance" xml:space="preserve"><value>La fecha sigue las recomendaciones de los CDC: 4 días en la nevera, unos 6 meses en el congelador, 24 horas una vez descongelada, y la leche descongelada nunca se vuelve a congelar. Desecha la leche que huela agria o un biberón empezado después de 2 horas.</value></data>
+  <data name="Stash.Hint" xml:space="preserve"><value>Bolsas en nevera y congelador, las más antiguas primero, con aviso antes de que caduquen.</value></data>
+  <data name="Stash.LabelHint" xml:space="preserve"><value>Etiqueta (opcional)</value></data>
+  <data name="Stash.Open" xml:space="preserve"><value>Reserva de leche</value></data>
+  <data name="Stash.SoonTag" xml:space="preserve"><value>Usar pronto</value></data>
+  <data name="Stash.Thaw" xml:space="preserve"><value>Descongelar</value></data>
+  <data name="Stash.Thawed" xml:space="preserve"><value>Descongelada, en la nevera</value></data>
+  <data name="Stash.Use" xml:space="preserve"><value>Usada</value></data>
+  <data name="Stash.UseFirst" xml:space="preserve"><value>Usar primero</value></data>
+  <data name="Stash.UseSoon.one" xml:space="preserve"><value>{0} bolsa para usar pronto</value></data>
+  <data name="Stash.UseSoon.other" xml:space="preserve"><value>{0} bolsas para usar pronto</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Estadísticas</value></data>
   <data name="Stats.Trends" xml:space="preserve"><value>Tendencias</value></data>
   <data name="Summary.Hint" xml:space="preserve"><value>El Asesor compara esta semana con la anterior: sueño, tomas, pañales y lo que destaque.</value></data>

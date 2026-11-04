@@ -19,6 +19,7 @@ public sealed class StatsPage : ContentPage
     private readonly WeeklySummaryViewModel _summary;
     private readonly Coo.Mobile.Presentation.Reports.ReportViewModel _report;
     private readonly AveragesViewModel _averages;
+    private readonly Coo.Mobile.Presentation.MilkStash.MilkStashViewModel _stash;
     private readonly Coo.Mobile.Presentation.Growth.GrowthViewModel _growth;
     private readonly Coo.Mobile.Presentation.SleepPlan.SleepPlanViewModel _plan;
     private readonly IServiceProvider _services;
@@ -46,7 +47,8 @@ public sealed class StatsPage : ContentPage
         _averages = services.GetRequiredService<AveragesViewModel>();
         _growth = services.GetRequiredService<Coo.Mobile.Presentation.Growth.GrowthViewModel>();
         _plan = services.GetRequiredService<Coo.Mobile.Presentation.SleepPlan.SleepPlanViewModel>();
-        _pageHeader.BabyChanged += () => Dispatcher.Dispatch(async () => await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync()));
+        _stash = services.GetRequiredService<Coo.Mobile.Presentation.MilkStash.MilkStashViewModel>();
+        _pageHeader.BabyChanged += () => Dispatcher.Dispatch(async () => await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync(), _stash.LoadAsync()));
         _services = services;
         Shell.SetNavBarIsVisible(this, false);
         _page = new ScrollView
@@ -66,11 +68,12 @@ public sealed class StatsPage : ContentPage
         _averages.PropertyChanged += OnChanged;
         _growth.PropertyChanged += OnChanged;
         _plan.PropertyChanged += OnChanged;
+        _stash.PropertyChanged += OnChanged;
         _undo.DataChanged += OnDataChanged;
         _theme.PaletteChanged += OnPaletteChanged;
         _language.Changed += OnLanguageChanged;
         _pageHeader.Refresh();
-        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync());
+        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync(), _stash.LoadAsync());
         if (_content.Children.Count == 0 || _renderedLanguage != Strings.Language)
             QueueRender();
     }
@@ -84,6 +87,7 @@ public sealed class StatsPage : ContentPage
         _averages.PropertyChanged -= OnChanged;
         _growth.PropertyChanged -= OnChanged;
         _plan.PropertyChanged -= OnChanged;
+        _stash.PropertyChanged -= OnChanged;
         _undo.DataChanged -= OnDataChanged;
         _theme.PaletteChanged -= OnPaletteChanged;
         _language.Changed -= OnLanguageChanged;
@@ -94,7 +98,7 @@ public sealed class StatsPage : ContentPage
     private void OnDataChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
     {
         _summary.Invalidate();
-        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync());
+        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync(), _stash.LoadAsync());
     });
 
     // The chart is drawn with the palette's colours, not resources.
@@ -102,7 +106,7 @@ public sealed class StatsPage : ContentPage
 
     private void OnLanguageChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
     {
-        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync());
+        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync(), _stash.LoadAsync());
         QueueRender();
     });
 
@@ -207,6 +211,30 @@ public sealed class StatsPage : ContentPage
             Command = new Command(async () => await Navigation.PushAsync(_services.GetRequiredService<SleepPlanPage>())),
         });
         SemanticProperties.SetDescription(card, Strings.Get("Kind.SleepPlan"));
+        return card;
+    }
+
+    /// <summary>The milk stash: its totals and warnings, or what it is for; shown while pumping is a kind the family logs.</summary>
+    private Card? MilkStashCard()
+    {
+        if (!_stash.IsReady || !_stash.IsPumpShown)
+            return null;
+        var look = EventAppearance.For("milkbag");
+        var stack = new VerticalStackLayout { Spacing = 6 };
+        var title = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 8 };
+        title.Add(Ui.Rounded(new Icon(look.Icon, look.Ink, 16), look.Tint, 10, new Thickness(6)).Tap(b => b.VerticalOptions = LayoutOptions.Center), 0);
+        title.Add(Ui.Text(Strings.Get("Stash.Open"), "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
+        title.Add(new Icon(IconGeometry.ChevronRight, "Ink2", 18).Tap(i => i.VerticalOptions = LayoutOptions.Center), 2);
+        stack.Add(title);
+        stack.Add(_stash.Totals.Length > 0 ? Ui.Text(_stash.Totals, "Body", look.Ink) : Ui.Text(Strings.Get("Stash.Hint"), "Meta", "Ink2"));
+        if (_stash.Warning.Length > 0)
+            stack.Add(Ui.Text(_stash.Warning, "Meta", "Accent"));
+        var card = new Card(stack);
+        card.GestureRecognizers.Add(new TapGestureRecognizer
+        {
+            Command = new Command(async () => await Navigation.PushAsync(_services.GetRequiredService<MilkStashPage>())),
+        });
+        SemanticProperties.SetDescription(card, Strings.Get("Stash.Open"));
         return card;
     }
 
@@ -476,6 +504,8 @@ public sealed class StatsPage : ContentPage
             _content.Add(growth);
         if (SleepPlanCard() is { } plan)
             _content.Add(plan);
+        if (MilkStashCard() is { } stash)
+            _content.Add(stash);
         _content.Add(header);
         _content.Add(grainBar);
         _chipRow.Content = chips;

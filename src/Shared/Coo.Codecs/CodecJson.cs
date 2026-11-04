@@ -7,6 +7,7 @@ using Coo.Contracts.CareLog.Kinds.Diaper;
 using Coo.Contracts.CareLog.Kinds.Feeding;
 using Coo.Contracts.CareLog.Kinds.Growth;
 using Coo.Contracts.CareLog.Kinds.Health;
+using Coo.Contracts.CareLog.Kinds.MilkStash;
 using Coo.Contracts.CareLog.Kinds.Pump;
 using Coo.Contracts.CareLog.Kinds.Sleep;
 using Coo.Contracts.CareLog.Kinds.SleepPlan;
@@ -35,6 +36,7 @@ namespace Coo.Codecs;
 [JsonSerializable(typeof(SolidsDetailsV1))]
 [JsonSerializable(typeof(MilestoneDetailsV1))]
 [JsonSerializable(typeof(SleepPlanDetailsV1))]
+[JsonSerializable(typeof(MilkBagDetailsV1))]
 internal sealed partial class CodecJsonContext : JsonSerializerContext;
 
 internal static class CodecJson

@@ -233,6 +233,8 @@ public sealed class BuildAdvisorContext(
         SleepDetails when entry.Timing is SessionTiming s => $"sleep of {Duration((s.Range.End ?? now) - s.Range.Start)}",
         DiaperDetails d => $"diaper, {d.Contents.ToString().ToLowerInvariant()}",
         PumpDetails p => p.Yield is { } yield ? string.Create(En, $"pump, {yield.Total.Millilitres:0} ml") : "pump",
+        Coo.Domain.CareLog.Kinds.MilkStash.MilkBagDetails b => string.Create(
+            En, $"milk stash bag, {b.Volume.Millilitres:0} ml, {(b.UsedOn is not null ? "used" : b.DiscardedOn is not null ? "thrown away" : b.Place.ToString().ToLowerInvariant())}"),
         MedicineDetails m => m.Dose is { } dose ? $"medicine {m.Name}, {dose}" : $"medicine {m.Name}",
         TemperatureDetails t => string.Create(En, $"temperature {t.Celsius:0.0} °C{(t.IsFever ? " (fever)" : "")}"),
         VaccineDetails v => $"vaccine {v.Name}",

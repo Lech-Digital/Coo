@@ -221,6 +221,10 @@
   <data name="Entry.Diaper" xml:space="preserve"><value>Pannolino · {0}</value></data>
   <data name="Entry.Fever" xml:space="preserve"><value>Febbre · {0}</value></data>
   <data name="Entry.Growth" xml:space="preserve"><value>Crescita · {0}</value></data>
+  <data name="Entry.MilkBagDiscarded" xml:space="preserve"><value>{0} dalla scorta, buttato</value></data>
+  <data name="Entry.MilkBagFreezer" xml:space="preserve"><value>{0} in freezer</value></data>
+  <data name="Entry.MilkBagFridge" xml:space="preserve"><value>{0} in frigo</value></data>
+  <data name="Entry.MilkBagUsed" xml:space="preserve"><value>{0} dalla scorta, usato</value></data>
   <data name="Entry.Nap" xml:space="preserve"><value>Pisolino · {0}</value></data>
   <data name="Entry.Parts.one" xml:space="preserve"><value>in {0} ripresa</value></data>
   <data name="Entry.Parts.other" xml:space="preserve"><value>in {0} riprese</value></data>
@@ -451,6 +455,7 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Kind.Growth" xml:space="preserve"><value>Crescita</value></data>
   <data name="Kind.Medicine" xml:space="preserve"><value>Medicina</value></data>
   <data name="Kind.Milestone" xml:space="preserve"><value>Traguardo</value></data>
+  <data name="Kind.MilkBag" xml:space="preserve"><value>Scorta di latte</value></data>
   <data name="Kind.Pump" xml:space="preserve"><value>Tiralatte</value></data>
   <data name="Kind.Sleep" xml:space="preserve"><value>Sonno</value></data>
   <data name="Kind.SleepPlan" xml:space="preserve"><value>Piano del sonno</value></data>
@@ -847,6 +852,30 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Solids.Liked" xml:space="preserve"><value>Gli è piaciuto</value></data>
   <data name="Solids.None" xml:space="preserve"><value>Niente di speciale</value></data>
   <data name="Solids.Reaction" xml:space="preserve"><value>Una reazione</value></data>
+  <data name="Stash.Add" xml:space="preserve"><value>Aggiungi una sacca</value></data>
+  <data name="Stash.Amount" xml:space="preserve"><value>Quantità</value></data>
+  <data name="Stash.AmountNeeded" xml:space="preserve"><value>Indica quanto latte c’è nella sacca.</value></data>
+  <data name="Stash.Dates" xml:space="preserve"><value>Tirato {0} · da usare entro {1}</value></data>
+  <data name="Stash.Discard" xml:space="preserve"><value>Butta</value></data>
+  <data name="Stash.Empty" xml:space="preserve"><value>Ancora nessun latte in scorta. Aggiungi una sacca quando metti il latte in frigo o in freezer.</value></data>
+  <data name="Stash.Expired.one" xml:space="preserve"><value>{0} scaduta</value></data>
+  <data name="Stash.Expired.other" xml:space="preserve"><value>{0} scadute</value></data>
+  <data name="Stash.ExpiredTag" xml:space="preserve"><value>Scaduto</value></data>
+  <data name="Stash.Expressed" xml:space="preserve"><value>Tirato il</value></data>
+  <data name="Stash.Freeze" xml:space="preserve"><value>Congela</value></data>
+  <data name="Stash.Freezer" xml:space="preserve"><value>Freezer</value></data>
+  <data name="Stash.Fridge" xml:space="preserve"><value>Frigo</value></data>
+  <data name="Stash.Guidance" xml:space="preserve"><value>La scadenza segue le indicazioni dei CDC: 4 giorni in frigo, circa 6 mesi in freezer, 24 ore dopo lo scongelamento, e il latte scongelato non si ricongela mai. Butta il latte che odora di acido o un biberon iniziato dopo 2 ore.</value></data>
+  <data name="Stash.Hint" xml:space="preserve"><value>Sacche in frigo e in freezer, le più vecchie prima, con un avviso prima della scadenza.</value></data>
+  <data name="Stash.LabelHint" xml:space="preserve"><value>Etichetta (facoltativa)</value></data>
+  <data name="Stash.Open" xml:space="preserve"><value>Scorta di latte</value></data>
+  <data name="Stash.SoonTag" xml:space="preserve"><value>Da usare presto</value></data>
+  <data name="Stash.Thaw" xml:space="preserve"><value>Scongela</value></data>
+  <data name="Stash.Thawed" xml:space="preserve"><value>Scongelato, in frigo</value></data>
+  <data name="Stash.Use" xml:space="preserve"><value>Usato</value></data>
+  <data name="Stash.UseFirst" xml:space="preserve"><value>Da usare per primo</value></data>
+  <data name="Stash.UseSoon.one" xml:space="preserve"><value>{0} sacca da usare presto</value></data>
+  <data name="Stash.UseSoon.other" xml:space="preserve"><value>{0} sacche da usare presto</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statistiche</value></data>
   <data name="Stats.Trends" xml:space="preserve"><value>Andamento</value></data>
   <data name="Summary.Hint" xml:space="preserve"><value>Il Consulente confronta questa settimana con la precedente: sonno, poppate, pannolini e ciò che merita attenzione.</value></data>

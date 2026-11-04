@@ -51,6 +51,16 @@ internal static class Generators
                 Enumerable.Range(0, adjusted).Select(i => new Coo.Domain.CareLog.Kinds.SleepPlan.AcceptedAdjustment(
                     new DateOnly(2026, 11, 3).AddDays(7 * i), Coo.Domain.Insights.PlanAdjustmentKind.LongerWindows, 15)),
                 stopped).Value,
+        ["milkbag"] =
+            from ml in Gen.Choose(10, 400)
+            from frozen in Gen.Elements(true, false)
+            from thawedMs in Gen.Elements<long?>(null, 1793091600123)
+            from used in Gen.Elements<DateOnly?>(null, new DateOnly(2026, 11, 5))
+            from label in Gen.Elements<string?>(null, "night milk", "Mleko nocne")
+            select (EntryDetails)Coo.Domain.CareLog.Kinds.MilkStash.MilkBagDetails.Create(
+                Volume.FromMillilitres(ml).Value,
+                frozen && thawedMs is null ? Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace.Freezer : Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace.Fridge,
+                thawedMs is { } t ? DateTimeOffset.FromUnixTimeMilliseconds(t) : null, used, null, label).Value,
         ["solids"] =
             from food in Gen.Elements("Carrot puree", "Banana", "Pindakaas", "Jabłko", "Avocado")
             from amount in Gen.Elements<string?>(null, "3 spoons", "half a jar")

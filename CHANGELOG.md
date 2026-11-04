@@ -16,7 +16,7 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 
 ## Unreleased
 
-**Deploy the server first**: it must know the new `sleepplan` entry kind before any phone sends a plan, and it adds
+**Deploy the server first**: it must know the new `sleepplan` and `milkbag` entry kinds before any phone sends one, and it adds
 `advisor_usages.plan_count` (migration `AddSleepPlanUsage`). Publish the site's privacy update (sleep plans) with the
 release.
 
@@ -37,6 +37,11 @@ release.
   the others at a glance ("Mia · asleep 40 m · fed 1 h 20 m ago", a tap switches), "Log for both" logs a diaper,
   bottle or sleep for each of them at once (one Undo takes them all back), and Stats puts their average days side by
   side.
+
+- **Milk stash** (Stats → Milk stash): the bags of expressed milk in the fridge and freezer, the one to use first on
+  top, with its use-by (4 days in the fridge, about 6 months frozen, 24 hours once thawed, as the CDC advises). Mark a
+  bag used, freeze, thaw or throw it away; everyone in the family sees the same stash, and Today says when a bag
+  should be used soon.
 
 ### Changed
 - **Personal nap times are free**: when the next nap or bedtime is likely, on Today, in the widget, and the nap
