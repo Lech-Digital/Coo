@@ -24,18 +24,40 @@ public sealed class GetSleepPrediction(ICareLogStore store)
         if (!baby.IsBorn)
             return null;
 
-        var stored = await store.ListAsync(household, now - Reach, now.AddMinutes(1), cancellationToken);
-        var sleeps = stored
-            .OfType<LiveEntry>()
-            .Select(l => l.Entry)
-            .Where(e => GetToday.IsAbout(e, baby.Id))
-            .Select(e => e is { Details: SleepDetails details, Timing: SessionTiming timing }
-                ? new SleepSpan(timing.Range.Start, timing.Range.End, details.KindOverride)
-                : null)
-            .OfType<SleepSpan>()
-            .ToList();
+        var sleeps = await SleepsAsync(household, baby.Id, now - Reach, now, cancellationToken);
 
         var age = BabyAge.On(baby, DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, zone).DateTime));
         return SleepPredictor.Predict(sleeps, age.CorrectedDays, now, zone);
+    }
+
+    /// <summary>
+    /// How the shown windows did for this baby over the last fortnight, replayed on the phone from her own log (proving
+    /// the predictor, owner 2026-11-03); null for a baby not born yet.
+    /// </summary>
+    public async Task<PredictionTrackRecord?> TrackRecordAsync(
+        HouseholdId household, BabyProfile baby, TimeZoneInfo zone, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(baby);
+        ArgumentNullException.ThrowIfNull(zone);
+        if (!baby.IsBorn)
+            return null;
+
+        var sleeps = await SleepsAsync(household, baby.Id, now - SleepPredictionCheck.Over - Reach, now, cancellationToken);
+        var age = BabyAge.On(baby, DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, zone).DateTime));
+        return SleepPredictionCheck.Replay(sleeps, age.CorrectedDays, now, zone);
+    }
+
+    private async Task<List<SleepSpan>> SleepsAsync(
+        HouseholdId household, BabyId baby, DateTimeOffset from, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        var stored = await store.ListAsync(household, from, now.AddMinutes(1), cancellationToken);
+        return [.. stored
+            .OfType<LiveEntry>()
+            .Select(l => l.Entry)
+            .Where(e => GetToday.IsAbout(e, baby))
+            .Select(e => e is { Details: SleepDetails details, Timing: SessionTiming timing }
+                ? new SleepSpan(timing.Range.Start, timing.Range.End, details.KindOverride)
+                : null)
+            .OfType<SleepSpan>()];
     }
 }

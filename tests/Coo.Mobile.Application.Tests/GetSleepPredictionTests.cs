@@ -75,6 +75,27 @@ public sealed class GetSleepPredictionTests
         prediction.Should().BeNull();
     }
 
+    [Fact]
+    public async Task TrackRecordAsync_TwoWeeksOfSteadyMornings_CountsHerWindowsNotTheTwins()
+    {
+        // Arrange: nights 19:00–07:00 and a first nap at 09:00 since 1 October; the twin naps at 11:00.
+        var entries = new List<CareEntry>();
+        for (var d = 1; d <= 21; d++)
+        {
+            entries.Add(Sleep(BabyId, At(d, 9), At(d, 10)));
+            entries.Add(Sleep(BabyId, At(d, 19), At(d + 1, 7)));
+            entries.Add(Sleep(Twin, At(d, 11), At(d, 12)));
+        }
+
+        // Act
+        var record = await Use(entries).TrackRecordAsync(Household, Baby(new DateOnly(2026, 4, 22)), Amsterdam, Now, CancellationToken.None);
+
+        // Assert: the morning nap is predicted every day of the fortnight, from her own 2-hour windows.
+        record.Should().NotBeNull();
+        record!.IsEnough.Should().BeTrue();
+        record.Hits.Should().BeGreaterThanOrEqualTo(10);
+    }
+
     private static DateTimeOffset At(int day, int hour) => new(2026, 10, day, hour, 0, 0, Cest);
 
     private static BabyProfile Baby(DateOnly born) =>

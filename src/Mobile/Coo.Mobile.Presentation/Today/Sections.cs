@@ -473,6 +473,9 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
         if (sleep.ShortNapAdjusted)
             lines.Add(Strings.Get("Why.ShortNap"));
         lines.Add(Strings.Format("Why.Awake", snapshot.Formats.Time(sleep.AwakeSince)));
+        // Proving the predictor (owner, 2026-11-03): how the shown windows did for her lately, from her own log.
+        if (snapshot.SleepRecord is { IsEnough: true } record)
+            lines.Add(Strings.Format("Why.Record", snapshot.Baby.Name, record.Hits, record.Shown));
         lines.Add(Strings.Get("Why.Disclaimer"));
         return lines;
     }

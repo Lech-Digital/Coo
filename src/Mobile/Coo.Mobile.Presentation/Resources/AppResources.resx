@@ -991,6 +991,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Why.Disclaimer" xml:space="preserve"><value>Suggestions come from the sleeps you log and general guidance. They are not medical advice: talk to your pediatrician about any worries about sleep or development.</value></data>
   <data name="Why.PersonalBed" xml:space="preserve"><value>Before bedtime, {0}’s wake windows have been about {1} over the last {2} days.</value></data>
   <data name="Why.PersonalNap" xml:space="preserve"><value>Before nap {3}, {0}’s wake windows have been about {1} over the last {2} days.</value></data>
+  <data name="Why.Record" xml:space="preserve"><value>Last two weeks: {1} of {2} windows were right for {0}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>The last nap was short, so the window comes a little earlier.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Bedtime</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Next nap</value></data>

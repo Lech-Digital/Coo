@@ -85,6 +85,7 @@ public sealed partial class TodayViewModel : ObservableObject
     private string? _avatarRef;
     private readonly Coo.Mobile.Application.Insights.GetSleepPrediction? _getSleep;
     private Coo.Domain.Insights.SleepPrediction? _sleep;
+    private Coo.Domain.Insights.PredictionTrackRecord? _sleepRecord;
     private readonly Coo.Mobile.Application.Insights.GetSleepPlan? _getPlan;
     private Coo.Mobile.Application.Insights.SleepPlanToday? _plan;
     private readonly Coo.Mobile.Application.CareLog.ILogAccess? _logAccess;
@@ -214,6 +215,9 @@ public sealed partial class TodayViewModel : ObservableObject
             _summary = _summary with { TodayEntries = [.. _summary.TodayEntries.Where(e => !_undo.IsPendingDelete(e.Id))] };
         _sleep = _baby.IsBorn && _getSleep is not null
             ? await _getSleep.ExecuteAsync(_household.Id, _baby, Zone(), _time.GetLocalNow(), CancellationToken.None)
+            : null;
+        _sleepRecord = _sleep is { IsPersonal: true } && _getSleep is not null
+            ? await _getSleep.TrackRecordAsync(_household.Id, _baby, Zone(), _time.GetLocalNow(), CancellationToken.None)
             : null;
         _plan = _baby.IsBorn && _getPlan is not null
             ? await _getPlan.ExecuteAsync(_household.Id, _baby, Zone(), _time.GetLocalNow(), CancellationToken.None)
@@ -453,7 +457,7 @@ public sealed partial class TodayViewModel : ObservableObject
         Tick();
     }
 
-    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep, IsViewOnly, _plan);
+    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep, IsViewOnly, _plan, _sleepRecord);
 
     private Formats Formats() => new(_clock.Is24Hour, _household?.VolumeUnit ?? VolumeUnit.Millilitres);
 

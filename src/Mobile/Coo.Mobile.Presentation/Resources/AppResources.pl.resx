@@ -1021,6 +1021,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Why.Disclaimer" xml:space="preserve"><value>Podpowiedzi opierają się na zapisanych snach i ogólnych zaleceniach. To nie jest porada medyczna: z obawami dotyczącymi snu lub rozwoju zwróć się do pediatry.</value></data>
   <data name="Why.PersonalBed" xml:space="preserve"><value>{0}: przed snem nocnym okno czuwania wynosiło ostatnio około {1} (z {2} dni zapisów).</value></data>
   <data name="Why.PersonalNap" xml:space="preserve"><value>{0}: przed drzemką nr {3} okno czuwania wynosiło ostatnio około {1} (z {2} dni zapisów).</value></data>
+  <data name="Why.Record" xml:space="preserve"><value>Ostatnie dwa tygodnie, {0}: trafne okna {1} z {2}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>Ostatnia drzemka była krótka, więc okno przychodzi trochę wcześniej.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Pora spania</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Następna drzemka</value></data>

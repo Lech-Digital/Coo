@@ -18,7 +18,7 @@ public enum HomeStage
 public sealed record HomeSnapshot(
     HouseholdSettings Household, BabyProfile Baby, TodaySummary? Today, DateTimeOffset Now, PaletteKind Palette, Formats Formats,
     int AttentionCount = 0, WhoLabels? Who = null, bool IsPremium = false, string? AvatarRef = null, SleepPrediction? Sleep = null,
-    bool ViewOnly = false, Coo.Mobile.Application.Insights.SleepPlanToday? Plan = null);
+    bool ViewOnly = false, Coo.Mobile.Application.Insights.SleepPlanToday? Plan = null, PredictionTrackRecord? SleepRecord = null);
 
 /// <summary>
 /// The sections that write to the log (the tiles, running timers and their buttons): not laid out for someone who

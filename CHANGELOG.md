@@ -30,6 +30,9 @@ release.
 - **With Premium**, the Advisor writes the plan and each check-in in words for your baby, from the plan's numbers
   (never her name); a reply that quotes a time the plan does not have is not shown.
 
+- **How right the nap times have been**: "Why this time?" now says how many of the last two weeks' nap and bedtime
+  windows were right for your baby ("12 of 15"), worked out on your phone from your own log.
+
 ### Changed
 - **Personal nap times are free**: when the next nap or bedtime is likely, on Today, in the widget, and the nap
   reminder. They are worked out on your phone and cost nothing to run.

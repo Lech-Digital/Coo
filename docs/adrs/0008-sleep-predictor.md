@@ -26,6 +26,13 @@ Status: Accepted — amended 2026-10-02 (see below)
 > width. Requiring High confidence (spread within 30 minutes) kept a 2-month-old with three weeks of logs on "log a few
 > more days": young babies' windows vary by more.
 
+> **Amendment, 2026-11-04: proving the predictor on each baby's own log.** Real histories confirm the targets one baby at
+> a time, on the phone: `SleepPredictionCheck` replays the predictor at every wake-up of the last 14 days, from only the
+> sleeps logged before it (as §6's backtest does), and counts how often the sleep started inside a window Today would
+> have shown as hers (`IsPersonal`). A next sleep more than 2 hours after the window is a gap in the log, not a miss.
+> "Why this time?" says "Last two weeks: 12 of 15 windows were right for Laura" once there are 5 such windows. Nothing
+> is sent: the privacy policy promises no analytics, so a cross-family hit rate waits for an opt-in the owner decides.
+
 ## Context
 
 The sleep predictor is a Premium feature. It suggests when the next nap window opens, and when

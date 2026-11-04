@@ -991,6 +991,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Why.Disclaimer" xml:space="preserve"><value>Suggesties komen uit de slaap die je logt en algemene richtlijnen. Ze zijn geen medisch advies: bespreek zorgen over slaap of ontwikkeling met je kinderarts of het consultatiebureau.</value></data>
   <data name="Why.PersonalBed" xml:space="preserve"><value>Voor bedtijd was {0} de afgelopen {2} dagen ongeveer {1} wakker.</value></data>
   <data name="Why.PersonalNap" xml:space="preserve"><value>Voor dutje {3} was {0} de afgelopen {2} dagen ongeveer {1} wakker.</value></data>
+  <data name="Why.Record" xml:space="preserve"><value>Afgelopen twee weken: {1} van de {2} tijdvensters klopten voor {0}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>Het laatste dutje was kort, dus het venster komt iets eerder.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Bedtijd</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Volgend dutje</value></data>

@@ -384,6 +384,29 @@ public sealed class NightTimersTests
         section.NapWhy[^1].Should().Contain("not medical advice");
     }
 
+    [Theory]
+    [InlineData(12, 15, true)]
+    [InlineData(3, 4, false)]
+    public void NextUpSection_ATrackRecord_SaysHowTheWindowsDidOnlyWhenThereAreEnough(int hits, int shown, bool said)
+    {
+        // Arrange: proving the predictor on her own log (owner, 2026-11-03).
+        var section = new NextUpSection();
+        var snapshot = NextUpSnapshot(isPremium: false, Prediction(PredictionConfidence.High))
+            with
+        { SleepRecord = new PredictionTrackRecord(shown, hits, TimeSpan.FromMinutes(9)) };
+
+        // Act
+        section.Update(snapshot);
+
+        // Assert
+        var line = $"Last two weeks: {hits} of {shown} windows were right for Lena.";
+        if (said)
+            section.NapWhy.Should().Contain(line);
+        else
+            section.NapWhy.Should().NotContain(l => l.StartsWith("Last two weeks", StringComparison.Ordinal));
+        section.NapWhy[^1].Should().Contain("not medical advice");
+    }
+
     [Fact]
     public void NextUpSection_LowConfidenceWithWeeksOfWindows_StillShowsHerOwnWindow()
     {

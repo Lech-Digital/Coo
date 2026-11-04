@@ -991,6 +991,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Why.Disclaimer" xml:space="preserve"><value>Die Vorschläge stammen aus euren eingetragenen Schlafzeiten und allgemeinen Empfehlungen. Sie sind kein medizinischer Rat: Sprich bei Sorgen um Schlaf oder Entwicklung mit eurer Kinderärztin oder eurem Kinderarzt.</value></data>
   <data name="Why.PersonalBed" xml:space="preserve"><value>Vor dem Schlafengehen war {0} in den letzten {2} Tagen meist etwa {1} wach.</value></data>
   <data name="Why.PersonalNap" xml:space="preserve"><value>Vor dem {3}. Schläfchen war {0} in den letzten {2} Tagen meist etwa {1} wach.</value></data>
+  <data name="Why.Record" xml:space="preserve"><value>Letzte zwei Wochen: {1} von {2} Zeitfenstern passten für {0}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>Das letzte Schläfchen war kurz, deshalb kommt das Fenster etwas früher.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Schlafenszeit</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Nächstes Schläfchen</value></data>

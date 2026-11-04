@@ -991,6 +991,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Why.Disclaimer" xml:space="preserve"><value>Les suggestions viennent des sommeils notés et de recommandations générales. Ce ne sont pas des conseils médicaux : parlez de toute inquiétude sur le sommeil ou le développement à votre pédiatre.</value></data>
   <data name="Why.PersonalBed" xml:space="preserve"><value>Avant le coucher, {0} est resté éveillé environ {1} ces {2} derniers jours.</value></data>
   <data name="Why.PersonalNap" xml:space="preserve"><value>Avant la sieste {3}, {0} est resté éveillé environ {1} ces {2} derniers jours.</value></data>
+  <data name="Why.Record" xml:space="preserve"><value>Ces deux dernières semaines : {1} fenêtres justes sur {2} pour {0}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>La dernière sieste a été courte : la fenêtre arrive un peu plus tôt.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Coucher</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Prochaine sieste</value></data>

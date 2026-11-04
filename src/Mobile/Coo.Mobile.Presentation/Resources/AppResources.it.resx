@@ -991,6 +991,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Why.Disclaimer" xml:space="preserve"><value>I suggerimenti vengono dai sonni che registri e da indicazioni generali. Non sono un consiglio medico: parla con il pediatra di ogni dubbio su sonno o sviluppo.</value></data>
   <data name="Why.PersonalBed" xml:space="preserve"><value>Prima della nanna, {0} è rimasto sveglio circa {1} negli ultimi {2} giorni.</value></data>
   <data name="Why.PersonalNap" xml:space="preserve"><value>Prima del pisolino {3}, {0} è rimasto sveglio circa {1} negli ultimi {2} giorni.</value></data>
+  <data name="Why.Record" xml:space="preserve"><value>Ultime due settimane: {1} finestre giuste su {2} per {0}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>L’ultimo pisolino è stato breve, quindi la finestra arriva un po’ prima.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Nanna</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Prossimo pisolino</value></data>
