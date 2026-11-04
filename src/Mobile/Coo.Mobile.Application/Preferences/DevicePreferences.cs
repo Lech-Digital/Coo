@@ -58,6 +58,11 @@ public interface IDevicePreferences
     Task<string?> GetBabyAvatarAsync(Guid babyId, CancellationToken cancellationToken);
 
     Task SetBabyAvatarAsync(Guid babyId, string? avatarRef, CancellationToken cancellationToken);
+
+    /// <summary>The nanny's handover: the last of a caregiver's entries the parent marked seen on this phone.</summary>
+    Task<DateTimeOffset?> GetHandoverSeenAsync(Guid person, CancellationToken cancellationToken) => Task.FromResult<DateTimeOffset?>(null);
+
+    Task SetHandoverSeenAsync(Guid person, DateTimeOffset lastSeen, CancellationToken cancellationToken) => Task.CompletedTask;
 }
 
 /// <summary>Whether the phone shows 24-hour times. It follows the Android setting, not the language (ADR 0006 §5).</summary>

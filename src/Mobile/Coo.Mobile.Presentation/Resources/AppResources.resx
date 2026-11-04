@@ -378,6 +378,21 @@
   <data name="Growth.UseGirls" xml:space="preserve"><value>Showing the boys’ chart. Use the girls’ chart instead</value></data>
   <data name="Growth.WhichChart" xml:space="preserve"><value>Which WHO chart should Coo use?</value></data>
   <data name="Growth.WhichChartHint" xml:space="preserve"><value>Girls and boys grow a little differently. This stays on this phone.</value></data>
+  <data name="Handover.Asleep" xml:space="preserve"><value>{0} asleep</value></data>
+  <data name="Handover.Bottles" xml:space="preserve"><value>{0} in bottles</value></data>
+  <data name="Handover.Diapers.one" xml:space="preserve"><value>{0} diaper</value></data>
+  <data name="Handover.Diapers.other" xml:space="preserve"><value>{0} diapers</value></data>
+  <data name="Handover.Dirty" xml:space="preserve"><value>{0} dirty</value></data>
+  <data name="Handover.Feeds.one" xml:space="preserve"><value>{0} feed</value></data>
+  <data name="Handover.Feeds.other" xml:space="preserve"><value>{0} feeds</value></data>
+  <data name="Handover.From" xml:space="preserve"><value>Today with {0}</value></data>
+  <data name="Handover.Medicines.one" xml:space="preserve"><value>{0} medicine</value></data>
+  <data name="Handover.Medicines.other" xml:space="preserve"><value>{0} medicines</value></data>
+  <data name="Handover.Mine" xml:space="preserve"><value>Your day with {0}</value></data>
+  <data name="Handover.Naps.one" xml:space="preserve"><value>{0} nap</value></data>
+  <data name="Handover.Naps.other" xml:space="preserve"><value>{0} naps</value></data>
+  <data name="Handover.Seen" xml:space="preserve"><value>Seen</value></data>
+  <data name="Handover.Share" xml:space="preserve"><value>Share</value></data>
   <data name="Health.GrowthSubtitle" xml:space="preserve"><value>Weight, length, head</value></data>
   <data name="Health.MedicineSubtitle" xml:space="preserve"><value>Vitamin D, fever medicine…</value></data>
   <data name="Health.Photo" xml:space="preserve"><value>From a photo</value></data>

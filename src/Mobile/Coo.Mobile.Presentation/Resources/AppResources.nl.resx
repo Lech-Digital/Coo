@@ -378,6 +378,21 @@
   <data name="Growth.UseGirls" xml:space="preserve"><value>Curve voor jongens. Gebruik die voor meisjes</value></data>
   <data name="Growth.WhichChart" xml:space="preserve"><value>Welke WHO-curve moet Coo gebruiken?</value></data>
   <data name="Growth.WhichChartHint" xml:space="preserve"><value>Meisjes en jongens groeien een beetje anders. Dit blijft op deze telefoon.</value></data>
+  <data name="Handover.Asleep" xml:space="preserve"><value>{0} geslapen</value></data>
+  <data name="Handover.Bottles" xml:space="preserve"><value>{0} uit de fles</value></data>
+  <data name="Handover.Diapers.one" xml:space="preserve"><value>{0} luier</value></data>
+  <data name="Handover.Diapers.other" xml:space="preserve"><value>{0} luiers</value></data>
+  <data name="Handover.Dirty" xml:space="preserve"><value>{0} vies</value></data>
+  <data name="Handover.Feeds.one" xml:space="preserve"><value>{0} voeding</value></data>
+  <data name="Handover.Feeds.other" xml:space="preserve"><value>{0} voedingen</value></data>
+  <data name="Handover.From" xml:space="preserve"><value>Vandaag met {0}</value></data>
+  <data name="Handover.Medicines.one" xml:space="preserve"><value>{0} medicijn</value></data>
+  <data name="Handover.Medicines.other" xml:space="preserve"><value>{0} medicijnen</value></data>
+  <data name="Handover.Mine" xml:space="preserve"><value>Jouw dag met {0}</value></data>
+  <data name="Handover.Naps.one" xml:space="preserve"><value>{0} dutje</value></data>
+  <data name="Handover.Naps.other" xml:space="preserve"><value>{0} dutjes</value></data>
+  <data name="Handover.Seen" xml:space="preserve"><value>Gezien</value></data>
+  <data name="Handover.Share" xml:space="preserve"><value>Delen</value></data>
   <data name="Health.GrowthSubtitle" xml:space="preserve"><value>Gewicht, lengte, hoofd</value></data>
   <data name="Health.MedicineSubtitle" xml:space="preserve"><value>Vitamine D, koortsremmer…</value></data>
   <data name="Health.Photo" xml:space="preserve"><value>Van een foto</value></data>

@@ -109,8 +109,8 @@ public sealed class FamiliesTests : IDisposable
 
         // Assert
         await _store.Received(1).SetMemberNamesAsync(Joined, Arg.Is<IReadOnlyList<FamilyMemberName>>(n =>
-            n.SequenceEqual(new[] { new FamilyMemberName(andrzej, "Andrzej Lech"), new FamilyMemberName(Me, "Kasia") })), Arg.Any<CancellationToken>());
-        await _store.Received(1).SetMemberNamesAsync(Home, Arg.Is<IReadOnlyList<FamilyMemberName>>(n => n.Single() == new FamilyMemberName(Me, "Kasia")), Arg.Any<CancellationToken>());
+            n.SequenceEqual(new[] { new FamilyMemberName(andrzej, "Andrzej Lech", Role.Owner), new FamilyMemberName(Me, "Kasia", Role.Parent) })), Arg.Any<CancellationToken>());
+        await _store.Received(1).SetMemberNamesAsync(Home, Arg.Is<IReadOnlyList<FamilyMemberName>>(n => n.Single() == new FamilyMemberName(Me, "Kasia", Role.Owner)), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -136,7 +136,7 @@ public sealed class FamiliesTests : IDisposable
         await SignInAsync();
         _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Home, "owner", [], null, [new MembershipInfo(Home, Role.Owner, Now)]));
         _api.ListMembersAsync(Home, Arg.Any<CancellationToken>()).Returns(new FamilyMembers([new FamilyMember(Me, "Kasia", "k@example.com", Role.Owner, Now, true)], []));
-        _store.ListMemberNamesAsync(Home, Arg.Any<CancellationToken>()).Returns([new FamilyMemberName(Me, "Kasia")]);
+        _store.ListMemberNamesAsync(Home, Arg.Any<CancellationToken>()).Returns([new FamilyMemberName(Me, "Kasia", Role.Owner)]);
         var families = Families();
 
         // Act
@@ -156,7 +156,7 @@ public sealed class FamiliesTests : IDisposable
         _accounts.GetMeAsync(Arg.Any<CancellationToken>()).Returns(new AccountOverview(Profile, Home, "owner", [], null, [new MembershipInfo(Home, Role.Owner, Now)]));
         _api.ListMembersAsync(Home, Arg.Any<CancellationToken>()).Returns(new FamilyMembers(
             [new FamilyMember(Me, "Kasia", "k@example.com", Role.Owner, Now, true), new FamilyMember(earlier, "Tomek", "t@example.com", Role.Parent, Now, false)], []));
-        _store.ListMemberNamesAsync(Home, Arg.Any<CancellationToken>()).Returns([new FamilyMemberName(earlier, "Tomek"), new FamilyMemberName(Me, "Kasia")]);
+        _store.ListMemberNamesAsync(Home, Arg.Any<CancellationToken>()).Returns([new FamilyMemberName(earlier, "Tomek"), new FamilyMemberName(Me, "Kasia", Role.Owner)]);
         var families = Families();
 
         // Act

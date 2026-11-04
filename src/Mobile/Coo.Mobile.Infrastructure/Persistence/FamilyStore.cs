@@ -86,10 +86,21 @@ internal sealed class FamilyStore(LocalDatabase database) : IFamilyStore
         while (await reader.ReadAsync(cancellationToken))
         {
             if (Columns.ParseGuid(reader.GetString(0)[prefix.Length..]) is { } user)
-                names.Add(new FamilyMemberName(new UserId(user), reader.GetString(1)));
+                names.Add(MemberName(new UserId(user), reader.GetString(1)));
         }
 
         return names;
+    }
+
+    /// <summary>Between the role and the name in a member's row; names stored before roles have none, and read as a parent's.</summary>
+    private const char RoleSeparator = '\u001F';
+
+    private static FamilyMemberName MemberName(UserId user, string value)
+    {
+        var at = value.IndexOf(RoleSeparator, StringComparison.Ordinal);
+        if (at > 0 && Enum.TryParse<Coo.Domain.Households.Role>(value[..at], out var role))
+            return new FamilyMemberName(user, value[(at + 1)..], role);
+        return new FamilyMemberName(user, value);
     }
 
     public async Task SetMemberNamesAsync(HouseholdId household, IReadOnlyList<FamilyMemberName> names, CancellationToken cancellationToken)
@@ -100,7 +111,7 @@ internal sealed class FamilyStore(LocalDatabase database) : IFamilyStore
         await using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync(cancellationToken);
         await connection.ExecuteAsync("DELETE FROM app_state WHERE substr(key, 1, length($p)) = $p;", cancellationToken, transaction, ("$p", prefix));
         foreach (var name in names)
-            await SetAsync(connection, transaction, prefix + Columns.Id(name.UserId.Value), name.Name, cancellationToken);
+            await SetAsync(connection, transaction, prefix + Columns.Id(name.UserId.Value), $"{name.Role}{RoleSeparator}{name.Name}", cancellationToken);
         await transaction.CommitAsync(cancellationToken);
     }
 

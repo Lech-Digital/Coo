@@ -26,6 +26,7 @@ public static class ServiceCollectionExtensions
             sp.GetRequiredService<TimeProvider>(), sp.GetRequiredService<UndoService>()));
         services.AddSingleton<IHomeSection, BabyHeaderSection>();
         services.AddSingleton<IHomeSection, SiblingsSection>();
+        services.AddSingleton<IHomeSection, HandoverSection>();
         services.AddSingleton<IHomeSection, DueDateSection>();
         services.AddSingleton<IHomeSection, StatusHeroSection>();
         services.AddSingleton<IHomeSection, NightSection>();

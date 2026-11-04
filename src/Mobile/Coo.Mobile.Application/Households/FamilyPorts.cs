@@ -13,7 +13,8 @@ public sealed record FamilyMembership(HouseholdId Household, Role Role, DateTime
 public sealed record PendingInvitation(InvitationCode Code, DateTimeOffset ArrivedAt);
 
 /// <summary>A member of a family as this phone last heard (walk fix F4): who logged an entry is named on Today and Log.</summary>
-public sealed record FamilyMemberName(UserId UserId, string Name);
+/// <param name="Role">For the nanny's handover: whose entries are a caregiver's day. Parent when not known (names stored before roles).</param>
+public sealed record FamilyMemberName(UserId UserId, string Name, Coo.Domain.Households.Role Role = Coo.Domain.Households.Role.Parent);
 
 /// <summary>Accepted, but the choice about this phone's entries is not made yet (spec §5.3).</summary>
 public sealed record JoiningMarker(HouseholdId Joined, HouseholdId Source, string InviterName);

@@ -378,6 +378,21 @@
   <data name="Growth.UseGirls" xml:space="preserve"><value>Curva de niños. Usar la de niñas</value></data>
   <data name="Growth.WhichChart" xml:space="preserve"><value>¿Qué curva de la OMS debe usar Coo?</value></data>
   <data name="Growth.WhichChartHint" xml:space="preserve"><value>Niñas y niños crecen un poco distinto. Esto se queda en este móvil.</value></data>
+  <data name="Handover.Asleep" xml:space="preserve"><value>{0} dormida</value></data>
+  <data name="Handover.Bottles" xml:space="preserve"><value>{0} en biberón</value></data>
+  <data name="Handover.Diapers.one" xml:space="preserve"><value>{0} pañal</value></data>
+  <data name="Handover.Diapers.other" xml:space="preserve"><value>{0} pañales</value></data>
+  <data name="Handover.Dirty" xml:space="preserve"><value>{0} con caca</value></data>
+  <data name="Handover.Feeds.one" xml:space="preserve"><value>{0} toma</value></data>
+  <data name="Handover.Feeds.other" xml:space="preserve"><value>{0} tomas</value></data>
+  <data name="Handover.From" xml:space="preserve"><value>Hoy con {0}</value></data>
+  <data name="Handover.Medicines.one" xml:space="preserve"><value>{0} medicamento</value></data>
+  <data name="Handover.Medicines.other" xml:space="preserve"><value>{0} medicamentos</value></data>
+  <data name="Handover.Mine" xml:space="preserve"><value>Tu día con {0}</value></data>
+  <data name="Handover.Naps.one" xml:space="preserve"><value>{0} siesta</value></data>
+  <data name="Handover.Naps.other" xml:space="preserve"><value>{0} siestas</value></data>
+  <data name="Handover.Seen" xml:space="preserve"><value>Visto</value></data>
+  <data name="Handover.Share" xml:space="preserve"><value>Compartir</value></data>
   <data name="Health.GrowthSubtitle" xml:space="preserve"><value>Peso, longitud, cabeza</value></data>
   <data name="Health.MedicineSubtitle" xml:space="preserve"><value>Vitamina D, antitérmico…</value></data>
   <data name="Health.Photo" xml:space="preserve"><value>Desde una foto</value></data>

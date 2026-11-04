@@ -209,6 +209,75 @@ public sealed partial class BabyHeaderSection : ObservableObject, IHomeSection
     }
 }
 
+/// <summary>One handover card: "Today with Anna", its lines, the text to share, and whose day it is.</summary>
+public sealed record HandoverCard(Guid Person, string Title, IReadOnlyList<string> Lines, string Span, string ShareText, bool IsMine, DateTimeOffset Last);
+
+/// <summary>
+/// The end-of-day handover (nanny, daycare): to a parent, each caregiver's day with the baby until marked seen; to a
+/// caregiver, their own day, to share at pick-up.
+/// </summary>
+public sealed partial class HandoverSection : ObservableObject, IHomeSection
+{
+    public int Order => 33;
+
+    [ObservableProperty]
+    private IReadOnlyList<HandoverCard> _cards = [];
+
+    public bool AppliesTo(HomeStage stage, PaletteKind palette) => stage == HomeStage.Born && palette == PaletteKind.Day;
+
+    public void Update(HomeSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        var view = snapshot.Handover ?? HandoverView.None;
+        var baby = snapshot.Baby.Name;
+        var cards = view.FromCaregivers.Select(d => Card(d, Strings.Format("Handover.From", d.Name), mine: false, snapshot.Formats))
+            .Concat(view.Mine is { } mine ? [Card(mine, Strings.Format("Handover.Mine", baby), mine: true, snapshot.Formats)] : [])
+            .ToList();
+        if (!cards.SequenceEqual(Cards, CardComparer.Instance))
+            Cards = cards;
+    }
+
+    /// <summary>"3 feeds · 300 ml in bottles", "2 naps · 2 h 10 m asleep", "4 diapers · 1 dirty", "1 medicine", then the notes.</summary>
+    public static IReadOnlyList<string> Lines(HandoverDay day, Formats formats)
+    {
+        ArgumentNullException.ThrowIfNull(day);
+        ArgumentNullException.ThrowIfNull(formats);
+        var lines = new List<string>();
+        if (day.Feeds > 0)
+            lines.Add(day.Bottles > 0
+                ? $"{Strings.Plural("Handover.Feeds", day.Feeds)} · {Strings.Format("Handover.Bottles", MilkStash.MilkStashViewModel.Ml(day.BottleMl, formats))}"
+                : Strings.Plural("Handover.Feeds", day.Feeds));
+        if (day.Naps > 0)
+            lines.Add($"{Strings.Plural("Handover.Naps", day.Naps)} · {Strings.Format("Handover.Asleep", Formats.Duration(day.Sleep))}");
+        if (day.Diapers > 0)
+            lines.Add(day.Dirty > 0
+                ? $"{Strings.Plural("Handover.Diapers", day.Diapers)} · {Strings.Format("Handover.Dirty", day.Dirty)}"
+                : Strings.Plural("Handover.Diapers", day.Diapers));
+        if (day.Medicines > 0)
+            lines.Add(Strings.Plural("Handover.Medicines", day.Medicines));
+        lines.AddRange(day.Notes.Select(n => $"“{n.Trim()}”"));
+        return lines;
+    }
+
+    private static HandoverCard Card(HandoverDay day, string title, bool mine, Formats formats)
+    {
+        var lines = Lines(day, formats);
+        var span = $"{formats.Time(day.First)}–{formats.Time(day.Last)}";
+        var share = string.Join("\n", [$"{title} ({span})", .. lines]);
+        return new HandoverCard(day.Person.Value, title, lines, span, share, mine, day.Last);
+    }
+
+    private sealed class CardComparer : IEqualityComparer<HandoverCard>
+    {
+        public static readonly CardComparer Instance = new();
+
+        public bool Equals(HandoverCard? x, HandoverCard? y) =>
+            x is not null && y is not null && x.Person == y.Person && x.ShareText == y.ShareText && x.IsMine == y.IsMine;
+
+        public int GetHashCode(HandoverCard obj) => HashCode.Combine(obj.Person, obj.ShareText);
+    }
+}
+
 /// <summary>Twins and siblings: the family's other babies at a glance, each a tap away (day and night).</summary>
 public sealed partial class SiblingsSection : ObservableObject, IHomeSection
 {

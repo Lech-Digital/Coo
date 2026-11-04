@@ -28,7 +28,8 @@ internal sealed record SectionHost(
     Action OpenPremium,
     Action? OpenSleepPlan = null,
     Action? ChooseBaby = null,
-    Action? OpenMilkStash = null);
+    Action? OpenMilkStash = null,
+    Action<string>? ShareText = null);
 
 /// <summary>
 /// A view that redraws when its source changes, coalesced to one redraw per change burst. Off screen it only notes the
@@ -127,6 +128,7 @@ internal static class SectionViews
     {
         BabyHeaderSection s => Live(s, () => Header(s, host)),
         SiblingsSection s => Live(s, () => Siblings(s, host)),
+        HandoverSection s => Live(s, () => Handover(s, host)),
         DueDateSection s => Live(s, () => DueDate(s)),
         StatusHeroSection s => Live(s, () => Hero(s), nameof(StatusHeroSection.Eyebrow), nameof(StatusHeroSection.Value), nameof(StatusHeroSection.Context)),
         RunningSection s => Live(s, () => RunningCards(s.Items, night: false, host)),
@@ -190,6 +192,35 @@ internal static class SectionViews
         grid.Add(ThemeSwitch(host), 1);
         grid.Add(chip, 2);
         return grid;
+    }
+
+    /// <summary>The nanny's handover: a card per caregiver's day for a parent (Seen hides it), or the caregiver's own (Share).</summary>
+    private static View Handover(HandoverSection s, SectionHost host)
+    {
+        if (s.Cards.Count == 0)
+            return new ContentView();
+        var stack = new VerticalStackLayout { Spacing = 10, Margin = new Thickness(24, 12, 24, 0) };
+        foreach (var card in s.Cards)
+        {
+            var body = new VerticalStackLayout { Spacing = 6 };
+            var title = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 8 };
+            title.Add(Ui.Text(card.Title, "BodyStrong"), 0);
+            title.Add(Ui.Text(card.Span, "Meta", "Ink2").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
+            body.Add(title);
+            foreach (var line in card.Lines)
+                body.Add(Ui.Text(line, "Body"));
+            var button = new Button { Text = Strings.Get(card.IsMine ? "Handover.Share" : "Handover.Seen"), HorizontalOptions = LayoutOptions.Start };
+            button.SetDynamicResource(VisualElement.StyleProperty, "GhostButton");
+            var (person, last, text) = (card.Person, card.Last, card.ShareText);
+            if (card.IsMine)
+                button.Clicked += (_, _) => host.ShareText?.Invoke(text);
+            else
+                button.Clicked += async (_, _) => await host.Today.MarkHandoverSeenAsync(person, last);
+            body.Add(button);
+            stack.Add(new Card(body));
+        }
+
+        return stack;
     }
 
     /// <summary>Twins and siblings: one row per other baby, "Mia · asleep 40 m · fed 1 h 20 m ago"; a tap shows her.</summary>

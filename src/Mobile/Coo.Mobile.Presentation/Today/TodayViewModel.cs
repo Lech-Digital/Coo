@@ -92,6 +92,8 @@ public sealed partial class TodayViewModel : ObservableObject
     private readonly Coo.Mobile.Application.Households.BabyFocus? _focus;
     private readonly Coo.Mobile.Application.CareLog.GetMilkStash? _getStash;
     private Coo.Mobile.Application.CareLog.MilkStashSummary? _stash;
+    private readonly Coo.Mobile.Application.CareLog.GetHandover? _getHandover;
+    private Coo.Mobile.Application.CareLog.HandoverView? _handover;
     private List<BabyProfile> _siblings = [];
     private IReadOnlyList<SiblingGlance> _siblingGlances = [];
     private bool _logForAll;
@@ -112,9 +114,11 @@ public sealed partial class TodayViewModel : ObservableObject
         Coo.Mobile.Application.CareLog.ILogAccess? logAccess = null,
         Coo.Mobile.Application.Insights.GetSleepPlan? getPlan = null,
         Coo.Mobile.Application.Households.BabyFocus? focus = null,
-        Coo.Mobile.Application.CareLog.GetMilkStash? getStash = null)
+        Coo.Mobile.Application.CareLog.GetMilkStash? getStash = null,
+        Coo.Mobile.Application.CareLog.GetHandover? getHandover = null)
     {
         _getStash = getStash;
+        _getHandover = getHandover;
         _logAccess = logAccess;
         _focus = focus;
         if (_focus is not null)
@@ -187,6 +191,39 @@ public sealed partial class TodayViewModel : ObservableObject
         }
 
         await _households.FocusBabyAsync(baby, CancellationToken.None);
+        await RefreshAsync();
+    }
+
+    /// <summary>The nanny's handover from today's entries; a caregiver's day the parent marked seen stays hidden until she logs more.</summary>
+    private async Task<Coo.Mobile.Application.CareLog.HandoverView?> HandoverAsync()
+    {
+        if (_getHandover is null || _household is null || _baby is not { IsBorn: true } || _summary is null)
+            return null;
+        try
+        {
+            var today = _summary.TodayEntries.OfType<LiveEntry>().Select(l => l.Entry);
+            var view = await _getHandover.ExecuteAsync(_household.Id, _baby.Id, today, _time.GetUtcNow(), CancellationToken.None);
+            var shown = new List<Coo.Mobile.Application.CareLog.HandoverDay>();
+            foreach (var day in view.FromCaregivers)
+            {
+                if (await _preferences.GetHandoverSeenAsync(day.Person.Value, CancellationToken.None) is not { } seen || day.Last > seen)
+                    shown.Add(day);
+            }
+
+            return view with { FromCaregivers = shown };
+        }
+#pragma warning disable CA1031 // A courtesy card: a failed read must never stop Today from drawing.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+            return null;
+        }
+    }
+
+    /// <summary>"Seen" on a caregiver's day: hidden until she logs something newer.</summary>
+    public async Task MarkHandoverSeenAsync(Guid person, DateTimeOffset last)
+    {
+        await _preferences.SetHandoverSeenAsync(person, last, CancellationToken.None);
         await RefreshAsync();
     }
 
@@ -274,6 +311,7 @@ public sealed partial class TodayViewModel : ObservableObject
             ? await _getSleep.ExecuteAsync(_household.Id, _baby, Zone(), _time.GetLocalNow(), CancellationToken.None)
             : null;
         _siblingGlances = await GlancesAsync();
+        _handover = await HandoverAsync();
         _stash = _getStash is not null && KindVisibility.IsShown(_household, "pump")
             ? await _getStash.ExecuteAsync(_household.Id, _time.GetUtcNow(), CancellationToken.None)
             : null;
@@ -518,7 +556,7 @@ public sealed partial class TodayViewModel : ObservableObject
         Tick();
     }
 
-    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep, IsViewOnly, _plan, _sleepRecord, _siblingGlances, _logForAll, _stash);
+    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep, IsViewOnly, _plan, _sleepRecord, _siblingGlances, _logForAll, _stash, _handover);
 
     private Formats Formats() => new(_clock.Is24Hour, _household?.VolumeUnit ?? VolumeUnit.Millilitres);
 

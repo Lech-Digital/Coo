@@ -378,6 +378,21 @@
   <data name="Growth.UseGirls" xml:space="preserve"><value>Kurve für Jungen. Stattdessen die für Mädchen verwenden</value></data>
   <data name="Growth.WhichChart" xml:space="preserve"><value>Welche WHO-Kurve soll Coo verwenden?</value></data>
   <data name="Growth.WhichChartHint" xml:space="preserve"><value>Mädchen und Jungen wachsen etwas unterschiedlich. Das bleibt auf diesem Handy.</value></data>
+  <data name="Handover.Asleep" xml:space="preserve"><value>{0} geschlafen</value></data>
+  <data name="Handover.Bottles" xml:space="preserve"><value>{0} aus der Flasche</value></data>
+  <data name="Handover.Diapers.one" xml:space="preserve"><value>{0} Windel</value></data>
+  <data name="Handover.Diapers.other" xml:space="preserve"><value>{0} Windeln</value></data>
+  <data name="Handover.Dirty" xml:space="preserve"><value>{0} voll</value></data>
+  <data name="Handover.Feeds.one" xml:space="preserve"><value>{0} Mahlzeit</value></data>
+  <data name="Handover.Feeds.other" xml:space="preserve"><value>{0} Mahlzeiten</value></data>
+  <data name="Handover.From" xml:space="preserve"><value>Heute mit {0}</value></data>
+  <data name="Handover.Medicines.one" xml:space="preserve"><value>{0} Medikament</value></data>
+  <data name="Handover.Medicines.other" xml:space="preserve"><value>{0} Medikamente</value></data>
+  <data name="Handover.Mine" xml:space="preserve"><value>Dein Tag mit {0}</value></data>
+  <data name="Handover.Naps.one" xml:space="preserve"><value>{0} Schläfchen</value></data>
+  <data name="Handover.Naps.other" xml:space="preserve"><value>{0} Schläfchen</value></data>
+  <data name="Handover.Seen" xml:space="preserve"><value>Gesehen</value></data>
+  <data name="Handover.Share" xml:space="preserve"><value>Teilen</value></data>
   <data name="Health.GrowthSubtitle" xml:space="preserve"><value>Gewicht, Größe, Kopf</value></data>
   <data name="Health.MedicineSubtitle" xml:space="preserve"><value>Vitamin D, Fiebersaft…</value></data>
   <data name="Health.Photo" xml:space="preserve"><value>Von einem Foto</value></data>

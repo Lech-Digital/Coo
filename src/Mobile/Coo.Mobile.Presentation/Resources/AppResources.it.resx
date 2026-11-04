@@ -378,6 +378,21 @@
   <data name="Growth.UseGirls" xml:space="preserve"><value>Curva dei bambini. Usa quella delle bambine</value></data>
   <data name="Growth.WhichChart" xml:space="preserve"><value>Quale curva OMS deve usare Coo?</value></data>
   <data name="Growth.WhichChartHint" xml:space="preserve"><value>Bambine e bambini crescono in modo un po’ diverso. La scelta resta su questo telefono.</value></data>
+  <data name="Handover.Asleep" xml:space="preserve"><value>{0} di sonno</value></data>
+  <data name="Handover.Bottles" xml:space="preserve"><value>{0} col biberon</value></data>
+  <data name="Handover.Diapers.one" xml:space="preserve"><value>{0} pannolino</value></data>
+  <data name="Handover.Diapers.other" xml:space="preserve"><value>{0} pannolini</value></data>
+  <data name="Handover.Dirty" xml:space="preserve"><value>{0} sporco</value></data>
+  <data name="Handover.Feeds.one" xml:space="preserve"><value>{0} pasto</value></data>
+  <data name="Handover.Feeds.other" xml:space="preserve"><value>{0} pasti</value></data>
+  <data name="Handover.From" xml:space="preserve"><value>Oggi con {0}</value></data>
+  <data name="Handover.Medicines.one" xml:space="preserve"><value>{0} farmaco</value></data>
+  <data name="Handover.Medicines.other" xml:space="preserve"><value>{0} farmaci</value></data>
+  <data name="Handover.Mine" xml:space="preserve"><value>La tua giornata con {0}</value></data>
+  <data name="Handover.Naps.one" xml:space="preserve"><value>{0} pisolino</value></data>
+  <data name="Handover.Naps.other" xml:space="preserve"><value>{0} pisolini</value></data>
+  <data name="Handover.Seen" xml:space="preserve"><value>Visto</value></data>
+  <data name="Handover.Share" xml:space="preserve"><value>Condividi</value></data>
   <data name="Health.GrowthSubtitle" xml:space="preserve"><value>Peso, lunghezza, testa</value></data>
   <data name="Health.MedicineSubtitle" xml:space="preserve"><value>Vitamina D, antipiretico…</value></data>
   <data name="Health.Photo" xml:space="preserve"><value>Da una foto</value></data>

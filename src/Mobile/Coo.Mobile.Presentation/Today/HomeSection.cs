@@ -20,7 +20,8 @@ public sealed record HomeSnapshot(
     HouseholdSettings Household, BabyProfile Baby, TodaySummary? Today, DateTimeOffset Now, PaletteKind Palette, Formats Formats,
     int AttentionCount = 0, WhoLabels? Who = null, bool IsPremium = false, string? AvatarRef = null, SleepPrediction? Sleep = null,
     bool ViewOnly = false, Coo.Mobile.Application.Insights.SleepPlanToday? Plan = null, PredictionTrackRecord? SleepRecord = null,
-    IReadOnlyList<SiblingGlance>? Siblings = null, bool LogForAll = false, Coo.Mobile.Application.CareLog.MilkStashSummary? Stash = null);
+    IReadOnlyList<SiblingGlance>? Siblings = null, bool LogForAll = false, Coo.Mobile.Application.CareLog.MilkStashSummary? Stash = null,
+    Coo.Mobile.Application.CareLog.HandoverView? Handover = null);
 
 /// <summary>Twins and siblings: another baby of the family at a glance on Today ("Mia · asleep 40 m · fed 1 h 20 m ago").</summary>
 public sealed record SiblingGlance(BabyId Id, string Name, string Line, bool IsBorn = true);

@@ -294,6 +294,29 @@ public sealed class FamilyStoreTests
     }
 
     [Fact]
+    public async Task SetMemberNamesAsync_ANannyAndANameStoredBeforeRoles_ReadsBackTheRolesAndAParentForTheOldRow()
+    {
+        // Arrange: the nanny's handover needs each member's role; a row written before roles holds the name only.
+        await using var db = await TestDatabase.CreateAsync();
+        var store = new FamilyStore(db.Database);
+        await store.SetMemberNamesAsync(Home, [new FamilyMemberName(Other, "Anna", Coo.Domain.Households.Role.Caregiver)], CancellationToken.None);
+        var nanny = await store.ListMemberNamesAsync(Home, CancellationToken.None);
+        await using (var connection = await db.Database.OpenAsync(CancellationToken.None))
+        {
+            await connection.ExecuteAsync(
+                "UPDATE app_state SET value = 'Anna' WHERE substr(key, 1, length($p)) = $p;", CancellationToken.None, null,
+                ("$p", FamilyStore.MemberNameKeys(Home)));
+        }
+
+        // Act
+        var old = await store.ListMemberNamesAsync(Home, CancellationToken.None);
+
+        // Assert
+        nanny.Should().ContainSingle().Which.Should().Be(new FamilyMemberName(Other, "Anna", Coo.Domain.Households.Role.Caregiver));
+        old.Should().ContainSingle().Which.Should().Be(new FamilyMemberName(Other, "Anna", Coo.Domain.Households.Role.Parent));
+    }
+
+    [Fact]
     public async Task SetMemberNamesAsync_AMemberLeft_ReplacesTheList()
     {
         // Arrange

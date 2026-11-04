@@ -68,6 +68,24 @@ internal sealed class DevicePreferences(LocalDatabase database) : IDevicePrefere
             cancellationToken, null, ("$k", LanguageKey), ("$v", preference.Language ?? SystemLanguage));
     }
 
+    public async Task<DateTimeOffset?> GetHandoverSeenAsync(Guid person, CancellationToken cancellationToken)
+    {
+        await using var connection = await database.OpenAsync(cancellationToken);
+        var value = (string?)await connection.ScalarAsync("SELECT value FROM app_state WHERE key = $k;", cancellationToken, null, ("$k", $"handover_seen:{person:D}"));
+        return long.TryParse(value, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var ms)
+            ? DateTimeOffset.FromUnixTimeMilliseconds(ms)
+            : null;
+    }
+
+    public async Task SetHandoverSeenAsync(Guid person, DateTimeOffset lastSeen, CancellationToken cancellationToken)
+    {
+        await using var connection = await database.OpenAsync(cancellationToken);
+        await connection.ExecuteAsync(
+            "INSERT INTO app_state (key, value) VALUES ($k, $v) ON CONFLICT (key) DO UPDATE SET value = excluded.value;",
+            cancellationToken, null, ("$k", $"handover_seen:{person:D}"),
+            ("$v", lastSeen.ToUnixTimeMilliseconds().ToString(System.Globalization.CultureInfo.InvariantCulture)));
+    }
+
     public async Task<string?> GetBabyAvatarAsync(Guid babyId, CancellationToken cancellationToken)
     {
         await using var connection = await database.OpenAsync(cancellationToken);

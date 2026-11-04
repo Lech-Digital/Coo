@@ -378,6 +378,21 @@
   <data name="Growth.UseGirls" xml:space="preserve"><value>Courbe des garçons. Utiliser celle des filles</value></data>
   <data name="Growth.WhichChart" xml:space="preserve"><value>Quelle courbe de l’OMS Coo doit-il utiliser ?</value></data>
   <data name="Growth.WhichChartHint" xml:space="preserve"><value>Les filles et les garçons grandissent un peu différemment. Ce choix reste sur ce téléphone.</value></data>
+  <data name="Handover.Asleep" xml:space="preserve"><value>{0} de sommeil</value></data>
+  <data name="Handover.Bottles" xml:space="preserve"><value>{0} au biberon</value></data>
+  <data name="Handover.Diapers.one" xml:space="preserve"><value>{0} couche</value></data>
+  <data name="Handover.Diapers.other" xml:space="preserve"><value>{0} couches</value></data>
+  <data name="Handover.Dirty" xml:space="preserve"><value>{0} sale</value></data>
+  <data name="Handover.Feeds.one" xml:space="preserve"><value>{0} repas</value></data>
+  <data name="Handover.Feeds.other" xml:space="preserve"><value>{0} repas</value></data>
+  <data name="Handover.From" xml:space="preserve"><value>Aujourd’hui avec {0}</value></data>
+  <data name="Handover.Medicines.one" xml:space="preserve"><value>{0} médicament</value></data>
+  <data name="Handover.Medicines.other" xml:space="preserve"><value>{0} médicaments</value></data>
+  <data name="Handover.Mine" xml:space="preserve"><value>Votre journée avec {0}</value></data>
+  <data name="Handover.Naps.one" xml:space="preserve"><value>{0} sieste</value></data>
+  <data name="Handover.Naps.other" xml:space="preserve"><value>{0} siestes</value></data>
+  <data name="Handover.Seen" xml:space="preserve"><value>Vu</value></data>
+  <data name="Handover.Share" xml:space="preserve"><value>Partager</value></data>
   <data name="Health.GrowthSubtitle" xml:space="preserve"><value>Poids, taille, tête</value></data>
   <data name="Health.MedicineSubtitle" xml:space="preserve"><value>Vitamine D, antipyrétique…</value></data>
   <data name="Health.Photo" xml:space="preserve"><value>Depuis une photo</value></data>

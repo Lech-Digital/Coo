@@ -115,7 +115,7 @@ public sealed class Families(
                 var members = await api.ListMembersAsync(membership.Household, cancellationToken);
                 owner = members.Members.FirstOrDefault(m => m.Role == Role.Owner)?.Name ?? "";
                 count = Math.Max(1, members.Members.Count);
-                names[membership.Household] = [.. members.Members.Select(m => new FamilyMemberName(m.UserId, m.Name))];
+                names[membership.Household] = [.. members.Members.Select(m => new FamilyMemberName(m.UserId, m.Name, m.Role))];
             }
             catch (Exception e) when (e is HouseholdUnavailableException or HouseholdRefusedException)
             {

@@ -43,6 +43,10 @@ release.
   bag used, freeze, thaw or throw it away; everyone in the family sees the same stash, and Today says when a bag
   should be used soon.
 
+- **The nanny's handover**: when a nanny or daycare logs for your baby, Today shows "Today with Anna" at pick-up: feeds
+  and how much from bottles, naps and how long, diapers, medicines and her notes, from her first entry to her last.
+  "Seen" puts it away until she logs more. A caregiver sees her own day and can share it as a message.
+
 ### Changed
 - **Personal nap times are free**: when the next nap or bedtime is likely, on Today, in the widget, and the nap
   reminder. They are worked out on your phone and cost nothing to run.

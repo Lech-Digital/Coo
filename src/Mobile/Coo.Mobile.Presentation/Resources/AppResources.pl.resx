@@ -393,6 +393,25 @@
   <data name="Growth.UseGirls" xml:space="preserve"><value>Siatka dla chłopców. Użyj siatki dla dziewczynek</value></data>
   <data name="Growth.WhichChart" xml:space="preserve"><value>Której siatki WHO ma używać Coo?</value></data>
   <data name="Growth.WhichChartHint" xml:space="preserve"><value>Dziewczynki i chłopcy rosną trochę inaczej. Ten wybór zostaje na tym telefonie.</value></data>
+  <data name="Handover.Asleep" xml:space="preserve"><value>{0} snu</value></data>
+  <data name="Handover.Bottles" xml:space="preserve"><value>{0} z butelki</value></data>
+  <data name="Handover.Diapers.few" xml:space="preserve"><value>{0} pieluchy</value></data>
+  <data name="Handover.Diapers.many" xml:space="preserve"><value>{0} pieluch</value></data>
+  <data name="Handover.Diapers.one" xml:space="preserve"><value>{0} pielucha</value></data>
+  <data name="Handover.Dirty" xml:space="preserve"><value>{0} z kupką</value></data>
+  <data name="Handover.Feeds.few" xml:space="preserve"><value>{0} karmienia</value></data>
+  <data name="Handover.Feeds.many" xml:space="preserve"><value>{0} karmień</value></data>
+  <data name="Handover.Feeds.one" xml:space="preserve"><value>{0} karmienie</value></data>
+  <data name="Handover.From" xml:space="preserve"><value>Dziś z: {0}</value></data>
+  <data name="Handover.Medicines.few" xml:space="preserve"><value>{0} leki</value></data>
+  <data name="Handover.Medicines.many" xml:space="preserve"><value>{0} leków</value></data>
+  <data name="Handover.Medicines.one" xml:space="preserve"><value>{0} lek</value></data>
+  <data name="Handover.Mine" xml:space="preserve"><value>Twój dzień z: {0}</value></data>
+  <data name="Handover.Naps.few" xml:space="preserve"><value>{0} drzemki</value></data>
+  <data name="Handover.Naps.many" xml:space="preserve"><value>{0} drzemek</value></data>
+  <data name="Handover.Naps.one" xml:space="preserve"><value>{0} drzemka</value></data>
+  <data name="Handover.Seen" xml:space="preserve"><value>Widziane</value></data>
+  <data name="Handover.Share" xml:space="preserve"><value>Udostępnij</value></data>
   <data name="Health.GrowthSubtitle" xml:space="preserve"><value>Waga, długość, głowa</value></data>
   <data name="Health.MedicineSubtitle" xml:space="preserve"><value>Witamina D, lek na gorączkę…</value></data>
   <data name="Health.Photo" xml:space="preserve"><value>Ze zdjęcia</value></data>

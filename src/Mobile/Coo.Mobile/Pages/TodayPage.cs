@@ -160,7 +160,7 @@ public sealed class TodayPage : ContentPage
             LiveView.Release(old as IVisualTreeElement);
         _sections.Children.Clear();
         foreach (var section in _model.Sections)
-            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model, SwitchToLog, SwitchToAdvisor, OpenVoice, OpenHealth, OpenSleepWhy, OpenPremium, OpenSleepPlan, ChooseBaby, OpenMilkStash)));
+            _sections.Add(SectionViews.Create(section, new SectionHost(OpenDebug, OpenEntry, OpenAttention, OpenEarlier, _model, SwitchToLog, SwitchToAdvisor, OpenVoice, OpenHealth, OpenSleepWhy, OpenPremium, OpenSleepPlan, ChooseBaby, OpenMilkStash, ShareText)));
         _built = [.. _model.Sections];
         _builtLanguage = Strings.Language;
     }
@@ -175,6 +175,10 @@ public sealed class TodayPage : ContentPage
         if (choice >= 0 && choice < siblings.Count)
             await _model.FocusAsync(siblings[choice].Id);
     });
+
+    /// <summary>The caregiver's handover, out through Android's share sheet (a message to the parent).</summary>
+    private void ShareText(string text) => Dispatcher.Dispatch(async () =>
+        await Share.Default.RequestAsync(new ShareTextRequest { Text = text, Title = Strings.Get("Handover.Share") }));
 
     private void OpenMilkStash() => Dispatcher.Dispatch(async () => await Navigation.PushAsync(_services.GetRequiredService<MilkStashPage>()));
 
