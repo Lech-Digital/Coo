@@ -33,6 +33,21 @@ app name, descriptions, icon, feature graphic and screenshots from `store-assets
   button. The splash screen and the "mochi" wordmark at the top of every tab follow.
 - **The privacy policy** moves to `lechdigital.nl/projects/mochi/privacy` (the old address forwards there).
 
+### Fixed
+- **Changing the text size in Android's settings** while the app was open closed it ("keeps stopping").
+- **Large text and small phones** (checked as a OnePlus 8 Pro and a 360 dp phone at 1.3× text):
+  - the four tiles on Today and the day's totals in the Log go two by two instead of cutting "Diaper" or breaking
+    "pumped" in the middle
+  - "Tell Mochi" is never cut short: Health and Earlier… move to the next line instead
+  - the Log's times stay on one line
+  - the night screen keeps "Last feed" on one line
+  - the birth date shows as "17 Sep 2026" instead of a long date cut off at the end
+- **The zoomed day:**
+  - on 12-hour phones the hours read "3 AM" instead of "3:00 AM", so they no longer run together and the title fits on
+    one line
+  - pumps have their own row under the diapers, so a diaper and a pump at the same time no longer overlap
+- **The baby's name at the top** opens her page when there is one baby. It did nothing before.
+
 ## 1.10.0 (code 30) — 2026-11-04
 
 The server is deployed already (370dd48: the `sleepplan` and `milkbag` entry kinds, migrations `AddSleepPlanUsage` and

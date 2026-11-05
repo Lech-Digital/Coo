@@ -700,7 +700,7 @@ public sealed class TodayPage : ContentPage
 
     private View BirthSheet()
     {
-        var picker = new DatePicker { MaximumDate = _model.Today, Date = _model.BirthDate, FontSize = 17, FontFamily = "FigtreeRegular", Format = "D" };
+        var picker = new DatePicker { MaximumDate = _model.Today, Date = _model.BirthDate, FontSize = 17, FontFamily = "FigtreeRegular", Format = "d MMM yyyy" };
         picker.SetDynamicResource(DatePicker.TextColorProperty, "Ink");
         picker.DateSelected += (_, e) => _model.BirthDate = e.NewDate ?? _model.Today;
         return Panel(Strings.Get("Due.Arrived"), Ui.Text(Strings.Get("Setup.BirthDate"), "Label"), Ui.Rounded(picker, "Surface", 12, new Thickness(16, 4), "Line"), Primary(Strings.Get("Action.Save"), _model.SaveBirthCommand));

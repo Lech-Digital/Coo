@@ -252,9 +252,10 @@ public sealed class DayDetailView : ContentView
             canvas.StrokeColor = C(Palette.Line);
             canvas.DrawRoundedRectangle(rect.X, Top, rect.Width, BandHeight, 12);
 
-            // Two label rows above the feeds, one below for diapers and pumps; a label that would overlap is left out.
+            // Two label rows above the feeds; below, one row for diapers and one for pumps, so a diaper and a pump at
+            // the same time no longer sit on top of each other (2026-11-05). A label that would overlap is left out.
             var above = new[] { float.MinValue, float.MinValue };
-            var below = float.MinValue;
+            var below = new[] { float.MinValue, float.MinValue };
             foreach (var item in Items)
             {
                 var x = X(item.From);
@@ -301,16 +302,18 @@ public sealed class DayDetailView : ContentView
                     case ChartShape.Diaper:
                     case ChartShape.Pump:
                         var diaper = item.Shape == ChartShape.Diaper;
+                        var lane = diaper ? 0 : 1;
+                        var y = Top + BandHeight + 12 + (lane * 20);
                         canvas.FillColor = C(diaper ? Palette.DiaperMark : Palette.PumpMark);
                         if (diaper)
-                            canvas.FillCircle(x, Top + BandHeight + 12, 5);
+                            canvas.FillCircle(x, y, 5);
                         else
-                            canvas.FillRoundedRectangle(x - 5, Top + BandHeight + 7, 10, 10, 3);
-                        if (x - 4 >= below + 4)
+                            canvas.FillRoundedRectangle(x - 5, y - 5, 10, 10, 3);
+                        if (x - 4 >= below[lane] + 4)
                         {
                             canvas.FontColor = C(diaper ? Palette.DiaperInk : Palette.PumpInk);
-                            canvas.DrawString(item.Label, x + 9, Top + BandHeight + 5, textWidth + 2, 16, HorizontalAlignment.Left, VerticalAlignment.Top);
-                            below = x + 9 + textWidth;
+                            canvas.DrawString(item.Label, x + 9, y - 7, textWidth + 2, 16, HorizontalAlignment.Left, VerticalAlignment.Top);
+                            below[lane] = x + 9 + textWidth;
                         }
 
                         break;

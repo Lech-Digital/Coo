@@ -157,13 +157,13 @@ public static class DayChart
         for (var instant = day.Start; instant <= day.End; instant = instant.AddHours(1))
         {
             var hour = instant == day.End ? 24 : TimeZoneInfo.ConvertTime(instant, zone).Hour;
-            ticks.Add(new HourTick(day.Fraction(instant), hour, formats.Time(instant, zone)));
+            ticks.Add(new HourTick(day.Fraction(instant), hour, formats.Hour(instant, zone)));
         }
 
         return ticks;
     }
 
-    /// <summary>The zoomed day's title (Spec 009b §3): "Today, 12:30 – 18:30", "Wed 30 Sep, 03:00 – 09:00".</summary>
+    /// <summary>The zoomed day's title (Spec 009b §3): "Today, 12:30 – 18:30", "Wed 30 Sep, 03:00 – 09:00", "Wed 30 Sep, 3 AM – 9 AM".</summary>
     public static string RangeTitle(LocalDay day, bool isToday, double from, double to, Formats formats, TimeZoneInfo zone)
     {
         ArgumentNullException.ThrowIfNull(day);
@@ -176,7 +176,7 @@ public static class DayChart
         }
 
         var name = isToday ? Strings.Get("Section.Today") : day.Date.ToString("ddd d MMM", Strings.Culture);
-        return Strings.Format("Chart.Range", name, formats.Time(At(from), zone), formats.Time(At(to), zone));
+        return Strings.Format("Chart.Range", name, formats.Hour(At(from), zone), formats.Hour(At(to), zone));
     }
 
     /// <summary>

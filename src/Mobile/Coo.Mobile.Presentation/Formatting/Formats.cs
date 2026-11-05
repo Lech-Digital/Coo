@@ -25,6 +25,16 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
     public string Time(DateTimeOffset instant, TimeZoneInfo zone) =>
         TimeZoneInfo.ConvertTime(instant, zone).ToString(is24Hour ? "HH:mm" : "h:mm tt", Strings.Culture);
 
+    /// <summary>
+    /// An hour mark for the charts: "03:00" on a 24-hour phone, "3 AM" on a 12-hour one when it is on the hour. "12:00
+    /// AM" beside "1:00 AM" ran together on the zoomed day's axis, and its title wrapped (2026-11-05).
+    /// </summary>
+    public string Hour(DateTimeOffset instant, TimeZoneInfo zone)
+    {
+        var local = TimeZoneInfo.ConvertTime(instant, zone);
+        return is24Hour || local.Minute != 0 ? Time(instant, zone) : local.ToString("h tt", Strings.Culture);
+    }
+
     /// <summary>A wall-clock time of a plan, "19:15" or "7:15 PM".</summary>
     public string Time(TimeOnly time) => time.ToString(is24Hour ? "HH:mm" : "h:mm tt", Strings.Culture);
 

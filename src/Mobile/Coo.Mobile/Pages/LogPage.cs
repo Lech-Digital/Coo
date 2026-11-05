@@ -236,13 +236,9 @@ public sealed class LogPage : ContentPage
             legend.Add(new HorizontalStackLayout { Spacing = 5, Children = { dot, Ui.Text(Strings.Get(key), "Meta") } });
         }
 
-        var totals = new Grid { ColumnSpacing = 8 };
-        for (var i = 0; i < _model.Totals.Count; i++)
-        {
-            totals.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
-            var t = _model.Totals[i];
-            totals.Add(new TotalsCell(t.KindCode, t.Number, t.Unit), i);
-        }
+        // Four in a row, or two by two when narrower than 70 dp at the phone's text size ("oz pu mped", 2026-11-05).
+        var totals = AdaptiveColumns.Create(
+            [.. _model.Totals.Select(t => (View)new TotalsCell(t.KindCode, t.Number, t.Unit))], minWidth: 70, padding: new Thickness(0));
 
         var timeline = new VerticalStackLayout { Spacing = 4 };
         if (_model.Rows.Count == 0)

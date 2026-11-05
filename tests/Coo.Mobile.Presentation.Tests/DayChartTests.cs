@@ -315,6 +315,47 @@ public sealed class DayChartTests : IDisposable
     }
 
     [Fact]
+    public void Hours_TwelveHourPhone_LabelsTheHourWithoutMinutes()
+    {
+        // Arrange
+        var day = DayMath.Day(Date, Amsterdam);
+
+        // Act
+        var hours = DayChart.Hours(day, Amsterdam, TwelveHour);
+
+        // Assert: "12:00 AM" beside "1:00 AM" ran together on the zoomed day's axis.
+        hours[0].Label.Should().Be("12 AM");
+        hours[1].Label.Should().Be("1 AM");
+        hours[13].Label.Should().Be("1 PM");
+    }
+
+    [Fact]
+    public void RangeTitle_TwelveHourOnTheHour_ShortensBothEnds()
+    {
+        // Arrange
+        var day = DayMath.Day(new DateOnly(2026, 9, 30), Amsterdam);
+
+        // Act
+        var title = DayChart.RangeTitle(day, isToday: false, 3 / 24.0, 9 / 24.0, TwelveHour, Amsterdam);
+
+        // Assert: "Wed 30 Sep, 3:00 AM – 9:00 AM" wrapped onto two lines.
+        title.Should().Be("Wed 30 Sep, 3 AM – 9 AM");
+    }
+
+    [Fact]
+    public void RangeTitle_TwelveHourBetweenHours_KeepsTheMinutes()
+    {
+        // Arrange
+        var day = DayMath.Day(Date, Amsterdam);
+
+        // Act
+        var title = DayChart.RangeTitle(day, isToday: true, (12 * 60 + 31) / 1440.0, (18 * 60 + 29) / 1440.0, TwelveHour, Amsterdam);
+
+        // Assert
+        title.Should().Be("Today, 12:30 PM – 6:30 PM");
+    }
+
+    [Fact]
     public void Hours_AutumnClockChange_Has26TicksWithTwoTwos()
     {
         // Arrange: on 25 October 2026 Amsterdam goes from 03:00 back to 02:00.
@@ -584,6 +625,8 @@ public sealed class DayChartTests : IDisposable
     }
 
     private static Formats Ml => new(true, VolumeUnit.Millilitres);
+
+    private static Formats TwelveHour => new(false, VolumeUnit.Millilitres);
 
     private static DateTimeOffset At(int hour, int minute) => new(2026, 10, 1, hour, minute, 0, Cest);
 

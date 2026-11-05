@@ -141,7 +141,7 @@ public sealed class SetupPage : ContentPage
 
     private static DatePicker DatePicker(string property, DateTime max)
     {
-        var picker = new DatePicker { MaximumDate = max, FontFamily = "FigtreeRegular", FontSize = 17, Format = "D" };
+        var picker = new DatePicker { MaximumDate = max, FontFamily = "FigtreeRegular", FontSize = 17, Format = "d MMM yyyy" };
         picker.SetBinding(Microsoft.Maui.Controls.DatePicker.DateProperty, property);
         picker.SetDynamicResource(Microsoft.Maui.Controls.DatePicker.TextColorProperty, "Ink");
         return picker;

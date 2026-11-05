@@ -447,7 +447,8 @@ public sealed class BabyPage : ContentPage
 
     private static View DatePicker(string property, DateTime max)
     {
-        var picker = new DatePicker { MaximumDate = max, FontFamily = "FigtreeRegular", FontSize = 17, Format = "D" };
+        // "17 Sep 2026": the long format ("Thursday, September 17, 2026") was cut off with large text (2026-11-05).
+        var picker = new DatePicker { MaximumDate = max, FontFamily = "FigtreeRegular", FontSize = 17, Format = "d MMM yyyy" };
         picker.SetBinding(Microsoft.Maui.Controls.DatePicker.DateProperty, property);
         picker.SetDynamicResource(Microsoft.Maui.Controls.DatePicker.TextColorProperty, "Ink");
         return Ui.Rounded(picker, "Surface", 12, new Thickness(16, 4), "Line");

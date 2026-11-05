@@ -141,6 +141,14 @@ public sealed class CooPageHeader : Grid
             await _focus.FocusAsync(others[choice].Id, CancellationToken.None);
     }
 
+    /// <summary>One baby: the chip opens her page, the same one as Settings → Baby.</summary>
+    private async Task OpenBabyAsync()
+    {
+        if (FindPage() is not { } page)
+            return;
+        await page.Navigation.PushAsync(_services.GetRequiredService<Pages.BabyPage>());
+    }
+
     private Page? FindPage()
     {
         Element? element = this;
@@ -289,8 +297,12 @@ public sealed class CooPageHeader : Grid
                 };
 
                 var chip = Ui.Rounded(chipContent, "Surface", 999, new Thickness(5, 5, 14, 5), "Line");
-                if (hasSiblings)
-                    chip.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await ChooseBabyAsync()) });
+                // With siblings the chip chooses the baby; with one it opens her page (name, birth date, picture):
+                // a chip that did nothing read as decoration taking space at the top (owner, 2026-11-05).
+                chip.GestureRecognizers.Add(new TapGestureRecognizer
+                {
+                    Command = new Command(async () => await (hasSiblings ? ChooseBabyAsync() : OpenBabyAsync())),
+                });
                 _babyChipContainer.Content = chip;
             });
         }

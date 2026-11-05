@@ -103,7 +103,8 @@ public sealed class TimelineRow : ContentView
         var clock = Ui.Text(time, "Meta");
         clock.StyleClass = [Tabular.StyleClass];
         // "14:05" fits 48; "1:21 PM" (12-hour phones) broke over two lines in it (seen on the demo build).
-        clock.WidthRequest = time.Length <= 5 ? 48 : 68;
+        // Scaled with the text size: at 1.3× "10:38 AM" broke over two lines again (2026-11-05).
+        clock.WidthRequest = (time.Length <= 5 ? 48 : 68) * TextScale.Factor;
         clock.VerticalOptions = LayoutOptions.Center;
 
         var titleLabel = Ui.Text(title, "BodyStrong");
@@ -249,5 +250,56 @@ internal static class ViewExtensions
     {
         configure(view);
         return view;
+    }
+}
+
+/// <summary>
+/// The phone's text size (Android Settings → Display → Font size), at least 1. Layouts that size things in dp use it
+/// so large text does not break words or cut labels (OnePlus 8 Pro and a 360 dp phone at 1.3×, 2026-11-05).
+/// </summary>
+public static class TextScale
+{
+    public static double Factor => Math.Max(1, (double)(global::Android.App.Application.Context.Resources?.Configuration?.FontScale ?? 1f));
+}
+
+/// <summary>
+/// Equal cells in one row while each gets at least <c>minWidth</c> dp (scaled with the text size), otherwise in two
+/// columns: the four care tiles became "Diape" and "oz pu mped" on a 360 dp phone with large text.
+/// </summary>
+public static class AdaptiveColumns
+{
+    public static Grid Create(IReadOnlyList<View> cells, double minWidth, Thickness padding, double spacing = 8)
+    {
+        ArgumentNullException.ThrowIfNull(cells);
+        var grid = new Grid { ColumnSpacing = spacing, RowSpacing = spacing, Padding = padding };
+        var columns = 0;
+
+        void Arrange(int count)
+        {
+            columns = count;
+            grid.Children.Clear();
+            grid.ColumnDefinitions.Clear();
+            grid.RowDefinitions.Clear();
+            for (var c = 0; c < count; c++)
+                grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+            for (var r = 0; r < (cells.Count + count - 1) / count; r++)
+                grid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+            for (var i = 0; i < cells.Count; i++)
+                grid.Add(cells[i], i % count, i / count);
+        }
+
+        Arrange(Math.Max(1, cells.Count));
+        grid.SizeChanged += (_, _) =>
+        {
+            var n = cells.Count;
+            if (grid.Width <= 0 || n <= 2)
+                return;
+            var inner = grid.Width - padding.Left - padding.Right;
+            var each = (inner - (spacing * (n - 1))) / n;
+            var wanted = each >= minWidth * TextScale.Factor ? n : (n + 1) / 2;
+            if (wanted != columns)
+                grid.Dispatcher.Dispatch(() => Arrange(wanted));
+        };
+        return grid;
     }
 }

@@ -14,9 +14,12 @@ namespace Coo.Mobile;
 /// <c>SingleTop</c>, so a link while Coo runs arrives in <see cref="OnNewIntent"/>.
 /// </summary>
 [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTop,
+    // FontScale too: Android otherwise recreates the activity when the text size changes in Settings, and MAUI's
+    // Shell then crashes on the way down (ObjectDisposedException in ShellFragmentContainer.OnDestroy, found on an
+    // emulated OnePlus 8 Pro, 2026-11-05). The new size applies the next time the app starts.
     ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode
         | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density
-        | ConfigChanges.Locale | ConfigChanges.LayoutDirection)]
+        | ConfigChanges.Locale | ConfigChanges.LayoutDirection | ConfigChanges.FontScale)]
 [IntentFilter(
     new[] { Intent.ActionView },
     Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },

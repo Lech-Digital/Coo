@@ -527,13 +527,10 @@ internal static class SectionViews
 
     private static View Tiles(LogTilesSection s, SectionHost host)
     {
-        var grid = new Grid { ColumnSpacing = 8, Padding = new Thickness(24, 16, 24, 0) };
-        for (var i = 0; i < s.Tiles.Count; i++)
-        {
-            grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
-            var t = s.Tiles[i];
-            grid.Add(new LogTile(t.KindCode, t.Name, t.LastAt, t.Command, fill: true), i);
-        }
+        // Four in a row, or two by two when they would be narrower than 70 dp at the phone's text size.
+        var grid = AdaptiveColumns.Create(
+            [.. s.Tiles.Select(t => (View)new LogTile(t.KindCode, t.Name, t.LastAt, t.Command, fill: true))],
+            minWidth: 70, padding: new Thickness(24, 16, 24, 0));
 
         // "Earlier…" (Spec 007 §4): log something that already happened, of any kind.
         var earlier = new Button
@@ -553,7 +550,7 @@ internal static class SectionViews
         earlier.BorderWidth = 1;
         earlier.Clicked += (_, _) => host.OpenEarlier();
 
-        // "Tell Coo" (ADR 0005): say or type it; the accent marks it as the quickest way in.
+        // "Tell Mochi" (ADR 0005): say or type it; the accent marks it as the quickest way in.
         var voice = new Border
         {
             HeightRequest = 36,
@@ -594,10 +591,18 @@ internal static class SectionViews
         health.BorderWidth = 1;
         health.Clicked += (_, _) => host.OpenHealth();
 
-        var actions = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto)], Padding = new Thickness(24, 0) };
-        actions.Add(voice, 0);
-        actions.Add(health, 1);
-        actions.Add(earlier, 2);
+        // Tell Mochi on the left, Health and Earlier… on the right; when they don't fit beside it (small phone, large
+        // text) they move to the next line instead of cutting "Tell Mochi" to "Tell M" (2026-11-05).
+        earlier.Margin = new Thickness(0, 8, 0, 0);
+        var secondary = new HorizontalStackLayout { Children = { health, earlier } };
+        var actions = new FlexLayout
+        {
+            Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap,
+            JustifyContent = Microsoft.Maui.Layouts.FlexJustify.SpaceBetween,
+            AlignItems = Microsoft.Maui.Layouts.FlexAlignItems.Center,
+            Padding = new Thickness(24, 0),
+            Children = { voice, secondary },
+        };
         return new VerticalStackLayout { Children = { grid, actions } };
     }
 
@@ -872,10 +877,12 @@ internal static class SectionViews
         {
             var dot = new Ellipse { WidthRequest = 8, HeightRequest = 8, VerticalOptions = LayoutOptions.Center };
             dot.SetDynamicResource(Shape.FillProperty, EventAppearance.For(fact.KindCode).Mark + "Brush");
-            var row = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 10 };
+            // The label keeps its line and the value wraps on the right: "Last feed" broke over two lines beside a
+            // long "9:52 AM · left 8 m · right 13 m" with large text (2026-11-05).
+            var row = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 10 };
             row.Add(dot, 0);
-            row.Add(Ui.Text(fact.Label, "Body", "Ink2"), 1);
-            row.Add(Ui.Text(fact.Value, "BodyStrong"), 2);
+            row.Add(Ui.Text(fact.Label, "Body", "Ink2").Tap(l => l.LineBreakMode = LineBreakMode.NoWrap), 1);
+            row.Add(Ui.Text(fact.Value, "BodyStrong").Tap(l => l.HorizontalTextAlignment = TextAlignment.End), 2);
             facts.Add(row);
         }
 
