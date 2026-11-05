@@ -38,7 +38,7 @@ public sealed class ImportViewModelTests : IDisposable
         var text = ImportViewModel.Describe(ImportPreview.Empty);
 
         // Assert
-        text.Should().StartWith("Coo found nothing");
+        text.Should().StartWith("Mochi found nothing");
     }
 
     [Fact]
@@ -48,6 +48,6 @@ public sealed class ImportViewModelTests : IDisposable
         var text = ImportViewModel.Describe(new ImportResult(800, 12, 0));
 
         // Assert
-        text.Should().Be("Added 800 entries. 12 were already in Coo.");
+        text.Should().Be("Added 800 entries. 12 were already in Mochi.");
     }
 }

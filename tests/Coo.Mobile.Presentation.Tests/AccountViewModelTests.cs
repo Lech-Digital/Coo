@@ -164,7 +164,7 @@ public sealed class AccountViewModelTests : IDisposable
 
         // Assert
         prompt.Message.Should().Be(
-            "This deletes your Coo account and, because you are the only parent, your family's shared log for Lena. The entries on this phone stay here.");
+            "This deletes your Mochi account and, because you are the only parent, your family's shared log for Lena. The entries on this phone stay here.");
         prompt.Accept.Should().Be("Delete account");
         prompt.Cancel.Should().Be("Cancel");
     }

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="widget_ground">#211D18</color>
-    <color name="widget_ink">#E9C9A0</color>
-    <color name="widget_ink2">#A88E70</color>
-    <color name="widget_accent">#C9A46A</color>
-    <color name="widget_on_accent">#16130F</color>
+    <color name="widget_ground">#1B1F19</color>
+    <color name="widget_ink">#D9E3C8</color>
+    <color name="widget_ink2">#97A486</color>
+    <color name="widget_accent">#9DBB7E</color>
+    <color name="widget_on_accent">#121511</color>
     <color name="widget_feed_tint">#2E2219</color>
     <color name="widget_feed_ink">#D9A07C</color>
     <color name="widget_diaper_tint">#2C2716</color>
     <color name="widget_diaper_ink">#CDB266</color>
     <color name="widget_sleep_tint">#25222E</color>
     <color name="widget_sleep_ink">#C0A8C0</color>
-    <color name="widget_pump_tint">#1F2724</color>
-    <color name="widget_pump_ink">#98B7A6</color>
+    <color name="widget_pump_tint">#1D2326</color>
+    <color name="widget_pump_ink">#A3B5B5</color>
 </resources>

@@ -1,6 +1,6 @@
-# CooApp (Coo) — Baby Log & Sleep
+# Mochi — Baby Tracker (code name Coo)
 
-Coo is an offline-first, private baby care logging app built for Android. It allows parents and their invited household members to log feeds (breast/bottle), diaper changes, sleeps, and pumping sessions.
+Mochi (called Coo until 1.11, see [ADR 0011](docs/adrs/0011-rename-coo-to-mochi.md)) is an offline-first, private baby care logging app built for Android. It allows parents and their invited household members to log feeds (breast/bottle), diaper changes, sleeps, and pumping sessions.
 
 The app is built with privacy and speed in mind: it uses a self-hosted backend, local SQLite storage for offline-first sync, and has no Firebase integration.
 

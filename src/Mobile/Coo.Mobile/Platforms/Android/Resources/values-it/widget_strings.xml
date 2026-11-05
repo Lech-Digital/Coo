@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="widget_label">Coo</string>
-    <string name="widget_description">Ultima poppata, sonno e pannolino a colpo d’occhio, e Tell Coo.</string>
-    <string name="widget_quick_label">Coo registrazione rapida</string>
-    <string name="widget_quick_description">Registra una poppata, un pannolino o un sonno con un tocco, senza aprire Coo.</string>
-    <string name="widget_timer_label">Coo orologi</string>
+    <string name="widget_label">Mochi</string>
+    <string name="widget_description">Ultima poppata, sonno e pannolino a colpo d’occhio, e Tell Mochi.</string>
+    <string name="widget_quick_label">Mochi registrazione rapida</string>
+    <string name="widget_quick_description">Registra una poppata, un pannolino o un sonno con un tocco, senza aprire Mochi.</string>
+    <string name="widget_timer_label">Mochi orologi</string>
     <string name="widget_timer_description">Tempo dall’ultima poppata, e da quanto è sveglio o dorme.</string>
 </resources>

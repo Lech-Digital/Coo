@@ -43,7 +43,7 @@ public sealed class AppLinkTests(AuthApi api) : IClassFixture<AuthApi>
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType!.MediaType.Should().Be("text/html");
         html.Should().Contain("ABCD-EFGH").And.Contain("https://play.google.com/store/apps/details?id=com.lechdigital.coo")
-            .And.Contain("Settings → Family → Join a family").And.Contain("https://lechdigital.nl/projects/coo/privacy")
+            .And.Contain("Settings → Family → Join a family").And.Contain("https://lechdigital.nl/projects/mochi/privacy")
             .And.NotContain("<script").And.NotContain("<img");
         response.Headers.CacheControl!.NoStore.Should().BeTrue();
         response.Headers.GetValues("Referrer-Policy").Single().Should().Be("no-referrer");

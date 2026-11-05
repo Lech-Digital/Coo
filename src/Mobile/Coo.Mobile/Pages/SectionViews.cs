@@ -313,12 +313,34 @@ internal static class SectionViews
                 value.SetDynamicResource(VisualElement.StyleProperty, s.Eyebrow.Length == 0 ? "Section" : "Hero");
         }
 
-        // The section outlives its views: the handler goes with the label.
-        s.PropertyChanged += OnChanged;
-        value.Unloaded += (_, _) => s.PropertyChanged -= OnChanged;
-        return new VerticalStackLayout
+        // Mochi beside the hero: ears up while awake, ears down while asleep (ADR 0011). Fixed size, so a long
+        // context line wraps in its own column instead of pushing the picture off the screen.
+        var mochi = new Image { WidthRequest = 64, HeightRequest = 64, VerticalOptions = LayoutOptions.Center, Aspect = Aspect.AspectFit };
+        AutomationProperties.SetIsInAccessibleTree(mochi, false); // decoration: the eyebrow already says awake or asleep
+        void ShowMood()
         {
-            Padding = new Thickness(24, 20, 24, 4),
+            mochi.IsVisible = s.Mood != MochiMood.None;
+            mochi.Source = s.Mood == MochiMood.Asleep ? "mochi_asleep.png" : "mochi_awake.png";
+        }
+
+        void OnMood(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(StatusHeroSection.Mood))
+                ShowMood();
+        }
+
+        ShowMood();
+
+        // The section outlives its views: the handlers go with the label.
+        s.PropertyChanged += OnChanged;
+        s.PropertyChanged += OnMood;
+        value.Unloaded += (_, _) =>
+        {
+            s.PropertyChanged -= OnChanged;
+            s.PropertyChanged -= OnMood;
+        };
+        var text = new VerticalStackLayout
+        {
             Spacing = 6,
             Children =
             {
@@ -327,6 +349,15 @@ internal static class SectionViews
                 Bound(s, nameof(StatusHeroSection.Context), "Body"),
             },
         };
+        var grid = new Grid
+        {
+            Padding = new Thickness(24, 20, 24, 4),
+            ColumnSpacing = 12,
+            ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) },
+        };
+        grid.Add(text, 0);
+        grid.Add(mochi, 1);
+        return grid;
     }
 
     internal static View RunningCards(IReadOnlyList<RunningItem> items, bool night, SectionHost host)

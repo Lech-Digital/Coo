@@ -139,7 +139,7 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
 
         // Assert
         model.Question.Should().Be(
-            "Your entries are now in the other family too. Delete your old family? Its 42 entries for Lena are deleted from Coo's server and this phone. The copies stay.");
+            "Your entries are now in the other family too. Delete your old family? Its 42 entries for Lena are deleted from Mochi's server and this phone. The copies stay.");
     }
 
     [Fact]
@@ -419,7 +419,7 @@ public sealed class FamilyBringOverViewModelTests : IDisposable
         await model.AnswerCommand.ExecuteAsync(null);
 
         // Assert
-        model.Toast.Should().Be("This family still has entries on Coo's server. Confirm to delete them.");
+        model.Toast.Should().Be("This family still has entries on Mochi's server. Confirm to delete them.");
         model.Step.Should().Be(BringOverStep.OldFamily);
         finished.Should().Be(0);
         model.IsBusy.Should().BeFalse();

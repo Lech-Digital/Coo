@@ -56,7 +56,7 @@ public sealed class DebugPage : ContentPage
         _sync = sync;
         _services = services;
 
-        Title = "Coo debug";
+        Title = "Mochi debug";
         BackgroundColor = Colors.White;
         Content = new ScrollView
         {
@@ -66,7 +66,7 @@ public sealed class DebugPage : ContentPage
                 Spacing = 8,
                 Children =
                 {
-                    new Label { Text = "Coo · debug screen", FontSize = 22 },
+                    new Label { Text = "Mochi · debug screen", FontSize = 22 },
                     _status,
                     _counters,
                     Row(Button("Diaper wet", () => LogPoint(new DiaperDetails(DiaperContents.Wet))),

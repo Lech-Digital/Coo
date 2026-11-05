@@ -7,8 +7,8 @@
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="Account.ChooseWhatToDo" xml:space="preserve"><value>Scegli cosa farne</value></data>
   <data name="Account.Delete" xml:space="preserve"><value>Elimina account</value></data>
-  <data name="Account.DeleteConfirm" xml:space="preserve"><value>Questo elimina il tuo account Coo e, poiché sei l'unico genitore, il registro condiviso della tua famiglia per {0}. Le voci su questo telefono restano qui.</value></data>
-  <data name="Account.DeleteConfirmNoBaby" xml:space="preserve"><value>Questo elimina il tuo account Coo e, poiché sei l'unico genitore, il registro condiviso della tua famiglia. Le voci su questo telefono restano qui.</value></data>
+  <data name="Account.DeleteConfirm" xml:space="preserve"><value>Questo elimina il tuo account Mochi e, poiché sei l'unico genitore, il registro condiviso della tua famiglia per {0}. Le voci su questo telefono restano qui.</value></data>
+  <data name="Account.DeleteConfirmNoBaby" xml:space="preserve"><value>Questo elimina il tuo account Mochi e, poiché sei l'unico genitore, il registro condiviso della tua famiglia. Le voci su questo telefono restano qui.</value></data>
   <data name="Account.DeleteFailed" xml:space="preserve"><value>Il tuo account non è stato eliminato. Controlla la connessione e riprova.</value></data>
   <data name="Account.JoinPending" xml:space="preserve"><value>Accesso effettuato. Le voci su questo telefono non sono ancora nel registro della tua famiglia.</value></data>
   <data name="Account.SessionExpired" xml:space="preserve"><value>Accedi di nuovo per continuare a condividere.</value></data>
@@ -34,14 +34,14 @@
   <data name="Action.WokeUp" xml:space="preserve"><value>Sveglio</value></data>
   <data name="Advisor.Ask" xml:space="preserve"><value>Chiedi</value></data>
   <data name="Advisor.ConsentAgree" xml:space="preserve"><value>Accetto</value></data>
-  <data name="Advisor.ConsentBody" xml:space="preserve"><value>Per rispondere, Coo invia la tua domanda (scritta, o la registrazione da trasformare in testo), questa conversazione, nome ed età del bambino e il diario degli ultimi 14 giorni, voce per voce negli ultimi due (orari e quantità, senza note), all’IA Gemini di Google, che scrive la risposta. Il server di Coo non conserva né domande né risposte; restano su questo telefono. Le risposte sono informazioni generali, non un parere medico.</value></data>
+  <data name="Advisor.ConsentBody" xml:space="preserve"><value>Per rispondere, Mochi invia la tua domanda (scritta, o la registrazione da trasformare in testo), questa conversazione, nome ed età del bambino e il diario degli ultimi 14 giorni, voce per voce negli ultimi due (orari e quantità, senza note), all’IA Gemini di Google, che scrive la risposta. Il server di Mochi non conserva né domande né risposte; restano su questo telefono. Le risposte sono informazioni generali, non un parere medico.</value></data>
   <data name="Advisor.ConsentLater" xml:space="preserve"><value>Non ora</value></data>
   <data name="Advisor.ConsentTitle" xml:space="preserve"><value>Prima della tua prima domanda</value></data>
   <data name="Advisor.Conversation" xml:space="preserve"><value>Conversazione</value></data>
   <data name="Advisor.Disclaimer" xml:space="preserve"><value>Informazioni generali, non un parere medico. Se sei preoccupato, chiama il medico; in emergenza il 112.</value></data>
   <data name="Advisor.Done" xml:space="preserve"><value>Fatto</value></data>
   <data name="Advisor.Error.daily-limit" xml:space="preserve"><value>Hai fatto le {0} domande di oggi. Riprova domani.</value></data>
-  <data name="Advisor.Error.free-limit" xml:space="preserve"><value>Hai usato le {0} domande gratuite di oggi. Coo Premium ne offre fino a 20 al giorno.</value></data>
+  <data name="Advisor.Error.free-limit" xml:space="preserve"><value>Hai usato le {0} domande gratuite di oggi. Mochi Premium ne offre fino a 20 al giorno.</value></data>
   <data name="Advisor.Error.offline" xml:space="preserve"><value>Impossibile raggiungere il Consulente. Controlla la connessione e riprova.</value></data>
   <data name="Advisor.Error.unavailable" xml:space="preserve"><value>Il Consulente non può rispondere ora. Riprova tra poco.</value></data>
   <data name="Advisor.GuideSummary" xml:space="preserve"><value>Aggiungi la data di nascita nelle Impostazioni per vedere le tappe della sua età.</value></data>
@@ -87,12 +87,12 @@
   <data name="Attention.Unreadable" xml:space="preserve"><value>Non leggibile</value></data>
   <data name="Avatar.Adjust" xml:space="preserve"><value>Regola la foto</value></data>
   <data name="Avatar.Done" xml:space="preserve"><value>La nuova immagine è impostata.</value></data>
-  <data name="Avatar.Failed" xml:space="preserve"><value>Coo non è riuscito a creare un’immagine da quella foto. Provane un’altra.</value></data>
+  <data name="Avatar.Failed" xml:space="preserve"><value>Mochi non è riuscito a creare un’immagine da quella foto. Provane un’altra.</value></data>
   <data name="Avatar.Magic" xml:space="preserve"><value>Illustra da una foto (IA)</value></data>
   <data name="Avatar.MagicPremium" xml:space="preserve"><value>Illustra da una foto (IA, Premium)</value></data>
-  <data name="Avatar.MagicSource" xml:space="preserve"><value>Quale foto deve illustrare Coo?</value></data>
+  <data name="Avatar.MagicSource" xml:space="preserve"><value>Quale foto deve illustrare Mochi?</value></data>
   <data name="Avatar.NoCamera" xml:space="preserve"><value>Questo telefono non ha una fotocamera utilizzabile. Scegli una foto dalla galleria.</value></data>
-  <data name="Avatar.PremiumOnly" xml:space="preserve"><value>Le illustrazioni fanno parte di Coo Premium.</value></data>
+  <data name="Avatar.PremiumOnly" xml:space="preserve"><value>Le illustrazioni fanno parte di Mochi Premium.</value></data>
   <data name="Avatar.Preset" xml:space="preserve"><value>Scegli un’illustrazione</value></data>
   <data name="Avatar.Remove" xml:space="preserve"><value>Rimuovi la foto</value></data>
   <data name="Avatar.Title" xml:space="preserve"><value>Foto del bambino</value></data>
@@ -147,7 +147,7 @@
   <data name="Chart.SummaryPumps" xml:space="preserve"><value>Tiralatte {0}</value></data>
   <data name="Chart.SummarySleep" xml:space="preserve"><value>Sonno {0}</value></data>
   <data name="Consent.Agree" xml:space="preserve"><value>Accetta e condividi</value></data>
-  <data name="Consent.Body" xml:space="preserve"><value>Per la condivisione, Coo conserva il registro delle cure del tuo bambino (poppate, pannolini, sonno e tiralatte, con orari, quantità e note), il profilo del bambino e le impostazioni della famiglia sul server di Coo in Germania. Sono dati sanitari su tuo figlio, quindi li conserviamo solo con il tuo permesso.</value></data>
+  <data name="Consent.Body" xml:space="preserve"><value>Per la condivisione, Mochi conserva il registro delle cure del tuo bambino (poppate, pannolini, sonno e tiralatte, con orari, quantità e note), il profilo del bambino e le impostazioni della famiglia sul server di Mochi in Germania. Sono dati sanitari su tuo figlio, quindi li conserviamo solo con il tuo permesso.</value></data>
   <data name="Consent.Body2" xml:space="preserve"><value>Tutti nella tua famiglia possono vederlo e aggiungere voci. Puoi revocare il permesso in qualsiasi momento eliminando il tuo account in Impostazioni. Il registro su questo telefono resta sempre qui.</value></data>
   <data name="Consent.Failed" xml:space="preserve"><value>Non è stato possibile attivare la condivisione. Controlla la connessione e riprova.</value></data>
   <data name="Consent.NotNow" xml:space="preserve"><value>Non ora</value></data>
@@ -202,7 +202,7 @@
   <data name="Edit.MilestonePlaceholder" xml:space="preserve"><value>Ha battuto le mani</value></data>
   <data name="Edit.MilestoneTitle" xml:space="preserve"><value>Cosa è successo</value></data>
   <data name="Edit.Minutes" xml:space="preserve"><value>{0} min</value></data>
-  <data name="Edit.Newer" xml:space="preserve"><value>Questa voce viene da una versione più recente di Coo. Aggiorna l’app per vederla.</value></data>
+  <data name="Edit.Newer" xml:space="preserve"><value>Questa voce viene da una versione più recente di Mochi. Aggiorna l’app per vederla.</value></data>
   <data name="Edit.Note" xml:space="preserve"><value>Nota</value></data>
   <data name="Edit.Part" xml:space="preserve"><value>Parte {0}</value></data>
   <data name="Edit.Start" xml:space="preserve"><value>Inizio</value></data>
@@ -233,7 +233,7 @@
   <data name="Entry.Pump" xml:space="preserve"><value>Tiralatte · {0}</value></data>
   <data name="Entry.PumpNoAmount" xml:space="preserve"><value>Tiralatte</value></data>
   <data name="Entry.Quarantined" xml:space="preserve"><value>Non leggibile</value></data>
-  <data name="Entry.ReadOnly" xml:space="preserve"><value>Da una versione più recente di Coo</value></data>
+  <data name="Entry.ReadOnly" xml:space="preserve"><value>Da una versione più recente di Mochi</value></data>
   <data name="Entry.Running" xml:space="preserve"><value>in corso</value></data>
   <data name="Entry.Sleep" xml:space="preserve"><value>Sonno · {0}</value></data>
   <data name="Entry.SleepPlanStopped" xml:space="preserve"><value>Piano del sonno interrotto</value></data>
@@ -258,7 +258,7 @@
   <data name="Error.breast.side-duration-invalid" xml:space="preserve"><value>Minuti per lato: da 1 a 240.</value></data>
   <data name="Error.breast.too-long" xml:space="preserve"><value>Una poppata dura al massimo 6 ore. Controlla gli orari.</value></data>
   <data name="Error.edit.number-invalid" xml:space="preserve"><value>Inserisci solo numeri, come 4,5.</value></data>
-  <data name="Error.entry.not-editable" xml:space="preserve"><value>Questa voce non si può modificare in questa versione di Coo.</value></data>
+  <data name="Error.entry.not-editable" xml:space="preserve"><value>Questa voce non si può modificare in questa versione di Mochi.</value></data>
   <data name="Error.entry.not-found" xml:space="preserve"><value>Questa voce non esiste più.</value></data>
   <data name="Error.entry.timing-shape-not-allowed" xml:space="preserve"><value>Gli orari di questa voce non sono consentiti.</value></data>
   <data name="Error.family.view-only" xml:space="preserve"><value>Segui il diario di questa famiglia: solo genitori e chi accudisce possono aggiungere.</value></data>
@@ -268,8 +268,8 @@
   <data name="Error.growth.weight-out-of-range" xml:space="preserve"><value>Quel peso sembra sbagliato: controlla l’unità.</value></data>
   <data name="Error.health.name-required" xml:space="preserve"><value>Inserisci un nome.</value></data>
   <data name="Error.health.text-too-long" xml:space="preserve"><value>È troppo lungo: al massimo 60 caratteri.</value></data>
-  <data name="Error.household.already-has-family" xml:space="preserve"><value>Fai già parte di una famiglia su Coo.</value></data>
-  <data name="Error.household.confirmation-required" xml:space="preserve"><value>Questa famiglia ha ancora voci sul server di Coo. Conferma per eliminarle.</value></data>
+  <data name="Error.household.already-has-family" xml:space="preserve"><value>Fai già parte di una famiglia su Mochi.</value></data>
+  <data name="Error.household.confirmation-required" xml:space="preserve"><value>Questa famiglia ha ancora voci sul server di Mochi. Conferma per eliminarle.</value></data>
   <data name="Error.household.forbidden" xml:space="preserve"><value>Non puoi farlo in questa famiglia.</value></data>
   <data name="Error.household.id-taken" xml:space="preserve"><value>Non ha funzionato. Riprova.</value></data>
   <data name="Error.household.last-family" xml:space="preserve"><value>È la tua unica famiglia, quindi non puoi lasciarla.</value></data>
@@ -287,7 +287,7 @@
   <data name="Error.plan.unwell" xml:space="preserve"><value>Negli ultimi 3 giorni ci sono stati febbre o un farmaco. Inizia un piano quando il tuo bambino starà di nuovo bene.</value></data>
   <data name="Error.pump.too-long" xml:space="preserve"><value>Il tiralatte dura al massimo 4 ore. Controlla gli orari.</value></data>
   <data name="Error.quick.already-running" xml:space="preserve"><value>Già in corso.</value></data>
-  <data name="Error.quick.no-baby" xml:space="preserve"><value>Apri Coo e aggiungi prima il tuo bambino.</value></data>
+  <data name="Error.quick.no-baby" xml:space="preserve"><value>Apri Mochi e aggiungi prima il tuo bambino.</value></data>
   <data name="Error.quick.nothing-running" xml:space="preserve"><value>Non c’è nulla in corso.</value></data>
   <data name="Error.settings.all-kinds-hidden" xml:space="preserve"><value>Lascia visibile almeno un tipo.</value></data>
   <data name="Error.sleep.too-long" xml:space="preserve"><value>Un sonno dura al massimo 24 ore. Controlla gli orari.</value></data>
@@ -299,7 +299,7 @@
   <data name="Error.sync.household-mismatch" xml:space="preserve"><value>Questa voce appartiene già al registro di un’altra famiglia.</value></data>
   <data name="Error.sync.person-unresolved" xml:space="preserve"><value>Non si sa ancora chi ha registrato questa voce. Modificala per inviarla di nuovo.</value></data>
   <data name="Error.sync.role-forbidden" xml:space="preserve"><value>Il tuo ruolo in questa famiglia non consente questa modifica.</value></data>
-  <data name="Error.sync.schema-unsupported" xml:space="preserve"><value>Questa modifica richiede una versione più recente di Coo. Aggiorna l’app.</value></data>
+  <data name="Error.sync.schema-unsupported" xml:space="preserve"><value>Questa modifica richiede una versione più recente di Mochi. Aggiorna l’app.</value></data>
   <data name="Error.sync.stamp-in-future" xml:space="preserve"><value>L’orologio di questo telefono è avanti. Controlla data e ora, poi modifica la voce.</value></data>
   <data name="Error.temperature.out-of-range" xml:space="preserve"><value>Quella temperatura sembra sbagliata: controlla °C o °F.</value></data>
   <data name="Error.time.end-not-after-start" xml:space="preserve"><value>La fine deve essere dopo l’inizio.</value></data>
@@ -312,10 +312,10 @@
   <data name="Family.BringHere" xml:space="preserve"><value>Porta qui le sue voci</value></data>
   <data name="Family.BringOver" xml:space="preserve"><value>Porta le voci</value></data>
   <data name="Family.Delete" xml:space="preserve"><value>Elimina questa famiglia</value></data>
-  <data name="Family.DeleteConfirm.one" xml:space="preserve"><value>Eliminare questa famiglia? Il suo registro di {1}, {0} voce, verrà eliminato dal server di Coo e da questo telefono. Non si può annullare.</value></data>
-  <data name="Family.DeleteConfirm.other" xml:space="preserve"><value>Eliminare questa famiglia? Il suo registro di {1}, {0} voci, verrà eliminato dal server di Coo e da questo telefono. Non si può annullare.</value></data>
-  <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>Eliminare questa famiglia? Il suo registro, {0} voce, verrà eliminato dal server di Coo e da questo telefono. Non si può annullare.</value></data>
-  <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>Eliminare questa famiglia? Il suo registro, {0} voci, verrà eliminato dal server di Coo e da questo telefono. Non si può annullare.</value></data>
+  <data name="Family.DeleteConfirm.one" xml:space="preserve"><value>Eliminare questa famiglia? Il suo registro di {1}, {0} voce, verrà eliminato dal server di Mochi e da questo telefono. Non si può annullare.</value></data>
+  <data name="Family.DeleteConfirm.other" xml:space="preserve"><value>Eliminare questa famiglia? Il suo registro di {1}, {0} voci, verrà eliminato dal server di Mochi e da questo telefono. Non si può annullare.</value></data>
+  <data name="Family.DeleteConfirmNoBaby.one" xml:space="preserve"><value>Eliminare questa famiglia? Il suo registro, {0} voce, verrà eliminato dal server di Mochi e da questo telefono. Non si può annullare.</value></data>
+  <data name="Family.DeleteConfirmNoBaby.other" xml:space="preserve"><value>Eliminare questa famiglia? Il suo registro, {0} voci, verrà eliminato dal server di Mochi e da questo telefono. Non si può annullare.</value></data>
   <data name="Family.DeleteShort" xml:space="preserve"><value>Elimina</value></data>
   <data name="Family.FromOtherAccount" xml:space="preserve"><value>Da un altro account, ancora su questo telefono</value></data>
   <data name="Family.InvitationCode" xml:space="preserve"><value>Codice {0} · creato il {1}</value></data>
@@ -378,7 +378,7 @@
   <data name="Growth.Source" xml:space="preserve"><value>Linee: standard di crescita OMS, dal 3° al 97° percentile, per i primi due anni. Una curva è un’indicazione: parla di ogni dubbio con il pediatra.</value></data>
   <data name="Growth.UseBoys" xml:space="preserve"><value>Curva delle bambine. Usa quella dei bambini</value></data>
   <data name="Growth.UseGirls" xml:space="preserve"><value>Curva dei bambini. Usa quella delle bambine</value></data>
-  <data name="Growth.WhichChart" xml:space="preserve"><value>Quale curva OMS deve usare Coo?</value></data>
+  <data name="Growth.WhichChart" xml:space="preserve"><value>Quale curva OMS deve usare Mochi?</value></data>
   <data name="Growth.WhichChartHint" xml:space="preserve"><value>Bambine e bambini crescono in modo un po’ diverso. La scelta resta su questo telefono.</value></data>
   <data name="Handover.Asleep" xml:space="preserve"><value>{0} di sonno</value></data>
   <data name="Handover.Bottles" xml:space="preserve"><value>{0} col biberon</value></data>
@@ -417,27 +417,27 @@
   <data name="Hero.Tummy" xml:space="preserve"><value>Tummy time</value></data>
   <data name="Import.Added.one" xml:space="preserve"><value>Aggiunta {0} voce.</value></data>
   <data name="Import.Added.other" xml:space="preserve"><value>Aggiunte {0} voci.</value></data>
-  <data name="Import.AlreadyThere.one" xml:space="preserve"><value>{0} era già in Coo.</value></data>
-  <data name="Import.AlreadyThere.other" xml:space="preserve"><value>{0} erano già in Coo.</value></data>
+  <data name="Import.AlreadyThere.one" xml:space="preserve"><value>{0} era già in Mochi.</value></data>
+  <data name="Import.AlreadyThere.other" xml:space="preserve"><value>{0} erano già in Mochi.</value></data>
   <data name="Import.Found" xml:space="preserve"><value>Trovate {0} voci, dal {2} al {3}.</value></data>
   <data name="Import.FoundFrom" xml:space="preserve"><value>Trovate {0} voci da {1}, dal {2} al {3}.</value></data>
   <data name="Import.Go" xml:space="preserve"><value>Importa</value></data>
   <data name="Import.Header" xml:space="preserve"><value>I tuoi dati</value></data>
-  <data name="Import.Hint" xml:space="preserve"><value>Esporta il diario da Huckleberry o da un’altra app per neonati come file CSV, poi sceglilo qui. Vedi cosa ha trovato Coo prima che venga salvato qualcosa.</value></data>
+  <data name="Import.Hint" xml:space="preserve"><value>Esporta il diario da Huckleberry o da un’altra app per neonati come file CSV, poi sceglilo qui. Vedi cosa ha trovato Mochi prima che venga salvato qualcosa.</value></data>
   <data name="Import.Kinds" xml:space="preserve"><value>Poppate: {0} · Pannolini: {1} · Sonni: {2} · Tiralatte: {3}</value></data>
   <data name="Import.NoSide.one" xml:space="preserve"><value>{0} poppata al seno non ha un lato: viene registrata come sinistro.</value></data>
   <data name="Import.NoSide.other" xml:space="preserve"><value>{0} poppate al seno non hanno un lato: vengono registrate come sinistro.</value></data>
-  <data name="Import.Nothing" xml:space="preserve"><value>Coo non ha trovato nulla da importare nel file. Scegli un’esportazione CSV con una colonna di data o ora.</value></data>
+  <data name="Import.Nothing" xml:space="preserve"><value>Mochi non ha trovato nulla da importare nel file. Scegli un’esportazione CSV con una colonna di data o ora.</value></data>
   <data name="Import.Skipped.one" xml:space="preserve"><value>{0} riga non è utilizzabile (altro tipo di voce, o senza ora).</value></data>
   <data name="Import.Skipped.other" xml:space="preserve"><value>{0} righe non sono utilizzabili (altri tipi di voci, o senza ora).</value></data>
   <data name="Import.Title" xml:space="preserve"><value>Importa da un’altra app</value></data>
-  <data name="Import.Twice" xml:space="preserve"><value>Le voci già presenti in Coo vengono saltate: importare due volte non aggiunge doppioni.</value></data>
+  <data name="Import.Twice" xml:space="preserve"><value>Le voci già presenti in Mochi vengono saltate: importare due volte non aggiunge doppioni.</value></data>
   <data name="Invite.AsCaregiver" xml:space="preserve"><value>Una tata o un nido: registra poppate, sonno e pannolini</value></data>
   <data name="Invite.AsParent" xml:space="preserve"><value>Un genitore: registra e gestisce tutto</value></data>
   <data name="Invite.AsViewer" xml:space="preserve"><value>Famiglia: segue, senza registrare</value></data>
-  <data name="Invite.ShareText" xml:space="preserve"><value>Unisciti alla mia famiglia su Coo, così teniamo insieme il registro del nostro bambino: {0}
+  <data name="Invite.ShareText" xml:space="preserve"><value>Unisciti alla mia famiglia su Mochi, così teniamo insieme il registro del nostro bambino: {0}
 
-Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una famiglia in Coo e inserisci il codice {1}. Si può usare una volta, fino al {2}.</value></data>
+Se il link non apre Mochi, vai su Impostazioni → Famiglia → Unisciti a una famiglia in Mochi e inserisci il codice {1}. Si può usare una volta, fino al {2}.</value></data>
   <data name="Invite.Who" xml:space="preserve"><value>Chi inviti?</value></data>
   <data name="Join.AlreadyMember" xml:space="preserve"><value>Fai già parte di questa famiglia.</value></data>
   <data name="Join.Babies" xml:space="preserve"><value>Il registro di quella famiglia ha: {0}.</value></data>
@@ -447,8 +447,8 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Join.BothFamilies" xml:space="preserve"><value>Entrambe le famiglie sono su questo telefono. Passa dall'una all'altra in Impostazioni → Famiglia.</value></data>
   <data name="Join.CodeLine" xml:space="preserve"><value>Codice di invito: {0}</value></data>
   <data name="Join.Copied" xml:space="preserve"><value>Le tue voci ora sono anche {0}.</value></data>
-  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Le tue voci ora sono anche {1}. Eliminare la tua vecchia famiglia? {0} voce per {2} verrà eliminata dal server di Coo e da questo telefono. Le copie restano.</value></data>
-  <data name="Join.DeleteOld.other" xml:space="preserve"><value>Le tue voci ora sono anche {1}. Eliminare la tua vecchia famiglia? Le sue {0} voci per {2} verranno eliminate dal server di Coo e da questo telefono. Le copie restano.</value></data>
+  <data name="Join.DeleteOld.one" xml:space="preserve"><value>Le tue voci ora sono anche {1}. Eliminare la tua vecchia famiglia? {0} voce per {2} verrà eliminata dal server di Mochi e da questo telefono. Le copie restano.</value></data>
+  <data name="Join.DeleteOld.other" xml:space="preserve"><value>Le tue voci ora sono anche {1}. Eliminare la tua vecchia famiglia? Le sue {0} voci per {2} verranno eliminate dal server di Mochi e da questo telefono. Le copie restano.</value></data>
   <data name="Join.DeleteOldButton" xml:space="preserve"><value>Elimina la vecchia famiglia</value></data>
   <data name="Join.EnterHint" xml:space="preserve"><value>Inserisci il codice del tuo invito.</value></data>
   <data name="Join.Join" xml:space="preserve"><value>Unisciti</value></data>
@@ -460,7 +460,7 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Join.MovedOver" xml:space="preserve"><value>Le tue voci ora sono {0}, e la tua vecchia famiglia è stata rimossa.</value></data>
   <data name="Join.NoBaby" xml:space="preserve"><value>Il registro di quella famiglia non ha ancora un bambino.</value></data>
   <data name="Join.OK" xml:space="preserve"><value>OK</value></data>
-  <data name="Join.SignInBody" xml:space="preserve"><value>Hai ricevuto un invito in una famiglia su Coo. Accedi con il tuo account Google per vederlo.</value></data>
+  <data name="Join.SignInBody" xml:space="preserve"><value>Hai ricevuto un invito in una famiglia su Mochi. Accedi con il tuo account Google per vederlo.</value></data>
   <data name="Join.SignInTitle" xml:space="preserve"><value>Accedi per unirti a una famiglia</value></data>
   <data name="Join.Skipped.one" xml:space="preserve"><value>{0} voce non può essere portata e verrà eliminata con essa.</value></data>
   <data name="Join.Skipped.other" xml:space="preserve"><value>{0} voci non possono essere portate e verranno eliminate con essa.</value></data>
@@ -529,14 +529,14 @@ Se il link non apre Coo, vai su Impostazioni → Famiglia → Unisciti a una fam
   <data name="Night.Woke.one" xml:space="preserve"><value>{0} risveglio</value></data>
   <data name="Night.Woke.other" xml:space="preserve"><value>{0} risvegli</value></data>
   <data name="Permission.CameraBody" xml:space="preserve"><value>Per la foto che stai per scattare, nient’altro. Android te lo chiederà ora.</value></data>
-  <data name="Permission.CameraTitle" xml:space="preserve"><value>Coo ha bisogno della fotocamera</value></data>
+  <data name="Permission.CameraTitle" xml:space="preserve"><value>Mochi ha bisogno della fotocamera</value></data>
   <data name="Permission.Continue" xml:space="preserve"><value>Continua</value></data>
-  <data name="Permission.MicBody" xml:space="preserve"><value>Per sentirti quando tieni premuto il microfono. Coo ascolta solo mentre lo tieni o lo tocchi, e Android te lo chiederà ora.</value></data>
-  <data name="Permission.MicTitle" xml:space="preserve"><value>Coo ha bisogno del microfono</value></data>
+  <data name="Permission.MicBody" xml:space="preserve"><value>Per sentirti quando tieni premuto il microfono. Mochi ascolta solo mentre lo tieni o lo tocchi, e Android te lo chiederà ora.</value></data>
+  <data name="Permission.MicTitle" xml:space="preserve"><value>Mochi ha bisogno del microfono</value></data>
   <data name="Permission.NotifyBody" xml:space="preserve"><value>Per i promemoria che attivi e per mostrare un timer in corso con i suoi pulsanti. Sulla schermata di blocco il nome del bambino non compare mai. Android te lo chiederà ora.</value></data>
-  <data name="Permission.NotifyTitle" xml:space="preserve"><value>Coo vorrebbe inviarti notifiche</value></data>
+  <data name="Permission.NotifyTitle" xml:space="preserve"><value>Mochi vorrebbe inviarti notifiche</value></data>
   <data name="Photo.Choose" xml:space="preserve"><value>Scegli dalla galleria</value></data>
-  <data name="Photo.Explain" xml:space="preserve"><value>Fotografa un libretto della crescita, un foglio della clinica o un libretto delle vaccinazioni. Coo legge pesi, lunghezze, circonferenze craniche e vaccini con le date, e controlli ognuno prima di salvarlo.</value></data>
+  <data name="Photo.Explain" xml:space="preserve"><value>Fotografa un libretto della crescita, un foglio della clinica o un libretto delle vaccinazioni. Mochi legge pesi, lunghezze, circonferenze craniche e vaccini con le date, e controlli ognuno prima di salvarlo.</value></data>
   <data name="Photo.Privacy" xml:space="preserve"><value>La foto viene inviata al nostro server e all’IA Gemini di Google per essere letta, poi eliminata; non viene mai conservata. I nomi presenti non possono essere nascosti prima, quindi coprili se vuoi.</value></data>
   <data name="Photo.Take" xml:space="preserve"><value>Scatta una foto</value></data>
   <data name="Photo.Title" xml:space="preserve"><value>Leggi un libretto sanitario</value></data>
@@ -637,19 +637,19 @@ Giornate luminose e vivaci, notti buie e tranquille; poppate notturne calme e br
   <data name="Plan.WakeUpUsual" xml:space="preserve"><value>Come al solito</value></data>
   <data name="Plan.Write" xml:space="preserve"><value>Scrivi</value></data>
   <data name="Plan.Yes" xml:space="preserve"><value>Sì</value></data>
-  <data name="Premium.Active" xml:space="preserve"><value>Coo Premium è attivo per tutta la famiglia. Grazie per sostenere Coo!</value></data>
+  <data name="Premium.Active" xml:space="preserve"><value>Mochi Premium è attivo per tutta la famiglia. Grazie per sostenere Mochi!</value></data>
   <data name="Premium.Benefit.Advisor" xml:space="preserve"><value>Fino a 20 domande al Consulente al giorno (3 senza Premium), con risposte che conoscono il tuo registro</value></data>
   <data name="Premium.Benefit.Avatar" xml:space="preserve"><value>Un avatar illustrato del tuo bambino, disegnato da una foto</value></data>
   <data name="Premium.Benefit.Family" xml:space="preserve"><value>Un solo acquisto copre tutta la famiglia</value></data>
   <data name="Premium.Benefit.Naps" xml:space="preserve"><value>Gli orari dei sonnellini del tuo bambino, imparati dai sonni che registri, e un promemoria prima del prossimo</value></data>
-  <data name="Premium.Benefit.Support" xml:space="preserve"><value>Mantiene Coo indipendente e senza pubblicità</value></data>
-  <data name="Premium.Benefit.TellCoo" xml:space="preserve"><value>Racconta a Coo cosa è successo fino a 100 volte al giorno, 60 a voce (5 senza Premium)</value></data>
+  <data name="Premium.Benefit.Support" xml:space="preserve"><value>Mantiene Mochi indipendente e senza pubblicità</value></data>
+  <data name="Premium.Benefit.TellCoo" xml:space="preserve"><value>Racconta a Mochi cosa è successo fino a 100 volte al giorno, 60 a voce (5 senza Premium)</value></data>
   <data name="Premium.BuyLifetime" xml:space="preserve"><value>Acquista una volta</value></data>
-  <data name="Premium.LifetimeActive" xml:space="preserve"><value>Hai Coo Premium a vita. Grazie!</value></data>
+  <data name="Premium.LifetimeActive" xml:space="preserve"><value>Hai Mochi Premium a vita. Grazie!</value></data>
   <data name="Premium.LifetimeTerms" xml:space="preserve"><value>Un solo pagamento, nessun rinnovo. Premium resta alla tua famiglia per sempre.</value></data>
   <data name="Premium.Loading" xml:space="preserve"><value>Caricamento…</value></data>
   <data name="Premium.Manage" xml:space="preserve"><value>Gestisci abbonamento</value></data>
-  <data name="Premium.NothingToRestore" xml:space="preserve"><value>Nessun acquisto di Coo Premium trovato su questo account Google.</value></data>
+  <data name="Premium.NothingToRestore" xml:space="preserve"><value>Nessun acquisto di Mochi Premium trovato su questo account Google.</value></data>
   <data name="Premium.Once" xml:space="preserve"><value>{0}, una volta sola</value></data>
   <data name="Premium.OnlyParents" xml:space="preserve"><value>Un genitore della tua famiglia può acquistare Premium; poi ce l’ha tutta la famiglia.</value></data>
   <data name="Premium.Pending" xml:space="preserve"><value>Google Play è in attesa del pagamento. Premium inizia appena viene pagato.</value></data>
@@ -667,7 +667,7 @@ Giornate luminose e vivaci, notti buie e tranquille; poppate notturne calme e br
   <data name="Premium.SignInWhy" xml:space="preserve"><value>Prima accedi con Google: così Premium appartiene alla tua famiglia, su ogni suo telefono.</value></data>
   <data name="Premium.StartTrial" xml:space="preserve"><value>Prova 7 giorni gratis</value></data>
   <data name="Premium.Subscribe" xml:space="preserve"><value>Abbonati</value></data>
-  <data name="Premium.Title" xml:space="preserve"><value>Coo Premium</value></data>
+  <data name="Premium.Title" xml:space="preserve"><value>Mochi Premium</value></data>
   <data name="Premium.TrialTerms" xml:space="preserve"><value>Gratis per 7 giorni, poi {0}. Si rinnova automaticamente; disdici su Google Play prima della fine della prova e non paghi nulla.</value></data>
   <data name="Premium.ViaFamily" xml:space="preserve"><value>Premium è stato acquistato da qualcuno della tua famiglia, che può modificarlo o annullarlo in Google Play.</value></data>
   <data name="Pump.HowMuch" xml:space="preserve"><value>Quanto?</value></data>
@@ -679,26 +679,26 @@ Giornate luminose e vivaci, notti buie e tranquille; poppate notturne calme e br
   <data name="Quick.AlreadyLogged" xml:space="preserve"><value>Già registrato alle {0}</value></data>
   <data name="Quick.Baby" xml:space="preserve"><value>Il bebè</value></data>
   <data name="Quick.Cancel" xml:space="preserve"><value>Annulla</value></data>
-  <data name="Quick.ConsentBody" xml:space="preserve"><value>Per capirti, Coo invia ciò che dici al nostro server e all’IA Gemini di Google: se parli, la registrazione, per trasformarla in testo; se scrivi, il testo. Insieme va ciò che è in corso. Nel testo scritto i nomi del bambino e della famiglia vengono sostituiti prima; in una registrazione non è possibile. Nulla viene conservato e controlli ogni voce prima di salvarla.</value></data>
-  <data name="Quick.ConsentTitle" xml:space="preserve"><value>Prima di dirlo a Coo</value></data>
+  <data name="Quick.ConsentBody" xml:space="preserve"><value>Per capirti, Mochi invia ciò che dici al nostro server e all’IA Gemini di Google: se parli, la registrazione, per trasformarla in testo; se scrivi, il testo. Insieme va ciò che è in corso. Nel testo scritto i nomi del bambino e della famiglia vengono sostituiti prima; in una registrazione non è possibile. Nulla viene conservato e controlli ogni voce prima di salvarla.</value></data>
+  <data name="Quick.ConsentTitle" xml:space="preserve"><value>Prima di dirlo a Mochi</value></data>
   <data name="Quick.DropNote" xml:space="preserve"><value>Scarta</value></data>
   <data name="Quick.Error.daily-limit" xml:space="preserve"><value>Sono le {0} di oggi. Registra il resto con i pulsanti o riprova domani.</value></data>
-  <data name="Quick.Error.free-limit" xml:space="preserve"><value>Hai usato i {0} tentativi gratuiti di oggi. Coo Premium ne offre fino a 100 al giorno.</value></data>
-  <data name="Quick.Error.signed-out" xml:space="preserve"><value>Dillo a Coo funziona dopo l’accesso e la condivisione del registro (Impostazioni → Account). Nel frattempo usa i pulsanti.</value></data>
-  <data name="Quick.Error.unavailable" xml:space="preserve"><value>Coo non riesce a capire ora. Le tue parole restano per dopo.</value></data>
+  <data name="Quick.Error.free-limit" xml:space="preserve"><value>Hai usato i {0} tentativi gratuiti di oggi. Mochi Premium ne offre fino a 100 al giorno.</value></data>
+  <data name="Quick.Error.signed-out" xml:space="preserve"><value>Dillo a Mochi funziona dopo l’accesso e la condivisione del registro (Impostazioni → Account). Nel frattempo usa i pulsanti.</value></data>
+  <data name="Quick.Error.unavailable" xml:space="preserve"><value>Mochi non riesce a capire ora. Le tue parole restano per dopo.</value></data>
   <data name="Quick.Error.voice-daily-limit" xml:space="preserve"><value>Era l’ultimo messaggio vocale di oggi ({0} al giorno). Scrivilo o riprova domani.</value></data>
   <data name="Quick.Error.voice-free-limit" xml:space="preserve"><value>Era l’ultimo messaggio vocale di oggi senza Premium ({0} al giorno). Scrivilo o riprova domani.</value></data>
   <data name="Quick.Hint" xml:space="preserve"><value>Di’ o scrivi cosa è successo, ad es. «{0} ha iniziato a sinistra» o «120 ml di latte artificiale alle due, poi un pannolino bagnato».</value></data>
   <data name="Quick.HoldHint" xml:space="preserve"><value>Tieni premuto per parlare, o tocca e parla</value></data>
-  <data name="Quick.KeptForLater" xml:space="preserve"><value>Nessuna connessione: Coo ha tenuto le tue parole e te le farà controllare più tardi.</value></data>
+  <data name="Quick.KeptForLater" xml:space="preserve"><value>Nessuna connessione: Mochi ha tenuto le tue parole e te le farà controllare più tardi.</value></data>
   <data name="Quick.Listening" xml:space="preserve"><value>Ascolto…</value></data>
   <data name="Quick.ListeningRelease" xml:space="preserve"><value>Ascolto… rilascia o tocca quando hai finito</value></data>
   <data name="Quick.NotHeard" xml:space="preserve"><value>Non ho capito. Riprova o scrivilo.</value></data>
-  <data name="Quick.NothingFound" xml:space="preserve"><value>Coo non ha trovato nulla da registrare. Di’ cosa è successo e quando.</value></data>
+  <data name="Quick.NothingFound" xml:space="preserve"><value>Mochi non ha trovato nulla da registrare. Di’ cosa è successo e quando.</value></data>
   <data name="Quick.Now" xml:space="preserve"><value>ora</value></data>
   <data name="Quick.PendingTitle" xml:space="preserve"><value>In attesa</value></data>
-  <data name="Quick.PhotoNothing" xml:space="preserve"><value>Coo non ha trovato misure o vaccini con data nella foto. Prova una foto più nitida della pagina, o scrivili.</value></data>
-  <data name="Quick.PhotoUnavailable" xml:space="preserve"><value>Coo non riesce a leggere foto ora. Riprova tra poco.</value></data>
+  <data name="Quick.PhotoNothing" xml:space="preserve"><value>Mochi non ha trovato misure o vaccini con data nella foto. Prova una foto più nitida della pagina, o scrivili.</value></data>
+  <data name="Quick.PhotoUnavailable" xml:space="preserve"><value>Mochi non riesce a leggere foto ora. Riprova tra poco.</value></data>
   <data name="Quick.Privacy" xml:space="preserve"><value>Scritto: i nomi del bambino e della famiglia sono nascosti all’IA. Parlato: la registrazione va così all’IA e non viene conservata.</value></data>
   <data name="Quick.ReviewNote" xml:space="preserve"><value>Controlla</value></data>
   <data name="Quick.Save" xml:space="preserve"><value>Salva</value></data>
@@ -710,11 +710,11 @@ Giornate luminose e vivaci, notti buie e tranquille; poppate notturne calme e br
   <data name="Quick.SpeechHints" xml:space="preserve"><value>sinistra, destra, lato sinistro, lato destro, seno, biberon, latte artificiale, latte materno, ml, pannolino, bagnato, cacca, pisolino, addormentato, sveglio, tiralatte, vitamina D, temperatura, pesa, chili, grammi</value></data>
   <data name="Quick.Stop" xml:space="preserve"><value>Ferma</value></data>
   <data name="Quick.Thinking" xml:space="preserve"><value>Sto capendo…</value></data>
-  <data name="Quick.Title" xml:space="preserve"><value>Dillo a Coo</value></data>
+  <data name="Quick.Title" xml:space="preserve"><value>Dillo a Mochi</value></data>
   <data name="Quick.TypeHere" xml:space="preserve"><value>Oppure scrivilo…</value></data>
   <data name="Quick.Understanding" xml:space="preserve"><value>Sto riascoltando…</value></data>
   <data name="Quick.Unparsed" xml:space="preserve"><value>Non capito: {0}</value></data>
-  <data name="Quick.VoiceFailed" xml:space="preserve"><value>Coo non ha sentito bene. Riprova o scrivilo.</value></data>
+  <data name="Quick.VoiceFailed" xml:space="preserve"><value>Mochi non ha sentito bene. Riprova o scrivilo.</value></data>
   <data name="Quick.Warn.ai.in-the-future" xml:space="preserve"><value>Nel futuro?</value></data>
   <data name="Quick.Warn.ai.long-ago" xml:space="preserve"><value>Più di 2 giorni fa</value></data>
   <data name="Quick.Warn.ai.long-sleep" xml:space="preserve"><value>Più di 16 ore</value></data>
@@ -723,7 +723,7 @@ Giornate luminose e vivaci, notti buie e tranquille; poppate notturne calme e br
   <data name="Quick.Warn.ai.unusual-amount" xml:space="preserve"><value>Quantità insolita: controlla</value></data>
   <data name="Reminder.Bath.Body" xml:space="preserve"><value>Ultimo bagnetto: {0}.</value></data>
   <data name="Reminder.Bath.Done" xml:space="preserve"><value>Bagnetto fatto</value></data>
-  <data name="Reminder.Bath.First" xml:space="preserve"><value>Tocca «Bagnetto fatto» dopo, e Coo conta da lì.</value></data>
+  <data name="Reminder.Bath.First" xml:space="preserve"><value>Tocca «Bagnetto fatto» dopo, e Mochi conta da lì.</value></data>
   <data name="Reminder.Bath.Title" xml:space="preserve"><value>È ora del bagnetto per {0}</value></data>
   <data name="Reminder.Bed.Body" xml:space="preserve"><value>Sveglio dalle {0}. È probabile che sia ora di dormire dalle {1} circa.</value></data>
   <data name="Reminder.Bed.Title" xml:space="preserve"><value>Presto sarà ora di dormire per {0}</value></data>
@@ -737,7 +737,7 @@ Giornate luminose e vivaci, notti buie e tranquille; poppate notturne calme e br
   <data name="Reminder.Medicine.Title" xml:space="preserve"><value>{0} per {1}</value></data>
   <data name="Reminder.Nap.Body" xml:space="preserve"><value>Sveglio dalle {0}. Un pisolino è probabile dalle {1} circa.</value></data>
   <data name="Reminder.Nap.Title" xml:space="preserve"><value>Presto sarà ora del pisolino per {0}</value></data>
-  <data name="Reminder.Timer.Body" xml:space="preserve"><value>Avviato alle {0}. Se avete finito, apri Coo per fermarlo.</value></data>
+  <data name="Reminder.Timer.Body" xml:space="preserve"><value>Avviato alle {0}. Se avete finito, apri Mochi per fermarlo.</value></data>
   <data name="Reminder.Timer.Feeding" xml:space="preserve"><value>Il timer della poppata è ancora attivo</value></data>
   <data name="Reminder.Timer.Pumping" xml:space="preserve"><value>Il timer del tiralatte è ancora attivo</value></data>
   <data name="Reminders.AddMedicine" xml:space="preserve"><value>Aggiungi medicina</value></data>
@@ -745,20 +745,20 @@ Giornate luminose e vivaci, notti buie e tranquille; poppate notturne calme e br
   <data name="Reminders.BathAt" xml:space="preserve"><value>Alle</value></data>
   <data name="Reminders.BathHint" xml:space="preserve"><value>Contato dall’ultimo bagnetto registrato</value></data>
   <data name="Reminders.Daily" xml:space="preserve"><value>Ogni giorno</value></data>
-  <data name="Reminders.Denied" xml:space="preserve"><value>Le notifiche di Coo sono disattivate. Attivale nelle impostazioni di Android per ricevere i promemoria.</value></data>
+  <data name="Reminders.Denied" xml:space="preserve"><value>Le notifiche di Mochi sono disattivate. Attivale nelle impostazioni di Android per ricevere i promemoria.</value></data>
   <data name="Reminders.Diaper" xml:space="preserve"><value>Controllo pannolino</value></data>
   <data name="Reminders.DiaperHint" xml:space="preserve"><value>Questo tempo dopo l’ultimo cambio</value></data>
   <data name="Reminders.EveryDay" xml:space="preserve"><value>ogni giorno</value></data>
   <data name="Reminders.EveryDays" xml:space="preserve"><value>Ogni {0} giorni</value></data>
   <data name="Reminders.Exact" xml:space="preserve"><value>Puntuale al minuto</value></data>
   <data name="Reminders.ExactAllow" xml:space="preserve"><value>Consenti nelle impostazioni</value></data>
-  <data name="Reminders.ExactHint" xml:space="preserve"><value>Android può ritardare i promemoria quando il telefono è inattivo. Consenti «Sveglie e promemoria» per Coo per riceverli in orario.</value></data>
+  <data name="Reminders.ExactHint" xml:space="preserve"><value>Android può ritardare i promemoria quando il telefono è inattivo. Consenti «Sveglie e promemoria» per Mochi per riceverli in orario.</value></data>
   <data name="Reminders.Feed" xml:space="preserve"><value>Poppata</value></data>
   <data name="Reminders.FeedAtNight" xml:space="preserve"><value>Anche di notte</value></data>
   <data name="Reminders.FeedAtNightHint" xml:space="preserve"><value>Altrimenti silenzioso tra le {0} e le {1}.</value></data>
   <data name="Reminders.FeedHint" xml:space="preserve"><value>Questo tempo dopo l’inizio dell’ultima poppata</value></data>
   <data name="Reminders.Hours" xml:space="preserve"><value>{0} h</value></data>
-  <data name="Reminders.Intro" xml:space="preserve"><value>Coo ti ricorda dal telefono, anche offline. Ogni genitore sceglie i propri.</value></data>
+  <data name="Reminders.Intro" xml:space="preserve"><value>Mochi ti ricorda dal telefono, anche offline. Ogni genitore sceglie i propri.</value></data>
   <data name="Reminders.Medicines" xml:space="preserve"><value>Medicine e vitamine</value></data>
   <data name="Reminders.MedicinesHint" xml:space="preserve"><value>A orari fissi ogni giorno. Già registrato? Nessun promemoria.</value></data>
   <data name="Reminders.Minutes" xml:space="preserve"><value>{0} min prima</value></data>
@@ -805,7 +805,7 @@ Giornate luminose e vivaci, notti buie e tranquille; poppate notturne calme e br
   <data name="Report.DaysCounted.one" xml:space="preserve"><value>Media su {0} giorno con registrazioni.</value></data>
   <data name="Report.DaysCounted.other" xml:space="preserve"><value>Media su {0} giorni con registrazioni.</value></data>
   <data name="Report.Failed" xml:space="preserve"><value>Impossibile creare il report. Riprova.</value></data>
-  <data name="Report.Footer" xml:space="preserve"><value>Creato con Coo il {0} da ciò che la famiglia ha registrato. * Oggi, ancora in corso. Non è una cartella clinica.</value></data>
+  <data name="Report.Footer" xml:space="preserve"><value>Creato con Mochi il {0} da ciò che la famiglia ha registrato. * Oggi, ancora in corso. Non è una cartella clinica.</value></data>
   <data name="Report.Growth" xml:space="preserve"><value>Crescita</value></data>
   <data name="Report.Health" xml:space="preserve"><value>Salute</value></data>
   <data name="Report.Hint" xml:space="preserve"><value>Un PDF con medie, ogni giorno, crescita e salute, da condividere o stampare.</value></data>
@@ -830,9 +830,9 @@ Giornate luminose e vivaci, notti buie e tranquille; poppate notturne calme e br
   <data name="Settings.FeedbackBody" xml:space="preserve"><value>
 
 —
-Coo {0} ({1}), Android {2}</value></data>
+Mochi {0} ({1}), Android {2}</value></data>
   <data name="Settings.FeedbackCopied" xml:space="preserve"><value>Nessuna app di posta. Indirizzo copiato: {0}</value></data>
-  <data name="Settings.FeedbackSubject" xml:space="preserve"><value>Feedback su Coo</value></data>
+  <data name="Settings.FeedbackSubject" xml:space="preserve"><value>Feedback su Mochi</value></data>
   <data name="Settings.Kinds" xml:space="preserve"><value>Cosa registri</value></data>
   <data name="Settings.KindsHint" xml:space="preserve"><value>I tipi nascosti conservano le loro voci.</value></data>
   <data name="Settings.Language" xml:space="preserve"><value>Lingua</value></data>
@@ -847,7 +847,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Settings.Theme.Day" xml:space="preserve"><value>Giorno</value></data>
   <data name="Settings.Theme.Night" xml:space="preserve"><value>Notte</value></data>
   <data name="Settings.Units" xml:space="preserve"><value>Unità</value></data>
-  <data name="Settings.Version" xml:space="preserve"><value>Coo {0} ({1})</value></data>
+  <data name="Settings.Version" xml:space="preserve"><value>Mochi {0} ({1})</value></data>
   <data name="Settings.Volume" xml:space="preserve"><value>Volume</value></data>
   <data name="Setup.AddBabyInstead" xml:space="preserve"><value>Aggiungi invece un bambino qui</value></data>
   <data name="Setup.Arrived" xml:space="preserve"><value>Il bambino è già nato?</value></data>
@@ -862,8 +862,8 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Setup.HintSignedIn" xml:space="preserve"><value>Aggiungi il tuo bambino per iniziare il registro della tua famiglia.</value></data>
   <data name="Setup.Name" xml:space="preserve"><value>Nome</value></data>
   <data name="Setup.NotYet" xml:space="preserve"><value>Non ancora</value></data>
-  <data name="Setup.SignIn" xml:space="preserve"><value>Usi già Coo? Accedi</value></data>
-  <data name="Setup.Title" xml:space="preserve"><value>Benvenuti in Coo</value></data>
+  <data name="Setup.SignIn" xml:space="preserve"><value>Usi già Mochi? Accedi</value></data>
+  <data name="Setup.Title" xml:space="preserve"><value>Benvenuti in Mochi</value></data>
   <data name="Setup.Yes" xml:space="preserve"><value>Sì</value></data>
   <data name="Sibling.Asleep" xml:space="preserve"><value>dorme da {0}</value></data>
   <data name="Sibling.Awake" xml:space="preserve"><value>sveglio da {0}</value></data>
@@ -919,15 +919,15 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Summary.Title" xml:space="preserve"><value>Questa settimana, in parole</value></data>
   <data name="Summary.Write" xml:space="preserve"><value>Scrivi</value></data>
   <data name="Summary.Writing" xml:space="preserve"><value>Sto scrivendo…</value></data>
-  <data name="Sync.NotAMember" xml:space="preserve"><value>La condivisione si è fermata: questa famiglia non è più sul server di Coo. Le tue voci sono al sicuro su questo telefono.</value></data>
+  <data name="Sync.NotAMember" xml:space="preserve"><value>La condivisione si è fermata: questa famiglia non è più sul server di Mochi. Le tue voci sono al sicuro su questo telefono.</value></data>
   <data name="Sync.Off" xml:space="preserve"><value>La condivisione è disattivata. Il tuo registro è solo su questo telefono.</value></data>
   <data name="Sync.Paused" xml:space="preserve"><value>La condivisione è in pausa. Le tue voci sono al sicuro su questo telefono.</value></data>
   <data name="Sync.Sharing.one" xml:space="preserve"><value>Condivisione di {0} modifica…</value></data>
   <data name="Sync.Sharing.other" xml:space="preserve"><value>Condivisione di {0} modifiche…</value></data>
-  <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>La condivisione si è fermata. Le tue modifiche sono al sicuro su questo telefono. Coo riproverà alla prossima apertura dell’app.</value></data>
+  <data name="Sync.StoppedNoProgress" xml:space="preserve"><value>La condivisione si è fermata. Le tue modifiche sono al sicuro su questo telefono. Mochi riproverà alla prossima apertura dell’app.</value></data>
   <data name="Sync.TurnOn" xml:space="preserve"><value>Attiva la condivisione</value></data>
   <data name="Sync.UpToDate" xml:space="preserve"><value>Aggiornato · {0}</value></data>
-  <data name="Sync.UpdateApp" xml:space="preserve"><value>Aggiorna Coo per continuare a condividere. Le tue modifiche sono al sicuro su questo telefono.</value></data>
+  <data name="Sync.UpdateApp" xml:space="preserve"><value>Aggiorna Mochi per continuare a condividere. Le tue modifiche sono al sicuro su questo telefono.</value></data>
   <data name="Sync.Waiting.one" xml:space="preserve"><value>In attesa di connessione. {0} modifica è al sicuro su questo telefono.</value></data>
   <data name="Sync.Waiting.other" xml:space="preserve"><value>In attesa di connessione. {0} modifiche sono al sicuro su questo telefono.</value></data>
   <data name="Sync.WaitingNoChanges" xml:space="preserve"><value>In attesa di connessione.</value></data>
@@ -995,7 +995,7 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Tour.Feeding.Title" xml:space="preserve"><value>Allattamento e biberon</value></data>
   <data name="Tour.Growth.Body" xml:space="preserve"><value>Peso, lunghezza e circonferenza cranica sulle curve dell’OMS, con percentili. Farmaci, temperatura e vaccini in Salute; una foto del libretto li compila.</value></data>
   <data name="Tour.Growth.Title" xml:space="preserve"><value>Crescita e salute</value></data>
-  <data name="Tour.LogFaster.Body" xml:space="preserve"><value>Dillo a Coo: «120 ml di latte artificiale alle due», e controlla prima di salvare. Widget e barra delle notifiche registrano e fermano i timer; promemoria per poppate, pannolini e farmaci.</value></data>
+  <data name="Tour.LogFaster.Body" xml:space="preserve"><value>Dillo a Mochi: «120 ml di latte artificiale alle due», e controlla prima di salvare. Widget e barra delle notifiche registrano e fermano i timer; promemoria per poppate, pannolini e farmaci.</value></data>
   <data name="Tour.LogFaster.Title" xml:space="preserve"><value>Registra più in fretta</value></data>
   <data name="Tour.Next" xml:space="preserve"><value>Consiglio successivo</value></data>
   <data name="Tour.Position" xml:space="preserve"><value>{0} di {1}</value></data>
@@ -1006,9 +1006,9 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Tour.Start" xml:space="preserve"><value>Inizia</value></data>
   <data name="Tour.Stats.Body" xml:space="preserve"><value>Una giornata media su 7, 14 o 30 giorni: latte al giorno e per biberon, poppate, sonno e pannolini. Andamento e report PDF per il pediatra.</value></data>
   <data name="Tour.Stats.Title" xml:space="preserve"><value>Statistiche</value></data>
-  <data name="Tour.Title" xml:space="preserve"><value>Come funziona Coo</value></data>
+  <data name="Tour.Title" xml:space="preserve"><value>Come funziona Mochi</value></data>
   <data name="Tour.Welcome.Body" xml:space="preserve"><value>Registra allattamento, biberon, sonno, pannolini e tiralatte, segui la crescita del bambino e condividi il diario con la famiglia. Funziona offline; per iniziare non serve un account.</value></data>
-  <data name="Tour.Welcome.Title" xml:space="preserve"><value>Benvenuti in Coo</value></data>
+  <data name="Tour.Welcome.Title" xml:space="preserve"><value>Benvenuti in Mochi</value></data>
   <data name="Trend.Average" xml:space="preserve"><value>media {0}</value></data>
   <data name="Trend.Bottle" xml:space="preserve"><value>Biberon al giorno</value></data>
   <data name="Trend.BreastFeed" xml:space="preserve"><value>Durata della poppata</value></data>
@@ -1045,10 +1045,10 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Unit.Lb" xml:space="preserve"><value>lb</value></data>
   <data name="Unit.Ml" xml:space="preserve"><value>ml</value></data>
   <data name="Unit.Oz" xml:space="preserve"><value>oz</value></data>
-  <data name="Update.Available" xml:space="preserve"><value>Su Google Play c’è una nuova versione di Coo, con nuove cose da registrare e correzioni. Aggiornare ora?</value></data>
+  <data name="Update.Available" xml:space="preserve"><value>Su Google Play c’è una nuova versione di Mochi, con nuove cose da registrare e correzioni. Aggiornare ora?</value></data>
   <data name="Update.Button" xml:space="preserve"><value>Aggiorna</value></data>
-  <data name="Update.Downloaded" xml:space="preserve"><value>Una nuova versione di Coo è pronta. Riavvia per installarla, ci vogliono pochi secondi.</value></data>
-  <data name="Update.Forced" xml:space="preserve"><value>Questa versione di Coo è troppo vecchia per sincronizzare il registro. Aggiornala su Google Play.</value></data>
+  <data name="Update.Downloaded" xml:space="preserve"><value>Una nuova versione di Mochi è pronta. Riavvia per installarla, ci vogliono pochi secondi.</value></data>
+  <data name="Update.Forced" xml:space="preserve"><value>Questa versione di Mochi è troppo vecchia per sincronizzare il registro. Aggiornala su Google Play.</value></data>
   <data name="Update.Later" xml:space="preserve"><value>Più tardi</value></data>
   <data name="Update.Restart" xml:space="preserve"><value>Riavvia</value></data>
   <data name="Update.Title" xml:space="preserve"><value>Aggiornamento disponibile</value></data>
@@ -1077,11 +1077,11 @@ Coo {0} ({1}), Android {2}</value></data>
   <data name="Widget.FedAt" xml:space="preserve"><value>Nutrito alle {0}</value></data>
   <data name="Widget.FeedingSince" xml:space="preserve"><value>Mangia dalle {0}</value></data>
   <data name="Widget.LastFeed" xml:space="preserve"><value>Ultima poppata</value></data>
-  <data name="Widget.Logged" xml:space="preserve"><value>Coo: {0}</value></data>
+  <data name="Widget.Logged" xml:space="preserve"><value>Mochi: {0}</value></data>
   <data name="Widget.NoDiaper" xml:space="preserve"><value>Nessun pannolino ancora</value></data>
   <data name="Widget.NoFeed" xml:space="preserve"><value>Nessuna poppata ancora</value></data>
-  <data name="Widget.Open" xml:space="preserve"><value>Apri Coo per iniziare</value></data>
+  <data name="Widget.Open" xml:space="preserve"><value>Apri Mochi per iniziare</value></data>
   <data name="Widget.StopPump" xml:space="preserve"><value>Ferma</value></data>
   <data name="Widget.Switch" xml:space="preserve"><value>Cambia</value></data>
-  <data name="Widget.Tell" xml:space="preserve"><value>Dillo a Coo</value></data>
+  <data name="Widget.Tell" xml:space="preserve"><value>Dillo a Mochi</value></data>
 </root>

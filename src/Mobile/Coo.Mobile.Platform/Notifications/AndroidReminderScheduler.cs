@@ -208,7 +208,7 @@ public sealed class ReminderReceiver : BroadcastReceiver
         try
         {
             Reminders.Forget(context, id);
-            var title = intent.GetStringExtra("title") ?? "Coo";
+            var title = intent.GetStringExtra("title") ?? "Mochi";
             var body = intent.GetStringExtra("body") ?? "";
             Reminders.EnsureChannel(context, ChannelName.Value);
 
@@ -216,10 +216,10 @@ public sealed class ReminderReceiver : BroadcastReceiver
             var tap = open is null ? null : PendingIntent.GetActivity(context, Reminders.Code(id), open, PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
             var icon = context.Resources?.GetIdentifier("ic_stat_coo", "drawable", context.PackageName) is > 0 and var found ? found : context.ApplicationInfo?.Icon ?? 0;
 
-            // On a locked screen only "Coo reminder" shows (ADR 0007 §4): a child's care stays private.
+            // On a locked screen only "Mochi reminder" shows (ADR 0007 §4): a child's care stays private.
             var hidden = new AndroidX.Core.App.NotificationCompat.Builder(context, Reminders.ChannelId)
                 .SetSmallIcon(icon)!
-                .SetContentTitle("Coo")!
+                .SetContentTitle("Mochi")!
                 .Build();
             var builder = new AndroidX.Core.App.NotificationCompat.Builder(context, Reminders.ChannelId)
                 .SetSmallIcon(icon)!

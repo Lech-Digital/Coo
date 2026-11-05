@@ -64,7 +64,7 @@ public sealed class ReminderRefresher(
             if (household is null || baby is null)
             {
                 await scheduler.ReplaceAllAsync([], cancellationToken);
-                widget.Show(new WidgetContent("Coo", Strings.Get("Widget.Open"), "", "", Labels: labels, HasBaby: false));
+                widget.Show(new WidgetContent("Mochi", Strings.Get("Widget.Open"), "", "", Labels: labels, HasBaby: false));
                 timers.Show([], labels);
                 return;
             }

@@ -322,7 +322,7 @@ public sealed class SettingsPage : ContentPage
         contentStack.Add(Hint("Import.Hint"));
 
         contentStack.Add(Header("Premium"));
-        contentStack.Add(Row(Ui.Text(Strings.Get("Premium.Title") ?? "Coo Premium", "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<PremiumPage>())));
+        contentStack.Add(Row(Ui.Text(Strings.Get("Premium.Title") ?? "Mochi Premium", "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<PremiumPage>())));
 
         contentStack.Add(Header("Settings.Appearance"));
         _themeAutoButton = new Button { Text = Strings.Get("Settings.Theme.Auto") };

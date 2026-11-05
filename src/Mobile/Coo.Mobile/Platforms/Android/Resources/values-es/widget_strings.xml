@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="widget_label">Coo</string>
-    <string name="widget_description">Última toma, sueño y pañal de un vistazo, y Tell Coo.</string>
-    <string name="widget_quick_label">Coo registro rápido</string>
-    <string name="widget_quick_description">Registra una toma, un pañal o un sueño con un toque, sin abrir Coo.</string>
-    <string name="widget_timer_label">Coo relojes</string>
+    <string name="widget_label">Mochi</string>
+    <string name="widget_description">Última toma, sueño y pañal de un vistazo, y Tell Mochi.</string>
+    <string name="widget_quick_label">Mochi registro rápido</string>
+    <string name="widget_quick_description">Registra una toma, un pañal o un sueño con un toque, sin abrir Mochi.</string>
+    <string name="widget_timer_label">Mochi relojes</string>
     <string name="widget_timer_description">Tiempo desde la última toma, y cuánto lleva despierto o dormido.</string>
 </resources>

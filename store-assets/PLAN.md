@@ -1,5 +1,8 @@
 # Play Store assets — the plan (agreed 2026-10-02, to do near the release)
 
+Historical: written for Coo. Since 1.11 the app is Mochi (ADR 0011); what is in the store now is described in
+`PLAY-CONSOLE.md`.
+
 The owner asked for every Play Store asset, PurePrep-style (`../PurePrep/store-assets/`). Screenshots wait until the
 features are built (sign-in, sync, sharing, Premium), so they show the finished app. The icon is done: D2, see
 `icon-options/`.

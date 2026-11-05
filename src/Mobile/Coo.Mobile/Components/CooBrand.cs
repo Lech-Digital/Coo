@@ -2,6 +2,7 @@ using Coo.Mobile.Presentation.Today;
 
 namespace Coo.Mobile.Components;
 
+/// <summary>The "mochi" wordmark: "moch" in ink and the "i" in the accent, or in gold with "Premium".</summary>
 public static class CooBrand
 {
     public static readonly Color DayGold = Color.FromArgb("#C5921D");
@@ -16,16 +17,16 @@ public static class CooBrand
 
         if (isPremium)
         {
-            formatted.Spans.Add(new Span { Text = "co", FontFamily = "FigtreeBold", FontSize = fontSize }
+            formatted.Spans.Add(new Span { Text = "moch", FontFamily = "FigtreeBold", FontSize = fontSize }
                 .Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Ink")));
-            formatted.Spans.Add(new Span { Text = "o", FontFamily = "FigtreeBold", FontSize = fontSize, TextColor = goldColor });
+            formatted.Spans.Add(new Span { Text = "i", FontFamily = "FigtreeBold", FontSize = fontSize, TextColor = goldColor });
             formatted.Spans.Add(new Span { Text = " Premium", FontFamily = "FigtreeBold", FontSize = fontSize, TextColor = goldColor });
         }
         else
         {
-            formatted.Spans.Add(new Span { Text = "co", FontFamily = "FigtreeBold", FontSize = fontSize }
+            formatted.Spans.Add(new Span { Text = "moch", FontFamily = "FigtreeBold", FontSize = fontSize }
                 .Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Ink")));
-            formatted.Spans.Add(new Span { Text = "o", FontFamily = "FigtreeBold", FontSize = fontSize }
+            formatted.Spans.Add(new Span { Text = "i", FontFamily = "FigtreeBold", FontSize = fontSize }
                 .Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Accent")));
         }
 

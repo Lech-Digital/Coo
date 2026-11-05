@@ -10,11 +10,11 @@
     <SingleProject>true</SingleProject>
     <MauiXamlInflator>SourceGen</MauiXamlInflator>
 
-    <ApplicationTitle>Coo</ApplicationTitle>
+    <ApplicationTitle>Mochi</ApplicationTitle>
     <ApplicationId>com.lechdigital.coo</ApplicationId>
-    <ApplicationDisplayVersion>1.10.0</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>1.11.0</ApplicationDisplayVersion>
     <!-- Every build that leaves this machine bumps both (CHANGELOG.md): the name by SemVer, the code by one, never reused. -->
-    <ApplicationVersion>30</ApplicationVersion>
+    <ApplicationVersion>31</ApplicationVersion>
     <!-- The informational version is the display version plus the commit, e.g. 0.13.0+<commit> (SourceLink), shown in About like the API's /health. -->
     <Version>$(ApplicationDisplayVersion)</Version>
 
@@ -52,14 +52,16 @@
 
   <ItemGroup>
     <!-- Icon D2, "saying coo" (store-assets/icon-options): a baby in a speech bubble on peach. -->
-    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#F2B892" />
-    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#F1EDE5" BaseSize="128,128" />
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#3F6B4A" />
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#EEEEE6" BaseSize="128,128" />
     <!-- Figtree only (design system §3). eng/verify-apk-fonts.sh checks they reach the APK. -->
     <MauiFont Include="Resources\Fonts\*.ttf" />
     <!-- Tab icons, from the same 24-grid paths as the Icon control (design system §5). -->
     <MauiImage Include="Resources\Images\tab_*.svg" BaseSize="24,24" />
     <!-- Avatar illustration presets: sharp high-resolution rendering -->
     <MauiImage Include="Resources\Images\avatar_*.svg" BaseSize="256,256" />
+    <!-- Mochi awake and asleep (ADR 0011): beside the hero on Today (64 dp) and in the widget (36 dp). -->
+    <MauiImage Include="Resources\Images\mochi_*.svg" BaseSize="64,64" />
     <!-- The licence texts (Spec 009 §3.6), read with FileSystem.OpenAppPackageFileAsync("licences/…"). -->
     <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>

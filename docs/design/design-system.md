@@ -1,4 +1,4 @@
-# Coo design system — "Washi UX"
+# Mochi design system (code name Coo) — "Washi UX"
 
 Status: Locked (2026-09-29; day `Mark`s and night `VoiceHint` darkened for contrast, and night `SleepInk` warmed
 from `#B1A3C9` so night text is never blue-dominant, and night `AccentSoft` lifted from `#2E2820` so a selected
@@ -25,8 +25,9 @@ They are the contract between this document and the XAML.
    - it contains no white and no blue-dominant text;
    - its touch targets are larger;
    - it shows only what a half-awake parent needs.
-3. **Calm, not cute.** Japandi restraint: lots of space, hairline borders and one accent. Warmth
-   comes from colour and wording, not from illustrations or mascots.
+3. **Calm, with one friend.** Japandi restraint: lots of space, hairline borders and one accent.
+   The one exception is Mochi, the bunny-shaped mochi of the icon, shown small where it tells the
+   baby's state: awake (ears up) or asleep (ears down). Nowhere else, never decoration.
 4. **Numbers are the heroes.** Times and durations are the largest things on screen. They use
    Figtree Light with tabular figures.
 
@@ -36,18 +37,18 @@ They are the contract between this document and the XAML.
 
 | Token | Day | Night | Use |
 |---|---|---|---|
-| `Ground` | `#F1EDE5` | `#16130F` | Page background |
-| `Surface` | `#FAF8F3` | `#211D18` | Cards, bottom navigation, chips |
-| `Line` | `#DDD6C9` | `#332D26` | Hairline borders and separators |
-| `Ink` | `#2A2823` | `#E9C9A0` | Primary text and icons |
-| `Ink2` | `#6B665C` | `#A88E70` | Secondary text, metadata |
-| `Accent` | `#BA4F28` (terracotta) | `#C9A46A` (amber) | Primary actions, links |
-| `AccentSoft` | `#F2E8DC` | `#37322B` | Pills, selected states |
-| `AccentInk` | `#8A3516` | `#E9C9A0` | Text on `AccentSoft`; link text |
-| `OnAccent` | `#FAF8F3` | `#16130F` | Text on `Accent` |
-| `Cheek` | `#E8C4B8` | `#2E2820` | Baby avatar fill |
-| `CheekInk` | `#6E3F33` | `#E9C9A0` | Baby avatar initial |
-| `VoiceBg` / `VoiceInk` / `VoiceHint` | `#2A2823` / `#F1EDE5` / `#B8B1A4` | `#C9A46A` / `#16130F` / `#4A3D2A` | The "Tell Coo" bar |
+| `Ground` | `#EEEEE6` | `#121511` | Page background |
+| `Surface` | `#FAFAF5` | `#1B1F19` | Cards, bottom navigation, chips |
+| `Line` | `#D8DACB` | `#2C3228` | Hairline borders and separators |
+| `Ink` | `#262A22` | `#D9E3C8` | Primary text and icons |
+| `Ink2` | `#62685A` | `#97A486` | Secondary text, metadata |
+| `Accent` | `#4F7A45` (matcha) | `#9DBB7E` (light matcha) | Primary actions, links |
+| `AccentSoft` | `#E3EBD8` | `#283022` | Pills, selected states |
+| `AccentInk` | `#355229` | `#CFE0B6` | Text on `AccentSoft`; link text |
+| `OnAccent` | `#FAFAF5` | `#121511` | Text on `Accent` |
+| `Cheek` | `#E8C4B8` | `#2A2A22` | Baby avatar fill |
+| `CheekInk` | `#6E3F33` | `#D9E3C8` | Baby avatar initial |
+| `VoiceBg` / `VoiceInk` / `VoiceHint` | `#262A22` / `#EEEEE6` / `#B4B8AA` | `#9DBB7E` / `#121511` / `#36412C` | The "Tell Mochi" bar |
 
 ### Care events
 
@@ -62,14 +63,15 @@ Each event has three tokens:
 | **Feed** (peach) | `#F5DCCB` / `#CC6F3B` / `#7A3F20` | `#2E2219` / `#C98A63` / `#D9A07C` |
 | **Diaper** (yuzu) | `#F3E6B3` / `#A08528` / `#6A5410` | `#2C2716` / `#BFA34E` / `#CDB266` |
 | **Sleep** (lavender) | `#E2DCEF` / `#8E7FBE` / `#473A78` | `#25222E` / `#9A8AB5` / `#C0A8C0` |
-| **Pump** (mint) | `#D6E9E2` / `#5A9481` / `#2D5A4C` | `#1F2724` / `#7FA08F` / `#98B7A6` |
+| **Pump** (sky) | `#DCE6EE` / `#5B84A0` / `#2B4A5F` | `#1D2326` / `#7C939B` / `#A3B5B5` |
 
 Keys follow the pattern `FeedTint`, `FeedMark`, `FeedInk`, and so on.
 
 Colour rules:
 
-- **Pump is mint, never matcha.** Matcha is reserved for actions, so an event colour is never
-  mistaken for a button.
+- **Pump is sky, never matcha.** Matcha is the brand and the action colour (the Mochi icon is matcha,
+  ADR 0011), so an event colour is never mistaken for a button. Pump was mint until 1.11; at night it
+  is a grey slate, so no text turns blue.
 - **Event colours are for events only.** They are never used for status, errors or branding.
 - **Semantic states are separate from events and from the accent.** They will be defined with the
   first screen that needs them: `Warning` (implausible AI values, "reminders may be late") and
@@ -172,7 +174,7 @@ spec.
 | **Status hero** | `Label` eyebrow, `Hero` number, and a `Body`/`Ink2` sentence of context. |
 | **Nap window card** | `Surface` card. A `Sleep`-inked eyebrow, a confidence pill, `Window` digits with a `SleepMark` dot, and a one-line explanation (ADR 0008). Low confidence shows the age-typical range instead of times. |
 | **Log tile** | A 96 dp square in the event `Tint`. It holds the icon, the name, and a "last at" line (for example "12:40 · L"). A tap logs or opens the quick form; a long press opens details. |
-| **Voice bar** | A full-width pill in `VoiceBg`: mic icon, "Tell Coo", and a rotating example hint. |
+| **Voice bar** | A full-width pill in `VoiceBg`: mic icon, "Tell Mochi", and a rotating example hint. |
 | **Timeline row** | Time (tabular), event badge (34 dp, `Tint` with an `Ink` icon), title in `BodyStrong`, and who logged it in `Meta`. Hairline separators. |
 | **Day ribbon** | A 24-hour rhythm band (Spec 009b). Sleep fills the band in `SleepMark`; feeds are `FeedMark` pills of their real length above it; diapers are `DiaperMark` dots and pumps `PumpMark` squares below it. Quiet hours are a `SleepTint` wash, today has an `Accent` "now" line, and labels mark every 3 hours. A tap opens the zoomed day: 6 hours per screen around the tap, swiped, with every item labelled. |
 | **Totals** | Four `Tint` cells, each with a number and a unit, in the event `Ink`. |

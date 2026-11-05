@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="widget_label">Coo</string>
-    <string name="widget_description">Letzte Mahlzeit, Schlaf und Windel auf einen Blick, und Tell Coo.</string>
-    <string name="widget_quick_label">Coo Schnelleintrag</string>
-    <string name="widget_quick_description">Mahlzeit, Windel oder Schlaf mit einem Tipp eintragen, ohne Coo zu öffnen.</string>
-    <string name="widget_timer_label">Coo Uhren</string>
+    <string name="widget_label">Mochi</string>
+    <string name="widget_description">Letzte Mahlzeit, Schlaf und Windel auf einen Blick, und Tell Mochi.</string>
+    <string name="widget_quick_label">Mochi Schnelleintrag</string>
+    <string name="widget_quick_description">Mahlzeit, Windel oder Schlaf mit einem Tipp eintragen, ohne Mochi zu öffnen.</string>
+    <string name="widget_timer_label">Mochi Uhren</string>
     <string name="widget_timer_description">Zeit seit der letzten Mahlzeit, und wie lange wach oder schlafend.</string>
 </resources>

@@ -67,7 +67,7 @@ public sealed class BuildAdvisorContext(
         {
             var what = next.IsBedtime ? "Bedtime" : $"Nap {next.Position}";
             text.AppendLine(CultureInfo.InvariantCulture,
-                $"Next sleep (Coo's estimate, {next.Confidence.ToString().ToLowerInvariant()} confidence): {what} likely {At(next.Earliest)}–{At(next.Latest)}; typical wake window at this age {Duration(next.Prior.Low)}–{Duration(next.Prior.High)}{(next.PersonalMedian is { } median ? $", this baby's lately {Duration(median)}" : "")}.");
+                $"Next sleep (Mochi's estimate, {next.Confidence.ToString().ToLowerInvariant()} confidence): {what} likely {At(next.Earliest)}–{At(next.Latest)}; typical wake window at this age {Duration(next.Prior.Low)}–{Duration(next.Prior.High)}{(next.PersonalMedian is { } median ? $", this baby's lately {Duration(median)}" : "")}.");
         }
 
         if (store is not null)

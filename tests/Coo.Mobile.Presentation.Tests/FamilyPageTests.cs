@@ -228,7 +228,7 @@ public sealed class FamilyPageTests : IDisposable
         // Assert
         page.ShowsDelete.Should().BeTrue();
         prompt.Message.Should().Be(
-            "Delete this family? Its log of Lena, 42 entries, is deleted from Coo's server and this phone. This can't be undone.\n\n"
+            "Delete this family? Its log of Lena, 42 entries, is deleted from Mochi's server and this phone. This can't be undone.\n\n"
             + "3 entries on this phone weren't shared yet and will be lost.");
     }
 
@@ -574,7 +574,7 @@ public sealed class FamilyPageTests : IDisposable
         var prompt = await page.DeletePromptAsync();
 
         // Assert
-        prompt.Message.Should().Be("Delete this family? Its log, 1 entry, is deleted from Coo's server and this phone. This can't be undone.");
+        prompt.Message.Should().Be("Delete this family? Its log, 1 entry, is deleted from Mochi's server and this phone. This can't be undone.");
     }
 
     [Fact]
@@ -607,7 +607,7 @@ public sealed class FamilyPageTests : IDisposable
         await page.DeleteCommand.ExecuteAsync(null);
 
         // Assert
-        page.Toast.Should().Be("This family still has entries on Coo's server. Confirm to delete them.");
+        page.Toast.Should().Be("This family still has entries on Mochi's server. Confirm to delete them.");
         closed.Should().Be(0);
     }
 

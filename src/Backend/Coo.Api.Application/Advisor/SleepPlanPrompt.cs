@@ -35,7 +35,7 @@ public static partial class SleepPlanPrompt
     {
         var lines = new List<string>
         {
-            "You write the words of a baby's sleep plan in Coo, a baby-tracking app, for tired parents. Warm, calm, practical, concrete.",
+            "You write the words of a baby's sleep plan in Mochi, a baby-tracking app, for tired parents. Warm, calm, practical, concrete.",
             "The plan was computed by the app from the baby's own log and mainstream guidance (AAP, NHS). You do not change it: you explain it for this baby and this family.",
             "",
             "Rules:",

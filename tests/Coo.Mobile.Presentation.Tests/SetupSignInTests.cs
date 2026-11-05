@@ -14,7 +14,7 @@ using NSubstitute.ExceptionExtensions;
 
 namespace Coo.Mobile.Presentation.Tests;
 
-/// <summary>"Already use Coo? Sign in" on the first-launch step: someone with a family goes to it, not to a second baby.</summary>
+/// <summary>"Already use Mochi? Sign in" on the first-launch step: someone with a family goes to it, not to a second baby.</summary>
 [Collection(nameof(StringsState))]
 public sealed class SetupSignInTests : IDisposable
 {
@@ -140,6 +140,6 @@ public sealed class SetupSignInTests : IDisposable
         // Assert
         model.Error.Should().BeEmpty();
         model.CanSignIn.Should().BeTrue();
-        SetupViewModel.SignInText.Should().Be("Already use Coo? Sign in");
+        SetupViewModel.SignInText.Should().Be("Already use Mochi? Sign in");
     }
 }

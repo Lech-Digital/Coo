@@ -104,7 +104,7 @@ public sealed class SettingsTests : IDisposable
         await model.OpenPrivacyCommand.ExecuteAsync(null);
 
         // Assert
-        await _launcher.Received(1).OpenBrowserAsync(new Uri("https://lechdigital.nl/projects/coo/privacy"));
+        await _launcher.Received(1).OpenBrowserAsync(new Uri("https://lechdigital.nl/projects/mochi/privacy"));
     }
 
     [Fact]

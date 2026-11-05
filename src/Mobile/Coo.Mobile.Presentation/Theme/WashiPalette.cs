@@ -57,23 +57,23 @@ public static class WashiPalette
 {
     public static Palette Day { get; } = new(
         PaletteKind.Day,
-        Ground: "#F1EDE5", Surface: "#FAF8F3", Line: "#DDD6C9", Ink: "#2A2823", Ink2: "#6B665C",
-        Accent: "#BA4F28", AccentSoft: "#F2E8DC", AccentInk: "#8A3516", OnAccent: "#FAF8F3",
-        Cheek: "#E8C4B8", CheekInk: "#6E3F33", VoiceBg: "#2A2823", VoiceInk: "#F1EDE5", VoiceHint: "#B8B1A4",
+        Ground: "#EEEEE6", Surface: "#FAFAF5", Line: "#D8DACB", Ink: "#262A22", Ink2: "#62685A",
+        Accent: "#4F7A45", AccentSoft: "#E3EBD8", AccentInk: "#355229", OnAccent: "#FAFAF5",
+        Cheek: "#E8C4B8", CheekInk: "#6E3F33", VoiceBg: "#262A22", VoiceInk: "#EEEEE6", VoiceHint: "#B4B8AA",
         FeedTint: "#F5DCCB", FeedMark: "#CC6F3B", FeedInk: "#7A3F20",
         DiaperTint: "#F3E6B3", DiaperMark: "#A08528", DiaperInk: "#6A5410",
         SleepTint: "#E2DCEF", SleepMark: "#8E7FBE", SleepInk: "#473A78",
-        PumpTint: "#D6E9E2", PumpMark: "#5A9481", PumpInk: "#2D5A4C");
+        PumpTint: "#DCE6EE", PumpMark: "#5B84A0", PumpInk: "#2B4A5F");
 
     public static Palette Night { get; } = new(
         PaletteKind.Night,
-        Ground: "#16130F", Surface: "#211D18", Line: "#332D26", Ink: "#E9C9A0", Ink2: "#A88E70",
-        Accent: "#C9A46A", AccentSoft: "#37322B", AccentInk: "#E9C9A0", OnAccent: "#16130F",
-        Cheek: "#2E2820", CheekInk: "#E9C9A0", VoiceBg: "#C9A46A", VoiceInk: "#16130F", VoiceHint: "#4A3D2A",
+        Ground: "#121511", Surface: "#1B1F19", Line: "#2C3228", Ink: "#D9E3C8", Ink2: "#97A486",
+        Accent: "#9DBB7E", AccentSoft: "#283022", AccentInk: "#CFE0B6", OnAccent: "#121511",
+        Cheek: "#2A2A22", CheekInk: "#D9E3C8", VoiceBg: "#9DBB7E", VoiceInk: "#121511", VoiceHint: "#36412C",
         FeedTint: "#2E2219", FeedMark: "#C98A63", FeedInk: "#D9A07C",
         DiaperTint: "#2C2716", DiaperMark: "#BFA34E", DiaperInk: "#CDB266",
         SleepTint: "#25222E", SleepMark: "#9A8AB5", SleepInk: "#C0A8C0",
-        PumpTint: "#1F2724", PumpMark: "#7FA08F", PumpInk: "#98B7A6");
+        PumpTint: "#1D2326", PumpMark: "#7C939B", PumpInk: "#A3B5B5");
 
     public static Palette For(PaletteKind kind) => kind == PaletteKind.Night ? Night : Day;
 }

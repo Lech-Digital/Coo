@@ -81,12 +81,16 @@ public sealed class HomeWidget : IHomeWidget
     {
         var stored = new Stored(context);
         var views = new RemoteViews(context.PackageName, Resource.Layout.coo_widget);
-        views.SetTextViewText(Resource.Id.widget_title, stored.Text("title", "Coo"));
-        views.SetTextViewText(Resource.Id.widget_feed, stored.Text("feed", stored.Label(WidgetLabels.Open, "Open Coo")));
+        views.SetTextViewText(Resource.Id.widget_title, stored.Text("title", "Mochi"));
+        // Mochi follows the baby: ears down while a sleep runs, ears up otherwise; none before there is a baby.
+        views.SetViewVisibility(Resource.Id.widget_mochi, stored.HasBaby ? Android.Views.ViewStates.Visible : Android.Views.ViewStates.Gone);
+        views.SetImageViewResource(Resource.Id.widget_mochi,
+            stored.Running.Contains(RunningKind.Sleep) ? Resource.Drawable.mochi_asleep : Resource.Drawable.mochi_awake);
+        views.SetTextViewText(Resource.Id.widget_feed, stored.Text("feed", stored.Label(WidgetLabels.Open, "Open Mochi")));
         Line(views, Resource.Id.widget_sleep, stored.Text("sleep"));
         views.SetTextViewText(Resource.Id.widget_diaper, stored.Text("diaper"));
         Line(views, Resource.Id.widget_next, stored.Text("next"));
-        views.SetTextViewText(Resource.Id.widget_tell, stored.Label(WidgetLabels.Tell, "Tell Coo"));
+        views.SetTextViewText(Resource.Id.widget_tell, stored.Label(WidgetLabels.Tell, "Tell Mochi"));
         views.SetOnClickPendingIntent(Resource.Id.widget_root, OpenApp(context, 1));
         var tell = new Intent(context, typeof(MainActivity)).SetAction(VoiceShortcut.Action).SetFlags(ActivityFlags.NewTask | ActivityFlags.SingleTop);
         views.SetOnClickPendingIntent(Resource.Id.widget_tell,
@@ -121,7 +125,7 @@ public sealed class HomeWidget : IHomeWidget
 
         var views = new RemoteViews(context.PackageName, Resource.Layout.coo_widget_quick);
         var title = stored.Text("running_title");
-        views.SetTextViewText(Resource.Id.quick_title, title.Length > 0 ? title : stored.Text("title", "Coo"));
+        views.SetTextViewText(Resource.Id.quick_title, title.Length > 0 ? title : stored.Text("title", "Mochi"));
         views.SetOnClickPendingIntent(Resource.Id.quick_root, OpenApp(context, 3));
         int[] ids = [Resource.Id.quick_1, Resource.Id.quick_2, Resource.Id.quick_3, Resource.Id.quick_4, Resource.Id.quick_5, Resource.Id.quick_6];
         for (var i = 0; i < slots.Length; i++)

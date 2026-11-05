@@ -9,7 +9,7 @@ namespace Coo.Mobile.Components;
 
 /// <summary>
 /// A shared top header across the main tabs (Today, Log, Advisor, Settings).
-/// Consistent height and margins: left brand mark ("coo" / "coo Premium" in gold),
+/// Consistent height and margins: left brand mark ("mochi" / "mochi Premium" in gold),
 /// center/right theme switch (day/night toggle), baby chip (initial + name · age), and optional action buttons.
 /// </summary>
 public sealed class CooPageHeader : Grid

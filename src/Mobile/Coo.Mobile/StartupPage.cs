@@ -23,7 +23,7 @@ public sealed class StartupPage : ContentPage
         _startup = startup;
         _household = household;
         _services = services;
-        BackgroundColor = Color.FromArgb("#F1EDE5");
+        BackgroundColor = Color.FromArgb("#EEEEE6");
         Content = _status;
 
         // Built for a new window, before the activity offers its link (M4): the link is held until this page has routed.
@@ -40,7 +40,7 @@ public sealed class StartupPage : ContentPage
         if (await _startup.RunAsync(CancellationToken.None) == StartupResult.DatabaseFromNewerApp)
         {
             // Nothing was touched. Localized wording arrives with the real screens (ADR 0006).
-            _status.Text = "This data was saved by a newer version of Coo. Please update the app.";
+            _status.Text = "This data was saved by a newer version of Mochi. Please update the app.";
             return;
         }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Android's own dialogs (the date and time pickers) take these, not the MAUI resources. Washi day Accent. -->
+<!-- Android's own dialogs (the date and time pickers) take these, not the MAUI resources. Washi day Accent (matcha). -->
 <resources>
-    <color name="colorPrimary">#5E7150</color>
-    <color name="colorPrimaryDark">#46553B</color>
-    <color name="colorAccent">#5E7150</color>
+    <color name="colorPrimary">#4F7A45</color>
+    <color name="colorPrimaryDark">#355229</color>
+    <color name="colorAccent">#4F7A45</color>
 </resources>

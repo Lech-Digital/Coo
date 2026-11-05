@@ -221,7 +221,7 @@ public sealed class BabyPage : ContentPage
         {
             if (!isPremium)
             {
-                await Components.CooDialog.AlertAsync(this, "Coo Premium", Strings.Get("Avatar.PremiumOnly"));
+                await Components.CooDialog.AlertAsync(this, "Mochi Premium", Strings.Get("Avatar.PremiumOnly"));
                 return;
             }
 

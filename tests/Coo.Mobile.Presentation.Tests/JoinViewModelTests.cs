@@ -253,7 +253,7 @@ public sealed class JoinViewModelTests : IDisposable
         // Assert
         model.Step.Should().Be(JoinStep.Choice);
         model.BringOver.Step.Should().Be(BringOverStep.OldFamily);
-        model.BringOver.Question.Should().Be("Your entries are now in Andrzej's family too. Delete your old family? Its 42 entries for Lena are deleted from Coo's server and this phone. The copies stay.");
+        model.BringOver.Question.Should().Be("Your entries are now in Andrzej's family too. Delete your old family? Its 42 entries for Lena are deleted from Mochi's server and this phone. The copies stay.");
         model.BringOver.QuestionNote.Should().Be("2 entries can't be brought over and are deleted with it.");
         model.BringOver.AnswerText.Should().Be("Delete old family");
     }

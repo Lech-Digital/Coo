@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The home-screen widget: the baby, the last feeding, sleep and diaper, and Tell Coo. Lines are absolute times. -->
+<!-- The home-screen widget: the baby, the last feeding, sleep and diaper, and Tell Mochi. Lines are absolute times. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
@@ -8,16 +8,34 @@
     android:orientation="vertical"
     android:padding="14dp">
 
-    <TextView
-        android:id="@+id/widget_title"
-        android:text="Lena"
+    <!-- The baby's name, and Mochi: ears up while the baby is awake, ears down while a sleep runs (ADR 0011). -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:textColor="@color/widget_ink"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/widget_title"
+            android:text="Lena"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/widget_ink"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/widget_mochi"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/mochi_awake"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/widget_feed"
@@ -57,7 +75,7 @@
         android:textSize="14sp"
         android:visibility="gone" />
 
-    <!-- Takes the spare height, so Tell Coo stays at the bottom however tall the widget is made. A FrameLayout, not a
+    <!-- Takes the spare height, so Tell Mochi stays at the bottom however tall the widget is made. A FrameLayout, not a
          View: widgets may only hold the layouts and views RemoteViews allows, and a plain View made the whole widget
          fail with "Can't load widget". -->
     <FrameLayout
@@ -67,7 +85,7 @@
 
     <TextView
         android:id="@+id/widget_tell"
-        android:text="Tell Coo"
+        android:text="Tell Mochi"
         android:layout_width="wrap_content"
         android:layout_height="36dp"
         android:layout_marginTop="8dp"

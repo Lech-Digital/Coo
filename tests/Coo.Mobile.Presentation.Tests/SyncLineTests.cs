@@ -95,7 +95,7 @@ public sealed class SyncLineTests : IDisposable
         var line = SyncLine.For(Signed, Status(CycleOutcome.ClientTooOld, 4), is24Hour: true);
 
         // Assert
-        line.Text.Should().Be("Update Coo to keep sharing. Your changes are safe on this phone.");
+        line.Text.Should().Be("Update Mochi to keep sharing. Your changes are safe on this phone.");
     }
 
     private static readonly AccountState Joining = new JoinPending(Profile, new HouseholdId(Guid.Parse("7a1c0000-0000-7000-8000-0000000000a9")));
@@ -166,7 +166,7 @@ public sealed class SyncLineTests : IDisposable
     }
 
     [Theory]
-    [InlineData(SyncCycle.NoProgressError, "Sharing stopped. Your changes are safe on this phone. Coo will try again when you reopen the app.")]
+    [InlineData(SyncCycle.NoProgressError, "Sharing stopped. Your changes are safe on this phone. Mochi will try again when you reopen the app.")]
     public void For_StoppedForGood_SaysSoNotThatItWaitsForAConnection(string error, string expected)
     {
         // Act
@@ -226,7 +226,7 @@ public sealed class SyncLineTests : IDisposable
         var line = SyncLine.For(Signed, Status(CycleOutcome.Synced, at: At) with { ShownStopped = true }, is24Hour: true);
 
         // Assert
-        line.Text.Should().Be("Sharing stopped: this family is no longer on Coo's server. Your entries are safe on this phone.");
+        line.Text.Should().Be("Sharing stopped: this family is no longer on Mochi's server. Your entries are safe on this phone.");
     }
 
     [Fact]

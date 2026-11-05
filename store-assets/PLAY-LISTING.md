@@ -1,4 +1,4 @@
-# Coo — Play store listing
+# Mochi — Play store listing
 
 Play Console → Grow users → Store presence → Main store listing. One section per language: copy each block into
 its field. The counts are Unicode code points, as Play counts them; `node store-assets/_src/check-listing.mjs`
@@ -9,7 +9,7 @@ checks them. What's new for each release is in `releases/`; the other Play Conso
 ### App name — 29 / 30
 
 ```
-Coo: Baby Tracker & Sleep Log
+Mochi: Baby Tracker & Feeding
 ```
 
 ### Short description — 74 / 80
@@ -18,13 +18,13 @@ Coo: Baby Tracker & Sleep Log
 Baby tracker: breastfeeding timer, bottle, sleep, diapers, pumping, growth
 ```
 
-### Full description — 2,707 / 4,000
+### Full description — 2,713 / 4,000
 
 ```
-Coo is a baby tracker for newborns and babies. Log breastfeeding, bottle feeding, sleep, diapers and pumping, follow growth on the WHO charts, and share one baby log with your partner, a nanny and the grandparents.
+Mochi is a baby tracker for newborns and babies. Log breastfeeding, bottle feeding, sleep, diapers and pumping, follow growth on the WHO charts, and share one baby log with your partner, a nanny and the grandparents.
 
 FEEDING TRACKER
-• Breastfeeding timer for left and right, with side switching and pauses. Coo shows which side to offer next.
+• Breastfeeding timer for left and right, with side switching and pauses. Mochi shows which side to offer next.
 • Bottle feeding in ml or oz: formula, breast milk or both, with one-tap amounts.
 • Pumping log with left, right and total yield.
 • Solid food: what your baby ate, how much, and any reaction.
@@ -74,15 +74,15 @@ Languages: English, Deutsch, Français, Español, Italiano, Polski, Nederlands.
 Premium adds personal nap times, the nap reminder, more voice logging and Advisor questions, and a baby avatar: monthly, yearly or once.
 
 Feedback: andrzej@lechdigital.nl
-Privacy policy: https://lechdigital.nl/projects/coo/privacy/
+Privacy policy: https://lechdigital.nl/projects/mochi/privacy/
 ```
 
 ## Polish (pl-PL)
 
-### App name — 28 / 30
+### App name — 30 / 30
 
 ```
-Coo: Dziennik maluszka i sen
+Mochi: Dziennik maluszka i sen
 ```
 
 ### Short description — 77 / 80
@@ -91,13 +91,13 @@ Coo: Dziennik maluszka i sen
 Dziennik dziecka: karmienie piersią, butelka, sen, pieluchy, laktator, wzrost
 ```
 
-### Full description — 2,834 / 4,000
+### Full description — 2,840 / 4,000
 
 ```
-Coo to dziennik dziecka dla noworodków i niemowląt. Zapisuj karmienie piersią, karmienie butelką, sen, pieluchy i odciąganie mleka, śledź wzrost na siatkach centylowych WHO i prowadź jeden wspólny dziennik z partnerem, nianią i dziadkami.
+Mochi to dziennik dziecka dla noworodków i niemowląt. Zapisuj karmienie piersią, karmienie butelką, sen, pieluchy i odciąganie mleka, śledź wzrost na siatkach centylowych WHO i prowadź jeden wspólny dziennik z partnerem, nianią i dziadkami.
 
 KARMIENIE
-• Stoper karmienia piersią dla lewej i prawej strony, ze zmianą strony i pauzami. Coo pokazuje, którą pierś podać teraz.
+• Stoper karmienia piersią dla lewej i prawej strony, ze zmianą strony i pauzami. Mochi pokazuje, którą pierś podać teraz.
 • Karmienie butelką w ml lub oz: mleko modyfikowane, mleko mamy lub oba, z ilościami na jedno dotknięcie.
 • Dziennik laktatora: lewa, prawa i razem.
 • Rozszerzanie diety: co dziecko zjadło, ile i jak zareagowało.
@@ -147,15 +147,15 @@ Języki: English, Deutsch, Français, Español, Italiano, Polski, Nederlands.
 Premium dodaje własne pory drzemek, przypomnienie o drzemce, więcej zapisów głosem i pytań do Doradcy oraz awatar dziecka: miesięcznie, rocznie lub jednorazowo.
 
 Opinie: andrzej@lechdigital.nl
-Polityka prywatności: https://lechdigital.nl/projects/coo/privacy/
+Polityka prywatności: https://lechdigital.nl/projects/mochi/privacy/
 ```
 
 ## German (de-DE)
 
-### App name — 30 / 30
+### App name — 29 / 30
 
 ```
-Coo: Baby Tracker & Babyschlaf
+Mochi: Baby Tracker & Stillen
 ```
 
 ### Short description — 73 / 80
@@ -164,13 +164,13 @@ Coo: Baby Tracker & Babyschlaf
 Baby Tracker: Stillen, Fläschchen, Schlaf, Windeln, Abpumpen und Wachstum
 ```
 
-### Full description — 2,968 / 4,000
+### Full description — 2,974 / 4,000
 
 ```
-Coo ist ein Baby Tracker für Neugeborene und Babys. Trag Stillen, Fläschchen, Schlaf, Windeln und Abpumpen ein, verfolge das Wachstum auf den WHO-Kurven und teile ein Baby-Tagebuch mit Partner, Nanny und Großeltern.
+Mochi ist ein Baby Tracker für Neugeborene und Babys. Trag Stillen, Fläschchen, Schlaf, Windeln und Abpumpen ein, verfolge das Wachstum auf den WHO-Kurven und teile ein Baby-Tagebuch mit Partner, Nanny und Großeltern.
 
 STILLEN UND FÜTTERN
-• Still-Timer für links und rechts, mit Seitenwechsel und Pausen. Coo zeigt, welche Seite als Nächstes dran ist.
+• Still-Timer für links und rechts, mit Seitenwechsel und Pausen. Mochi zeigt, welche Seite als Nächstes dran ist.
 • Fläschchen in ml oder oz: Pre-Nahrung, Muttermilch oder beides, mit Mengen per Tipp.
 • Abpump-Protokoll mit links, rechts und gesamt.
 • Beikost: was dein Baby gegessen hat, wie viel und wie es vertragen wurde.
@@ -220,15 +220,15 @@ Sprachen: English, Deutsch, Français, Español, Italiano, Polski, Nederlands.
 Premium bringt persönliche Schlafzeiten, die Schlaf-Erinnerung, mehr Spracheingaben und Fragen an den Berater sowie einen Baby-Avatar: monatlich, jährlich oder einmalig.
 
 Feedback: andrzej@lechdigital.nl
-Datenschutzerklärung: https://lechdigital.nl/projects/coo/privacy/
+Datenschutzerklärung: https://lechdigital.nl/projects/mochi/privacy/
 ```
 
 ## French (fr-FR)
 
-### App name — 29 / 30
+### App name — 30 / 30
 
 ```
-Coo: Suivi bébé & allaitement
+Mochi: Suivi bébé, allaitement
 ```
 
 ### Short description — 76 / 80
@@ -237,13 +237,13 @@ Coo: Suivi bébé & allaitement
 Suivi bébé : allaitement, biberon, sommeil, couches, tire-lait et croissance
 ```
 
-### Full description — 3,155 / 4,000
+### Full description — 3,161 / 4,000
 
 ```
-Coo est une application de suivi bébé pour les nouveau-nés et les bébés. Notez l’allaitement, les biberons, le sommeil, les couches et le tire-lait, suivez la croissance sur les courbes de l’OMS et partagez un seul journal avec votre partenaire, la nounou et les grands-parents.
+Mochi est une application de suivi bébé pour les nouveau-nés et les bébés. Notez l’allaitement, les biberons, le sommeil, les couches et le tire-lait, suivez la croissance sur les courbes de l’OMS et partagez un seul journal avec votre partenaire, la nounou et les grands-parents.
 
 SUIVI DE L’ALLAITEMENT ET DES BIBERONS
-• Minuteur d’allaitement gauche et droit, avec changement de côté et pauses. Coo indique le sein à proposer.
+• Minuteur d’allaitement gauche et droit, avec changement de côté et pauses. Mochi indique le sein à proposer.
 • Biberons en ml ou en oz : lait infantile, lait maternel ou les deux, avec des quantités en un geste.
 • Journal du tire-lait : gauche, droit et total.
 • Diversification : ce que bébé a mangé, combien, et les réactions.
@@ -293,15 +293,15 @@ Langues : English, Deutsch, Français, Español, Italiano, Polski, Nederlands.
 Premium ajoute les heures de sieste propres à bébé, le rappel de sieste, plus de saisies vocales et de questions au Conseiller, et un avatar de bébé : au mois, à l’année ou en une fois.
 
 Contact : andrzej@lechdigital.nl
-Politique de confidentialité : https://lechdigital.nl/projects/coo/privacy/
+Politique de confidentialité : https://lechdigital.nl/projects/mochi/privacy/
 ```
 
 ## Spanish (es-ES)
 
-### App name — 29 / 30
+### App name — 28 / 30
 
 ```
-Coo: Registro de bebé y sueño
+Mochi: Registro bebé y sueño
 ```
 
 ### Short description — 77 / 80
@@ -310,13 +310,13 @@ Coo: Registro de bebé y sueño
 Registro de bebé: lactancia, biberón, sueño, pañales, extractor y crecimiento
 ```
 
-### Full description — 3,025 / 4,000
+### Full description — 3,031 / 4,000
 
 ```
-Coo es un registro de bebé para recién nacidos y bebés. Anota la lactancia, los biberones, el sueño, los pañales y la extracción de leche, sigue el crecimiento en las curvas de la OMS y comparte un único registro con tu pareja, la niñera y los abuelos.
+Mochi es un registro de bebé para recién nacidos y bebés. Anota la lactancia, los biberones, el sueño, los pañales y la extracción de leche, sigue el crecimiento en las curvas de la OMS y comparte un único registro con tu pareja, la niñera y los abuelos.
 
 LACTANCIA Y BIBERÓN
-• Temporizador de lactancia para el pecho izquierdo y derecho, con cambio de lado y pausas. Coo indica qué pecho toca.
+• Temporizador de lactancia para el pecho izquierdo y derecho, con cambio de lado y pausas. Mochi indica qué pecho toca.
 • Biberones en ml u oz: fórmula, leche materna o ambas, con cantidades de un toque.
 • Registro del extractor: izquierdo, derecho y total.
 • Alimentación complementaria: qué comió tu bebé, cuánto y cómo le sentó.
@@ -366,15 +366,15 @@ Idiomas: English, Deutsch, Français, Español, Italiano, Polski, Nederlands.
 Premium añade horas de siesta propias, el aviso de siesta, más registros por voz y preguntas al Asesor, y un avatar del bebé: al mes, al año o en un solo pago.
 
 Contacto: andrzej@lechdigital.nl
-Política de privacidad: https://lechdigital.nl/projects/coo/privacy/
+Política de privacidad: https://lechdigital.nl/projects/mochi/privacy/
 ```
 
 ## Italian (it-IT)
 
-### App name — 28 / 30
+### App name — 30 / 30
 
 ```
-Coo: Diario del bebè e sonno
+Mochi: Diario del bebè e sonno
 ```
 
 ### Short description — 77 / 80
@@ -383,13 +383,13 @@ Coo: Diario del bebè e sonno
 Diario del bebè: allattamento, biberon, sonno, pannolini, tiralatte, crescita
 ```
 
-### Full description — 3,006 / 4,000
+### Full description — 3,012 / 4,000
 
 ```
-Coo è un diario del bebè per neonati e bambini piccoli. Registra allattamento, biberon, sonno, pannolini e tiralatte, segui la crescita sulle curve dell’OMS e condividi un unico diario con il partner, la tata e i nonni.
+Mochi è un diario del bebè per neonati e bambini piccoli. Registra allattamento, biberon, sonno, pannolini e tiralatte, segui la crescita sulle curve dell’OMS e condividi un unico diario con il partner, la tata e i nonni.
 
 ALLATTAMENTO E BIBERON
-• Timer di allattamento per seno sinistro e destro, con cambio di lato e pause. Coo indica quale seno offrire.
+• Timer di allattamento per seno sinistro e destro, con cambio di lato e pause. Mochi indica quale seno offrire.
 • Biberon in ml o oz: latte artificiale, latte materno o entrambi, con quantità in un tocco.
 • Registro del tiralatte: sinistro, destro e totale.
 • Svezzamento: cosa ha mangiato il bambino, quanto e come è andata.
@@ -439,7 +439,7 @@ Lingue: English, Deutsch, Français, Español, Italiano, Polski, Nederlands.
 Premium aggiunge gli orari dei sonnellini del tuo bambino, il promemoria del sonnellino, più registrazioni vocali e domande al Consulente, e un avatar del bambino: al mese, all’anno o una volta sola.
 
 Contatti: andrzej@lechdigital.nl
-Informativa sulla privacy: https://lechdigital.nl/projects/coo/privacy/
+Informativa sulla privacy: https://lechdigital.nl/projects/mochi/privacy/
 ```
 
 ## Dutch (nl-NL)
@@ -447,7 +447,7 @@ Informativa sulla privacy: https://lechdigital.nl/projects/coo/privacy/
 ### App name — 29 / 30
 
 ```
-Coo: Baby Tracker & Babyslaap
+Mochi: Baby Tracker & Voeding
 ```
 
 ### Short description — 73 / 80
@@ -456,13 +456,13 @@ Coo: Baby Tracker & Babyslaap
 Babytracker: borstvoeding, fles, slaap, luiers, kolven en groei bijhouden
 ```
 
-### Full description — 2,872 / 4,000
+### Full description — 2,878 / 4,000
 
 ```
-Coo is een babytracker voor pasgeborenen en baby’s. Houd borstvoeding, flesvoeding, slaap, luiers en kolven bij, volg de groei op de WHO-groeicurves en deel één babylogboek met je partner, een oppas en de grootouders.
+Mochi is een babytracker voor pasgeborenen en baby’s. Houd borstvoeding, flesvoeding, slaap, luiers en kolven bij, volg de groei op de WHO-groeicurves en deel één babylogboek met je partner, een oppas en de grootouders.
 
 BORSTVOEDING EN FLESVOEDING
-• Borstvoedingstimer voor links en rechts, met wisselen en pauzes. Coo laat zien welke kant nu aan de beurt is.
+• Borstvoedingstimer voor links en rechts, met wisselen en pauzes. Mochi laat zien welke kant nu aan de beurt is.
 • Flesvoeding in ml of oz: kunstvoeding, moedermelk of allebei, met hoeveelheden in één tik.
 • Kolflogboek: links, rechts en totaal.
 • Vaste voeding: wat je baby at, hoeveel en hoe het ging.
@@ -512,5 +512,5 @@ Talen: English, Deutsch, Français, Español, Italiano, Polski, Nederlands.
 Premium voegt eigen dutjestijden, de dutjesherinnering, meer spraakinvoer en vragen aan de Adviseur en een babyavatar toe: per maand, per jaar of eenmalig.
 
 Feedback: andrzej@lechdigital.nl
-Privacybeleid: https://lechdigital.nl/projects/coo/privacy/
+Privacybeleid: https://lechdigital.nl/projects/mochi/privacy/
 ```

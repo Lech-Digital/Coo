@@ -56,7 +56,7 @@ public sealed class ConsentAndBringOverTests : IDisposable
     {
         // Assert
         ConsentViewModel.Title.Should().Be("Share your log with your family?");
-        ConsentViewModel.Body.Should().StartWith("To share, Coo keeps your baby's care log (feeds, diapers, sleep and pumping");
+        ConsentViewModel.Body.Should().StartWith("To share, Mochi keeps your baby's care log (feeds, diapers, sleep and pumping");
         ConsentViewModel.Body2.Should().EndWith("The log on this phone always stays here.");
         ConsentViewModel.AgreeText.Should().Be("Agree and share");
         ConsentViewModel.NotNowText.Should().Be("Not now");

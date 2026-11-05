@@ -84,7 +84,7 @@ public sealed class TimerNotifications : ITimerNotifications
             .SetContentIntent(tap)!;
 
         // On a locked screen: the clock and the buttons, without saying whose care it is (ADR 0007 §4).
-        var hidden = Base().SetContentTitle("Coo")!.SetContentText(hiddenText)!;
+        var hidden = Base().SetContentTitle("Mochi")!.SetContentText(hiddenText)!;
         var full = Base()
             .SetContentTitle(timer.Title)!
             .SetContentText(timer.Text)!

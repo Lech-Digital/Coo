@@ -149,6 +149,50 @@ public sealed class TodayTests
     }
 
     [Fact]
+    public void Update_BabySleeping_ShowsMochiAsleep()
+    {
+        // Arrange
+        var sleep = Entry(new Coo.Domain.CareLog.Kinds.Sleep.SleepDetails(), EntryTiming.Session(TimeRange.Open(Now.AddMinutes(-40))));
+        var summary = new TodaySummary([sleep], null, null, sleep, null, null, [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc));
+        var section = new StatusHeroSection();
+
+        // Act
+        section.Update(Snapshot(summary, PaletteKind.Day));
+
+        // Assert
+        section.Mood.Should().Be(MochiMood.Asleep);
+        section.Eyebrow.Should().Be("Sleeping");
+    }
+
+    [Fact]
+    public void Update_BabyAwake_ShowsMochiAwake()
+    {
+        // Arrange
+        var summary = new TodaySummary([], null, null, null, null, Now.AddMinutes(-50), [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc));
+        var section = new StatusHeroSection();
+
+        // Act
+        section.Update(Snapshot(summary, PaletteKind.Day));
+
+        // Assert
+        section.Mood.Should().Be(MochiMood.Awake);
+    }
+
+    [Fact]
+    public void Update_NoSleepLoggedYet_ShowsNoMochi()
+    {
+        // Arrange
+        var summary = new TodaySummary([], null, null, null, null, null, [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc));
+        var section = new StatusHeroSection();
+
+        // Act
+        section.Update(Snapshot(summary, PaletteKind.Day));
+
+        // Assert
+        section.Mood.Should().Be(MochiMood.None, "with nothing logged there is no state to show");
+    }
+
+    [Fact]
     public void Duration_MinutesAndHours_ReadAsDesigned()
     {
         // Arrange

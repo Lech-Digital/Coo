@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="widget_label">Coo</string>
-    <string name="widget_description">Laatste voeding, slaap en luier in één oogopslag, en Tell Coo.</string>
-    <string name="widget_quick_label">Coo snel loggen</string>
-    <string name="widget_quick_description">Log een voeding, luier of slaap met één tik, zonder Coo te openen.</string>
-    <string name="widget_timer_label">Coo klokken</string>
+    <string name="widget_label">Mochi</string>
+    <string name="widget_description">Laatste voeding, slaap en luier in één oogopslag, en Tell Mochi.</string>
+    <string name="widget_quick_label">Mochi snel loggen</string>
+    <string name="widget_quick_description">Log een voeding, luier of slaap met één tik, zonder Mochi te openen.</string>
+    <string name="widget_timer_label">Mochi klokken</string>
     <string name="widget_timer_description">Tijd sinds de laatste voeding, en hoe lang wakker of in slaap.</string>
 </resources>

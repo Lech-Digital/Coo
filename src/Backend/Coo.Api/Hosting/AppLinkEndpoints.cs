@@ -45,8 +45,8 @@ internal static class AppLinkEndpoints
     internal static string Page(string? code)
     {
         var step2 = code is null
-            ? "Open Coo, go to <strong>Settings → Family → Join a family</strong>, and enter the code from your invitation."
-            : $"Open Coo, go to <strong>Settings → Family → Join a family</strong>, and enter this code: <strong class=\"code\">{WebUtility.HtmlEncode(code)}</strong>";
+            ? "Open Mochi, go to <strong>Settings → Family → Join a family</strong>, and enter the code from your invitation."
+            : $"Open Mochi, go to <strong>Settings → Family → Join a family</strong>, and enter this code: <strong class=\"code\">{WebUtility.HtmlEncode(code)}</strong>";
         return $$"""
             <!doctype html>
             <html lang="en">
@@ -54,28 +54,28 @@ internal static class AppLinkEndpoints
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <meta name="robots" content="noindex">
-            <title>Coo — Baby Log &amp; Sleep</title>
+            <title>Mochi — Baby Log &amp; Sleep</title>
             <style>
-            body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: #F1EDE5; color: #2B2620; margin: 0; padding: 32px 20px; line-height: 1.5; }
+            body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: #EEEEE6; color: #262A22; margin: 0; padding: 32px 20px; line-height: 1.5; }
             main { max-width: 34rem; margin: 0 auto; }
             h1 { font-size: 1.5rem; margin: 0 0 12px; }
             ol { padding-left: 1.25rem; }
             li { margin: 10px 0; }
             .code { font-family: ui-monospace, monospace; font-size: 1.15rem; letter-spacing: 0.08em; }
-            a { color: #8A4B22; }
-            footer { margin-top: 32px; font-size: 0.9rem; color: #6B6258; }
+            a { color: #355229; }
+            footer { margin-top: 32px; font-size: 0.9rem; color: #62685A; }
             </style>
             </head>
             <body>
             <main>
-            <h1>Coo — Baby Log &amp; Sleep</h1>
-            <p>You've been invited to share a baby's log on Coo, a baby tracker for parents.</p>
+            <h1>Mochi — Baby Log &amp; Sleep</h1>
+            <p>You've been invited to share a baby's log on Mochi, a baby tracker for parents.</p>
             <ol>
-            <li>Install Coo from <a href="https://play.google.com/store/apps/details?id={{PackageName}}">Google Play</a>.</li>
+            <li>Install Mochi from <a href="https://play.google.com/store/apps/details?id={{PackageName}}">Google Play</a>.</li>
             <li>{{step2}}</li>
             </ol>
             <p>The code can be used once, within 72 hours of being sent. You'll need a Google account to join.</p>
-            <footer><a href="https://lechdigital.nl/projects/coo/privacy">Privacy policy</a> · <a href="https://lechdigital.nl">lechdigital.nl</a></footer>
+            <footer><a href="https://lechdigital.nl/projects/mochi/privacy">Privacy policy</a> · <a href="https://lechdigital.nl">lechdigital.nl</a></footer>
             </main>
             </body>
             </html>

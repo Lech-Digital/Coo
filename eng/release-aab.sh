@@ -11,6 +11,10 @@ export JAVA_HOME="$HOME/Library/Java/JavaVirtualMachines/jdk-17.0.20+8/Contents/
 COO_UPLOAD_PASS="$(security find-generic-password -s coo-upload-keystore -w)"
 export COO_UPLOAD_PASS
 
+# Start clean: MAUI's resizetizer keeps generated icons in obj/ and an incremental build can ship the old ones
+# (found with the Mochi icon, 2026-11-05).
+rm -rf src/Mobile/Coo.Mobile/obj/Release src/Mobile/Coo.Mobile/bin/Release
+
 dotnet publish src/Mobile/Coo.Mobile/Coo.Mobile.csproj -c Release -f net10.0-android \
   -p:UseDefaultPublishRuntimeIdentifier=false -p:AndroidPackageFormat=aab \
   -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="$HOME/keystores/coo-upload.jks" -p:AndroidSigningKeyAlias=coo-upload \

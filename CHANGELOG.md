@@ -16,6 +16,23 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 
 ## Unreleased
 
+## 1.11.0 (code 31) — 2026-11-05
+
+Coo is now **Mochi** (ADR 0011): another baby tracker on Google Play took the name "Coo Care" with our title word for
+word. Only the name and the look change; the package `com.lechdigital.coo`, the server, the data and every code name
+stay. Deploy the server with the release (the invitation and delete-account pages and the Advisor's prompts say Mochi)
+and push the site (`lechdigital.nl/projects/mochi/`, with redirects from `/projects/coo/`). In Play Console: the new
+app name, descriptions, icon, feature graphic and screenshots from `store-assets/`.
+
+### Changed
+- **The name**: Coo is Mochi everywhere you see it, in all seven languages: the app name under the icon, "Tell Mochi",
+  Mochi Premium, the widgets, notifications, the PDF report, the invitation page and the Advisor.
+- **A new icon: Mochi**, a bunny-shaped mochi on matcha green. Mochi also sits beside "Awake for" on Today and in the
+  home-screen widget: ears up while your baby is awake, ears down while she sleeps.
+- **New colours**: the buttons and links are matcha green, and pumping is now sky blue, so it never looks like a
+  button. The splash screen and the "mochi" wordmark at the top of every tab follow.
+- **The privacy policy** moves to `lechdigital.nl/projects/mochi/privacy` (the old address forwards there).
+
 ## 1.10.0 (code 30) — 2026-11-04
 
 The server is deployed already (370dd48: the `sleepplan` and `milkbag` entry kinds, migrations `AddSleepPlanUsage` and

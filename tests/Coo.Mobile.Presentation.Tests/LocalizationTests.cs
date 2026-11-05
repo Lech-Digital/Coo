@@ -253,8 +253,8 @@ public sealed class ShareTextTests : IDisposable
 
         // Assert
         text.Should().Be(
-            "Join my family on Coo, so we can keep our baby's log together: https://api.coo.lechdigital.nl/i/ABCDEFGH\n\n"
-            + "If the link doesn't open Coo, go to Settings → Family → Join a family in Coo and enter the code ABCD-EFGH. "
+            "Join my family on Mochi, so we can keep our baby's log together: https://api.coo.lechdigital.nl/i/ABCDEFGH\n\n"
+            + "If the link doesn't open Mochi, go to Settings → Family → Join a family in Mochi and enter the code ABCD-EFGH. "
             + "It can be used once, until Thu 9 Oct, 14:02.");
     }
 }

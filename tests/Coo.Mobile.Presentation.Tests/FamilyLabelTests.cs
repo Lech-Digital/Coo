@@ -99,7 +99,7 @@ public sealed class FamilyLabelTests : IDisposable
         var text = FamilyLabels.ShareText(invitation, is24Hour: true);
 
         // Assert
-        text.Should().StartWith("Join my family on Coo, so we can keep our baby's log together: https://api.coo.lechdigital.nl/i/ABCDEFGH")
+        text.Should().StartWith("Join my family on Mochi, so we can keep our baby's log together: https://api.coo.lechdigital.nl/i/ABCDEFGH")
             .And.Contain("enter the code ABCD-EFGH.").And.EndWith("until Fri 9 Oct, 14:02.");
     }
 

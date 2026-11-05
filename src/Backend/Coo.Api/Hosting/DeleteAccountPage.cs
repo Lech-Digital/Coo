@@ -15,29 +15,29 @@ public static class DeleteAccountPage
         <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Delete your Coo account</title>
+        <title>Delete your Mochi account</title>
         <style>
-        body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: #F1EDE5; color: #2B2620; margin: 0; padding: 32px 20px; line-height: 1.5; }
+        body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: #EEEEE6; color: #262A22; margin: 0; padding: 32px 20px; line-height: 1.5; }
         main { max-width: 34rem; margin: 0 auto; }
         h1 { font-size: 1.5rem; margin: 0 0 12px; }
         h2 { font-size: 1.1rem; margin: 24px 0 8px; }
         li { margin: 8px 0; }
-        a { color: #8A4B22; }
-        footer { margin-top: 32px; font-size: 0.9rem; color: #6B6258; }
+        a { color: #355229; }
+        footer { margin-top: 32px; font-size: 0.9rem; color: #62685A; }
         </style>
         </head>
         <body>
         <main>
-        <h1>Delete your Coo account</h1>
-        <p>Coo — Baby Log &amp; Sleep is made by Lech Digital. You can delete your account and its data at any time.</p>
+        <h1>Delete your Mochi account</h1>
+        <p>Mochi — Baby Log &amp; Sleep is made by Lech Digital. You can delete your account and its data at any time.</p>
         <h2>In the app</h2>
         <ol>
-        <li>Open Coo and go to <strong>Settings → Account → Delete account</strong>.</li>
+        <li>Open Mochi and go to <strong>Settings → Account → Delete account</strong>.</li>
         <li>Confirm. It happens at once, on our server and on the phone.</li>
         </ol>
         <h2>Without the app</h2>
         <p>Email <a href="mailto:andrzej@lechdigital.nl?subject=Delete%20my%20Coo%20account">andrzej@lechdigital.nl</a>
-        from the Google account you sign in to Coo with, with the subject “Delete my Coo account”. We delete it within 30
+        from the Google account you sign in to Mochi with, with the subject “Delete my Mochi account”. We delete it within 30
         days and confirm by email.</p>
         <h2>What is deleted</h2>
         <ul>
@@ -50,9 +50,9 @@ public static class DeleteAccountPage
         <ul>
         <li>Nothing on our server about you, except in database backups, which are deleted after 14 days.</li>
         <li>A Premium subscription is billed by Google Play: cancel it in Google Play, as deleting the account does not.</li>
-        <li>What stays on your phone until you uninstall Coo or clear its data.</li>
+        <li>What stays on your phone until you uninstall Mochi or clear its data.</li>
         </ul>
-        <footer><a href="https://lechdigital.nl/projects/coo/privacy">Privacy policy</a> · <a href="https://lechdigital.nl">lechdigital.nl</a></footer>
+        <footer><a href="https://lechdigital.nl/projects/mochi/privacy">Privacy policy</a> · <a href="https://lechdigital.nl">lechdigital.nl</a></footer>
         </main>
         </body>
         </html>

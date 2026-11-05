@@ -65,7 +65,7 @@ public sealed class TourViewModelTests : IDisposable
         await model.NextCommand.ExecuteAsync(null);
 
         // Assert
-        label.Should().Be("Start using Coo");
+        label.Should().Be("Start using Mochi");
         finished.Should().BeTrue();
         await _state.Received(1).MarkSeenAsync(Arg.Any<CancellationToken>());
     }

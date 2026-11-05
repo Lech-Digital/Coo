@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Store images from the demo build's screenshots (store-assets/PLAN.md §3): captioned 1080x1920 phone images, the
 1024x500 feature graphic and the 512 px icon, rendered from HTML by headless Chrome. Raw shots: store-assets/raw/
-(made with -p:CooDemo=true on the coo-second emulator). Run: python3 store-assets/_src/compose.py"""
+(made with -p:CooDemo=true on the coo-review emulator, 2026-11-05). Run: python3 store-assets/_src/compose.py"""
 import base64, os, subprocess, tempfile
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -11,12 +11,12 @@ FONTS = os.path.join(REPO, 'src/Mobile/Coo.Mobile/Resources/Fonts')
 
 # slot, raw shot, headline (the part in <em> is accented), subline, night look
 SHOTS = [
-    (1, 's2-log', 'Every feed and nap, <em>on one calm timeline.</em>', 'The whole day as one rhythm band, at a glance', False),
-    (2, 's7-night', 'Gentle on tired eyes <em>at 3 a.m.</em>', 'Warm night colours and big buttons for one hand', True),
-    (3, 's1-today', 'One tap to start. <em>Coo keeps the time.</em>', 'Feeds, naps, diapers and pumping, live', False),
-    (4, 's4-stats-weeks', 'Is she sleeping more? <em>See it week by week.</em>', 'Daily averages compared with the week before', False),
-    (5, 's3-zoom', 'Sleep that flows <em>past midnight.</em>', 'Zoom into any hours of the day or night', False),
-    (6, 's6-advisor', 'Questions at 3 a.m.? <em>Ask the Advisor.</em>', 'AI answers that know your baby’s log · not medical advice', False),
+    (1, 's2-log', 'Every feed, nap and diaper <em>on one timeline.</em>', 'The whole day at a glance', False),
+    (2, 's1-today', 'One tap to start. <em>Mochi keeps the time.</em>', 'Feeds, naps, diapers and pumping, live', False),
+    (3, 's7-night', 'Night colours <em>for night feeds.</em>', 'A dark screen and big buttons for one hand', True),
+    (4, 's4-stats', 'Your baby’s average day, <em>7, 14 or 30 days.</em>', 'Milk, feeds, sleep, diapers and pumping', False),
+    (5, 's3-zoom', 'Every nap and feed, <em>hour by hour.</em>', 'Zoom into any hours of the day or night', False),
+    (6, 's6-advisor', 'Questions about your baby? <em>Ask the Advisor.</em>', 'AI answers that know your baby’s log · not medical advice', False),
 ]
 
 def font_face():
@@ -41,7 +41,7 @@ def render(html, out, width, height):
 FACES = font_face()
 
 def phone(slot, shot, headline, subline, night):
-    ground, ink, ink2, accent = ('#1E1B17', '#F3EDE3', '#B8AE9F', '#D9B26A') if night else ('#F1EDE5', '#2A2823', '#6B665C', '#BA4F28')
+    ground, ink, ink2, accent = ('#121511', '#E6EDD9', '#97A486', '#9DBB7E') if night else ('#EEEEE6', '#262A22', '#62685A', '#4F7A45')
     html = f"""<!doctype html><html><head><meta charset="utf-8"><style>{FACES}
     html,body{{margin:0;width:1080px;height:1920px;background:{ground};font-family:Figtree;overflow:hidden}}
     .cap{{position:absolute;top:96px;left:80px;right:80px;text-align:center}}
@@ -49,14 +49,14 @@ def phone(slot, shot, headline, subline, night):
     h1 em{{font-style:normal;color:{accent}}}
     p{{margin:26px 0 0;font-size:34px;color:{ink2}}}
     .phone{{position:absolute;left:50%;top:430px;transform:translateX(-50%);width:640px;height:1436px;border-radius:64px;
-      overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,{0.5 if night else 0.18});border:14px solid {'#000' if night else '#2A2823'}}}
+      overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,{0.5 if night else 0.18});border:14px solid {'#000' if night else '#262A22'}}}
     .phone img{{width:100%;display:block}}
     </style></head><body><div class="cap"><h1>{headline}</h1><p>{subline}</p></div>
     <div class="phone"><img src="data:image/png;base64,{b64(os.path.join(ROOT, 'raw', shot + '.png'))}"></div></body></html>"""
     render(html, os.path.join(ROOT, 'phone', f'phone-{slot}-{shot[3:]}.png'), 1080, 1920)
 
 def icon_svg():
-    return open(os.path.join(ROOT, 'icon-options', 'd2-saying-coo.svg'), encoding='utf-8').read()
+    return open(os.path.join(ROOT, 'icon-options', 'u6-usagi-one-ear-happy.svg'), encoding='utf-8').read()
 
 def icon():
     html = f"""<!doctype html><html><head><style>html,body{{margin:0;width:512px;height:512px;overflow:hidden}}
@@ -65,18 +65,18 @@ def icon():
 
 def feature():
     html = f"""<!doctype html><html><head><meta charset="utf-8"><style>{FACES}
-    html,body{{margin:0;width:1024px;height:500px;background:#F1EDE5;font-family:Figtree;overflow:hidden}}
+    html,body{{margin:0;width:1024px;height:500px;background:#EEEEE6;font-family:Figtree;overflow:hidden}}
     .icon{{position:absolute;left:84px;top:110px;width:280px;height:280px;border-radius:64px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.15)}}
     .icon svg{{width:280px;height:280px;display:block}}
     .t{{position:absolute;left:430px;top:118px;right:60px}}
-    h1{{margin:0;font-size:96px;font-weight:700;color:#2A2823;letter-spacing:-2px}}
-    h1 span{{color:#BA4F28}}
-    p{{margin:14px 0 0;font-size:42px;line-height:1.22;color:#2A2823;white-space:nowrap}}
+    h1{{margin:0;font-size:96px;font-weight:700;color:#262A22;letter-spacing:-2px}}
+    h1 span{{color:#4F7A45}}
+    p{{margin:14px 0 0;font-size:42px;line-height:1.22;color:#262A22;white-space:nowrap}}
     .k{{margin-top:26px;display:flex;gap:12px}}
     .k i{{display:block;width:62px;height:12px;border-radius:6px}}
     </style></head><body><div class="icon">{icon_svg()}</div>
-    <div class="t"><h1>co<span>o</span></h1><p>Feeds, naps &amp; diapers,<br>calm even at 3 a.m.</p>
-    <div class="k"><i style="background:#E07B4F"></i><i style="background:#C9A43A"></i><i style="background:#8E7CC3"></i><i style="background:#5E9C8A"></i></div></div>
+    <div class="t"><h1>moch<span>i</span></h1><p>Baby tracker for feeds,<br>sleep, diapers &amp; pumping</p>
+    <div class="k"><i style="background:#E07B4F"></i><i style="background:#C9A43A"></i><i style="background:#8E7CC3"></i><i style="background:#5B84A0"></i></div></div>
     </body></html>"""
     render(html, os.path.join(ROOT, 'feature-graphic.png'), 1024, 500)
 

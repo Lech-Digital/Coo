@@ -419,10 +419,21 @@ public sealed partial class DueDateSection(HomeActions actions) : ObservableObje
     }
 }
 
+/// <summary>Which Mochi sits beside the hero: ears up while the baby is awake, ears down while asleep (ADR 0011).</summary>
+public enum MochiMood
+{
+    None,
+    Awake,
+    Asleep,
+}
+
 /// <summary>"Awake for 1 h 20 m", or what is running (Spec 006 §4.2).</summary>
 public sealed partial class StatusHeroSection : ObservableObject, IHomeSection
 {
     public int Order => 20;
+
+    [ObservableProperty]
+    private MochiMood _mood;
 
     [ObservableProperty]
     private string _eyebrow = "";
@@ -443,16 +454,19 @@ public sealed partial class StatusHeroSection : ObservableObject, IHomeSection
         {
             (Eyebrow, Value, Context) = (Strings.Get("Hero.Sleeping"), Formats.Duration(snapshot.Now - sleeping.Timing.OccurredAt),
                 Strings.Format("Hero.Since", snapshot.Formats.Time(sleeping.Timing.OccurredAt)));
+            Mood = MochiMood.Asleep;
         }
         else if (today?.AwakeSince is { } awake)
         {
             var nap = today.LastSleep is { Timing: SessionTiming { Range: var r } } ? Formats.Duration(r.Duration(snapshot.Now)) : null;
             (Eyebrow, Value, Context) = (Strings.Get("Hero.AwakeFor"), Formats.Duration(snapshot.Now - awake),
                 nap is null ? Strings.Format("Hero.Since", snapshot.Formats.Time(awake)) : Strings.Format("Hero.SinceAfterNap", snapshot.Formats.Time(awake), nap));
+            Mood = MochiMood.Awake;
         }
         else
         {
             (Eyebrow, Value, Context) = ("", Strings.Get("Hero.NoSleep"), "");
+            Mood = MochiMood.None;
         }
     }
 }
