@@ -51,6 +51,14 @@ Status: Accepted — amended 2026-10-02 (see below)
 >   "Why this time?" says so ("After short naps, Laura usually stays awake about 30% less"). The backtest still meets
 >   its targets; it cannot judge the learned effect, since the synthetic babies use 0.85 themselves.
 
+> **Amendment, 2026-11-06 (owner: "babies get to the rhythm with growing up"): bedtime by the clock as well
+> (`sleep-v3`).** A day/night rhythm emerges between about 3 and 6 months, and the night's start settles (and moves
+> earlier) with age. When the next sleep is likely the night's, its window now leans towards her usual bedtime: the
+> recency-weighted median start of her nights over the last 14 days (from 3 nights). The lean is 0 before 8 weeks,
+> grows to 0.6 at 6 months, and shrinks as her bedtimes spread (in full within 30 minutes of each other, none beyond
+> 90). "Why this time?" names the usual bedtime when it is used. Stats → Sleep pattern shows the same rhythm by eye:
+> the last 7, 14 or 30 days as columns, noon to noon, with the start of her longest sleep marked.
+
 ## Context
 
 The sleep predictor is a Premium feature. It suggests when the next nap window opens, and when

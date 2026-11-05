@@ -19,6 +19,7 @@ public sealed class StatsPage : ContentPage
     private readonly WeeklySummaryViewModel _summary;
     private readonly Coo.Mobile.Presentation.Reports.ReportViewModel _report;
     private readonly AveragesViewModel _averages;
+    private readonly SleepPatternViewModel _pattern;
     private readonly Coo.Mobile.Presentation.MilkStash.MilkStashViewModel _stash;
     private readonly Coo.Mobile.Presentation.Growth.GrowthViewModel _growth;
     private readonly Coo.Mobile.Presentation.SleepPlan.SleepPlanViewModel _plan;
@@ -45,10 +46,11 @@ public sealed class StatsPage : ContentPage
         _summary.EnsureConsentAsync = () => AdvisorPage.AskConsentAsync(this);
         _report = services.GetRequiredService<Coo.Mobile.Presentation.Reports.ReportViewModel>();
         _averages = services.GetRequiredService<AveragesViewModel>();
+        _pattern = services.GetRequiredService<SleepPatternViewModel>();
         _growth = services.GetRequiredService<Coo.Mobile.Presentation.Growth.GrowthViewModel>();
         _plan = services.GetRequiredService<Coo.Mobile.Presentation.SleepPlan.SleepPlanViewModel>();
         _stash = services.GetRequiredService<Coo.Mobile.Presentation.MilkStash.MilkStashViewModel>();
-        _pageHeader.BabyChanged += () => Dispatcher.Dispatch(async () => await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync(), _stash.LoadAsync()));
+        _pageHeader.BabyChanged += () => Dispatcher.Dispatch(async () => await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync(), _stash.LoadAsync(), _pattern.RefreshAsync()));
         _services = services;
         Shell.SetNavBarIsVisible(this, false);
         _page = new ScrollView
@@ -66,6 +68,7 @@ public sealed class StatsPage : ContentPage
         _summary.PropertyChanged += OnChanged;
         _report.PropertyChanged += OnChanged;
         _averages.PropertyChanged += OnChanged;
+        _pattern.PropertyChanged += OnChanged;
         _growth.PropertyChanged += OnChanged;
         _plan.PropertyChanged += OnChanged;
         _stash.PropertyChanged += OnChanged;
@@ -73,7 +76,7 @@ public sealed class StatsPage : ContentPage
         _theme.PaletteChanged += OnPaletteChanged;
         _language.Changed += OnLanguageChanged;
         _pageHeader.Refresh();
-        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync(), _stash.LoadAsync());
+        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync(), _stash.LoadAsync(), _pattern.RefreshAsync());
         if (_content.Children.Count == 0 || _renderedLanguage != Strings.Language)
             QueueRender();
     }
@@ -85,6 +88,7 @@ public sealed class StatsPage : ContentPage
         _summary.PropertyChanged -= OnChanged;
         _report.PropertyChanged -= OnChanged;
         _averages.PropertyChanged -= OnChanged;
+        _pattern.PropertyChanged -= OnChanged;
         _growth.PropertyChanged -= OnChanged;
         _plan.PropertyChanged -= OnChanged;
         _stash.PropertyChanged -= OnChanged;
@@ -98,7 +102,7 @@ public sealed class StatsPage : ContentPage
     private void OnDataChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
     {
         _summary.Invalidate();
-        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync(), _stash.LoadAsync());
+        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync(), _stash.LoadAsync(), _pattern.RefreshAsync());
     });
 
     // The chart is drawn with the palette's colours, not resources.
@@ -106,7 +110,7 @@ public sealed class StatsPage : ContentPage
 
     private void OnLanguageChanged(object? sender, EventArgs e) => Dispatcher.Dispatch(async () =>
     {
-        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync(), _stash.LoadAsync());
+        await Task.WhenAll(_trends.RefreshAsync(), _averages.RefreshAsync(), _growth.LoadAsync(), _plan.LoadAsync(), _stash.LoadAsync(), _pattern.RefreshAsync());
         QueueRender();
     });
 
@@ -160,6 +164,62 @@ public sealed class StatsPage : ContentPage
         }
 
         yield return PageFrame.Group(rows);
+    }
+
+    /// <summary>
+    /// The sleep pattern (owner, 2026-11-06): the days side by side, noon to noon, so the rhythm shows by eye, and when her
+    /// longest sleep usually starts.
+    /// </summary>
+    private static readonly int[] PatternHours = [12, 18, 0, 6, 12];
+
+    private IEnumerable<View> Pattern()
+    {
+        if (_pattern.Pattern is not { } pattern)
+            yield break;
+        yield return PageFrame.SectionLabel(Strings.Get("Pattern.Title"));
+        var periods = SleepPatternViewModel.Periods;
+        yield return PageFrame.Segmented(
+            [.. periods.Select(d => Strings.Format("Report.Days", d))],
+            Math.Max(0, periods.ToList().IndexOf(_pattern.Days)),
+            i => _pattern.SetDaysCommand.Execute(periods[i]));
+
+        // Under each column its weekday for a week, its date otherwise; at 30 days every fifth, and the last.
+        var count = pattern.Days.Count;
+        var labels = pattern.Days.Select((d, i) => count <= 7
+            ? d.Evening.ToString("ddd", Strings.Culture)
+            : (count <= 14 || i % 5 == (count - 1) % 5) ? d.Evening.Day.ToString(Strings.Culture) : "").ToList();
+        var is24Hour = _services.GetRequiredService<Coo.Mobile.Application.Preferences.IClockFormat>().Is24Hour;
+        string[] hours = [.. PatternHours.Select(h => is24Hour
+            ? new TimeOnly(h, 0).ToString("HH:mm", Strings.Culture)
+            : new DateTime(2000, 1, 1, h, 0, 0).ToString("h tt", Strings.Culture))];
+        var chart = new PatternChartView();
+        chart.Show(pattern, labels, hours, _pattern.FeedsShown, WashiPalette.For(_theme.Current));
+        SemanticProperties.SetDescription(chart, _pattern.Summary);
+
+        var legend = new FlexLayout { Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap };
+        void Key(string colour, double alpha, string text)
+        {
+            var swatch = new BoxView { WidthRequest = 10, HeightRequest = 10, CornerRadius = 3, VerticalOptions = LayoutOptions.Center, Opacity = alpha };
+            swatch.SetDynamicResource(BoxView.ColorProperty, colour);
+            legend.Add(new HorizontalStackLayout { Spacing = 5, Margin = new Thickness(0, 0, 14, 4), Children = { swatch, Ui.Text(text, "Meta") } });
+        }
+
+        Key("SleepMark", 1, Strings.Get("Pattern.Longest"));
+        Key("SleepMark", 0.5, Strings.Get("Kind.Sleep"));
+        if (_pattern.FeedsShown)
+            Key("FeedMark", 1, Strings.Get("Kind.Feed"));
+
+        yield return new Card(new VerticalStackLayout
+        {
+            Spacing = 10,
+            Children =
+            {
+                Ui.Text(_pattern.Summary, "Body"),
+                chart,
+                legend,
+                Ui.Text(Strings.Get("Pattern.Hint"), "Meta", "Ink2"),
+            },
+        });
     }
 
     /// <summary>"More": growth, the sleep plan and the milk stash as rows that open their pages, each when it applies.</summary>
@@ -455,6 +515,8 @@ public sealed class StatsPage : ContentPage
             _content.Add(view);
         if (SideBySideCard() is { } twins)
             _content.Add(twins);
+        foreach (var view in Pattern())
+            _content.Add(view);
         foreach (var view in More())
             _content.Add(view);
         _content.Add(header);

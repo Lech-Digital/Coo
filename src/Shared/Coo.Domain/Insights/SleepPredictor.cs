@@ -49,6 +49,8 @@ public enum PredictionConfidence
 /// <param name="ShortNapAdjusted">The last nap was short, so the window was shortened.</param>
 /// <param name="ShortNapFactor">How much a short nap shortens the next window: her own when learned, else the default.</param>
 /// <param name="ShortNapLearned">The factor comes from her own windows after short naps.</param>
+/// <param name="UsualBedtime">When her night sleep has usually started lately; null before three nights.</param>
+/// <param name="BedtimeClockWeight">How much the bedtime leans on that clock time rather than on her wake window (0–0.6).</param>
 public sealed record SleepPrediction(
     int Position,
     bool IsBedtime,
@@ -65,7 +67,9 @@ public sealed record SleepPrediction(
     bool ShortNapAdjusted,
     string Version,
     double ShortNapFactor = 0.85,
-    bool ShortNapLearned = false)
+    bool ShortNapLearned = false,
+    TimeOnly? UsualBedtime = null,
+    double BedtimeClockWeight = 0)
 {
     /// <summary>The fewest of the baby's own windows, on as many days, before the window is shown as hers.</summary>
     public const int MinimumPersonalWindows = 3;
@@ -90,7 +94,7 @@ internal sealed record WakeWindowObservation(int Position, DateTimeOffset From, 
 /// </summary>
 public static class SleepPredictor
 {
-    public const string Version = "sleep-v2";
+    public const string Version = "sleep-v3";
 
     /// <param name="sleeps">The baby's sleeps of at least the last <see cref="PredictorParameters.LookBack"/>, any order.</param>
     /// <param name="correctedAgeDays">Corrected age when the baby was born early (ADR 0008 §2).</param>
@@ -146,10 +150,64 @@ public static class SleepPredictor
 
         var bedtime = usable.Count > 0 ? usable.Count(o => o.EndedAtNight) * 2 > usable.Count : position > prior.TypicalNaps;
         var centre = awake + estimate;
+
+        // Bedtime by the clock as well (owner, 2026-11-06: "babies get to the rhythm with growing up"): a day/night
+        // rhythm emerges between about 3 and 6 months, and the night's start settles at a time of its own. So the more
+        // regular her recent bedtimes and the older she is, the more the window leans towards her usual bedtime.
+        var usualBedtime = UsualBedtime(recent, classes, now, zone, p);
+        var clockWeight = 0.0;
+        if (bedtime && usualBedtime is { } usual)
+        {
+            clockWeight = ClockWeight(correctedAgeDays, usual.Spread);
+            var local = TimeZoneInfo.ConvertTime(awake, zone);
+            var evening = new DateTimeOffset(local.Date.AddHours(12) + TimeSpan.FromMinutes(usual.FromNoon), local.Offset);
+            centre += (evening - centre) * clockWeight;
+        }
         var days = usable.Select(o => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(o.From, zone).DateTime)).Distinct().Count();
         return new SleepPrediction(
             position.Value, bedtime, awake, centre - band, centre, centre + band, confidence, estimate, personal, days, usable.Count, prior,
-            shortNap, Version, factor, learned);
+            shortNap, Version, factor, learned, usualBedtime?.Time, clockWeight);
+    }
+
+    /// <summary>Nights needed before her usual bedtime counts.</summary>
+    public const int BedtimesToLearn = 3;
+
+    /// <summary>
+    /// When her nights have started over the last fortnight: the recency-weighted median of each night's first sleep, in
+    /// minutes from noon so a night across midnight stays one number, with the spread between them.
+    /// </summary>
+    internal static (TimeOnly Time, int FromNoon, TimeSpan Spread)? UsualBedtime(
+        IReadOnlyList<SleepSpan> sleeps, IReadOnlyList<SleepClass> classes, DateTimeOffset now, TimeZoneInfo zone, PredictorParameters p)
+    {
+        var starts = new List<(int FromNoon, double Weight)>();
+        for (var i = 0; i < sleeps.Count; i++)
+        {
+            if (classes[i] != SleepClass.Night || sleeps[i].Start < now - p.LookBack)
+                continue;
+            // A night's first sleep: after a nap, or after a gap too long to be a night waking.
+            if (i > 0 && classes[i - 1] == SleepClass.Night && sleeps[i].Start - sleeps[i - 1].End!.Value <= SleepClassifier.NightWakingAtMost)
+                continue;
+            var local = SleepClassifier.Local(sleeps[i].Start, zone);
+            var fromNoon = (((local.Hour * 60) + local.Minute) - (12 * 60) + (24 * 60)) % (24 * 60);
+            starts.Add((fromNoon, Math.Pow(0.5, (now - sleeps[i].Start).TotalDays / p.HalfLifeDays)));
+        }
+
+        if (starts.Count < BedtimesToLearn)
+            return null;
+        var minutes = starts.Select(x => TimeSpan.FromMinutes(x.FromNoon)).ToList();
+        var median = (int)WeightedMedian(minutes, [.. starts.Select(x => x.Weight)]).TotalMinutes;
+        return (new TimeOnly(12, 0).AddMinutes(median), median, InterquartileRange(minutes));
+    }
+
+    /// <summary>
+    /// 0 before 8 weeks, rising to 0.6 at 6 months (when most babies have a day/night rhythm); scaled down as her
+    /// bedtimes spread: in full within 30 minutes of each other, not at all beyond 90.
+    /// </summary>
+    internal static double ClockWeight(int correctedAgeDays, TimeSpan spread)
+    {
+        var age = Math.Clamp((correctedAgeDays - 56) / (183.0 - 56), 0, 1) * 0.6;
+        var regular = Math.Clamp(1 - ((spread.TotalMinutes - 30) / 60), 0, 1);
+        return age * regular;
     }
 
     /// <summary>Windows after a short nap needed before her own effect replaces the default.</summary>

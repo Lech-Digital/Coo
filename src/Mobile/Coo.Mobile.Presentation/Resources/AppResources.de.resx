@@ -32,6 +32,11 @@
   <data name="Action.SwitchSide" xml:space="preserve"><value>Seite wechseln</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Rückgängig</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Aufgewacht</value></data>
+  <data name="Advisor.Ask.SleepLess" xml:space="preserve"><value>Warum schläft {0} diese Woche weniger als letzte Woche?</value></data>
+  <data name="Advisor.Ask.LongestShorter" xml:space="preserve"><value>Der längste Schlaf von {0} ist diese Woche kürzer geworden. Warum, und was hilft?</value></data>
+  <data name="Advisor.Ask.LongestLonger" xml:space="preserve"><value>{0} schläft diese Woche längere Strecken. Was kommt meist als Nächstes?</value></data>
+  <data name="Advisor.Ask.FeedsUp" xml:space="preserve"><value>{0} trinkt diese Woche öfter. Ist das ein Wachstumsschub?</value></data>
+  <data name="Advisor.Ask.FewWet" xml:space="preserve"><value>{0} hat zuletzt weniger als fünf nasse Windeln am Tag. Bekommt {0} genug Milch?</value></data>
   <data name="Advisor.Ask" xml:space="preserve"><value>Fragen</value></data>
   <data name="Advisor.ConsentAgree" xml:space="preserve"><value>Einverstanden</value></data>
   <data name="Advisor.ConsentBody" xml:space="preserve"><value>Für die Antwort sendet Mochi deine Frage (getippt oder als Aufnahme, die in Text umgewandelt wird), dieses Gespräch, Vorname und Alter deines Babys und dein Protokoll der letzten 14 Tage, die letzten zwei Tage Eintrag für Eintrag (Zeiten und Mengen, keine Notizen), an die KI Gemini von Google, die die Antwort schreibt. Mochis Server speichert weder Fragen noch Antworten; sie bleiben auf diesem Handy. Die Antworten sind allgemeine Informationen, keine ärztliche Beratung.</value></data>
@@ -545,6 +550,11 @@ Wenn der Link Mochi nicht öffnet, geh in Mochi zu Einstellungen → Familie →
   <data name="Photo.Privacy" xml:space="preserve"><value>Das Foto wird zum Lesen an unseren Server und an Googles Gemini-KI geschickt und danach gelöscht; es wird nie gespeichert. Namen darauf lassen sich nicht vorher verbergen, deck sie also ab, wenn du magst.</value></data>
   <data name="Photo.Take" xml:space="preserve"><value>Foto aufnehmen</value></data>
   <data name="Photo.Title" xml:space="preserve"><value>Gesundheitsheft lesen</value></data>
+  <data name="Pattern.Title" xml:space="preserve"><value>Schlafmuster</value></data>
+  <data name="Pattern.Usual" xml:space="preserve"><value>Der längste Schlaf von {0} beginnt meist gegen {1} und dauert etwa {2}.</value></data>
+  <data name="Pattern.Empty" xml:space="preserve"><value>Trage an {0} Tagen Schlaf ein, um zu sehen, wann der längste Schlaf meist beginnt.</value></data>
+  <data name="Pattern.Hint" xml:space="preserve"><value>Jede Spalte ist ein Tag, von Mittag bis Mittag, der älteste links.</value></data>
+  <data name="Pattern.Longest" xml:space="preserve"><value>Längster Schlaf</value></data>
   <data name="Plan.Accept" xml:space="preserve"><value>Ausprobieren</value></data>
   <data name="Plan.Adj.DropANap" xml:space="preserve"><value>{0} lässt schon ein Schläfchen weg: Plane eines weniger.</value></data>
   <data name="Plan.Adj.EarlierBedtime" xml:space="preserve"><value>Verlege die Schlafenszeit um {0} nach vorn.</value></data>
@@ -1092,6 +1102,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Why.Record" xml:space="preserve"><value>Letzte zwei Wochen: {1} von {2} Zeitfenstern passten für {0}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>Das letzte Schläfchen war kurz, deshalb kommt das Fenster etwas früher.</value></data>
   <data name="Why.ShortNapOwn" xml:space="preserve"><value>Das letzte Schläfchen war kurz. Nach kurzen Schläfchen ist {0} meist etwa {1} % kürzer wach, deshalb kommt das Fenster früher.</value></data>
+  <data name="Why.UsualBedtime" xml:space="preserve"><value>Zuletzt begann die Nacht von {0} meist gegen {1}, daran orientiert sich die Schlafenszeit.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Schlafenszeit</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Nächstes Schläfchen</value></data>
   <data name="Widget.Asleep" xml:space="preserve"><value>Schläft</value></data>

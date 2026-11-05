@@ -33,6 +33,11 @@
   <data name="Action.SwitchSide" xml:space="preserve"><value>Zmień stronę</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Cofnij</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Pobudka</value></data>
+  <data name="Advisor.Ask.SleepLess" xml:space="preserve"><value>Dlaczego {0} śpi w tym tygodniu mniej niż w zeszłym?</value></data>
+  <data name="Advisor.Ask.LongestShorter" xml:space="preserve"><value>Najdłuższy sen {0} skrócił się w tym tygodniu. Dlaczego i co może pomóc?</value></data>
+  <data name="Advisor.Ask.LongestLonger" xml:space="preserve"><value>{0} śpi w tym tygodniu dłuższymi odcinkami. Co zwykle będzie dalej?</value></data>
+  <data name="Advisor.Ask.FeedsUp" xml:space="preserve"><value>{0} je w tym tygodniu częściej. Czy to skok rozwojowy?</value></data>
+  <data name="Advisor.Ask.FewWet" xml:space="preserve"><value>{0} ma ostatnio mniej niż pięć mokrych pieluch dziennie. Czy to wystarczająco dużo mleka?</value></data>
   <data name="Advisor.Ask" xml:space="preserve"><value>Zapytaj</value></data>
   <data name="Advisor.ConsentAgree" xml:space="preserve"><value>Zgadzam się</value></data>
   <data name="Advisor.ConsentBody" xml:space="preserve"><value>Aby odpowiedzieć, Mochi wysyła Twoje pytanie (pisane albo nagranie do zamiany na tekst), tę rozmowę, imię i wiek dziecka oraz dziennik z ostatnich 14 dni, z ostatnich dwóch dni wpis po wpisie (godziny i ilości, bez notatek), do AI Gemini od Google, która pisze odpowiedź. Serwer Mochi nie przechowuje ani pytań, ani odpowiedzi; zostają na tym telefonie. Odpowiedzi to ogólne informacje, nie porada medyczna.</value></data>
@@ -572,6 +577,11 @@ Jeśli link nie otworzy Mochi, przejdź w Mochi do Ustawienia → Rodzina → Do
   <data name="Photo.Privacy" xml:space="preserve"><value>Zdjęcie trafia do naszego serwera i do AI Gemini od Google w celu odczytania, a potem jest usuwane; nigdy nie jest przechowywane. Imion na nim nie da się wcześniej ukryć, więc możesz je zasłonić.</value></data>
   <data name="Photo.Take" xml:space="preserve"><value>Zrób zdjęcie</value></data>
   <data name="Photo.Title" xml:space="preserve"><value>Odczytaj dokumentację zdrowia</value></data>
+  <data name="Pattern.Title" xml:space="preserve"><value>Rytm snu</value></data>
+  <data name="Pattern.Usual" xml:space="preserve"><value>Najdłuższy sen {0} zaczyna się zwykle około {1} i trwa ok. {2}.</value></data>
+  <data name="Pattern.Empty" xml:space="preserve"><value>Zapisz sen z {0} dni, aby zobaczyć, kiedy zwykle zaczyna się najdłuższy sen.</value></data>
+  <data name="Pattern.Hint" xml:space="preserve"><value>Każda kolumna to jeden dzień, od południa do południa, najstarszy po lewej.</value></data>
+  <data name="Pattern.Longest" xml:space="preserve"><value>Najdłuższy sen</value></data>
   <data name="Plan.Accept" xml:space="preserve"><value>Spróbuj</value></data>
   <data name="Plan.Adj.DropANap" xml:space="preserve"><value>{0} już rezygnuje z drzemki: zaplanuj o jedną mniej.</value></data>
   <data name="Plan.Adj.EarlierBedtime" xml:space="preserve"><value>Przesuń porę snu o {0} wcześniej.</value></data>
@@ -1130,6 +1140,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Why.Record" xml:space="preserve"><value>Ostatnie dwa tygodnie, {0}: trafne okna {1} z {2}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>Ostatnia drzemka była krótka, więc okno przychodzi trochę wcześniej.</value></data>
   <data name="Why.ShortNapOwn" xml:space="preserve"><value>Ostatnia drzemka była krótka. Po krótkich drzemkach {0} zwykle nie śpi o ok. {1}% krócej, więc okno przychodzi wcześniej.</value></data>
+  <data name="Why.UsualBedtime" xml:space="preserve"><value>Ostatnio noc {0} zaczynała się zwykle około {1}, więc pora snu się do niej zbliża.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Pora spania</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Następna drzemka</value></data>
   <data name="Widget.Asleep" xml:space="preserve"><value>Śpi</value></data>

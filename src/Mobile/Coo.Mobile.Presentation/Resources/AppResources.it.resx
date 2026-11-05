@@ -32,6 +32,11 @@
   <data name="Action.SwitchSide" xml:space="preserve"><value>Cambia lato</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Annulla</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Sveglio</value></data>
+  <data name="Advisor.Ask.SleepLess" xml:space="preserve"><value>Perché {0} dorme meno questa settimana rispetto alla scorsa?</value></data>
+  <data name="Advisor.Ask.LongestShorter" xml:space="preserve"><value>Il sonno più lungo di {0} si è accorciato questa settimana. Perché, e cosa può aiutare?</value></data>
+  <data name="Advisor.Ask.LongestLonger" xml:space="preserve"><value>{0} dorme a tratti più lunghi questa settimana. Cosa succede di solito dopo?</value></data>
+  <data name="Advisor.Ask.FeedsUp" xml:space="preserve"><value>{0} mangia più spesso questa settimana. È uno scatto di crescita?</value></data>
+  <data name="Advisor.Ask.FewWet" xml:space="preserve"><value>Meno di cinque pannolini bagnati al giorno per {0} ultimamente. È abbastanza latte?</value></data>
   <data name="Advisor.Ask" xml:space="preserve"><value>Chiedi</value></data>
   <data name="Advisor.ConsentAgree" xml:space="preserve"><value>Accetto</value></data>
   <data name="Advisor.ConsentBody" xml:space="preserve"><value>Per rispondere, Mochi invia la tua domanda (scritta, o la registrazione da trasformare in testo), questa conversazione, nome ed età del bambino e il diario degli ultimi 14 giorni, voce per voce negli ultimi due (orari e quantità, senza note), all’IA Gemini di Google, che scrive la risposta. Il server di Mochi non conserva né domande né risposte; restano su questo telefono. Le risposte sono informazioni generali, non un parere medico.</value></data>
@@ -545,6 +550,11 @@ Se il link non apre Mochi, vai su Impostazioni → Famiglia → Unisciti a una f
   <data name="Photo.Privacy" xml:space="preserve"><value>La foto viene inviata al nostro server e all’IA Gemini di Google per essere letta, poi eliminata; non viene mai conservata. I nomi presenti non possono essere nascosti prima, quindi coprili se vuoi.</value></data>
   <data name="Photo.Take" xml:space="preserve"><value>Scatta una foto</value></data>
   <data name="Photo.Title" xml:space="preserve"><value>Leggi un libretto sanitario</value></data>
+  <data name="Pattern.Title" xml:space="preserve"><value>Ritmo del sonno</value></data>
+  <data name="Pattern.Usual" xml:space="preserve"><value>Il sonno più lungo di {0} di solito inizia verso le {1} e dura circa {2}.</value></data>
+  <data name="Pattern.Empty" xml:space="preserve"><value>Registra il sonno per {0} giorni per vedere quando inizia di solito il sonno più lungo.</value></data>
+  <data name="Pattern.Hint" xml:space="preserve"><value>Ogni colonna è un giorno, da mezzogiorno a mezzogiorno, il più vecchio a sinistra.</value></data>
+  <data name="Pattern.Longest" xml:space="preserve"><value>Sonno più lungo</value></data>
   <data name="Plan.Accept" xml:space="preserve"><value>Provalo</value></data>
   <data name="Plan.Adj.DropANap" xml:space="preserve"><value>{0} sta già lasciando un pisolino: prevedine uno in meno.</value></data>
   <data name="Plan.Adj.EarlierBedtime" xml:space="preserve"><value>Anticipa l'ora della nanna di {0}.</value></data>
@@ -1092,6 +1102,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Why.Record" xml:space="preserve"><value>Ultime due settimane: {1} finestre giuste su {2} per {0}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>L’ultimo pisolino è stato breve, quindi la finestra arriva un po’ prima.</value></data>
   <data name="Why.ShortNapOwn" xml:space="preserve"><value>L’ultimo pisolino è stato breve. Dopo pisolini brevi, {0} di solito resta sveglia circa il {1}% in meno, quindi la finestra arriva prima.</value></data>
+  <data name="Why.UsualBedtime" xml:space="preserve"><value>Ultimamente la notte di {0} inizia di solito verso le {1}, quindi l’ora della nanna si avvicina a quell’ora.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Nanna</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Prossimo pisolino</value></data>
   <data name="Widget.Asleep" xml:space="preserve"><value>Dorme</value></data>

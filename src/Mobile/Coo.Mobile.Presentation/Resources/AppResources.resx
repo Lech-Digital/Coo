@@ -32,6 +32,11 @@
   <data name="Action.SwitchSide" xml:space="preserve"><value>Switch side</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Undo</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Woke up</value></data>
+  <data name="Advisor.Ask.SleepLess" xml:space="preserve"><value>Why is {0} sleeping less this week than last week?</value></data>
+  <data name="Advisor.Ask.LongestShorter" xml:space="preserve"><value>The longest sleep of {0} got shorter this week. Why, and what can help?</value></data>
+  <data name="Advisor.Ask.LongestLonger" xml:space="preserve"><value>{0} is sleeping longer stretches this week. What usually comes next?</value></data>
+  <data name="Advisor.Ask.FeedsUp" xml:space="preserve"><value>{0} is feeding more often this week. Is it a growth spurt?</value></data>
+  <data name="Advisor.Ask.FewWet" xml:space="preserve"><value>Fewer than five wet diapers a day for {0} lately. Is that enough milk?</value></data>
   <data name="Advisor.Ask" xml:space="preserve"><value>Ask</value></data>
   <data name="Advisor.ConsentAgree" xml:space="preserve"><value>Agree</value></data>
   <data name="Advisor.ConsentBody" xml:space="preserve"><value>To answer, Mochi sends your question (typed, or your recording to turn into text), this conversation, your baby’s first name and age, and your log of the last 14 days, entry by entry for the last two days (times and amounts, no notes), to Google’s Gemini AI, which writes the answer. Mochi’s server keeps neither the questions nor the answers; they stay on this phone. The answers are general information, not medical advice.</value></data>
@@ -545,6 +550,11 @@ If the link doesn't open Mochi, go to Settings → Family → Join a family in M
   <data name="Photo.Privacy" xml:space="preserve"><value>The photo is sent to our server and Google’s Gemini AI to be read, then deleted; it is never stored. Names on it can’t be hidden first, so cover them if you like.</value></data>
   <data name="Photo.Take" xml:space="preserve"><value>Take a photo</value></data>
   <data name="Photo.Title" xml:space="preserve"><value>Read a health record</value></data>
+  <data name="Pattern.Title" xml:space="preserve"><value>Sleep pattern</value></data>
+  <data name="Pattern.Usual" xml:space="preserve"><value>{0}’s longest sleep usually starts around {1} and lasts about {2}.</value></data>
+  <data name="Pattern.Empty" xml:space="preserve"><value>Log sleep on {0} days to see when the longest sleep usually starts.</value></data>
+  <data name="Pattern.Hint" xml:space="preserve"><value>Each column is a day, noon to noon, oldest on the left.</value></data>
+  <data name="Pattern.Longest" xml:space="preserve"><value>Longest sleep</value></data>
   <data name="Plan.Accept" xml:space="preserve"><value>Try it</value></data>
   <data name="Plan.Adj.DropANap" xml:space="preserve"><value>{0} is dropping a nap already: plan one nap fewer.</value></data>
   <data name="Plan.Adj.EarlierBedtime" xml:space="preserve"><value>Move bedtime {0} earlier.</value></data>
@@ -1092,6 +1102,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Why.Record" xml:space="preserve"><value>Last two weeks: {1} of {2} windows were right for {0}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>The last nap was short, so the window comes a little earlier.</value></data>
   <data name="Why.ShortNapOwn" xml:space="preserve"><value>The last nap was short. After short naps, {0} usually stays awake about {1}% less, so the window comes earlier.</value></data>
+  <data name="Why.UsualBedtime" xml:space="preserve"><value>Lately {0}’s night has usually started around {1}, so bedtime leans towards it.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Bedtime</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Next nap</value></data>
   <data name="Widget.Asleep" xml:space="preserve"><value>Asleep</value></data>

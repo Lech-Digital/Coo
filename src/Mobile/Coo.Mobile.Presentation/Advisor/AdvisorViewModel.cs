@@ -16,8 +16,11 @@ public partial class AdvisorViewModel(
     TimeProvider timeProvider,
     BuildAdvisorContext? buildContext = null,
     Coo.Mobile.Application.AiLogging.IVoiceRecorder? recorder = null,
-    Coo.Mobile.Application.AiLogging.TranscribeVoice? transcribe = null) : ObservableObject, IDisposable
+    Coo.Mobile.Application.AiLogging.TranscribeVoice? transcribe = null,
+    Coo.Mobile.Application.CareLog.GetCareTrends? trends = null) : ObservableObject, IDisposable
 {
+    /// <summary>Questions from her own last two weeks, shown first (owner, 2026-11-06); empty without enough logged days.</summary>
+    private IReadOnlyList<string> _personal = [];
     /// <summary>Recording a spoken question; it goes to Gemini to be written down, then is asked like a typed one.</summary>
     [ObservableProperty]
     private bool _isRecording;
@@ -166,7 +169,11 @@ public partial class AdvisorViewModel(
             if (baby?.BirthDate is { } birthDate)
             {
                 var today = DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
-                var daysOld = Math.Max(0, today.DayNumber - birthDate.DayNumber);
+                // Corrected age for a baby born early: her development follows the due date, not the birth date.
+                var daysOld = baby.IsBorn ? Coo.Domain.Households.BabyAge.On(baby, today).CorrectedDays : Math.Max(0, today.DayNumber - birthDate.DayNumber);
+                _personal = trends is not null && baby.IsBorn
+                    ? await PersonalAsync(householdId.Value, baby, daysOld, today, TimeZoneInfo.FindSystemTimeZoneById(household?.TimeZoneId ?? TimeZoneInfo.Local.Id))
+                    : [];
 
                 var stage = AdvisorKnowledgeBase.GetStage(daysOld);
                 DevelopmentTitle = stage.StageBadge;
@@ -197,11 +204,31 @@ public partial class AdvisorViewModel(
         SuggestedQuestions.Clear();
         if (_allQuestionsPool.Length == 0) return;
 
-        var count = Math.Min(5, _allQuestionsPool.Length);
+        foreach (var question in _personal)
+            SuggestedQuestions.Add(question);
+        var count = Math.Min(5 - _personal.Count, _allQuestionsPool.Length);
         for (var i = 0; i < count; i++)
         {
             var idx = (_poolRotationIndex + i) % _allQuestionsPool.Length;
             SuggestedQuestions.Add(_allQuestionsPool[idx]);
+        }
+    }
+
+    /// <summary>This week against the week before, from her log; at most two questions.</summary>
+    private async Task<IReadOnlyList<string>> PersonalAsync(
+        Coo.Domain.Common.HouseholdId household, Coo.Domain.Households.BabyProfile baby, int correctedDays, DateOnly today, TimeZoneInfo zone)
+    {
+        try
+        {
+            var days = await trends!.DaysAsync(household, baby.Id, today.AddDays(-14), today.AddDays(-1), zone, timeProvider.GetLocalNow(), CancellationToken.None);
+            var thisWeek = days.Values.Where(d => d.Date >= today.AddDays(-7)).ToList();
+            var lastWeek = days.Values.Where(d => d.Date < today.AddDays(-7)).ToList();
+            return AdvisorKnowledgeBase.PersonalQuestions(baby.Name, correctedDays, thisWeek, lastWeek);
+        }
+        catch (Exception)
+        {
+            // A question list is never worth an error: the age's questions are enough.
+            return [];
         }
     }
 

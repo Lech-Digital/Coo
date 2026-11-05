@@ -24,6 +24,13 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
   three nights of wakings logged, the night screen says when she is likely back asleep ("Back to sleep · likely
   3:40–3:55 AM"), learned from her own wakings that were most like tonight's: after a similar stretch of sleep, at a
   similar hour, and counted from the end of the feed when there is one.
+- **Bedtime learns her rhythm.** From about two months, the bedtime window leans towards the time this baby's night has
+  usually started lately, more so as she grows and the more regular her bedtimes are.
+- **Stats → Sleep pattern**: the last 7, 14 or 30 days side by side, each a column from noon to noon with her sleeps and
+  feeds, the longest sleep of each day in full colour, and in words when it usually starts and how long it lasts.
+- **The Advisor asks about her own week**: up to two questions from what changed in the log (shorter or longer
+  nights, more feeds, fewer wet diapers) before the questions for her age, which now follow the corrected age of a baby
+  born early.
 - **Short naps, her own way.** After a few short naps, the next-nap estimate uses how much shorter this baby's own
   windows are after a short nap, instead of a fixed 15%; "Why this time?" says so.
 

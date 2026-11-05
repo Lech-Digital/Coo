@@ -32,6 +32,11 @@
   <data name="Action.SwitchSide" xml:space="preserve"><value>Andere kant</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Ongedaan maken</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Wakker</value></data>
+  <data name="Advisor.Ask.SleepLess" xml:space="preserve"><value>Waarom slaapt {0} deze week minder dan vorige week?</value></data>
+  <data name="Advisor.Ask.LongestShorter" xml:space="preserve"><value>De langste slaap van {0} is deze week korter geworden. Waarom, en wat helpt?</value></data>
+  <data name="Advisor.Ask.LongestLonger" xml:space="preserve"><value>{0} slaapt deze week langere stukken. Wat komt er meestal hierna?</value></data>
+  <data name="Advisor.Ask.FeedsUp" xml:space="preserve"><value>{0} drinkt deze week vaker. Is het een groeisprong?</value></data>
+  <data name="Advisor.Ask.FewWet" xml:space="preserve"><value>Minder dan vijf natte luiers per dag voor {0} de laatste tijd. Is dat genoeg melk?</value></data>
   <data name="Advisor.Ask" xml:space="preserve"><value>Vragen</value></data>
   <data name="Advisor.ConsentAgree" xml:space="preserve"><value>Akkoord</value></data>
   <data name="Advisor.ConsentBody" xml:space="preserve"><value>Om te antwoorden stuurt Mochi je vraag (getypt, of je opname om in tekst om te zetten), dit gesprek, de voornaam en leeftijd van je baby en je logboek van de laatste 14 dagen, de laatste twee dagen item voor item (tijden en hoeveelheden, geen notities), naar de AI Gemini van Google, die het antwoord schrijft. De server van Mochi bewaart vragen noch antwoorden; ze blijven op deze telefoon. De antwoorden zijn algemene informatie, geen medisch advies.</value></data>
@@ -545,6 +550,11 @@ Als de link Mochi niet opent, ga in Mochi naar Instellingen → Gezin → Aanslu
   <data name="Photo.Privacy" xml:space="preserve"><value>De foto gaat naar onze server en Googles Gemini-AI om gelezen te worden, en wordt daarna verwijderd; hij wordt nooit bewaard. Namen erop kunnen niet eerst verborgen worden, dus dek ze af als je wilt.</value></data>
   <data name="Photo.Take" xml:space="preserve"><value>Foto maken</value></data>
   <data name="Photo.Title" xml:space="preserve"><value>Gezondheidsgegevens lezen</value></data>
+  <data name="Pattern.Title" xml:space="preserve"><value>Slaappatroon</value></data>
+  <data name="Pattern.Usual" xml:space="preserve"><value>De langste slaap van {0} begint meestal rond {1} en duurt zo’n {2}.</value></data>
+  <data name="Pattern.Empty" xml:space="preserve"><value>Log {0} dagen slaap om te zien wanneer de langste slaap meestal begint.</value></data>
+  <data name="Pattern.Hint" xml:space="preserve"><value>Elke kolom is een dag, van 12 uur ’s middags tot 12 uur, de oudste links.</value></data>
+  <data name="Pattern.Longest" xml:space="preserve"><value>Langste slaap</value></data>
   <data name="Plan.Accept" xml:space="preserve"><value>Proberen</value></data>
   <data name="Plan.Adj.DropANap" xml:space="preserve"><value>{0} laat al een dutje vallen: plan er één minder.</value></data>
   <data name="Plan.Adj.EarlierBedtime" xml:space="preserve"><value>Haal bedtijd {0} naar voren.</value></data>
@@ -1092,6 +1102,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Why.Record" xml:space="preserve"><value>Afgelopen twee weken: {1} van de {2} tijdvensters klopten voor {0}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>Het laatste dutje was kort, dus het venster komt iets eerder.</value></data>
   <data name="Why.ShortNapOwn" xml:space="preserve"><value>Het laatste dutje was kort. Na korte dutjes is {0} meestal zo’n {1}% korter wakker, dus het venster komt eerder.</value></data>
+  <data name="Why.UsualBedtime" xml:space="preserve"><value>De laatste tijd begint de nacht van {0} meestal rond {1}, dus bedtijd schuift daarheen.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Bedtijd</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Volgend dutje</value></data>
   <data name="Widget.Asleep" xml:space="preserve"><value>Slaapt</value></data>

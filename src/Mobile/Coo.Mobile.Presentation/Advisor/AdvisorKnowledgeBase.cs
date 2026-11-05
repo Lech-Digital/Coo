@@ -259,6 +259,46 @@ public static class AdvisorKnowledgeBase
         ];
     }
 
+    /// <summary>Logged days needed in each week before this week is compared with the one before.</summary>
+    public const int DaysToCompare = 4;
+
+    /// <summary>
+    /// Questions from her own log (owner, 2026-11-06: questions should fit this baby, not only her age): what changed
+    /// between this week and the one before, in the phone's language, at most two, the biggest change first.
+    /// </summary>
+    public static IReadOnlyList<string> PersonalQuestions(
+        string name, int correctedDays, IReadOnlyList<Coo.Mobile.Application.CareLog.DayCare> thisWeek, IReadOnlyList<Coo.Mobile.Application.CareLog.DayCare> lastWeek)
+    {
+        ArgumentNullException.ThrowIfNull(thisWeek);
+        ArgumentNullException.ThrowIfNull(lastWeek);
+        var now = thisWeek.Where(d => d.HasEntries).ToList();
+        var before = lastWeek.Where(d => d.HasEntries).ToList();
+        if (now.Count < DaysToCompare)
+            return [];
+
+        var found = new List<(double Size, string Text)>();
+        if (before.Count >= DaysToCompare)
+        {
+            var sleep = now.Average(d => d.Sleep.TotalMinutes) - before.Average(d => d.Sleep.TotalMinutes);
+            if (sleep <= -60)
+                found.Add((-sleep / 60, Localization.Strings.Format("Advisor.Ask.SleepLess", name)));
+            var longest = now.Average(d => d.LongestSleep.TotalMinutes) - before.Average(d => d.LongestSleep.TotalMinutes);
+            if (longest <= -60)
+                found.Add((-longest / 60, Localization.Strings.Format("Advisor.Ask.LongestShorter", name)));
+            else if (longest >= 60)
+                found.Add((longest / 90, Localization.Strings.Format("Advisor.Ask.LongestLonger", name)));
+            var feeds = now.Average(d => d.Feeds) - before.Average(d => d.Feeds);
+            if (feeds >= 2)
+                found.Add((feeds / 2, Localization.Strings.Format("Advisor.Ask.FeedsUp", name)));
+        }
+
+        // Fewer than five wet diapers a day under six months is worth asking about, whatever last week was.
+        if (correctedDays is >= 5 and < 183 && now.All(d => d.Diapers > 0) && now.Average(d => d.Wet) < 5)
+            found.Add((2, Localization.Strings.Format("Advisor.Ask.FewWet", name)));
+
+        return [.. found.OrderByDescending(f => f.Size).Take(2).Select(f => f.Text)];
+    }
+
     public static string[] GetFallbackQuestions() => [
         "How much sleep does my baby need at their current age?",
         "Is 3-4 hours between daytime feeds normal?",

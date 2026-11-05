@@ -47,6 +47,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<LogViewModel>();
         services.AddSingleton<TrendsViewModel>();
         services.AddSingleton<Log.AveragesViewModel>();
+        services.AddSingleton<Log.SleepPatternViewModel>();
         services.AddTransient<Tour.TourViewModel>();
         services.AddSingleton<QuickLog.QuickLogViewModel>();
         services.AddSingleton<Settings.SettingsViewModel>();

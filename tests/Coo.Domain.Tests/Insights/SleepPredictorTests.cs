@@ -306,4 +306,71 @@ public sealed class SleepPredictorTests
         prediction!.ShortNapLearned.Should().BeFalse();
         prediction.ShortNapFactor.Should().Be(PredictorParameters.Default.ShortNapFactor);
     }
+
+    /// <summary>Three naps and bed at 19:00 every day: windows of 2 h, 2 h 30, 2 h 30 and 2 h 15 before bed.</summary>
+    private static List<SleepSpan> RegularBedtimes(int count)
+    {
+        var sleeps = new List<SleepSpan>();
+        for (var d = 0; d < count; d++)
+        {
+            var day = Day1.AddDays(d);
+            sleeps.Add(new SleepSpan(At(day, 9), At(day, 10)));
+            sleeps.Add(new SleepSpan(At(day, 12, 30), At(day, 13, 30)));
+            sleeps.Add(new SleepSpan(At(day, 16), At(day, 16, 45)));
+            sleeps.Add(new SleepSpan(At(day, 19), At(day.AddDays(1), 7)));
+        }
+
+        return sleeps;
+    }
+
+    [Fact]
+    public void Predict_SixMonthsWithARegularBedtime_LeansTowardsHerUsualBedtime()
+    {
+        // Arrange: today the last nap ended half an hour early, at 16:15.
+        var sleeps = RegularBedtimes(7);
+        var today = Day1.AddDays(7);
+        sleeps.AddRange([new SleepSpan(At(today, 9), At(today, 10)), new SleepSpan(At(today, 12, 30), At(today, 13, 30)), new SleepSpan(At(today, 15, 30), At(today, 16, 15))]);
+
+        // Act
+        var prediction = SleepPredictor.Predict(sleeps, SixMonths, At(today, 16, 20), Utc);
+
+        // Assert: between the wake window alone and her 19:00.
+        prediction.Should().NotBeNull();
+        prediction!.IsBedtime.Should().BeTrue();
+        prediction.UsualBedtime.Should().Be(new TimeOnly(19, 0));
+        prediction.BedtimeClockWeight.Should().BeApproximately(0.6, 0.01);
+        prediction.Centre.Should().BeAfter(prediction.AwakeSince + prediction.Estimate);
+        prediction.Centre.Should().BeOnOrBefore(At(today, 19));
+    }
+
+    [Fact]
+    public void Predict_SixWeeksOld_KeepsToTheWakeWindow()
+    {
+        // Arrange: no day/night rhythm to lean on yet at six weeks.
+        var sleeps = RegularBedtimes(7);
+        var today = Day1.AddDays(7);
+        sleeps.AddRange([new SleepSpan(At(today, 9), At(today, 10)), new SleepSpan(At(today, 12, 30), At(today, 13, 30)), new SleepSpan(At(today, 15, 30), At(today, 16, 15))]);
+
+        // Act
+        var prediction = SleepPredictor.Predict(sleeps, 42, At(today, 16, 20), Utc);
+
+        // Assert
+        prediction.Should().NotBeNull();
+        prediction!.BedtimeClockWeight.Should().Be(0);
+        prediction.Centre.Should().Be(prediction.AwakeSince + prediction.Estimate);
+    }
+
+    [Theory]
+    [InlineData(40, 10, 0)]
+    [InlineData(183, 20, 0.6)]
+    [InlineData(183, 120, 0)]
+    [InlineData(120, 30, 0.3)]
+    public void ClockWeight_AgeAndSpread_GrowsWithRhythm(int ageDays, int spreadMinutes, double expected)
+    {
+        // Act
+        var weight = SleepPredictor.ClockWeight(ageDays, TimeSpan.FromMinutes(spreadMinutes));
+
+        // Assert
+        weight.Should().BeApproximately(expected, 0.01);
+    }
 }

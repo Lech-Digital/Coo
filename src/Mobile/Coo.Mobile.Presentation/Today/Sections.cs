@@ -707,6 +707,8 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
         }
 
         lines.Add(typical + ".");
+        if (sleep.IsBedtime && sleep.UsualBedtime is { } usual && sleep.BedtimeClockWeight > 0)
+            lines.Add(Strings.Format("Why.UsualBedtime", snapshot.Baby.Name, snapshot.Formats.Time(usual)));
         if (sleep.ShortNapAdjusted)
         {
             // Her own effect once learned (owner, 2026-11-06): how much shorter her windows after short naps have been.
