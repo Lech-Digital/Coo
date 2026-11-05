@@ -59,6 +59,72 @@ public sealed class ThemeControllerTests
     }
 
     [Fact]
+    public async Task SetAsync_WithACurtain_CoversThenAnnouncesThenReveals()
+    {
+        // Arrange: daytime; switching to Night changes the palette under the cover.
+        _preferences.GetAppearanceAsync(Arg.Any<CancellationToken>()).Returns(AppearancePreferences.Default);
+        var steps = new List<string>();
+        var curtain = new RecordingCurtain(steps);
+        using var controller = new ThemeController(_preferences, _os, new FixedTime(new(2026, 10, 1, 14, 0, 0, TimeSpan.FromHours(2))), curtain);
+        await controller.StartAsync(CancellationToken.None);
+        controller.PaletteChanged += (_, kind) => steps.Add($"changed {kind}");
+
+        // Act
+        await controller.SetAsync(AppearancePreferences.Default with { Mode = AppearanceMode.Night }, CancellationToken.None);
+
+        // Assert
+        steps.Should().Equal("cover Night", "changed Night", "reveal");
+        controller.Current.Should().Be(PaletteKind.Night);
+    }
+
+    [Fact]
+    public async Task StartAsync_WithACurtain_DoesNotCover()
+    {
+        // Arrange: nothing is on screen at start-up to hide.
+        _preferences.GetAppearanceAsync(Arg.Any<CancellationToken>()).Returns(AppearancePreferences.Default);
+        var steps = new List<string>();
+        using var controller = new ThemeController(_preferences, _os, new FixedTime(new(2026, 10, 1, 3, 0, 0, TimeSpan.FromHours(2))), new RecordingCurtain(steps));
+
+        // Act
+        await controller.StartAsync(CancellationToken.None);
+
+        // Assert
+        steps.Should().BeEmpty();
+        controller.Current.Should().Be(PaletteKind.Night);
+    }
+
+    [Fact]
+    public async Task SetAsync_SamePaletteWithACurtain_DoesNotCover()
+    {
+        // Arrange: daytime, Auto gives Day; Day changes nothing visible.
+        _preferences.GetAppearanceAsync(Arg.Any<CancellationToken>()).Returns(AppearancePreferences.Default);
+        var steps = new List<string>();
+        using var controller = new ThemeController(_preferences, _os, new FixedTime(new(2026, 10, 1, 14, 0, 0, TimeSpan.FromHours(2))), new RecordingCurtain(steps));
+        await controller.StartAsync(CancellationToken.None);
+
+        // Act
+        await controller.SetAsync(AppearancePreferences.Default with { Mode = AppearanceMode.Day }, CancellationToken.None);
+
+        // Assert
+        steps.Should().BeEmpty();
+    }
+
+    private sealed class RecordingCurtain(List<string> steps) : IPaletteCurtain
+    {
+        public Task CoverAsync(PaletteKind palette)
+        {
+            steps.Add($"cover {palette}");
+            return Task.CompletedTask;
+        }
+
+        public Task RevealAsync()
+        {
+            steps.Add("reveal");
+            return Task.CompletedTask;
+        }
+    }
+
+    [Fact]
     public async Task ToggleAsync_AutoAtThreeAm_ShowsDayUntilTheNextBoundaryAndStoresIt()
     {
         // Arrange: 03:00, quiet hours 22:00–07:00, so Auto shows night.

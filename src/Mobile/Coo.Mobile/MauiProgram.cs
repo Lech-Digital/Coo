@@ -28,6 +28,7 @@ public static class MauiProgram
         RemoveUnderlines();
 #if ANDROID
         builder.ConfigureMauiHandlers(h => h.AddHandler<Shell, Platforms.Android.CooShellRenderer>());
+        builder.Services.AddSingleton<Coo.Mobile.Presentation.Theme.IPaletteCurtain, Platforms.Android.PaletteCurtain>();
 #endif
 
         // Composition root (ADR 0001 §2): the only place on the mobile side that creates the real clock.

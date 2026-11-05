@@ -61,7 +61,7 @@
     <!-- Avatar illustration presets: sharp high-resolution rendering -->
     <MauiImage Include="Resources\Images\avatar_*.svg" BaseSize="256,256" />
     <!-- Mochi awake and asleep (ADR 0011): beside the hero on Today (64 dp) and in the widget (36 dp). -->
-    <MauiImage Include="Resources\Images\mochi_*.svg" BaseSize="64,64" />
+    <MauiImage Include="Resources\Images\mochi_*.svg" BaseSize="96,96" />
     <!-- The licence texts (Spec 009 §3.6), read with FileSystem.OpenAppPackageFileAsync("licences/…"). -->
     <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>

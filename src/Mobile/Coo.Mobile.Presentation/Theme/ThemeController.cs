@@ -11,11 +11,24 @@ public interface IOsAppearance
 }
 
 /// <summary>
+/// Covers the screen while the palette changes (owner, 2026-11-05: the day/night switch "kinda lags"): the cover shows
+/// in the new palette's colours before anything is repainted, and lifts once the pages have redrawn under it.
+/// </summary>
+public interface IPaletteCurtain
+{
+    /// <summary>Shows the cover in <paramref name="palette"/>'s colours; completes once it is on screen.</summary>
+    Task CoverAsync(PaletteKind palette);
+
+    /// <summary>Waits for the pages to redraw, then fades the cover away.</summary>
+    Task RevealAsync();
+}
+
+/// <summary>
 /// Decides the palette and announces changes (Spec 005 §6.2). It re-evaluates on start, on resume, when Android's
 /// dark mode or the setting changes, and at the next quiet-hours boundary, with one timer rather than polling.
 /// The host applies the palette; this class knows nothing about MAUI.
 /// </summary>
-public sealed class ThemeController(IDevicePreferences preferences, IOsAppearance os, TimeProvider time) : IDisposable
+public sealed class ThemeController(IDevicePreferences preferences, IOsAppearance os, TimeProvider time, IPaletteCurtain? curtain = null) : IDisposable
 {
     private ITimer? _timer;
     private AppearancePreferences _settings = AppearancePreferences.Default;
@@ -37,18 +50,18 @@ public sealed class ThemeController(IDevicePreferences preferences, IOsAppearanc
             _started = true;
         }
 
-        Evaluate(force: true);
+        await Evaluate(force: true);
     }
 
     /// <summary>Call on app resume: the clock may have passed a boundary while the app slept.</summary>
-    public void Refresh() => Evaluate(force: false);
+    public void Refresh() => _ = Evaluate(force: false);
 
     public async Task SetAsync(AppearancePreferences settings, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(settings);
         await preferences.SetAppearanceAsync(settings, cancellationToken);
         _settings = settings;
-        Evaluate(force: false);
+        await Evaluate(force: false);
     }
 
     /// <summary>
@@ -77,19 +90,43 @@ public sealed class ThemeController(IDevicePreferences preferences, IOsAppearanc
         _timer?.Dispose();
     }
 
-    private void OnOsChanged(object? sender, EventArgs e) => Evaluate(force: false);
+    private void OnOsChanged(object? sender, EventArgs e) => _ = Evaluate(force: false);
 
-    private void Evaluate(bool force)
+    private Task Evaluate(bool force)
     {
         var now = time.GetLocalNow();
         var next = AppearanceRule.Resolve(_settings.Mode, now, _settings.QuietHours, os.IsDark, _settings.Override);
         Schedule(now);
 
-        if (next == Current && !force)
-            return;
+        if ((next == (_changingTo ?? Current)) && !force)
+            return Task.CompletedTask;
 
+        // At start-up there is nothing on screen to cover yet.
+        return force || curtain is null ? Announce(next) : ChangeUnderCurtainAsync(next);
+    }
+
+    private PaletteKind? _changingTo;
+
+    private Task Announce(PaletteKind next)
+    {
         Current = next;
         PaletteChanged?.Invoke(this, next);
+        return Task.CompletedTask;
+    }
+
+    private async Task ChangeUnderCurtainAsync(PaletteKind next)
+    {
+        _changingTo = next;
+        try
+        {
+            await curtain!.CoverAsync(next);
+            await Announce(next);
+            await curtain.RevealAsync();
+        }
+        finally
+        {
+            _changingTo = null;
+        }
     }
 
     private void Schedule(DateTimeOffset now)
@@ -103,7 +140,7 @@ public sealed class ThemeController(IDevicePreferences preferences, IOsAppearanc
         {
             // A second past the boundary, so the rule sees the new side of it.
             var due = at - now + TimeSpan.FromSeconds(1);
-            _timer = time.CreateTimer(_ => Evaluate(force: false), null, due, Timeout.InfiniteTimeSpan);
+            _timer = time.CreateTimer(_ => _ = Evaluate(force: false), null, due, Timeout.InfiniteTimeSpan);
         }
     }
 }

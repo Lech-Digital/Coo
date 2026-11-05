@@ -12,12 +12,11 @@ public sealed class Backdrop : Grid
     public Backdrop()
     {
         InputTransparent = true;
-        foreach (var key in new[] { "WashBase", "WashTop", "WashSide", "WashBottom" })
-        {
-            var layer = new BoxView();
-            layer.SetDynamicResource(BackgroundProperty, key);
-            Children.Add(layer);
-        }
+        // One picture of the wash per palette (WashImage), drawn once: four gradient layers redrawn on every frame made
+        // tab switches lag (2026-11-05).
+        var wash = new Image { Aspect = Aspect.Fill };
+        wash.SetDynamicResource(Image.SourceProperty, "WashImage");
+        Children.Add(wash);
     }
 
     /// <summary>A page's content over the wash.</summary>
@@ -57,6 +56,9 @@ public static class WashResources
                 new GradientStop(Color.FromArgb(night ? "#14120F" : "#F2EBE0"), 1f),
             },
         });
+#if ANDROID
+        yield return ("WashImage", ImageSource.FromFile(Platforms.Android.WashBitmap.For(kind)));
+#endif
         yield return ("WashTop", Radial(new Point(1, 0), 0.75, night ? "#1F2C1C" : "#BFD6AE"));
         yield return ("WashSide", Radial(new Point(0, 0.42), 0.6, night ? "#221D33" : "#D3C9EC"));
         yield return ("WashBottom", Radial(new Point(0.2, 1), 0.7, night ? "#2B1D16" : "#F2CDB4"));
