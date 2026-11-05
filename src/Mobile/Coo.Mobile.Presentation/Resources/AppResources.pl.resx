@@ -544,6 +544,11 @@ Jeśli link nie otworzy Mochi, przejdź w Mochi do Ustawienia → Rodzina → Do
   <data name="Night.Feeds.many" xml:space="preserve"><value>{0} karmień w nocy</value></data>
   <data name="Night.Feeds.one" xml:space="preserve"><value>{0} karmienie w nocy</value></data>
   <data name="Night.LastDiaper" xml:space="preserve"><value>Ostatnia pielucha</value></data>
+  <data name="Night.BackToSleep" xml:space="preserve"><value>Ponowny sen</value></data>
+  <data name="Night.BackLikely" xml:space="preserve"><value>prawdopodobnie {0}–{1}</value></data>
+  <data name="Night.BackAfterFeed" xml:space="preserve"><value>ok. {0} po karmieniu</value></data>
+  <data name="Night.BackUsually" xml:space="preserve"><value>zwykle w ciągu {0}</value></data>
+  <data name="Today.BackToSleep" xml:space="preserve"><value>Zaśnie {0}</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Ostatnie karmienie</value></data>
   <data name="Night.Longest" xml:space="preserve"><value>najdłużej {0}</value></data>
   <data name="Night.Slept" xml:space="preserve"><value>{0} snu</value></data>
@@ -1124,6 +1129,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Why.PersonalNap" xml:space="preserve"><value>{0}: przed drzemką nr {3} okno czuwania wynosiło ostatnio około {1} (z {2} dni zapisów).</value></data>
   <data name="Why.Record" xml:space="preserve"><value>Ostatnie dwa tygodnie, {0}: trafne okna {1} z {2}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>Ostatnia drzemka była krótka, więc okno przychodzi trochę wcześniej.</value></data>
+  <data name="Why.ShortNapOwn" xml:space="preserve"><value>Ostatnia drzemka była krótka. Po krótkich drzemkach {0} zwykle nie śpi o ok. {1}% krócej, więc okno przychodzi wcześniej.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Pora spania</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Następna drzemka</value></data>
   <data name="Widget.Asleep" xml:space="preserve"><value>Śpi</value></data>

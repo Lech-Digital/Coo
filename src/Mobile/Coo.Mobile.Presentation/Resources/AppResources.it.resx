@@ -518,6 +518,11 @@ Se il link non apre Mochi, vai su Impostazioni → Famiglia → Unisciti a una f
   <data name="Night.Feeds.one" xml:space="preserve"><value>{0} pasto nella notte</value></data>
   <data name="Night.Feeds.other" xml:space="preserve"><value>{0} pasti nella notte</value></data>
   <data name="Night.LastDiaper" xml:space="preserve"><value>Ultimo pannolino</value></data>
+  <data name="Night.BackToSleep" xml:space="preserve"><value>Si riaddormenta</value></data>
+  <data name="Night.BackLikely" xml:space="preserve"><value>probabilmente {0}–{1}</value></data>
+  <data name="Night.BackAfterFeed" xml:space="preserve"><value>circa {0} dopo la poppata</value></data>
+  <data name="Night.BackUsually" xml:space="preserve"><value>di solito entro {0}</value></data>
+  <data name="Today.BackToSleep" xml:space="preserve"><value>Si riaddormenta {0}</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Ultima poppata</value></data>
   <data name="Night.Longest" xml:space="preserve"><value>il più lungo {0}</value></data>
   <data name="Night.Slept" xml:space="preserve"><value>{0} di sonno</value></data>
@@ -1086,6 +1091,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Why.PersonalNap" xml:space="preserve"><value>Prima del pisolino {3}, {0} è rimasto sveglio circa {1} negli ultimi {2} giorni.</value></data>
   <data name="Why.Record" xml:space="preserve"><value>Ultime due settimane: {1} finestre giuste su {2} per {0}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>L’ultimo pisolino è stato breve, quindi la finestra arriva un po’ prima.</value></data>
+  <data name="Why.ShortNapOwn" xml:space="preserve"><value>L’ultimo pisolino è stato breve. Dopo pisolini brevi, {0} di solito resta sveglia circa il {1}% in meno, quindi la finestra arriva prima.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Nanna</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Prossimo pisolino</value></data>
   <data name="Widget.Asleep" xml:space="preserve"><value>Dorme</value></data>

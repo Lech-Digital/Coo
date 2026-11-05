@@ -1,4 +1,5 @@
 using Coo.Domain.CareLog;
+using Coo.Domain.CareLog.Kinds.Feeding;
 using Coo.Domain.CareLog.Kinds.Sleep;
 using Coo.Domain.Common;
 using Coo.Domain.Households;
@@ -47,17 +48,47 @@ public sealed class GetSleepPrediction(ICareLogStore store)
         return SleepPredictionCheck.Replay(sleeps, age.CorrectedDays, now, zone);
     }
 
-    private async Task<List<SleepSpan>> SleepsAsync(
+    /// <summary>
+    /// When a baby awake in the night is likely back asleep, from her own night wakings and feeds of the last fortnight
+    /// (owner, 2026-11-06); null by day, while she sleeps, or before three nights of wakings.
+    /// </summary>
+    public async Task<NightReturn?> BackToSleepAsync(
+        HouseholdId household, BabyProfile baby, TimeZoneInfo zone, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(baby);
+        ArgumentNullException.ThrowIfNull(zone);
+        if (!baby.IsBorn)
+            return null;
+
+        var entries = await EntriesAsync(household, baby.Id, now - Reach, now, cancellationToken);
+        var sleeps = entries.Select(Sleep).OfType<SleepSpan>().ToList();
+        var feeds = entries
+            .Where(e => e.Details is FeedingDetails)
+            .Select(e => e.Timing switch
+            {
+                SessionTiming session => new FeedSpan(session.Range.Start, session.Range.End),
+                PointTiming point => new FeedSpan(point.At, point.At),
+                _ => null,
+            })
+            .OfType<FeedSpan>()
+            .ToList();
+        return NightWakingPredictor.Predict(sleeps, feeds, now, zone);
+    }
+
+    private async Task<List<CareEntry>> EntriesAsync(
         HouseholdId household, BabyId baby, DateTimeOffset from, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var stored = await store.ListAsync(household, from, now.AddMinutes(1), cancellationToken);
-        return [.. stored
-            .OfType<LiveEntry>()
-            .Select(l => l.Entry)
-            .Where(e => GetToday.IsAbout(e, baby))
-            .Select(e => e is { Details: SleepDetails details, Timing: SessionTiming timing }
-                ? new SleepSpan(timing.Range.Start, timing.Range.End, details.KindOverride)
-                : null)
-            .OfType<SleepSpan>()];
+        return [.. stored.OfType<LiveEntry>().Select(l => l.Entry).Where(e => GetToday.IsAbout(e, baby))];
+    }
+
+    private static SleepSpan? Sleep(CareEntry e) => e is { Details: SleepDetails details, Timing: SessionTiming timing }
+        ? new SleepSpan(timing.Range.Start, timing.Range.End, details.KindOverride)
+        : null;
+
+    private async Task<List<SleepSpan>> SleepsAsync(
+        HouseholdId household, BabyId baby, DateTimeOffset from, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        return [.. (await EntriesAsync(household, baby, from, now, cancellationToken)).Select(Sleep).OfType<SleepSpan>()];
     }
 }

@@ -649,6 +649,16 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
                 NapWhyTitle = Strings.Get(sleep.IsBedtime ? "Why.TitleBed" : "Why.TitleNap");
                 NapWhy = Explain(sleep, snapshot, typical);
             }
+            else if (snapshot.BackToSleep is { } back)
+            {
+                // Awake in the night (day colours chosen): her own night wakings, not a day window.
+                NextNap = Strings.Format("Today.BackToSleep", BackToSleep(back, snapshot));
+            }
+            else if (sleep is null && NightWindow.Default.IsNightTime(TimeOnly.FromDateTime(snapshot.Now.DateTime)))
+            {
+                // A day window means nothing at 3 AM: a night waking is a feed and back to sleep (owner, 2026-11-06).
+                NextNap = "";
+            }
             else
             {
                 // "Log a few more days" only while her own windows are too few; a gap in the log (the window's place in
@@ -659,6 +669,18 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
         }
 
         HasContent = !string.IsNullOrEmpty(NextSide) || !string.IsNullOrEmpty(SinceFeed) || !string.IsNullOrEmpty(NextNap) || !string.IsNullOrEmpty(PlanLine) || !string.IsNullOrEmpty(StashLine);
+    }
+
+    /// <summary>"likely 3:40–3:55 AM", "about 10 m after the feed" while one runs, or "usually within 25 m" once past it.</summary>
+    public static string BackToSleep(NightReturn back, HomeSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(back);
+        ArgumentNullException.ThrowIfNull(snapshot);
+        if (back.FeedRunning || back.Earliest is not { } earliest || back.Latest is not { } latest)
+            return Strings.Format("Night.BackAfterFeed", Formats.Duration(back.Typical));
+        if (snapshot.Now > latest)
+            return Strings.Format("Night.BackUsually", Formats.Duration(back.Typical));
+        return Strings.Format("Night.BackLikely", snapshot.Formats.Time(earliest), snapshot.Formats.Time(latest));
     }
 
     /// <summary>"2–3 h" or "60–90 min": the age-typical wake window.</summary>
@@ -686,7 +708,12 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
 
         lines.Add(typical + ".");
         if (sleep.ShortNapAdjusted)
-            lines.Add(Strings.Get("Why.ShortNap"));
+        {
+            // Her own effect once learned (owner, 2026-11-06): how much shorter her windows after short naps have been.
+            lines.Add(sleep.ShortNapLearned
+                ? Strings.Format("Why.ShortNapOwn", snapshot.Baby.Name, (int)Math.Round((1 - sleep.ShortNapFactor) * 100))
+                : Strings.Get("Why.ShortNap"));
+        }
         lines.Add(Strings.Format("Why.Awake", snapshot.Formats.Time(sleep.AwakeSince)));
         // Proving the predictor (owner, 2026-11-03): how the shown windows did for her lately, from her own log.
         if (snapshot.SleepRecord is { IsEnough: true } record)
@@ -976,6 +1003,10 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
             sleeping is not null
                 ? new("sleep", Strings.Get("Night.AsleepSince"), s.Formats.Time(sleeping.Timing.OccurredAt))
                 : new("sleep", Strings.Get("Night.AwakeSince"), t?.AwakeSince is { } a ? s.Formats.Time(a) : Strings.Get("Tile.Never")),
+            // Awake in the night: when she is likely back asleep, from her own night wakings (owner, 2026-11-06).
+            .. sleeping is null && s.BackToSleep is { } back
+                ? new FactItem[] { new("sleep", Strings.Get("Night.BackToSleep"), NextUpSection.BackToSleep(back, s)) }
+                : [],
             new("pump", Strings.Get("Kind.Pump"), t?.LastPump is { Timing.IsInProgress: true } ? Strings.Get("Tile.Running") : t?.LastPump is { } p ? s.Formats.Time(p.Timing.OccurredAt) : Strings.Get("Tile.Never")),
         ];
 

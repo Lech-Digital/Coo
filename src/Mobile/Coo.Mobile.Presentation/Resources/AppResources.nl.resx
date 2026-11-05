@@ -518,6 +518,11 @@ Als de link Mochi niet opent, ga in Mochi naar Instellingen → Gezin → Aanslu
   <data name="Night.Feeds.one" xml:space="preserve"><value>{0} voeding in de nacht</value></data>
   <data name="Night.Feeds.other" xml:space="preserve"><value>{0} voedingen in de nacht</value></data>
   <data name="Night.LastDiaper" xml:space="preserve"><value>Laatste luier</value></data>
+  <data name="Night.BackToSleep" xml:space="preserve"><value>Weer slapen</value></data>
+  <data name="Night.BackLikely" xml:space="preserve"><value>waarschijnlijk {0}–{1}</value></data>
+  <data name="Night.BackAfterFeed" xml:space="preserve"><value>ongeveer {0} na de voeding</value></data>
+  <data name="Night.BackUsually" xml:space="preserve"><value>meestal binnen {0}</value></data>
+  <data name="Today.BackToSleep" xml:space="preserve"><value>Slaapt {0} weer</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Laatste voeding</value></data>
   <data name="Night.Longest" xml:space="preserve"><value>langste {0}</value></data>
   <data name="Night.Slept" xml:space="preserve"><value>{0} geslapen</value></data>
@@ -1086,6 +1091,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Why.PersonalNap" xml:space="preserve"><value>Voor dutje {3} was {0} de afgelopen {2} dagen ongeveer {1} wakker.</value></data>
   <data name="Why.Record" xml:space="preserve"><value>Afgelopen twee weken: {1} van de {2} tijdvensters klopten voor {0}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>Het laatste dutje was kort, dus het venster komt iets eerder.</value></data>
+  <data name="Why.ShortNapOwn" xml:space="preserve"><value>Het laatste dutje was kort. Na korte dutjes is {0} meestal zo’n {1}% korter wakker, dus het venster komt eerder.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Bedtijd</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Volgend dutje</value></data>
   <data name="Widget.Asleep" xml:space="preserve"><value>Slaapt</value></data>

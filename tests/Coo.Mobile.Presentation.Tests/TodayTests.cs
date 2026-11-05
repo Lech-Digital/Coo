@@ -453,8 +453,8 @@ public sealed class NightTimersTests
         // Arrange
         var section = new NextUpSection();
 
-        // Act
-        section.Update(NextUpSnapshot(isPremium: false, sleep: null));
+        // Act: late morning, no prediction yet.
+        section.Update(NextUpSnapshot(isPremium: false, sleep: null, at: Now.AddHours(8)));
 
         // Assert
         section.HasContent.Should().BeTrue();
@@ -463,6 +463,34 @@ public sealed class NightTimersTests
         section.NextNap.Should().Contain("60–90 min");
         section.NapUpsell.Should().BeFalse();
         section.NapIsPersonal.Should().BeFalse();
+    }
+
+    [Fact]
+    public void NextUpSection_AwakeAtThreeAm_ShowsNoDayWakeWindow()
+    {
+        // Arrange: a night waking is a feed and back to sleep, not a 60–90 minute day window (owner, 2026-11-06).
+        var section = new NextUpSection();
+
+        // Act
+        section.Update(NextUpSnapshot(isPremium: false, sleep: null));
+
+        // Assert
+        section.NextNap.Should().BeEmpty();
+        section.SinceFeed.Should().Contain("45 m");
+    }
+
+    [Fact]
+    public void NextUpSection_AwakeAtThreeAmWithHerNightWakings_ShowsBackToSleep()
+    {
+        // Arrange
+        var section = new NextUpSection();
+        var back = new NightReturn(Now.AddMinutes(-30), null, null, TimeSpan.FromMinutes(12), true, true, 8, 5, NightWakingPredictor.Version);
+
+        // Act
+        section.Update(NextUpSnapshot(isPremium: false, sleep: null, back: back));
+
+        // Assert
+        section.NextNap.Should().Be("Back to sleep about 12 m after the feed");
     }
 
     [Fact]
@@ -551,13 +579,14 @@ public sealed class NightTimersTests
         section.NapWindow.Should().Contain("few more days");
     }
 
-    private HomeSnapshot NextUpSnapshot(bool isPremium, SleepPrediction? sleep)
+    private HomeSnapshot NextUpSnapshot(bool isPremium, SleepPrediction? sleep, DateTimeOffset? at = null, NightReturn? back = null)
     {
+        var now = at ?? Now;
         var baby = BabyProfile.Create(Baby, Household, "Lena", [], new DateOnly(2026, 8, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 1)).Value;
         var settings = HouseholdSettings.Create(Household, VolumeUnit.Millilitres, "Europe/Amsterdam", new HlcStamp(1, 0, Device)).Value;
-        var lastFeed = Entry(BreastFeed.Start(BreastSide.Left, Now.AddMinutes(-45)), null);
-        var summary = new TodaySummary([], lastFeed, null, null, null, Now.AddMinutes(-30), [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc));
-        return new HomeSnapshot(settings, baby, summary, Now, PaletteKind.Day, new Formats(true, VolumeUnit.Millilitres), IsPremium: isPremium, Sleep: sleep);
+        var lastFeed = Entry(BreastFeed.Start(BreastSide.Left, now.AddMinutes(-45)), null);
+        var summary = new TodaySummary([], lastFeed, null, null, null, now.AddMinutes(-30), [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc));
+        return new HomeSnapshot(settings, baby, summary, now, PaletteKind.Day, new Formats(true, VolumeUnit.Millilitres), IsPremium: isPremium, Sleep: sleep, BackToSleep: back);
     }
 
     private static SleepPrediction Prediction(PredictionConfidence confidence) => new(

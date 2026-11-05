@@ -16,6 +16,17 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 
 ## Unreleased
 
+## Unreleased
+
+### Changed
+- **Night wakings are no longer treated like day wake windows.** At night a baby usually feeds and goes back to sleep
+  within minutes, so Today no longer shows the age's day window (such as "60–90 min") at 3 AM. Instead, once a baby has
+  three nights of wakings logged, the night screen says when she is likely back asleep ("Back to sleep · likely
+  3:40–3:55 AM"), learned from her own wakings that were most like tonight's: after a similar stretch of sleep, at a
+  similar hour, and counted from the end of the feed when there is one.
+- **Short naps, her own way.** After a few short naps, the next-nap estimate uses how much shorter this baby's own
+  windows are after a short nap, instead of a fixed 15%; "Why this time?" says so.
+
 ## 1.11.0 (code 31) — 2026-11-05
 
 Coo is now **Mochi** (ADR 0011): another baby tracker on Google Play took the name "Coo Care" with our title word for

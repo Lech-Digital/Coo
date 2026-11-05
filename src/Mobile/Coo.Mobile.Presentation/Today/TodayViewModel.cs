@@ -98,6 +98,7 @@ public sealed partial class TodayViewModel : ObservableObject
     private readonly Coo.Mobile.Application.Insights.GetSleepPrediction? _getSleep;
     private Coo.Domain.Insights.SleepPrediction? _sleep;
     private Coo.Domain.Insights.PredictionTrackRecord? _sleepRecord;
+    private Coo.Domain.Insights.NightReturn? _backToSleep;
     private readonly Coo.Mobile.Application.Insights.GetSleepPlan? _getPlan;
     private Coo.Mobile.Application.Insights.SleepPlanToday? _plan;
     private readonly Coo.Mobile.Application.CareLog.ILogAccess? _logAccess;
@@ -383,6 +384,10 @@ public sealed partial class TodayViewModel : ObservableObject
             _summary = _summary with { TodayEntries = [.. _summary.TodayEntries.Where(e => !_undo.IsPendingDelete(e.Id))] };
         _sleep = _baby.IsBorn && _getSleep is not null
             ? await _getSleep.ExecuteAsync(_household.Id, _baby, Zone(), _time.GetLocalNow(), CancellationToken.None)
+            : null;
+        // Awake in the night: when she is likely back asleep, from her own night wakings (the day predictor says nothing).
+        _backToSleep = _sleep is null && _baby.IsBorn && _getSleep is not null
+            ? await _getSleep.BackToSleepAsync(_household.Id, _baby, Zone(), _time.GetLocalNow(), CancellationToken.None)
             : null;
         _siblingGlances = await GlancesAsync();
         _handover = await HandoverAsync();
@@ -677,7 +682,7 @@ public sealed partial class TodayViewModel : ObservableObject
         Tick();
     }
 
-    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep, IsViewOnly, _plan, _sleepRecord, _siblingGlances, _logForAll, _stash, _handover, _night, _away);
+    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep, IsViewOnly, _plan, _sleepRecord, _siblingGlances, _logForAll, _stash, _handover, _night, _away, _backToSleep);
 
     private Formats Formats() => new(_clock.Is24Hour, _household?.VolumeUnit ?? VolumeUnit.Millilitres);
 

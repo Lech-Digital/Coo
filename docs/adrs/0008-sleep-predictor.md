@@ -33,6 +33,24 @@ Status: Accepted — amended 2026-10-02 (see below)
 > "Why this time?" says "Last two weeks: 12 of 15 windows were right for Laura" once there are 5 such windows. Nothing
 > is sent: the privacy policy promises no analytics, so a cross-family hit rate waits for an opt-in the owner decides.
 
+> **Amendment, 2026-11-06 (owner: "is it the same during days and nights? It should also depend on how long she slept
+> just before"): night wakings, and her own short-nap effect (`sleep-v2`, `night-v1`).**
+> - **Night wakings are not wake windows.** Published figures (whole-night actigraphy and diary studies) put a night
+>   waking at minutes, a feed and back to sleep, against the 60–90 minute day window at two months; the day/night
+>   difference grows as the body clock forms around 8–12 weeks. Today no longer shows the age's day window at night.
+> - **`NightWakingPredictor`** learns only from the baby's own wakings between two night sleeps of the last 14 days
+>   (no age table: the studies give whole-night totals, not a per-waking time to show). Each waking is weighted by
+>   recency (half-life 7 days) and by how alike it is to tonight's: the stretch slept before it (weight halves at about
+>   1.6 times longer or shorter) and the hour (about 100 minutes apart); every waking keeps a quarter of its weight, so
+>   an unusual night falls back to her plain median. With a feed in the waking, the time from the feed's end to sleep
+>   is steadier than the waking as a whole, so once tonight's feed ends the estimate counts from there; while it runs,
+>   only the settle time is shown. Nothing is shown before 3 wakings on 3 nights. It appears on the night screen ("Back
+>   to sleep · likely 3:40–3:55") and, in day colours, in Next up.
+> - **Her own short-nap effect.** After 3 windows that followed a short nap, the factor is her median ratio of those
+>   windows to her usual window at the same position (after longer naps), kept between 0.6 and 1; until then 0.85.
+>   "Why this time?" says so ("After short naps, Laura usually stays awake about 30% less"). The backtest still meets
+>   its targets; it cannot judge the learned effect, since the synthetic babies use 0.85 themselves.
+
 ## Context
 
 The sleep predictor is a Premium feature. It suggests when the next nap window opens, and when

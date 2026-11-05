@@ -47,6 +47,8 @@ public enum PredictionConfidence
 /// <param name="PersonalMedian">This baby's own typical window at this position; null without observations.</param>
 /// <param name="DaysUsed">The days the observations came from.</param>
 /// <param name="ShortNapAdjusted">The last nap was short, so the window was shortened.</param>
+/// <param name="ShortNapFactor">How much a short nap shortens the next window: her own when learned, else the default.</param>
+/// <param name="ShortNapLearned">The factor comes from her own windows after short naps.</param>
 public sealed record SleepPrediction(
     int Position,
     bool IsBedtime,
@@ -61,7 +63,9 @@ public sealed record SleepPrediction(
     int Observations,
     WakeWindowBand Prior,
     bool ShortNapAdjusted,
-    string Version)
+    string Version,
+    double ShortNapFactor = 0.85,
+    bool ShortNapLearned = false)
 {
     /// <summary>The fewest of the baby's own windows, on as many days, before the window is shown as hers.</summary>
     public const int MinimumPersonalWindows = 3;
@@ -75,7 +79,9 @@ public sealed record SleepPrediction(
 }
 
 /// <summary>One observed wake window: from waking to the next sleep, at its position in the day.</summary>
-internal sealed record WakeWindowObservation(int Position, DateTimeOffset From, TimeSpan Length, bool EndedAtNight);
+/// <param name="Length">At its usual length: a window after a short nap is scaled back up by the default factor.</param>
+/// <param name="Raw">As it happened.</param>
+internal sealed record WakeWindowObservation(int Position, DateTimeOffset From, TimeSpan Length, bool EndedAtNight, TimeSpan Raw = default, bool AfterShortNap = false);
 
 /// <summary>
 /// The sleep predictor (ADR 0008): an age prior blended with the baby's own recent wake windows, a pure function of the
@@ -84,7 +90,7 @@ internal sealed record WakeWindowObservation(int Position, DateTimeOffset From, 
 /// </summary>
 public static class SleepPredictor
 {
-    public const string Version = "sleep-v1";
+    public const string Version = "sleep-v2";
 
     /// <param name="sleeps">The baby's sleeps of at least the last <see cref="PredictorParameters.LookBack"/>, any order.</param>
     /// <param name="correctedAgeDays">Corrected age when the baby was born early (ADR 0008 §2).</param>
@@ -112,6 +118,12 @@ public static class SleepPredictor
 
         var prior = WakeWindowPrior.For(correctedAgeDays);
         var priorEstimate = prior.At(position.Value);
+
+        // Her own short-nap effect (owner, 2026-11-06: the window depends on how long she slept just before): once she
+        // has a few windows after short naps, how much shorter they were than her usual window at the same place in the
+        // day; until then the default.
+        var (factor, learned) = ShortNapEffect(observations.Where(o => o.From >= now - p.LookBack).ToList(), p);
+        observations = [.. observations.Select(o => o.AfterShortNap ? o with { Length = o.Raw / factor } : o)];
         var usable = observations
             .Where(o => o.Position == position && o.From >= now - p.LookBack)
             .Where(o => o.Length >= prior.Low * 0.5 && o.Length <= prior.High * 2)
@@ -126,7 +138,7 @@ public static class SleepPredictor
 
         var shortNap = classes[^1] == SleepClass.Nap && last.Length < p.ShortNap;
         if (shortNap)
-            estimate *= p.ShortNapFactor;
+            estimate *= factor;
 
         var spread = usable.Count >= 2 ? InterquartileRange([.. usable.Select(o => o.Length)]) : (TimeSpan?)null;
         var band = spread is { } iqr ? Clamp(iqr * p.BandFactor, p.BandMin, p.BandMax) : p.BandMax;
@@ -137,7 +149,37 @@ public static class SleepPredictor
         var days = usable.Select(o => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(o.From, zone).DateTime)).Distinct().Count();
         return new SleepPrediction(
             position.Value, bedtime, awake, centre - band, centre, centre + band, confidence, estimate, personal, days, usable.Count, prior,
-            shortNap, Version);
+            shortNap, Version, factor, learned);
+    }
+
+    /// <summary>Windows after a short nap needed before her own effect replaces the default.</summary>
+    public const int ShortNapWindowsToLearn = 3;
+
+    /// <summary>
+    /// Her windows after short naps against her usual window at the same position (the median of the windows after
+    /// longer naps there), as one factor between 0.6 and 1; the default until there are enough to compare.
+    /// </summary>
+    internal static (double Factor, bool Learned) ShortNapEffect(IReadOnlyList<WakeWindowObservation> observations, PredictorParameters p)
+    {
+        var usual = observations
+            .Where(o => !o.AfterShortNap)
+            .GroupBy(o => o.Position)
+            .Where(g => g.Count() >= 2)
+            .ToDictionary(g => g.Key, g => Median([.. g.Select(o => o.Length.TotalMinutes)]));
+        var ratios = observations
+            .Where(o => o.AfterShortNap && o.Raw > TimeSpan.Zero && usual.ContainsKey(o.Position))
+            .Select(o => o.Raw.TotalMinutes / usual[o.Position])
+            .ToList();
+        if (ratios.Count < ShortNapWindowsToLearn)
+            return (p.ShortNapFactor, false);
+        return (Math.Clamp(Median(ratios), 0.6, 1.0), true);
+    }
+
+    private static double Median(List<double> values)
+    {
+        values.Sort();
+        var mid = values.Count / 2;
+        return values.Count % 2 == 1 ? values[mid] : (values[mid - 1] + values[mid]) / 2;
     }
 
     /// <summary>
@@ -164,7 +206,7 @@ public static class SleepPredictor
                     // median down or widen the spread.
                     var afterShortNap = classes[i - 1] == SleepClass.Nap && sleeps[i - 1].Length < p.ShortNap;
                     var usual = afterShortNap ? gap / p.ShortNapFactor : gap;
-                    observations.Add(new WakeWindowObservation(k, sleeps[i - 1].End!.Value, usual, classes[i] == SleepClass.Night));
+                    observations.Add(new WakeWindowObservation(k, sleeps[i - 1].End!.Value, usual, classes[i] == SleepClass.Night, gap, afterShortNap));
                 }
             }
 

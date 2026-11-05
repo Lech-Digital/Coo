@@ -22,7 +22,7 @@ public sealed record HomeSnapshot(
     bool ViewOnly = false, Coo.Mobile.Application.Insights.SleepPlanToday? Plan = null, PredictionTrackRecord? SleepRecord = null,
     IReadOnlyList<SiblingGlance>? Siblings = null, bool LogForAll = false, Coo.Mobile.Application.CareLog.MilkStashSummary? Stash = null,
     Coo.Mobile.Application.CareLog.HandoverView? Handover = null, Coo.Mobile.Application.Insights.LastNight? Night = null,
-    IReadOnlyList<Coo.Mobile.Application.CareLog.HandoverDay>? Away = null);
+    IReadOnlyList<Coo.Mobile.Application.CareLog.HandoverDay>? Away = null, NightReturn? BackToSleep = null);
 
 /// <summary>Twins and siblings: another baby of the family at a glance on Today ("Mia · asleep 40 m · fed 1 h 20 m ago").</summary>
 public sealed record SiblingGlance(BabyId Id, string Name, string Line, bool IsBorn = true);

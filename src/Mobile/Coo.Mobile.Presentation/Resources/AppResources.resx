@@ -518,6 +518,11 @@ If the link doesn't open Mochi, go to Settings → Family → Join a family in M
   <data name="Night.Feeds.one" xml:space="preserve"><value>{0} feed in the night</value></data>
   <data name="Night.Feeds.other" xml:space="preserve"><value>{0} feeds in the night</value></data>
   <data name="Night.LastDiaper" xml:space="preserve"><value>Last diaper</value></data>
+  <data name="Night.BackToSleep" xml:space="preserve"><value>Back to sleep</value></data>
+  <data name="Night.BackLikely" xml:space="preserve"><value>likely {0}–{1}</value></data>
+  <data name="Night.BackAfterFeed" xml:space="preserve"><value>about {0} after the feed</value></data>
+  <data name="Night.BackUsually" xml:space="preserve"><value>usually within {0}</value></data>
+  <data name="Today.BackToSleep" xml:space="preserve"><value>Back to sleep {0}</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Last feed</value></data>
   <data name="Night.Longest" xml:space="preserve"><value>longest {0}</value></data>
   <data name="Night.Slept" xml:space="preserve"><value>{0} asleep</value></data>
@@ -1086,6 +1091,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Why.PersonalNap" xml:space="preserve"><value>Before nap {3}, {0}’s wake windows have been about {1} over the last {2} days.</value></data>
   <data name="Why.Record" xml:space="preserve"><value>Last two weeks: {1} of {2} windows were right for {0}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>The last nap was short, so the window comes a little earlier.</value></data>
+  <data name="Why.ShortNapOwn" xml:space="preserve"><value>The last nap was short. After short naps, {0} usually stays awake about {1}% less, so the window comes earlier.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Bedtime</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Next nap</value></data>
   <data name="Widget.Asleep" xml:space="preserve"><value>Asleep</value></data>

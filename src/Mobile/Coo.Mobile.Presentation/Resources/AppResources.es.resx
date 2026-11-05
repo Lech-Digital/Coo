@@ -518,6 +518,11 @@ Si el enlace no abre Mochi, ve a Ajustes → Familia → Unirse a una familia en
   <data name="Night.Feeds.one" xml:space="preserve"><value>{0} toma por la noche</value></data>
   <data name="Night.Feeds.other" xml:space="preserve"><value>{0} tomas por la noche</value></data>
   <data name="Night.LastDiaper" xml:space="preserve"><value>Último pañal</value></data>
+  <data name="Night.BackToSleep" xml:space="preserve"><value>Vuelve a dormir</value></data>
+  <data name="Night.BackLikely" xml:space="preserve"><value>probablemente {0}–{1}</value></data>
+  <data name="Night.BackAfterFeed" xml:space="preserve"><value>unos {0} después de la toma</value></data>
+  <data name="Night.BackUsually" xml:space="preserve"><value>normalmente en {0}</value></data>
+  <data name="Today.BackToSleep" xml:space="preserve"><value>Vuelve a dormirse {0}</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Última toma</value></data>
   <data name="Night.Longest" xml:space="preserve"><value>lo más largo {0}</value></data>
   <data name="Night.Slept" xml:space="preserve"><value>{0} dormida</value></data>
@@ -1086,6 +1091,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Why.PersonalNap" xml:space="preserve"><value>Antes de la siesta {3}, {0} ha estado despierto unos {1} en los últimos {2} días.</value></data>
   <data name="Why.Record" xml:space="preserve"><value>Últimas dos semanas: {1} de {2} ventanas acertadas para {0}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>La última siesta fue corta, así que la ventana llega un poco antes.</value></data>
+  <data name="Why.ShortNapOwn" xml:space="preserve"><value>La última siesta fue corta. Tras siestas cortas, {0} suele estar despierta un {1} % menos, así que la ventana llega antes.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Hora de dormir</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Próxima siesta</value></data>
   <data name="Widget.Asleep" xml:space="preserve"><value>Dormido</value></data>

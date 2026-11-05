@@ -518,6 +518,11 @@ Wenn der Link Mochi nicht öffnet, geh in Mochi zu Einstellungen → Familie →
   <data name="Night.Feeds.one" xml:space="preserve"><value>{0} Mahlzeit in der Nacht</value></data>
   <data name="Night.Feeds.other" xml:space="preserve"><value>{0} Mahlzeiten in der Nacht</value></data>
   <data name="Night.LastDiaper" xml:space="preserve"><value>Letzte Windel</value></data>
+  <data name="Night.BackToSleep" xml:space="preserve"><value>Wieder schlafen</value></data>
+  <data name="Night.BackLikely" xml:space="preserve"><value>wahrscheinlich {0}–{1}</value></data>
+  <data name="Night.BackAfterFeed" xml:space="preserve"><value>etwa {0} nach dem Füttern</value></data>
+  <data name="Night.BackUsually" xml:space="preserve"><value>meist innerhalb von {0}</value></data>
+  <data name="Today.BackToSleep" xml:space="preserve"><value>Schläft {0} wieder ein</value></data>
   <data name="Night.LastFeed" xml:space="preserve"><value>Letzte Mahlzeit</value></data>
   <data name="Night.Longest" xml:space="preserve"><value>am längsten {0}</value></data>
   <data name="Night.Slept" xml:space="preserve"><value>{0} geschlafen</value></data>
@@ -1086,6 +1091,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Why.PersonalNap" xml:space="preserve"><value>Vor dem {3}. Schläfchen war {0} in den letzten {2} Tagen meist etwa {1} wach.</value></data>
   <data name="Why.Record" xml:space="preserve"><value>Letzte zwei Wochen: {1} von {2} Zeitfenstern passten für {0}.</value></data>
   <data name="Why.ShortNap" xml:space="preserve"><value>Das letzte Schläfchen war kurz, deshalb kommt das Fenster etwas früher.</value></data>
+  <data name="Why.ShortNapOwn" xml:space="preserve"><value>Das letzte Schläfchen war kurz. Nach kurzen Schläfchen ist {0} meist etwa {1} % kürzer wach, deshalb kommt das Fenster früher.</value></data>
   <data name="Why.TitleBed" xml:space="preserve"><value>Schlafenszeit</value></data>
   <data name="Why.TitleNap" xml:space="preserve"><value>Nächstes Schläfchen</value></data>
   <data name="Widget.Asleep" xml:space="preserve"><value>Schläft</value></data>

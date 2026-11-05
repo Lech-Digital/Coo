@@ -261,4 +261,49 @@ public sealed class SleepPredictorTests
         band.High.Should().Be(TimeSpan.FromMinutes(highMinutes));
         band.At(band.TypicalNaps + 1).Should().Be(band.High, "the window before bedtime is the longest");
     }
+
+    [Fact]
+    public void Predict_AfterAShortNapWithHerOwnShortNapDays_UsesHerOwnEffect()
+    {
+        // Arrange: nap 1 at 9:00; after an hour's nap she stays up 2 h 30 m, after a 30-minute nap only 1 h 30 m (0.6).
+        var sleeps = new List<SleepSpan>();
+        for (var d = 0; d < 8; d++)
+        {
+            var day = Day1.AddDays(d);
+            var shortNap = d % 2 == 1;
+            var napEnd = shortNap ? At(day, 9, 30) : At(day, 10);
+            var nap2 = napEnd + (shortNap ? TimeSpan.FromMinutes(90) : TimeSpan.FromMinutes(150));
+            sleeps.Add(new SleepSpan(At(day, 9), napEnd));
+            sleeps.Add(new SleepSpan(nap2, nap2 + TimeSpan.FromHours(1)));
+            sleeps.Add(new SleepSpan(At(day, 19), At(day.AddDays(1), 7)));
+        }
+
+        var today = Day1.AddDays(8);
+        sleeps.Add(new SleepSpan(At(today, 9), At(today, 9, 30)));
+
+        // Act
+        var prediction = SleepPredictor.Predict(sleeps, SixMonths, At(today, 9, 35), Utc);
+
+        // Assert: her own 0.6, not the default 0.85.
+        prediction.Should().NotBeNull();
+        prediction!.ShortNapLearned.Should().BeTrue();
+        prediction.ShortNapFactor.Should().BeApproximately(0.6, 0.01);
+        prediction.Estimate.Should().BeLessThan(TimeSpan.FromMinutes(100));
+    }
+
+    [Fact]
+    public void Predict_FewShortNaps_KeepsTheDefaultEffect()
+    {
+        // Arrange: one short nap in the history is not enough to learn from.
+        var sleeps = Days(6, TimeSpan.FromHours(2));
+        sleeps.Add(new SleepSpan(At(Day1.AddDays(6), 9), At(Day1.AddDays(6), 9, 30)));
+
+        // Act
+        var prediction = SleepPredictor.Predict(sleeps, SixMonths, At(Day1.AddDays(6), 9, 35), Utc);
+
+        // Assert
+        prediction.Should().NotBeNull();
+        prediction!.ShortNapLearned.Should().BeFalse();
+        prediction.ShortNapFactor.Should().Be(PredictorParameters.Default.ShortNapFactor);
+    }
 }
