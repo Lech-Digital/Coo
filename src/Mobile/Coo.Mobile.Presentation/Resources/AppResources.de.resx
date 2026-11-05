@@ -881,15 +881,19 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Solids.Liked" xml:space="preserve"><value>Mochte es</value></data>
   <data name="Solids.None" xml:space="preserve"><value>Nichts Besonderes</value></data>
   <data name="Solids.Reaction" xml:space="preserve"><value>Eine Reaktion</value></data>
-  <data name="Stash.Add" xml:space="preserve"><value>Beutel hinzufügen</value></data>
-  <data name="Stash.AddedFreezer" xml:space="preserve"><value>Beutel #{0} im Gefrierfach, {1}: schreib #{0} auf den Behälter.</value></data>
-  <data name="Stash.AddedFridge" xml:space="preserve"><value>Beutel #{0} im Kühlschrank, {1}: schreib #{0} auf den Behälter.</value></data>
+  <data name="Stash.Add" xml:space="preserve"><value>Milch hinzufügen</value></data>
+  <data name="Stash.Container.Container" xml:space="preserve"><value>Behälter</value></data>
+  <data name="Stash.Container.Bottle" xml:space="preserve"><value>Flasche</value></data>
+  <data name="Stash.Container.Bag" xml:space="preserve"><value>Beutel</value></data>
+  <data name="Stash.ContainerLabel" xml:space="preserve"><value>Aufbewahrt in</value></data>
+  <data name="Stash.AddedFreezer" xml:space="preserve"><value>{2} #{0} im Gefrierfach, {1}: schreib #{0} darauf.</value></data>
+  <data name="Stash.AddedFridge" xml:space="preserve"><value>{2} #{0} im Kühlschrank, {1}: schreib #{0} darauf.</value></data>
   <data name="Stash.Amount" xml:space="preserve"><value>Menge</value></data>
   <data name="Stash.AmountNeeded" xml:space="preserve"><value>Gib an, wie viel Milch im Beutel ist.</value></data>
   <data name="Stash.Dates" xml:space="preserve"><value>Abgepumpt {0} · verbrauchen bis {1}</value></data>
   <data name="Stash.Discard" xml:space="preserve"><value>Wegwerfen</value></data>
   <data name="Stash.Edit" xml:space="preserve"><value>Bearbeiten</value></data>
-  <data name="Stash.Empty" xml:space="preserve"><value>Noch keine Milch im Vorrat. Füge einen Beutel hinzu, wenn du Milch in den Kühlschrank oder ins Gefrierfach legst.</value></data>
+  <data name="Stash.Empty" xml:space="preserve"><value>Noch keine Milch im Vorrat. Füge Milch hinzu, wenn du sie in den Kühlschrank oder ins Gefrierfach legst.</value></data>
   <data name="Stash.Expired.one" xml:space="preserve"><value>{0} abgelaufen</value></data>
   <data name="Stash.Expired.other" xml:space="preserve"><value>{0} abgelaufen</value></data>
   <data name="Stash.ExpiredTag" xml:space="preserve"><value>Abgelaufen</value></data>
@@ -898,7 +902,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Stash.Freezer" xml:space="preserve"><value>Gefrierfach</value></data>
   <data name="Stash.Fridge" xml:space="preserve"><value>Kühlschrank</value></data>
   <data name="Stash.Guidance" xml:space="preserve"><value>Das Verbrauchsdatum folgt den CDC-Empfehlungen: 4 Tage im Kühlschrank, etwa 6 Monate im Gefrierfach, 24 Stunden nach dem Auftauen, und aufgetaute Milch wird nie wieder eingefroren. Wirf Milch weg, die sauer riecht, oder eine angetrunkene Flasche nach 2 Stunden.</value></data>
-  <data name="Stash.Hint" xml:space="preserve"><value>Beutel in Kühlschrank und Gefrierfach, die ältesten zuerst, mit Hinweis vor dem Ablaufen.</value></data>
+  <data name="Stash.Hint" xml:space="preserve"><value>Beutel, Flaschen und Behälter in Kühlschrank und Gefrierfach, die ältesten zuerst, mit Hinweis vor dem Ablaufen.</value></data>
   <data name="Stash.LabelHint" xml:space="preserve"><value>Notiz (optional)</value></data>
   <data name="Stash.Left" xml:space="preserve"><value>Verbleibende Menge</value></data>
   <data name="Stash.Number" xml:space="preserve"><value>Nummer auf dem Behälter</value></data>
@@ -910,8 +914,8 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Stash.Thawed" xml:space="preserve"><value>Aufgetaut, im Kühlschrank</value></data>
   <data name="Stash.Use" xml:space="preserve"><value>Verbraucht</value></data>
   <data name="Stash.UseFirst" xml:space="preserve"><value>Zuerst verwenden</value></data>
-  <data name="Stash.UseSoon.one" xml:space="preserve"><value>{0} Beutel bald verbrauchen</value></data>
-  <data name="Stash.UseSoon.other" xml:space="preserve"><value>{0} Beutel bald verbrauchen</value></data>
+  <data name="Stash.UseSoon.one" xml:space="preserve"><value>{0} bald verbrauchen</value></data>
+  <data name="Stash.UseSoon.other" xml:space="preserve"><value>{0} bald verbrauchen</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statistiken</value></data>
   <data name="Stats.Trends" xml:space="preserve"><value>Verlauf</value></data>
   <data name="Summary.Hint" xml:space="preserve"><value>Der Berater vergleicht diese Woche mit der letzten: Schlaf, Mahlzeiten, Windeln und was auffällt.</value></data>

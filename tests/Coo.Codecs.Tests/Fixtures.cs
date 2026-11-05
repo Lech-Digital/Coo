@@ -74,6 +74,9 @@ internal static class Fixtures
         ["milkbag/v1/thawed-used.json"] = Coo.Domain.CareLog.Kinds.MilkStash.MilkBagDetails.Create(
             Volume.FromMillilitres(90).Value, Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace.Fridge,
             DateTimeOffset.FromUnixTimeMilliseconds(1793091600000), new DateOnly(2026, 11, 5)).Value,
+        ["milkbag/v1/bottle.json"] = Coo.Domain.CareLog.Kinds.MilkStash.MilkBagDetails.Create(
+            Volume.FromMillilitres(150).Value, Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace.Fridge, number: 3,
+            container: Coo.Domain.CareLog.Kinds.MilkStash.MilkContainer.Bottle).Value,
         ["visit/v1/with.json"] = VisitDetails.Create("Paediatrician").Value,
         ["visit/v1/empty.json"] = VisitDetails.Create(null).Value,
     };

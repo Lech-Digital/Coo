@@ -19,6 +19,22 @@ public sealed class MilkStashTextTests : IDisposable
     private static readonly DeviceId Device = new(Guid.Parse("7a1c0000-0000-7000-8000-0000000000d1"));
     private static readonly DateTimeOffset Now = new(2026, 11, 4, 10, 0, 0, TimeSpan.Zero);
     private static readonly Formats Ml = new(true, VolumeUnit.Millilitres);
+    [Theory]
+    [InlineData(MilkContainer.Bag, "Bag")]
+    [InlineData(MilkContainer.Bottle, "Bottle")]
+    [InlineData(MilkContainer.Container, "Container")]
+    public void ContainerName_EachContainer_HasItsOwnWord(MilkContainer container, string expected)
+    {
+        // Arrange
+        var what = container;
+
+        // Act
+        var name = MilkStashViewModel.ContainerName(what);
+
+        // Assert
+        name.Should().Be(expected);
+    }
+
     private static readonly int[] Counts = [1, 2, 5];
     private int _n;
 
@@ -67,7 +83,7 @@ public sealed class MilkStashTextTests : IDisposable
 
         // Assert
         totals.Should().Be("Fridge 210 ml · Freezer 1,050 ml");
-        today.Should().Be("Milk stash · 1 bag to use soon");
+        today.Should().Be("Milk stash · 1 to use soon", "the stash holds bags, bottles and containers");
         quiet.Should().BeNull("a stash that is all fine stays off Today");
         MilkStashViewModel.TodayLine(MilkStashSummary.Empty).Should().BeNull();
     }

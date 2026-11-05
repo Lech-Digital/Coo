@@ -6,7 +6,7 @@ using Coo.Domain.CareLog.Kinds.MilkStash;
 
 namespace Coo.Codecs.Kinds;
 
-/// <summary><c>milkbag</c> v1: the place as a code, the thaw as Unix milliseconds, days as <c>yyyy-MM-dd</c>.</summary>
+/// <summary><c>milkbag</c> v1: the place and container as codes, the thaw as Unix milliseconds, days as <c>yyyy-MM-dd</c>.</summary>
 internal sealed class MilkBagCodec : EntryDetailsCodec<MilkBagDetails, MilkBagDetailsV1>
 {
     public static readonly MilkBagCodec Instance = new();
@@ -31,6 +31,12 @@ internal sealed class MilkBagCodec : EntryDetailsCodec<MilkBagDetails, MilkBagDe
         DiscardedOn = Day(details.DiscardedOn),
         Label = details.Label,
         Number = details.Number,
+        Container = details.Container switch
+        {
+            MilkContainer.Bottle => "bottle",
+            MilkContainer.Container => "container",
+            _ => null,
+        },
     };
 
     protected override DecodeOutcome FromDto(MilkBagDetailsV1 dto)
@@ -51,8 +57,19 @@ internal sealed class MilkBagCodec : EntryDetailsCodec<MilkBagDetails, MilkBagDe
         if (!TryDay(dto.DiscardedOn, out var discarded))
             return new Malformed(DecodeReasons.Invalid("discardedOn"));
 
+        // A value this version does not know (a later container) is shown read-only, never guessed (ADR 0010 §3.3).
+        MilkContainer? container = dto.Container switch
+        {
+            null or "bag" => MilkContainer.Bag,
+            "bottle" => MilkContainer.Bottle,
+            "container" => MilkContainer.Container,
+            _ => null,
+        };
+        if (container is null)
+            return new Unrepresentable(DecodeReasons.UnknownValue("container"));
+
         var thawed = dto.ThawedAtMs is { } ms ? DateTimeOffset.FromUnixTimeMilliseconds(ms) : (DateTimeOffset?)null;
-        var details = MilkBagDetails.Create(volume.Value, place.Value, thawed, used, discarded, dto.Label, dto.Number);
+        var details = MilkBagDetails.Create(volume.Value, place.Value, thawed, used, discarded, dto.Label, dto.Number, container.Value);
         return details.IsSuccess ? Ok(details.Value) : new Malformed(details.Error!.Code);
     }
 

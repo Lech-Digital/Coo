@@ -55,11 +55,12 @@ public sealed class GetMilkStash(ICareLogStore store)
 public sealed class AddMilkBag(LogEntry log, GetMilkStash stash)
 {
     public async Task<Result<CareEntry>> ExecuteAsync(
-        HouseholdId household, Volume volume, MilkPlace place, DateTimeOffset expressedAt, string? label, CancellationToken cancellationToken)
+        HouseholdId household, Volume volume, MilkPlace place, DateTimeOffset expressedAt, string? label, CancellationToken cancellationToken,
+        MilkContainer container = MilkContainer.Bag)
     {
         var inStock = await stash.ExecuteAsync(household, expressedAt, cancellationToken);
         var number = MilkBagDetails.NextNumber(inStock.Bags.Select(b => b.Details.Number));
-        var details = MilkBagDetails.Create(volume, place, label: label, number: number);
+        var details = MilkBagDetails.Create(volume, place, label: label, number: number, container: container);
         if (details.IsFailure)
             return Result<CareEntry>.Failure(details.Error!);
         return await log.ExecuteAsync(
@@ -81,9 +82,10 @@ public enum MilkBagChange
 
 public sealed class ChangeMilkBag(ReviseEntry revise)
 {
-    /// <summary>Corrects how much is left, the number on the container, or the note.</summary>
-    public Task<Result<CareEntry>> EditAsync(EntryId bag, Volume volume, int? number, string? label, CancellationToken cancellationToken) =>
-        revise.ExecuteAsync(bag, (e, version, at) => e.Revise<MilkBagDetails>(b => b.Edit(volume, number, label), version, at), cancellationToken);
+    /// <summary>Corrects how much is left, the number on the container, the note, or what the milk is in.</summary>
+    public Task<Result<CareEntry>> EditAsync(
+        EntryId bag, Volume volume, int? number, string? label, MilkContainer container, CancellationToken cancellationToken) =>
+        revise.ExecuteAsync(bag, (e, version, at) => e.Revise<MilkBagDetails>(b => b.Edit(volume, number, label, container), version, at), cancellationToken);
 
     public Task<Result<CareEntry>> ExecuteAsync(EntryId bag, MilkBagChange change, DateTimeOffset now, TimeZoneInfo zone, CancellationToken cancellationToken)
     {

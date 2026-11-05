@@ -41,7 +41,7 @@ def render(html, out, width, height):
 FACES = font_face()
 
 def phone(slot, shot, headline, subline, night):
-    ground, ink, ink2, accent = ('#121511', '#E6EDD9', '#97A486', '#9DBB7E') if night else ('#EEEEE6', '#262A22', '#62685A', '#4F7A45')
+    ground, ink, ink2, accent = ('#121511', '#E6EDD9', '#97A486', '#9DBB7E') if night else ('#EEEEE6', '#262A22', '#62685A', '#3F6B4A')
     html = f"""<!doctype html><html><head><meta charset="utf-8"><style>{FACES}
     html,body{{margin:0;width:1080px;height:1920px;background:{ground};font-family:Figtree;overflow:hidden}}
     .cap{{position:absolute;top:96px;left:80px;right:80px;text-align:center}}
@@ -70,7 +70,7 @@ def feature():
     .icon svg{{width:280px;height:280px;display:block}}
     .t{{position:absolute;left:430px;top:118px;right:60px}}
     h1{{margin:0;font-size:96px;font-weight:700;color:#262A22;letter-spacing:-2px}}
-    h1 span{{color:#4F7A45}}
+    h1 span{{color:#3F6B4A}}
     p{{margin:14px 0 0;font-size:42px;line-height:1.22;color:#262A22;white-space:nowrap}}
     .k{{margin-top:26px;display:flex;gap:12px}}
     .k i{{display:block;width:62px;height:12px;border-radius:6px}}

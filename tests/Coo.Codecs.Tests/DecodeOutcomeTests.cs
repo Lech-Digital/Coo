@@ -48,6 +48,7 @@ public sealed class DecodeOutcomeTests
     [InlineData("feeding", """{"v":1,"method":"breast","completed":true,"segments":[{"side":"both","start":"2026-09-30T14:00:00+02:00","end":"2026-09-30T14:10:00+02:00"}]}""", "side")]
     [InlineData("diaper", """{"v":1,"contents":"lavender"}""", "contents")]
     [InlineData("sleep", """{"v":1,"kindOverride":"siesta"}""", "kindOverride")]
+    [InlineData("milkbag", """{"v":1,"ml":120,"place":"fridge","container":"ice-tray"}""", "container")]
     public void Decode_UnknownEnumValue_ReturnsUnrepresentable(string kind, string json, string property)
     {
         // Arrange

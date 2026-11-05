@@ -58,10 +58,11 @@ internal static class Generators
             from used in Gen.Elements<DateOnly?>(null, new DateOnly(2026, 11, 5))
             from label in Gen.Elements<string?>(null, "night milk", "Mleko nocne")
             from number in Gen.Elements<int?>(null, 1, 3, 999)
+            from container in Gen.Elements(Enum.GetValues<Coo.Domain.CareLog.Kinds.MilkStash.MilkContainer>())
             select (EntryDetails)Coo.Domain.CareLog.Kinds.MilkStash.MilkBagDetails.Create(
                 Volume.FromMillilitres(ml).Value,
                 frozen && thawedMs is null ? Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace.Freezer : Coo.Domain.CareLog.Kinds.MilkStash.MilkPlace.Fridge,
-                thawedMs is { } t ? DateTimeOffset.FromUnixTimeMilliseconds(t) : null, used, null, label, number).Value,
+                thawedMs is { } t ? DateTimeOffset.FromUnixTimeMilliseconds(t) : null, used, null, label, number, container).Value,
         ["solids"] =
             from food in Gen.Elements("Carrot puree", "Banana", "Pindakaas", "Jabłko", "Avocado")
             from amount in Gen.Elements<string?>(null, "3 spoons", "half a jar")

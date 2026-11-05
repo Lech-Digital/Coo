@@ -9,6 +9,17 @@ public enum MilkPlace
     Freezer,
 }
 
+/// <summary>
+/// What the milk is kept in (owner, 2026-11-05: "not bags but containers too"). Stored only when it is not a bag, so
+/// every bag written before 1.11 reads as one.
+/// </summary>
+public enum MilkContainer
+{
+    Bag,
+    Bottle,
+    Container,
+}
+
 /// <summary>Whether a bag in stock is fine, should be used soon, or is past its use-by.</summary>
 public enum MilkFreshness
 {
@@ -28,8 +39,9 @@ public sealed record MilkBagDetails : EntryDetails
     public const int MaxNumber = 999;
 
     private MilkBagDetails(
-        Volume volume, MilkPlace place, DateTimeOffset? thawedAt, DateOnly? usedOn, DateOnly? discardedOn, string? label, int? number) =>
-        (Volume, Place, ThawedAt, UsedOn, DiscardedOn, Label, Number) = (volume, place, thawedAt, usedOn, discardedOn, label, number);
+        Volume volume, MilkPlace place, DateTimeOffset? thawedAt, DateOnly? usedOn, DateOnly? discardedOn, string? label, int? number,
+        MilkContainer container) =>
+        (Volume, Place, ThawedAt, UsedOn, DiscardedOn, Label, Number, Container) = (volume, place, thawedAt, usedOn, discardedOn, label, number, container);
 
     public Volume Volume { get; }
 
@@ -48,15 +60,18 @@ public sealed record MilkBagDetails : EntryDetails
     /// <summary>The number written on the container, so three bags in the fridge can be told apart ("#2").</summary>
     public int? Number { get; }
 
+    /// <summary>A bag, a bottle or another container.</summary>
+    public MilkContainer Container { get; }
+
     public bool IsInStock => UsedOn is null && DiscardedOn is null;
 
     public static Result<MilkBagDetails> Create(
         Volume volume, MilkPlace place, DateTimeOffset? thawedAt = null, DateOnly? usedOn = null, DateOnly? discardedOn = null, string? label = null,
-        int? number = null)
+        int? number = null, MilkContainer container = MilkContainer.Bag)
     {
         if (volume.Millilitres <= 0 || volume.Millilitres > MilkStorage.MaxBagMl)
             return Result<MilkBagDetails>.Failure(MilkBagErrors.Volume);
-        if (!Enum.IsDefined(place))
+        if (!Enum.IsDefined(place) || !Enum.IsDefined(container))
             return Result<MilkBagDetails>.Failure(MilkBagErrors.Unknown);
         if (place == MilkPlace.Freezer && thawedAt is not null)
             return Result<MilkBagDetails>.Failure(MilkBagErrors.Refreeze);
@@ -69,7 +84,7 @@ public sealed record MilkBagDetails : EntryDetails
             return Result<MilkBagDetails>.Failure(MilkBagErrors.Number);
         // To the millisecond, as stored: the codec's write gate compares the decoded value with this one.
         var thawed = thawedAt is { } t ? DateTimeOffset.FromUnixTimeMilliseconds(t.ToUnixTimeMilliseconds()) : (DateTimeOffset?)null;
-        return new MilkBagDetails(volume, place, thawed, usedOn, discardedOn, trimmed, number);
+        return new MilkBagDetails(volume, place, thawed, usedOn, discardedOn, trimmed, number, container);
     }
 
     /// <summary>
@@ -86,30 +101,31 @@ public sealed record MilkBagDetails : EntryDetails
         return next;
     }
 
-    /// <summary>What the parent can correct: how much is left (part of it used), the number on the container, the note.</summary>
-    public Result<MilkBagDetails> Edit(Volume volume, int? number, string? label) => Create(volume, Place, ThawedAt, UsedOn, DiscardedOn, label, number);
+    /// <summary>What the parent can correct: how much is left (part of it used), the number on the container, the note, and what it is in.</summary>
+    public Result<MilkBagDetails> Edit(Volume volume, int? number, string? label, MilkContainer container) =>
+        Create(volume, Place, ThawedAt, UsedOn, DiscardedOn, label, number, container);
 
     /// <summary>Into the freezer: only milk that was never thawed.</summary>
-    public Result<MilkBagDetails> Freeze() => Create(Volume, MilkPlace.Freezer, ThawedAt, UsedOn, DiscardedOn, Label, Number);
+    public Result<MilkBagDetails> Freeze() => Create(Volume, MilkPlace.Freezer, ThawedAt, UsedOn, DiscardedOn, Label, Number, Container);
 
     /// <summary>Out of the freezer into the fridge, thawing from <paramref name="at"/>.</summary>
     public Result<MilkBagDetails> Thaw(DateTimeOffset at) =>
         Place == MilkPlace.Freezer
-            ? Create(Volume, MilkPlace.Fridge, at, UsedOn, DiscardedOn, Label, Number)
+            ? Create(Volume, MilkPlace.Fridge, at, UsedOn, DiscardedOn, Label, Number, Container)
             : Result<MilkBagDetails>.Failure(MilkBagErrors.NotFrozen);
 
-    public Result<MilkBagDetails> Use(DateOnly on) => Create(Volume, Place, ThawedAt, on, null, Label, Number);
+    public Result<MilkBagDetails> Use(DateOnly on) => Create(Volume, Place, ThawedAt, on, null, Label, Number, Container);
 
-    public Result<MilkBagDetails> Discard(DateOnly on) => Create(Volume, Place, ThawedAt, null, on, Label, Number);
+    public Result<MilkBagDetails> Discard(DateOnly on) => Create(Volume, Place, ThawedAt, null, on, Label, Number, Container);
 
     /// <summary>Back in stock: a "used" tapped by mistake.</summary>
-    public Result<MilkBagDetails> Restock() => Create(Volume, Place, ThawedAt, null, null, Label, Number);
+    public Result<MilkBagDetails> Restock() => Create(Volume, Place, ThawedAt, null, null, Label, Number, Container);
 
     public bool Equals(MilkBagDetails? other) =>
         other is not null && Volume == other.Volume && Place == other.Place && ThawedAt == other.ThawedAt && UsedOn == other.UsedOn
-        && DiscardedOn == other.DiscardedOn && Label == other.Label && Number == other.Number;
+        && DiscardedOn == other.DiscardedOn && Label == other.Label && Number == other.Number && Container == other.Container;
 
-    public override int GetHashCode() => HashCode.Combine(Volume, Place, ThawedAt, UsedOn, DiscardedOn, Label, Number);
+    public override int GetHashCode() => HashCode.Combine(Volume, Place, ThawedAt, UsedOn, DiscardedOn, Label, Number, Container);
 }
 
 /// <summary>

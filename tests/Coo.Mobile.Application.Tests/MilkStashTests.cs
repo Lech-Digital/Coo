@@ -92,8 +92,8 @@ public sealed class MilkStashTests
         var change = new ChangeMilkBag(new ReviseEntry(_store, _clock, _time));
 
         // Act
-        var edited = await change.EditAsync(bag, Volume.FromMillilitres(70).Value, 5, "left side", CancellationToken.None);
-        var refused = await change.EditAsync(bag, Volume.FromMillilitres(70).Value, 0, null, CancellationToken.None);
+        var edited = await change.EditAsync(bag, Volume.FromMillilitres(70).Value, 5, "left side", MilkContainer.Bag, CancellationToken.None);
+        var refused = await change.EditAsync(bag, Volume.FromMillilitres(70).Value, 0, null, MilkContainer.Bag, CancellationToken.None);
         var stash = await new GetMilkStash(_store).ExecuteAsync(Household, Now, CancellationToken.None);
 
         // Assert

@@ -42,12 +42,12 @@ They are the contract between this document and the XAML.
 | `Line` | `#D8DACB` | `#2C3228` | Hairline borders and separators |
 | `Ink` | `#262A22` | `#D9E3C8` | Primary text and icons |
 | `Ink2` | `#62685A` | `#97A486` | Secondary text, metadata |
-| `Accent` | `#4F7A45` (matcha) | `#9DBB7E` (light matcha) | Primary actions, links |
+| `Accent` | `#3F6B4A` (matcha) | `#9DBB7E` (light matcha) | Primary actions, links |
 | `AccentSoft` | `#E3EBD8` | `#283022` | Pills, selected states |
 | `AccentInk` | `#355229` | `#CFE0B6` | Text on `AccentSoft`; link text |
 | `OnAccent` | `#FAFAF5` | `#121511` | Text on `Accent` |
-| `Cheek` | `#E8C4B8` | `#2A2A22` | Baby avatar fill |
-| `CheekInk` | `#6E3F33` | `#D9E3C8` | Baby avatar initial |
+| `Cheek` | `#DCE6D2` | `#2A2A22` | Baby avatar fill |
+| `CheekInk` | `#355229` | `#D9E3C8` | Baby avatar initial |
 | `VoiceBg` / `VoiceInk` / `VoiceHint` | `#262A22` / `#EEEEE6` / `#B4B8AA` | `#9DBB7E` / `#121511` / `#36412C` | The "Tell Mochi" bar |
 
 ### Care events

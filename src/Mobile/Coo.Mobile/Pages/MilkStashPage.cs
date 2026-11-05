@@ -111,7 +111,9 @@ public sealed class MilkStashPage : ContentPage
         var look = EventAppearance.For("milkbag");
         var stack = new VerticalStackLayout { Spacing = 6 };
         var title = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 8 };
-        title.Add(Ui.Text(bag.Number.Length > 0 ? $"{bag.Number} · {bag.Amount} · {bag.Where}" : $"{bag.Amount} · {bag.Where}", "BodyStrong", look.Ink), 0);
+        // "Bottle #2 · 150 ml · Fridge": what it is in first, so a bottle and a bag with the same number are told apart.
+        var name = bag.Number.Length > 0 ? $"{bag.Container} {bag.Number}" : bag.Container;
+        title.Add(Ui.Text($"{name} · {bag.Amount} · {bag.Where}", "BodyStrong", look.Ink), 0);
         var tag = bag.Freshness switch
         {
             MilkFreshness.Expired => Strings.Get("Stash.ExpiredTag"),
@@ -162,6 +164,8 @@ public sealed class MilkStashPage : ContentPage
         label.TextChanged += (_, e) => _model.EditLabel = e.NewTextValue ?? "";
         form.Add(Ui.Text(Strings.Get("Stash.Left"), "Meta", "Ink2"));
         form.Add(amount);
+        form.Add(Ui.Text(Strings.Get("Stash.ContainerLabel"), "Meta", "Ink2"));
+        form.Add(ContainerChoice(_model.EditContainer, chosen => _model.EditContainer = chosen));
         form.Add(Ui.Text(Strings.Get("Stash.Number"), "Meta", "Ink2"));
         form.Add(number);
         form.Add(label);
@@ -199,6 +203,9 @@ public sealed class MilkStashPage : ContentPage
 
         stack.Add(places);
 
+        stack.Add(Ui.Text(Strings.Get("Stash.ContainerLabel"), "Meta", "Ink2"));
+        stack.Add(ContainerChoice(_model.Container, _model.ChooseContainer));
+
         stack.Add(Ui.Text(Strings.Get("Stash.Expressed"), "Meta", "Ink2"));
         var date = new DatePicker { Date = _model.ExpressedDate, MaximumDate = _model.Today };
         date.DateSelected += (_, e) => _model.ExpressedDate = e.NewDate ?? _model.ExpressedDate;
@@ -223,6 +230,23 @@ public sealed class MilkStashPage : ContentPage
         };
         stack.Add(add);
         return new Card(stack);
+    }
+
+    /// <summary>Bag, bottle or container: the chosen one filled, the others outlined, like the fridge and freezer choice.</summary>
+    private static FlexLayout ContainerChoice(MilkContainer current, Action<MilkContainer> choose)
+    {
+        var row = new FlexLayout { Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap };
+        foreach (var container in Enum.GetValues<MilkContainer>())
+        {
+            var chosen = container;
+            row.Add(Button(MilkStashViewModel.ContainerName(container), current == container ? "PrimaryButton" : "GhostButton", () =>
+            {
+                choose(chosen);
+                return Task.CompletedTask;
+            }));
+        }
+
+        return row;
     }
 
     private static Button Button(string text, string style, Func<Task> action)

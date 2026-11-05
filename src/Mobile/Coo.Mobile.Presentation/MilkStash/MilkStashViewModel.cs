@@ -15,7 +15,8 @@ namespace Coo.Mobile.Presentation.MilkStash;
 /// <summary>One bag on the stash page: "120 ml · Fridge", "Expressed Mon 08:30 · use by Fri 08:30", and how fresh it is.</summary>
 /// <param name="Number">"#2", the number on the container; empty for a bag without one.</param>
 public sealed record MilkBagRow(
-    EntryId Id, string Amount, string Where, string Dates, MilkFreshness Freshness, MilkPlace Place, bool IsThawed, string? Label, string Number = "");
+    EntryId Id, string Amount, string Where, string Dates, MilkFreshness Freshness, MilkPlace Place, bool IsThawed, string? Label, string Number = "",
+    string Container = "");
 
 /// <summary>
 /// The milk stash: the fridge and freezer stock, the bag to use first at the top, use-by warnings, and adding bags. Anyone
@@ -51,6 +52,14 @@ public sealed partial class MilkStashViewModel(
 
     [ObservableProperty]
     private MilkPlace _place = MilkPlace.Fridge;
+
+    /// <summary>What the new milk is in; kept after adding, since a family mostly uses the same kind.</summary>
+    [ObservableProperty]
+    private MilkContainer _container = MilkContainer.Bag;
+
+    /// <summary>What the milk being edited is in.</summary>
+    [ObservableProperty]
+    private MilkContainer _editContainer = MilkContainer.Bag;
 
     [ObservableProperty]
     private DateTime _expressedDate;
@@ -137,7 +146,7 @@ public sealed partial class MilkStashViewModel(
         var expressed = new DateTimeOffset(local, time.LocalTimeZone.GetUtcOffset(local));
         if (expressed > time.GetUtcNow())
             expressed = time.GetUtcNow();
-        var result = await add.ExecuteAsync(household, volume.Value, Place, expressed, Label, CancellationToken.None);
+        var result = await add.ExecuteAsync(household, volume.Value, Place, expressed, Label, CancellationToken.None, Container);
         if (result.IsFailure)
         {
             Error = Strings.Error(result.Error!.Code);
@@ -146,7 +155,8 @@ public sealed partial class MilkStashViewModel(
 
         ResetForm();
         var details = (MilkBagDetails)result.Value.Details;
-        Added = Strings.Format(details.Place == MilkPlace.Freezer ? "Stash.AddedFreezer" : "Stash.AddedFridge", details.Number ?? 0, _formats.Volume(details.Volume));
+        Added = Strings.Format(details.Place == MilkPlace.Freezer ? "Stash.AddedFreezer" : "Stash.AddedFridge", details.Number ?? 0, _formats.Volume(details.Volume),
+            ContainerName(details.Container));
         await LoadAsync();
         return true;
     }
@@ -163,6 +173,11 @@ public sealed partial class MilkStashViewModel(
 
     public void ChoosePlace(MilkPlace place) => Place = place;
 
+    public void ChooseContainer(MilkContainer container) => Container = container;
+
+    /// <summary>"Bag", "Bottle" or "Container", in the app's language.</summary>
+    public static string ContainerName(MilkContainer container) => Strings.Get($"Stash.Container.{container}");
+
     /// <summary>Opens a bag's edit with what it holds now.</summary>
     public void StartEdit(EntryId bag)
     {
@@ -171,6 +186,7 @@ public sealed partial class MilkStashViewModel(
         EditAmount = (_formats.Unit == VolumeUnit.Ounces ? Math.Round(details.Volume.Ounces, 1) : details.Volume.Millilitres).ToString("0.#", Strings.Culture);
         EditNumber = details.Number?.ToString(CultureInfo.InvariantCulture) ?? "";
         EditLabel = details.Label ?? "";
+        EditContainer = details.Container;
         Error = "";
         Editing = bag;
     }
@@ -207,7 +223,7 @@ public sealed partial class MilkStashViewModel(
             return false;
         }
 
-        var result = await change.EditAsync(bag, volume.Value, number, EditLabel, CancellationToken.None);
+        var result = await change.EditAsync(bag, volume.Value, number, EditLabel, EditContainer, CancellationToken.None);
         if (result.IsFailure)
         {
             Error = Strings.Error(result.Error!.Code);
@@ -271,7 +287,7 @@ public sealed partial class MilkStashViewModel(
         var dates = Strings.Format("Stash.Dates", When(bag.ExpressedAt), When(bag.UseBy));
         return new MilkBagRow(
             bag.Entry.Id, _formats.Volume(bag.Details.Volume), where, dates, bag.Freshness, bag.Details.Place, bag.Details.ThawedAt is not null,
-            bag.Details.Label, bag.Details.Number is { } n ? $"#{n}" : "");
+            bag.Details.Label, bag.Details.Number is { } n ? $"#{n}" : "", ContainerName(bag.Details.Container));
     }
 
     /// <summary>"Mon 3 Nov 08:30" in this phone's zone.</summary>

@@ -124,11 +124,65 @@ public sealed class MilkBagTests
         var thawed = Bag(MilkPlace.Freezer).Thaw(Expressed.AddDays(10)).Value;
 
         // Act
-        var edited = thawed.Edit(Volume.FromMillilitres(60).Value, 4, "left").Value;
-        var tooHigh = thawed.Edit(Volume.FromMillilitres(60).Value, 1000, null);
+        var edited = thawed.Edit(Volume.FromMillilitres(60).Value, 4, "left", MilkContainer.Bag).Value;
+        var tooHigh = thawed.Edit(Volume.FromMillilitres(60).Value, 1000, null, MilkContainer.Bag);
 
         // Assert
         (edited.Volume.Millilitres, edited.Number, edited.Label, edited.Place, edited.ThawedAt).Should().Be((60m, 4, "left", MilkPlace.Fridge, thawed.ThawedAt));
         tooHigh.Error!.Code.Should().Be(MilkBagErrors.Number);
+    }
+
+    [Fact]
+    public void Create_WithoutContainer_IsABag()
+    {
+        // Arrange
+        var volume = Volume.FromMillilitres(100).Value;
+
+        // Act
+        var bag = MilkBagDetails.Create(volume, MilkPlace.Fridge).Value;
+
+        // Assert: every bag written before 1.11 has no container and must stay a bag.
+        bag.Container.Should().Be(MilkContainer.Bag);
+    }
+
+    [Fact]
+    public void FreezeThawAndUse_Bottle_StaysABottle()
+    {
+        // Arrange
+        var bottle = MilkBagDetails.Create(Volume.FromMillilitres(150).Value, MilkPlace.Fridge, number: 2, container: MilkContainer.Bottle).Value;
+
+        // Act
+        var used = bottle.Freeze().Value.Thaw(Expressed.AddDays(10)).Value.Use(new DateOnly(2026, 11, 12)).Value;
+
+        // Assert
+        used.Container.Should().Be(MilkContainer.Bottle);
+        used.Number.Should().Be(2);
+    }
+
+    [Fact]
+    public void Create_UndefinedContainer_IsRefused()
+    {
+        // Arrange
+        var volume = Volume.FromMillilitres(100).Value;
+
+        // Act
+        var result = MilkBagDetails.Create(volume, MilkPlace.Fridge, container: (MilkContainer)7);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error!.Code.Should().Be(MilkBagErrors.Unknown);
+    }
+
+    [Fact]
+    public void Edit_ToAContainer_ChangesOnlyWhatItIsIn()
+    {
+        // Arrange
+        var bag = Bag(MilkPlace.Freezer);
+
+        // Act
+        var edited = bag.Edit(bag.Volume, 4, "evening", MilkContainer.Container).Value;
+
+        // Assert
+        (edited.Container, edited.Place, edited.Number, edited.Label).Should().Be((MilkContainer.Container, MilkPlace.Freezer, 4, "evening"));
     }
 }

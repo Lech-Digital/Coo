@@ -881,15 +881,19 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Solids.Liked" xml:space="preserve"><value>Liked it</value></data>
   <data name="Solids.None" xml:space="preserve"><value>Nothing special</value></data>
   <data name="Solids.Reaction" xml:space="preserve"><value>A reaction</value></data>
-  <data name="Stash.Add" xml:space="preserve"><value>Add a bag</value></data>
-  <data name="Stash.AddedFreezer" xml:space="preserve"><value>Bag #{0} in the freezer, {1}: write #{0} on the container.</value></data>
-  <data name="Stash.AddedFridge" xml:space="preserve"><value>Bag #{0} in the fridge, {1}: write #{0} on the container.</value></data>
+  <data name="Stash.Add" xml:space="preserve"><value>Add milk</value></data>
+  <data name="Stash.Container.Container" xml:space="preserve"><value>Container</value></data>
+  <data name="Stash.Container.Bottle" xml:space="preserve"><value>Bottle</value></data>
+  <data name="Stash.Container.Bag" xml:space="preserve"><value>Bag</value></data>
+  <data name="Stash.ContainerLabel" xml:space="preserve"><value>Kept in</value></data>
+  <data name="Stash.AddedFreezer" xml:space="preserve"><value>{2} #{0} in the freezer, {1}: write #{0} on it.</value></data>
+  <data name="Stash.AddedFridge" xml:space="preserve"><value>{2} #{0} in the fridge, {1}: write #{0} on it.</value></data>
   <data name="Stash.Amount" xml:space="preserve"><value>Amount</value></data>
   <data name="Stash.AmountNeeded" xml:space="preserve"><value>Enter how much milk is in the bag.</value></data>
   <data name="Stash.Dates" xml:space="preserve"><value>Expressed {0} · use by {1}</value></data>
   <data name="Stash.Discard" xml:space="preserve"><value>Throw away</value></data>
   <data name="Stash.Edit" xml:space="preserve"><value>Edit</value></data>
-  <data name="Stash.Empty" xml:space="preserve"><value>No milk in the stash yet. Add a bag when you store milk in the fridge or freezer.</value></data>
+  <data name="Stash.Empty" xml:space="preserve"><value>No milk in the stash yet. Add milk when you store it in the fridge or freezer.</value></data>
   <data name="Stash.Expired.one" xml:space="preserve"><value>{0} past its use-by</value></data>
   <data name="Stash.Expired.other" xml:space="preserve"><value>{0} past their use-by</value></data>
   <data name="Stash.ExpiredTag" xml:space="preserve"><value>Past its use-by</value></data>
@@ -898,7 +902,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Stash.Freezer" xml:space="preserve"><value>Freezer</value></data>
   <data name="Stash.Fridge" xml:space="preserve"><value>Fridge</value></data>
   <data name="Stash.Guidance" xml:space="preserve"><value>Use-by follows CDC guidance: 4 days in the fridge, about 6 months in the freezer, 24 hours once thawed, and thawed milk is never frozen again. Throw away milk that smells sour or a bottle the baby drank from after 2 hours.</value></data>
-  <data name="Stash.Hint" xml:space="preserve"><value>Fridge and freezer bags, the oldest first, with a warning before milk expires.</value></data>
+  <data name="Stash.Hint" xml:space="preserve"><value>Bags, bottles and containers in the fridge and freezer, the oldest first, with a warning before milk expires.</value></data>
   <data name="Stash.LabelHint" xml:space="preserve"><value>Label (optional)</value></data>
   <data name="Stash.Left" xml:space="preserve"><value>Amount left</value></data>
   <data name="Stash.Number" xml:space="preserve"><value>Number on the container</value></data>
@@ -910,8 +914,8 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Stash.Thawed" xml:space="preserve"><value>Thawed, in the fridge</value></data>
   <data name="Stash.Use" xml:space="preserve"><value>Used</value></data>
   <data name="Stash.UseFirst" xml:space="preserve"><value>Use first</value></data>
-  <data name="Stash.UseSoon.one" xml:space="preserve"><value>{0} bag to use soon</value></data>
-  <data name="Stash.UseSoon.other" xml:space="preserve"><value>{0} bags to use soon</value></data>
+  <data name="Stash.UseSoon.one" xml:space="preserve"><value>{0} to use soon</value></data>
+  <data name="Stash.UseSoon.other" xml:space="preserve"><value>{0} to use soon</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statistics</value></data>
   <data name="Stats.Trends" xml:space="preserve"><value>Trends</value></data>
   <data name="Summary.Hint" xml:space="preserve"><value>The Advisor compares this week with the last: sleep, feeds, diapers, anything worth noting.</value></data>

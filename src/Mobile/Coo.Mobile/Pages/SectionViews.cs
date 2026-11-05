@@ -175,25 +175,9 @@ internal static class SectionViews
         return view;
     }
 
-    private static View Header(BabyHeaderSection s, SectionHost host)
-    {
-        var mark = CooBrand.CreateMark(s.IsPremium, host.Today.IsNight, longPress: host.OpenDebug, fontSize: 24);
-        var avatar = CooAvatar.Create(s.AvatarRef, s.Initial, 38);
-        var chip = Ui.Rounded(new HorizontalStackLayout
-        {
-            Spacing = 8,
-            Children = { avatar, Ui.Text(s.HasSiblings ? $"{s.BabyName} · {s.Age} ▾" : $"{s.BabyName} · {s.Age}", "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center) },
-        }, "Surface", 999, new Thickness(5, 5, 14, 5), "Line");
-        // Twins and siblings: the chip chooses which baby this phone shows.
-        if (s.HasSiblings && host.ChooseBaby is { } choose)
-            chip.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(choose) });
-
-        var grid = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto)], ColumnSpacing = 4, Padding = new Thickness(24, 16, 24, 8) };
-        grid.Add(mark, 0);
-        grid.Add(ThemeSwitch(host), 1);
-        grid.Add(chip, 2);
-        return grid;
-    }
+    /// <summary>The top bar (<see cref="PageFrame.Bar"/>): the wordmark and the day/night switch at the far right.</summary>
+    private static View Header(BabyHeaderSection s, SectionHost host) =>
+        PageFrame.Bar(CooBrand.CreateMark(s.IsPremium, host.Today.IsNight, longPress: host.OpenDebug, fontSize: PageFrame.WordmarkSize), ThemeSwitch(host));
 
     /// <summary>The morning note: last night in two lines, in the sleep colours.</summary>
     private static View LastNight(LastNightSection s)
@@ -850,19 +834,7 @@ internal static class SectionViews
 
     private static View Night(NightSection s, SectionHost host)
     {
-        var mark = CooBrand.CreateMark(s.IsPremium, host.Today.IsNight, longPress: host.OpenDebug, fontSize: 24);
-        var avatar = CooAvatar.Create(s.AvatarRef, s.Initial, 38);
-
-        var chip = Ui.Rounded(new HorizontalStackLayout
-        {
-            Spacing = 8,
-            Children = { avatar, Ui.Text($"{s.BabyName} · {s.Age}", "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center) },
-        }, "Surface", 999, new Thickness(5, 5, 14, 5), "Line");
-
-        var top = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto)], ColumnSpacing = 4, Padding = new Thickness(24, 16, 24, 8) };
-        top.Add(mark, 0);
-        top.Add(ThemeSwitch(host), 1);
-        top.Add(chip, 2);
+        var top = PageFrame.Bar(CooBrand.CreateMark(s.IsPremium, host.Today.IsNight, longPress: host.OpenDebug, fontSize: PageFrame.WordmarkSize), ThemeSwitch(host));
 
         var stack = new VerticalStackLayout { Spacing = 20 };
         stack.Add(top);

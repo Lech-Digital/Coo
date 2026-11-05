@@ -881,15 +881,19 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Solids.Liked" xml:space="preserve"><value>A aimé</value></data>
   <data name="Solids.None" xml:space="preserve"><value>Rien de spécial</value></data>
   <data name="Solids.Reaction" xml:space="preserve"><value>Une réaction</value></data>
-  <data name="Stash.Add" xml:space="preserve"><value>Ajouter un sachet</value></data>
-  <data name="Stash.AddedFreezer" xml:space="preserve"><value>Sachet n°{0} au congélateur, {1} : écrivez {0} sur le récipient.</value></data>
-  <data name="Stash.AddedFridge" xml:space="preserve"><value>Sachet n°{0} au réfrigérateur, {1} : écrivez {0} sur le récipient.</value></data>
+  <data name="Stash.Add" xml:space="preserve"><value>Ajouter du lait</value></data>
+  <data name="Stash.Container.Container" xml:space="preserve"><value>Pot</value></data>
+  <data name="Stash.Container.Bottle" xml:space="preserve"><value>Biberon</value></data>
+  <data name="Stash.Container.Bag" xml:space="preserve"><value>Sachet</value></data>
+  <data name="Stash.ContainerLabel" xml:space="preserve"><value>Conservé dans</value></data>
+  <data name="Stash.AddedFreezer" xml:space="preserve"><value>{2} n°{0} au congélateur, {1} : écrivez {0} dessus.</value></data>
+  <data name="Stash.AddedFridge" xml:space="preserve"><value>{2} n°{0} au réfrigérateur, {1} : écrivez {0} dessus.</value></data>
   <data name="Stash.Amount" xml:space="preserve"><value>Quantité</value></data>
   <data name="Stash.AmountNeeded" xml:space="preserve"><value>Indiquez la quantité de lait du sachet.</value></data>
   <data name="Stash.Dates" xml:space="preserve"><value>Tiré {0} · à utiliser avant {1}</value></data>
   <data name="Stash.Discard" xml:space="preserve"><value>Jeter</value></data>
   <data name="Stash.Edit" xml:space="preserve"><value>Modifier</value></data>
-  <data name="Stash.Empty" xml:space="preserve"><value>Pas encore de lait en réserve. Ajoutez un sachet quand vous mettez du lait au réfrigérateur ou au congélateur.</value></data>
+  <data name="Stash.Empty" xml:space="preserve"><value>Pas encore de lait en réserve. Ajoutez du lait quand vous le mettez au réfrigérateur ou au congélateur.</value></data>
   <data name="Stash.Expired.one" xml:space="preserve"><value>{0} périmé</value></data>
   <data name="Stash.Expired.other" xml:space="preserve"><value>{0} périmés</value></data>
   <data name="Stash.ExpiredTag" xml:space="preserve"><value>Date dépassée</value></data>
@@ -898,7 +902,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Stash.Freezer" xml:space="preserve"><value>Congélateur</value></data>
   <data name="Stash.Fridge" xml:space="preserve"><value>Réfrigérateur</value></data>
   <data name="Stash.Guidance" xml:space="preserve"><value>La date suit les recommandations des CDC : 4 jours au réfrigérateur, environ 6 mois au congélateur, 24 heures une fois décongelé, et le lait décongelé ne se recongèle jamais. Jetez un lait qui sent l’aigre, ou un biberon entamé après 2 heures.</value></data>
-  <data name="Stash.Hint" xml:space="preserve"><value>Sachets au réfrigérateur et au congélateur, les plus anciens d’abord, avec une alerte avant la date.</value></data>
+  <data name="Stash.Hint" xml:space="preserve"><value>Sachets, biberons et pots au réfrigérateur et au congélateur, les plus anciens d’abord, avec une alerte avant la date.</value></data>
   <data name="Stash.LabelHint" xml:space="preserve"><value>Étiquette (facultatif)</value></data>
   <data name="Stash.Left" xml:space="preserve"><value>Quantité restante</value></data>
   <data name="Stash.Number" xml:space="preserve"><value>Numéro sur le récipient</value></data>
@@ -910,8 +914,8 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Stash.Thawed" xml:space="preserve"><value>Décongelé, au réfrigérateur</value></data>
   <data name="Stash.Use" xml:space="preserve"><value>Utilisé</value></data>
   <data name="Stash.UseFirst" xml:space="preserve"><value>À utiliser en premier</value></data>
-  <data name="Stash.UseSoon.one" xml:space="preserve"><value>{0} sachet à utiliser bientôt</value></data>
-  <data name="Stash.UseSoon.other" xml:space="preserve"><value>{0} sachets à utiliser bientôt</value></data>
+  <data name="Stash.UseSoon.one" xml:space="preserve"><value>{0} à utiliser bientôt</value></data>
+  <data name="Stash.UseSoon.other" xml:space="preserve"><value>{0} à utiliser bientôt</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statistiques</value></data>
   <data name="Stats.Trends" xml:space="preserve"><value>Tendances</value></data>
   <data name="Summary.Hint" xml:space="preserve"><value>Le Conseiller compare cette semaine à la précédente : sommeil, repas, couches, et ce qui mérite d’être noté.</value></data>

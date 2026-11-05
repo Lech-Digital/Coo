@@ -16,6 +16,7 @@ milestone/v1/custom.json
 milestone/v1/preset.json
 milkbag/v1/frozen.json
 milkbag/v1/thawed-used.json
+milkbag/v1/bottle.json
 pump/v1/both-sides.json
 pump/v1/left-only.json
 pump/v1/no-yield.json

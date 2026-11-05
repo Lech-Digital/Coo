@@ -26,4 +26,10 @@ public sealed record MilkBagDetailsV1
 
     /// <summary>The number on the container, 1 to 999.</summary>
     public int? Number { get; init; }
+
+    /// <summary>
+    /// What the milk is in: <c>"bottle"</c> or <c>"container"</c>; absent for a bag (additive since 1.11, ADR 0010 §3.2:
+    /// every earlier document reads as a bag).
+    /// </summary>
+    public string? Container { get; init; }
 }

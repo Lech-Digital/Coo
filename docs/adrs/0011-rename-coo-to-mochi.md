@@ -44,7 +44,7 @@ application software and nutrition information (2025); the owner accepted that r
      runs (`mochi_awake.svg`, `mochi_asleep.svg`). The badge appears beside "Awake for" or "Sleeping" on Today and in
      the home-screen widget, and nowhere else. The design system's "calm, not cute" principle becomes "calm, with one
      friend".
-   - **The app's accent becomes matcha** (`#4F7A45` by day, `#9DBB7E` at night), with a slightly green-grey Washi
+   - **The app's accent becomes matcha** (`#3F6B4A` by day, `#9DBB7E` at night), with a slightly green-grey Washi
      ground. Pump moves from mint to sky (a grey slate at night), so no care colour can be mistaken for the
      brand or a button. Every contrast and distinctness rule in `PaletteTests` still passes.
    - The wordmark is "moch" in ink with the "i" in the accent.

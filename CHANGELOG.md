@@ -46,7 +46,16 @@ app name, descriptions, icon, feature graphic and screenshots from `store-assets
   - on 12-hour phones the hours read "3 AM" instead of "3:00 AM", so they no longer run together and the title fits on
     one line
   - pumps have their own row under the diapers, so a diaper and a pump at the same time no longer overlap
-- **The baby's name at the top** opens her page when there is one baby. It did nothing before.
+- **The top bar** is the same on every tab: the wordmark on the left and the day/night switch at the far right. The
+  baby's name and picture are gone from it: they did nothing there. The baby is in Settings → Baby, and twins switch
+  on Today.
+- **One brand green**: buttons, links and the wordmark use the icon's matcha (`#3F6B4A`); the baby's initial circle is
+  soft matcha instead of pink.
+
+### New
+- **Bottles and containers in the milk stash**, not only bags: choose what the milk is in when you add it or edit it,
+  and the list says "Bottle #2 · 150 ml · Fridge". Bags stored before stay bags. The server must be deployed before
+  this release: it checks each entry with the same rules.
 
 ## 1.10.0 (code 30) — 2026-11-04
 
