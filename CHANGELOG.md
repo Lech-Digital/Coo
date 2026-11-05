@@ -32,13 +32,25 @@ app name, descriptions, icon, feature graphic and screenshots from `store-assets
 - **New colours**: the buttons and links are matcha green, and pumping is now sky blue, so it never looks like a
   button. The splash screen and the "mochi" wordmark at the top of every tab follow.
 - **The privacy policy** moves to `lechdigital.nl/projects/mochi/privacy` (the old address forwards there).
+- **A calmer, tidier layout on every tab**: a soft colour wash behind the pages (day and night) with glass cards over
+  it, one top bar everywhere (the baby chip is gone; the day/night switch sits at the far right), big page titles,
+  grouped lists in Settings and Stats, and the chosen tab on a soft green pill.
+  - **Today**: the sleep timer and Mochi share one card; "Tell Mochi" and "Log something" are two equal buttons, and
+    "Log something" opens one sheet for everything (now or earlier, care and health).
+  - **Log**: each total says what it is made of and how it compares with a usual day ("Last 9:52 AM · usually 6").
+  - **Stats**: the average day lists each kind with its icon; growth, the sleep plan and the milk stash sit under More.
+  - **Premium**: the benefits with icons, and the plans side by side.
+  - **Night**: the timer on a glass card with sleeping Mochi; no second "Woke up" button.
+  - **Switching day and night** shows Mochi in the new colours for a moment instead of a half-repainted screen.
+- **The milk stash** holds bottles and containers as well as bags.
+- **Diapers** are wet or dirty; the colour and "mixed" are gone from the form.
 
 ### Fixed
 - **Changing the text size in Android's settings** while the app was open closed it ("keeps stopping").
 - **Large text and small phones** (checked as a OnePlus 8 Pro and a 360 dp phone at 1.3× text):
   - the four tiles on Today and the day's totals in the Log go two by two instead of cutting "Diaper" or breaking
     "pumped" in the middle
-  - "Tell Mochi" is never cut short: Health and Earlier… move to the next line instead
+  - "Tell Mochi" and "Log something" are never cut short: with large text they go one under the other
   - the Log's times stay on one line
   - the night screen keeps "Last feed" on one line
   - the birth date shows as "17 Sep 2026" instead of a long date cut off at the end

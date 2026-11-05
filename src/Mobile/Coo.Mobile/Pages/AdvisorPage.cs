@@ -67,7 +67,8 @@ public sealed class AdvisorPage : ContentPage
         };
         historyIcon.SetDynamicResource(Label.TextColorProperty, "Ink");
 
-        var historyButton = Ui.Rounded(historyIcon, "Glass", 999, new Thickness(12, 6), "GlassLine");
+        var historyButton = Ui.Rounded(historyIcon, "Glass", 999, new Thickness(14, 6), "GlassLine");
+        historyButton.HorizontalOptions = LayoutOptions.Start;
         historyButton.GestureRecognizers.Add(new TapGestureRecognizer
         {
             Command = new Command(() => _model.ToggleHistoryCommand.Execute(null))

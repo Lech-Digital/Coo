@@ -97,7 +97,12 @@ public sealed class SeedDemoLog(EnsureProvisionalHousehold households, IHousehol
             for (var cycle = 0; cycle < 4; cycle++)
             {
                 day.Add(Breast(t, 8 + random.Next(7), 6 + random.Next(7), cycle % 2 == 0));
-                day.Add(Diaper(t.AddMinutes(25), cycle is 1 or 3 ? (random.Next(3) == 0 ? DiaperContents.Mixed : DiaperContents.Dirty) : DiaperContents.Wet));
+                // Wet or dirty only, as the diaper form offers (owner, 2026-11-05: no "mixed"). The draw stays, so the
+                // rest of the made-up weeks come out as before.
+                var dirty = cycle is 1 or 3;
+                if (dirty)
+                    _ = random.Next(3);
+                day.Add(Diaper(t.AddMinutes(25), dirty ? DiaperContents.Dirty : DiaperContents.Wet));
                 var napStart = t.AddMinutes(60 + random.Next(30));
                 var napEnd = napStart.AddMinutes(napLength + random.Next(-20, 25));
                 day.Add(Sleep(napStart, napEnd));
