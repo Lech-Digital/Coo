@@ -37,7 +37,7 @@ public sealed class MedicineReminderPage : ContentPage
         if (_days is <= 0)
             _days = null;
         Shell.SetNavBarIsVisible(this, false);
-        Content = new ScrollView { Content = _body };
+        Content = Backdrop.Behind(new ScrollView { Content = _body });
         Render();
     }
 

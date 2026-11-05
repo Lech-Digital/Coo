@@ -23,9 +23,8 @@ public sealed class RemovalPage : ContentPage
     public RemovalPage(RemovalViewModel model, Account account, SheetNavigator sheets)
     {
         (_model, _account, _sheets) = (model, account, sheets);
-        SetDynamicResource(BackgroundColorProperty, "Ground");
         Shell.SetNavBarIsVisible(this, false);
-        Content = new ScrollView { Content = _body };
+        Content = Backdrop.Behind(new ScrollView { Content = _body });
         model.Closed += (_, _) => Dispatcher.Dispatch(async () => await CloseAsync());
         model.PropertyChanged += (_, _) => Dispatcher.Dispatch(SafeRender);
     }

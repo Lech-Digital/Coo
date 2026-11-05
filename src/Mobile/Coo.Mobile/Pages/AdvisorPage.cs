@@ -67,7 +67,7 @@ public sealed class AdvisorPage : ContentPage
         };
         historyIcon.SetDynamicResource(Label.TextColorProperty, "Ink");
 
-        var historyButton = Ui.Rounded(historyIcon, "Surface", 999, new Thickness(12, 6), "Line");
+        var historyButton = Ui.Rounded(historyIcon, "Glass", 999, new Thickness(12, 6), "GlassLine");
         historyButton.GestureRecognizers.Add(new TapGestureRecognizer
         {
             Command = new Command(() => _model.ToggleHistoryCommand.Execute(null))
@@ -82,7 +82,7 @@ public sealed class AdvisorPage : ContentPage
         };
         newChatIcon.SetDynamicResource(Label.TextColorProperty, "Accent");
 
-        var newChatButton = Ui.Rounded(newChatIcon, "Surface", 999, new Thickness(14, 6), "Line");
+        var newChatButton = Ui.Rounded(newChatIcon, "Glass", 999, new Thickness(14, 6), "GlassLine");
         newChatButton.GestureRecognizers.Add(new TapGestureRecognizer
         {
             Command = new Command(() => _model.ResetChatCommand.Execute(null))
@@ -100,8 +100,9 @@ public sealed class AdvisorPage : ContentPage
         // 2. Subtitle
         var titleLabel = new Label
         {
-            FontFamily = "FigtreeBold",
-            FontSize = 20,
+            FontFamily = "FigtreeSemiBold",
+            FontSize = 28,
+            CharacterSpacing = -0.4,
             Margin = new Thickness(0, 0, 0, 2)
         };
         titleLabel.SetDynamicResource(Label.TextColorProperty, "Ink");
@@ -111,7 +112,7 @@ public sealed class AdvisorPage : ContentPage
         {
             Text = Strings.Get("Advisor.Subtitle"),
             FontFamily = "FigtreeRegular",
-            FontSize = 13,
+            FontSize = 14,
             Margin = new Thickness(0, 0, 0, 12)
         };
         subtitleLabel.SetDynamicResource(Label.TextColorProperty, "Ink2");
@@ -149,7 +150,7 @@ public sealed class AdvisorPage : ContentPage
                 Spacing = 6,
                 Children = { devLabel, devSummary, devFull, toggleGuideButton }
             },
-            "Surface", 16, new Thickness(16), "Line");
+            "Glass", 20, new Thickness(16), "GlassLine");
         milestonesCard.SetBinding(VisualElement.IsVisibleProperty, new Binding("HasStartedChat", converter: new InverseBoolConverter()));
 
         // 4. Suggested Questions "Pills"
@@ -175,7 +176,7 @@ public sealed class AdvisorPage : ContentPage
             pillLabel.SetBinding(Label.TextProperty, ".");
             pillLabel.SetDynamicResource(Label.TextColorProperty, "Accent");
 
-            var pill = Ui.Rounded(pillLabel, "Surface", 16, new Thickness(12, 8), "Line");
+            var pill = Ui.Rounded(pillLabel, "Glass", 16, new Thickness(12, 8), "GlassLine");
             // A flex item is measured unconstrained, so a long question ran off the screen: cap it at the page's width.
             pill.MaximumWidthRequest = (DeviceDisplay.Current.MainDisplayInfo.Width / DeviceDisplay.Current.MainDisplayInfo.Density) - 56;
             pill.Margin = new Thickness(0, 0, 6, 8);
@@ -240,8 +241,8 @@ public sealed class AdvisorPage : ContentPage
                 };
 
                 bubble.SetBinding(View.HorizontalOptionsProperty, new Binding("IsUser", converter: new BoolToLayoutOptionsConverter()));
-                bubble.SetBinding(VisualElement.BackgroundColorProperty, new Binding("IsUser", converter: new BoolToDynamicResourceConverter("AccentSoft", "Surface")));
-                bubble.SetBinding(Border.StrokeProperty, new Binding("IsUser", converter: new BoolToDynamicResourceConverter("Accent", "Line")));
+                bubble.SetBinding(VisualElement.BackgroundColorProperty, new Binding("IsUser", converter: new BoolToDynamicResourceConverter("AccentSoft", "Glass")));
+                bubble.SetBinding(Border.StrokeProperty, new Binding("IsUser", converter: new BoolToDynamicResourceConverter("Accent", "GlassLine")));
                 textLabel.SetBinding(Label.TextColorProperty, new Binding("IsUser", converter: new BoolToDynamicResourceConverter("AccentInk", "Ink")));
 
                 return new ContentView
@@ -337,7 +338,7 @@ public sealed class AdvisorPage : ContentPage
                 };
                 Grid.SetColumn(deleteBtn, 1);
 
-                var card = Ui.Rounded(rowGrid, "Surface", 12, 0, "Line");
+                var card = Ui.Rounded(rowGrid, "Glass", 12, 0, "GlassLine");
                 card.Margin = new Thickness(0, 0, 0, 8);
 
                 var tap = new TapGestureRecognizer();
@@ -424,7 +425,7 @@ public sealed class AdvisorPage : ContentPage
 
         if (_model.CanSpeak)
             inputRow.Add(MicButton(), 0);
-        var inputRounded = Ui.Rounded(inputEntry, "Surface", 12, new Thickness(14, 2), "Line");
+        var inputRounded = Ui.Rounded(inputEntry, "Glass", 12, new Thickness(14, 2), "GlassLine");
         inputRow.Add(inputRounded, 1);
 
         var buttonContainer = new HorizontalStackLayout { Children = { sendButton, activityIndicator } };
@@ -457,8 +458,9 @@ public sealed class AdvisorPage : ContentPage
         var chatTitleLabel = new Label
         {
             Text = Strings.Get("Advisor.Conversation"),
-            FontFamily = "FigtreeBold",
-            FontSize = 20,
+            FontFamily = "FigtreeSemiBold",
+            FontSize = 28,
+            CharacterSpacing = -0.4,
             Margin = new Thickness(0, 0, 0, 2)
         };
         chatTitleLabel.SetDynamicResource(Label.TextColorProperty, "Ink");
@@ -467,7 +469,7 @@ public sealed class AdvisorPage : ContentPage
         {
             Text = Strings.Get("Advisor.Subtitle"),
             FontFamily = "FigtreeRegular",
-            FontSize = 13,
+            FontSize = 14,
             Margin = new Thickness(0, 0, 0, 12)
         };
         chatSubtitleLabel.SetDynamicResource(Label.TextColorProperty, "Ink2");

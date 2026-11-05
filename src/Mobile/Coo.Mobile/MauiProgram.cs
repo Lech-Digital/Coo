@@ -26,6 +26,9 @@ public static class MauiProgram
         });
         Tabular.Register();
         RemoveUnderlines();
+#if ANDROID
+        builder.ConfigureMauiHandlers(h => h.AddHandler<Shell, Platforms.Android.CooShellRenderer>());
+#endif
 
         // Composition root (ADR 0001 §2): the only place on the mobile side that creates the real clock.
         builder.Services.AddSingleton(TimeProvider.System);

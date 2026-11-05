@@ -23,9 +23,8 @@ public sealed class BringOverPage : ContentPage
         _model = model;
         _account = account;
         _sheets = sheets;
-        SetDynamicResource(BackgroundColorProperty, "Ground");
         Shell.SetNavBarIsVisible(this, false);
-        Content = new ScrollView { Content = _body };
+        Content = Backdrop.Behind(new ScrollView { Content = _body });
         model.Closed += (_, _) => Dispatcher.Dispatch(async () => await CloseAsync());
         model.PropertyChanged += (_, e) =>
         {

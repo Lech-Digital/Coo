@@ -27,9 +27,8 @@ public sealed class JoinPage : ContentPage
     public JoinPage(JoinViewModel model, UndoService undo, Account account, SheetNavigator sheets)
     {
         (_model, _undo, _account, _sheets) = (model, undo, account, sheets);
-        SetDynamicResource(BackgroundColorProperty, "Ground");
         Shell.SetNavBarIsVisible(this, false);
-        Content = new ScrollView { Content = _body };
+        Content = Backdrop.Behind(new ScrollView { Content = _body });
         model.Finished += (_, toast) => Dispatcher.Dispatch(async () => await FinishAsync(toast));
         model.PropertyChanged += (_, _) => Dispatcher.Dispatch(SafeRender);
         model.BringOver.PropertyChanged += (_, _) => Dispatcher.Dispatch(SafeRender);

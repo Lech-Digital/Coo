@@ -21,7 +21,7 @@ public sealed class RemindersPage : ContentPage
         _services = services;
         _model.PrimeNotificationsAsync = () => Components.CooDialog.PrimeAsync<Permissions.PostNotifications>(this, "Permission.NotifyTitle", "Permission.NotifyBody");
         Shell.SetNavBarIsVisible(this, false);
-        Content = new ScrollView { Content = _body };
+        Content = Backdrop.Behind(new ScrollView { Content = _body });
     }
 
     protected override async void OnAppearing()

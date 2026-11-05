@@ -121,10 +121,10 @@ public sealed class GalleryPage : ContentPage
             ColumnSpacing = 8,
         }.Tap(g =>
         {
-            g.Add(new TotalsCell("feeding", "6", "feeds"), 0);
-            g.Add(new TotalsCell("diaper", "5", "diapers"), 1);
-            g.Add(new TotalsCell("sleep", "9h 40", "sleep"), 2);
-            g.Add(new TotalsCell("pump", "210", "ml pumped"), 3);
+            g.Add(new TotalsCard("feeding", "6", "feeds", "Breast 4 · bottle 2", "Last 9:52 · usually 7"), 0);
+            g.Add(new TotalsCard("diaper", "5", "diapers", "Wet 4 · dirty 1", "Usually 6"), 1);
+            g.Add(new TotalsCard("sleep", "9 h 40 m", "sleep", "Longest 3 h 10 m", ""), 2);
+            g.Add(new TotalsCard("pump", "210", "ml pumped", "Sessions 2", ""), 3);
         }));
         page.Add(new Card(new VerticalStackLayout
         {

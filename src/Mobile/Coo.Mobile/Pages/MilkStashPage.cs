@@ -24,7 +24,7 @@ public sealed class MilkStashPage : ContentPage
         (_model, _theme) = (model, theme);
         Shell.SetNavBarIsVisible(this, false);
         _scroll = new ScrollView { Content = _body };
-        Content = _scroll;
+        Content = Backdrop.Behind(_scroll);
     }
 
     protected override async void OnAppearing()

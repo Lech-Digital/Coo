@@ -19,7 +19,7 @@ public sealed class GrowthPage : ContentPage
     {
         (_model, _theme, _services) = (model, theme, services);
         Shell.SetNavBarIsVisible(this, false);
-        Content = new ScrollView { Content = _body };
+        Content = Backdrop.Behind(new ScrollView { Content = _body });
     }
 
     protected override async void OnAppearing()

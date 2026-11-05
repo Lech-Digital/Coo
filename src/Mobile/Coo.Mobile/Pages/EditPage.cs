@@ -23,7 +23,7 @@ public sealed class EditPage : ContentPage
         Shell.SetNavBarIsVisible(this, false);
         model.Closed += async (_, _) => await Navigation.PopAsync();
         model.Reloaded += (_, _) => Render();
-        Content = new ScrollView { Content = _body };
+        Content = Backdrop.Behind(new ScrollView { Content = _body });
     }
 
     /// <summary>

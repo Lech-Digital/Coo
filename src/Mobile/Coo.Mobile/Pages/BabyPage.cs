@@ -74,6 +74,7 @@ public sealed class BabyPage : ContentPage
         {
             Children =
             {
+                new Backdrop(),
                 new ScrollView { Content = Build() },
                 _pickerSheet,
                 loadingOverlay,

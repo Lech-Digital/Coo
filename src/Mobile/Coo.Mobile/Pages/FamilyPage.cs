@@ -23,9 +23,9 @@ public sealed class FamilyPage : ContentPage
     public FamilyPage(FamilyPageViewModel model, UndoService undo)
     {
         (_model, _undo) = (model, undo);
-        SetDynamicResource(BackgroundColorProperty, "Ground");
         Shell.SetNavBarIsVisible(this, false);
         var root = new Grid();
+        root.Add(new Backdrop());
         root.Add(new ScrollView { Content = _body });
         root.Add(new UndoToastView(undo));
         Content = root;

@@ -62,8 +62,9 @@ public static class WashResources
         yield return ("WashBottom", Radial(new Point(0.2, 1), 0.7, night ? "#2B1D16" : "#F2CDB4"));
 
         // Glass: the cards let the wash through a little.
-        var glass = night ? Color.FromRgba(27, 31, 25, 0.82) : Color.FromRgba(250, 250, 245, 0.82);
-        var glassLine = night ? Color.FromArgb("#2C3228") : Color.FromRgba(216, 218, 203, 0.8);
+        // Hex with alpha: Color.FromRgba(27, 31, 25, 0.82) takes the 0–1 overload and clamps every channel to white.
+        var glass = Color.FromArgb(night ? "#D11B1F19" : "#D1FAFAF5");
+        var glassLine = Color.FromArgb(night ? "#2C3228" : "#CCD8DACB");
         yield return ("Glass", glass);
         yield return ("GlassBrush", new SolidColorBrush(glass));
         yield return ("GlassLine", glassLine);

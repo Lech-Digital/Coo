@@ -24,17 +24,15 @@ public sealed class SettingsPage : ContentPage
     private readonly LanguageController _language;
     private readonly CooPageHeader _pageHeader;
 
-    private readonly VerticalStackLayout _accountContainer = new() { Spacing = 16 };
-    private readonly VerticalStackLayout _familyContainer = new() { Spacing = 16 };
+    private readonly VerticalStackLayout _accountContainer = new() { Spacing = 10 };
+    private readonly VerticalStackLayout _familyContainer = new() { Spacing = 10 };
     private readonly Label _babyNameLabel = Ui.Text("", "BodyStrong");
     private readonly Label _babyLineLabel = Ui.Text("", "Meta", "Ink2");
     private readonly VerticalStackLayout _kindsContainer = new() { Spacing = 4 };
     private readonly Dictionary<string, Switch> _kindSwitches = new(StringComparer.Ordinal);
-    private Button? _unitMlButton;
-    private Button? _unitOzButton;
-    private Button? _themeAutoButton;
-    private Button? _themeDayButton;
-    private Button? _themeNightButton;
+    // Segmented choices, redrawn in place when the choice changes.
+    private readonly ContentView _units = new();
+    private readonly ContentView _themes = new();
     private TimePicker? _quietStartPicker;
     private TimePicker? _quietEndPicker;
     private readonly Label _languageLabel = Ui.Text("", "Body");
@@ -276,82 +274,62 @@ public sealed class SettingsPage : ContentPage
         _familyCache = null;
         _kindSwitches.Clear();
 
-        var titleRow = new Grid { HeightRequest = 48 };
-        titleRow.Add(Ui.Text(Strings.Get("Tab.Settings"), "Title").Tap(l => l.VerticalOptions = LayoutOptions.Center));
-
-        var contentStack = new VerticalStackLayout { Spacing = 16, Padding = new Thickness(24, 0, 24, 0) };
-        contentStack.Add(titleRow);
+        var contentStack = new VerticalStackLayout { Spacing = 10, Padding = new Thickness(PageFrame.Side, 0) };
+        contentStack.Add(PageFrame.Title(Strings.Get("Tab.Settings")));
         contentStack.Add(_accountContainer);
         contentStack.Add(_familyContainer);
 
-        contentStack.Add(Header("Settings.Baby"));
-        contentStack.Add(Row(
+        // The rest is collected, then neighbouring rows are joined into grouped lists.
+        var views = new List<View>();
+        views.Add(Header("Settings.Baby"));
+        views.Add(Row(
             new VerticalStackLayout { Children = { _babyNameLabel, _babyLineLabel } },
             async () => await Navigation.PushAsync(_services.GetRequiredService<BabyPage>())));
 
-        contentStack.Add(Header("Settings.Kinds"));
-        contentStack.Add(new Card(_kindsContainer));
-        contentStack.Add(Hint("Settings.KindsHint"));
+        views.Add(Header("Settings.Kinds"));
+        views.Add(new Card(_kindsContainer));
+        views.Add(Hint("Settings.KindsHint"));
 
-        contentStack.Add(Header("Settings.Units"));
-        _unitMlButton = new Button { Text = Strings.Get("Unit.Ml") };
-        _unitMlButton.Clicked += (_, _) => _model.SetUnitCommand.Execute(VolumeUnit.Millilitres);
-        _unitOzButton = new Button { Text = Strings.Get("Unit.Oz") };
-        _unitOzButton.Clicked += (_, _) => _model.SetUnitCommand.Execute(VolumeUnit.Ounces);
+        views.Add(Header("Settings.Units"));
 
-        var unitsGrid = new Grid { ColumnSpacing = 8, ColumnDefinitions = [new(GridLength.Star), new(GridLength.Star)] };
-        unitsGrid.Add(_unitMlButton, 0);
-        unitsGrid.Add(_unitOzButton, 1);
-
-        contentStack.Add(new Card(new VerticalStackLayout
+        views.Add(new Card(new VerticalStackLayout
         {
             Spacing = 10,
             Children =
             {
                 Ui.Text(Strings.Get("Settings.Volume"), "Label", "Ink2"),
-                unitsGrid,
+                _units,
             },
         }));
-        contentStack.Add(Hint("Settings.ClockHint"));
+        views.Add(Hint("Settings.ClockHint"));
 
-        contentStack.Add(Header("Reminders.Title"));
-        contentStack.Add(Row(Ui.Text(Strings.Get("Reminders.Title"), "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<RemindersPage>())));
+        views.Add(Header("Reminders.Title"));
+        views.Add(Row(Ui.Text(Strings.Get("Reminders.Title"), "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<RemindersPage>())));
 
-        contentStack.Add(Header("Import.Header"));
-        contentStack.Add(Row(Ui.Text(Strings.Get("Import.Title"), "Body"), ImportAsync));
-        contentStack.Add(Row(Ui.Text(Strings.Get("Export.Title"), "Body"), ExportAsync));
-        contentStack.Add(Hint("Import.Hint"));
+        views.Add(Header("Import.Header"));
+        views.Add(Row(Ui.Text(Strings.Get("Import.Title"), "Body"), ImportAsync));
+        views.Add(Row(Ui.Text(Strings.Get("Export.Title"), "Body"), ExportAsync));
+        views.Add(Hint("Import.Hint"));
 
-        contentStack.Add(Header("Premium"));
-        contentStack.Add(Row(Ui.Text(Strings.Get("Premium.Title") ?? "Mochi Premium", "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<PremiumPage>())));
+        views.Add(Header("Premium"));
+        views.Add(Row(Ui.Text(Strings.Get("Premium.Title") ?? "Mochi Premium", "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<PremiumPage>())));
 
-        contentStack.Add(Header("Settings.Appearance"));
-        _themeAutoButton = new Button { Text = Strings.Get("Settings.Theme.Auto") };
-        _themeAutoButton.Clicked += (_, _) => _model.SetModeCommand.Execute(AppearanceMode.Auto);
-        _themeDayButton = new Button { Text = Strings.Get("Settings.Theme.Day") };
-        _themeDayButton.Clicked += (_, _) => _model.SetModeCommand.Execute(AppearanceMode.Day);
-        _themeNightButton = new Button { Text = Strings.Get("Settings.Theme.Night") };
-        _themeNightButton.Clicked += (_, _) => _model.SetModeCommand.Execute(AppearanceMode.Night);
-
-        var themeGrid = new Grid { ColumnSpacing = 8, ColumnDefinitions = [new(GridLength.Star), new(GridLength.Star), new(GridLength.Star)] };
-        themeGrid.Add(_themeAutoButton, 0);
-        themeGrid.Add(_themeDayButton, 1);
-        themeGrid.Add(_themeNightButton, 2);
+        views.Add(Header("Settings.Appearance"));
 
         _quietStartPicker = TimePicker(_model.QuietStart, t => _model.QuietStart = t);
         _quietEndPicker = TimePicker(_model.QuietEnd, t => _model.QuietEnd = t);
         var quiet = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 10 };
         quiet.Add(Ui.Text(Strings.Get("Settings.QuietFrom"), "Label", "Ink2").Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
-        quiet.Add(Ui.Rounded(_quietStartPicker, "Ground", 12, new Thickness(12, 4), "Line"), 1);
+        quiet.Add(Ui.Rounded(_quietStartPicker, "Glass", 12, new Thickness(12, 4), "GlassLine"), 1);
         quiet.Add(Ui.Text(Strings.Get("Settings.QuietTo"), "Label", "Ink2").Tap(l => l.VerticalOptions = LayoutOptions.Center), 2);
-        quiet.Add(Ui.Rounded(_quietEndPicker, "Ground", 12, new Thickness(12, 4), "Line"), 3);
+        quiet.Add(Ui.Rounded(_quietEndPicker, "Glass", 12, new Thickness(12, 4), "GlassLine"), 3);
 
-        contentStack.Add(new Card(new VerticalStackLayout
+        views.Add(new Card(new VerticalStackLayout
         {
             Spacing = 10,
             Children =
             {
-                themeGrid,
+                _themes,
                 Ui.Text(Strings.Get("Settings.AutoHint"), "Meta", "Ink2"),
                 Ui.Text(Strings.Get("Settings.QuietHours"), "BodyStrong").Tap(l => l.Margin = new Thickness(0, 8, 0, 0)),
                 quiet,
@@ -359,26 +337,29 @@ public sealed class SettingsPage : ContentPage
             },
         }));
 
-        contentStack.Add(Header("Settings.Language"));
-        contentStack.Add(Row(_languageLabel, ChooseLanguageAsync));
+        views.Add(Header("Settings.Language"));
+        views.Add(Row(_languageLabel, ChooseLanguageAsync));
 
-        contentStack.Add(Header("Settings.About"));
-        contentStack.Add(_versionLabel);
+        views.Add(Header("Settings.About"));
+        views.Add(_versionLabel.Tap(l => l.Margin = new Thickness(4, 0)));
         // "How Coo works": the tour from the first start, again (owner, 2026-11-03).
-        contentStack.Add(Row(Ui.Text(Strings.Get("Tour.Title"), "Body"), async () =>
+        views.Add(Row(Ui.Text(Strings.Get("Tour.Title"), "Body"), async () =>
         {
             var tour = _services.GetRequiredService<TourPage>();
             ((Coo.Mobile.Presentation.Tour.TourViewModel)tour.BindingContext!).IsReplay = true;
             await Navigation.PushAsync(tour);
         }));
-        contentStack.Add(Row(Ui.Text(Strings.Get("Settings.Licences"), "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<LicencesPage>())));
-        contentStack.Add(Row(Ui.Text(Strings.Get("Settings.Feedback"), "Body"), () => _model.SendFeedbackCommand.ExecuteAsync(null)));
-        contentStack.Add(Row(Ui.Text(Strings.Get("Settings.Privacy"), "Body"), () => _model.OpenPrivacyCommand.ExecuteAsync(null)));
+        views.Add(Row(Ui.Text(Strings.Get("Settings.Licences"), "Body"), async () => await Navigation.PushAsync(_services.GetRequiredService<LicencesPage>())));
+        views.Add(Row(Ui.Text(Strings.Get("Settings.Feedback"), "Body"), () => _model.SendFeedbackCommand.ExecuteAsync(null)));
+        views.Add(Row(Ui.Text(Strings.Get("Settings.Privacy"), "Body"), () => _model.OpenPrivacyCommand.ExecuteAsync(null)));
+
+        foreach (var view in Grouped(views))
+            contentStack.Add(view);
 
         var stack = new VerticalStackLayout
         {
             Padding = new Thickness(0, 0, 0, 96),
-            Spacing = 16,
+            Spacing = 4,
             Children = { _pageHeader, contentStack }
         };
 
@@ -453,22 +434,17 @@ public sealed class SettingsPage : ContentPage
         }
     }
 
-    private void UpdateUnits()
-    {
-        if (_unitMlButton == null || _unitOzButton == null)
-            return;
-        _unitMlButton.SetDynamicResource(VisualElement.StyleProperty, !_model.IsOunces ? "PrimaryButton" : "GhostButton");
-        _unitOzButton.SetDynamicResource(VisualElement.StyleProperty, _model.IsOunces ? "PrimaryButton" : "GhostButton");
-    }
+    private void UpdateUnits() => _units.Content = PageFrame.Segmented(
+        [Strings.Get("Unit.Ml"), Strings.Get("Unit.Oz")],
+        _model.IsOunces ? 1 : 0,
+        i => _model.SetUnitCommand.Execute(i == 0 ? VolumeUnit.Millilitres : VolumeUnit.Ounces));
 
-    private void UpdateThemes()
-    {
-        if (_themeAutoButton == null || _themeDayButton == null || _themeNightButton == null)
-            return;
-        _themeAutoButton.SetDynamicResource(VisualElement.StyleProperty, _model.Mode == AppearanceMode.Auto ? "PrimaryButton" : "GhostButton");
-        _themeDayButton.SetDynamicResource(VisualElement.StyleProperty, _model.Mode == AppearanceMode.Day ? "PrimaryButton" : "GhostButton");
-        _themeNightButton.SetDynamicResource(VisualElement.StyleProperty, _model.Mode == AppearanceMode.Night ? "PrimaryButton" : "GhostButton");
-    }
+    private static readonly AppearanceMode[] Modes = [AppearanceMode.Auto, AppearanceMode.Day, AppearanceMode.Night];
+
+    private void UpdateThemes() => _themes.Content = PageFrame.Segmented(
+        [Strings.Get("Settings.Theme.Auto"), Strings.Get("Settings.Theme.Day"), Strings.Get("Settings.Theme.Night")],
+        Array.IndexOf(Modes, _model.Mode),
+        i => _model.SetModeCommand.Execute(Modes[i]));
 
     private void UpdateAccountViews()
     {
@@ -477,7 +453,7 @@ public sealed class SettingsPage : ContentPage
             return;
         _accountCache = current;
         _accountContainer.Children.Clear();
-        foreach (var view in AccountViews())
+        foreach (var view in Grouped(AccountViews()))
             _accountContainer.Add(view);
     }
 
@@ -488,7 +464,7 @@ public sealed class SettingsPage : ContentPage
             return;
         _familyCache = current;
         _familyContainer.Children.Clear();
-        foreach (var view in FamilyViews())
+        foreach (var view in Grouped(FamilyViews()))
             _familyContainer.Add(view);
     }
 
@@ -504,7 +480,7 @@ public sealed class SettingsPage : ContentPage
             yield break;
         }
 
-        yield return new Card(new VerticalStackLayout { Spacing = 2, Children = { Ui.Text(_account.Name, "BodyStrong"), Ui.Text(_account.Email, "Meta", "Ink2") } });
+        yield return Row(new VerticalStackLayout { Spacing = 2, Children = { Ui.Text(_account.Name, "BodyStrong"), Ui.Text(_account.Email, "Meta", "Ink2") } }, null);
         if (_account.StatusLine.Length > 0)
             yield return Ui.Text(_account.StatusLine, "Meta", "Ink2");
         if (_account.LineActionText.Length > 0)
@@ -689,20 +665,46 @@ public sealed class SettingsPage : ContentPage
         return picker;
     }
 
-    private static Label Header(string key) => Ui.Text(Strings.Get(key), "Section").Tap(l => l.Margin = new Thickness(0, 16, 0, 0));
+    private static Label Header(string key) => PageFrame.SectionLabel(Strings.Get(key)).Tap(l => l.Margin = new Thickness(0, 12, 0, -4));
 
-    private static Label Hint(string key) => Ui.Text(Strings.Get(key), "Meta", "Ink2");
+    private static Label Hint(string key) => Ui.Text(Strings.Get(key), "Meta", "Ink2").Tap(l => l.Margin = new Thickness(4, 0));
 
-    /// <summary>A tappable card row with a chevron.</summary>
-    private View Row(View content, Func<Task> tapped)
+    /// <summary>One row of a grouped list, with a chevron when it opens something; <see cref="Grouped"/> joins neighbours into one card.</summary>
+    private View Row(View content, Func<Task>? tapped)
     {
-        var grid = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], MinimumHeightRequest = 32 };
+        var grid = new GroupRow { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], MinimumHeightRequest = 52, Padding = new Thickness(16, 12), ColumnSpacing = 12 };
         grid.Add(content.Tap(c => c.VerticalOptions = LayoutOptions.Center), 0);
-        grid.Add(new Icon(IconGeometry.ChevronRight, "Ink2", 20).Tap(i => i.VerticalOptions = LayoutOptions.Center), 1);
-        var card = new Card(grid);
-        card.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await RunTappedAsync(tapped)) });
-        return card;
+        if (tapped is null)
+            return grid;
+        grid.Add(new Icon(IconGeometry.ChevronRight, "Ink2", 18).Tap(i => i.VerticalOptions = LayoutOptions.Center), 1);
+        grid.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await RunTappedAsync(tapped)) });
+        return grid;
     }
+
+    /// <summary>Rows next to each other become one glass group with hairlines between them (the design's grouped lists).</summary>
+    private static IEnumerable<View> Grouped(IEnumerable<View> views)
+    {
+        var rows = new List<View>();
+        foreach (var view in views)
+        {
+            if (view is GroupRow)
+            {
+                rows.Add(view);
+                continue;
+            }
+
+            if (rows.Count > 0)
+                yield return PageFrame.Group(rows);
+            rows = [];
+            yield return view;
+        }
+
+        if (rows.Count > 0)
+            yield return PageFrame.Group(rows);
+    }
+
+    /// <summary>A row of a grouped list (see <see cref="Row"/>).</summary>
+    private sealed class GroupRow : Grid;
 
     /// <summary>
     /// The tap's command is async void: nothing may escape it. A failure the view models do not turn into a toast (the

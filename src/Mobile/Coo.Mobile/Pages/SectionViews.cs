@@ -475,7 +475,14 @@ internal static class SectionViews
                 Children =
                 {
                     new HorizontalStackLayout { Spacing = 8, Children = { dot, Bound(item, nameof(RunningItem.Title), "Label", upper: true) } },
-                    Bound(item, nameof(RunningItem.Digits), night ? "Timer" : "Window"),
+                    // At night the digits share the card with Mochi: 54 sp, not the full-width timer size.
+                    Bound(item, nameof(RunningItem.Digits), night ? "Timer" : "Window").Tap(l =>
+                    {
+                        if (night)
+                            l.FontSize = 54;
+                        l.MaxLines = 1;
+                        l.LineBreakMode = LineBreakMode.NoWrap;
+                    }),
                 },
             };
             if (sideIndicator is not null)
@@ -484,9 +491,9 @@ internal static class SectionViews
             body.Add(actions);
             // A running sleep is the status card (owner, 2026-11-05): the sleeping Mochi beside its timer.
             View content = body;
-            if (!night && item.KindCode == "sleep")
+            if (item.KindCode == "sleep")
             {
-                var mochi = new Image { Source = "mochi_asleep.png", WidthRequest = 56, HeightRequest = 56, VerticalOptions = LayoutOptions.Start, Aspect = Aspect.AspectFit };
+                var mochi = new Image { Source = "mochi_asleep.png", WidthRequest = night ? 52 : 56, HeightRequest = night ? 52 : 56, VerticalOptions = LayoutOptions.Start, Aspect = Aspect.AspectFit };
                 AutomationProperties.SetIsInAccessibleTree(mochi, false);
                 body.Remove(actions);
                 var withMochi = new Grid
@@ -504,7 +511,7 @@ internal static class SectionViews
             }
 
             // A tap on the card opens the entry, so a timer started late can have its start moved back (Spec 007 §2).
-            View card = night ? content : new Card(content);
+            View card = new Card(content);
             var id = item.Id;
             card.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => host.OpenEntry(id)) });
             stack.Add(card);
@@ -547,14 +554,23 @@ internal static class SectionViews
             return pill;
         }
 
+        // Side by side when both words fit half the width; one under the other with large text or a long language
+        // ("Log something" was cut at 1.3×, 2026-11-05).
+        var (voice, more) = (Strings.Get("Quick.Title"), Strings.Get("Today.LogSomething"));
+        var display = DeviceDisplay.MainDisplayInfo;
+        var half = (display.Width / Math.Max(1, display.Density) - 2 * PageFrame.Side - 8) / 2;
+        static double Need(string text) => 18 + 8 + 24 + (text.Length * 15 * 0.56 * TextScale.Factor);
+        var stacked = Need(voice) > half || Need(more) > half;
         var actions = new Grid
         {
-            ColumnDefinitions = [new(GridLength.Star), new(GridLength.Star)],
+            ColumnDefinitions = stacked ? [new(GridLength.Star)] : [new(GridLength.Star), new(GridLength.Star)],
+            RowDefinitions = stacked ? [new(GridLength.Auto), new(GridLength.Auto)] : [new(GridLength.Auto)],
             ColumnSpacing = 8,
+            RowSpacing = 8,
             Padding = new Thickness(PageFrame.Side, 10, PageFrame.Side, 0),
         };
-        actions.Add(Pill(IconGeometry.Mic, Strings.Get("Quick.Title"), "VoiceBg", "VoiceInk", null, host.OpenVoice), 0);
-        actions.Add(Pill(IconGeometry.Plus, Strings.Get("Today.LogSomething"), "Glass", "Ink", "GlassLine", host.OpenEarlier), 1);
+        actions.Add(Pill(IconGeometry.Mic, voice, "VoiceBg", "VoiceInk", null, host.OpenVoice), 0, 0);
+        actions.Add(Pill(IconGeometry.Plus, more, "Glass", "Ink", "GlassLine", host.OpenEarlier), stacked ? 0 : 1, stacked ? 1 : 0);
         return new VerticalStackLayout { Children = { grid, actions } };
     }
 
@@ -783,7 +799,7 @@ internal static class SectionViews
     {
         var top = PageFrame.Bar(CooBrand.CreateMark(s.IsPremium, host.Today.IsNight, longPress: host.OpenDebug, fontSize: PageFrame.WordmarkSize), ThemeSwitch(host));
 
-        var stack = new VerticalStackLayout { Spacing = 20 };
+        var stack = new VerticalStackLayout { Spacing = 16 };
         stack.Add(top);
         // The first timer in big night digits; any other (the sleep during a dream feed) as a compact card below.
         if (s.Timers.Count > 0)
@@ -791,29 +807,34 @@ internal static class SectionViews
         if (s.Timers.Count > 1)
             stack.Add(RunningCards([.. s.Timers.Skip(1)], night: false, host));
 
-        var facts = new VerticalStackLayout { Spacing = 14, Padding = new Thickness(24, 8) };
+        // The last of each, as a grouped list on glass.
+        var factRows = new List<View>();
         foreach (var fact in s.Facts)
         {
             var dot = new Ellipse { WidthRequest = 8, HeightRequest = 8, VerticalOptions = LayoutOptions.Center };
             dot.SetDynamicResource(Shape.FillProperty, EventAppearance.For(fact.KindCode).Mark + "Brush");
             // The label keeps its line and the value wraps on the right: "Last feed" broke over two lines beside a
             // long "9:52 AM · left 8 m · right 13 m" with large text (2026-11-05).
-            var row = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 10 };
+            var row = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 10, Padding = new Thickness(16, 12) };
             row.Add(dot, 0);
             row.Add(Ui.Text(fact.Label, "Body", "Ink2").Tap(l => l.LineBreakMode = LineBreakMode.NoWrap), 1);
             row.Add(Ui.Text(fact.Value, "BodyStrong").Tap(l => l.HorizontalTextAlignment = TextAlignment.End), 2);
-            facts.Add(row);
+            factRows.Add(row);
         }
 
-        stack.Add(facts);
+        if (factRows.Count > 0)
+            stack.Add(new ContentView { Padding = new Thickness(PageFrame.Side, 0), Content = PageFrame.Group(factRows) });
 
         var quick = new Grid { ColumnSpacing = 10, RowSpacing = 10, Padding = new Thickness(24, 0, 24, 24) };
         quick.ColumnDefinitions = [new(GridLength.Star), new(GridLength.Star), new(GridLength.Star)];
-        for (var i = 0; i < s.Quick.Count; i++)
+        // "Woke up" is already on the sleep's own card: no second one under the quick buttons.
+        var sleeping = s.Timers.Any(t => t.KindCode == "sleep");
+        var buttons = s.Quick.Where(q => !(sleeping && q.KindCode == "sleep")).ToList();
+        for (var i = 0; i < buttons.Count; i++)
         {
             if (i % 3 == 0)
                 quick.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
-            var q = s.Quick[i];
+            var q = buttons[i];
             var look = EventAppearance.For(q.KindCode);
             var button = new Button { Text = q.Label, Command = q.Command, CornerRadius = 20, MinimumHeightRequest = 68, FontFamily = "FigtreeSemiBold", FontSize = 16 };
             button.SetDynamicResource(VisualElement.BackgroundColorProperty, look.Tint);
@@ -821,7 +842,7 @@ internal static class SectionViews
             quick.Add(button, i % 3, i / 3);
 
             // A last button alone on its row (sleep, Spec 009 §3.8) takes the whole row: a bigger target at 3 AM.
-            if (i == s.Quick.Count - 1 && i % 3 == 0)
+            if (i == buttons.Count - 1 && i % 3 == 0)
                 Grid.SetColumnSpan(button, 3);
         }
 

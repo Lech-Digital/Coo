@@ -23,7 +23,7 @@ public sealed class StatsPage : ContentPage
     private readonly Coo.Mobile.Presentation.Growth.GrowthViewModel _growth;
     private readonly Coo.Mobile.Presentation.SleepPlan.SleepPlanViewModel _plan;
     private readonly IServiceProvider _services;
-    private readonly VerticalStackLayout _content = new() { Padding = new Thickness(24, 0, 24, 0), Spacing = 16 };
+    private readonly VerticalStackLayout _content = new() { Padding = new Thickness(PageFrame.Side, 0, PageFrame.Side, 24), Spacing = 14 };
     private readonly ScrollView _page;
 
     /// <summary>
@@ -110,53 +110,86 @@ public sealed class StatsPage : ContentPage
         QueueRender();
     });
 
+    /// <summary>A badge of a kind's colours behind its icon (the rows of Stats).</summary>
+    private static View Badge(string kindCode, string? icon = null)
+    {
+        var look = EventAppearance.For(kindCode);
+        var badge = Ui.Rounded(new Icon(icon ?? look.Icon, look.Ink, 18), look.Tint, 10, new Thickness(7));
+        badge.WidthRequest = 32;
+        badge.HeightRequest = 32;
+        return badge;
+    }
+
     /// <summary>
     /// "On an average day": what a doctor asks first, at the top. Milk from bottles a day and per bottle, feeds, sleep,
-    /// diapers, over the last 7, 14 or 30 days.
+    /// diapers, over the last 7, 14 or 30 days; the period choice, then the kinds as a grouped list, each with its icon (owner, 2026-11-05).
     /// </summary>
-    private Card AveragesCard()
+    private IEnumerable<View> Averages()
     {
-        var stack = new VerticalStackLayout { Spacing = 10 };
-        stack.Add(Ui.Text(Strings.Get("Averages.Title"), "BodyStrong"));
-        var periods = new Grid { ColumnSpacing = 8 };
-        for (var i = 0; i < AveragesViewModel.Periods.Count; i++)
-        {
-            var days = AveragesViewModel.Periods[i];
-            var chip = new Button { Text = Strings.Format("Report.Days", days), Command = _averages.SetDaysCommand, CommandParameter = days, HeightRequest = 36 };
-            chip.SetDynamicResource(VisualElement.StyleProperty, _averages.Days == days ? "PrimaryButton" : "GhostButton");
-            chip.Padding = new Thickness(4, 0);
-            periods.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
-            periods.Add(chip, i);
-        }
-
-        stack.Add(periods);
-        stack.Add(Ui.Text(_averages.Caption, "Meta", "Ink2"));
+        var periods = AveragesViewModel.Periods;
+        yield return PageFrame.Segmented(
+            [.. periods.Select(d => Strings.Format("Report.Days", d))],
+            Math.Max(0, periods.ToList().IndexOf(_averages.Days)),
+            i => _averages.SetDaysCommand.Execute(periods[i]));
+        if (_averages.Rows.Count == 0)
+            yield break;
+        yield return PageFrame.SectionLabel(Strings.Get("Averages.Title"));
+        var rows = new List<View>();
         foreach (var row in _averages.Rows)
         {
             var look = EventAppearance.For(row.KindCode);
             var grid = new Grid
             {
                 ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)],
-                RowDefinitions = [new(GridLength.Auto), new(GridLength.Auto)],
                 ColumnSpacing = 12,
-                RowSpacing = 2,
-                Padding = new Thickness(0, 4),
+                Padding = new Thickness(16, 12),
             };
-            grid.Add(Ui.Rounded(new Icon(look.Icon, look.Ink, 16), look.Tint, 10, new Thickness(6)).Tap(b => b.VerticalOptions = LayoutOptions.Center), 0, 0);
-            grid.Add(Ui.Text(row.Name, "Body").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1, 0);
-            grid.Add(Ui.Text(row.Value, "BodyStrong", look.Ink).Tap(l => l.VerticalOptions = LayoutOptions.Center), 2, 0);
+            grid.Add(Badge(row.KindCode).Tap(v => v.VerticalOptions = LayoutOptions.Center), 0);
+            var text = new VerticalStackLayout { Spacing = 1, VerticalOptions = LayoutOptions.Center };
+            text.Add(Ui.Text(row.Name, "Body").Tap(l => l.FontFamily = "FigtreeMedium"));
             if (row.Detail.Length > 0)
+                text.Add(Ui.Text(row.Detail, "Meta", "Ink2"));
+            grid.Add(text, 1);
+            grid.Add(Ui.Text(row.Value, "BodyStrong", look.Ink).Tap(l =>
             {
-                var detail = Ui.Text(row.Detail, "Meta", "Ink2");
-                grid.Add(detail, 1, 1);
-                Grid.SetColumnSpan(detail, 2);
-            }
-
+                l.VerticalOptions = LayoutOptions.Center;
+                l.StyleClass = [Tabular.StyleClass];
+            }), 2);
             SemanticProperties.SetDescription(grid, $"{row.Name}: {row.Value}. {row.Detail}");
-            stack.Add(grid);
+            rows.Add(grid);
         }
 
-        return new Card(stack);
+        yield return PageFrame.Group(rows);
+    }
+
+    /// <summary>"More": growth, the sleep plan and the milk stash as rows that open their pages, each when it applies.</summary>
+    private IEnumerable<View> More()
+    {
+        var rows = new List<View>();
+        if (_growth.HasBirth)
+        {
+            var line = _growth.Sex is null ? Strings.Get("Growth.WhichChartHint")
+                : _growth.Rows.Count == 0 ? Strings.Get("Growth.Empty")
+                : $"{_growth.Latest} · {_growth.Rows[0].Date}";
+            rows.Add(PageFrame.Row(Strings.Get("Growth.Chart"), line, open: () => Navigation.PushAsync(_services.GetRequiredService<GrowthPage>()), leading: Badge("growth", IconGeometry.Chart)));
+        }
+
+        if (_plan.IsReady && _plan.IsBorn)
+        {
+            var line = _plan.CurrentLine() ?? (_plan.CanChange ? Strings.Get("Plan.StartCta") : Strings.Get("Plan.ReadOnly"));
+            rows.Add(PageFrame.Row(Strings.Get("Kind.SleepPlan"), line, open: () => Navigation.PushAsync(_services.GetRequiredService<SleepPlanPage>()), leading: Badge("sleepplan", IconGeometry.Sleep)));
+        }
+
+        if (_stash.IsReady && _stash.IsPumpShown)
+        {
+            var line = string.Join(" · ", new[] { _stash.Totals.Length > 0 ? _stash.Totals : Strings.Get("Stash.Hint"), _stash.Warning }.Where(t => t.Length > 0));
+            rows.Add(PageFrame.Row(Strings.Get("Stash.Open"), line, open: () => Navigation.PushAsync(_services.GetRequiredService<MilkStashPage>()), leading: Badge("milkbag")));
+        }
+
+        if (rows.Count == 0)
+            yield break;
+        yield return PageFrame.SectionLabel(Strings.Get("Stats.More"));
+        yield return PageFrame.Group(rows);
     }
 
     /// <summary>Twins and siblings: the average day for each born baby, a column each, for the period chosen above.</summary>
@@ -187,82 +220,6 @@ public sealed class StatsPage : ContentPage
         }
 
         return new Card(new VerticalStackLayout { Spacing = 10, Children = { Ui.Text(Strings.Get("Averages.SideBySide"), "BodyStrong"), table } });
-    }
-
-    /// <summary>The sleep plan (Spec 019 §7): the day of a running plan, or the way to start one; a tap opens it.</summary>
-    private Card? SleepPlanCard()
-    {
-        if (!_plan.IsReady || !_plan.IsBorn)
-            return null;
-        var stack = new VerticalStackLayout { Spacing = 6 };
-        var title = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 8 };
-        var look = EventAppearance.For("sleepplan");
-        title.Add(Ui.Rounded(new Icon(IconGeometry.Sleep, look.Ink, 16), look.Tint, 10, new Thickness(6)).Tap(b => b.VerticalOptions = LayoutOptions.Center), 0);
-        title.Add(Ui.Text(Strings.Get("Kind.SleepPlan"), "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
-        title.Add(new Icon(IconGeometry.ChevronRight, "Ink2", 18).Tap(i => i.VerticalOptions = LayoutOptions.Center), 2);
-        stack.Add(title);
-        var line = _plan.CurrentLine();
-        stack.Add(line is null
-            ? Ui.Text(_plan.CanChange ? Strings.Get("Plan.StartCta") : Strings.Get("Plan.ReadOnly"), "Meta", "Ink2")
-            : Ui.Text(line, "Body", look.Ink));
-        var card = new Card(stack);
-        card.GestureRecognizers.Add(new TapGestureRecognizer
-        {
-            Command = new Command(async () => await Navigation.PushAsync(_services.GetRequiredService<SleepPlanPage>())),
-        });
-        SemanticProperties.SetDescription(card, Strings.Get("Kind.SleepPlan"));
-        return card;
-    }
-
-    /// <summary>The milk stash: its totals and warnings, or what it is for; shown while pumping is a kind the family logs.</summary>
-    private Card? MilkStashCard()
-    {
-        if (!_stash.IsReady || !_stash.IsPumpShown)
-            return null;
-        var look = EventAppearance.For("milkbag");
-        var stack = new VerticalStackLayout { Spacing = 6 };
-        var title = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 8 };
-        title.Add(Ui.Rounded(new Icon(look.Icon, look.Ink, 16), look.Tint, 10, new Thickness(6)).Tap(b => b.VerticalOptions = LayoutOptions.Center), 0);
-        title.Add(Ui.Text(Strings.Get("Stash.Open"), "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
-        title.Add(new Icon(IconGeometry.ChevronRight, "Ink2", 18).Tap(i => i.VerticalOptions = LayoutOptions.Center), 2);
-        stack.Add(title);
-        stack.Add(_stash.Totals.Length > 0 ? Ui.Text(_stash.Totals, "Body", look.Ink) : Ui.Text(Strings.Get("Stash.Hint"), "Meta", "Ink2"));
-        if (_stash.Warning.Length > 0)
-            stack.Add(Ui.Text(_stash.Warning, "Meta", "Accent"));
-        var card = new Card(stack);
-        card.GestureRecognizers.Add(new TapGestureRecognizer
-        {
-            Command = new Command(async () => await Navigation.PushAsync(_services.GetRequiredService<MilkStashPage>())),
-        });
-        SemanticProperties.SetDescription(card, Strings.Get("Stash.Open"));
-        return card;
-    }
-
-    /// <summary>Growth among the other numbers: the latest weight and its percentile; a tap opens the chart.</summary>
-    private Card? GrowthCard()
-    {
-        if (!_growth.HasBirth)
-            return null;
-        var stack = new VerticalStackLayout { Spacing = 6 };
-        var title = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 8 };
-        var look = EventAppearance.For("growth");
-        title.Add(Ui.Rounded(new Icon(IconGeometry.Chart, look.Ink, 16), look.Tint, 10, new Thickness(6)).Tap(b => b.VerticalOptions = LayoutOptions.Center), 0);
-        title.Add(Ui.Text(Strings.Get("Growth.Chart"), "BodyStrong").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
-        title.Add(new Icon(IconGeometry.ChevronRight, "Ink2", 18).Tap(i => i.VerticalOptions = LayoutOptions.Center), 2);
-        stack.Add(title);
-        if (_growth.Sex is null)
-            stack.Add(Ui.Text(Strings.Get("Growth.WhichChartHint"), "Meta", "Ink2"));
-        else if (_growth.Rows.Count == 0)
-            stack.Add(Ui.Text(Strings.Get("Growth.Empty"), "Meta", "Ink2"));
-        else
-            stack.Add(Ui.Text($"{_growth.Latest} · {_growth.Rows[0].Date}", "Body", look.Ink));
-        var card = new Card(stack);
-        card.GestureRecognizers.Add(new TapGestureRecognizer
-        {
-            Command = new Command(async () => await Navigation.PushAsync(_services.GetRequiredService<GrowthPage>())),
-        });
-        SemanticProperties.SetDescription(card, Strings.Get("Growth.Chart"));
-        return card;
     }
 
     /// <summary>"This week, in words": a button until written, then the Advisor's few sentences.</summary>
@@ -377,9 +334,10 @@ public sealed class StatsPage : ContentPage
 
         View Nav(string icon, System.Windows.Input.ICommand command, bool enabled)
         {
-            var circle = Ui.Rounded(new Icon(icon, enabled ? "Ink" : "Line", 24).Tap(i => i.HorizontalOptions = LayoutOptions.Center), "Surface", 999, new Thickness(12), "Line");
-            circle.WidthRequest = 48;
-            circle.HeightRequest = 48;
+            var circle = Ui.Rounded(new Icon(icon, enabled ? "Ink" : "Ink2", 18).Tap(i => i.HorizontalOptions = LayoutOptions.Center), "Glass", 999, new Thickness(11), "GlassLine");
+            circle.WidthRequest = 44;
+            circle.HeightRequest = 44;
+            circle.Opacity = enabled ? 1 : 0.6;
             if (enabled)
                 circle.GestureRecognizers.Add(new TapGestureRecognizer { Command = command });
             return circle;
@@ -393,21 +351,15 @@ public sealed class StatsPage : ContentPage
             VerticalOptions = LayoutOptions.Center,
         };
         // The arrows page through the trends, so they sit on the trends' own heading, under the averages and growth.
-        header.Add(Ui.Text(Strings.Get("Stats.Trends"), "Section").Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
+        header.Add(PageFrame.SectionLabel(Strings.Get("Stats.Trends")).Tap(l => l.VerticalOptions = LayoutOptions.Center), 0);
         header.Add(Nav(IconGeometry.ChevronLeft, trends.PreviousCommand, true), 1);
         header.Add(Nav(IconGeometry.ChevronRight, trends.NextCommand, trends.CanGoNext), 2);
 
-        var grainBar = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Star), new(GridLength.Star)], ColumnSpacing = 8 };
-        View GrainChip(string key, TrendGrain grain)
-        {
-            var chip = new Button { Text = Strings.Get(key), Command = trends.SetGrainCommand, CommandParameter = grain, HeightRequest = 42 };
-            chip.SetDynamicResource(VisualElement.StyleProperty, trends.Grain == grain ? "PrimaryButton" : "GhostButton");
-            return chip;
-        }
-
-        grainBar.Add(GrainChip("Trend.Days", TrendGrain.Day), 0);
-        grainBar.Add(GrainChip("Trend.Weeks", TrendGrain.Week), 1);
-        grainBar.Add(GrainChip("Trend.Months", TrendGrain.Month), 2);
+        TrendGrain[] grains = [TrendGrain.Day, TrendGrain.Week, TrendGrain.Month];
+        var grainBar = PageFrame.Segmented(
+            [Strings.Get("Trend.Days"), Strings.Get("Trend.Weeks"), Strings.Get("Trend.Months")],
+            Array.IndexOf(grains, trends.Grain),
+            i => trends.SetGrainCommand.Execute(grains[i]));
 
         // The metrics as chips under the grains, so switching needs no scrolling down to the rows (owner's request).
         var chips = new HorizontalStackLayout { Spacing = 8 };
@@ -425,10 +377,10 @@ public sealed class StatsPage : ContentPage
                         Ui.Text(TrendsViewModel.ChipOf(metric), selected ? "BodyStrong" : "Body", selected ? chipLook.Ink : "Ink").Tap(l => l.VerticalOptions = LayoutOptions.Center),
                     },
                 },
-                selected ? chipLook.Tint : "Surface",
+                selected ? chipLook.Tint : "Glass",
                 999,
                 new Thickness(14, 8),
-                selected ? chipLook.Ink : "Line");
+                selected ? chipLook.Ink : "GlassLine");
             var tapped = metric;
             chip.GestureRecognizers.Add(new TapGestureRecognizer { Command = trends.SetMetricCommand, CommandParameter = tapped });
             SemanticProperties.SetDescription(chip, TrendsViewModel.NameOf(metric));
@@ -464,7 +416,7 @@ public sealed class StatsPage : ContentPage
             },
         };
 
-        var rows = new VerticalStackLayout { Spacing = 0 };
+        var rows = new List<View>();
         foreach (var row in trends.Rows)
         {
             var rowLook = EventAppearance.For(row.KindCode);
@@ -475,9 +427,11 @@ public sealed class StatsPage : ContentPage
                 RowDefinitions = [new(GridLength.Auto), new(GridLength.Auto)],
                 ColumnSpacing = 12,
                 RowSpacing = 2,
-                Padding = new Thickness(12, 10),
+                Padding = new Thickness(16, 10),
             };
-            grid.Add(Ui.Rounded(new Icon(rowLook.Icon, rowLook.Ink, 16), rowLook.Tint, 10, new Thickness(6)).Tap(b => b.VerticalOptions = LayoutOptions.Center), 0, 0);
+            if (row.IsSelected)
+                grid.SetDynamicResource(BackgroundColorProperty, rowLook.Tint);
+            grid.Add(Badge(row.KindCode).Tap(b => b.VerticalOptions = LayoutOptions.Center), 0, 0);
             grid.Add(Ui.Text(row.Name, row.IsSelected ? "BodyStrong" : "Body").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1, 0);
             grid.Add(Ui.Text(row.Value, "BodyStrong", rowLook.Ink).Tap(l => l.VerticalOptions = LayoutOptions.Center), 2, 0);
             var line = string.Join(" · ", new[] { row.Detail, row.Change }.Where(t => !string.IsNullOrEmpty(t)));
@@ -490,28 +444,26 @@ public sealed class StatsPage : ContentPage
 
             var metric = row.Metric;
             grid.GestureRecognizers.Add(new TapGestureRecognizer { Command = trends.SetMetricCommand, CommandParameter = metric });
-            rows.Add(row.IsSelected ? Ui.Rounded(grid, rowLook.Tint, 14, new Thickness(0)) : grid);
+            rows.Add(grid);
         }
 
         // Where the page and the chip row were: a redraw (a chip, a bar, a period) keeps both where the finger left them.
         var (chipX, pageY) = (_chipRow.ScrollX, _page.ScrollY);
         _content.Children.Clear();
-        _content.Add(Ui.Text(Strings.Get("Stats.Title"), "Title"));
-        _content.Add(AveragesCard());
+        _content.Add(PageFrame.Title(Strings.Get("Tab.Stats"), _averages.Caption));
+        foreach (var view in Averages())
+            _content.Add(view);
         if (SideBySideCard() is { } twins)
             _content.Add(twins);
-        if (GrowthCard() is { } growth)
-            _content.Add(growth);
-        if (SleepPlanCard() is { } plan)
-            _content.Add(plan);
-        if (MilkStashCard() is { } stash)
-            _content.Add(stash);
+        foreach (var view in More())
+            _content.Add(view);
         _content.Add(header);
         _content.Add(grainBar);
         _chipRow.Content = chips;
         _content.Add(_chipRow);
         _content.Add(new Card(headline));
-        _content.Add(new Card(rows));
+        if (rows.Count > 0)
+            _content.Add(PageFrame.Group(rows));
         _content.Add(SummaryCard());
         _content.Add(ReportCard());
         Dispatcher.Dispatch(async () =>

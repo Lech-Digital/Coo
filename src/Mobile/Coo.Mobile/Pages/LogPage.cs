@@ -23,8 +23,7 @@ public sealed class LogPage : ContentPage
     private readonly CooPageHeader _pageHeader;
     private readonly Sheet _sheet = new();
     private readonly DayDetailView _detail = new();
-    private readonly ContentView _totalsContainer = new() { Padding = new Thickness(24, 0, 24, 0) };
-    private readonly VerticalStackLayout _logContentContainer = new() { Padding = new Thickness(24, 0, 24, 0), Spacing = 16 };
+    private readonly VerticalStackLayout _logContentContainer = new() { Padding = new Thickness(PageFrame.Side, 0), Spacing = 14 };
 
     public LogPage(LogViewModel model, ThemeController theme, UndoService undo, LanguageController language, IServiceProvider services)
     {
@@ -41,7 +40,7 @@ public sealed class LogPage : ContentPage
         {
             Padding = new Thickness(0, 0, 0, 24),
             Spacing = 16,
-            Children = { _pageHeader, _totalsContainer, _logContentContainer }
+            Children = { _pageHeader, _logContentContainer }
         };
         _body.Content = outerStack;
 
@@ -181,45 +180,27 @@ public sealed class LogPage : ContentPage
     private void Render()
     {
         // Chevron icons, not the ‹ › characters: Figtree has no glyphs for them (Increment 6 finding on the phone).
-        View Nav(string icon, System.Windows.Input.ICommand command, bool enabled)
+        View Nav(string icon, System.Windows.Input.ICommand command, bool enabled, string name)
         {
-            var circle = Ui.Rounded(new Icon(icon, enabled ? "Ink" : "Line", 24).Tap(i => i.HorizontalOptions = LayoutOptions.Center), "Surface", 999, new Thickness(12), "Line");
-            circle.WidthRequest = 48;
-            circle.HeightRequest = 48;
+            var circle = Ui.Rounded(new Icon(icon, enabled ? "Ink" : "Ink2", 18).Tap(i => i.HorizontalOptions = LayoutOptions.Center), "Glass", 999, new Thickness(11), "GlassLine");
+            circle.WidthRequest = 44;
+            circle.HeightRequest = 44;
+            circle.Opacity = enabled ? 1 : 0.6;
+            SemanticProperties.SetDescription(circle, name);
             if (enabled)
                 circle.GestureRecognizers.Add(new TapGestureRecognizer { Command = command });
             return circle;
         }
 
-        var titleStack = new VerticalStackLayout
-        {
-            Spacing = 1,
-            VerticalOptions = LayoutOptions.Center,
-            Children =
-            {
-                Ui.Text(_model.Title, "Title").Tap(l =>
-                {
-                    l.LineBreakMode = LineBreakMode.TailTruncation;
-                    l.MaxLines = 1;
-                }),
-                Ui.Text(_model.Subtitle, "Meta", "Ink2").Tap(l =>
-                {
-                    l.LineBreakMode = LineBreakMode.TailTruncation;
-                    l.MaxLines = 1;
-                }),
-            },
-        };
-
+        // "Log", then the day under it ("Today · Thursday, 5 November"), the day arrows at the right.
         var header = new Grid
         {
-            MinimumHeightRequest = 48,
             ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto), new(GridLength.Auto)],
-            ColumnSpacing = 8,
-            VerticalOptions = LayoutOptions.Center,
+            ColumnSpacing = 6,
         };
-        header.Add(titleStack, 0);
-        header.Add(Nav(IconGeometry.ChevronLeft, _model.PreviousCommand, true), 1);
-        header.Add(Nav(IconGeometry.ChevronRight, _model.NextCommand, _model.CanGoNext), 2);
+        header.Add(PageFrame.Title(Strings.Get("Tab.Log"), $"{_model.Title} · {_model.Subtitle}"), 0);
+        header.Add(Nav(IconGeometry.ChevronLeft, _model.PreviousCommand, true, Strings.Get("Log.PreviousDay")).Tap(v => v.VerticalOptions = LayoutOptions.End), 1);
+        header.Add(Nav(IconGeometry.ChevronRight, _model.NextCommand, _model.CanGoNext, Strings.Get("Log.NextDay")).Tap(v => v.VerticalOptions = LayoutOptions.End), 2);
 
         _ribbon = new RibbonView();
         ShowRibbon();
@@ -227,41 +208,66 @@ public sealed class LogPage : ContentPage
         SemanticProperties.SetDescription(_ribbon, _model.ChartSummary);
         SemanticProperties.SetHint(_ribbon, Strings.Get("Chart.Hint"));
 
-        var legend = new HorizontalStackLayout { Spacing = 14 };
+        var legend = new FlexLayout { Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap };
         // The legend names the kinds that have totals, so hidden kinds leave both (Spec 009 §3.2).
         var names = new Dictionary<string, string> { ["feeding"] = "Kind.Feed", ["diaper"] = "Kind.Diaper", ["sleep"] = "Kind.Sleep", ["pump"] = "Kind.Pump" };
         foreach (var (kind, key) in _model.Totals.Where(t => names.ContainsKey(t.KindCode)).Select(t => (t.KindCode, names[t.KindCode])))
         {
             var dot = new Microsoft.Maui.Controls.Shapes.Ellipse { WidthRequest = 8, HeightRequest = 8, VerticalOptions = LayoutOptions.Center };
             dot.SetDynamicResource(Microsoft.Maui.Controls.Shapes.Shape.FillProperty, EventAppearance.For(kind).Mark + "Brush");
-            legend.Add(new HorizontalStackLayout { Spacing = 5, Children = { dot, Ui.Text(Strings.Get(key), "Meta") } });
+            legend.Add(new HorizontalStackLayout { Spacing = 5, Margin = new Thickness(0, 0, 14, 0), Children = { dot, Ui.Text(Strings.Get(key), "Meta") } });
         }
 
-        // Four in a row, or two by two when narrower than 70 dp at the phone's text size ("oz pu mped", 2026-11-05).
-        var totals = AdaptiveColumns.Create(
-            [.. _model.Totals.Select(t => (View)new TotalsCell(t.KindCode, t.Number, t.Unit))], minWidth: 70, padding: new Thickness(0));
+        // The day at a glance: the band and its legend on one glass card.
+        var band = new Card(new VerticalStackLayout { Spacing = 10, Children = { _ribbon, legend } });
 
-        var timeline = new VerticalStackLayout { Spacing = 4 };
+        // Two by two: each card has a breakdown and a comparison under the number (LogTotals).
+        var totals = new Grid
+        {
+            ColumnDefinitions = [new(GridLength.Star), new(GridLength.Star)],
+            ColumnSpacing = 8,
+            RowSpacing = 8,
+        };
+        var cards = _model.Totals.Select(t => (View)new TotalsCard(t.KindCode, t.Number, t.Unit, t.Detail, t.Compare)).ToList();
+        for (var n = 0; n < cards.Count; n++)
+        {
+            if (n % 2 == 0)
+                totals.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+            totals.Add(cards[n], n % 2, n / 2);
+        }
+
+        // The entries as grouped lists; a midnight line splits the shown day from the evening before.
+        var timeline = new VerticalStackLayout { Spacing = 10 };
         if (_model.Rows.Count == 0)
             timeline.Add(Ui.Text(Strings.Get("Timeline.Empty"), "Body", "Ink2"));
+        var group = new List<View>();
+        void Flush()
+        {
+            if (group.Count > 0)
+                timeline.Add(PageFrame.Group(group));
+            group = [];
+        }
+
         foreach (var row in _model.Rows)
         {
             if (row.IsMidnight)
             {
+                Flush();
                 timeline.Add(new MidnightRow(row.Title));
                 continue;
             }
 
             if (row.Id is { } id)
-                timeline.Add(new TimelineRow(row.Time, row.KindCode, row.Title, row.Who, () => OpenEntry(id)));
+                group.Add(new TimelineRow(row.Time, row.KindCode, row.Title, row.Who, () => OpenEntry(id), inGroup: true));
         }
 
+        Flush();
+
         _renderedLanguage = Strings.Language;
-        _totalsContainer.Content = totals;
-        _logContentContainer.Children.Clear();
+                _logContentContainer.Children.Clear();
         _logContentContainer.Add(header);
-        _logContentContainer.Add(_ribbon);
-        _logContentContainer.Add(legend);
+        _logContentContainer.Add(band);
+        _logContentContainer.Add(totals);
         _logContentContainer.Add(timeline);
 
         if (_sheet.IsVisible)

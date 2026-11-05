@@ -30,7 +30,7 @@ public sealed class SleepPlanPage : ContentPage
         _model.HasConsent = () => AdvisorPage.HasConsent;
         Shell.SetNavBarIsVisible(this, false);
         _scroll = new ScrollView { Content = _body };
-        Content = _scroll;
+        Content = Backdrop.Behind(_scroll);
     }
 
     protected override async void OnAppearing()

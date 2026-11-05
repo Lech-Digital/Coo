@@ -13,7 +13,8 @@ using Coo.Mobile.Presentation.Today;
 
 namespace Coo.Mobile.Presentation.Log;
 
-public sealed record TotalItem(string KindCode, string Number, string Unit);
+/// <summary>One of the Log's totals: the number and its word, what it is made of, and how it compares.</summary>
+public sealed record TotalItem(string KindCode, string Number, string Unit, string Detail = "", string Compare = "");
 
 /// <summary>The Log screen (Spec 006 §7): one local day, with ribbon, totals and timeline.</summary>
 public sealed partial class LogViewModel(
@@ -23,7 +24,8 @@ public sealed partial class LogViewModel(
     UndoService undo,
     ThemeController theme,
     TimeProvider time,
-    WhoLabelsSource whoSource) : ObservableObject
+    WhoLabelsSource whoSource,
+    GetCareTrends? trends = null) : ObservableObject
 {
     [ObservableProperty]
     private DateOnly _date = DateOnly.FromDateTime(time.GetLocalNow().DateTime);
@@ -116,6 +118,27 @@ public sealed partial class LogViewModel(
             new("sleep", Formats.Duration(day.Totals.Sleep), Strings.Get("Totals.Sleep")),
             new("pump", pumped.Item1, pumped.Item2),
         ];
+        // What each total is made of, and the usual day of the week before (LogTotals).
+        var care = trends is null ? null : await trends.DaysAsync(household.Id, baby.Id, Date.AddDays(-7), Date, zone, now, CancellationToken.None);
+        var shownDay = care?.GetValueOrDefault(Date);
+        var before = care?.Values.Where(d => d.Date < Date).ToList() ?? [];
+        var shown = day.Entries.Where(e => !undo.IsPendingDelete(e.Id)).ToList();
+        var last = new Dictionary<string, string>();
+        if (Date == today)
+        {
+            foreach (var kind in new[] { "feeding", "diaper" })
+            {
+                if (shown.Where(e => e.KindCode == kind).MaxBy(e => e.Start) is { } latest)
+                    last[kind] = formats.Time(latest.Start);
+            }
+        }
+
+        var pumps = shown.Count(e => e.KindCode == "pump");
+        totals = [.. totals.Select(t =>
+        {
+            var (detail, compare) = LogTotals.For(t.KindCode, shownDay, before, pumps, last, formats);
+            return t with { Detail = detail, Compare = compare };
+        })];
         Totals = Same(Totals, [.. totals.Where(t => KindVisibility.IsShown(household, t.KindCode))]);
         var who = await whoSource.ForAsync(household.Id);
         var currentEntries = day.Entries.Where(e => !undo.IsPendingDelete(e.Id)).ToList();

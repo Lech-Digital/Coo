@@ -1,3 +1,4 @@
+using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Theme;
 using Microsoft.Maui.Controls.Shapes;
 
@@ -79,7 +80,7 @@ public sealed class LogTile : ContentView
             Content = new Icon(IconGeometry.Plus, look.Ink, 14) { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center },
         };
         var top = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)] };
-        top.Add(new Icon(look.Icon, look.Ink, 20), 0);
+        top.Add(new Icon(look.Icon, look.Ink, 20) { HorizontalOptions = LayoutOptions.Start }, 0);
         top.Add(plus, 1);
 
         // "9:52 AM · L": the time on one line and its word on the next; one string without a word ("asleep 10:38 AM")
@@ -118,7 +119,8 @@ public sealed class LogTile : ContentView
 /// <summary>Time (tabular), a 34 dp event badge, the title, and who logged it, over a hairline.</summary>
 public sealed class TimelineRow : ContentView
 {
-    public TimelineRow(string time, string kindCode, string title, string who, Action? onTap = null)
+    /// <param name="inGroup">In a <see cref="PageFrame.Group"/>: the group draws the hairlines and the side padding is the row's.</param>
+    public TimelineRow(string time, string kindCode, string title, string who, Action? onTap = null, bool inGroup = false)
     {
         var look = EventAppearance.For(kindCode);
         var badge = Ui.Rounded(new Icon(look.Icon, look.Ink, 20), look.Tint, 12, new Thickness(7));
@@ -141,16 +143,24 @@ public sealed class TimelineRow : ContentView
         {
             ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)],
             ColumnSpacing = 12,
-            Padding = new Thickness(0, 10),
+            Padding = inGroup ? new Thickness(16, 9) : new Thickness(0, 10),
         };
         grid.Add(clock, 0);
         grid.Add(badge, 1);
         grid.Add(titleLabel, 2);
         grid.Add(whoLabel, 3);
 
-        var line = new BoxView { HeightRequest = 1 };
-        line.SetDynamicResource(BoxView.ColorProperty, "Line");
-        Content = new VerticalStackLayout { Children = { grid, line } };
+        if (inGroup)
+        {
+            Content = grid;
+        }
+        else
+        {
+            var line = new BoxView { HeightRequest = 1 };
+            line.SetDynamicResource(BoxView.ColorProperty, "Line");
+            Content = new VerticalStackLayout { Children = { grid, line } };
+        }
+
         if (onTap is not null)
             GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(onTap) });
     }
@@ -184,28 +194,49 @@ public sealed class MidnightRow : ContentView
     }
 }
 
-/// <summary>A tint cell with a number and a unit, in the event ink.</summary>
-public sealed class TotalsCell : ContentView
+/// <summary>
+/// One of the Log's totals (owner, 2026-11-05: "more contentful"): the kind's icon and word, the number, what it is made
+/// of, and how it compares with the usual day. The two small lines are left out when empty, and never wrap.
+/// </summary>
+public sealed class TotalsCard : ContentView
 {
-    public TotalsCell(string kindCode, string number, string unit)
+    public TotalsCard(string kindCode, string number, string unit, string detail, string compare)
     {
         var look = EventAppearance.For(kindCode);
+        var head = new HorizontalStackLayout { Spacing = 6 };
+        head.Add(new Icon(look.Icon, look.Ink, 16) { VerticalOptions = LayoutOptions.Center });
+        var word = string.IsNullOrEmpty(unit) ? unit : char.ToUpper(unit[0], Strings.Culture) + unit[1..];
+        head.Add(Ui.Text(word, "Meta", look.Ink).Tap(l =>
+        {
+            l.FontFamily = "FigtreeSemiBold";
+            l.MaxLines = 1;
+            l.LineBreakMode = LineBreakMode.TailTruncation;
+            l.VerticalOptions = LayoutOptions.Center;
+        }));
+
         var value = Ui.Text(number, "Section", look.Ink);
         value.StyleClass = [Tabular.StyleClass];
-        // "8 h 14 m" broke over two lines in a quarter of the Pixel 10's width: a long value gets a smaller size.
+        value.FontSize = 24;
         value.MaxLines = 1;
         value.LineBreakMode = LineBreakMode.NoWrap;
-        if (number.Length > 5)
-            value.FontSize = 17;
-        var stack = new VerticalStackLayout
+
+        var stack = new VerticalStackLayout { Spacing = 2, Children = { head, value } };
+        // Up to two lines each: "Last 9:52 AM · usually 6" did not fit half the width at 1.3× (2026-11-05).
+        foreach (var (text, opacity) in new[] { (detail, 1.0), (compare, 0.8) })
         {
-            Spacing = 4,
-            VerticalOptions = LayoutOptions.Center,
-            Children = { value, Ui.Text(unit, "Meta", look.Ink) }
-        };
-        var rounded = Ui.Rounded(stack, look.Tint, 20, new Thickness(10, 12));
+            if (string.IsNullOrEmpty(text))
+                continue;
+            stack.Add(Ui.Text(text, "Meta", look.Ink).Tap(l =>
+            {
+                l.FontSize = 12;
+                l.Opacity = opacity;
+                l.MaxLines = 2;
+                l.LineBreakMode = LineBreakMode.TailTruncation;
+            }));
+        }
+
+        var rounded = Ui.Rounded(stack, look.Tint, 18, new Thickness(12));
         rounded.MinimumHeightRequest = 104;
-        rounded.HeightRequest = 104;
         Content = rounded;
     }
 }

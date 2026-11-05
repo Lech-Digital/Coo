@@ -1,3 +1,4 @@
+using Coo.Mobile.Components;
 using Coo.Mobile.Application.Households;
 using Coo.Mobile.Application.Sync;
 using Coo.Mobile.Presentation.Localization;
@@ -32,9 +33,8 @@ public sealed class FamilyBringOverPage : ContentPage
     public FamilyBringOverPage(FamilyBringOverViewModel model, Families families, BringFamilyEntriesOver bring, ISyncControl sync, UndoService undo, SheetNavigator sheets)
     {
         (_model, _families, _bring, _sync, _undo, _sheets) = (model, families, bring, sync, undo, sheets);
-        SetDynamicResource(BackgroundColorProperty, "Ground");
         Shell.SetNavBarIsVisible(this, false);
-        Content = new ScrollView { Content = _body };
+        Content = Backdrop.Behind(new ScrollView { Content = _body });
     }
 
     /// <summary>The family switcher's "Bring its entries here": <paramref name="source"/> into <paramref name="target"/>, the shown family.</summary>

@@ -916,6 +916,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Stash.UseFirst" xml:space="preserve"><value>Use first</value></data>
   <data name="Stash.UseSoon.one" xml:space="preserve"><value>{0} to use soon</value></data>
   <data name="Stash.UseSoon.other" xml:space="preserve"><value>{0} to use soon</value></data>
+  <data name="Stats.More" xml:space="preserve"><value>More</value></data>
   <data name="Stats.Title" xml:space="preserve"><value>Statistics</value></data>
   <data name="Stats.Trends" xml:space="preserve"><value>Trends</value></data>
   <data name="Summary.Hint" xml:space="preserve"><value>The Advisor compares this week with the last: sleep, feeds, diapers, anything worth noting.</value></data>
@@ -972,6 +973,8 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Today.NextSide" xml:space="preserve"><value>Next side: {0}</value></data>
   <data name="Log.Now" xml:space="preserve"><value>Now</value></data>
   <data name="Log.Care" xml:space="preserve"><value>Care</value></data>
+  <data name="Log.PreviousDay" xml:space="preserve"><value>Previous day</value></data>
+  <data name="Log.NextDay" xml:space="preserve"><value>Next day</value></data>
   <data name="Today.LogSomething" xml:space="preserve"><value>Log something</value></data>
   <data name="Today.NextUp" xml:space="preserve"><value>Next up</value></data>
   <data name="Today.Paused" xml:space="preserve"><value>Sharing with this family is paused. Your entries are safe on this phone.</value></data>
@@ -984,6 +987,15 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Today.SeeAllInLog" xml:space="preserve"><value>See full history in Log →</value></data>
   <data name="Today.SinceFeed" xml:space="preserve"><value>{0} since last feed</value></data>
   <data name="Today.ViewOnly" xml:space="preserve"><value>You follow {0}’s day. Parents and caregivers add to it.</value></data>
+  <data name="Totals.BreastOnly" xml:space="preserve"><value>Breast {0}</value></data>
+  <data name="Totals.BottleOnly" xml:space="preserve"><value>Bottle {0}</value></data>
+  <data name="Totals.FeedSplit" xml:space="preserve"><value>Breast {0} · bottle {1}</value></data>
+  <data name="Totals.DiaperSplit" xml:space="preserve"><value>Wet {0} · dirty {1}</value></data>
+  <data name="Totals.Longest" xml:space="preserve"><value>Longest {0}</value></data>
+  <data name="Totals.Sessions" xml:space="preserve"><value>Sessions {0}</value></data>
+  <data name="Totals.Last" xml:space="preserve"><value>Last {0}</value></data>
+  <data name="Totals.Usually" xml:space="preserve"><value>Usually {0}</value></data>
+  <data name="Totals.LastAndUsually" xml:space="preserve"><value>Last {0} · usually {1}</value></data>
   <data name="Totals.Diapers.one" xml:space="preserve"><value>diaper</value></data>
   <data name="Totals.Diapers.other" xml:space="preserve"><value>diapers</value></data>
   <data name="Totals.Feeds.one" xml:space="preserve"><value>feed</value></data>

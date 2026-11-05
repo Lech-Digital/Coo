@@ -12,8 +12,8 @@ public sealed class AppShell : Shell
     {
         SetDynamicResource(BackgroundColorProperty, "Ground");
         SetDynamicResource(TabBarBackgroundColorProperty, "Surface");
-        SetDynamicResource(TabBarForegroundColorProperty, "Ink");
-        SetDynamicResource(TabBarTitleColorProperty, "Ink");
+        SetDynamicResource(TabBarForegroundColorProperty, "Accent");
+        SetDynamicResource(TabBarTitleColorProperty, "Accent");
         SetDynamicResource(TabBarUnselectedColorProperty, "Ink2");
         FlyoutBehavior = FlyoutBehavior.Disabled;
 
