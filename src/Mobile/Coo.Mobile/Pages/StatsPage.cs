@@ -55,7 +55,7 @@ public sealed class StatsPage : ContentPage
         {
             Content = new VerticalStackLayout { Padding = new Thickness(0, 0, 0, 24), Spacing = 16, Children = { _pageHeader, _content } },
         };
-        Content = _page;
+        Content = Backdrop.Behind(_page);
     }
 
     protected override async void OnAppearing()

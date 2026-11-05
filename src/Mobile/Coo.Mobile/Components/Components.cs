@@ -52,10 +52,10 @@ public sealed class Pill : ContentView
         Content = Ui.Rounded(Ui.Text(text, "Label", "AccentInk"), "AccentSoft", 999, new Thickness(10, 4));
 }
 
-/// <summary><c>Surface</c>, <c>RadiusCard</c>, a hairline <c>Line</c> border, and no shadow.</summary>
+/// <summary>Glass over the wash (<c>Glass</c>), radius 20, a hairline <c>GlassLine</c> border, and no shadow.</summary>
 public sealed class Card : ContentView
 {
-    public Card(View content) => Content = Ui.Rounded(content, "Surface", 22, new Thickness(20, 18), "Line");
+    public Card(View content) => Content = Ui.Rounded(content, "Glass", 20, new Thickness(16), "GlassLine");
 }
 
 /// <summary>A 96 dp square in the event tint: icon, name, and a "last at" line such as "12:40 · L".</summary>

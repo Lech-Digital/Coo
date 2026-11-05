@@ -46,6 +46,7 @@ public sealed class LogPage : ContentPage
         _body.Content = outerStack;
 
         var root = new Grid();
+        root.Add(new Backdrop());
         root.Add(new ScrollView { Content = _body });
         root.Add(new UndoToastView(undo));
         root.Add(_sheet);

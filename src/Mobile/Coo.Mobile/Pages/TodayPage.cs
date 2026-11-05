@@ -59,6 +59,7 @@ public sealed class TodayPage : ContentPage
 
 
         var root = new Grid();
+        root.Add(new Backdrop());
         root.Add(new ScrollView { Content = _sections });
         root.Add(new UndoToastView(undo));
         root.Add(_sheet);

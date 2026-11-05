@@ -33,6 +33,10 @@ public sealed class ThemeHost : IOsAppearance
             // Shapes stroke with a Brush, not a Color: every token also exists as "<Token>Brush".
             dictionary[key + "Brush"] = new SolidColorBrush(colour);
         }
+
+        // The wash behind the pages, the glass cards, the sheet's veil and the Premium tag (owner, 2026-11-05).
+        foreach (var (key, value) in Coo.Mobile.Components.WashResources.For(palette.Kind))
+            dictionary[key] = value;
         return dictionary;
     }
 

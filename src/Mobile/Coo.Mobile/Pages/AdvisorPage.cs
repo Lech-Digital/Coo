@@ -513,7 +513,7 @@ public sealed class AdvisorPage : ContentPage
             Children = { chatLayout, historyContainer }
         };
 
-        Content = rootGrid;
+        Content = Backdrop.Behind(rootGrid);
         this.SetDynamicResource(VisualElement.BackgroundColorProperty, "Ground");
     }
 

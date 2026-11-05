@@ -2,7 +2,7 @@ using Coo.Mobile.Presentation.Today;
 
 namespace Coo.Mobile.Components;
 
-/// <summary>The "mochi" wordmark: "moch" in ink and the "i" in the accent, or in gold with "Premium".</summary>
+/// <summary>The "mochi" wordmark: "moch" in ink and the "i" in the accent; with Premium, a gold PREMIUM tag beside it.</summary>
 public static class CooBrand
 {
     public static readonly Color DayGold = Color.FromArgb("#C5921D");
@@ -12,23 +12,12 @@ public static class CooBrand
 
     public static View CreateMark(bool isPremium, bool isNight, Action? longPress = null, double fontSize = 24)
     {
+        // "moch" in ink and the "i" in the accent; Premium adds a small gold PREMIUM tag beside it (owner, 2026-11-05).
         var formatted = new FormattedString();
-        var goldColor = Gold(isNight);
-
-        if (isPremium)
-        {
-            formatted.Spans.Add(new Span { Text = "moch", FontFamily = "FigtreeBold", FontSize = fontSize }
-                .Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Ink")));
-            formatted.Spans.Add(new Span { Text = "i", FontFamily = "FigtreeBold", FontSize = fontSize, TextColor = goldColor });
-            formatted.Spans.Add(new Span { Text = " Premium", FontFamily = "FigtreeBold", FontSize = fontSize, TextColor = goldColor });
-        }
-        else
-        {
-            formatted.Spans.Add(new Span { Text = "moch", FontFamily = "FigtreeBold", FontSize = fontSize }
-                .Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Ink")));
-            formatted.Spans.Add(new Span { Text = "i", FontFamily = "FigtreeBold", FontSize = fontSize }
-                .Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Accent")));
-        }
+        formatted.Spans.Add(new Span { Text = "moch", FontFamily = "FigtreeBold", FontSize = fontSize }
+            .Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Ink")));
+        formatted.Spans.Add(new Span { Text = "i", FontFamily = "FigtreeBold", FontSize = fontSize }
+            .Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Accent")));
 
         var label = new Label
         {
@@ -49,6 +38,20 @@ public static class CooBrand
             });
         }
 
-        return label;
+        if (!isPremium)
+            return label;
+
+        var tagText = new Label { Text = "PREMIUM", FontFamily = "FigtreeBold", FontSize = Math.Round(fontSize * 0.42), CharacterSpacing = 1.4 };
+        tagText.SetDynamicResource(Label.TextColorProperty, "PremiumTagInk");
+        var tag = new Border
+        {
+            Content = tagText,
+            Padding = new Thickness(7, 2),
+            StrokeThickness = 0,
+            StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 7 },
+            VerticalOptions = LayoutOptions.Center,
+        };
+        tag.SetDynamicResource(Border.BackgroundProperty, "PremiumTag");
+        return new HorizontalStackLayout { Spacing = 8, VerticalOptions = LayoutOptions.Center, Children = { label, tag } };
     }
 }

@@ -16,7 +16,8 @@ public sealed class Sheet : Grid
         IsVisible = false;
 
 
-        _backdrop = new BoxView { Color = Colors.Black, Opacity = 0 };
+        _backdrop = new BoxView { Opacity = 0 };
+        _backdrop.SetDynamicResource(BoxView.ColorProperty, "Scrim");
         var tap = new TapGestureRecognizer();
         tap.Tapped += (_, _) => Closed?.Invoke(this, EventArgs.Empty);
         _backdrop.GestureRecognizers.Add(tap);
@@ -51,7 +52,9 @@ public sealed class Sheet : Grid
             return;
         IsVisible = true;
         _panel.TranslationY = 400;
-        await Task.WhenAll(_backdrop.FadeToAsync(0.35, 160), _panel.TranslateToAsync(0, 0, 180, Easing.CubicOut));
+        // Lighter at night, so the wash still shows around the drawer (owner, 2026-11-05).
+        var veil = Microsoft.Maui.Controls.Application.Current?.Resources.TryGetValue("ScrimOpacity", out var o) == true && o is double d ? d : 0.35;
+        await Task.WhenAll(_backdrop.FadeToAsync(veil, 160), _panel.TranslateToAsync(0, 0, 180, Easing.CubicOut));
     }
 
     public async Task HideAsync()
