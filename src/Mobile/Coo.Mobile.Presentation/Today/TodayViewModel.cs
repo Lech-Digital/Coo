@@ -326,6 +326,14 @@ public sealed partial class TodayViewModel : ObservableObject
     /// <summary>Starts tummy time's timer, from "Earlier…" (the running card stops it).</summary>
     public Task StartTummyAsync() => _actions.StartTummyAsync();
 
+    /// <summary>From "Log something", now: a sleep or a pumping starts its timer.</summary>
+    public Task StartSleepAsync() => _actions.StartSleepAsync();
+
+    public Task StartPumpAsync() => _actions.StartPumpAsync();
+
+    /// <summary>From "Log something", now: the feed, bottle or diaper sheet, as its tile opens it.</summary>
+    public void RequestSheet(HomeSheet sheet) => _actions.RequestSheet(sheet);
+
     /// <summary>"Running" or "12 min today": the tummy time line in "Earlier…".</summary>
     public string TummySubtitle() =>
         _summary?.Running.Any(e => e.Details is Coo.Domain.CareLog.Kinds.Development.TummyDetails) == true ? Strings.Get("Tile.Running")

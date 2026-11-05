@@ -970,6 +970,9 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Today.NapTypical" xml:space="preserve"><value>Gebruikelijk wakkervenster op {0}: {1}</value></data>
   <data name="Today.NapWhyLink" xml:space="preserve"><value>Waarom deze tijd?</value></data>
   <data name="Today.NextSide" xml:space="preserve"><value>Volgende kant: {0}</value></data>
+  <data name="Log.Now" xml:space="preserve"><value>Nu</value></data>
+  <data name="Log.Care" xml:space="preserve"><value>Verzorging</value></data>
+  <data name="Today.LogSomething" xml:space="preserve"><value>Iets loggen</value></data>
   <data name="Today.NextUp" xml:space="preserve"><value>Binnenkort</value></data>
   <data name="Today.Paused" xml:space="preserve"><value>Delen met dit gezin is gepauzeerd. Je items zijn veilig op deze telefoon.</value></data>
   <data name="Today.ProgressDiapers" xml:space="preserve"><value>{0} van {1}+ luiers</value></data>

@@ -191,9 +191,13 @@ public sealed partial class BabyHeaderSection : ObservableObject, IHomeSection
     [ObservableProperty]
     private string? _avatarRef;
 
-    /// <summary>Twins or siblings: the chip opens the picker.</summary>
+    /// <summary>Twins or siblings: the title opens the picker.</summary>
     [ObservableProperty]
     private bool _hasSiblings;
+
+    /// <summary>"Thursday 5 November", under the page title.</summary>
+    [ObservableProperty]
+    private string _date = "";
 
     public bool AppliesTo(HomeStage stage, PaletteKind palette) => palette == PaletteKind.Day || stage == HomeStage.Expecting;
 
@@ -206,6 +210,7 @@ public sealed partial class BabyHeaderSection : ObservableObject, IHomeSection
         IsPremium = snapshot.IsPremium;
         AvatarRef = snapshot.AvatarRef;
         HasSiblings = snapshot.Siblings is { Count: > 0 };
+        Date = snapshot.Now.LocalDateTime.ToString("dddd d MMMM", Strings.Culture);
     }
 }
 
@@ -220,7 +225,7 @@ public sealed record HandoverCard(
 /// </summary>
 public sealed partial class HandoverSection : ObservableObject, IHomeSection
 {
-    public int Order => 33;
+    public int Order => 2;
 
     [ObservableProperty]
     private IReadOnlyList<HandoverCard> _cards = [];
@@ -289,7 +294,7 @@ public sealed partial class HandoverSection : ObservableObject, IHomeSection
 /// </summary>
 public sealed partial class LastNightSection : ObservableObject, IHomeSection
 {
-    public int Order => 22;
+    public int Order => 38;
 
     [ObservableProperty]
     private string _first = "";
@@ -430,10 +435,14 @@ public enum MochiMood
 /// <summary>"Awake for 1 h 20 m", or what is running (Spec 006 §4.2).</summary>
 public sealed partial class StatusHeroSection : ObservableObject, IHomeSection
 {
-    public int Order => 20;
+    public int Order => 12;
 
     [ObservableProperty]
     private MochiMood _mood;
+
+    /// <summary>A sleep is running: its timer card is the status card then, so this one stays out of the way.</summary>
+    [ObservableProperty]
+    private bool _shownByTimer;
 
     [ObservableProperty]
     private string _eyebrow = "";
@@ -455,6 +464,7 @@ public sealed partial class StatusHeroSection : ObservableObject, IHomeSection
             (Eyebrow, Value, Context) = (Strings.Get("Hero.Sleeping"), Formats.Duration(snapshot.Now - sleeping.Timing.OccurredAt),
                 Strings.Format("Hero.Since", snapshot.Formats.Time(sleeping.Timing.OccurredAt)));
             Mood = MochiMood.Asleep;
+            ShownByTimer = true;
         }
         else if (today?.AwakeSince is { } awake)
         {
@@ -462,11 +472,13 @@ public sealed partial class StatusHeroSection : ObservableObject, IHomeSection
             (Eyebrow, Value, Context) = (Strings.Get("Hero.AwakeFor"), Formats.Duration(snapshot.Now - awake),
                 nap is null ? Strings.Format("Hero.Since", snapshot.Formats.Time(awake)) : Strings.Format("Hero.SinceAfterNap", snapshot.Formats.Time(awake), nap));
             Mood = MochiMood.Awake;
+            ShownByTimer = false;
         }
         else
         {
             (Eyebrow, Value, Context) = ("", Strings.Get("Hero.NoSleep"), "");
             Mood = MochiMood.None;
+            ShownByTimer = false;
         }
     }
 }
@@ -474,7 +486,7 @@ public sealed partial class StatusHeroSection : ObservableObject, IHomeSection
 /// <summary>One card per running timer (Spec 006 §4.3).</summary>
 public sealed partial class RunningSection(HomeActions actions) : ObservableObject, IHomeSection, ILoggingSection
 {
-    public int Order => 30;
+    public int Order => 13;
 
     [ObservableProperty]
     private IReadOnlyList<RunningItem> _items = [];
@@ -493,7 +505,7 @@ public sealed partial class RunningSection(HomeActions actions) : ObservableObje
 /// <summary>Feed, Diaper, Sleep and Pump, with their "last at" lines (Spec 006 §4.4).</summary>
 public sealed partial class LogTilesSection(HomeActions actions) : ObservableObject, IHomeSection, ILoggingSection
 {
-    public int Order => 10;
+    public int Order => 15;
 
     [ObservableProperty]
     private IReadOnlyList<TileItem> _tiles = [];

@@ -175,11 +175,22 @@ internal static class SectionViews
         return view;
     }
 
-    /// <summary>The top bar (<see cref="PageFrame.Bar"/>): the wordmark and the day/night switch at the far right.</summary>
-    private static View Header(BabyHeaderSection s, SectionHost host) =>
-        PageFrame.Bar(CooBrand.CreateMark(s.IsPremium, host.Today.IsNight, longPress: host.OpenDebug, fontSize: PageFrame.WordmarkSize), ThemeSwitch(host));
+    /// <summary>
+    /// The top bar (<see cref="PageFrame.Bar"/>) and the page title: "Today", with "Lena · 7 weeks · Thursday 5 November"
+    /// under it and her picture beside it when she has one. With twins or siblings the title chooses the baby.
+    /// </summary>
+    private static View Header(BabyHeaderSection s, SectionHost host)
+    {
+        var bar = PageFrame.Bar(CooBrand.CreateMark(s.IsPremium, host.Today.IsNight, longPress: host.OpenDebug, fontSize: PageFrame.WordmarkSize), ThemeSwitch(host));
+        var line = s.BabyName.Length == 0 ? s.Date : $"{s.BabyName} · {s.Age} · {s.Date}{(s.HasSiblings ? " ▾" : "")}";
+        var avatar = s.AvatarRef is { Length: > 0 } avatarRef ? CooAvatar.Create(avatarRef, s.Initial, 48) : null;
+        var title = PageFrame.Title(Strings.Get("Section.Today"), line, avatar);
+        title.Margin = new Thickness(PageFrame.Side, 0, PageFrame.Side, 4);
+        if (s.HasSiblings && host.ChooseBaby is { } choose)
+            title.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(choose) });
+        return new VerticalStackLayout { Children = { bar, title } };
+    }
 
-    /// <summary>The morning note: last night in two lines, in the sleep colours.</summary>
     private static View LastNight(LastNightSection s)
     {
         if (s.First.Length == 0)
@@ -196,38 +207,42 @@ internal static class SectionViews
         return Ui.Rounded(stack, look.Tint, 18, new Thickness(16, 12)).Tap(v => v.Margin = new Thickness(24, 12, 24, 0));
     }
 
-    /// <summary>The nanny's handover: a card per caregiver's day for a parent (Seen hides it), or the caregiver's own (Share).</summary>
+    /// <summary>
+    /// "While you were away" and the nanny's handover: who looked after the baby and when, what happened as chips, and
+    /// Got it / Seen (a parent) or Share (the caregiver). The away card is outlined in the accent (owner, 2026-11-05).
+    /// </summary>
     private static View Handover(HandoverSection s, SectionHost host)
     {
         if (s.Cards.Count == 0)
             return new ContentView();
-        var stack = new VerticalStackLayout { Spacing = 10, Margin = new Thickness(24, 12, 24, 0) };
+        var stack = new VerticalStackLayout { Spacing = 10, Margin = new Thickness(PageFrame.Side, 8, PageFrame.Side, 0) };
         foreach (var card in s.Cards)
         {
-            var body = new VerticalStackLayout { Spacing = 6 };
-            var title = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 8 };
-            title.Add(Ui.Text(card.Title, "BodyStrong"), 0);
-            title.Add(Ui.Text(card.Span, "Meta", "Ink2").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
-            body.Add(title);
+            var body = new VerticalStackLayout { Spacing = 10 };
+            var head = new VerticalStackLayout { Spacing = 1 };
+            head.Add(Ui.Text(card.Title, "BodyStrong").Tap(l => l.FontSize = 16));
+            head.Add(Ui.Text(card.Span, "Meta", "Ink2"));
+            body.Add(head);
+            var chips = new FlexLayout { Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap };
             foreach (var line in card.Lines)
-                body.Add(Ui.Text(line, "Body"));
-            var button = new Button { Text = Strings.Get(card.IsMine ? "Handover.Share" : card.IsAway ? "Away.GotIt" : "Handover.Seen"), HorizontalOptions = LayoutOptions.Start };
-            button.SetDynamicResource(VisualElement.StyleProperty, "GhostButton");
+                chips.Add(Ui.Rounded(Ui.Text(line, "Meta", "AccentInk").Tap(l => l.FontFamily = "FigtreeSemiBold"), "AccentSoft", 15, new Thickness(10, 6)).Tap(c => c.Margin = new Thickness(0, 0, 6, 6)));
+            body.Add(chips);
             var (person, last, text) = (card.Person, card.Last, card.ShareText);
-            if (card.IsMine)
-                button.Clicked += (_, _) => host.ShareText?.Invoke(text);
-            else if (card.IsAway)
-                button.Clicked += async (_, _) => await host.Today.DismissAwayAsync();
-            else
-                button.Clicked += async (_, _) => await host.Today.MarkHandoverSeenAsync(person, last);
+            var label = Strings.Get(card.IsMine ? "Handover.Share" : card.IsAway ? "Away.GotIt" : "Handover.Seen");
+            Func<Task> act = card.IsMine
+                ? () => { host.ShareText?.Invoke(text); return Task.CompletedTask; }
+                : card.IsAway ? host.Today.DismissAwayAsync : () => host.Today.MarkHandoverSeenAsync(person, last);
+            var button = card.IsAway ? PageFrame.Primary(label, act) : PageFrame.Secondary(label, act);
             body.Add(button);
-            stack.Add(new Card(body));
+            var frame = Ui.Rounded(body, "Glass", 22, new Thickness(16), card.IsAway ? "Accent" : "GlassLine");
+            if (card.IsAway)
+                frame.StrokeThickness = 1.5;
+            stack.Add(frame);
         }
 
         return stack;
     }
 
-    /// <summary>Twins and siblings: one row per other baby, "Mia · asleep 40 m · fed 1 h 20 m ago"; a tap shows her.</summary>
     private static View Siblings(SiblingsSection s, SectionHost host)
     {
         if (s.Siblings.Count == 0)
@@ -284,64 +299,44 @@ internal static class SectionViews
     }
 
     /// <summary>
-    /// "Awake for 1 h 05 m" in the big hero type; "No sleep logged yet" (no eyebrow) as a section title. The style follows the
-    /// eyebrow as it changes: chosen once, a family switch to one without sleeps showed that line in hero type, filling
-    /// half the screen (owner's phone, 2026-11-03).
+    /// The status card: Mochi (ears up awake, ears down asleep), "AWAKE FOR", the time and since when. While a sleep runs
+    /// its timer card is the status card instead (one card, not two: owner, 2026-11-05). "No sleep logged yet" is a
+    /// plain line. Eyebrow, value and context are bound in place, so the clock ticking never rebuilds it.
     /// </summary>
     private static View Hero(StatusHeroSection s)
     {
+        if (s.ShownByTimer)
+            return new ContentView();
         var value = Bound(s, nameof(StatusHeroSection.Value), s.Eyebrow.Length == 0 ? "Section" : "Hero");
-        void OnChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(StatusHeroSection.Eyebrow))
-                value.SetDynamicResource(VisualElement.StyleProperty, s.Eyebrow.Length == 0 ? "Section" : "Hero");
-        }
+        if (s.Eyebrow.Length > 0)
+            value.FontSize = 42;
+        if (s.Mood == MochiMood.None)
+            return value.Tap(v => v.Margin = new Thickness(PageFrame.Side, 12, PageFrame.Side, 0));
 
-        // Mochi beside the hero: ears up while awake, ears down while asleep (ADR 0011). Fixed size, so a long
-        // context line wraps in its own column instead of pushing the picture off the screen.
-        var mochi = new Image { WidthRequest = 64, HeightRequest = 64, VerticalOptions = LayoutOptions.Center, Aspect = Aspect.AspectFit };
-        AutomationProperties.SetIsInAccessibleTree(mochi, false); // decoration: the eyebrow already says awake or asleep
-        void ShowMood()
+        var mochi = new Image
         {
-            mochi.IsVisible = s.Mood != MochiMood.None;
-            mochi.Source = s.Mood == MochiMood.Asleep ? "mochi_asleep.png" : "mochi_awake.png";
-        }
-
-        void OnMood(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(StatusHeroSection.Mood))
-                ShowMood();
-        }
-
-        ShowMood();
-
-        // The section outlives its views: the handlers go with the label.
-        s.PropertyChanged += OnChanged;
-        s.PropertyChanged += OnMood;
-        value.Unloaded += (_, _) =>
-        {
-            s.PropertyChanged -= OnChanged;
-            s.PropertyChanged -= OnMood;
+            Source = s.Mood == MochiMood.Asleep ? "mochi_asleep.png" : "mochi_awake.png",
+            WidthRequest = 56,
+            HeightRequest = 56,
+            VerticalOptions = LayoutOptions.Center,
+            Aspect = Aspect.AspectFit,
         };
+        AutomationProperties.SetIsInAccessibleTree(mochi, false); // decoration: the eyebrow already says awake or asleep
         var text = new VerticalStackLayout
         {
-            Spacing = 6,
+            Spacing = 0,
+            VerticalOptions = LayoutOptions.Center,
             Children =
             {
                 Bound(s, nameof(StatusHeroSection.Eyebrow), "Label", upper: true),
                 value,
-                Bound(s, nameof(StatusHeroSection.Context), "Body"),
+                Bound(s, nameof(StatusHeroSection.Context), "Meta"),
             },
         };
-        var grid = new Grid
-        {
-            Padding = new Thickness(24, 20, 24, 4),
-            ColumnSpacing = 12,
-            ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) },
-        };
-        grid.Add(text, 0);
-        grid.Add(mochi, 1);
-        return grid;
+        var grid = new Grid { ColumnSpacing = 14, ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star)] };
+        grid.Add(mochi, 0);
+        grid.Add(text, 1);
+        return new Card(grid).Tap(c => c.Margin = new Thickness(PageFrame.Side, 12, PageFrame.Side, 0));
     }
 
     internal static View RunningCards(IReadOnlyList<RunningItem> items, bool night, SectionHost host)
@@ -487,8 +482,29 @@ internal static class SectionViews
                 body.Add(sideIndicator);
             body.Add(Bound(item, nameof(RunningItem.Started), "Meta"));
             body.Add(actions);
+            // A running sleep is the status card (owner, 2026-11-05): the sleeping Mochi beside its timer.
+            View content = body;
+            if (!night && item.KindCode == "sleep")
+            {
+                var mochi = new Image { Source = "mochi_asleep.png", WidthRequest = 56, HeightRequest = 56, VerticalOptions = LayoutOptions.Start, Aspect = Aspect.AspectFit };
+                AutomationProperties.SetIsInAccessibleTree(mochi, false);
+                body.Remove(actions);
+                var withMochi = new Grid
+                {
+                    ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star)],
+                    RowDefinitions = [new(GridLength.Auto), new(GridLength.Auto)],
+                    ColumnSpacing = 14,
+                    RowSpacing = 12,
+                };
+                withMochi.Add(mochi, 0, 0);
+                withMochi.Add(body, 1, 0);
+                withMochi.Add(actions, 0, 1);
+                Grid.SetColumnSpan(actions, 2);
+                content = withMochi;
+            }
+
             // A tap on the card opens the entry, so a timer started late can have its start moved back (Spec 007 §2).
-            View card = night ? body : new Card(body);
+            View card = night ? content : new Card(content);
             var id = item.Id;
             card.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => host.OpenEntry(id)) });
             stack.Add(card);
@@ -509,128 +525,78 @@ internal static class SectionViews
         return row;
     }
 
+    /// <summary>
+    /// The four shortcuts (each logs or starts its kind; four in a row, two by two when narrow), then two equal buttons:
+    /// Tell Mochi, and Log something, which holds everything else (owner, 2026-11-05: Health and Earlier… are gone).
+    /// </summary>
     private static View Tiles(LogTilesSection s, SectionHost host)
     {
-        // Four in a row, or two by two when they would be narrower than 70 dp at the phone's text size.
         var grid = AdaptiveColumns.Create(
             [.. s.Tiles.Select(t => (View)new LogTile(t.KindCode, t.Name, t.LastAt, t.Command, fill: true))],
-            minWidth: 70, padding: new Thickness(24, 16, 24, 0));
+            minWidth: 70, padding: new Thickness(PageFrame.Side, 12, PageFrame.Side, 0));
 
-        // "Earlier…" (Spec 007 §4): log something that already happened, of any kind.
-        var earlier = new Button
+        View Pill(string icon, string text, string background, string ink, string? line, Action tap)
         {
-            Text = $"🕒 {Strings.Get("Edit.Earlier")}",
-            HeightRequest = 36,
-            Padding = new Thickness(16, 0),
-            CornerRadius = 18,
-            FontFamily = "FigtreeMedium",
-            FontSize = 13,
-            HorizontalOptions = LayoutOptions.End,
-            Margin = new Thickness(0, 8, 0, 0),
-        };
-        earlier.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
-        earlier.SetDynamicResource(Button.TextColorProperty, "Ink2");
-        earlier.SetDynamicResource(Button.BorderColorProperty, "Line");
-        earlier.BorderWidth = 1;
-        earlier.Clicked += (_, _) => host.OpenEarlier();
+            var row = new HorizontalStackLayout { Spacing = 8, HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
+            row.Add(new Icon(icon, ink, 18) { VerticalOptions = LayoutOptions.Center });
+            row.Add(Ui.Text(text, "BodyStrong", ink).Tap(l => { l.FontSize = 15; l.VerticalOptions = LayoutOptions.Center; l.LineBreakMode = LineBreakMode.TailTruncation; }));
+            var pill = Ui.Rounded(row, background, 24, new Thickness(12, 0), line);
+            pill.HeightRequest = 48;
+            pill.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(tap) });
+            SemanticProperties.SetDescription(pill, text);
+            return pill;
+        }
 
-        // "Tell Mochi" (ADR 0005): say or type it; the accent marks it as the quickest way in.
-        var voice = new Border
+        var actions = new Grid
         {
-            HeightRequest = 36,
-            Padding = new Thickness(14, 0),
-            StrokeThickness = 0,
-            StrokeShape = new RoundRectangle { CornerRadius = 18 },
-            Margin = new Thickness(0, 8, 0, 0),
-            HorizontalOptions = LayoutOptions.Start,
-            Content = new HorizontalStackLayout
-            {
-                Spacing = 6,
-                VerticalOptions = LayoutOptions.Center,
-                Children =
-                {
-                    new Icon(IconGeometry.Mic, "OnAccent", 18) { VerticalOptions = LayoutOptions.Center },
-                    Ui.Text(Strings.Get("Quick.Title"), "BodyStrong", "OnAccent").Tap(l => { l.FontSize = 13; l.VerticalOptions = LayoutOptions.Center; }),
-                },
-            },
+            ColumnDefinitions = [new(GridLength.Star), new(GridLength.Star)],
+            ColumnSpacing = 8,
+            Padding = new Thickness(PageFrame.Side, 10, PageFrame.Side, 0),
         };
-        voice.SetDynamicResource(VisualElement.BackgroundColorProperty, "Accent");
-        voice.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(host.OpenVoice) });
-        SemanticProperties.SetDescription(voice, Strings.Get("Quick.Title"));
-
-        // Health and growth: medicine, temperature, vaccines, visits and measurements, and the growth chart.
-        var health = new Button
-        {
-            Text = $"＋ {Strings.Get("Health.Short")}",
-            HeightRequest = 36,
-            Padding = new Thickness(14, 0),
-            CornerRadius = 18,
-            FontFamily = "FigtreeMedium",
-            FontSize = 13,
-            Margin = new Thickness(0, 8, 8, 0),
-        };
-        health.SetDynamicResource(VisualElement.BackgroundColorProperty, "Surface");
-        health.SetDynamicResource(Button.TextColorProperty, "Ink2");
-        health.SetDynamicResource(Button.BorderColorProperty, "Line");
-        health.BorderWidth = 1;
-        health.Clicked += (_, _) => host.OpenHealth();
-
-        // Tell Mochi on the left, Health and Earlier… on the right; when they don't fit beside it (small phone, large
-        // text) they move to the next line instead of cutting "Tell Mochi" to "Tell M" (2026-11-05).
-        earlier.Margin = new Thickness(0, 8, 0, 0);
-        var secondary = new HorizontalStackLayout { Children = { health, earlier } };
-        var actions = new FlexLayout
-        {
-            Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap,
-            JustifyContent = Microsoft.Maui.Layouts.FlexJustify.SpaceBetween,
-            AlignItems = Microsoft.Maui.Layouts.FlexAlignItems.Center,
-            Padding = new Thickness(24, 0),
-            Children = { voice, secondary },
-        };
+        actions.Add(Pill(IconGeometry.Mic, Strings.Get("Quick.Title"), "VoiceBg", "VoiceInk", null, host.OpenVoice), 0);
+        actions.Add(Pill(IconGeometry.Plus, Strings.Get("Today.LogSomething"), "Glass", "Ink", "GlassLine", host.OpenEarlier), 1);
         return new VerticalStackLayout { Children = { grid, actions } };
     }
 
+    /// <summary>
+    /// "NEXT UP": the side to offer and the time since the last feed, the next nap (its why, or Premium, one tap away),
+    /// the sleep plan's day and the milk stash, one row each with its kind's icon.
+    /// </summary>
     private static View NextUp(NextUpSection s, SectionHost host)
     {
         if (!s.HasContent)
             return new ContentView();
 
-        var stack = new VerticalStackLayout { Spacing = 8 };
-        stack.Add(Ui.Text(Strings.Get("Today.NextUp").ToUpper(Strings.Culture), "Label", "Ink2"));
+        var stack = new VerticalStackLayout { Spacing = 10 };
+        stack.Add(PageFrame.SectionLabel(Strings.Get("Today.NextUp")));
 
-        var row = new HorizontalStackLayout { Spacing = 10, VerticalOptions = LayoutOptions.Center };
-
-        if (!string.IsNullOrEmpty(s.NextSide))
+        View Row(string icon, string iconInk, string text, string? value, string textKey = "Ink", Action? tap = null)
         {
-            var sidePill = Ui.Rounded(
-                Ui.Text(s.NextSide, "BodyStrong", "FeedInk"),
-                "FeedTint",
-                999,
-                new Thickness(12, 6));
-            row.Add(sidePill);
+            var row = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 10 };
+            row.Add(new Icon(icon, iconInk, 18) { VerticalOptions = LayoutOptions.Center }, 0);
+            row.Add(Ui.Text(text, "Body", textKey).Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
+            if (!string.IsNullOrEmpty(value))
+                row.Add(Ui.Text(value, "BodyStrong").Tap(l => { l.VerticalOptions = LayoutOptions.Center; l.HorizontalTextAlignment = TextAlignment.End; }), 2);
+            else if (tap is not null)
+                row.Add(new Icon(IconGeometry.ChevronRight, "Ink2", 16) { VerticalOptions = LayoutOptions.Center }, 2);
+            if (tap is not null)
+                row.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(tap) });
+            return row;
         }
 
-        if (!string.IsNullOrEmpty(s.SinceFeed))
-        {
-            var elapsedLabel = Ui.Text(s.SinceFeed, "Body", "Ink2");
-            elapsedLabel.VerticalOptions = LayoutOptions.Center;
-            row.Add(elapsedLabel);
-        }
-
-        if (row.Children.Count > 0)
-            stack.Add(row);
+        if (!string.IsNullOrEmpty(s.NextSide) || !string.IsNullOrEmpty(s.SinceFeed))
+            stack.Add(Row(IconGeometry.Feed, "FeedInk", s.NextSide.Length > 0 ? s.NextSide : s.SinceFeed, s.NextSide.Length > 0 ? s.SinceFeed : null));
 
         if (!string.IsNullOrEmpty(s.NextNap))
         {
             // The next sleep (ADR 0008 §7): its window, and one tap to why (Premium) or to Premium.
-            var napRow = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 8 };
-            var napIcon = new Icon(IconGeometry.Sleep, "SleepInk", 18) { VerticalOptions = LayoutOptions.Start, Margin = new Thickness(0, 2, 0, 0) };
-            var napText = new VerticalStackLayout { Spacing = 2 };
-            napText.Add(Ui.Text(s.NextNap, s.NapIsPersonal ? "BodyStrong" : "Body", s.NapIsPersonal ? "Ink" : "Ink2"));
+            var nap = new VerticalStackLayout { Spacing = 1 };
+            nap.Add(Ui.Text(s.NextNap, s.NapIsPersonal ? "BodyStrong" : "Body", s.NapIsPersonal ? "Ink" : "Ink2"));
             if (!string.IsNullOrEmpty(s.NapWindow))
-                napText.Add(Ui.Text(s.NapWindow, "Meta", s.NapIsPersonal || s.NapUpsell ? "Accent" : "Ink2"));
-            napRow.Add(napIcon, 0);
-            napRow.Add(napText, 1);
+                nap.Add(Ui.Text(s.NapWindow, "Meta", s.NapIsPersonal || s.NapUpsell ? "AccentInk" : "Ink2"));
+            var napRow = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 10 };
+            napRow.Add(new Icon(IconGeometry.Sleep, "SleepInk", 18) { VerticalOptions = LayoutOptions.Start, Margin = new Thickness(0, 2, 0, 0) }, 0);
+            napRow.Add(nap, 1);
             if (s.NapIsPersonal)
                 napRow.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => host.OpenSleepWhy(s)) });
             else if (s.NapUpsell)
@@ -639,30 +605,11 @@ internal static class SectionViews
         }
 
         if (!string.IsNullOrEmpty(s.PlanLine))
-        {
-            var planRow = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 8 };
-            planRow.Add(new Icon(IconGeometry.Sleep, "SleepInk", 18) { VerticalOptions = LayoutOptions.Center }, 0);
-            planRow.Add(Ui.Text(s.PlanLine, "Body", "Accent").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
-            planRow.Add(new Icon(IconGeometry.ChevronRight, "Ink2", 16) { VerticalOptions = LayoutOptions.Center }, 2);
-            if (host.OpenSleepPlan is { } open)
-                planRow.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(open) });
-            stack.Add(planRow);
-        }
-
+            stack.Add(Row(IconGeometry.Sleep, "SleepInk", s.PlanLine, null, "AccentInk", host.OpenSleepPlan));
         if (!string.IsNullOrEmpty(s.StashLine))
-        {
-            var stashRow = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 8 };
-            stashRow.Add(new Icon(IconGeometry.Pump, "PumpInk", 18) { VerticalOptions = LayoutOptions.Center }, 0);
-            stashRow.Add(Ui.Text(s.StashLine, "Body", "Accent").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
-            stashRow.Add(new Icon(IconGeometry.ChevronRight, "Ink2", 16) { VerticalOptions = LayoutOptions.Center }, 2);
-            if (host.OpenMilkStash is { } open)
-                stashRow.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(open) });
-            stack.Add(stashRow);
-        }
+            stack.Add(Row(IconGeometry.Pump, "PumpInk", s.StashLine, null, "AccentInk", host.OpenMilkStash));
 
-        var card = new Card(stack);
-        card.Margin = new Thickness(24, 12, 24, 0);
-        return card;
+        return new Card(stack).Tap(c => c.Margin = new Thickness(PageFrame.Side, 12, PageFrame.Side, 0));
     }
 
     private static View ViewOnly(ViewOnlySection s)

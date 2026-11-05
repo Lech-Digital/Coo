@@ -49,6 +49,9 @@ public static class IconGeometry
 
     public const string Pump = "M5 5h14l-5 5v3h-4v-3zM10 13v6a2 2 0 0 0 4 0v-6";
     public const string Mic = "M9 6a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0zM5 11a7 7 0 0 0 14 0M12 18v3";
+
+    /// <summary>A plus: "Log something" on Today, and the corner of each shortcut tile.</summary>
+    public const string Plus = "M12 5v14M5 12h14";
     public const string Today = "M4 11l8-7 8 7v9h-5v-6h-6v6H4z";
     public const string Log = "M9 6h11M9 12h11M9 18h11M4.5 6h0.01M4.5 12h0.01M4.5 18h0.01";
     /// <summary>Two four-point stars: something the AI wrote.</summary>
@@ -74,6 +77,7 @@ public static class IconGeometry
         [nameof(Sleep)] = Sleep,
         [nameof(Pump)] = Pump,
         [nameof(Mic)] = Mic,
+        [nameof(Plus)] = Plus,
         [nameof(Today)] = Today,
         [nameof(Log)] = Log,
         [nameof(Insights)] = Insights,

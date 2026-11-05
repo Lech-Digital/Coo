@@ -58,34 +58,59 @@ public sealed class Card : ContentView
     public Card(View content) => Content = Ui.Rounded(content, "Glass", 20, new Thickness(16), "GlassLine");
 }
 
-/// <summary>A 96 dp square in the event tint: icon, name, and a "last at" line such as "12:40 · L".</summary>
+/// <summary>
+/// A shortcut tile in the event tint: the kind's icon and a small "+" (it logs or starts that kind), the name, and the
+/// last time with one word ("10:17 AM dirty"). One line each, cut with "…" rather than wrapped, so a long word in
+/// another language never squeezes the tile (owner, 2026-11-05).
+/// </summary>
 public sealed class LogTile : ContentView
 {
     public LogTile(string kindCode, string name, string lastAt, System.Windows.Input.ICommand? command = null, bool fill = false)
     {
         var look = EventAppearance.For(kindCode);
+        var plus = new Border
+        {
+            WidthRequest = 20,
+            HeightRequest = 20,
+            StrokeThickness = 0,
+            StrokeShape = new RoundRectangle { CornerRadius = 10 },
+            BackgroundColor = Color.FromRgba(255, 255, 255, 0.5),
+            HorizontalOptions = LayoutOptions.End,
+            Content = new Icon(IconGeometry.Plus, look.Ink, 14) { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center },
+        };
+        var top = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)] };
+        top.Add(new Icon(look.Icon, look.Ink, 20), 0);
+        top.Add(plus, 1);
+
+        // "9:52 AM · L": the time on one line and its word on the next; one string without a word ("asleep 10:38 AM")
+        // may take two lines. Nothing is cut on a normal phone (owner, 2026-11-05).
+        var split = lastAt.IndexOf(" · ", StringComparison.Ordinal);
         var stack = new VerticalStackLayout
         {
-            Spacing = 4,
+            Spacing = 2,
             Children =
             {
-                new Icon(look.Icon, look.Ink, 26),
-                Ui.Text(name, "Tile", look.Ink).Tap(l =>
-                {
-                    // Labels shrink, never break inside a word (design system §3): "Karmienie" broke mid-word on the phone.
-                    if (name.Length > 8)
-                        l.FontSize = 12.5;
-                    l.LineBreakMode = LineBreakMode.NoWrap;
-                }),
-                Ui.Text(lastAt, "Meta", look.Ink),
+                top.Tap(t => t.Margin = new Thickness(0, 0, 0, 4)),
+                Ui.Text(name, "Tile", look.Ink).Tap(l => { l.LineBreakMode = LineBreakMode.TailTruncation; l.FontSize = 14; }),
             },
         };
-        var tile = Ui.Rounded(stack, look.Tint, 20, new Thickness(10, 12));
+        if (split > 0)
+        {
+            stack.Add(Ui.Text(lastAt[..split], "Meta", look.Ink).Tap(l => { l.LineBreakMode = LineBreakMode.TailTruncation; l.FontSize = 13; }));
+            stack.Add(Ui.Text(lastAt[(split + 3)..], "Meta", look.Ink).Tap(l => { l.LineBreakMode = LineBreakMode.TailTruncation; l.FontSize = 13; }));
+        }
+        else
+        {
+            stack.Add(Ui.Text(lastAt, "Meta", look.Ink).Tap(l => { l.MaxLines = 2; l.LineBreakMode = LineBreakMode.WordWrap; l.FontSize = 13; }));
+        }
+
+        var tile = Ui.Rounded(stack, look.Tint, 16, new Thickness(10));
         if (!fill)
             tile.WidthRequest = 96;
-        tile.MinimumHeightRequest = 96;
+        tile.MinimumHeightRequest = 92;
         if (command is not null)
             tile.GestureRecognizers.Add(new TapGestureRecognizer { Command = command });
+        SemanticProperties.SetDescription(tile, $"{name}, {lastAt}");
         Content = tile;
     }
 }

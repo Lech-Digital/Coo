@@ -1005,6 +1005,9 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Today.NapTypical" xml:space="preserve"><value>Typowe okno czuwania w wieku {0}: {1}</value></data>
   <data name="Today.NapWhyLink" xml:space="preserve"><value>Skąd ta pora?</value></data>
   <data name="Today.NextSide" xml:space="preserve"><value>Następna strona: {0}</value></data>
+  <data name="Log.Now" xml:space="preserve"><value>Teraz</value></data>
+  <data name="Log.Care" xml:space="preserve"><value>Opieka</value></data>
+  <data name="Today.LogSomething" xml:space="preserve"><value>Zapisz coś</value></data>
   <data name="Today.NextUp" xml:space="preserve"><value>Wkrótce</value></data>
   <data name="Today.Paused" xml:space="preserve"><value>Udostępnianie tej rodzinie jest wstrzymane. Twoje wpisy są bezpieczne na tym telefonie.</value></data>
   <data name="Today.ProgressDiapers" xml:space="preserve"><value>{0} z {1}+ pieluszek</value></data>

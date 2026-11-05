@@ -970,6 +970,9 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Today.NapTypical" xml:space="preserve"><value>Typisches Wachfenster mit {0}: {1}</value></data>
   <data name="Today.NapWhyLink" xml:space="preserve"><value>Warum diese Zeit?</value></data>
   <data name="Today.NextSide" xml:space="preserve"><value>Nächste Seite: {0}</value></data>
+  <data name="Log.Now" xml:space="preserve"><value>Jetzt</value></data>
+  <data name="Log.Care" xml:space="preserve"><value>Pflege</value></data>
+  <data name="Today.LogSomething" xml:space="preserve"><value>Etwas eintragen</value></data>
   <data name="Today.NextUp" xml:space="preserve"><value>Als Nächstes</value></data>
   <data name="Today.Paused" xml:space="preserve"><value>Teilen mit dieser Familie ist pausiert. Deine Einträge sind auf diesem Handy sicher.</value></data>
   <data name="Today.ProgressDiapers" xml:space="preserve"><value>{0} von {1}+ Windeln</value></data>

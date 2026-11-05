@@ -244,30 +244,108 @@ public sealed class TodayPage : ContentPage
         await _model.RefreshAsync();
     });
 
-    /// <summary>"Earlier…" below the tiles: which kind, then the form (Spec 007 §4).</summary>
+    private bool _logEarlier;
+
+    /// <summary>
+    /// "Log something" (owner, 2026-11-05): one sheet for every kind, replacing "+ Health" and "Earlier…". Now logs as the
+    /// tiles do (the feed, bottle and diaper sheets; sleep, pumping and tummy time start their timers; the rest open
+    /// their form at the current time); Earlier… opens each form, where the time comes first. Care kinds a family hides
+    /// are left out (Spec 009 §3.2). The growth chart is not something to log: it lives in Stats.
+    /// </summary>
     private async void OpenEarlier()
     {
+        _logEarlier = false;
+        await ShowLogSomethingAsync();
+    }
+
+    private async Task ShowLogSomethingAsync()
+    {
         _pageSheet = true;
-        // Hidden kinds offer no "Earlier…" choice (Spec 009 §3.2).
-        var items = new (string Kind, View Item)[]
+        async Task Close()
         {
-            ("feeding", EarlierItem("feeding", "Kind.Feed", "Earlier.FeedSubtitle")),
-            ("feeding", EarlierItem("feeding", "Feed.Bottle", "Earlier.BottleSubtitle", bottle: true)),
-            ("diaper", EarlierItem("diaper", "Kind.Diaper", "Earlier.DiaperSubtitle")),
-            ("sleep", EarlierItem("sleep", "Kind.Sleep", "Earlier.SleepSubtitle")),
-            ("pump", EarlierItem("pump", "Kind.Pump", "Earlier.PumpSubtitle")),
-            ("bath", EarlierItem("bath", "Kind.Bath", "Earlier.BathSubtitle")),
-            ("tummy", EarlierItem("tummy", "Earlier.TummyStart", "", subtitle: _model.TummySubtitle(), onTap: async () =>
+            _pageSheet = false;
+            await _sheet.HideAsync();
+        }
+
+        async Task Sheet(HomeSheet sheet)
+        {
+            await Close();
+            _model.RequestSheet(sheet);
+        }
+
+        async Task Start(Func<Task> start)
+        {
+            await Close();
+            await start();
+        }
+
+        var care = new (string Kind, string Key, string? Icon, Func<Task> Now, Func<Task> Earlier)[]
+        {
+            ("feeding", "Kind.Feed", Coo.Mobile.Presentation.Theme.IconGeometry.SideLeft, () => Sheet(HomeSheet.Feed), () => OpenNewAsync("feeding", false)),
+            ("feeding", "Feed.Bottle", Coo.Mobile.Presentation.Theme.IconGeometry.Feed, () => Sheet(HomeSheet.Bottle), () => OpenNewAsync("feeding", true)),
+            ("solids", "Kind.Solids", null, () => OpenNewAsync("solids", false), () => OpenNewAsync("solids", false)),
+            ("diaper", "Kind.Diaper", null, () => Sheet(HomeSheet.Diaper), () => OpenNewAsync("diaper", false)),
+            ("sleep", "Kind.Sleep", null, () => Start(_model.StartSleepAsync), () => OpenNewAsync("sleep", false)),
+            ("pump", "Kind.Pump", null, () => Start(_model.StartPumpAsync), () => OpenNewAsync("pump", false)),
+            ("bath", "Kind.Bath", null, () => OpenNewAsync("bath", false), () => OpenNewAsync("bath", false)),
+            ("tummy", "Kind.Tummy", null, () => Start(_model.StartTummyAsync), () => OpenNewAsync("tummy", false)),
+            ("milestone", "Kind.Milestone", null, () => OpenNewAsync("milestone", false), () => OpenNewAsync("milestone", false)),
+        };
+        var health = new (string Kind, string Key, string? Icon, Func<Task> Open)[]
+        {
+            ("growth", "Kind.Growth", null, () => OpenNewAsync("growth", false)),
+            ("medicine", "Kind.Medicine", null, () => OpenNewAsync("medicine", false)),
+            ("temperature", "Kind.Temperature", null, () => OpenNewAsync("temperature", false)),
+            ("vaccine", "Kind.Vaccine", null, () => OpenNewAsync("vaccine", false)),
+            ("visit", "Kind.Visit", null, () => OpenNewAsync("visit", false)),
+            ("growth", "Health.Photo", Coo.Mobile.Presentation.Theme.IconGeometry.Camera, () => { OpenPhoto(); return Task.CompletedTask; }),
+        };
+
+        var when = PageFrame.Segmented([Strings.Get("Log.Now"), Strings.Get("Edit.Earlier")], _logEarlier ? 1 : 0, async index =>
+        {
+            _logEarlier = index == 1;
+            await ShowLogSomethingAsync();
+        });
+        var careGrid = KindGrid(care.Where(c => _model.IsShown(c.Kind)).Select(c => (c.Kind, c.Key, c.Icon, _logEarlier ? c.Earlier : c.Now)));
+        var healthGrid = KindGrid(health.Select(h => (h.Kind, h.Key, h.Icon, h.Open)));
+        await _sheet.ShowAsync(Panel(
+            Strings.Get("Today.LogSomething"),
+            when,
+            PageFrame.SectionLabel(Strings.Get("Log.Care")),
+            careGrid,
+            PageFrame.SectionLabel(Strings.Get("Health.Short")),
+            healthGrid));
+    }
+
+    /// <summary>Three to a row: the kind's icon on its tint, and its name.</summary>
+    private static Grid KindGrid(IEnumerable<(string Kind, string Key, string? Icon, Func<Task> Open)> kinds)
+    {
+        var grid = new Grid { ColumnSpacing = 8, RowSpacing = 8, ColumnDefinitions = [new(GridLength.Star), new(GridLength.Star), new(GridLength.Star)] };
+        var i = 0;
+        foreach (var (kind, key, icon, open) in kinds)
+        {
+            var look = Coo.Mobile.Presentation.Theme.EventAppearance.For(kind);
+            var badge = Ui.Rounded(new Icon(icon ?? look.Icon, look.Ink, 18) { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center }, look.Tint, 10, new Thickness(7));
+            badge.HorizontalOptions = LayoutOptions.Center;
+            var name = Ui.Text(Strings.Get(key), "Meta").Tap(l =>
             {
-                _pageSheet = false;
-                await _sheet.HideAsync();
-                await _model.StartTummyAsync();
-            })),
-            ("tummy", EarlierItem("tummy", "Kind.Tummy", "Earlier.TummyEarlierSubtitle")),
-            ("solids", EarlierItem("solids", "Kind.Solids", "Earlier.SolidsSubtitle")),
-            ("milestone", EarlierItem("milestone", "Kind.Milestone", "Earlier.MilestoneSubtitle")),
-        }.Where(b => _model.IsShown(b.Kind)).Select(b => b.Item).ToArray();
-        await _sheet.ShowAsync(Panel(Strings.Get("Edit.Earlier"), items));
+                l.FontFamily = "FigtreeMedium";
+                l.FontSize = 13;
+                l.HorizontalTextAlignment = TextAlignment.Center;
+                l.LineBreakMode = LineBreakMode.TailTruncation;
+                l.SetDynamicResource(Label.TextColorProperty, "Ink");
+            });
+            var cell = Ui.Rounded(new VerticalStackLayout { Spacing = 6, VerticalOptions = LayoutOptions.Center, Children = { badge, name } }, "Surface", 16, new Thickness(6, 10), "Line");
+            cell.MinimumHeightRequest = 76;
+            cell.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => await open()) });
+            SemanticProperties.SetDescription(cell, Strings.Get(key));
+            if (i % 3 == 0)
+                grid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+            grid.Add(cell, i % 3, i / 3);
+            i++;
+        }
+
+        return grid;
     }
 
     /// <summary>Why this sleep window (ADR 0008 §8): the explanation, one tap from Today, with the note that it is not advice.</summary>
