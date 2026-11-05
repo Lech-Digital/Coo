@@ -15,7 +15,7 @@ All rendered by `python3 store-assets/_src/compose.py` from the demo build's sho
 | 2 | `phone/phone-2-today.png` | One tap to start. *Mochi keeps the time.* / Feeds, naps, diapers and pumping, live | Today, a sleep running |
 | 3 | `phone/phone-3-night.png` | Night colours *for night feeds.* / A dark screen and big buttons for one hand | Today in night colours |
 | 4 | `phone/phone-4-stats.png` | Your baby’s average day, *7, 14 or 30 days.* / Milk, feeds, sleep, diapers and pumping | Stats |
-| 5 | `phone/phone-5-zoom.png` | Every nap and feed, *hour by hour.* / Zoom into any hours of the day or night | Log, the zoomed day (3–9 AM) |
+| 5 | `phone/phone-5-zoom.png` | Sleep that runs *past midnight.* / Zoom into any hours of the day or night | Log, the zoomed day (12–6 AM) |
 | 6 | `phone/phone-6-advisor.png` | Questions about your baby? *Ask the Advisor.* / AI answers that know your baby’s log · not medical advice | Advisor |
 
 | Asset | File | Size | Notes |

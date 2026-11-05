@@ -15,7 +15,7 @@ SHOTS = [
     (2, 's1-today', 'One tap to start. <em>Mochi keeps the time.</em>', 'Feeds, naps, diapers and pumping, live', False),
     (3, 's7-night', 'Night colours <em>for night feeds.</em>', 'A dark screen and big buttons for one hand', True),
     (4, 's4-stats', 'Your baby’s average day, <em>7, 14 or 30 days.</em>', 'Milk, feeds, sleep, diapers and pumping', False),
-    (5, 's3-zoom', 'Every nap and feed, <em>hour by hour.</em>', 'Zoom into any hours of the day or night', False),
+    (5, 's3-zoom', 'Sleep that runs <em>past midnight.</em>', 'Zoom into any hours of the day or night', False),
     (6, 's6-advisor', 'Questions about your baby? <em>Ask the Advisor.</em>', 'AI answers that know your baby’s log · not medical advice', False),
 ]
 
