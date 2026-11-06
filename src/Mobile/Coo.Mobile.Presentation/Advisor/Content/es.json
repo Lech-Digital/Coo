@@ -1,0 +1,379 @@
+{
+ "headings": {
+  "motor": "Movimiento y habilidades físicas",
+  "cognitive": "Aprendizaje y sentidos",
+  "social": "Comunicación y vínculo",
+  "rhythm": "Ritmo, sueño y alimentación",
+  "tip": "Consejo del pediatra"
+ },
+ "stages": [
+  {
+   "from": 0,
+   "badge": "0–2 semanas · Recién nacido",
+   "summary": "Tu bebé se está adaptando a la vida fuera del útero. Sus movimientos los guían los reflejos del recién nacido, y descubre el mundo a través de vuestras voces y caricias.",
+   "motor": [
+    "Fuerte reflejo de prensión (agarra tus dedos con fuerza)",
+    "Se sobresalta (reflejo de Moro) ante ruidos fuertes o movimientos bruscos",
+    "Boca abajo, gira la cabeza de un lado a otro",
+    "Mantiene brazos y piernas flexionados cerca del cuerpo, con los puños cerrados"
+   ],
+   "cognitive": [
+    "Ve mejor a 20–30 cm, la distancia a tu cara mientras come",
+    "Le atraen las formas en blanco y negro de alto contraste y las caras",
+    "Reconoce las voces de mamá y papá que oyó en el útero",
+    "Es sensible a los olores, sobre todo a la leche y la piel de mamá"
+   ],
+   "social": [
+    "Se calma con el balanceo suave, el arrullo y el «shhh»",
+    "Sonrisas reflejas mientras duerme",
+    "Expresa hambre, cansancio y molestias sobre todo llorando"
+   ],
+   "rhythm": [
+    "Duerme 16–18 horas al día, en tramos cortos de 1,5–3 horas",
+    "Come cada 2–3 horas (8–12 veces al día)",
+    "Las ventanas de vigilia son muy cortas: 30–45 minutos como mucho"
+   ],
+   "tip": "El contacto piel con piel (método canguro) estabiliza la temperatura, el azúcar en sangre y el ritmo cardíaco del bebé, y refuerza el vínculo."
+  },
+  {
+   "from": 14,
+   "badge": "2–6 semanas · Despertar y crecimiento",
+   "summary": "El bebé está claramente más despierto. Los estirones suelen llegar a las 3 y 6 semanas, con tomas más seguidas y ratos despierto más largos.",
+   "motor": [
+    "Boca abajo, levanta un momento la cabeza (hasta 45°)",
+    "Los músculos del cuello se fortalecen y el cuerpo está menos flojo",
+    "Abre los puños cada vez más a menudo",
+    "Patalea suave y alternando las piernas boca arriba"
+   ],
+   "cognitive": [
+    "Sigue un momento con la mirada caras y objetos en movimiento",
+    "Mira durante más tiempo colores vivos y patrones marcados",
+    "Gira la cabeza a propósito hacia voces conocidas",
+    "Se calma con una voz tranquila, un tarareo o ruido blanco"
+   ],
+   "social": [
+    "¡Aparecen las primeras sonrisas de verdad (normalmente hacia las 4–6 semanas)!",
+    "Empieza a hacer suaves sonidos de vocales («a», «o», «e»)",
+    "Mantiene el contacto visual cuando está tranquilo y despierto"
+   ],
+   "rhythm": [
+    "Sueño total: 15–17 horas al día; ventanas de vigilia: 45–60 minutos",
+    "El llanto de la «hora bruja» suele concentrarse por la tarde-noche",
+    "Las tomas en racimo son muy habituales durante los estirones"
+   ],
+   "tip": "Haz cada día 2–3 ratitos boca abajo (de 2–3 minutos) sobre una colchoneta firme o sobre tu pecho."
+  },
+  {
+   "from": 45,
+   "badge": "6–12 semanas · Sonrisas y gorjeos",
+   "summary": "¡Una etapa preciosa y muy sociable! Tu bebé responde a tu voz con gorjeos alegres, grandes sonrisas y mucho movimiento de brazos.",
+   "motor": [
+    "Boca abajo, sostiene la cabeza firme a 45–90°, apoyado en los antebrazos",
+    "Se lleva las dos manos a la boca y juega con los dedos",
+    "Golpea torpemente los juguetes colgantes",
+    "Empuja con los pies cuando tocan una superficie plana"
+   ],
+   "cognitive": [
+    "Sigue con soltura juguetes y caras de un lado a otro",
+    "Se fascina mirándose las manos",
+    "Distingue a los familiares de los desconocidos",
+    "Reacciona con alegría a las sonrisas y las voces animadas"
+   ],
+   "social": [
+    "Disfruta jugando con la voz: largos «ooo», «aaa», «eee»",
+    "Mantiene «conversaciones»: espera tu respuesta antes de volver a gorjear",
+    "Se ríe y sonríe con ganas al cucú-tras y a las cosquillas"
+   ],
+   "rhythm": [
+    "Sueño total: 14–16 horas; ventanas de vigilia: 60–90 minutos",
+    "El tramo más largo de sueño nocturno suele llegar a 3–5 horas",
+    "Durante el día se van formando 4–5 siestas"
+   ],
+   "tip": "Crea una rutina fija de 15 minutos antes de dormir: baño, masaje suave, pañal, toma y nana con luz tenue."
+  },
+  {
+   "from": 90,
+   "badge": "3–5 meses · Volteos y descubrimientos",
+   "summary": "El bebé se mueve más, es más curioso y juguetón. Su sueño madura en ciclos parecidos a los de un adulto, lo que a menudo provoca la famosa regresión de los 4 meses.",
+   "motor": [
+    "Se da la vuelta de boca abajo a boca arriba e intenta al revés",
+    "Alcanza los juguetes con precisión y los coge con las dos manos",
+    "Boca abajo, se apoya en los brazos estirados («mini flexiones»)",
+    "Buen control de la cabeza, que ya no se queda atrás al incorporarlo"
+   ],
+   "cognitive": [
+    "Alcanza todo lo que ve a su alcance y se lo lleva a la boca",
+    "Se ríe a carcajadas con sonidos graciosos y sorpresas",
+    "Reconoce el biberón o el pecho cuando tiene hambre",
+    "Observa cómo se mueven sus manos y sus pies"
+   ],
+   "social": [
+    "Carcajadas, chillidos y pedorretas",
+    "Responde a los cambios en el tono de voz",
+    "Muestra mucha alegría cuando entra en la habitación alguien querido"
+   ],
+   "rhythm": [
+    "Sueño total: 14–15 horas; ventanas de vigilia: 90–120 minutos",
+    "Lo habitual: 3–4 siestas al día",
+    "La regresión de los 4 meses suele traer durante un tiempo más despertares nocturnos"
+   ],
+   "tip": "Cuando el bebé empiece a darse la vuelta, deja de envolverlo y usa un saco de dormir seguro que le deje los brazos libres."
+  },
+  {
+   "from": 150,
+   "badge": "5–8 meses · Sentarse, alimentación complementaria y dientes",
+   "summary": "Grandes pasos hacia la independencia: sentarse sin apoyo, probar los primeros alimentos sólidos y balbucear con consonantes.",
+   "motor": [
+    "Se sienta solo varios minutos sin apoyarse en las manos",
+    "Se da la vuelta con soltura en ambos sentidos",
+    "Pasa un juguete de una mano a la otra",
+    "Arrastra cosas pequeñas con los dedos hacia la palma; de pie, carga todo su peso en las piernas"
+   ],
+   "cognitive": [
+    "Busca los juguetes que se le caen (empieza la permanencia del objeto)",
+    "Explora texturas golpeando juguetes y mordiendo mordedores",
+    "Gira la cabeza enseguida cuando oye su nombre",
+    "Tiene juguetes y sabores favoritos claros"
+   ],
+   "social": [
+    "Balbucea sílabas: «ba-ba», «ma-ma», «da-da»",
+    "Usa la voz para mostrar placer, impaciencia y curiosidad",
+    "Entiende el tono emocional y se detiene un momento al oír «no»"
+   ],
+   "rhythm": [
+    "Sueño total: 13–15 horas; ventanas de vigilia: 2–2,5 horas",
+    "Paso de 3 siestas a 2 siestas largas (mañana y tarde)",
+    "La noche puede llegar a 8–10 horas con 0–1 tomas"
+   ],
+   "tip": "Ofrece alimentos ricos en hierro de un solo ingrediente cuando el bebé se siente bien, controle la cabeza y muestre mucho interés."
+  },
+  {
+   "from": 240,
+   "badge": "8–12 meses · Gateo, palabras y movimiento",
+   "summary": "¡La curiosidad sale a gatas! El bebé se pone de pie agarrándose, domina la pinza fina y empieza a comunicarse con gestos y primeras palabras.",
+   "motor": [
+    "Gatea, se desplaza sentado o se arrastra",
+    "Se pone de pie agarrado a los muebles y camina de lado junto a ellos",
+    "Domina la pinza fina (coge migas con el pulgar y el índice)",
+    "Se mantiene de pie solo un momento; ¡puede dar sus primeros pasos tambaleantes!"
+   ],
+   "cognitive": [
+    "Entiende que las cosas siguen existiendo aunque no las vea (encuentra el juguete bajo la manta)",
+    "Imita acciones: golpea con la cuchara, remueve en el vaso, dice adiós con la mano",
+    "Explora el espacio: mete cosas en un cuenco y las vuelca"
+   ],
+   "social": [
+    "Aparecen las primeras palabras con sentido («mamá», «papá», «pelota», «leche»)",
+    "Dice adiós con la mano, niega con la cabeza y señala con el dedo",
+    "La ansiedad por separación y el miedo a desconocidos son máximos hacia los 9–10 meses"
+   ],
+   "rhythm": [
+    "Sueño total: 12–14 horas; ventanas de vigilia: 2,5–3,5 horas",
+    "Rutina estable de 2 siestas (mañana ~1 h, tarde ~1,5 h)",
+    "La mayoría de los bebés pueden dormir 10–11 horas por la noche sin tomas"
+   ],
+   "tip": "¡Adapta la casa a tiempo! Fija muebles pesados y la tele a la pared, tapa los enchufes bajos y pon barreras en las escaleras."
+  },
+  {
+   "from": 365,
+   "badge": "12–18 meses · Primeros pasos y primeras palabras",
+   "summary": "¡Bienvenido a la etapa de niño pequeño! Camina solo, come con los dedos, cada vez dice más palabras y tiene sus propias opiniones.",
+   "motor": [
+    "Camina solo e intenta correr rápido y tambaleándose",
+    "Se agacha a coger un juguete del suelo sin caerse",
+    "Apila 2–3 bloques y garabatea con ceras gruesas",
+    "Bebe de un vaso abierto e intenta comer con una cucharita"
+   ],
+   "cognitive": [
+    "Señala objetos en un libro de imágenes cuando se lo pides («¿Dónde está el perro?»)",
+    "Sigue instrucciones sencillas («Dame la pelota»)",
+    "Imita tareas de casa: barre, limpia, habla por un teléfono de juguete"
+   ],
+   "social": [
+    "Usa con regularidad 5–20 palabras reconocibles",
+    "Niega con la cabeza con firmeza y dice «¡no!» con entusiasmo",
+    "Muestra empatía: abraza a un hermano que llora o a su peluche"
+   ],
+   "rhythm": [
+    "Sueño total: 12–14 horas; ventanas de vigilia: 4–5 horas",
+    "Paso de 2 siestas a 1 al mediodía (normalmente hacia los 14–16 meses)",
+    "Las regresiones de los 12 y 15 meses pueden complicar un tiempo la hora de dormir"
+   ],
+   "tip": "Ofrece leche entera o bebidas enriquecidas con calcio en vaso en lugar de biberón, para proteger los dientes."
+  },
+  {
+   "from": 545,
+   "badge": "18–24+ meses · Explosión del lenguaje y del juego",
+   "summary": "¡Activo, charlatán y con mucha personalidad! Vive grandes emociones, une palabras en frases cortas y le encanta jugar a imitar.",
+   "motor": [
+    "Corre con soltura, chuta la pelota hacia delante y sube escaleras agarrado a la barandilla",
+    "Hace torres de 4–6 bloques; baja manillas y desenrosca tapas",
+    "Empieza a quitarse ropa sencilla y a ponerse zapatos sin cordones"
+   ],
+   "cognitive": [
+    "Juega a imaginar (da de comer a muñecos, conduce cochecitos)",
+    "Clasifica juguetes por color, forma o tamaño",
+    "Entiende conceptos como «grande y pequeño» o «dentro y fuera»"
+   ],
+   "social": [
+    "Frases de dos palabras («más leche», «coche grande», «mamá ven»)",
+    "Más de 50 palabras, con nuevas cada semana",
+    "Grandes emociones y rabietas cuando las ganas de independencia chocan con un lenguaje aún limitado"
+   ],
+   "rhythm": [
+    "Sueño total: 11–13 horas al día",
+    "Una siesta larga al mediodía de 1,5–2,5 horas",
+    "Una rutina tranquila y constante evita las batallas a la hora de dormir"
+   ],
+   "tip": "Pon nombre a las grandes emociones con calma y empatía: «Estás triste porque se acabó el juego. Puedes estarlo, pero ahora toca comer»."
+  }
+ ],
+ "questions": [
+  {
+   "from": 0,
+   "items": [
+    "¿Cada cuánto debe mamar o tomar biberón un recién nacido?",
+    "¿Es normal que mi recién nacido duerma 16–18 horas al día?",
+    "¿De qué color y consistencia debe ser la caca de un recién nacido?",
+    "¿Cómo calmar a un recién nacido que llora con las 5 S?",
+    "¿Cuándo empezar a ponerlo boca abajo y cuánto rato?",
+    "¿Cómo sé si mi bebé está tomando suficiente leche?",
+    "¿Cómo envolver al bebé de forma segura para dormir?",
+    "¿Cómo ayudarle a eructar con suavidad y aliviar los gases?",
+    "¿Cómo cuidar el muñón del cordón umbilical?",
+    "¿Qué temperatura de la habitación es más segura para que duerma?",
+    "¿Por qué mi bebé respira rápido o hace pausas mientras duerme?",
+    "Señales de ictericia: ¿cuándo debo llamar al médico?"
+   ]
+  },
+  {
+   "from": 14,
+   "items": [
+    "¿Cuáles son las señales de los estirones de las 3 y 6 semanas?",
+    "¿Por qué mi bebé está tan inquieto por la tarde-noche?",
+    "¿Cuánto suelen durar las ventanas de vigilia al mes de vida?",
+    "¿Cuándo empiezan los bebés a sonreír a propósito?",
+    "¿Cómo aliviar los cólicos, los gases y la inquietud?",
+    "¿Es normal que regurgite a menudo después de las tomas?",
+    "¿Por qué mi bebé está de repente más inquieto durante unos días?",
+    "¿Cuánto tiempo boca abajo al día?",
+    "Sueño seguro: la cuna y el chupete",
+    "¿Cómo tratar con seguridad el acné del bebé y la costra láctea?",
+    "¿Las tomas en racimo por la noche significan que tengo poca leche?",
+    "¿Cómo ayudar al bebé a distinguir el día de la noche?"
+   ]
+  },
+  {
+   "from": 45,
+   "items": [
+    "¿Cuándo empezará a gorjear, reír y balbucear?",
+    "¿Cuánto tiempo puede estar despierto ahora entre siestas?",
+    "¿Es normal que pasen 3–4 horas entre tomas durante el día?",
+    "¿Cuándo empiezan los bebés a dormir tramos más largos por la noche?",
+    "¿Cómo crear una rutina relajante antes de dormir?",
+    "¿Por qué se chupa y muerde las manos todo el rato?",
+    "¿Cómo ayudarle a seguir los juguetes con la mirada?",
+    "¿Cansancio o hambre? Las señales sutiles",
+    "Juegos para estimular el desarrollo a los 2 meses",
+    "¿Cómo evitar que se le aplane la cabecita?",
+    "¿Cuántos pañales mojados y sucios al día son normales?",
+    "¿Cuándo podrá sostener la cabeza sin que se le tambalee?"
+   ]
+  },
+  {
+   "from": 90,
+   "items": [
+    "¿Cómo superar la regresión del sueño de los 4 meses?",
+    "¿Cuándo aprenden los bebés a darse la vuelta de boca abajo a boca arriba?",
+    "¿Cuándo y cómo dejar de envolverlo para dormir?",
+    "¿Cuántas siestas al día a los 4 meses?",
+    "¿Primeros dientes o simplemente babas?",
+    "¿Ya alcanza y coge los juguetes con las dos manos con precisión?",
+    "¿Cuándo podemos empezar con la alimentación complementaria?",
+    "Los mejores juguetes y juegos sensoriales a los 4 meses",
+    "¿Por qué de repente se despierta más por la noche esta semana?",
+    "¿Cómo animarle a apoyar el peso en las piernas?",
+    "¿Puede beber agua un bebé de 4 meses?",
+    "Pasar del moisés a la cuna en su habitación"
+   ]
+  },
+  {
+   "from": 150,
+   "items": [
+    "¿Cómo sé si está listo para la alimentación complementaria (purés o BLW)?",
+    "¿Cómo introducir con seguridad la crema de cacahuete y los alérgenos?",
+    "¿Cuándo se sientan los bebés solos sin apoyo?",
+    "¿Cuánta leche debe tomar cuando empieza con los sólidos?",
+    "¿Puede beber sorbitos de agua con las comidas?",
+    "¿Cómo pasar con suavidad de 4 siestas a 3 (o 2)?",
+    "Remedios suaves para las encías doloridas por los dientes",
+    "Señales de que se está preparando para gatear",
+    "¿Cómo ayudarle a pasar juguetes de una mano a otra?",
+    "Ansiedad por separación y miedo a desconocidos",
+    "Los mejores primeros alimentos ricos en hierro a los 6 meses",
+    "¿Cuándo balbuceará sílabas como «ba-ba»?"
+   ]
+  },
+  {
+   "from": 240,
+   "items": [
+    "¿Cuándo aprenden los bebés a gatear o arrastrarse?",
+    "Permanencia del objeto y el cucú-tras: ¿qué señales hay?",
+    "¿Cuándo dirá sus primeras palabras con intención?",
+    "Pasar a 2 siestas (mañana y tarde)",
+    "Ideas de alimentos ricos en hierro para comer con las manos",
+    "Ponerse de pie y caminar junto a los muebles con seguridad",
+    "Practicar la pinza con trocitos blandos de comida",
+    "¿Por qué se despierta por la noche para practicar ponerse de pie?",
+    "¿Cómo adaptar la casa a un pequeño explorador?",
+    "Dejar el biberón: vaso abierto y vaso con pajita",
+    "¿Cómo manejar las protestas y el apego a la hora de dormir?",
+    "Responder a su nombre y entender palabras sencillas"
+   ]
+  },
+  {
+   "from": 365,
+   "items": [
+    "¿Cuándo dará mi hijo sus primeros pasos solo?",
+    "Pasar de la fórmula o la leche materna a la leche de vaca entera",
+    "Pasar de 2 siestas a 1 por la tarde",
+    "¿Cuántas palabras debería decir un niño de 15 meses?",
+    "Tira la comida y es selectivo comiendo: ¿qué hacer?",
+    "¿Cómo reaccionar con calma a las rabietas y la frustración?",
+    "¿Cuándo está listo para dejar el chupete?",
+    "Animarle a imitar palabras y sonidos de animales",
+    "Los zapatos adecuados y pies sanos para los primeros pasos",
+    "Regresión del sueño a los 12 o 15 meses: causas y consejos",
+    "Poner límites suaves y constantes con cariño",
+    "Juegos sensoriales y de construcción para niños de un año"
+   ]
+  },
+  {
+   "from": 545,
+   "items": [
+    "Explosión del lenguaje: unir 2–3 palabras en frases",
+    "¿Listo para el orinal? Señales y cuándo empezar",
+    "Pasar de la cuna a la cama con seguridad",
+    "Acompañar las grandes emociones y las rabietas con empatía",
+    "Comer solo con cubiertos y los niños selectivos con la comida",
+    "Trepar, correr y límites de seguridad",
+    "Jugar con otros: aprender a compartir y esperar el turno",
+    "Miedos nocturnos, pesadillas y una hora de dormir tranquila",
+    "Ideas de meriendas sanas y nutritivas para niños pequeños",
+    "Ansiedad por separación al dejarlo en la guardería",
+    "Fomentar la imaginación y el juego simbólico",
+    "¿Cuándo debo preocuparme por un retraso del lenguaje?"
+   ]
+  }
+ ],
+ "fallback": [
+  "¿Cuánto sueño necesita mi bebé a su edad?",
+  "¿Es normal que pasen 3–4 horas entre tomas durante el día?",
+  "¿Cuánto duran las ventanas de vigilia y cuántas siestas son normales?",
+  "¿Cómo reconocer los estirones y los saltos de desarrollo?",
+  "¿Cómo aliviar los cólicos, la inquietud y los gases?",
+  "Alimentación complementaria: señales de que está listo y seguridad",
+  "¿Cuándo empezará a darse la vuelta y a sentarse?",
+  "Sueño seguro: cuna, temperatura y envolverlo"
+ ]
+}

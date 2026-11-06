@@ -1,0 +1,379 @@
+{
+ "headings": {
+  "motor": "Ruch i sprawność fizyczna",
+  "cognitive": "Poznawanie i zmysły",
+  "social": "Komunikacja i relacje",
+  "rhythm": "Rytm, sen i karmienie",
+  "tip": "Wskazówka pediatryczna"
+ },
+ "stages": [
+  {
+   "from": 0,
+   "badge": "0–2 tygodnie · Noworodek",
+   "summary": "Maluch przyzwyczaja się do życia poza brzuchem mamy. Ruchami kierują odruchy noworodkowe, a świat poznaje przez głos i dotyk rodziców.",
+   "motor": [
+    "Silny odruch chwytny (mocno zaciska paluszki)",
+    "Wzdryga się (odruch Moro) na głośny dźwięk lub nagły ruch",
+    "Leżąc na brzuszku, obraca główkę na boki",
+    "Trzyma rączki i nóżki zgięte blisko ciała, dłonie zaciśnięte w piąstki"
+   ],
+   "cognitive": [
+    "Najlepiej widzi z odległości 20–30 cm, czyli z odległości twojej twarzy podczas karmienia",
+    "Przyciągają go kontrastowe, czarno-białe kształty i twarze",
+    "Rozpoznaje głosy mamy i taty, które słyszał w brzuchu",
+    "Jest wrażliwy na zapachy, zwłaszcza mleka i skóry mamy"
+   ],
+   "social": [
+    "Uspokaja się przy łagodnym kołysaniu, otulaniu i szumieniu",
+    "Odruchowo uśmiecha się we śnie",
+    "Głód, zmęczenie i dyskomfort sygnalizuje głównie płaczem"
+   ],
+   "rhythm": [
+    "Śpi 16–18 godzin na dobę, krótkimi odcinkami po 1,5–3 godziny",
+    "Je co 2–3 godziny (8–12 razy na dobę)",
+    "Okna aktywności są bardzo krótkie: najwyżej 30–45 minut"
+   ],
+   "tip": "Kontakt skóra do skóry („kangurowanie”) stabilizuje temperaturę ciała, poziom cukru i tętno malucha, a do tego wzmacnia więź."
+  },
+  {
+   "from": 14,
+   "badge": "2–6 tygodni · Przebudzenie i wzrost",
+   "summary": "Maluch jest wyraźnie bardziej czujny. Skoki wzrostu zwykle przypadają na 3. i 6. tydzień: dziecko częściej je i dłużej nie śpi.",
+   "motor": [
+    "Na brzuszku na chwilę unosi główkę (do 45°)",
+    "Mięśnie szyi się wzmacniają, a ciało jest mniej wiotkie",
+    "Coraz częściej otwiera zaciśnięte piąstki",
+    "Leżąc na plecach, płynnie i naprzemiennie kopie nóżkami"
+   ],
+   "cognitive": [
+    "Przez chwilę wodzi wzrokiem za twarzami i ruchomymi przedmiotami",
+    "Dłużej przygląda się jaskrawym kolorom i wyraźnym wzorom",
+    "Celowo obraca główkę w stronę znajomych głosów",
+    "Uspokaja się przy spokojnym głosie, nuceniu lub białym szumie"
+   ],
+   "social": [
+    "Pojawiają się pierwsze świadome uśmiechy (zwykle około 4.–6. tygodnia)!",
+    "Zaczyna wydawać miękkie dźwięki samogłoskowe („a”, „o”, „e”)",
+    "W spokojnym czuwaniu nawiązuje dłuższy kontakt wzrokowy"
+   ],
+   "rhythm": [
+    "Śpi łącznie 15–17 godzin na dobę; okna aktywności: 45–60 minut",
+    "Marudne „godziny czarownic” najczęściej wypadają wieczorem",
+    "W czasie skoków wzrostu bardzo częste jest karmienie klasterowe"
+   ],
+   "tip": "Codziennie zrób 2–3 krótkie sesje leżenia na brzuszku (po 2–3 minuty) na twardej macie albo na swojej klatce piersiowej."
+  },
+  {
+   "from": 45,
+   "badge": "6–12 tygodni · Uśmiechy i gaworzenie",
+   "summary": "Wspaniały, bardzo towarzyski czas! Maluch odpowiada na twój głos radosnym gruchaniem, szerokim uśmiechem i machaniem rączkami.",
+   "motor": [
+    "Na brzuszku stabilnie trzyma główkę pod kątem 45–90°, opierając się na przedramionach",
+    "Wkłada obie rączki do buzi i bawi się paluszkami",
+    "Niezgrabnie uderza w wiszące zabawki",
+    "Gdy stopy dotkną płaskiej powierzchni, odpycha się od twoich kolan"
+   ],
+   "cognitive": [
+    "Płynnie wodzi wzrokiem za zabawkami i twarzami od boku do boku",
+    "Z zachwytem przygląda się własnym dłoniom",
+    "Odróżnia znajomych domowników od obcych",
+    "Radośnie reaguje na uśmiech i ożywiony głos"
+   ],
+   "social": [
+    "Uwielbia zabawę głosem: długie „uuu”, „aaa”, „eee”",
+    "Prowadzi „rozmowy”: czeka na twoją odpowiedź, zanim znów zagrucha",
+    "Chichocze i szeroko się uśmiecha przy zabawie w „a kuku” i łaskotkach"
+   ],
+   "rhythm": [
+    "Śpi łącznie 14–16 godzin; okna aktywności: 60–90 minut",
+    "Najdłuższy nocny odcinek snu często wydłuża się do 3–5 godzin",
+    "W ciągu dnia układa się 4–5 wyraźnych drzemek"
+   ],
+   "tip": "Wprowadź stały, 15-minutowy rytuał przed snem: kąpiel, delikatny masaż, pielucha, karmienie i kołysanka przy przyciemnionym świetle."
+  },
+  {
+   "from": 90,
+   "badge": "3–5 miesięcy · Obroty i odkrywanie",
+   "summary": "Maluch jest coraz bardziej ruchliwy, ciekawy świata i skory do zabawy. Sen dojrzewa w cykle podobne do dorosłych, co często wywołuje słynny regres snu 4. miesiąca.",
+   "motor": [
+    "Przewraca się z brzuszka na plecy i próbuje z pleców na brzuszek",
+    "Celnie sięga po zabawki i chwyta je obiema rączkami",
+    "Na brzuszku podpiera się na wyprostowanych rękach („mini pompki”)",
+    "Dobrze kontroluje główkę: nie opada, gdy podciągasz go do siadu"
+   ],
+   "cognitive": [
+    "Sięga po wszystko w zasięgu wzroku i wkłada to do buzi",
+    "Głośno śmieje się z zabawnych dźwięków i niespodzianek",
+    "Gdy jest głodny, rozpoznaje butelkę lub pierś",
+    "Obserwuje, jak poruszają się jego rączki i nóżki"
+   ],
+   "social": [
+    "Śmieje się na głos, piszczy i robi „pryskanie” buzią",
+    "Reaguje na zmianę tonu głosu",
+    "Wyraźnie się cieszy, gdy bliska osoba wchodzi do pokoju"
+   ],
+   "rhythm": [
+    "Śpi łącznie 14–15 godzin; okna aktywności: 90–120 minut",
+    "Zwykle 3–4 drzemki dziennie",
+    "Regres snu 4. miesiąca często na jakiś czas zwiększa liczbę nocnych pobudek"
+   ],
+   "tip": "Gdy maluch zaczyna się przewracać, zrezygnuj z otulania i przejdź na bezpieczny śpiworek, w którym rączki są wolne."
+  },
+  {
+   "from": 150,
+   "badge": "5–8 miesięcy · Siadanie, pierwsze posiłki i ząbki",
+   "summary": "Wielkie kroki ku samodzielności: siedzenie bez podparcia, pierwsze smaki stałych posiłków i gaworzenie ze spółgłoskami.",
+   "motor": [
+    "Przez kilka minut siedzi samodzielnie, bez podpierania się rączkami",
+    "Płynnie przewraca się w obie strony",
+    "Przekłada zabawkę z jednej rączki do drugiej",
+    "Zgarnia paluszkami drobne przedmioty do dłoni; stojąc, przenosi cały ciężar na nóżki"
+   ],
+   "cognitive": [
+    "Szuka upuszczonych zabawek (początek stałości przedmiotu)",
+    "Poznaje faktury: stuka zabawkami i gryzie gryzaki",
+    "Szybko odwraca główkę, gdy słyszy swoje imię",
+    "Ma wyraźnie ulubione zabawki i smaki"
+   ],
+   "social": [
+    "Gaworzy sylabami: „ba-ba”, „ma-ma”, „da-da”",
+    "Głosem wyraża radość, zniecierpliwienie i ciekawość",
+    "Rozumie ton emocji i na chwilę przerywa, słysząc „nie”"
+   ],
+   "rhythm": [
+    "Śpi łącznie 13–15 godzin; okna aktywności: 2–2,5 godziny",
+    "Przejście z 3 drzemek na 2 dłuższe (rano i po południu)",
+    "Sen nocny może trwać 8–10 godzin z 0–1 nocnym karmieniem"
+   ],
+   "tip": "Wprowadzaj jednoskładnikowe produkty bogate w żelazo, gdy maluch dobrze siedzi, pewnie trzyma główkę i wyraźnie interesuje się jedzeniem."
+  },
+  {
+   "from": 240,
+   "badge": "8–12 miesięcy · Raczkowanie, słowa i ruch",
+   "summary": "Ciekawość rusza na czworakach! Maluch podciąga się do stania, opanowuje chwyt pęsetowy i zaczyna porozumiewać się gestami i pierwszymi słowami.",
+   "motor": [
+    "Raczkuje na rękach i kolanach, przesuwa się na pupie lub pełza",
+    "Podciąga się do stania przy meblach i chodzi bokiem wzdłuż nich",
+    "Opanowuje chwyt pęsetowy (podnosi drobinki kciukiem i palcem wskazującym)",
+    "Przez chwilę stoi sam; może zrobić pierwsze chwiejne kroki!"
+   ],
+   "cognitive": [
+    "Rozumie, że przedmioty istnieją, gdy ich nie widać (znajduje zabawkę pod kocykiem)",
+    "Naśladuje czynności: stuka łyżką, miesza w kubku, macha na pożegnanie",
+    "Bada przestrzeń: wkłada przedmioty do miski i je wysypuje"
+   ],
+   "social": [
+    "Pojawiają się pierwsze słowa z sensem („mama”, „tata”, „piłka”, „mleko”)",
+    "Macha „pa-pa”, kręci głową na „nie” i pokazuje palcem",
+    "Lęk separacyjny i nieufność wobec obcych najsilniejsze są około 9.–10. miesiąca"
+   ],
+   "rhythm": [
+    "Śpi łącznie 12–14 godzin; okna aktywności: 2,5–3,5 godziny",
+    "Stały rytm 2 drzemek (rano ok. 1 h, po południu ok. 1,5 h)",
+    "Większość dzieci może przespać 10–11 godzin w nocy bez karmienia"
+   ],
+   "tip": "Zabezpiecz dom zawczasu! Przymocuj ciężkie meble i telewizor do ściany, zaślep niskie gniazdka i zamontuj bramki przy schodach."
+  },
+  {
+   "from": 365,
+   "badge": "12–18 miesięcy · Chodzenie i pierwsze słowa",
+   "summary": "Pora pożegnać niemowlęctwo! Samodzielne chodzenie, jedzenie rączkami, coraz więcej słów i pierwsze „mam własne zdanie”.",
+   "motor": [
+    "Chodzi samodzielnie i próbuje szybkiego, chwiejnego biegu",
+    "Schyla się po zabawkę z podłogi i nie traci równowagi",
+    "Układa wieżę z 2–3 klocków i bazgrze grubą kredką",
+    "Pije z otwartego kubka i próbuje jeść małą łyżeczką"
+   ],
+   "cognitive": [
+    "Pokazuje przedmioty w książeczce, gdy zapytasz („Gdzie jest piesek?”)",
+    "Wykonuje proste polecenia („Daj mi piłkę”)",
+    "Naśladuje domowe czynności: zamiata, wyciera, „rozmawia” przez zabawkowy telefon"
+   ],
+   "social": [
+    "Konsekwentnie używa 5–20 zrozumiałych słów",
+    "Stanowczo kręci głową i z zapałem mówi „nie!”",
+    "Okazuje empatię: przytula płaczące rodzeństwo albo pluszaka"
+   ],
+   "rhythm": [
+    "Śpi łącznie 12–14 godzin; okna aktywności: 4–5 godzin",
+    "Przejście z 2 drzemek na 1 w środku dnia (zwykle około 14.–16. miesiąca)",
+    "Regresy snu w 12. i 15. miesiącu mogą na jakiś czas utrudniać zasypianie"
+   ],
+   "tip": "Podawaj pełne mleko lub wzbogacone w wapń zamienniki w kubku, a nie w butelce, żeby chronić rosnące ząbki."
+  },
+  {
+   "from": 545,
+   "badge": "18–24+ miesięcy · Wybuch mowy i zabawy",
+   "summary": "Aktywny, gadatliwy i pełen charakteru! Maluch przeżywa wielkie emocje, łączy słowa w krótkie zdania i uwielbia zabawy w udawanie.",
+   "motor": [
+    "Płynnie biega, kopie piłkę do przodu i wchodzi po schodach, trzymając się poręczy",
+    "Buduje wieże z 4–6 klocków; naciska klamki i odkręca nakrętki",
+    "Zaczyna zdejmować proste ubrania i wkładać wsuwane buty"
+   ],
+   "cognitive": [
+    "Bawi się w udawanie (karmi lalkę, jeździ autkiem)",
+    "Sortuje zabawki według koloru, kształtu lub wielkości",
+    "Rozumie pojęcia takie jak „duży i mały” czy „w środku i na zewnątrz”"
+   ],
+   "social": [
+    "Łączy dwa słowa („więcej mleka”, „duże auto”, „mama chodź”)",
+    "Zna ponad 50 słów, a co tydzień przybywa nowych",
+    "Wielkie emocje i napady złości, gdy chęć samodzielności zderza się z ograniczoną mową"
+   ],
+   "rhythm": [
+    "Śpi łącznie 11–13 godzin na dobę",
+    "Jedna dłuższa drzemka w środku dnia, 1,5–2,5 godziny",
+    "Stały, spokojny rytuał przed snem pomaga uniknąć wieczornych walk"
+   ],
+   "tip": "Nazywaj wielkie emocje ze spokojem i empatią: „Jesteś zły, że zabawa się skończyła. Możesz być smutny, ale teraz jemy obiad”."
+  }
+ ],
+ "questions": [
+  {
+   "from": 0,
+   "items": [
+    "Jak często noworodek powinien jeść z piersi lub z butelki?",
+    "Czy to normalne, że noworodek śpi 16–18 godzin na dobę?",
+    "Jaki kolor i konsystencję powinna mieć kupka noworodka?",
+    "Jak uspokoić płaczącego noworodka metodą 5 S?",
+    "Kiedy zacząć leżenie na brzuszku i na jak długo?",
+    "Skąd mam wiedzieć, że dziecko najada się mlekiem?",
+    "Jak bezpiecznie otulić dziecko do snu w nocy?",
+    "Jak delikatnie odbijać dziecko i łagodzić gazy?",
+    "Jak pielęgnować kikut pępowiny?",
+    "Jaka temperatura w pokoju jest najbezpieczniejsza do snu noworodka?",
+    "Dlaczego dziecko we śnie oddycha szybko albo robi przerwy?",
+    "Objawy żółtaczki: kiedy skontaktować się z lekarzem?"
+   ]
+  },
+  {
+   "from": 14,
+   "items": [
+    "Po czym poznać skoki wzrostu w 3. i 6. tygodniu?",
+    "Dlaczego dziecko marudzi wieczorem w „godzinę czarownic”?",
+    "Jakie są typowe okna aktywności u miesięcznego dziecka?",
+    "Kiedy dziecko zaczyna świadomie się uśmiechać?",
+    "Jak łagodzić kolkę, gazy i marudzenie?",
+    "Czy częste ulewanie po karmieniu jest normalne?",
+    "Dlaczego dziecko nagle przez kilka dni bardziej marudzi?",
+    "Ile czasu dziennie dziecko powinno leżeć na brzuszku?",
+    "Zasady bezpiecznego snu: łóżeczko i smoczek",
+    "Jak bezpiecznie leczyć trądzik niemowlęcy i ciemieniuchę?",
+    "Czy nocne karmienie klasterowe oznacza za mało mleka?",
+    "Jak pomóc dziecku odróżnić dzień od nocy?"
+   ]
+  },
+  {
+   "from": 45,
+   "items": [
+    "Kiedy dziecko zacznie gruchać, śmiać się i gaworzyć?",
+    "Jak długo dziecko może teraz nie spać między drzemkami?",
+    "Czy 3–4 godziny między dziennymi karmieniami to norma?",
+    "Kiedy dzieci zaczynają spać dłużej w nocy?",
+    "Jak wprowadzić uspokajający rytuał przed snem?",
+    "Dlaczego dziecko ciągle ssie i gryzie rączki?",
+    "Jak pomóc dziecku wodzić wzrokiem za zabawkami?",
+    "Jak odróżnić przemęczenie od głodu po drobnych sygnałach?",
+    "Zabawy rozwojowe dla dwumiesięcznego dziecka",
+    "Jak zapobiegać spłaszczeniu główki?",
+    "Ile mokrych i brudnych pieluch dziennie to norma?",
+    "Kiedy dziecko będzie pewnie trzymać główkę?"
+   ]
+  },
+  {
+   "from": 90,
+   "items": [
+    "Jak przetrwać regres snu 4. miesiąca?",
+    "Kiedy dzieci uczą się przewracać z brzuszka na plecy?",
+    "Kiedy i jak przestać otulać dziecko do snu?",
+    "Ile drzemek dziennie powinien mieć czteromiesięczny maluch?",
+    "Pierwsze ząbki czy zwykłe ślinienie się?",
+    "Czy dziecko już celnie sięga i chwyta oburącz?",
+    "Kiedy można bezpiecznie zacząć rozszerzanie diety?",
+    "Najlepsze zabawki i zabawy sensoryczne dla 4-miesięcznego dziecka",
+    "Dlaczego w tym tygodniu nagle przybyło nocnych pobudek?",
+    "Jak zachęcić dziecko do podpierania się na nóżkach?",
+    "Czy czteromiesięczne dziecko może pić wodę?",
+    "Przeprowadzka z kosza Mojżesza do łóżeczka w osobnym pokoju"
+   ]
+  },
+  {
+   "from": 150,
+   "items": [
+    "Po czym poznać gotowość do rozszerzania diety (papki czy BLW)?",
+    "Jak bezpiecznie wprowadzać masło orzechowe i alergeny?",
+    "Kiedy dzieci siadają samodzielnie bez podparcia?",
+    "Ile mleka powinno pić dziecko po rozszerzeniu diety?",
+    "Czy dziecko może popijać wodę do posiłków?",
+    "Jak łagodnie przejść z 4 drzemek na 3 (albo 2)?",
+    "Naturalne sposoby na bolące dziąsła przy ząbkowaniu",
+    "Po czym poznać, że dziecko szykuje się do raczkowania?",
+    "Jak pomóc dziecku przekładać zabawki z ręki do ręki?",
+    "Jak radzić sobie z lękiem separacyjnym i nieufnością wobec obcych?",
+    "Najlepsze pierwsze produkty bogate w żelazo dla półrocznego dziecka",
+    "Kiedy dziecko zacznie gaworzyć sylabami, np. „ba-ba”?"
+   ]
+  },
+  {
+   "from": 240,
+   "items": [
+    "Kiedy dzieci uczą się raczkować albo pełzać?",
+    "Stałość przedmiotu i zabawa w „a kuku”: na co zwracać uwagę?",
+    "Kiedy dziecko powie pierwsze świadome słowa?",
+    "Przejście na 2 drzemki (rano i po południu)",
+    "Zdrowe, bogate w żelazo przekąski do samodzielnego jedzenia",
+    "Bezpieczne wstawanie przy meblach i chodzenie wzdłuż nich",
+    "Ćwiczenie chwytu pęsetowego miękkimi kawałkami jedzenia",
+    "Dlaczego dziecko budzi się w nocy, żeby ćwiczyć wstawanie?",
+    "Jak zabezpieczyć dom przed małym odkrywcą?",
+    "Odstawienie butelki: kubek otwarty i kubek ze słomką",
+    "Jak radzić sobie z protestami i przywieraniem przy zasypianiu?",
+    "Reagowanie na imię i rozumienie prostych słów"
+   ]
+  },
+  {
+   "from": 365,
+   "items": [
+    "Kiedy maluch zrobi pierwsze samodzielne kroki?",
+    "Przejście z mleka modyfikowanego lub mamy na pełne mleko krowie",
+    "Przejście z 2 drzemek na 1 po południu",
+    "Ile słów powinien mówić 15-miesięczny maluch?",
+    "Rzucanie jedzeniem i wybredność: jak sobie radzić?",
+    "Jak spokojnie reagować na napady złości i frustrację?",
+    "Kiedy maluch jest gotowy rozstać się ze smoczkiem?",
+    "Jak zachęcać do naśladowania mowy i odgłosów zwierząt?",
+    "Pierwsze buty i zdrowe stopy u dziecka, które zaczyna chodzić",
+    "Regres snu w 12. lub 15. miesiącu: przyczyny i porady",
+    "Łagodne, konsekwentne granice z miłością",
+    "Zabawy sensoryczne i budowanie z klocków dla roczniaka"
+   ]
+  },
+  {
+   "from": 545,
+   "items": [
+    "Wybuch mowy: łączenie 2–3 słów w zdania",
+    "Gotowość do nauki korzystania z nocnika: po czym poznać i kiedy zacząć?",
+    "Bezpieczna przeprowadzka z łóżeczka do łóżka",
+    "Jak z empatią przechodzić przez wielkie emocje i napady złości?",
+    "Samodzielne jedzenie sztućcami i wybredność",
+    "Wspinanie, bieganie i granice bezpieczeństwa",
+    "Zabawa z innymi: nauka dzielenia się i czekania na swoją kolej",
+    "Nocne lęki, koszmary i spokojne zasypianie",
+    "Zdrowe, wartościowe przekąski dla malucha",
+    "Lęk separacyjny przy oddawaniu do żłobka",
+    "Jak wspierać wyobraźnię i zabawy w udawanie?",
+    "Kiedy martwić się opóźnieniem rozwoju mowy?"
+   ]
+  }
+ ],
+ "fallback": [
+  "Ile snu potrzebuje dziecko w tym wieku?",
+  "Czy 3–4 godziny między dziennymi karmieniami to norma?",
+  "Jakie są typowe okna aktywności i plan drzemek?",
+  "Po czym poznać skoki rozwojowe i skoki wzrostu?",
+  "Jak łagodzić kolkę, marudzenie i gazy?",
+  "Rozszerzanie diety: oznaki gotowości i bezpieczeństwo",
+  "Kiedy dziecko zacznie się przewracać i siadać?",
+  "Bezpieczny sen: łóżeczko, temperatura i otulanie"
+ ]
+}

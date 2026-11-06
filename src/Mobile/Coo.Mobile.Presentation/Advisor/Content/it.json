@@ -1,0 +1,379 @@
+{
+ "headings": {
+  "motor": "Movimento e abilità fisiche",
+  "cognitive": "Scoperta e sensi",
+  "social": "Comunicazione e relazione",
+  "rhythm": "Ritmo, sonno e pasti",
+  "tip": "Consiglio del pediatra"
+ },
+ "stages": [
+  {
+   "from": 0,
+   "badge": "0–2 settimane · Neonato",
+   "summary": "Il tuo bambino si sta abituando alla vita fuori dalla pancia. I movimenti sono guidati dai riflessi del neonato, e scopre il mondo attraverso le vostre voci e il vostro tocco.",
+   "motor": [
+    "Forte riflesso di prensione (stringe forte le tue dita)",
+    "Sussulta (riflesso di Moro) a rumori forti o movimenti improvvisi",
+    "A pancia in giù, gira la testa da un lato all’altro",
+    "Tiene braccia e gambe piegate vicino al corpo, con i pugni chiusi"
+   ],
+   "cognitive": [
+    "Vede meglio a 20–30 cm, la distanza del tuo viso durante la poppata",
+    "È attratto dalle forme in bianco e nero ad alto contrasto e dai volti",
+    "Riconosce le voci di mamma e papà sentite nella pancia",
+    "È sensibile agli odori, soprattutto al latte e alla pelle della mamma"
+   ],
+   "social": [
+    "Si calma con il dondolio dolce, la fasciatura e lo «sssh»",
+    "Sorrisi riflessi durante il sonno",
+    "Comunica fame, stanchezza e disagio soprattutto piangendo"
+   ],
+   "rhythm": [
+    "Dorme 16–18 ore al giorno, a brevi tratti di 1,5–3 ore",
+    "Mangia ogni 2–3 ore (8–12 volte al giorno)",
+    "Le finestre di veglia sono brevissime: al massimo 30–45 minuti"
+   ],
+   "tip": "Il contatto pelle a pelle («marsupio-terapia») stabilizza temperatura, zucchero nel sangue e battito del bambino, e rafforza il legame."
+  },
+  {
+   "from": 14,
+   "badge": "2–6 settimane · Risveglio e crescita",
+   "summary": "Il bambino è decisamente più sveglio. Gli scatti di crescita arrivano spesso a 3 e 6 settimane, con poppate ravvicinate e veglie più lunghe.",
+   "motor": [
+    "A pancia in giù, solleva per un attimo la testa (fino a 45°)",
+    "I muscoli del collo si rinforzano e il corpo è meno molle",
+    "Apre i pugni sempre più spesso",
+    "Scalcia in modo fluido e alternato a pancia in su"
+   ],
+   "cognitive": [
+    "Segue per un attimo con lo sguardo volti e oggetti in movimento",
+    "Guarda a lungo colori vivaci e motivi marcati",
+    "Gira la testa di proposito verso le voci familiari",
+    "Si calma con una voce tranquilla, un canticchiare o il rumore bianco"
+   ],
+   "social": [
+    "Compaiono i primi veri sorrisi (di solito verso le 4–6 settimane)!",
+    "Inizia a fare dolci suoni di vocali («a», «o», «e»)",
+    "Mantiene il contatto visivo quando è calmo e sveglio"
+   ],
+   "rhythm": [
+    "Sonno totale: 15–17 ore al giorno; finestre di veglia: 45–60 minuti",
+    "Le «ore delle streghe», con pianti e agitazione, si concentrano spesso la sera",
+    "Le poppate ravvicinate sono molto comuni durante gli scatti di crescita"
+   ],
+   "tip": "Fai ogni giorno 2–3 brevi momenti a pancia in giù (2–3 minuti ciascuno) su un tappetino rigido o sul tuo petto."
+  },
+  {
+   "from": 45,
+   "badge": "6–12 settimane · Sorrisi e gorgheggi",
+   "summary": "Una fase deliziosa e molto socievole! Il bambino risponde alla tua voce con gorgheggi felici, grandi sorrisi e tanto agitare di braccia.",
+   "motor": [
+    "A pancia in giù tiene la testa stabile a 45–90°, appoggiato sugli avambracci",
+    "Porta entrambe le mani alla bocca e gioca con le dita",
+    "Colpisce in modo goffo i giochi appesi",
+    "Spinge con i piedi quando toccano una superficie piana"
+   ],
+   "cognitive": [
+    "Segue con fluidità giochi e volti da un lato all’altro",
+    "Si incanta a guardarsi le mani",
+    "Distingue i familiari dagli estranei",
+    "Reagisce con gioia ai sorrisi e alle voci vivaci"
+   ],
+   "social": [
+    "Ama giocare con la voce: lunghi «ooo», «aaa», «eee»",
+    "Fa «conversazione»: aspetta la tua risposta prima di gorgheggiare di nuovo",
+    "Ridacchia e sorride felice a cucù-settete e al solletico"
+   ],
+   "rhythm": [
+    "Sonno totale: 14–16 ore; finestre di veglia: 60–90 minuti",
+    "Il tratto più lungo di sonno notturno arriva spesso a 3–5 ore",
+    "Durante il giorno si formano 4–5 sonnellini"
+   ],
+   "tip": "Crea una routine fissa di 15 minuti prima della nanna: bagnetto, massaggio delicato, pannolino, poppata e ninna nanna a luce soffusa."
+  },
+  {
+   "from": 90,
+   "badge": "3–5 mesi · Rotolamenti e scoperte",
+   "summary": "Il bambino si muove di più, è curioso e giocherellone. Il sonno matura in cicli simili a quelli degli adulti, il che spesso porta la famosa regressione dei 4 mesi.",
+   "motor": [
+    "Si gira da pancia in giù a pancia in su e prova anche al contrario",
+    "Afferra i giochi con precisione, con entrambe le mani",
+    "A pancia in giù si solleva sulle braccia tese («mini flessioni»)",
+    "Buon controllo della testa, che non resta indietro quando lo tiri a sedere"
+   ],
+   "cognitive": [
+    "Afferra tutto ciò che vede a portata di mano e lo porta alla bocca",
+    "Ride di gusto per suoni buffi e sorprese",
+    "Riconosce il biberon o il seno quando ha fame",
+    "Osserva come si muovono le sue mani e i suoi piedi"
+   ],
+   "social": [
+    "Risate di pancia, gridolini e pernacchie",
+    "Reagisce ai cambiamenti nel tono della voce",
+    "Mostra grande gioia quando entra nella stanza una persona cara"
+   ],
+   "rhythm": [
+    "Sonno totale: 14–15 ore; finestre di veglia: 90–120 minuti",
+    "Di solito 3–4 sonnellini al giorno",
+    "La regressione dei 4 mesi porta spesso, per un po’, più risvegli notturni"
+   ],
+   "tip": "Quando il bambino inizia a girarsi, smetti di fasciarlo e passa a un sacco nanna sicuro che lasci le braccia libere."
+  },
+  {
+   "from": 150,
+   "badge": "5–8 mesi · Seduto, svezzamento e dentini",
+   "summary": "Grandi passi verso l’autonomia: stare seduto senza appoggio, scoprire i primi cibi solidi e lallare con le consonanti.",
+   "motor": [
+    "Sta seduto da solo per alcuni minuti senza appoggiarsi alle mani",
+    "Si gira con facilità in entrambe le direzioni",
+    "Passa un gioco da una mano all’altra",
+    "Avvicina le cose piccole al palmo con le dita; in piedi, regge tutto il peso sulle gambe"
+   ],
+   "cognitive": [
+    "Cerca i giochi caduti (inizio della permanenza dell’oggetto)",
+    "Esplora le consistenze sbattendo i giochi e mordicchiando i massaggiagengive",
+    "Gira subito la testa quando sente il suo nome",
+    "Ha giochi e sapori preferiti ben chiari"
+   ],
+   "social": [
+    "Lalla per sillabe: «ba-ba», «ma-ma», «da-da»",
+    "Usa la voce per esprimere piacere, impazienza e curiosità",
+    "Capisce il tono emotivo e si ferma un attimo quando sente «no»"
+   ],
+   "rhythm": [
+    "Sonno totale: 13–15 ore; finestre di veglia: 2–2,5 ore",
+    "Passaggio da 3 sonnellini a 2 più lunghi (mattina e pomeriggio)",
+    "Il sonno notturno può arrivare a 8–10 ore con 0–1 poppate"
+   ],
+   "tip": "Proponi cibi ricchi di ferro con un solo ingrediente quando il bambino sta seduto bene, controlla la testa e mostra molto interesse."
+  },
+  {
+   "from": 240,
+   "badge": "8–12 mesi · Gattonare, parole e movimento",
+   "summary": "La curiosità va a carponi! Il bambino si tira in piedi, impara la presa a pinza e inizia a comunicare con gesti e prime parole.",
+   "motor": [
+    "Gattona, si sposta da seduto o striscia",
+    "Si tira in piedi ai mobili e cammina di lato tenendosi",
+    "Padroneggia la presa a pinza (raccoglie briciole con pollice e indice)",
+    "Sta in piedi da solo per un attimo; forse fa i primi passi incerti!"
+   ],
+   "cognitive": [
+    "Capisce che le cose esistono anche quando non le vede (trova il gioco sotto la copertina)",
+    "Imita: batte il cucchiaio, mescola nel bicchiere, fa ciao con la mano",
+    "Esplora lo spazio: mette oggetti in una ciotola e li rovescia"
+   ],
+   "social": [
+    "Compaiono le prime parole con significato («mamma», «papà», «palla», «latte»)",
+    "Fa ciao con la mano, scuote la testa per dire «no» e indica con il dito",
+    "L’ansia da separazione e la diffidenza verso gli estranei sono al massimo verso i 9–10 mesi"
+   ],
+   "rhythm": [
+    "Sonno totale: 12–14 ore; finestre di veglia: 2,5–3,5 ore",
+    "Routine stabile con 2 sonnellini (mattina ~1 h, pomeriggio ~1,5 h)",
+    "La maggior parte dei bambini può dormire 10–11 ore di notte senza poppate"
+   ],
+   "tip": "Metti in sicurezza la casa per tempo! Fissa al muro mobili pesanti e TV, copri le prese basse e metti i cancelletti alle scale."
+  },
+  {
+   "from": 365,
+   "badge": "12–18 mesi · Primi passi e prime parole",
+   "summary": "Benvenuto nella prima infanzia! Cammina da solo, mangia con le dita, dice sempre più parole e ha già le sue opinioni.",
+   "motor": [
+    "Cammina da solo e prova una corsetta veloce e traballante",
+    "Si china a raccogliere un gioco da terra senza cadere",
+    "Impila 2–3 cubi e scarabocchia con pastelli grossi",
+    "Beve da un bicchiere aperto e prova a mangiare con un cucchiaino"
+   ],
+   "cognitive": [
+    "Indica gli oggetti in un libro illustrato quando glielo chiedi («Dov’è il cane?»)",
+    "Segue istruzioni semplici («Dammi la palla»)",
+    "Imita i lavori di casa: spazza, pulisce, parla al telefono giocattolo"
+   ],
+   "social": [
+    "Usa con regolarità 5–20 parole riconoscibili",
+    "Scuote la testa con decisione e dice «no!» con entusiasmo",
+    "Mostra empatia: abbraccia un fratellino che piange o il suo peluche"
+   ],
+   "rhythm": [
+    "Sonno totale: 12–14 ore; finestre di veglia: 4–5 ore",
+    "Passaggio da 2 sonnellini a 1 a metà giornata (di solito verso i 14–16 mesi)",
+    "Le regressioni dei 12 e 15 mesi possono rendere difficile la nanna per un po’"
+   ],
+   "tip": "Offri latte intero o bevande arricchite di calcio nel bicchiere invece che nel biberon, per proteggere i dentini."
+  },
+  {
+   "from": 545,
+   "badge": "18–24+ mesi · Esplosione del linguaggio e del gioco",
+   "summary": "Attivo, chiacchierone e pieno di personalità! Vive grandi emozioni, unisce le parole in frasi brevi e adora il gioco di finzione.",
+   "motor": [
+    "Corre con sicurezza, calcia la palla in avanti e sale le scale tenendosi al corrimano",
+    "Costruisce torri di 4–6 cubi; abbassa le maniglie e svita i tappi",
+    "Inizia a togliersi vestiti semplici e a infilare scarpe senza lacci"
+   ],
+   "cognitive": [
+    "Fa giochi di finzione (dà da mangiare alla bambola, guida le macchinine)",
+    "Ordina i giochi per colore, forma o grandezza",
+    "Capisce concetti come «grande e piccolo» o «dentro e fuori»"
+   ],
+   "social": [
+    "Frasi di due parole («ancora latte», «macchina grande», «mamma vieni»)",
+    "Più di 50 parole, con nuove ogni settimana",
+    "Grandi emozioni e capricci quando la voglia di autonomia si scontra con un linguaggio ancora limitato"
+   ],
+   "rhythm": [
+    "Sonno totale: 11–13 ore al giorno",
+    "Un sonnellino lungo a metà giornata, di 1,5–2,5 ore",
+    "Una routine serale calma e costante evita le battaglie della nanna"
+   ],
+   "tip": "Dai un nome alle grandi emozioni con calma ed empatia: «Sei triste perché il gioco è finito. Va bene esserlo, ma ora si pranza»."
+  }
+ ],
+ "questions": [
+  {
+   "from": 0,
+   "items": [
+    "Ogni quanto un neonato dovrebbe poppare o prendere il biberon?",
+    "È normale che il mio neonato dorma 16–18 ore al giorno?",
+    "Di che colore e consistenza dovrebbe essere la cacca del neonato?",
+    "Come calmare un neonato che piange con il metodo delle 5 S?",
+    "Quando iniziare a metterlo a pancia in giù, e per quanto?",
+    "Come capisco se il bambino prende abbastanza latte?",
+    "Come fasciare il bambino in sicurezza per la notte?",
+    "Come fargli fare il ruttino con delicatezza e alleviare l’aria?",
+    "Come curare il moncone del cordone ombelicale?",
+    "Quale temperatura della stanza è più sicura per il sonno del neonato?",
+    "Perché il bambino respira veloce o fa delle pause mentre dorme?",
+    "Segni di ittero: quando devo contattare il medico?"
+   ]
+  },
+  {
+   "from": 14,
+   "items": [
+    "Quali sono i segni degli scatti di crescita delle 3 e 6 settimane?",
+    "Perché il bambino è così agitato la sera?",
+    "Quanto durano di solito le finestre di veglia a un mese?",
+    "Quando i bambini iniziano a sorridere di proposito?",
+    "Come alleviare coliche, aria e agitazione?",
+    "È normale che rigurgiti spesso dopo le poppate?",
+    "Perché il bambino è improvvisamente più nervoso per qualche giorno?",
+    "Quanto tempo a pancia in giù ogni giorno?",
+    "Sonno sicuro: lettino e ciuccio",
+    "Come trattare in sicurezza l’acne neonatale e la crosta lattea?",
+    "Le poppate ravvicinate di notte vogliono dire che ho poco latte?",
+    "Come aiutare il bambino a distinguere il giorno dalla notte?"
+   ]
+  },
+  {
+   "from": 45,
+   "items": [
+    "Quando inizierà a gorgheggiare, ridere e lallare?",
+    "Quanto può restare sveglio adesso tra un sonnellino e l’altro?",
+    "È normale che passino 3–4 ore tra le poppate di giorno?",
+    "Quando i bambini iniziano a dormire tratti più lunghi di notte?",
+    "Come creare una routine rilassante per la nanna?",
+    "Perché si succhia e mordicchia sempre le mani?",
+    "Come aiutarlo a seguire i giochi con lo sguardo?",
+    "Stanchezza o fame? I segnali più sottili",
+    "Giochi per lo sviluppo a 2 mesi",
+    "Come evitare che la testa si appiattisca?",
+    "Quanti pannolini bagnati e sporchi al giorno sono normali?",
+    "Quando terrà la testa dritta senza ciondolare?"
+   ]
+  },
+  {
+   "from": 90,
+   "items": [
+    "Come affrontare la regressione del sonno dei 4 mesi?",
+    "Quando i bambini imparano a girarsi da pancia in giù a pancia in su?",
+    "Quando e come smettere di fasciarlo per la nanna?",
+    "Quanti sonnellini al giorno a 4 mesi?",
+    "Primi dentini o semplice bavetta?",
+    "Afferra già i giochi con entrambe le mani con precisione?",
+    "Quando si può iniziare lo svezzamento in sicurezza?",
+    "I migliori giochi e attività sensoriali a 4 mesi",
+    "Perché questa settimana si sveglia di colpo più spesso di notte?",
+    "Come incoraggiarlo a spingere sulle gambe?",
+    "Un bambino di 4 mesi può bere acqua?",
+    "Passare dalla culla al lettino nella sua cameretta"
+   ]
+  },
+  {
+   "from": 150,
+   "items": [
+    "Come capire se è pronto per lo svezzamento (pappe o autosvezzamento)?",
+    "Come introdurre in sicurezza il burro d’arachidi e gli allergeni?",
+    "Quando i bambini stanno seduti da soli senza appoggio?",
+    "Quanto latte deve bere quando inizia con i cibi solidi?",
+    "Può bere qualche sorso d’acqua durante i pasti?",
+    "Come passare con dolcezza da 4 sonnellini a 3 (o 2)?",
+    "Rimedi delicati per le gengive doloranti durante la dentizione",
+    "Segni che si sta preparando a gattonare",
+    "Come aiutarlo a passare i giochi da una mano all’altra?",
+    "Ansia da separazione e diffidenza verso gli estranei",
+    "I migliori primi cibi ricchi di ferro a 6 mesi",
+    "Quando lallerà sillabe come «ba-ba»?"
+   ]
+  },
+  {
+   "from": 240,
+   "items": [
+    "Quando i bambini imparano a gattonare o strisciare?",
+    "Permanenza dell’oggetto e cucù-settete: quali segnali?",
+    "Quando dirà le prime parole intenzionali?",
+    "Passare a 2 sonnellini (mattina e pomeriggio)",
+    "Idee di finger food ricchi di ferro da mangiare da solo",
+    "Tirarsi in piedi e camminare lungo i mobili in sicurezza",
+    "Allenare la presa a pinza con pezzetti morbidi",
+    "Perché si sveglia di notte per esercitarsi a stare in piedi?",
+    "Come mettere in sicurezza la casa per un piccolo esploratore?",
+    "Addio biberon: bicchiere aperto e bicchiere con cannuccia",
+    "Come gestire proteste e attaccamento al momento della nanna?",
+    "Rispondere al proprio nome e capire parole semplici"
+   ]
+  },
+  {
+   "from": 365,
+   "items": [
+    "Quando il mio bambino farà i primi passi da solo?",
+    "Passare dal latte artificiale o materno al latte vaccino intero",
+    "Passare da 2 sonnellini a 1 nel pomeriggio",
+    "Quante parole dovrebbe dire un bambino di 15 mesi?",
+    "Lancia il cibo ed è selettivo: cosa fare?",
+    "Come reagire con calma ai capricci e alla frustrazione?",
+    "Quando è pronto a lasciare il ciuccio?",
+    "Incoraggiare l’imitazione delle parole e dei versi degli animali",
+    "Le scarpe giuste e piedi sani per i primi passi",
+    "Regressione del sonno a 12 o 15 mesi: cause e consigli",
+    "Mettere limiti dolci e costanti con amore",
+    "Giochi sensoriali e di costruzioni per bambini di un anno"
+   ]
+  },
+  {
+   "from": 545,
+   "items": [
+    "Esplosione del linguaggio: unire 2–3 parole in frasi",
+    "Pronto per il vasino? I segnali e quando iniziare",
+    "Passare dal lettino con le sbarre al letto in sicurezza",
+    "Accompagnare grandi emozioni e capricci con empatia",
+    "Mangiare da solo con le posate e la selettività a tavola",
+    "Arrampicarsi, correre e limiti per la sicurezza",
+    "Giocare con gli altri: imparare a condividere e aspettare il turno",
+    "Paure notturne, incubi e una nanna serena",
+    "Idee per merende sane e nutrienti per i più piccoli",
+    "Ansia da separazione al nido",
+    "Incoraggiare la fantasia e il gioco di finzione",
+    "Quando preoccuparsi di un ritardo nel linguaggio?"
+   ]
+  }
+ ],
+ "fallback": [
+  "Quanto sonno serve al mio bambino alla sua età?",
+  "È normale che passino 3–4 ore tra le poppate di giorno?",
+  "Quanto durano le finestre di veglia e quanti sonnellini sono normali?",
+  "Come riconoscere scatti di crescita e salti di sviluppo?",
+  "Come alleviare coliche, agitazione e aria?",
+  "Svezzamento: segni che è pronto e sicurezza",
+  "Quando inizierà a girarsi e a stare seduto?",
+  "Sonno sicuro: lettino, temperatura e fasciatura"
+ ]
+}

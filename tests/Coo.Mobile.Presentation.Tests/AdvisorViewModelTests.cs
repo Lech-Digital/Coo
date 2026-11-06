@@ -189,7 +189,7 @@ public sealed class AdvisorViewModelTests
 
         vm.DevelopmentTitle.Should().Contain("6–12 Weeks");
         vm.DevelopmentSummary.Should().NotBeNullOrWhiteSpace();
-        vm.DevelopmentFullGuide.Should().Contain("Movement & Physical Skills");
+        vm.DevelopmentFullGuide.Should().Contain("Movement & physical skills");
         vm.SuggestedQuestions.Should().HaveCount(5);
     }
 

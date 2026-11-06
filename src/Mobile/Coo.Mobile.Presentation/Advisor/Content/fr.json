@@ -1,0 +1,379 @@
+{
+ "headings": {
+  "motor": "Mouvement et motricité",
+  "cognitive": "Éveil et sens",
+  "social": "Communication et lien",
+  "rhythm": "Rythme, sommeil et repas",
+  "tip": "Conseil du pédiatre"
+ },
+ "stages": [
+  {
+   "from": 0,
+   "badge": "0–2 semaines · Nouveau-né",
+   "summary": "Votre bébé s’habitue à la vie hors du ventre. Ses mouvements sont guidés par les réflexes du nouveau-né, et il découvre le monde par vos voix et votre toucher.",
+   "motor": [
+    "Fort réflexe d’agrippement (serre vos doigts très fort)",
+    "Sursaute (réflexe de Moro) au moindre bruit fort ou mouvement brusque",
+    "Tourne la tête d’un côté à l’autre sur le ventre",
+    "Garde bras et jambes repliés près du corps, poings serrés"
+   ],
+   "cognitive": [
+    "Voit le mieux à 20–30 cm, la distance de votre visage pendant la tétée",
+    "Attiré par les formes noires et blanches très contrastées et par les visages",
+    "Reconnaît les voix de maman et papa entendues dans le ventre",
+    "Très sensible aux odeurs, surtout celle du lait et de la peau de maman"
+   ],
+   "social": [
+    "S’apaise quand on le berce doucement, l’emmaillote ou fait « chut »",
+    "Sourires réflexes pendant le sommeil",
+    "Exprime la faim, la fatigue et l’inconfort surtout en pleurant"
+   ],
+   "rhythm": [
+    "Dort 16 à 18 heures par 24 h, par courtes périodes de 1 h 30 à 3 h",
+    "Mange toutes les 2 à 3 heures (8 à 12 fois par jour)",
+    "Les temps d’éveil sont très courts : 30 à 45 minutes au plus"
+   ],
+   "tip": "Le peau à peau (« méthode kangourou ») stabilise la température, la glycémie et le rythme cardiaque de bébé, et renforce le lien."
+  },
+  {
+   "from": 14,
+   "badge": "2–6 semaines · Éveil et croissance",
+   "summary": "Bébé devient nettement plus éveillé. Les pics de croissance arrivent souvent vers 3 et 6 semaines, avec des tétées rapprochées et des éveils plus longs.",
+   "motor": [
+    "Soulève brièvement la tête (jusqu’à 45°) sur le ventre",
+    "Les muscles du cou se renforcent, le corps est moins mou",
+    "Ouvre de plus en plus souvent ses poings",
+    "Pédale en douceur, une jambe après l’autre, sur le dos"
+   ],
+   "cognitive": [
+    "Suit brièvement des yeux les visages et les objets qui bougent",
+    "Regarde longtemps les couleurs vives et les motifs marqués",
+    "Tourne volontairement la tête vers les voix familières",
+    "Se calme avec une voix douce, un fredonnement ou un bruit blanc"
+   ],
+   "social": [
+    "Les premiers vrais sourires apparaissent (souvent vers 4–6 semaines) !",
+    "Commence à faire de doux sons de voyelles (« a », « o », « è »)",
+    "Soutient le regard plus longtemps quand il est calme et éveillé"
+   ],
+   "rhythm": [
+    "Sommeil total : 15 à 17 heures par jour ; temps d’éveil : 45 à 60 minutes",
+    "Les pleurs du soir, « l’heure des sorcières », culminent souvent en soirée",
+    "Les tétées rapprochées sont très fréquentes pendant les pics de croissance"
+   ],
+   "tip": "Faites chaque jour 2 à 3 courtes séances sur le ventre (2 à 3 minutes chacune), sur un tapis ferme ou sur votre poitrine."
+  },
+  {
+   "from": 45,
+   "badge": "6–12 semaines · Sourires et gazouillis",
+   "summary": "Une période adorable et très sociable ! Bébé répond à votre voix par de joyeux gazouillis, de grands sourires et de grands mouvements de bras.",
+   "motor": [
+    "Tient la tête stable à 45–90° sur le ventre, appuyé sur les avant-bras",
+    "Porte les deux mains à la bouche et joue avec ses doigts",
+    "Tape maladroitement sur les jouets suspendus",
+    "Pousse sur ses pieds quand ils touchent une surface plane"
+   ],
+   "cognitive": [
+    "Suit avec fluidité jouets et visages d’un côté à l’autre",
+    "Observe ses propres mains avec fascination",
+    "Distingue les proches des inconnus",
+    "Réagit avec joie aux sourires et aux voix animées"
+   ],
+   "social": [
+    "Adore jouer avec sa voix : de longs « ooo », « aaa », « iii »",
+    "Fait la « conversation » : attend votre réponse avant de gazouiller à nouveau",
+    "Glousse et sourit largement au « coucou-caché » et aux chatouilles"
+   ],
+   "rhythm": [
+    "Sommeil total : 14 à 16 heures ; temps d’éveil : 60 à 90 minutes",
+    "La plus longue période de sommeil de la nuit atteint souvent 3 à 5 heures",
+    "La journée s’organise en 4 à 5 siestes"
+   ],
+   "tip": "Installez un rituel du coucher régulier de 15 minutes : bain, massage doux, couche, tétée et berceuse dans une lumière tamisée."
+  },
+  {
+   "from": 90,
+   "badge": "3–5 mois · Retournements et découvertes",
+   "summary": "Bébé bouge de plus en plus, devient curieux et joueur. Son sommeil mûrit en cycles proches de ceux de l’adulte, ce qui provoque souvent la fameuse régression des 4 mois.",
+   "motor": [
+    "Se retourne du ventre sur le dos et essaie du dos sur le ventre",
+    "Attrape les jouets avec précision, à deux mains",
+    "Se redresse sur les bras tendus sur le ventre (« mini-pompes »)",
+    "Bon maintien de la tête, qui ne tombe plus en arrière quand on le tire assis"
+   ],
+   "cognitive": [
+    "Attrape tout ce qu’il voit à sa portée et le porte à la bouche",
+    "Rit aux éclats des bruits rigolos et des surprises",
+    "Reconnaît le biberon ou le sein quand il a faim",
+    "Regarde ses mains et ses pieds bouger"
+   ],
+   "social": [
+    "Grands éclats de rire, petits cris et bruits de bouche",
+    "Réagit aux changements de ton de la voix",
+    "Montre une vraie joie quand un proche entre dans la pièce"
+   ],
+   "rhythm": [
+    "Sommeil total : 14 à 15 heures ; temps d’éveil : 90 à 120 minutes",
+    "En général 3 à 4 siestes par jour",
+    "La régression des 4 mois entraîne souvent un temps des réveils nocturnes plus fréquents"
+   ],
+   "tip": "Dès que bébé commence à se retourner, arrêtez l’emmaillotage et passez à une gigoteuse sûre qui laisse les bras libres."
+  },
+  {
+   "from": 150,
+   "badge": "5–8 mois · Assis, diversification et dents",
+   "summary": "De grands pas vers l’autonomie : tenir assis sans appui, découvrir les premiers aliments solides et babiller avec des consonnes.",
+   "motor": [
+    "Tient assis seul plusieurs minutes sans s’appuyer sur les mains",
+    "Se retourne facilement dans les deux sens",
+    "Passe un jouet d’une main à l’autre",
+    "Ramène les petits objets vers sa paume avec les doigts ; debout, porte tout son poids sur les jambes"
+   ],
+   "cognitive": [
+    "Cherche les jouets tombés (début de la permanence de l’objet)",
+    "Explore les textures en tapant les jouets et en mâchouillant des anneaux de dentition",
+    "Tourne vite la tête quand on l’appelle par son prénom",
+    "A des jouets et des goûts préférés bien marqués"
+   ],
+   "social": [
+    "Babille en syllabes : « ba-ba », « ma-ma », « da-da »",
+    "Exprime avec sa voix le plaisir, l’impatience et la curiosité",
+    "Comprend le ton émotionnel et s’arrête un instant quand il entend « non »"
+   ],
+   "rhythm": [
+    "Sommeil total : 13 à 15 heures ; temps d’éveil : 2 h à 2 h 30",
+    "Passage de 3 siestes à 2 vraies siestes (matin et après-midi)",
+    "La nuit peut durer 8 à 10 heures avec 0 ou 1 tétée"
+   ],
+   "tip": "Proposez des aliments riches en fer à un seul ingrédient quand bébé tient bien assis, maîtrise sa tête et montre un vrai intérêt."
+  },
+  {
+   "from": 240,
+   "badge": "8–12 mois · Quatre pattes, mots et mouvement",
+   "summary": "La curiosité passe à quatre pattes ! Bébé se met debout en s’agrippant, maîtrise la pince fine et commence à communiquer par gestes et premiers mots.",
+   "motor": [
+    "Marche à quatre pattes, se déplace sur les fesses ou rampe",
+    "Se met debout contre les meubles et longe les bords",
+    "Maîtrise la pince fine (attrape les miettes entre le pouce et l’index)",
+    "Tient debout seul quelques instants ; peut faire ses premiers pas hésitants !"
+   ],
+   "cognitive": [
+    "Comprend que les objets existent même cachés (trouve un jouet sous une couverture)",
+    "Imite : tape avec la cuillère, remue dans un gobelet, fait au revoir",
+    "Explore l’espace : met des objets dans un bol et les renverse"
+   ],
+   "social": [
+    "Premiers mots avec du sens (« maman », « papa », « balle », « lait »)",
+    "Fait « au revoir », secoue la tête pour dire « non » et montre du doigt",
+    "L’angoisse de séparation et la peur des inconnus culminent vers 9–10 mois"
+   ],
+   "rhythm": [
+    "Sommeil total : 12 à 14 heures ; temps d’éveil : 2 h 30 à 3 h 30",
+    "Rythme stable à 2 siestes (matin env. 1 h, après-midi env. 1 h 30)",
+    "La plupart des bébés peuvent dormir 10 à 11 heures la nuit sans manger"
+   ],
+   "tip": "Sécurisez la maison tôt ! Fixez meubles lourds et télévision au mur, protégez les prises basses et installez des barrières d’escalier."
+  },
+  {
+   "from": 365,
+   "badge": "12–18 mois · Premiers pas et premiers mots",
+   "summary": "Bienvenue chez les tout-petits ! Marche autonome, aliments à attraper avec les doigts, de plus en plus de mots, et des avis bien à lui.",
+   "motor": [
+    "Marche seul et tente une course rapide et chancelante",
+    "Se penche pour ramasser un jouet sans tomber",
+    "Empile 2 à 3 cubes et gribouille avec de gros crayons",
+    "Boit dans un gobelet ouvert et essaie de manger avec une petite cuillère"
+   ],
+   "cognitive": [
+    "Montre les objets dans un imagier quand on lui demande (« Où est le chien ? »)",
+    "Suit des consignes simples (« Donne-moi la balle »)",
+    "Imite les tâches du quotidien : balaie, essuie, parle au téléphone-jouet"
+   ],
+   "social": [
+    "Utilise régulièrement 5 à 20 mots compréhensibles",
+    "Secoue la tête avec énergie et dit « non ! » avec enthousiasme",
+    "Montre de l’empathie : fait un câlin à un frère ou une sœur qui pleure, ou à son doudou"
+   ],
+   "rhythm": [
+    "Sommeil total : 12 à 14 heures ; temps d’éveil : 4 à 5 heures",
+    "Passage de 2 siestes à 1 sieste en milieu de journée (souvent vers 14–16 mois)",
+    "Les régressions de 12 et 15 mois peuvent compliquer le coucher pendant un temps"
+   ],
+   "tip": "Proposez le lait entier ou une boisson enrichie en calcium au gobelet plutôt qu’au biberon, pour protéger les dents."
+  },
+  {
+   "from": 545,
+   "badge": "18–24+ mois · Explosion du langage et du jeu",
+   "summary": "Actif, bavard et plein de caractère ! Le tout-petit vit de grandes émotions, assemble les mots en petites phrases et adore faire semblant.",
+   "motor": [
+    "Court avec aisance, frappe un ballon devant lui et monte l’escalier en tenant la rampe",
+    "Construit des tours de 4 à 6 cubes ; abaisse les poignées et dévisse les couvercles",
+    "Commence à enlever ses vêtements simples et à enfiler des chaussures sans lacets"
+   ],
+   "cognitive": [
+    "Joue à faire semblant (nourrit la poupée, fait rouler les voitures)",
+    "Trie les jouets par couleur, forme ou taille",
+    "Comprend « grand et petit », « dedans et dehors »"
+   ],
+   "social": [
+    "Phrases de deux mots (« encore lait », « gros camion », « maman viens »)",
+    "Plus de 50 mots, avec de nouveaux chaque semaine",
+    "Grandes émotions et colères quand l’envie d’autonomie se heurte à un langage encore limité"
+   ],
+   "rhythm": [
+    "Sommeil total : 11 à 13 heures par jour",
+    "Une vraie sieste en milieu de journée, de 1 h 30 à 2 h 30",
+    "Un rituel du coucher calme et régulier évite les batailles du soir"
+   ],
+   "tip": "Nommez les grandes émotions avec calme et empathie : « Tu es déçu que le jeu soit fini. Tu as le droit d’être triste, mais c’est l’heure de manger. »"
+  }
+ ],
+ "questions": [
+  {
+   "from": 0,
+   "items": [
+    "À quelle fréquence un nouveau-né doit-il téter ou prendre un biberon ?",
+    "Est-ce normal que mon nouveau-né dorme 16 à 18 heures par jour ?",
+    "Quelle couleur et quelle consistance doivent avoir les selles d’un nouveau-né ?",
+    "Comment calmer un nouveau-né qui pleure avec la méthode des 5 S ?",
+    "Quand commencer la position sur le ventre, et combien de temps ?",
+    "Comment savoir si bébé boit assez de lait ?",
+    "Comment emmailloter bébé en toute sécurité pour la nuit ?",
+    "Comment faire faire le rot en douceur et soulager les gaz ?",
+    "Comment soigner le cordon ombilical ?",
+    "Quelle température de chambre est la plus sûre pour le sommeil du nouveau-né ?",
+    "Pourquoi bébé respire-t-il vite ou fait-il des pauses en dormant ?",
+    "Signes de jaunisse : quand contacter le médecin ?"
+   ]
+  },
+  {
+   "from": 14,
+   "items": [
+    "Quels sont les signes des pics de croissance de 3 et 6 semaines ?",
+    "Pourquoi bébé est-il si agité le soir ?",
+    "Quels temps d’éveil sont habituels à un mois ?",
+    "Quand les bébés commencent-ils à sourire volontairement ?",
+    "Comment soulager les coliques, les gaz et l’agitation ?",
+    "Les régurgitations fréquentes après les tétées sont-elles normales ?",
+    "Pourquoi bébé est-il soudain plus grognon pendant quelques jours ?",
+    "Combien de temps sur le ventre chaque jour ?",
+    "Sommeil sûr : lit de bébé et tétine",
+    "Comment traiter sans risque l’acné du nourrisson et les croûtes de lait ?",
+    "Les tétées rapprochées la nuit veulent-elles dire que je manque de lait ?",
+    "Comment aider bébé à distinguer le jour de la nuit ?"
+   ]
+  },
+  {
+   "from": 45,
+   "items": [
+    "Quand bébé va-t-il gazouiller, rire et babiller ?",
+    "Combien de temps bébé peut-il rester éveillé entre deux siestes maintenant ?",
+    "3 à 4 heures entre les repas de la journée, est-ce normal ?",
+    "Quand les bébés dorment-ils plus longtemps la nuit ?",
+    "Comment mettre en place un rituel du coucher apaisant ?",
+    "Pourquoi bébé suce-t-il et mâchouille-t-il sans arrêt ses mains ?",
+    "Comment aider bébé à suivre les jouets des yeux ?",
+    "Fatigue ou faim ? Reconnaître les signes discrets",
+    "Jeux d’éveil pour un bébé de 2 mois",
+    "Comment éviter que l’arrière de la tête s’aplatisse ?",
+    "Combien de couches mouillées et sales par jour, c’est normal ?",
+    "Quand bébé tiendra-t-il sa tête sans qu’elle ballotte ?"
+   ]
+  },
+  {
+   "from": 90,
+   "items": [
+    "Comment traverser la régression du sommeil des 4 mois ?",
+    "Quand les bébés apprennent-ils à se retourner du ventre sur le dos ?",
+    "Quand et comment arrêter l’emmaillotage ?",
+    "Combien de siestes par jour à 4 mois ?",
+    "Premières dents ou simple bave ?",
+    "Bébé attrape-t-il déjà ses jouets à deux mains avec précision ?",
+    "Quand peut-on commencer la diversification en toute sécurité ?",
+    "Les meilleurs jouets et jeux d’éveil à 4 mois",
+    "Pourquoi les réveils nocturnes ont-ils soudain augmenté cette semaine ?",
+    "Comment encourager bébé à s’appuyer sur ses jambes ?",
+    "Un bébé de 4 mois peut-il boire de l’eau ?",
+    "Passer du berceau au lit dans sa chambre"
+   ]
+  },
+  {
+   "from": 150,
+   "items": [
+    "Signes que bébé est prêt pour la diversification (purées ou DME) ?",
+    "Comment introduire sans risque le beurre de cacahuète et les allergènes ?",
+    "Quand les bébés tiennent-ils assis sans appui ?",
+    "Quelle quantité de lait une fois la diversification commencée ?",
+    "Bébé peut-il boire quelques gorgées d’eau pendant les repas ?",
+    "Comment passer en douceur de 4 siestes à 3 (ou 2) ?",
+    "Remèdes doux pour soulager les gencives pendant les poussées dentaires",
+    "Signes que bébé se prépare à marcher à quatre pattes",
+    "Comment aider bébé à passer un jouet d’une main à l’autre ?",
+    "Gérer l’angoisse de séparation et la peur des inconnus",
+    "Les meilleurs premiers aliments riches en fer à 6 mois",
+    "Quand bébé babillera-t-il des syllabes comme « ba-ba » ?"
+   ]
+  },
+  {
+   "from": 240,
+   "items": [
+    "Quand les bébés apprennent-ils à marcher à quatre pattes ou à ramper ?",
+    "Permanence de l’objet et « coucou-caché » : quels signes ?",
+    "Quand bébé dira-t-il ses premiers vrais mots ?",
+    "Passer à 2 siestes (matin et après-midi)",
+    "Idées d’aliments riches en fer à manger avec les doigts",
+    "Se mettre debout et longer les meubles en sécurité",
+    "Travailler la pince fine avec des morceaux tendres",
+    "Pourquoi bébé se réveille-t-il la nuit pour s’entraîner à se lever ?",
+    "Comment sécuriser la maison pour un petit explorateur ?",
+    "Arrêter le biberon : gobelet ouvert et gobelet à paille",
+    "Gérer les protestations et le besoin de bras au coucher",
+    "Réagir à son prénom et comprendre des mots simples"
+   ]
+  },
+  {
+   "from": 365,
+   "items": [
+    "Quand mon tout-petit fera-t-il ses premiers pas seul ?",
+    "Passer du lait infantile ou maternel au lait de vache entier",
+    "Passer de 2 siestes à 1 sieste l’après-midi",
+    "Combien de mots devrait dire un enfant de 15 mois ?",
+    "Il jette la nourriture et trie dans son assiette : que faire ?",
+    "Comment réagir calmement aux colères et à la frustration ?",
+    "Quand mon enfant est-il prêt à arrêter la tétine ?",
+    "Encourager l’imitation des mots et des cris d’animaux",
+    "Les bonnes chaussures et des pieds sains pour les premiers pas",
+    "Régression du sommeil à 12 ou 15 mois : causes et conseils",
+    "Poser des limites douces et constantes avec amour",
+    "Jeux d’éveil sensoriel et de cubes pour un enfant d’un an"
+   ]
+  },
+  {
+   "from": 545,
+   "items": [
+    "Explosion du langage : assembler 2 à 3 mots",
+    "Prêt pour le pot ? Les signes et le bon moment",
+    "Passer du lit à barreaux à un lit d’enfant en sécurité",
+    "Accompagner les grandes émotions et les colères avec empathie",
+    "Manger seul avec des couverts et gérer les refus alimentaires",
+    "Grimper, courir et poser des limites pour la sécurité",
+    "Jouer avec les autres : apprendre à partager et à attendre son tour",
+    "Peurs nocturnes, cauchemars et coucher serein",
+    "Idées de goûters sains et nourrissants pour les tout-petits",
+    "L’angoisse de séparation à la crèche",
+    "Encourager l’imagination et les jeux de faire semblant",
+    "Quand s’inquiéter d’un retard de langage ?"
+   ]
+  }
+ ],
+ "fallback": [
+  "De combien de sommeil mon bébé a-t-il besoin à son âge ?",
+  "3 à 4 heures entre les repas de la journée, est-ce normal ?",
+  "Quels temps d’éveil et combien de siestes sont habituels ?",
+  "Comment reconnaître les pics de croissance et les étapes de développement ?",
+  "Comment soulager les coliques, l’agitation et les gaz ?",
+  "Diversification : signes que bébé est prêt et sécurité",
+  "Quand bébé va-t-il se retourner et tenir assis ?",
+  "Sommeil sûr : lit, température et emmaillotage"
+ ]
+}

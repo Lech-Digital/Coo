@@ -1,0 +1,379 @@
+{
+ "headings": {
+  "motor": "Bewegung & Motorik",
+  "cognitive": "Denken & Sinne",
+  "social": "Kommunikation & Miteinander",
+  "rhythm": "Rhythmus, Schlaf & Füttern",
+  "tip": "Tipp aus der Kinderarztpraxis"
+ },
+ "stages": [
+  {
+   "from": 0,
+   "badge": "0–2 Wochen · Neugeborenes",
+   "summary": "Dein Baby gewöhnt sich an das Leben außerhalb des Bauches. Bewegungen werden von Neugeborenenreflexen gesteuert, und es erkundet die Welt über eure Stimmen und Berührungen.",
+   "motor": [
+    "Starker Greifreflex (umklammert deine Finger fest)",
+    "Erschrickt (Moro-Reflex) bei lauten Geräuschen oder plötzlichen Bewegungen",
+    "Dreht in Bauchlage den Kopf von Seite zu Seite",
+    "Hält Arme und Beine angewinkelt nah am Körper, die Hände zu Fäusten geballt"
+   ],
+   "cognitive": [
+    "Sieht am besten auf 20–30 cm, so weit ist dein Gesicht beim Füttern entfernt",
+    "Fühlt sich von kontrastreichen Schwarz-Weiß-Formen und Gesichtern angezogen",
+    "Erkennt die Stimmen von Mama und Papa, die es im Bauch gehört hat",
+    "Reagiert stark auf Gerüche, besonders auf Muttermilch und Mamas Haut"
+   ],
+   "social": [
+    "Beruhigt sich bei sanftem Wiegen, Pucken und Sch-Lauten",
+    "Lächelt reflexartig im Schlaf",
+    "Zeigt Hunger, Müdigkeit und Unwohlsein vor allem durch Weinen"
+   ],
+   "rhythm": [
+    "Schläft 16–18 Stunden am Tag, in kurzen Abschnitten von 1,5–3 Stunden",
+    "Trinkt alle 2–3 Stunden (8–12 Mal am Tag)",
+    "Wachphasen sind sehr kurz: höchstens 30–45 Minuten"
+   ],
+   "tip": "Haut-an-Haut-Kontakt („Känguruen“) stabilisiert Körpertemperatur, Blutzucker und Herzschlag deines Babys und stärkt die Bindung."
+  },
+  {
+   "from": 14,
+   "badge": "2–6 Wochen · Aufwachen & Wachsen",
+   "summary": "Dein Baby wird merklich wacher. Wachstumsschübe kommen oft mit 3 und 6 Wochen, mit häufigem Trinken und längeren Wachphasen.",
+   "motor": [
+    "Hebt in Bauchlage kurz den Kopf (bis 45°)",
+    "Die Nackenmuskeln werden kräftiger, der Körper weniger schlaff",
+    "Öffnet die Fäuste immer öfter",
+    "Strampelt in Rückenlage gleichmäßig abwechselnd mit den Beinen"
+   ],
+   "cognitive": [
+    "Folgt Gesichtern und bewegten Dingen kurz mit den Augen",
+    "Schaut länger auf leuchtende Farben und kräftige Muster",
+    "Dreht den Kopf gezielt zu vertrauten Stimmen",
+    "Beruhigt sich bei ruhiger Stimme, Summen oder weißem Rauschen"
+   ],
+   "social": [
+    "Das erste bewusste Lächeln erscheint (meist mit 4–6 Wochen)!",
+    "Macht erste weiche Vokallaute („ah“, „oh“, „eh“)",
+    "Hält in ruhigen Wachphasen längeren Blickkontakt"
+   ],
+   "rhythm": [
+    "Schlaf insgesamt: 15–17 Stunden am Tag; Wachphasen: 45–60 Minuten",
+    "Unruhige „Schreistunden“ häufen sich am Abend",
+    "Clusterfeeding ist während Wachstumsschüben sehr häufig"
+   ],
+   "tip": "Lege dein Baby täglich 2–3 Mal kurz auf den Bauch (je 2–3 Minuten), auf eine feste Matte oder auf deine Brust."
+  },
+  {
+   "from": 45,
+   "badge": "6–12 Wochen · Lächeln & Gurren",
+   "summary": "Eine herrlich gesellige Zeit! Dein Baby antwortet auf deine Stimme mit fröhlichem Gurren, breitem Grinsen und lebhaftem Armerudern.",
+   "motor": [
+    "Hält in Bauchlage den Kopf stabil bei 45–90° und stützt sich auf die Unterarme",
+    "Führt beide Hände zum Mund und spielt mit den Fingern",
+    "Schlägt ungelenk nach hängendem Spielzeug",
+    "Drückt sich mit den Füßen ab, wenn sie eine feste Fläche berühren"
+   ],
+   "cognitive": [
+    "Folgt Spielzeug und Gesichtern flüssig von einer Seite zur anderen",
+    "Betrachtet staunend die eigenen Hände",
+    "Unterscheidet vertraute Menschen von Fremden",
+    "Reagiert freudig auf Lächeln und lebhafte Stimmen"
+   ],
+   "social": [
+    "Liebt Lautspiele: lange „ooo“, „aaa“, „eee“",
+    "Führt „Gespräche“: wartet auf deine Antwort, bevor es weitergurrt",
+    "Gluckst und strahlt bei Guck-guck-Spielen und Kitzeln"
+   ],
+   "rhythm": [
+    "Schlaf insgesamt: 14–16 Stunden; Wachphasen: 60–90 Minuten",
+    "Die längste Schlafstrecke in der Nacht wächst oft auf 3–5 Stunden",
+    "Tagsüber bilden sich 4–5 erkennbare Schläfchen"
+   ],
+   "tip": "Führe ein festes, 15-minütiges Abendritual ein: Baden, sanfte Massage, Windel, Trinken und ein Schlaflied bei gedämpftem Licht."
+  },
+  {
+   "from": 90,
+   "badge": "3–5 Monate · Drehen & Entdecken",
+   "summary": "Dein Baby wird beweglicher, neugieriger und verspielter. Der Schlaf reift zu erwachsenenähnlichen Zyklen, was oft die bekannte 4-Monats-Schlafregression auslöst.",
+   "motor": [
+    "Dreht sich vom Bauch auf den Rücken und versucht es umgekehrt",
+    "Greift gezielt nach Spielzeug, mit beiden Händen",
+    "Stützt sich in Bauchlage auf gestreckte Arme („Mini-Liegestütze“)",
+    "Gute Kopfkontrolle: der Kopf hängt nicht nach, wenn du es zum Sitzen hochziehst"
+   ],
+   "cognitive": [
+    "Greift nach allem in Reichweite und steckt alles in den Mund",
+    "Lacht laut über lustige Geräusche und Überraschungen",
+    "Erkennt Flasche oder Brust, wenn es Hunger hat",
+    "Beobachtet, wie sich Hände und Füße bewegen"
+   ],
+   "social": [
+    "Lacht aus vollem Bauch, quietscht und macht Prustegeräusche",
+    "Reagiert auf Veränderungen im Tonfall",
+    "Freut sich sichtbar, wenn vertraute Menschen ins Zimmer kommen"
+   ],
+   "rhythm": [
+    "Schlaf insgesamt: 14–15 Stunden; Wachphasen: 90–120 Minuten",
+    "Meist 3–4 Schläfchen am Tag",
+    "Die 4-Monats-Schlafregression bringt oft vorübergehend mehr nächtliches Aufwachen"
+   ],
+   "tip": "Sobald sich dein Baby zu drehen beginnt, hör mit dem Pucken auf und nimm einen sicheren Schlafsack, in dem die Arme frei sind."
+  },
+  {
+   "from": 150,
+   "badge": "5–8 Monate · Sitzen, Beikost & Zähne",
+   "summary": "Große Schritte in die Selbstständigkeit: freies Sitzen, erste Breie und Happen, und Plappern mit Konsonanten.",
+   "motor": [
+    "Sitzt einige Minuten frei, ohne sich mit den Händen abzustützen",
+    "Dreht sich flüssig in beide Richtungen",
+    "Gibt Spielzeug von einer Hand in die andere",
+    "Zieht kleine Dinge mit den Fingern in die Handfläche; trägt im Stand das volle Gewicht auf den Beinen"
+   ],
+   "cognitive": [
+    "Sucht heruntergefallenes Spielzeug (Anfang der Objektpermanenz)",
+    "Erforscht Oberflächen: schlägt Spielzeug aneinander und kaut auf Beißringen",
+    "Dreht sich schnell um, wenn es seinen Namen hört",
+    "Hat deutliche Lieblingsspielzeuge und Lieblingsgeschmäcker"
+   ],
+   "social": [
+    "Plappert Silbenketten: „ba-ba“, „ma-ma“, „da-da“",
+    "Zeigt mit der Stimme Freude, Ungeduld und Neugier",
+    "Versteht den Gefühlston und hält kurz inne, wenn es „nein“ hört"
+   ],
+   "rhythm": [
+    "Schlaf insgesamt: 13–15 Stunden; Wachphasen: 2–2,5 Stunden",
+    "Übergang von 3 auf 2 feste Schläfchen (vormittags und nachmittags)",
+    "Nachts sind 8–10 Stunden mit 0–1 Mahlzeit möglich"
+   ],
+   "tip": "Biete eisenreiche Lebensmittel mit nur einer Zutat an, wenn dein Baby gut sitzt, den Kopf sicher hält und großes Interesse am Essen zeigt."
+  },
+  {
+   "from": 240,
+   "badge": "8–12 Monate · Krabbeln, Wörter & Bewegung",
+   "summary": "Die Neugier geht auf alle viere! Dein Baby zieht sich zum Stehen hoch, beherrscht den Pinzettengriff und verständigt sich mit Gesten und ersten Wörtern.",
+   "motor": [
+    "Krabbelt auf Händen und Knien, rutscht auf dem Po oder robbt",
+    "Zieht sich an Möbeln hoch und läuft seitlich daran entlang",
+    "Beherrscht den Pinzettengriff (nimmt Krümel mit Daumen und Zeigefinger)",
+    "Steht kurz allein; vielleicht kommen die ersten wackligen Schritte!"
+   ],
+   "cognitive": [
+    "Versteht, dass Dinge weiter existieren (findet Spielzeug unter der Decke)",
+    "Ahmt nach: klopft mit dem Löffel, rührt im Becher, winkt zum Abschied",
+    "Erkundet Räume: legt Dinge in eine Schüssel und kippt sie wieder aus"
+   ],
+   "social": [
+    "Erste Wörter mit Bedeutung („Mama“, „Papa“, „Ball“, „Milch“)",
+    "Winkt „tschüss“, schüttelt den Kopf für „nein“ und zeigt mit dem Finger",
+    "Trennungsangst und Fremdeln sind mit etwa 9–10 Monaten am stärksten"
+   ],
+   "rhythm": [
+    "Schlaf insgesamt: 12–14 Stunden; Wachphasen: 2,5–3,5 Stunden",
+    "Fester Rhythmus mit 2 Schläfchen (vormittags ca. 1 h, nachmittags ca. 1,5 h)",
+    "Die meisten Babys können nachts 10–11 Stunden ohne Mahlzeit schlafen"
+   ],
+   "tip": "Mach die Wohnung früh kindersicher! Schwere Möbel und Fernseher an der Wand befestigen, tiefe Steckdosen sichern, Treppen mit Gittern absperren."
+  },
+  {
+   "from": 365,
+   "badge": "12–18 Monate · Laufen & erste Wörter",
+   "summary": "Willkommen im Kleinkindalter! Freies Laufen, Essen mit den Fingern, immer mehr Wörter und eine eigene Meinung.",
+   "motor": [
+    "Läuft frei und versucht ein schnelles, wackliges Rennen",
+    "Bückt sich nach Spielzeug, ohne umzufallen",
+    "Stapelt 2–3 Klötze und kritzelt mit dicken Stiften",
+    "Trinkt aus dem offenen Becher und versucht, mit einem kleinen Löffel zu essen"
+   ],
+   "cognitive": [
+    "Zeigt auf Dinge im Bilderbuch, wenn du fragst („Wo ist der Hund?“)",
+    "Folgt einfachen Aufforderungen („Gib mir den Ball“)",
+    "Ahmt Alltagsarbeiten nach: fegt, wischt, telefoniert mit dem Spielzeugtelefon"
+   ],
+   "social": [
+    "Benutzt regelmäßig 5–20 verständliche Wörter",
+    "Schüttelt energisch den Kopf und sagt begeistert „nein!“",
+    "Zeigt Mitgefühl: umarmt ein weinendes Geschwisterkind oder kuschelt mit dem Stofftier"
+   ],
+   "rhythm": [
+    "Schlaf insgesamt: 12–14 Stunden; Wachphasen: 4–5 Stunden",
+    "Übergang von 2 Schläfchen auf 1 Mittagsschlaf (meist mit 14–16 Monaten)",
+    "Schlafregressionen mit 12 und 15 Monaten können das Einschlafen vorübergehend erschweren"
+   ],
+   "tip": "Gib Vollmilch oder kalziumangereicherte Alternativen im Becher statt in der Flasche, um die wachsenden Zähne zu schützen."
+  },
+  {
+   "from": 545,
+   "badge": "18–24+ Monate · Sprach- & Spielexplosion",
+   "summary": "Aktiv, gesprächig und voller Persönlichkeit! Kleinkinder erleben große Gefühle, verbinden Wörter zu kurzen Sätzen und lieben Rollenspiele.",
+   "motor": [
+    "Rennt sicher, kickt Bälle nach vorn und steigt Treppen am Geländer",
+    "Baut Türme aus 4–6 Klötzen; drückt Türklinken und schraubt Deckel ab",
+    "Beginnt, einfache Kleidung auszuziehen und Schlupfschuhe anzuziehen"
+   ],
+   "cognitive": [
+    "Spielt Fantasiespiele (füttert Puppen, fährt mit Autos)",
+    "Sortiert Spielzeug nach Farbe, Form oder Größe",
+    "Versteht Begriffe wie „groß und klein“ oder „drinnen und draußen“"
+   ],
+   "social": [
+    "Zwei-Wort-Sätze („mehr Milch“, „großes Auto“, „Mama komm“)",
+    "Wortschatz von über 50 Wörtern, jede Woche kommen neue dazu",
+    "Große Gefühle und Wutanfälle, wenn der Wunsch nach Selbstständigkeit auf begrenzte Sprache trifft"
+   ],
+   "rhythm": [
+    "Schlaf insgesamt: 11–13 Stunden am Tag",
+    "Ein fester Mittagsschlaf von 1,5–2,5 Stunden",
+    "Ein ruhiges, gleichbleibendes Abendritual hilft gegen Machtkämpfe beim Schlafengehen"
+   ],
+   "tip": "Benenne große Gefühle ruhig und mitfühlend: „Du bist traurig, dass das Spielen vorbei ist. Das darfst du sein, aber jetzt gibt es Mittagessen.“"
+  }
+ ],
+ "questions": [
+  {
+   "from": 0,
+   "items": [
+    "Wie oft sollte ein Neugeborenes gestillt werden oder die Flasche bekommen?",
+    "Ist es normal, dass mein Neugeborenes 16–18 Stunden am Tag schläft?",
+    "Welche Farbe und Konsistenz sollte der Stuhl eines Neugeborenen haben?",
+    "Wie beruhige ich ein weinendes Neugeborenes mit den 5 S?",
+    "Wann sollten wir mit der Bauchlage beginnen, und wie lange?",
+    "Woran erkenne ich, dass mein Baby genug Milch bekommt?",
+    "Wie pucke ich mein Baby sicher für die Nacht?",
+    "Wie lasse ich mein Baby sanft aufstoßen und lindere Blähungen?",
+    "Wie pflege ich den Nabelschnurrest?",
+    "Welche Zimmertemperatur ist für den Schlaf eines Neugeborenen am sichersten?",
+    "Warum atmet mein Baby im Schlaf schnell oder macht Pausen?",
+    "Anzeichen von Gelbsucht: Wann sollte ich zum Arzt?"
+   ]
+  },
+  {
+   "from": 14,
+   "items": [
+    "Woran erkenne ich die Wachstumsschübe mit 3 und 6 Wochen?",
+    "Warum ist mein Baby abends in der „Schreistunde“ so unruhig?",
+    "Wie lang sind typische Wachphasen mit einem Monat?",
+    "Wann lächeln Babys zum ersten Mal bewusst?",
+    "Wie lindere ich Koliken, Blähungen und Unruhe?",
+    "Ist häufiges Spucken nach dem Trinken normal?",
+    "Warum ist mein Baby plötzlich ein paar Tage lang unruhiger?",
+    "Wie viel Bauchlage sollten wir jeden Tag machen?",
+    "Sicherer Schlaf: Babybett und Schnuller",
+    "Wie behandle ich Babyakne und Milchschorf sicher?",
+    "Ist häufiges Trinken in der Nacht ein Zeichen für zu wenig Milch?",
+    "Wie helfe ich meinem Baby, Tag und Nacht zu unterscheiden?"
+   ]
+  },
+  {
+   "from": 45,
+   "items": [
+    "Wann fängt mein Baby an zu gurren, zu lachen und zu plappern?",
+    "Wie lange kann mein Baby jetzt zwischen den Schläfchen wach bleiben?",
+    "Sind 3–4 Stunden zwischen den Mahlzeiten am Tag normal?",
+    "Wann schlafen Babys nachts länger am Stück?",
+    "Wie führe ich ein beruhigendes Abendritual ein?",
+    "Warum saugt und kaut mein Baby ständig an den Händen?",
+    "Wie helfe ich meinem Baby, Spielzeug mit den Augen zu folgen?",
+    "Müde oder hungrig? Die feinen Anzeichen erkennen",
+    "Spielideen für die Entwicklung mit 2 Monaten",
+    "Wie beuge ich einem abgeflachten Hinterkopf vor?",
+    "Wie viele nasse und volle Windeln am Tag sind normal?",
+    "Wann kann mein Baby den Kopf sicher halten?"
+   ]
+  },
+  {
+   "from": 90,
+   "items": [
+    "Wie überstehen wir die 4-Monats-Schlafregression?",
+    "Wann lernen Babys, sich vom Bauch auf den Rücken zu drehen?",
+    "Wann und wie hören wir mit dem Pucken auf?",
+    "Wie viele Schläfchen braucht ein 4 Monate altes Baby?",
+    "Erste Zähne oder einfach nur Sabbern?",
+    "Greift mein Baby schon gezielt mit beiden Händen?",
+    "Wann können wir sicher mit Beikost anfangen?",
+    "Die besten Spielzeuge und Sinnesspiele mit 4 Monaten",
+    "Warum wacht mein Baby diese Woche plötzlich öfter auf?",
+    "Wie ermutige ich mein Baby, sich auf die Beine zu stützen?",
+    "Darf ein 4 Monate altes Baby Wasser trinken?",
+    "Umzug vom Beistellbett ins eigene Bett im Kinderzimmer"
+   ]
+  },
+  {
+   "from": 150,
+   "items": [
+    "Woran erkenne ich, dass mein Baby bereit für Beikost ist (Brei oder Baby-led Weaning)?",
+    "Wie führe ich Erdnussbutter und andere Allergene sicher ein?",
+    "Wann sitzen Babys frei ohne Stütze?",
+    "Wie viel Milch braucht mein Baby, wenn es Beikost isst?",
+    "Darf mein Baby zum Essen kleine Schlucke Wasser trinken?",
+    "Wie gelingt der Übergang von 4 auf 3 (oder 2) Schläfchen?",
+    "Sanfte Hilfen bei schmerzendem Zahnfleisch beim Zahnen",
+    "Woran erkenne ich, dass mein Baby bald krabbelt?",
+    "Wie helfe ich meinem Baby, Spielzeug von Hand zu Hand zu geben?",
+    "Umgang mit Trennungsangst und Fremdeln",
+    "Die besten eisenreichen ersten Lebensmittel mit 6 Monaten",
+    "Wann plappert mein Baby Silben wie „ba-ba“?"
+   ]
+  },
+  {
+   "from": 240,
+   "items": [
+    "Wann lernen Babys krabbeln oder robben?",
+    "Objektpermanenz und Guck-guck: Woran erkenne ich sie?",
+    "Wann sagt mein Baby die ersten bewussten Wörter?",
+    "Umstellung auf 2 Schläfchen (vormittags und nachmittags)",
+    "Gesunde, eisenreiche Fingerfood-Ideen zum Selberessen",
+    "Sicheres Hochziehen und Entlanglaufen an Möbeln",
+    "Pinzettengriff üben mit weichem Fingerfood",
+    "Warum wacht mein Baby nachts auf, um das Stehen zu üben?",
+    "Wie mache ich die Wohnung sicher für einen kleinen Entdecker?",
+    "Abschied von der Flasche: offener Becher und Strohhalmbecher",
+    "Umgang mit Protest und Klammern beim Schlafengehen",
+    "Auf den eigenen Namen reagieren und einfache Wörter verstehen"
+   ]
+  },
+  {
+   "from": 365,
+   "items": [
+    "Wann macht mein Kleinkind die ersten freien Schritte?",
+    "Umstieg von Pre-Nahrung oder Muttermilch auf Vollmilch",
+    "Von 2 Schläfchen auf 1 Mittagsschlaf",
+    "Wie viele Wörter sollte ein 15 Monate altes Kind sagen?",
+    "Essen werfen und wählerisches Essen: Was hilft?",
+    "Wie reagiere ich ruhig auf Wutanfälle und Frust?",
+    "Wann ist mein Kind bereit, den Schnuller abzugeben?",
+    "Nachsprechen und Tiergeräusche fördern",
+    "Die richtigen Schuhe und gesunde Füße für Laufanfänger",
+    "Schlafregression mit 12 oder 15 Monaten: Ursachen und Tipps",
+    "Liebevolle, klare und beständige Grenzen setzen",
+    "Sinnesspiele und Bauklötze für Einjährige"
+   ]
+  },
+  {
+   "from": 545,
+   "items": [
+    "Sprachexplosion: 2–3 Wörter zu Sätzen verbinden",
+    "Bereit fürs Töpfchen? Anzeichen und der richtige Zeitpunkt",
+    "Sicherer Umzug vom Gitterbett ins Kinderbett",
+    "Große Gefühle, Zusammenbrüche und Wutanfälle mit Mitgefühl begleiten",
+    "Selbstständig mit Besteck essen und wählerisches Essen",
+    "Klettern, Rennen und Grenzen für die Sicherheit",
+    "Spielen mit anderen: Teilen und Abwarten lernen",
+    "Nächtliche Ängste, Albträume und ruhiges Einschlafen",
+    "Gesunde, nährstoffreiche Snacks für Kleinkinder",
+    "Trennungsangst beim Abgeben in der Kita",
+    "Fantasie und Rollenspiele fördern",
+    "Wann sollte ich mir wegen der Sprachentwicklung Sorgen machen?"
+   ]
+  }
+ ],
+ "fallback": [
+  "Wie viel Schlaf braucht mein Baby in seinem Alter?",
+  "Sind 3–4 Stunden zwischen den Mahlzeiten am Tag normal?",
+  "Wie lang sind typische Wachphasen, und wie viele Schläfchen?",
+  "Woran erkenne ich Entwicklungs- und Wachstumsschübe?",
+  "Wie lindere ich Koliken, Unruhe und Blähungen?",
+  "Beikost: Anzeichen der Bereitschaft und Sicherheit",
+  "Wann dreht sich mein Baby, und wann sitzt es?",
+  "Sicherer Schlaf: Babybett, Temperatur und Pucken"
+ ]
+}

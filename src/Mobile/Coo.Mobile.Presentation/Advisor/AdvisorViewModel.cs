@@ -178,12 +178,7 @@ public partial class AdvisorViewModel(
                 var stage = AdvisorKnowledgeBase.GetStage(daysOld);
                 DevelopmentTitle = stage.StageBadge;
                 DevelopmentSummary = stage.Summary;
-                DevelopmentFullGuide =
-                    $"🏃 Movement & Physical Skills\n{stage.MotorSkills}\n\n" +
-                    $"🧠 Cognitive & Senses\n{stage.CognitiveSensory}\n\n" +
-                    $"💬 Communication & Social\n{stage.SocialSpeech}\n\n" +
-                    $"💤 Rhythm, Sleep & Feeding\n{stage.RhythmSleep}\n\n" +
-                    $"💡 Pediatric Tip\n{stage.PediatricTip}";
+                DevelopmentFullGuide = AdvisorKnowledgeBase.FullGuide(stage);
 
                 _allQuestionsPool = AdvisorKnowledgeBase.GetQuestionPool(daysOld);
                 LoadQuestionBatch();

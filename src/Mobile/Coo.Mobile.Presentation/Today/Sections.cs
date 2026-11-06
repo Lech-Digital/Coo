@@ -859,8 +859,8 @@ public sealed partial class AdvisorTipSection : ObservableObject, IHomeSection
     public void Update(HomeSnapshot snapshot)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
-        var daysOld = snapshot.Baby.IsBorn && snapshot.Baby.BirthDate is { } b
-            ? Math.Max(0, DateOnly.FromDateTime(snapshot.Now.LocalDateTime).DayNumber - b.DayNumber)
+        var daysOld = snapshot.Baby.IsBorn
+            ? BabyAge.On(snapshot.Baby, DateOnly.FromDateTime(snapshot.Now.LocalDateTime)).CorrectedDays
             : 14;
 
         var info = Coo.Mobile.Presentation.Advisor.AdvisorKnowledgeBase.GetStage(daysOld);
