@@ -1,27 +1,38 @@
 # The handover — music prompt
 
-The film is 76 s and its cuts sit on a 120 BPM grid: a 7 s live-action shot, then a 3 s Mochi card, seven times, then a
-6 s end card. Generate the track, save it as `music.mp3` (or `.wav`) next to this file, and the edit lines the cards
+The film is about 75 s: seven live-action shots of 6–9 s, each followed by a 3 s Mochi card, then a 6 s end card. Generate the track, save it as `music.mp3` (or `.wav`) next to this file, and the edit lines the cards
 up with its beats, trims it to 76 s and fades the end. It replaces the synthesised placeholder.
 
-Gemini first (one prompt below); Suno as a fallback.
+Gemini first (two prompts below); Suno as a fallback.
 
-## Gemini (one prompt, copy all of it)
+## Gemini: two prompts, two chats
+
+Generating the music and the whisper separately keeps the voice out of the music: in one track Gemini whispered
+"Mochi" three times (over the grandparents, the sleep pattern card and the end). The edit puts the whisper exactly
+where the end card is complete. Save them here as `soundtrack.mp3` and `whisper.mp3`.
+
+### 1 · The music (new chat)
 
 ```
-Create an instrumental soundtrack for a 76-second commercial for a baby tracker app called Mochi. Warm cinematic lullaby pop at 120 BPM with a half-time feel: felt piano, music box, soft fingerpicked acoustic guitar, marimba, light brushed percussion, a warm analog pad and gentle strings. Tender, hopeful and intimate, like a premium phone commercial. No singing.
+Create a purely instrumental soundtrack, 80 seconds long, for a commercial for a baby tracker app. Warm cinematic lullaby pop at 124 BPM with a half-time feel: felt piano, music box, soft fingerpicked acoustic guitar, marimba, light brushed percussion, a warm analog pad and gentle strings. Tender, hopeful and intimate, like a premium phone commercial.
 
-Follow this timeline exactly:
-0:00–0:20 Night. Very quiet and sparse: felt piano and a music box only, no drums.
-0:20–0:30 Morning light. A soft fingerpicked acoustic guitar comes in, still no drums.
-0:30–0:50 Daytime. A gentle groove: brushed percussion and marimba join, warm and light.
-0:50–1:10 Evening. The warmest part: soft strings swell, fuller and content.
-1:10–1:16 Ending. Everything drops to one soft, ringing piano chord. At 1:11, a single word is whispered close to the microphone, warm and smiling: "Mochi". Then the chord rings out to silence.
+There are no vocals of any kind anywhere in the track: no singing, no humming, no whispers, no spoken words, no breaths, no choir.
 
-The whispered "Mochi" is the only voice in the whole track.
+Follow this timeline:
+0:00–0:19 Night. Very quiet and sparse: felt piano and a music box only, no drums.
+0:19–0:29 Morning light. A soft fingerpicked acoustic guitar comes in, still no drums.
+0:29–0:50 Daytime. A gentle groove: brushed percussion and marimba join, warm and light.
+0:50–1:09 Afternoon into evening. The warmest part: soft strings swell, fuller and content.
+1:09–1:20 Ending. Everything drops to one soft piano chord that rings out slowly to silence. Leave this ending calm and empty.
 ```
 
-If Gemini makes shorter tracks than 76 s, ask for the ending on its own with the same prompt and "only the last 15 seconds", and the edit joins the two.
+### 2 · The whisper (another new chat)
+
+```
+Create a 3-second audio clip of a single word, "Mochi", whispered close to the microphone by a warm, gentle female voice, smiling as she says it, like a soft secret. Nothing before or after it: no music, no other words, no breath sounds, a quiet clean room.
+```
+
+Make 3–4 takes of each and keep the best; for the music, the one with the quietest first 19 seconds.
 
 ## Suno instead
 
