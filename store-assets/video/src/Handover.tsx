@@ -4,8 +4,8 @@ import { C, Fonts, Mochi, Phone, Wash, Wordmark } from './parts';
 import { End, Side, useSpringAt } from './YouTube';
 
 /** "The handover" (store-assets/youtube/*-mochi-handover): seven Gemini (Veo) shots of Tom and Anna, each followed by a
- * full-screen Mochi card with the real app, then the end card. A shot is 5 s (from 1.5 s into the 8 s clip), a card
- * 3 s, so every pair is 8 s = 4 bars at 120 BPM; 7 pairs and the 6 s end card make 62 s.
+ * full-screen Mochi card with the real app, then the end card. A shot is 7 s of the 10 s clip, a card 3 s, so every
+ * pair is 10 s = 5 bars at 120 BPM; 7 pairs and the 6 s end card make 76 s.
  * Until the clips are in public/handover/1.mp4 … 7.mp4, pass { clips: false } for placeholders. */
 export type HandoverProps = { clips: boolean };
 
@@ -13,17 +13,18 @@ type Card =
   | { kind: 'brand'; dark?: boolean }
   | { kind: 'screen'; src: string; kicker: string; text: string; dark?: boolean; family?: boolean };
 
-const PAIRS: { shot: string; card: Card }[] = [
-  { shot: 'Night, the nursery', card: { kind: 'brand', dark: true } },
-  { shot: 'One hand, in the dark', card: { kind: 'screen', src: 's7-night.png', kicker: 'Night mode', text: 'Logged with one hand.', dark: true } },
-  { shot: 'Morning', card: { kind: 'screen', src: 's1-today.png', kicker: 'Today', text: 'The whole night, at a glance.' } },
-  { shot: 'She takes over', card: { kind: 'screen', src: 's8-timer.png', kicker: 'Breastfeeding timer', text: 'Right side. One tap.' } },
-  { shot: 'The day goes by', card: { kind: 'screen', src: 's2-log.png', kicker: 'Baby log', text: 'Every feed, sleep and diaper.' } },
-  { shot: 'Grandma checks in', card: { kind: 'screen', src: 's2-log.png', kicker: 'Shared baby log', text: 'Grandparents can follow along.', family: true } },
-  { shot: 'Evening, together', card: { kind: 'screen', src: 's4-stats.png', kicker: 'Sleep pattern', text: 'It learns her rhythm.' } },
+// from: where in the 10 s Gemini clip the 7 s we use starts (picked from the takes, 2026-11-06).
+const PAIRS: { shot: string; from: number; card: Card }[] = [
+  { shot: 'Night, the nursery', from: 2.0, card: { kind: 'brand', dark: true } },
+  { shot: 'One hand, in the dark', from: 2.0, card: { kind: 'screen', src: 's7-night.png', kicker: 'Night mode', text: 'Logged with one hand.', dark: true } },
+  { shot: 'Morning', from: 1.5, card: { kind: 'screen', src: 's1-today.png', kicker: 'Today', text: 'The whole night, at a glance.' } },
+  { shot: 'She takes over', from: 2.0, card: { kind: 'screen', src: 's8-timer.png', kicker: 'Breastfeeding timer', text: 'Right side. One tap.' } },
+  { shot: 'The day goes by', from: 1.0, card: { kind: 'screen', src: 's2-log.png', kicker: 'Baby log', text: 'Every feed, sleep and diaper.' } },
+  { shot: 'Grandma checks in', from: 0.5, card: { kind: 'screen', src: 's2-log.png', kicker: 'Shared baby log', text: 'Grandparents can follow along.', family: true } },
+  { shot: 'Evening, together', from: 1.0, card: { kind: 'screen', src: 's4-stats.png', kicker: 'Sleep pattern', text: 'It learns her rhythm.' } },
 ];
 
-const SHOT = 150;
+const SHOT = 210;
 const CARD = 90;
 
 /** The Mochi logo in the corner over every live-action shot, so a frame anywhere in the film is branded. */
@@ -33,13 +34,17 @@ const Bug: React.FC = () => (
   </div>
 );
 
-const Shot: React.FC<{ i: number; title: string; clips: boolean }> = ({ i, title, clips }) => {
+const Shot: React.FC<{ i: number; title: string; from: number; clips: boolean }> = ({ i, title, from, clips }) => {
   const frame = useCurrentFrame();
   const fade = interpolate(frame, [0, 6], [0, 1], { extrapolateRight: 'clamp' });
   return (
     <AbsoluteFill style={{ background: '#111', opacity: fade }}>
       {clips ? (
-        <OffthreadVideo src={staticFile(`handover/${i + 1}.mp4`)} startFrom={45} volume={0.45} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <OffthreadVideo
+          src={staticFile(`handover/${i + 1}.mp4`)}
+          startFrom={Math.round(from * 30)}
+          volume={(f) => 0.45 * interpolate(f, [0, 8, SHOT - 8, SHOT], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       ) : (
         <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center', background: 'linear-gradient(135deg, #2A2E26, #3A3328)' }}>
           <div style={{ fontSize: 30, letterSpacing: 4, color: '#97A486', fontWeight: 700 }}>GEMINI SHOT {i + 1}</div>
@@ -111,7 +116,7 @@ export const Handover: React.FC<HandoverProps> = ({ clips }) => (
       return (
         <React.Fragment key={i}>
           <Sequence from={at} durationInFrames={SHOT}>
-            <Shot i={i} title={p.shot} clips={clips} />
+            <Shot i={i} title={p.shot} from={p.from} clips={clips} />
           </Sequence>
           <Sequence from={at + SHOT} durationInFrames={CARD}>
             {p.card.kind === 'brand' ? <BrandCard dark={p.card.dark} /> : <ScreenCard card={p.card} />}

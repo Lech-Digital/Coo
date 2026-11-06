@@ -1,7 +1,7 @@
 # The handover — live-action promo (Gemini / Veo + real screens)
 
-- **Uploaded:** _(not yet; rename the folder to the upload date)_ · 16:9, ~50 s
-- **Prompts to paste:** `prompts.md` (one complete block per shot)
+- **Uploaded:** _(not yet; rename the folder to the upload date)_ · 16:9, 76 s
+- **Prompts to paste:** `prompts.md` (one complete block per shot, one Gemini chat each), `music.md` (the soundtrack)
 - **Source:** Gemini clips in `clips/` (git-ignored), cut with the real screens in `store-assets/video`
 - **Link:** _(add once uploaded)_
 
@@ -26,8 +26,8 @@ Mochi is a baby tracker for Android: feeds, sleep, diapers and pumping in one ta
 
 ## The cut
 
-Every Gemini shot (5 s) is followed by a full-screen Mochi card (3 s), and a small Mochi sits in the corner over the
-live-action, so any frame of the film is branded. Built in `store-assets/video/src/Handover.tsx`, 62 s:
+Every Gemini shot (7 s of the 10 s take) is followed by a full-screen Mochi card (3 s), and a small Mochi sits in the corner over the
+live-action, so any frame of the film is branded. Built in `store-assets/video/src/Handover.tsx`, 76 s:
 
 | # | Gemini shot | Then the Mochi card |
 |---|---|---|

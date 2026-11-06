@@ -3,7 +3,7 @@
 arpeggio over Fmaj7 - Am7 - Dm9 - G, a quiet pad, pops on the card beats and a riser into the end card.
 Run: python3 make-music.py            ->  public/music.wav     (the 36 s vertical launch film)
      python3 make-music.py youtube    ->  public/music-yt.wav  (the 68 s 16:9 YouTube film)
-     python3 make-music.py handover   ->  public/music-handover.wav  (the 62 s live-action film)"""
+     python3 make-music.py handover   ->  public/music-handover.wav  (the 76 s live-action film)"""
 import math, random, struct, sys, wave, os
 
 CUT = sys.argv[1] if len(sys.argv) > 1 else 'launch'
@@ -19,9 +19,9 @@ CUTS = {
                     # The words; the question; the four quick-log tiles; the Next up cards; "offline, no ads, no
                     # trackers".
                     pops=[0, 0.5, 1.0, 1.5, 2.0, 4.5, 5.0, 5.5, 14.5, 15.0, 15.5, 16.0, 31.0, 32.0, 33.0, 58.5, 59.0, 59.5]),
-    'handover': dict(length=62.0, end_bar=28, quiet=[0, 1, 2, 3, 4, 5, 6, 7], out='music-handover.wav',
-                     # Each Mochi card after a Gemini shot (every 8 s from 5 s); the night ones are drum-less.
-                     pops=[5.0, 13.0, 21.0, 29.0, 37.0, 45.0, 53.0]),
+    'handover': dict(length=76.0, end_bar=35, quiet=list(range(10)), out='music-handover.wav',
+                     # Each Mochi card after a Gemini shot (every 10 s from 7 s); the two night pairs are drum-less.
+                     pops=[7.0, 17.0, 27.0, 37.0, 47.0, 57.0, 67.0]),
 }[CUT]
 LENGTH = CUTS['length']
 N = int(SR * LENGTH)
