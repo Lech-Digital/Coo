@@ -20,6 +20,10 @@ A new matcha look (ADR 0012), the fixes from the design and UX reviews, and Moch
 next feed, bedtime, night wakings, the sleep pattern and this week's changes. Once it is live, raise
 `AppUpdates:Latest` to 32 and deploy: 1.11.0 got no update prompt, so this one asks everyone.
 
+### Fixed
+- **The Log no longer crashes when you tap the day's timeline**, which happened most often on a second tap while the
+  zoomed hours were still closing. Every bottom sheet now lets go of what it showed before showing it again.
+
 ### Changed
 - **A new matcha look.** The icon is Mochi on a lighter, softer matcha green; the "mochi" name at the top has rounder
   letters and Mochi itself as the dot on the "i"; buttons and links are a fresh leaf green, and pills, the selected tab
