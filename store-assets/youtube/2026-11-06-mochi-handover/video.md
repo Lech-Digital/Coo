@@ -1,4 +1,30 @@
-# "The handover" — a live-action promo made with Gemini (Veo)
+# The handover — live-action promo (Gemini / Veo + real screens)
+
+- **Uploaded:** _(not yet; rename the folder to the upload date)_ · 16:9, ~50 s
+- **Prompts to paste:** `prompts.md` (one complete block per shot)
+- **Source:** Gemini clips in `clips/` (git-ignored), cut with the real screens in `store-assets/video`
+- **Link:** _(add once uploaded)_
+
+## Title (draft)
+
+```
+Mochi Baby Tracker: one night, one log, two parents
+```
+
+## Description (draft)
+
+```
+He did the night. She got the whole night at a glance. 🍵
+
+Mochi is a baby tracker for Android: feeds, sleep, diapers and pumping in one tap, one shared log for both parents, and a night mode for one hand in the dark. From your own log it works out which side is next and when the next feed and nap are likely.
+
+📲 Google Play: https://play.google.com/store/apps/details?id=com.lechdigital.coo
+🌐 More: https://lechdigital.nl/mochi/
+
+#babytracker #newborn #newparents #breastfeeding #babysleep #parenting
+```
+
+## The plan
 
 A ~50 s film about one day and one night with a newborn, told through two parents who hardly see each other but
 always know what happened, because it's in Mochi. Gemini makes the people shots (8 s each); the phone screens are
@@ -14,7 +40,7 @@ the real app, cut in by the Remotion project (`store-assets/video`), because Veo
 - **No music from Veo.** Ask for room sound only; the film gets the Mochi soundtrack in the edit.
 - Generate 2–4 takes of each shot and keep the best. 16:9 for YouTube; the same prompts with "vertical 9:16" for a Short.
 
-## Paste into every prompt
+## The style and characters (already inside every block in prompts.md)
 
 > **STYLE:** Cinematic, warm and natural, like a premium phone commercial. Handheld but steady, shallow depth of
 > field, 35 mm look, soft practical light. Muted, warm palette with soft sage greens and cream; nothing neon. Real,
@@ -87,5 +113,5 @@ show it readable". Never ask it to reproduce the screen.
 
 ## When the clips are back
 
-Drop them in `store-assets/video/public/handover/` as `1.mp4` … `7.mp4`, and the Remotion project cuts them with the
-inserts, captions and the music on the beat.
+Save them in `clips/` here as `1.mp4` … `7.mp4`; the Remotion project copies them into `public/handover/` and cuts
+them with the inserts, captions and the music on the beat.
