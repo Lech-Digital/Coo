@@ -16,9 +16,10 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 
 ## Unreleased
 
-## Unreleased
-
 ### Changed
+- **A new matcha look.** The icon is Mochi on a lighter, softer matcha green; the "mochi" name at the top has rounder
+  letters and Mochi itself as the dot on the "i"; buttons and links are a fresh leaf green, and pills, the selected tab
+  and the baby's avatar are matcha.
 - **Night wakings are no longer treated like day wake windows.** At night a baby usually feeds and goes back to sleep
   within minutes, so Today no longer shows the age's day window (such as "60–90 min") at 3 AM. Instead, once a baby has
   three nights of wakings logged, the night screen says when she is likely back asleep ("Back to sleep · likely

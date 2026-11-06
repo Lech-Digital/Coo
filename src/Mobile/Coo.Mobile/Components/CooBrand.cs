@@ -2,7 +2,7 @@ using Coo.Mobile.Presentation.Today;
 
 namespace Coo.Mobile.Components;
 
-/// <summary>The "mochi" wordmark: "moch" in ink and the "i" in the accent; with Premium, a gold PREMIUM tag beside it.</summary>
+/// <summary>The "mochi" wordmark: "moch" in ink, the "i" in the accent with the bunny as its dot; with Premium, a gold PREMIUM tag beside it.</summary>
 public static class CooBrand
 {
     public static readonly Color DayGold = Color.FromArgb("#C5921D");
@@ -10,19 +10,16 @@ public static class CooBrand
 
     public static Color Gold(bool isNight) => isNight ? NightGold : DayGold;
 
+    /// <param name="fontSize">The size of the letters, as a font size (see <see cref="WordmarkView"/>).</param>
     public static View CreateMark(bool isPremium, bool isNight, Action? longPress = null, double fontSize = 24)
     {
-        // "moch" in ink and the "i" in the accent; Premium adds a small gold PREMIUM tag beside it (owner, 2026-11-05).
-        var formatted = new FormattedString();
-        formatted.Spans.Add(new Span { Text = "moch", FontFamily = "FigtreeBold", FontSize = fontSize }
-            .Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Ink")));
-        formatted.Spans.Add(new Span { Text = "i", FontFamily = "FigtreeBold", FontSize = fontSize }
-            .Tap(x => x.SetDynamicResource(Span.TextColorProperty, "Accent")));
-
-        var label = new Label
+        // Fredoka "moch" in ink, the "i" stem in the accent and the logo bunny as its dot (owner, 2026-11-06), drawn
+        // from outlines on one canvas so the app needs no extra font and every part stands on the same baseline.
+        var label = new WordmarkView(fontSize)
         {
-            FormattedText = formatted,
             VerticalOptions = LayoutOptions.Center,
+            HorizontalOptions = LayoutOptions.Start,
+            InputTransparent = longPress == null,
         };
 
         if (longPress != null)

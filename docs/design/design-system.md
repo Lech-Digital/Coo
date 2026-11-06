@@ -11,7 +11,7 @@ Washi UX combines three things:
 - its **candle-lit amber night mode**;
 - **soft pastel colour coding per care event**, taken from the Mochi exploration.
 
-**Figtree** is the only typeface. The product promise it serves is "reducing friction at 3 AM":
+**Figtree** is the only typeface in the interface; the wordmark alone is drawn from Fredoka (§3). The product promise it serves is "reducing friction at 3 AM":
 calm by day, dim and warm by night, and readable at a glance with bleary eyes.
 
 The token names below are the resource keys the MAUI app uses (`Coo.Mobile/Resources/Styles`).
@@ -42,13 +42,14 @@ They are the contract between this document and the XAML.
 | `Line` | `#D8DACB` | `#2C3228` | Hairline borders and separators |
 | `Ink` | `#262A22` | `#D9E3C8` | Primary text and icons |
 | `Ink2` | `#62685A` | `#97A486` | Secondary text, metadata |
-| `Accent` | `#3F6B4A` (matcha) | `#9DBB7E` (light matcha) | Primary actions, links |
-| `AccentSoft` | `#E3EBD8` | `#283022` | Pills, selected states |
-| `AccentInk` | `#355229` | `#CFE0B6` | Text on `AccentSoft`; link text |
+| `Accent` | `#4A7036` (leaf green) | `#A3C47F` (light matcha) | Primary actions, links |
+| `AccentSoft` | `#DFEBC8` (matcha tint) | `#283022` | Pills, selected states |
+| `AccentInk` | `#3D5E2B` | `#CFE0B6` | Text on `AccentSoft`; link text |
 | `OnAccent` | `#FAFAF5` | `#121511` | Text on `Accent` |
-| `Cheek` | `#DCE6D2` | `#2A2A22` | Baby avatar fill |
-| `CheekInk` | `#355229` | `#D9E3C8` | Baby avatar initial |
-| `VoiceBg` / `VoiceInk` / `VoiceHint` | `#262A22` / `#EEEEE6` / `#B4B8AA` | `#9DBB7E` / `#121511` / `#36412C` | The "Tell Mochi" bar |
+| `Brand` | `#93B86A` (matcha) | `#A3C47F` (light matcha) | The brand itself: the icon, the wordmark's bunny; never text |
+| `Cheek` | `#DDE9C9` | `#2A2A22` | Baby avatar fill |
+| `CheekInk` | `#3D5E2B` | `#D9E3C8` | Baby avatar initial |
+| `VoiceBg` / `VoiceInk` / `VoiceHint` | `#262A22` / `#EEEEE6` / `#B4B8AA` | `#A3C47F` / `#121511` / `#36412C` | The "Tell Mochi" bar |
 
 ### Care events
 
@@ -98,7 +99,12 @@ restart. The Android status and navigation bars follow the palette.
 
 ## 3. Typography
 
-**Figtree** only, bundled as static TTF files: Light 300, Regular 400, Medium 500, SemiBold 600 and
+**The wordmark** is the one exception: "mochi" in Fredoka SemiBold, with the "i" in `Accent` and the logo bunny in
+`Brand` as its dot (flat, with two sleepy eyes, in the app; with the logo's face at large sizes). It is drawn from
+outlines, `WordmarkGeometry.g.cs`, made by `eng/gen-brand.py`, so the app does not ship the font. Fredoka never appears
+in headings or text.
+
+**Figtree** everywhere else, bundled as static TTF files: Light 300, Regular 400, Medium 500, SemiBold 600 and
 Bold 700. It is licensed under the SIL Open Font License. After every build, verify that the fonts
 are in the APK (CoreChoice's `BUILD.md` records a stale `ProcessMauiFonts` stamp that shipped an
 app with no fonts).

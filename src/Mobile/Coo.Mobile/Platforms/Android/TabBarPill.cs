@@ -8,8 +8,8 @@ using Microsoft.Maui.Platform;
 namespace Coo.Mobile.Platforms.Android;
 
 /// <summary>
-/// The tab bar's chosen tab sits on a soft matcha pill (design canvas, 2026-11-05): Material's active indicator, in
-/// <c>AccentSoft</c> by day and night. Shell sets the bar's colours; this only adds the pill after it.
+/// The tab bar's chosen tab, its icon and its label, sits on a soft matcha pill (design canvas, 2026-11-05; with the
+/// label from 2026-11-06), in <c>AccentSoft</c> by day and night. Shell sets the bar's colours; this only adds the pill after it.
 /// </summary>
 internal sealed class CooShellRenderer : ShellRenderer
 {
@@ -34,15 +34,20 @@ internal sealed class CooShellRenderer : ShellRenderer
         {
             if (Microsoft.Maui.Controls.Application.Current?.Resources.TryGetValue("AccentSoft", out var value) != true || value is not Color pill)
                 return;
-            // MAUI's theme is Material Components, where the indicator has no size or shape of its own: 56 × 30 dp, round.
+            // The pill holds the icon and its label together (owner, 2026-11-06), so it is the item's background when
+            // checked, inset from the item's edges; Material's own indicator only fits around the icon.
             var density = bottomView.Resources?.DisplayMetrics?.Density ?? 1f;
-            bottomView.ItemActiveIndicatorEnabled = true;
-            bottomView.ItemActiveIndicatorWidth = (int)(56 * density);
-            bottomView.ItemActiveIndicatorHeight = (int)(30 * density);
-            bottomView.ItemActiveIndicatorShapeAppearance = Google.Android.Material.Shape.ShapeAppearanceModel.InvokeBuilder()
-                .SetAllCorners(Google.Android.Material.Shape.CornerFamily.Rounded, 15 * density)
-                .Build();
-            bottomView.ItemActiveIndicatorColor = ColorStateList.ValueOf(pill.ToPlatform());
+            var shape = new global::Android.Graphics.Drawables.GradientDrawable();
+            shape.SetColor(pill.ToPlatform());
+            shape.SetCornerRadius(18 * density);
+            // A layer inset, not an InsetDrawable: that one reports its inset as padding and squeezes the label onto the icon.
+            var inset = new global::Android.Graphics.Drawables.LayerDrawable([shape]);
+            inset.SetLayerInset(0, (int)(6 * density), (int)(5 * density), (int)(6 * density), (int)(5 * density));
+            var states = new global::Android.Graphics.Drawables.StateListDrawable();
+            states.AddState([global::Android.Resource.Attribute.StateChecked], inset);
+            states.AddState([], new global::Android.Graphics.Drawables.ColorDrawable(global::Android.Graphics.Color.Transparent));
+            bottomView.ItemActiveIndicatorEnabled = false;
+            bottomView.ItemBackground = states;
         }
     }
 }

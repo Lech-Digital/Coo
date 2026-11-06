@@ -16,7 +16,7 @@ public static class PageFrame
 
     public const double HeaderHeight = 60;
 
-    public const double WordmarkSize = 24;
+    public const double WordmarkSize = 28;
 
     /// <summary>The 44 dp switch sits 10 dp inside the right margin, so its icon lines up with the content edge.</summary>
     public static Thickness HeaderPadding => new(Side, 12, Side - 10, 4);

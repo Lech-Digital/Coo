@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Store images from the demo build's screenshots (store-assets/PLAN.md §3): captioned 1080x1920 phone images, the
 1024x500 feature graphic and the 512 px icon, rendered from HTML by headless Chrome. Raw shots: store-assets/raw/
-(made with -p:CooDemo=true on the coo-review emulator, 2026-11-05). Run: python3 store-assets/_src/compose.py"""
+(made with -p:CooDemo=true on the coo-review emulator, 2026-11-05). Run: python3 store-assets/_src/compose.py
+(add `brand` to render only the icon and the feature graphic)."""
 import base64, os, subprocess, tempfile
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -41,7 +42,7 @@ def render(html, out, width, height):
 FACES = font_face()
 
 def phone(slot, shot, headline, subline, night):
-    ground, ink, ink2, accent = ('#121511', '#E6EDD9', '#97A486', '#9DBB7E') if night else ('#EEEEE6', '#262A22', '#62685A', '#3F6B4A')
+    ground, ink, ink2, accent = ('#121511', '#E6EDD9', '#97A486', '#A3C47F') if night else ('#EEEEE6', '#262A22', '#62685A', '#4A7036')
     html = f"""<!doctype html><html><head><meta charset="utf-8"><style>{FACES}
     html,body{{margin:0;width:1080px;height:1920px;background:{ground};font-family:Figtree;overflow:hidden}}
     .cap{{position:absolute;top:96px;left:80px;right:80px;text-align:center}}
@@ -56,7 +57,11 @@ def phone(slot, shot, headline, subline, night):
     render(html, os.path.join(ROOT, 'phone', f'phone-{slot}-{shot[3:]}.png'), 1080, 1920)
 
 def icon_svg():
-    return open(os.path.join(ROOT, 'icon-options', 'u6-usagi-one-ear-happy.svg'), encoding='utf-8').read()
+    # The launcher icon as one square (eng/gen-brand.py), soft flat on the matcha glow.
+    return open(os.path.join(ROOT, 'brand', 'mochi-icon.svg'), encoding='utf-8').read()
+
+def wordmark_svg():
+    return open(os.path.join(ROOT, 'brand', 'mochi-wordmark-day.svg'), encoding='utf-8').read()
 
 def icon():
     html = f"""<!doctype html><html><head><style>html,body{{margin:0;width:512px;height:512px;overflow:hidden}}
@@ -69,20 +74,21 @@ def feature():
     .icon{{position:absolute;left:84px;top:110px;width:280px;height:280px;border-radius:64px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.15)}}
     .icon svg{{width:280px;height:280px;display:block}}
     .t{{position:absolute;left:430px;top:118px;right:60px}}
-    h1{{margin:0;font-size:96px;font-weight:700;color:#262A22;letter-spacing:-2px}}
-    h1 span{{color:#3F6B4A}}
+    .wm svg{{height:118px;width:auto;display:block;margin-top:-30px}}
     p{{margin:14px 0 0;font-size:42px;line-height:1.22;color:#262A22;white-space:nowrap}}
     .k{{margin-top:26px;display:flex;gap:12px}}
     .k i{{display:block;width:62px;height:12px;border-radius:6px}}
     </style></head><body><div class="icon">{icon_svg()}</div>
-    <div class="t"><h1>moch<span>i</span></h1><p>Baby tracker for feeds,<br>sleep, diapers &amp; pumping</p>
+    <div class="t"><div class="wm">{wordmark_svg()}</div><p>Baby tracker for feeds,<br>sleep, diapers &amp; pumping</p>
     <div class="k"><i style="background:#E07B4F"></i><i style="background:#C9A43A"></i><i style="background:#8E7CC3"></i><i style="background:#5B84A0"></i></div></div>
     </body></html>"""
     render(html, os.path.join(ROOT, 'feature-graphic.png'), 1024, 500)
 
 if __name__ == '__main__':
-    os.makedirs(os.path.join(ROOT, 'phone'), exist_ok=True)
-    for s in SHOTS:
-        phone(*s)
+    import sys
+    if 'brand' not in sys.argv[1:]:
+        os.makedirs(os.path.join(ROOT, 'phone'), exist_ok=True)
+        for s in SHOTS:
+            phone(*s)
     icon()
     feature()

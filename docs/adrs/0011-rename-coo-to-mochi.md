@@ -47,7 +47,7 @@ application software and nutrition information (2025); the owner accepted that r
    - **The app's accent becomes matcha** (`#3F6B4A` by day, `#9DBB7E` at night), with a slightly green-grey Washi
      ground. Pump moves from mint to sky (a grey slate at night), so no care colour can be mistaken for the
      brand or a button. Every contrast and distinctness rule in `PaletteTests` still passes.
-   - The wordmark is "moch" in ink with the "i" in the accent.
+   - The wordmark is "moch" in ink with the "i" in the accent. (Superseded by ADR 0012: matcha, a soft-flat icon and a Fredoka wordmark.)
 
 3. **"Coo" stays as the code name.** None of these change:
    - The application ID `com.lechdigital.coo`, which Google Play does not allow to change.

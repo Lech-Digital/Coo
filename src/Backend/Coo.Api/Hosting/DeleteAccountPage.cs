@@ -22,7 +22,7 @@ public static class DeleteAccountPage
         h1 { font-size: 1.5rem; margin: 0 0 12px; }
         h2 { font-size: 1.1rem; margin: 24px 0 8px; }
         li { margin: 8px 0; }
-        a { color: #355229; }
+        a { color: #3D5E2B; }
         footer { margin-top: 32px; font-size: 0.9rem; color: #62685A; }
         </style>
         </head>

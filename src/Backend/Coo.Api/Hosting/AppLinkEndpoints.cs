@@ -62,7 +62,7 @@ internal static class AppLinkEndpoints
             ol { padding-left: 1.25rem; }
             li { margin: 10px 0; }
             .code { font-family: ui-monospace, monospace; font-size: 1.15rem; letter-spacing: 0.08em; }
-            a { color: #355229; }
+            a { color: #3D5E2B; }
             footer { margin-top: 32px; font-size: 0.9rem; color: #62685A; }
             </style>
             </head>

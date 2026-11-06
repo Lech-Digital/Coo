@@ -52,7 +52,7 @@
 
   <ItemGroup>
     <!-- Icon D2, "saying coo" (store-assets/icon-options): a baby in a speech bubble on peach. -->
-    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#3F6B4A" />
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#8DB462" />
     <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#EEEEE6" BaseSize="128,128" />
     <!-- Figtree only (design system §3). eng/verify-apk-fonts.sh checks they reach the APK. -->
     <MauiFont Include="Resources\Fonts\*.ttf" />

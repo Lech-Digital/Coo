@@ -13,7 +13,7 @@ public enum PaletteKind
 public sealed record Palette(
     PaletteKind Kind,
     string Ground, string Surface, string Line, string Ink, string Ink2,
-    string Accent, string AccentSoft, string AccentInk, string OnAccent,
+    string Accent, string AccentSoft, string AccentInk, string OnAccent, string Brand,
     string Cheek, string CheekInk, string VoiceBg, string VoiceInk, string VoiceHint,
     string FeedTint, string FeedMark, string FeedInk,
     string DiaperTint, string DiaperMark, string DiaperInk,
@@ -32,6 +32,7 @@ public sealed record Palette(
         [nameof(AccentSoft)] = AccentSoft,
         [nameof(AccentInk)] = AccentInk,
         [nameof(OnAccent)] = OnAccent,
+        [nameof(Brand)] = Brand,
         [nameof(Cheek)] = Cheek,
         [nameof(CheekInk)] = CheekInk,
         [nameof(VoiceBg)] = VoiceBg,
@@ -58,8 +59,8 @@ public static class WashiPalette
     public static Palette Day { get; } = new(
         PaletteKind.Day,
         Ground: "#EEEEE6", Surface: "#FAFAF5", Line: "#D8DACB", Ink: "#262A22", Ink2: "#62685A",
-        Accent: "#3F6B4A", AccentSoft: "#E3EBD8", AccentInk: "#355229", OnAccent: "#FAFAF5",
-        Cheek: "#DCE6D2", CheekInk: "#355229", VoiceBg: "#262A22", VoiceInk: "#EEEEE6", VoiceHint: "#B4B8AA",
+        Accent: "#4A7036", AccentSoft: "#DFEBC8", AccentInk: "#3D5E2B", OnAccent: "#FAFAF5", Brand: "#93B86A",
+        Cheek: "#DDE9C9", CheekInk: "#3D5E2B", VoiceBg: "#262A22", VoiceInk: "#EEEEE6", VoiceHint: "#B4B8AA",
         FeedTint: "#F5DCCB", FeedMark: "#CC6F3B", FeedInk: "#7A3F20",
         DiaperTint: "#F3E6B3", DiaperMark: "#A08528", DiaperInk: "#6A5410",
         SleepTint: "#E2DCEF", SleepMark: "#8E7FBE", SleepInk: "#473A78",
@@ -68,8 +69,8 @@ public static class WashiPalette
     public static Palette Night { get; } = new(
         PaletteKind.Night,
         Ground: "#121511", Surface: "#1B1F19", Line: "#2C3228", Ink: "#D9E3C8", Ink2: "#97A486",
-        Accent: "#9DBB7E", AccentSoft: "#283022", AccentInk: "#CFE0B6", OnAccent: "#121511",
-        Cheek: "#2A2A22", CheekInk: "#D9E3C8", VoiceBg: "#9DBB7E", VoiceInk: "#121511", VoiceHint: "#36412C",
+        Accent: "#A3C47F", AccentSoft: "#283022", AccentInk: "#CFE0B6", OnAccent: "#121511", Brand: "#A3C47F",
+        Cheek: "#2A2A22", CheekInk: "#D9E3C8", VoiceBg: "#A3C47F", VoiceInk: "#121511", VoiceHint: "#36412C",
         FeedTint: "#2E2219", FeedMark: "#C98A63", FeedInk: "#D9A07C",
         DiaperTint: "#2C2716", DiaperMark: "#BFA34E", DiaperInk: "#CDB266",
         SleepTint: "#25222E", SleepMark: "#9A8AB5", SleepInk: "#C0A8C0",

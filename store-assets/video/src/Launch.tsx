@@ -1,6 +1,6 @@
 import React from 'react';
 import { AbsoluteFill, Audio, interpolate, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig, Easing } from 'remotion';
-import { C, Caption, Fonts, Glass, Icon, ICON, Mochi, Phone, useSpring, Wash } from './parts';
+import { C, Caption, Fonts, Glass, Icon, ICON, Mochi, Phone, useSpring, Wash, Wordmark } from './parts';
 
 /** 120 BPM at 30 fps: a beat is 15 frames, a bar 60. Every cut lands on one. */
 export const BEAT = 15;
@@ -69,7 +69,6 @@ const Name: React.FC = () => {
   const pop = spring({ frame, fps, config: { damping: 8, stiffness: 180, mass: 0.7 } });
   const squash = Math.max(0, Math.sin((frame - 4) / 3)) * Math.exp(-frame / 10) * 2;
   const sleep = interpolate(frame, [42, 50, 64, 70], [0, 1, 1, 0], clamp);
-  const letters = 'mochi'.split('');
   const tag = spring({ frame: frame - 60, fps, config: { damping: 14 } });
   const exit = interpolate(frame, [112, 120], [0, 1], clamp);
   return (
@@ -77,15 +76,12 @@ const Name: React.FC = () => {
       <div style={{ position: 'absolute', top: 960 - 230 - 160, transform: `scale(${0.75 + 0.25 * pop})` }}>
         <Mochi size={460} sleep={sleep} squash={Math.min(1, squash)} />
       </div>
-      <div style={{ position: 'absolute', top: 1110, display: 'flex', fontSize: 200, fontWeight: 700, letterSpacing: -6 }}>
-        {letters.map((l, i) => {
-          const s = spring({ frame: frame - 18 - i * 3, fps, config: { damping: 10, stiffness: 200 } });
-          return (
-            <span key={i} style={{ color: l === 'i' ? C.accent : C.ink, display: 'inline-block', opacity: s, transform: `translateY(${(1 - s) * 80}px)` }}>
-              {l}
-            </span>
-          );
-        })}
+      <div style={{ position: 'absolute', top: 1090 }}>
+        <Wordmark
+          height={250}
+          letter={(i) => spring({ frame: frame - 18 - i * 3, fps, config: { damping: 10, stiffness: 200 } })}
+          dot={spring({ frame: frame - 34, fps, config: { damping: 9, stiffness: 190 } })}
+        />
       </div>
       <div
         style={{
@@ -399,8 +395,8 @@ const End: React.FC = () => {
       <div style={{ position: 'absolute', top: 470, transform: `scale(${pop}) rotate(${(1 - pop) * -20}deg)` }}>
         <Mochi size={360} sleep={0} />
       </div>
-      <div style={{ position: 'absolute', top: 870, fontSize: 190, fontWeight: 700, letterSpacing: -6, color: C.ink, opacity: word, transform: `translateY(${(1 - word) * 60}px)` }}>
-        moch<span style={{ color: C.accent }}>i</span>
+      <div style={{ position: 'absolute', top: 850, opacity: word, transform: `translateY(${(1 - word) * 60}px)` }}>
+        <Wordmark height={240} />
       </div>
       <div style={{ position: 'absolute', top: 1120, fontSize: 60, fontWeight: 500, color: C.ink2, opacity: sub, transform: `translateY(${(1 - sub) * 40}px)` }}>
         Baby Tracker &amp; Feeding

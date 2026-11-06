@@ -16,7 +16,7 @@ namespace Coo.Mobile.Platform.Reports;
 internal sealed class AndroidPdfExporter : IReportExporter
 {
     private const int PageWidth = 595, PageHeight = 842, Margin = 40;
-    private const int Ink = unchecked((int)0xFF262A22), Ink2 = unchecked((int)0xFF62685A), Accent = unchecked((int)0xFF3F6B4A), Line = unchecked((int)0xFFD8DACB), Tint = unchecked((int)0xFFE3EBD8);
+    private const int Ink = unchecked((int)0xFF262A22), Ink2 = unchecked((int)0xFF62685A), Accent = unchecked((int)0xFF4A7036), Line = unchecked((int)0xFFD8DACB), Tint = unchecked((int)0xFFE3EBD8);
 
     public async Task<bool> ShareAsync(ReportDocument document, string fileName, CancellationToken cancellationToken)
     {

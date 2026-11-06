@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Washi night Accent, for Android's own dialogs when the phone is in dark mode. -->
 <resources>
-    <color name="colorPrimary">#9DBB7E</color>
+    <color name="colorPrimary">#A3C47F</color>
     <color name="colorPrimaryDark">#121511</color>
-    <color name="colorAccent">#9DBB7E</color>
+    <color name="colorAccent">#A3C47F</color>
 </resources>

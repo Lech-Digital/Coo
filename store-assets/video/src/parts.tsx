@@ -1,20 +1,22 @@
 import React from 'react';
 import { AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
+import { WORDMARK } from './wordmark.g';
 
 /** The app's own colours (src/Mobile/Coo.Mobile.Presentation/Theme/WashiPalette.cs). */
 export const C = {
   ink: '#262A22',
   ink2: '#62685A',
-  accent: '#3F6B4A',
-  accentSoft: '#E3EBD8',
+  accent: '#4A7036',
+  accentSoft: '#DFEBC8',
+  brand: '#93B86A',
   glass: 'rgba(250,250,245,0.82)',
   glassLine: 'rgba(216,218,203,0.8)',
   feed: { tint: '#F5DCCB', mark: '#CC6F3B', ink: '#7A3F20' },
   diaper: { tint: '#F3E6B3', mark: '#A08528', ink: '#6A5410' },
   sleep: { tint: '#E2DCEF', mark: '#8E7FBE', ink: '#473A78' },
   pump: { tint: '#DCE6EE', mark: '#5B84A0', ink: '#2B4A5F' },
-  growth: { tint: '#E3EBD8', mark: '#3F6B4A', ink: '#355229' },
-  night: { ground: '#121511', ink: '#D9E3C8', ink2: '#97A486', accent: '#9DBB7E' },
+  growth: { tint: '#DFEBC8', mark: '#4A7036', ink: '#3D5E2B' },
+  night: { ground: '#121511', ink: '#D9E3C8', ink2: '#97A486', accent: '#A3C47F' },
 };
 
 /** The app's icons (IconGeometry.cs), 24×24, stroked. */
@@ -92,42 +94,66 @@ export const Phone: React.FC<{ src: string; width?: number; style?: React.CSSPro
   );
 };
 
-/** Mochi: the bunny on its matcha disc; <c>sleep</c> 0 is ears up and eyes open, 1 ears flopped and eyes closed. */
+/** Mochi: the bunny on its matcha glow, soft flat (eng/gen-brand.py); <c>sleep</c> 0 is the logo (one ear up, one
+ * flopped, eyes open), 1 both ears flopped and eyes closed. */
 export const Mochi: React.FC<{ size: number; sleep?: number; squash?: number }> = ({ size, sleep = 0, squash = 0 }) => {
   const earL = interpolate(sleep, [0, 1], [0, -62]);
-  const earR = interpolate(sleep, [0, 1], [0, 62]);
   const sy = 1 - squash * 0.12;
   const sx = 1 + squash * 0.08;
+  const line = { stroke: '#E3D8C2', strokeWidth: 1.2, strokeLinejoin: 'round' as const };
   return (
     <svg width={size} height={size} viewBox="0 0 108 108">
-      <circle cx="54" cy="54" r="54" fill="#3F6B4A" />
+      <defs>
+        <radialGradient id="mochi-glow" cx="50%" cy="28%" r="78%">
+          <stop offset="0" stopColor="#B9D492" />
+          <stop offset=".5" stopColor="#8DB462" />
+          <stop offset="1" stopColor="#5E8A3E" />
+        </radialGradient>
+      </defs>
+      <circle cx="54" cy="54" r="54" fill="url(#mochi-glow)" />
       <g transform="translate(8.6 5.5) scale(.84)">
-        <ellipse cx="54" cy="85" rx="30" ry="3" fill="#000" opacity=".14" />
+        <ellipse cx="54" cy="85.6" rx="31" ry="3.4" fill="#2F4A1F" opacity=".22" />
         <g transform={`translate(54 84.5) scale(${sx} ${sy}) translate(-54 -84.5)`}>
           <g transform={`rotate(${earL} 42 44)`}>
-            <path d="M38 46 C33 30 35 19 41 19 C47 19 48 31 46 43 Z" fill="#FBF7EF" />
+            <path d="M38 46 C33 30 35 19 41 19 C47 19 48 31 46 43 Z" fill="#FBF7EF" {...line} />
             <path d="M40.5 42 C37.5 31 38.5 24 41.5 24 C44.5 24 45 32 43.6 41 Z" fill="#F5C2C0" />
           </g>
-          <g transform={`rotate(${earR} 66 44)`}>
-            <path d="M70 46 C75 30 73 19 67 19 C61 19 60 31 62 43 Z" fill="#FBF7EF" />
-            <path d="M67.5 42 C70.5 31 69.5 24 66.5 24 C63.5 24 63 32 64.4 41 Z" fill="#F5C2C0" />
-          </g>
-          <path d="M18 72 C18 51 34 40 54 40 C74 40 90 51 90 72 C90 81 83 84.5 72 84.5 H36 C25 84.5 18 81 18 72 Z" fill="#FBF7EF" />
-          <path d="M27 60 C29 53 34 48 40 45.5" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" opacity=".95" />
+          <path d="M62 44 C63 34 70 27 80 27 C88 27 90 33 86 37 C82 41 74 42 68 47 Z" fill="#FBF7EF" {...line} />
+          <path d="M66 42 C68 35 73 31 80 31 C85 31 86 34 83 36 C79 39 73 40 68.5 43.5 Z" fill="#F5C2C0" />
+          <path d="M18 72 C18 51 34 40 54 40 C74 40 90 51 90 72 C90 81 83 84.5 72 84.5 H36 C25 84.5 18 81 18 72 Z" fill="#FBF7EF" {...line} />
+          <path d="M27 60 C29 53 34 48 40 45.5" stroke="#FFFDF8" strokeWidth="3" fill="none" strokeLinecap="round" opacity=".95" />
           <g opacity={1 - sleep}>
             <circle cx="44" cy="63" r="2.8" fill="#4A3326" />
             <circle cx="64" cy="63" r="2.8" fill="#4A3326" />
-            <circle cx="44.9" cy="62" r=".85" fill="#fff" />
-            <circle cx="64.9" cy="62" r=".85" fill="#fff" />
+            <circle cx="44.9" cy="62" r=".85" fill="#FAFAF5" />
+            <circle cx="64.9" cy="62" r=".85" fill="#FAFAF5" />
           </g>
           <g opacity={sleep}>
             <path d="M40 63 q4 3.4 8 0" stroke="#4A3326" strokeWidth="2.4" fill="none" strokeLinecap="round" />
             <path d="M60 63 q4 3.4 8 0" stroke="#4A3326" strokeWidth="2.4" fill="none" strokeLinecap="round" />
           </g>
-          <ellipse cx="37.5" cy="70" rx="4.6" ry="2.9" fill="#F0A08F" opacity=".8" />
-          <ellipse cx="70.5" cy="70" rx="4.6" ry="2.9" fill="#F0A08F" opacity=".8" />
+          <ellipse cx="37.5" cy="70" rx="4.6" ry="2.9" fill="#F0A08F" opacity=".85" />
+          <ellipse cx="70.5" cy="70" rx="4.6" ry="2.9" fill="#F0A08F" opacity=".85" />
           <path d="M50.2 69 q3.8 3.4 7.6 0" stroke="#4A3326" strokeWidth="2.1" fill="none" strokeLinecap="round" />
         </g>
+      </g>
+    </svg>
+  );
+};
+
+/** The wordmark (Fredoka outlines, wordmark.g.ts): <c>letter(i)</c> 0..1 brings in m, o, c, h and the stem one by one,
+ * <c>dot</c> 0..1 drops the bunny onto the "i". */
+export const Wordmark: React.FC<{ height: number; letter?: (i: number) => number; dot?: number }> = ({ height, letter = () => 1, dot = 1 }) => {
+  const scale = height / WORDMARK.height;
+  const rise = (v: number) => `translate(0 ${(1 - v) * 30})`;
+  return (
+    <svg width={WORDMARK.width * scale} height={height} viewBox={`0 0 ${WORDMARK.width} ${WORDMARK.height}`} style={{ overflow: 'visible' }}>
+      {WORDMARK.letters.map((d, i) => (
+        <path key={i} d={d} fill={C.ink} opacity={Math.min(1, letter(i))} transform={rise(letter(i))} />
+      ))}
+      <path d={WORDMARK.stem} fill={C.accent} opacity={Math.min(1, letter(4))} transform={rise(letter(4))} />
+      <g transform={`translate(0 ${(1 - dot) * -40})`} opacity={Math.min(1, dot * 2)}>
+        <g transform={WORDMARK.dotTransform} dangerouslySetInnerHTML={{ __html: WORDMARK.dot }} />
       </g>
     </svg>
   );
