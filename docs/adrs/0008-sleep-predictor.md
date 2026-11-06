@@ -59,6 +59,19 @@ Status: Accepted — amended 2026-10-02 (see below)
 > 90). "Why this time?" names the usual bedtime when it is used. Stats → Sleep pattern shows the same rhythm by eye:
 > the last 7, 14 or 30 days as columns, noon to noon, with the start of her longest sleep marked.
 
+> **Amendment, 2026-11-06 (owner: build the rest of the "smart" list; all on the phone, so free): feeds, the week,
+> nap transitions, and what the Advisor is told.**
+> - **`FeedPredictor` (`feed-v1`)**: the next feed from her own feed-to-feed intervals of the last 14 days (feeds within
+>   30 minutes are one), weighted by recency and towards intervals that began at the same time of day, so night feeds
+>   and day feeds differ. In her cluster-feeding hours (3 feeds within 3 hours, near this time, on 3 of the last 7 days)
+>   no time is given. From 10 intervals on 3 days. Shown in Next up and on the night screen.
+> - **`NapTransitions`**: naps a day this week against the week before (from 4 full days each); "Moving from 4 naps to
+>   3", or settled when most days have the new count. The predictor itself is unchanged by it.
+> - **`WeekComparison`**: this week against the last per logged day (sleep, longest sleep, feeds, wet diapers), shared
+>   by Today's "This week" card (changes of 45 min sleep, 30 min longest, 1.5 feeds) and the Advisor's own questions.
+> - **The Advisor's context** now carries the same numbers the app shows: her usual bedtime, the night-waking estimate,
+>   the next feed, the usual start and length of her longest sleep, and this week against last.
+
 ## Context
 
 The sleep predictor is a Premium feature. It suggests when the next nap window opens, and when

@@ -123,6 +123,52 @@ public sealed class AdvisorContextTests
         text.Should().Contain("Per day, last 14 days");
     }
 
+    [Fact]
+    public async Task ExecuteAsync_AWeekOfNights_TellsWhatMochiLearned()
+    {
+        // Arrange: nights 19:30–06:00 all week, a nap at 10:00 each day.
+        var entries = new List<CareEntry>();
+        for (var day = 14; day <= 21; day++)
+        {
+            entries.Add(Sleep(At(day, 10, 0), At(day, 11, 0)));
+            entries.Add(Sleep(At(day, 19, 30), At(day + 1, 6, 0)));
+        }
+
+        entries.Add(Sleep(At(22, 10, 0), At(22, 11, 0)));
+        var store = Store(entries);
+        var households = Substitute.For<Coo.Mobile.Application.Households.IHouseholdStore>();
+        households.ListBabiesAsync(Household, Arg.Any<CancellationToken>()).Returns(
+            [Coo.Domain.Households.BabyProfile.Create(Baby, Household, "Lena", [], new DateOnly(2026, 6, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 22)).Value]);
+
+        // Act
+        var text = await new BuildAdvisorContext(
+                new GetToday(store), new GetCareTrends(store), store, households, sleep: new Insights.GetSleepPrediction(store),
+                pattern: new Insights.GetSleepPattern(store))
+            .ExecuteAsync(Household, Baby, Amsterdam, Now, CancellationToken.None);
+
+        // Assert
+        text.Should().Contain("This baby's night has usually started around 19:30");
+        text.Should().Contain("Longest sleep of the day, last 14 days: usually starts around 19:30 and lasts about 10 h 30 m.");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_TwoDaysLogged_TellsNoPattern()
+    {
+        // Arrange: too little to learn from.
+        var store = Store([Sleep(At(20, 19, 30), At(21, 6, 0)), Sleep(At(21, 19, 30), At(22, 6, 0))]);
+        var households = Substitute.For<Coo.Mobile.Application.Households.IHouseholdStore>();
+        households.ListBabiesAsync(Household, Arg.Any<CancellationToken>()).Returns(
+            [Coo.Domain.Households.BabyProfile.Create(Baby, Household, "Lena", [], new DateOnly(2026, 6, 1), null, new HlcStamp(1, 0, Device), new DateOnly(2026, 10, 22)).Value]);
+
+        // Act
+        var text = await new BuildAdvisorContext(
+                new GetToday(store), new GetCareTrends(store), store, households, pattern: new Insights.GetSleepPattern(store))
+            .ExecuteAsync(Household, Baby, Amsterdam, Now, CancellationToken.None);
+
+        // Assert
+        text.Should().NotContain("Longest sleep of the day");
+    }
+
     private static ICareLogStore Store(IReadOnlyList<CareEntry> entries)
     {
         var store = Substitute.For<ICareLogStore>();

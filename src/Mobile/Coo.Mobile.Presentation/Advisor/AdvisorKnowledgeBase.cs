@@ -13,23 +13,11 @@ public static class AdvisorKnowledgeBase
 {
     /// <summary>
     /// The age guide and its questions in the phone's language (owner, 2026-11-06: the questions were English in every
-    /// language). One file per language in <c>Advisor/Content</c>, English when the language has none.
+    /// language). One JSON file per language in <c>Advisor/Content</c> to edit and translate, made into C# by
+    /// <c>eng/gen-advisor-content.py</c>; English when the language has none.
     /// </summary>
-    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, AdvisorContent> Loaded = new(StringComparer.Ordinal);
-
-    internal static AdvisorContent Content(string language) => Loaded.GetOrAdd(language, Load);
-
-    private static AdvisorContent Load(string language)
-    {
-        var assembly = typeof(AdvisorKnowledgeBase).Assembly;
-        using var stream = assembly.GetManifestResourceStream($"Advisor.Content.{language}.json")
-            ?? assembly.GetManifestResourceStream("Advisor.Content.en.json")
-            ?? throw new InvalidOperationException("The English Advisor content is missing.");
-        return System.Text.Json.JsonSerializer.Deserialize<AdvisorContent>(stream, JsonOptions)
-            ?? throw new InvalidOperationException($"The Advisor content for {language} is empty.");
-    }
-
-    private static readonly System.Text.Json.JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+    internal static AdvisorContent Content(string language) =>
+        AdvisorContentData.All.TryGetValue(language, out var content) ? content : AdvisorContentData.All["en"];
 
     /// <summary>The age's stage card, in the phone's language.</summary>
     public static DevelopmentStageInfo GetStage(int daysOld)

@@ -22,7 +22,8 @@ namespace Coo.Mobile.Application.Advisor;
 /// </summary>
 public sealed class BuildAdvisorContext(
     GetToday today, GetCareTrends trends, ICareLogStore? store = null, IHouseholdStore? households = null, IGrowthChartPreference? chart = null,
-    Insights.GetSleepPrediction? sleep = null)
+    Insights.GetSleepPrediction? sleep = null, Insights.GetFeedPrediction? feed = null, Insights.GetSleepPattern? pattern = null,
+    Insights.GetWeekNote? week = null)
 {
     /// <summary>Entry by entry this far back; before that, by day.</summary>
     public static readonly TimeSpan DetailWindow = TimeSpan.FromHours(48);
@@ -70,6 +71,12 @@ public sealed class BuildAdvisorContext(
                 $"Next sleep (Mochi's estimate, {next.Confidence.ToString().ToLowerInvariant()} confidence): {what} likely {At(next.Earliest)}–{At(next.Latest)}; typical wake window at this age {Duration(next.Prior.Low)}–{Duration(next.Prior.High)}{(next.PersonalMedian is { } median ? $", this baby's lately {Duration(median)}" : "")}.");
         }
 
+        // What Mochi has learned from this baby's own log (owner, 2026-11-06), so the answer can use the same numbers the
+        // app shows: her nights, her bedtime, her feeds, and what changed this week.
+        if (households is not null
+            && (await households.ListBabiesAsync(household, cancellationToken)).FirstOrDefault(b => b.Id == baby) is { IsBorn: true } born)
+            await AppendLearnedAsync(text, born, household, zone, now, At, cancellationToken);
+
         if (store is not null)
             await AppendRecentEntriesAsync(text, household, baby, zone, now, cancellationToken);
 
@@ -89,6 +96,51 @@ public sealed class BuildAdvisorContext(
 
         return text.ToString();
     }
+
+    /// <summary>Mochi's own estimates and patterns for this baby, each only when there is enough of her log for it.</summary>
+    private async Task AppendLearnedAsync(
+        StringBuilder text, Coo.Domain.Households.BabyProfile born, HouseholdId household, TimeZoneInfo zone, DateTimeOffset now,
+        Func<DateTimeOffset, string> at, CancellationToken cancellationToken)
+    {
+        if (sleep is not null)
+        {
+            if (await sleep.ExecuteAsync(household, born, zone, now, cancellationToken) is { UsualBedtime: { } bedtime })
+                text.AppendLine(CultureInfo.InvariantCulture, $"This baby's night has usually started around {bedtime.ToString("HH:mm", En)} over the last 14 days.");
+            if (await sleep.BackToSleepAsync(household, born, zone, now, cancellationToken) is { } back)
+            {
+                var when = back.Earliest is { } e && back.Latest is { } l ? $"likely back asleep {at(e)}–{at(l)}" : "a feed is running";
+                var usual = back.FromFeed ? $"settles about {Duration(back.Typical)} after a feed" : $"is usually awake about {Duration(back.Typical)}";
+                text.AppendLine(CultureInfo.InvariantCulture,
+                    $"Awake in the night now: {when}; in her own night wakings she {usual} ({back.Observations} wakings on {back.Nights} nights).");
+            }
+        }
+
+        if (feed is not null && await feed.ExecuteAsync(household, born, zone, now, cancellationToken) is { } next)
+        {
+            var line = next.Cluster
+                ? $"Next feed: this is her usual cluster-feeding time, feeds come close together (last feed {at(next.LastFeed)})."
+                : $"Next feed (Mochi's estimate from her feeds at this time of day): likely {at(next.Earliest)}–{at(next.Latest)}, usually every {Duration(next.Typical)} at this hour.";
+            text.AppendLine(line);
+        }
+
+        if (pattern is not null && await pattern.ExecuteAsync(household, born.Id, 14, zone, now, cancellationToken) is { UsualLongestStart: { } start, UsualLongest: { } longest })
+            text.AppendLine(CultureInfo.InvariantCulture, $"Longest sleep of the day, last 14 days: usually starts around {start.ToString("HH:mm", En)} and lasts about {Duration(longest)}.");
+
+        if (week is not null && await week.ExecuteAsync(household, born, zone, now, cancellationToken) is { } note)
+        {
+            var c = note.Comparison;
+            if (c.Compared)
+            {
+                text.AppendLine(CultureInfo.InvariantCulture,
+                    $"This week against last week, per day: sleep {Signed(c.Sleep)}, longest sleep {Signed(c.Longest)}, feeds {c.Feeds.ToString("+0.#;-0.#;0", En)}{(double.IsNaN(c.WetPerDay) ? "" : $", wet diapers {c.WetPerDay.ToString("0.#", En)} a day")}.");
+            }
+
+            if (note.Naps is { } naps)
+                text.AppendLine(CultureInfo.InvariantCulture, $"Naps: {(naps.Settled ? "now" : "moving from")} {naps.From} to {naps.To} a day (this week against last).");
+        }
+    }
+
+    private static string Signed(TimeSpan span) => (span < TimeSpan.Zero ? "-" : "+") + Duration(span.Duration());
 
     /// <summary>Every feed, sleep, diaper and pump of the last two days, with its time: what "a few logs back" means to a parent.</summary>
     private async Task AppendRecentEntriesAsync(

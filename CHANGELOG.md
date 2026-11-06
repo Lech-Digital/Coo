@@ -31,6 +31,14 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 - **The Advisor asks about her own week**: up to two questions from what changed in the log (shorter or longer
   nights, more feeds, fewer wet diapers) before the questions for her age, which now follow the corrected age of a baby
   born early.
+- **Next feed**: once a baby has a few days of feeds logged, Today and the night screen say when the next feed is likely,
+  learned from her own feeds at that time of day (night feeds are usually further apart), and say "feeds may come close
+  together" in her usual evening cluster-feeding hours instead of a time.
+- **This week** on Today: what changed against last week in a line or two ("Longest sleep 40 m longer than last week",
+  "2 more feeds a day"), and nap transitions ("Moving from 4 naps to 3").
+- **Sleep pattern**: tap a day to open it in the Log; diaper changes show as dots up to 14 days.
+- **The Advisor in every language**: its age guide and the twelve questions per age are now in all seven languages, and
+  its answers can use what Mochi has learned about the baby (her bedtime, night wakings, feeds, this week's changes).
 - **Short naps, her own way.** After a few short naps, the next-nap estimate uses how much shorter this baby's own
   windows are after a short nap, instead of a fixed 15%; "Why this time?" says so.
 
