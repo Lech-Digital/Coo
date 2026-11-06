@@ -1,13 +1,25 @@
 #!/usr/bin/env python3
-"""The launch film's soundtrack, synthesised (no samples, no licence): 120 BPM, 36 s. A soft kick, a shaker, a
-marimba-like pluck arpeggio over Fmaj7 - Am7 - Dm9 - G, a quiet pad, pops on the card beats and a riser into the end card.
-Run: python3 make-music.py  ->  public/music.wav"""
-import math, random, struct, wave, os
+"""The films' soundtrack, synthesised (no samples, no licence): 120 BPM. A soft kick, a shaker, a marimba-like pluck
+arpeggio over Fmaj7 - Am7 - Dm9 - G, a quiet pad, pops on the card beats and a riser into the end card.
+Run: python3 make-music.py            ->  public/music.wav     (the 36 s vertical launch film)
+     python3 make-music.py youtube    ->  public/music-yt.wav  (the 68 s 16:9 YouTube film)"""
+import math, random, struct, sys, wave, os
 
+CUT = sys.argv[1] if len(sys.argv) > 1 else 'launch'
 SR = 44100
 BPM = 120
 BEAT = 60 / BPM
-LENGTH = 36.0
+# Per cut: length, the bar the end card starts on, the bars without drums (the night's breakdown), the pops (seconds).
+CUTS = {
+    'launch': dict(length=36.0, end_bar=16, quiet=[], out='music.wav',
+                   # The five words; the question, its answer and the ring; the Next up cards.
+                   pops=[0, 0.5, 1.0, 1.5, 2.0, 4.5, 5.0, 5.5, 21.0, 22.0, 23.0]),
+    'youtube': dict(length=68.0, end_bar=31, quiet=[20, 21, 22], out='music-yt.wav',
+                    # The words; the question; the four quick-log tiles; the Next up cards; "offline, no ads, no
+                    # trackers".
+                    pops=[0, 0.5, 1.0, 1.5, 2.0, 4.5, 5.0, 5.5, 14.5, 15.0, 15.5, 16.0, 31.0, 32.0, 33.0, 58.5, 59.0, 59.5]),
+}[CUT]
+LENGTH = CUTS['length']
 N = int(SR * LENGTH)
 L = [0.0] * N
 R = [0.0] * N
@@ -93,39 +105,41 @@ chords = [[53, 57, 60, 64], [57, 60, 64, 67], [50, 57, 60, 64], [55, 59, 62, 64]
 arp = [0, 2, 1, 3, 2, 1, 3, 2]
 
 bar = 4 * BEAT
-for b in range(18):
+END = CUTS['end_bar']
+for b in range(END + 2):
     t_bar = b * bar
     chord = chords[(b // 2) % 4]
-    # Pad under each two bars.
-    if b % 2 == 0 and b < 16:
-        add(t_bar, pad([hz(m) for m in chord], 2 * bar), 0.10)
+    quiet = b in CUTS['quiet']
+    # Pad under each two bars, louder while the drums rest.
+    if b % 2 == 0 and b < END:
+        add(t_bar, pad([hz(m) for m in chord], 2 * bar), 0.16 if quiet else 0.10)
     for beat in range(4):
         t = t_bar + beat * BEAT
-        if b >= 1 and b < 16:
+        if 1 <= b < END and not quiet:
             add(t, kick(), 0.55 if b >= 2 else 0.35)
-        if b >= 2 and b < 16:
+        if 2 <= b < END and not quiet:
             add(t + BEAT / 2, shaker(), 0.25, pan=0.3)
             add(t + BEAT * 0.75, shaker(), 0.12, pan=-0.3)
     for e in range(8):
         t = t_bar + e * BEAT / 2
         note = chord[arp[e] % 4] + 12
-        if b < 16:
-            add(t, pluck(hz(note)), 0.16 if b >= 1 else 0.11, pan=0.25 if e % 2 else -0.25)
+        if b < END and not (quiet and e % 2):
+            add(t, pluck(hz(note)), 0.11 if b < 1 or quiet else 0.16, pan=0.25 if e % 2 else -0.25)
 
-# The five words on the beat (0–2 s); the question, its answer and the ring (4.5, 5, 5.5 s); the Next up cards (21–23 s).
-for t in [0, 0.5, 1.0, 1.5, 2.0] + [4.5, 5.0, 5.5] + [21.0, 22.0, 23.0]:
+for t in CUTS['pops']:
     add(t, pop(), 0.22)
-# Riser into the end card at 32 s, then the last chord rings out over its four seconds.
-add(30.0, riser(2.0), 0.5)
-add(32.0, kick(0.6), 0.7)
-add(32.0, pad([hz(m) for m in [53, 60, 64, 69, 72]], 4.0), 0.18)
+# Riser into the end card, then the last chord rings out under it.
+t_end = END * bar
+add(t_end - 2.0, riser(2.0), 0.5)
+add(t_end, kick(0.6), 0.7)
+add(t_end, pad([hz(m) for m in [53, 60, 64, 69, 72]], LENGTH - t_end), 0.18)
 for m in [65, 69, 72, 76]:
-    add(32.0, pluck(hz(m), 3.0), 0.14)
-add(32.8, pop(), 0.18)  # the bunny lands on the "i"
+    add(t_end, pluck(hz(m), LENGTH - t_end - 1), 0.14)
+add(t_end + 0.8, pop(), 0.18)  # the bunny lands on the "i"
 
 peak = max(max(abs(x) for x in L), max(abs(x) for x in R))
 fade = int(0.4 * SR)
-out = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public', 'music.wav')
+out = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public', CUTS['out'])
 with wave.open(out, 'wb') as w:
     w.setnchannels(2)
     w.setsampwidth(2)

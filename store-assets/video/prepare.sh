@@ -8,3 +8,4 @@ cp $R/store-assets/raw/*.png public/
 cp $R/src/Mobile/Coo.Mobile/Resources/Fonts/Figtree-*.ttf public/
 cp $R/src/Mobile/Coo.Mobile/Resources/Images/mochi_*.svg public/
 python3 -I make-music.py
+python3 -I make-music.py youtube

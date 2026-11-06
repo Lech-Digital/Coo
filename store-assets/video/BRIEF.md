@@ -60,4 +60,10 @@ app learns this baby's rhythm, then names it.
 ## Cuts
 
 - `mochi-launch-9x16.mp4`: 1080×1920, the film above (Shorts, Reels, TikTok, the Play promo link).
-- Later: a 16:9 cut for the Play listing's promo video (YouTube), the same beats with the phone to one side.
+- `mochi-youtube-16x9.mp4` (`npm run render:youtube`, `src/YouTube.tsx`): 1920×1080, 68 s, for YouTube and the Play
+  listing's promo video. The same beats with the words on the left and the screens on the right, and room for more:
+  the real running timer (`s8-timer.png`), quick log, the Log zoomed, Stats & trends (`s9-trends.png`), the family,
+  a wall of the health / growth / firsts features, "Works offline. No ads. No trackers." with the seven languages,
+  and a 6 s end card with lechdigital.nl/mochi. The drums rest under the night scene. Its music is
+  `make-music.py youtube`. Thumbnail: `npx remotion still src/index.ts YouTube out/mochi-youtube-thumb.png
+  --frame=200 --scale=0.6667`.
