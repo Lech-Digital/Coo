@@ -5,9 +5,10 @@ import { End, Side, useSpringAt } from './YouTube';
 
 /** "The handover" (store-assets/youtube/*-mochi-handover): seven Gemini (Veo) shots of Tom and Anna, each followed by a
  * full-screen Mochi card with the real app, then the end card, 73.1 s. The music is the owner's Gemini track
- * (soundtrack.mp3 in that folder, ~124 BPM, a beat every 0.484 s with one at 17.004 s): every card lands on a beat
- * and lasts six beats, and the end card starts at 67.1 s so the bunny lands on the "i" (0.8 s in) as the track
- * whispers "Mochi" (67.9 s).
+ * (soundtrack.mp3 in that folder, ~124 BPM, a beat every 0.484 s, bars from 17.488 s). prepare.sh repeats two bars of
+ * its day groove (40.72–44.59 s) so the film has room: every card lands on a beat and lasts six beats, the day shot
+ * keeps its yoga, and the whisper "Mochi" (71.77 s in the longer track) comes 2.7 s into the end card, once
+ * "On Google Play" is up (owner: the whisper was too early).
  * Until the clips are in public/handover/1.mp4 … 7.mp4, pass { clips: false } for placeholders. */
 export type HandoverProps = { clips: boolean };
 
@@ -32,11 +33,11 @@ const CUTS: [number, number][] = [
   [292, 496],
   [583, 786],
   [873, 1076],
-  [1164, 1367],
-  [1454, 1643],
-  [1730, 1933],
+  [1164, 1425], // the day: four beats longer, so the yoga at its end stays in
+  [1512, 1701],
+  [1788, 1991],
 ];
-const END = 2013;
+const END = 2071;
 
 /** The Mochi logo in the corner over every live-action shot, so a frame anywhere in the film is branded. */
 const Bug: React.FC = () => (
@@ -121,7 +122,7 @@ export const HANDOVER_FRAMES = END + 180;
 export const Handover: React.FC<HandoverProps> = ({ clips }) => (
   <AbsoluteFill style={{ fontFamily: 'Figtree, sans-serif', overflow: 'hidden', background: '#111' }}>
     <Fonts />
-    <Audio src={staticFile('music-handover.mp3')} />
+    <Audio src={staticFile('soundtrack-handover.wav')} />
     {PAIRS.map((p, i) => {
       const [shot, card] = CUTS[i];
       const next = i + 1 < CUTS.length ? CUTS[i + 1][0] : END;
