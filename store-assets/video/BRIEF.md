@@ -67,3 +67,5 @@ app learns this baby's rhythm, then names it.
   and a 6 s end card with lechdigital.nl/mochi. The drums rest under the night scene. Its music is
   `make-music.py youtube`. Thumbnail: `npx remotion still src/index.ts YouTube out/mochi-youtube-thumb.png
   --frame=200 --scale=0.6667`.
+
+Uploaded videos, with their titles, descriptions and thumbnails: `store-assets/youtube/` (one dated folder each).
