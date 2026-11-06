@@ -293,9 +293,7 @@ public sealed class NightTimer : ContentView
 
     private string Format()
     {
-        var elapsed = _time.GetUtcNow() - _start;
-        return elapsed.TotalHours >= 1 ? elapsed.ToString(@"h\:mm\:ss", System.Globalization.CultureInfo.InvariantCulture)
-            : elapsed.ToString(@"mm\:ss", System.Globalization.CultureInfo.InvariantCulture);
+        return Coo.Mobile.Presentation.Formatting.Formats.Clock(_time.GetUtcNow() - _start);
     }
 }
 

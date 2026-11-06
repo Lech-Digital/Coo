@@ -267,6 +267,50 @@ public sealed class CareTrendsTests
         oz.Should().Be(0.5m);
     }
 
+    [Fact]
+    public async Task DaysAsync_UntilATimeOfDay_CountsOnlyWhatHappenedByThen()
+    {
+        // Arrange: yesterday a diaper at 9 and at 16, and a bottle at 10 and at 18; compared at 14:00.
+        var trends = Trends([Diaper(At(21, 9), DiaperContents.Wet), Diaper(At(21, 16), DiaperContents.Wet), Bottle(At(21, 10), 90), Bottle(At(21, 18), 90)]);
+
+        // Act
+        var days = await trends.DaysAsync(Household, Baby, new DateOnly(2026, 10, 21), new DateOnly(2026, 10, 21), Amsterdam, Now, CancellationToken.None, new TimeOnly(14, 0));
+
+        // Assert
+        var day = days[new DateOnly(2026, 10, 21)];
+        day.Diapers.Should().Be(1);
+        day.Feeds.Should().Be(1);
+        day.BottleMl.Should().Be(90);
+    }
+
+    [Fact]
+    public async Task DaysAsync_UntilATimeOfDay_CutsASleepThatRunsPastIt()
+    {
+        // Arrange: a nap from 13:00 to 15:00; at 14:00 only its first hour had happened.
+        var trends = Trends([Sleep(At(21, 13), At(21, 15))]);
+
+        // Act
+        var days = await trends.DaysAsync(Household, Baby, new DateOnly(2026, 10, 21), new DateOnly(2026, 10, 21), Amsterdam, Now, CancellationToken.None, new TimeOnly(14, 0));
+
+        // Assert
+        days[new DateOnly(2026, 10, 21)].Sleep.Should().Be(TimeSpan.FromHours(1));
+        days[new DateOnly(2026, 10, 21)].Sleeps.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task DaysAsync_SleepStartedAfterTheTime_IsNotCounted()
+    {
+        // Arrange: an evening sleep from 19:00 to 23:00, compared at 14:00.
+        var trends = Trends([Sleep(At(21, 19), At(21, 23))]);
+
+        // Act
+        var days = await trends.DaysAsync(Household, Baby, new DateOnly(2026, 10, 21), new DateOnly(2026, 10, 21), Amsterdam, Now, CancellationToken.None, new TimeOnly(14, 0));
+
+        // Assert
+        days[new DateOnly(2026, 10, 21)].Sleep.Should().Be(TimeSpan.Zero);
+        days[new DateOnly(2026, 10, 21)].Sleeps.Should().Be(0);
+    }
+
     private static DateTimeOffset At(int day, int hour) => new(2026, 10, day, hour, 0, 0, Cest);
 
     private static GetCareTrends Trends(IReadOnlyList<CareEntry> entries)

@@ -14,8 +14,10 @@ public static class LogTotals
     /// <param name="day">The shown day's care; null when nothing was counted.</param>
     /// <param name="before">The days before it, for "usually"; days without entries are left out.</param>
     /// <param name="last">The last time of each kind on the shown day, when it is today ("feeding" → "9:52 AM").</param>
+    /// <param name="byNow">The days before were counted only up to this time of day, as today is still going: "usually 3
+    /// by now", not a whole day's 6 that reads as "she's behind" at 11 AM (UX review, 2026-11-06).</param>
     public static (string Detail, string Compare) For(
-        string kindCode, DayCare? day, IReadOnlyCollection<DayCare> before, int pumpSessions, IReadOnlyDictionary<string, string> last, Formats formats)
+        string kindCode, DayCare? day, IReadOnlyCollection<DayCare> before, int pumpSessions, IReadOnlyDictionary<string, string> last, Formats formats, bool byNow = false)
     {
         ArgumentNullException.ThrowIfNull(before);
         ArgumentNullException.ThrowIfNull(last);
@@ -49,9 +51,9 @@ public static class LogTotals
         var lastAt = last.GetValueOrDefault(kindCode);
         var compare = (lastAt, usual) switch
         {
-            ({ } l, { } u) => Strings.Format("Totals.LastAndUsually", l, u),
+            ({ } l, { } u) => Strings.Format(byNow ? "Totals.LastAndUsuallyByNow" : "Totals.LastAndUsually", l, u),
             ({ } l, null) => Strings.Format("Totals.Last", l),
-            (null, { } u) => Strings.Format("Totals.Usually", u),
+            (null, { } u) => Strings.Format(byNow ? "Totals.UsuallyByNow" : "Totals.Usually", u),
             _ => "",
         };
         return (detail, compare);

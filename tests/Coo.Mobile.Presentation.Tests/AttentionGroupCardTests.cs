@@ -69,7 +69,7 @@ public sealed class AttentionGroupCardTests : IDisposable
         // Assert
         var group = model.FeedGroups.Should().ContainSingle().Which;
         group.Members.Select(m => m.Text).Should().Equal(
-            "11:00 · Breast · left 10 m", "11:22 · Breast · right 10 m", "11:44 · Breast · left 10 m");
+            "11:00 · Breast · L\u00A010\u00A0m", "11:22 · Breast · R\u00A010\u00A0m", "11:44 · Breast · L\u00A010\u00A0m");
         group.Merge.Should().NotBeNull();
         group.Why.Should().BeNull();
         model.OtherGroups.Should().BeEmpty();
@@ -215,7 +215,7 @@ public sealed class AttentionGroupCardTests : IDisposable
         await model.FeedGroups[0].Members[0].KeepOnly.ExecuteAsync(null);
 
         // Assert
-        _toasts.Should().ContainSingle().Which!.Text.Should().Be("Deleted · Breast · right 5 m");
+        _toasts.Should().ContainSingle().Which!.Text.Should().Be("Deleted · Breast · R\u00A05\u00A0m");
         _undo!.IsPendingDelete(b.Id).Should().BeTrue();
     }
 

@@ -476,11 +476,12 @@ internal static class SectionViews
                 Children =
                 {
                     new HorizontalStackLayout { Spacing = 8, Children = { dot, Bound(item, nameof(RunningItem.Title), "Label", upper: true) } },
-                    // At night the digits share the card with Mochi: 54 sp, not the full-width timer size.
-                    Bound(item, nameof(RunningItem.Digits), night ? "Timer" : "Window").Tap(l =>
+                    // The same weight by day and night (design review, 2026-11-06); at night the digits share the card
+                    // with Mochi and carry their unit ("8:42 min"), so 48 sp, not the full-width timer size.
+                    Bound(item, nameof(RunningItem.Digits), "Window").Tap(l =>
                     {
                         if (night)
-                            l.FontSize = 54;
+                            l.FontSize = 48;
                         l.MaxLines = 1;
                         l.LineBreakMode = LineBreakMode.NoWrap;
                     }),
@@ -543,10 +544,10 @@ internal static class SectionViews
             [.. s.Tiles.Select(t => (View)new LogTile(t.KindCode, t.Name, t.LastAt, t.Command, fill: true))],
             minWidth: 70, padding: new Thickness(PageFrame.Side, 12, PageFrame.Side, 0));
 
-        View Pill(string icon, string text, string background, string ink, string? line, Action tap)
+        View Pill(string icon, string text, string background, string ink, string? line, Action tap, string? iconInk = null)
         {
             var row = new HorizontalStackLayout { Spacing = 8, HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
-            row.Add(new Icon(icon, ink, 18) { VerticalOptions = LayoutOptions.Center });
+            row.Add(new Icon(icon, iconInk ?? ink, 18) { VerticalOptions = LayoutOptions.Center });
             row.Add(Ui.Text(text, "BodyStrong", ink).Tap(l => { l.FontSize = 15; l.VerticalOptions = LayoutOptions.Center; l.LineBreakMode = LineBreakMode.TailTruncation; }));
             var pill = Ui.Rounded(row, background, 24, new Thickness(12, 0), line);
             pill.HeightRequest = 48;
@@ -570,7 +571,9 @@ internal static class SectionViews
             RowSpacing = 8,
             Padding = new Thickness(PageFrame.Side, 10, PageFrame.Side, 0),
         };
-        actions.Add(Pill(IconGeometry.Mic, voice, "VoiceBg", "VoiceInk", null, host.OpenVoice), 0, 0);
+        // Outlined like "Log something", the mic in the accent: the running card's button is the only heavy one on the
+        // screen (owner and design review, 2026-11-06).
+        actions.Add(Pill(IconGeometry.Mic, voice, "Glass", "Ink", "GlassLine", host.OpenVoice, iconInk: "Accent"), 0, 0);
         actions.Add(Pill(IconGeometry.Plus, more, "Glass", "Ink", "GlassLine", host.OpenEarlier), stacked ? 0 : 1, stacked ? 1 : 0);
         return new VerticalStackLayout { Children = { grid, actions } };
     }
@@ -603,6 +606,28 @@ internal static class SectionViews
 
         if (!string.IsNullOrEmpty(s.NextSide) || !string.IsNullOrEmpty(s.SinceFeed))
             stack.Add(Row(IconGeometry.Feed, "FeedInk", s.NextSide.Length > 0 ? s.NextSide : s.SinceFeed, s.NextSide.Length > 0 ? s.SinceFeed : null));
+        if (!string.IsNullOrEmpty(s.StartNextSide) && s.StartNextSideCommand is { } startNext)
+        {
+            // One tap starts the next side (UX review, 2026-11-06): a feed-coloured pill under its line.
+            var start = Ui.Rounded(
+                new HorizontalStackLayout
+                {
+                    Spacing = 6,
+                    Children =
+                    {
+                        new Icon(IconGeometry.Feed, "FeedInk", 16) { VerticalOptions = LayoutOptions.Center },
+                        Ui.Text(s.StartNextSide, "BodyStrong", "FeedInk").Tap(l => l.VerticalOptions = LayoutOptions.Center),
+                    },
+                },
+                "FeedTint",
+                999,
+                new Thickness(14, 9));
+            start.HorizontalOptions = LayoutOptions.Start;
+            start.Margin = new Thickness(28, 0, 0, 2);
+            start.GestureRecognizers.Add(new TapGestureRecognizer { Command = startNext });
+            SemanticProperties.SetDescription(start, s.StartNextSide);
+            stack.Add(start);
+        }
         if (!string.IsNullOrEmpty(s.NextFeed))
             stack.Add(Row(IconGeometry.Feed, "FeedInk", s.NextFeed, null));
 
@@ -861,6 +886,13 @@ internal static class SectionViews
             var button = new Button { Text = q.Label, Command = q.Command, CornerRadius = 20, MinimumHeightRequest = 68, FontFamily = "FigtreeSemiBold", FontSize = 16 };
             button.SetDynamicResource(VisualElement.BackgroundColorProperty, look.Tint);
             button.SetDynamicResource(Button.TextColorProperty, look.Ink);
+            if (q.Suggested)
+            {
+                // The next breast side, ringed in the feed colour.
+                button.BorderWidth = 2;
+                button.SetDynamicResource(Button.BorderColorProperty, look.Mark);
+            }
+
             quick.Add(button, i % 3, i / 3);
 
             // A last button alone on its row (sleep, Spec 009 §3.8) takes the whole row: a bigger target at 3 AM.

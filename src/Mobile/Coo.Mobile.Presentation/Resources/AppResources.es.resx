@@ -152,6 +152,7 @@
   <data name="Chart.SummaryFeeds" xml:space="preserve"><value>Tomas {0}</value></data>
   <data name="Chart.SummaryPumps" xml:space="preserve"><value>Extracciones {0}</value></data>
   <data name="Chart.SummarySleep" xml:space="preserve"><value>Sueño {0}</value></data>
+  <data name="Clock.MinutesSeconds" xml:space="preserve"><value>{0}:{1:00} min</value></data>
   <data name="Consent.Agree" xml:space="preserve"><value>Aceptar y compartir</value></data>
   <data name="Consent.Body" xml:space="preserve"><value>Para compartir, Mochi guarda el registro de cuidados de tu bebé (tomas, pañales, sueño y extracciones, con sus horas, cantidades y notas), el perfil de tu bebé y los ajustes de tu familia en el servidor de Mochi en Alemania. Son datos de salud de tu hijo, por eso solo los guardamos con tu permiso.</value></data>
   <data name="Consent.Body2" xml:space="preserve"><value>Todas las personas de tu familia pueden verlo y añadir registros. Puedes retirar tu permiso en cualquier momento eliminando tu cuenta en Ajustes. El registro de este teléfono siempre se queda aquí.</value></data>
@@ -244,6 +245,7 @@
   <data name="Entry.Sleep" xml:space="preserve"><value>Sueño · {0}</value></data>
   <data name="Entry.SleepPlanStopped" xml:space="preserve"><value>Plan de sueño detenido</value></data>
   <data name="Entry.Sleeping" xml:space="preserve"><value>Durmiendo</value></data>
+  <data name="Entry.SleepingFor" xml:space="preserve"><value>Durmiendo · desde hace {0}</value></data>
   <data name="Entry.Temperature" xml:space="preserve"><value>Temperatura · {0}</value></data>
   <data name="Entry.Tummy" xml:space="preserve"><value>Boca abajo {0}</value></data>
   <data name="Entry.TummyRunning" xml:space="preserve"><value>Boca abajo · en curso</value></data>
@@ -368,6 +370,8 @@
   <data name="Feed.EveryShort" xml:space="preserve"><value>normalmente cada {0}</value></data>
   <data name="Feed.Cluster" xml:space="preserve"><value>Hora de tomas en racimo de {0}: pueden ir muy seguidas</value></data>
   <data name="Feed.ClusterShort" xml:space="preserve"><value>muy seguidas ahora</value></data>
+  <data name="Feed.StartLeft" xml:space="preserve"><value>Empezar izquierdo</value></data>
+  <data name="Feed.StartRight" xml:space="preserve"><value>Empezar derecho</value></data>
   <data name="Night.NextFeed" xml:space="preserve"><value>Próxima toma</value></data>
   <data name="Feed.Ago" xml:space="preserve"><value>hace {0}</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Biberón</value></data>
@@ -1013,6 +1017,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.BottleOnly" xml:space="preserve"><value>Biberón {0}</value></data>
   <data name="Totals.FeedSplit" xml:space="preserve"><value>Pecho {0} · biberón {1}</value></data>
   <data name="Totals.DiaperSplit" xml:space="preserve"><value>Mojados {0} · sucios {1}</value></data>
+  <data name="Totals.LastAndUsuallyByNow" xml:space="preserve"><value>Último {0} · normalmente {1} a esta hora</value></data>
   <data name="Totals.Longest" xml:space="preserve"><value>El más largo {0}</value></data>
   <data name="Totals.Sessions" xml:space="preserve"><value>Sesiones {0}</value></data>
   <data name="Totals.Last" xml:space="preserve"><value>Último {0}</value></data>
@@ -1025,6 +1030,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedMl" xml:space="preserve"><value>ml extraídos</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz extraídos</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>sueño</value></data>
+  <data name="Totals.UsuallyByNow" xml:space="preserve"><value>Normalmente {0} a esta hora</value></data>
   <data name="Tour.Advisor.Body" xml:space="preserve"><value>Pregunta sobre sueño, alimentación y desarrollo. Las respuestas tienen en cuenta el registro de tu bebé. Información general, no consejo médico.</value></data>
   <data name="Tour.Advisor.Title" xml:space="preserve"><value>Asesor</value></data>
   <data name="Tour.Diapers.Body" xml:space="preserve"><value>Mojado o sucio con un toque, con el total del día. Baños, tiempo boca abajo e hitos están en Antes…, que también registra lo que ya pasó.</value></data>

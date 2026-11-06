@@ -121,6 +121,8 @@ public sealed class GetCareTrends(ICareLogStore store)
     };
 
     /// <summary>Each day from <paramref name="from"/> to <paramref name="to"/>, as the trends count it.</summary>
+    /// <param name="until">Counts each day only up to this time of day, so today can be compared with other days "by
+    /// now" (UX review, 2026-11-06); null for whole days.</param>
     public async Task<IReadOnlyDictionary<DateOnly, DayCare>> DaysAsync(
         HouseholdId household,
         BabyId baby,
@@ -128,7 +130,8 @@ public sealed class GetCareTrends(ICareLogStore store)
         DateOnly to,
         TimeZoneInfo zone,
         DateTimeOffset now,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        TimeOnly? until = null)
     {
         var first = DayMath.Day(from, zone);
         var lastDay = DayMath.Day(to, zone);
@@ -142,17 +145,20 @@ public sealed class GetCareTrends(ICareLogStore store)
         var days = new Dictionary<DateOnly, Tally>();
         Tally On(DateOnly date) => days.TryGetValue(date, out var t) ? t : days[date] = new Tally();
         bool InRange(DateOnly date) => date >= from && date <= to;
+        DateTimeOffset CutOff(DateOnly date) => until is { } u ? DayMath.Day(date, zone).Start + u.ToTimeSpan() : DateTimeOffset.MaxValue;
 
         foreach (var entry in entries)
         {
             var startDate = DayMath.DateOf(entry.Timing.OccurredAt, zone);
+            var counted = entry.Timing.OccurredAt <= CutOff(startDate);
             switch (entry.Details)
             {
                 case SleepDetails when entry.Timing is SessionTiming session:
                     var end = session.Range.End ?? now;
                     for (var date = startDate; date <= DayMath.DateOf(end, zone) && date <= to; date = date.AddDays(1))
                     {
-                        var overlap = DayMath.Day(date, zone).Overlap(session.Range.Start, end);
+                        var cut = CutOff(date);
+                        var overlap = DayMath.Day(date, zone).Overlap(session.Range.Start, end < cut ? end : cut);
                         if (!InRange(date) || overlap <= TimeSpan.Zero)
                             continue;
                         var tally = On(date);
@@ -160,7 +166,7 @@ public sealed class GetCareTrends(ICareLogStore store)
                         tally.HasEntries = true;
                     }
 
-                    if (InRange(startDate))
+                    if (InRange(startDate) && counted)
                     {
                         var tally = On(startDate);
                         tally.Sleeps++;
@@ -169,7 +175,7 @@ public sealed class GetCareTrends(ICareLogStore store)
                     }
 
                     break;
-                case FeedingDetails feed when InRange(startDate):
+                case FeedingDetails feed when InRange(startDate) && counted:
                     var feeds = On(startDate);
                     feeds.HasEntries = true;
                     feeds.Feeds++;
@@ -185,7 +191,7 @@ public sealed class GetCareTrends(ICareLogStore store)
                     }
 
                     break;
-                case DiaperDetails diaper when InRange(startDate):
+                case DiaperDetails diaper when InRange(startDate) && counted:
                     var diapers = On(startDate);
                     diapers.HasEntries = true;
                     diapers.Diapers++;
@@ -195,7 +201,7 @@ public sealed class GetCareTrends(ICareLogStore store)
                     if (diaper.Contents is DiaperContents.Dirty or DiaperContents.Mixed)
                         diapers.Dirty++;
                     break;
-                case PumpDetails pump when InRange(startDate):
+                case PumpDetails pump when InRange(startDate) && counted:
                     var pumps = On(startDate);
                     pumps.HasEntries = true;
                     pumps.PumpedMl += pump.Yield?.Total.Millilitres ?? 0m;

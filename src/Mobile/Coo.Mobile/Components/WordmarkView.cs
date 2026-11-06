@@ -22,9 +22,14 @@ public sealed class WordmarkView : GraphicsView, IDrawable
     private static readonly PathF InnerEars = PathBuilder.Build(WordmarkGeometry.InnerEars);
     private static readonly PathF EyeLines = PathBuilder.Build(WordmarkGeometry.Eyes);
 
-    /// <param name="fontSize">The size of the letters, as a font size.</param>
+    /// <summary>The eyes and the pink of the ears, only where they can be seen: in the top bar they read as dashes and the
+    /// dot is cleaner as a plain bunny (owner and design review, 2026-11-06).</summary>
+    private readonly bool _detailed;
+
+    /// <param name="fontSize">The size of the letters, as a font size; from 32 the bunny dot has its face.</param>
     public WordmarkView(double fontSize)
     {
+        _detailed = fontSize >= 32;
         Drawable = this;
         WidthRequest = WordmarkGeometry.Width * fontSize / 100;
         HeightRequest = WordmarkGeometry.Height * fontSize / 100;
@@ -64,12 +69,16 @@ public sealed class WordmarkView : GraphicsView, IDrawable
         canvas.FillPath(Stem);
         canvas.FillColor = DotColor;
         canvas.FillPath(Dot);
-        canvas.FillColor = InnerEar;
-        canvas.FillPath(InnerEars);
-        canvas.StrokeColor = Eyes;
-        canvas.StrokeSize = (float)WordmarkGeometry.EyesStroke;
-        canvas.StrokeLineCap = LineCap.Round;
-        canvas.DrawPath(EyeLines);
+        if (_detailed)
+        {
+            canvas.FillColor = InnerEar;
+            canvas.FillPath(InnerEars);
+            canvas.StrokeColor = Eyes;
+            canvas.StrokeSize = (float)WordmarkGeometry.EyesStroke;
+            canvas.StrokeLineCap = LineCap.Round;
+            canvas.DrawPath(EyeLines);
+        }
+
         canvas.RestoreState();
     }
 

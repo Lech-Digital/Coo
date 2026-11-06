@@ -20,6 +20,15 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 - **A new matcha look.** The icon is Mochi on a lighter, softer matcha green; the "mochi" name at the top has rounder
   letters and Mochi itself as the dot on the "i"; buttons and links are a fresh leaf green, and pills, the selected tab
   and the baby's avatar are matcha.
+- **Timers say what they count**: "8:42 min", and "1 h 8 m" past an hour, so a nap of minutes no longer reads like hours.
+- **One tap to the next side**: under "Next side: right", a "Start right" button starts the timer; at night the side to
+  use next has a ring.
+- **The Log compares today fairly**: before the day is over, "usually 3 by now" counts the other days up to the same
+  time, not their whole day. Feeds read "L 8 m · R 13 m", and a running sleep shows how long so far.
+- **Stats**: one 7, 14 or 30 days choice at the top for the averages and the sleep pattern together.
+- **Cleaner screens**: the chosen tab, period and chip all use the same soft matcha pill (the tab's covers its label
+  too); "Tell Mochi" is an outlined button; switches are easier to read by day and use the night colours at night; the
+  titles sit at the same height on every tab, with the Advisor's History and New in the top bar.
 - **Night wakings are no longer treated like day wake windows.** At night a baby usually feeds and goes back to sleep
   within minutes, so Today no longer shows the age's day window (such as "60–90 min") at 3 AM. Instead, once a baby has
   three nights of wakings logged, the night screen says when she is likely back asleep ("Back to sleep · likely

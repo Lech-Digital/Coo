@@ -55,7 +55,7 @@ public sealed class StatsPage : ContentPage
         Shell.SetNavBarIsVisible(this, false);
         _page = new ScrollView
         {
-            Content = new VerticalStackLayout { Padding = new Thickness(0, 0, 0, 24), Spacing = 16, Children = { _pageHeader, _content } },
+            Content = new VerticalStackLayout { Padding = new Thickness(0, 0, 0, 24), Spacing = 0, Children = { _pageHeader, _content } },
         };
         Content = Backdrop.Behind(_page);
     }
@@ -134,7 +134,12 @@ public sealed class StatsPage : ContentPage
         yield return PageFrame.Segmented(
             [.. periods.Select(d => Strings.Format("Report.Days", d))],
             Math.Max(0, periods.ToList().IndexOf(_averages.Days)),
-            i => _averages.SetDaysCommand.Execute(periods[i]));
+            i =>
+            {
+                // One period for the page (UX review, 2026-11-06): the averages and the sleep pattern move together.
+                _averages.SetDaysCommand.Execute(periods[i]);
+                _pattern.SetDaysCommand.Execute(periods[i]);
+            });
         if (_averages.Rows.Count == 0)
             yield break;
         yield return PageFrame.SectionLabel(Strings.Get("Averages.Title"));
@@ -177,11 +182,9 @@ public sealed class StatsPage : ContentPage
         if (_pattern.Pattern is not { } pattern)
             yield break;
         yield return PageFrame.SectionLabel(Strings.Get("Pattern.Title"));
-        var periods = SleepPatternViewModel.Periods;
-        yield return PageFrame.Segmented(
-            [.. periods.Select(d => Strings.Format("Report.Days", d))],
-            Math.Max(0, periods.ToList().IndexOf(_pattern.Days)),
-            i => _pattern.SetDaysCommand.Execute(periods[i]));
+        // Its period is the page's, chosen at the top with the averages.
+        if (_pattern.Days != _averages.Days && SleepPatternViewModel.Periods.Contains(_averages.Days))
+            _pattern.SetDaysCommand.Execute(_averages.Days);
 
         // Under each column its weekday for a week, its date otherwise; at 30 days every fifth, and the last.
         var count = pattern.Days.Count;
@@ -337,17 +340,11 @@ public sealed class StatsPage : ContentPage
         });
         stack.Add(Ui.Text(Strings.Get("Report.Hint"), "Meta", "Ink2"));
 
-        var periods = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Star), new(GridLength.Star)], ColumnSpacing = 8 };
-        for (var i = 0; i < Coo.Mobile.Presentation.Reports.ReportViewModel.Periods.Count; i++)
-        {
-            var days = Coo.Mobile.Presentation.Reports.ReportViewModel.Periods[i];
-            var chip = new Button { Text = Strings.Format("Report.Days", days), Command = _report.SetDaysCommand, CommandParameter = days, HeightRequest = 40 };
-            chip.SetDynamicResource(VisualElement.StyleProperty, _report.Days == days ? "PrimaryButton" : "GhostButton");
-            // Set after the style, whose padding is for wide buttons: "14 days" must fit a third of the card.
-            chip.Padding = new Thickness(4, 0);
-            periods.Add(chip, i);
-        }
-
+        var reportPeriods = Coo.Mobile.Presentation.Reports.ReportViewModel.Periods;
+        var periods = PageFrame.Segmented(
+            [.. reportPeriods.Select(d => Strings.Format("Report.Days", d))],
+            Math.Max(0, reportPeriods.ToList().IndexOf(_report.Days)),
+            i => _report.SetDaysCommand.Execute(reportPeriods[i]));
         stack.Add(periods);
 
         // The report's language: the app's by default, or the doctor's.
@@ -444,13 +441,14 @@ public sealed class StatsPage : ContentPage
                     Children =
                     {
                         new Icon(chipLook.Icon, chipLook.Ink, 16).Tap(i => i.VerticalOptions = LayoutOptions.Center),
-                        Ui.Text(TrendsViewModel.ChipOf(metric), selected ? "BodyStrong" : "Body", selected ? chipLook.Ink : "Ink").Tap(l => l.VerticalOptions = LayoutOptions.Center),
+                        Ui.Text(TrendsViewModel.ChipOf(metric), selected ? "BodyStrong" : "Body", selected ? "AccentInk" : "Ink").Tap(l => l.VerticalOptions = LayoutOptions.Center),
                     },
                 },
-                selected ? chipLook.Tint : "Glass",
+                // Chosen: the soft matcha pill, as everywhere else; the icon keeps its kind's colour.
+                selected ? "AccentSoft" : "Glass",
                 999,
                 new Thickness(14, 8),
-                selected ? chipLook.Ink : "GlassLine");
+                selected ? "AccentSoft" : "GlassLine");
             var tapped = metric;
             chip.GestureRecognizers.Add(new TapGestureRecognizer { Command = trends.SetMetricCommand, CommandParameter = tapped });
             SemanticProperties.SetDescription(chip, TrendsViewModel.NameOf(metric));

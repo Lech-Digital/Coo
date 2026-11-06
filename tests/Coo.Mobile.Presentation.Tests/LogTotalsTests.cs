@@ -94,4 +94,32 @@ public sealed class LogTotalsTests : IDisposable
         detail.Should().BeEmpty();
         compare.Should().BeEmpty();
     }
+
+    [Fact]
+    public void For_TodayComparedByNow_SaysByNow()
+    {
+        // Arrange: the days before counted up to the same time of day.
+        var day = Day(Shown, feeds: 3, breast: 3);
+        var before = new[] { Day(Shown.AddDays(-1), feeds: 3), Day(Shown.AddDays(-2), feeds: 3) };
+        var last = new Dictionary<string, string> { ["feeding"] = "09:52" };
+
+        // Act
+        var (_, compare) = LogTotals.For("feeding", day, before, 0, last, Ml, byNow: true);
+
+        // Assert
+        compare.Should().Be("Last 09:52 · usually 3 by now");
+    }
+
+    [Fact]
+    public void For_ByNowWithoutALastTime_SaysUsuallyByNow()
+    {
+        // Arrange
+        var before = new[] { Day(Shown.AddDays(-1), wet: 2) };
+
+        // Act
+        var (_, compare) = LogTotals.For("diaper", null, before, 0, NoLast, Ml, byNow: true);
+
+        // Assert
+        compare.Should().Be("Usually 2 by now");
+    }
 }

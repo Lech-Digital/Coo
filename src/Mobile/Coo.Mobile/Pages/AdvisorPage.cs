@@ -89,14 +89,12 @@ public sealed class AdvisorPage : ContentPage
             Command = new Command(() => _model.ResetChatCommand.Execute(null))
         });
 
-        var subheaderBar = new Grid
-        {
-            ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)],
-            ColumnSpacing = 8,
-            Margin = new Thickness(0, 0, 0, 10),
-            Children = { historyButton, newChatButton }
-        };
-        Grid.SetColumn(newChatButton, 1);
+        // History and New sit in the top bar, beside the day/night switch, so the title is as close under the bar as on
+        // every other tab (design review, 2026-11-06).
+        historyButton.VerticalOptions = LayoutOptions.Center;
+        newChatButton.VerticalOptions = LayoutOptions.Center;
+        _pageHeader.AddAction(historyButton);
+        _pageHeader.AddAction(newChatButton);
 
         // 2. Subtitle
         var titleLabel = new Label
@@ -493,9 +491,8 @@ public sealed class AdvisorPage : ContentPage
         {
             Padding = new Thickness(24, 0, 24, 0),
             RowDefinitions = [new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)],
-            Children = { subheaderBar, welcomeScrollView, messagesCollection, bottomContainer }
+            Children = { welcomeScrollView, messagesCollection, bottomContainer }
         };
-        Grid.SetRow(subheaderBar, 0);
         Grid.SetRow(welcomeScrollView, 1);
         Grid.SetRow(messagesCollection, 1);
         Grid.SetRow(bottomContainer, 2);

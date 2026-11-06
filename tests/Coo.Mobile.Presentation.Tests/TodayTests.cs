@@ -56,7 +56,7 @@ public sealed class TodayTests
         section.Update(Snapshot(summary, PaletteKind.Night));
 
         // Assert
-        section.Timers.Should().ContainSingle().Which.Digits.Should().Be("08:00");
+        section.Timers.Should().ContainSingle().Which.Digits.Should().Be("8:00 min");
         section.Facts.Should().HaveCount(4);
         section.Quick.Select(q => q.KindCode).Should().Contain(["diaper", "sleep", "feeding", "pump"]);
         section.AppliesTo(HomeStage.Born, PaletteKind.Night).Should().BeTrue();
@@ -217,6 +217,22 @@ public sealed class TodayTests
 
         // Assert
         text.Should().Be("4 oz");
+    }
+
+    [Fact]
+    public void Update_NightAfterALeftFeed_RingsFeedRight()
+    {
+        // Arrange: the last feed was on the left and is over.
+        var details = BreastFeed.Start(BreastSide.Left, Now.AddMinutes(-90)).Complete(Now.AddMinutes(-80)).Value;
+        var done = Entry(details);
+        var section = new NightSection(Actions());
+        var summary = new TodaySummary([], done, null, null, null, Now.AddHours(-1), [], DayMath.Day(new DateOnly(2026, 10, 1), TimeZoneInfo.Utc));
+
+        // Act
+        section.Update(Snapshot(summary, PaletteKind.Night));
+
+        // Assert
+        section.Quick.Where(q => q.Suggested).Should().ContainSingle().Which.Label.Should().Be("Feed R");
     }
 
     private HomeActions Actions()
@@ -463,6 +479,42 @@ public sealed class NightTimersTests
         section.NextNap.Should().Contain("60–90 min");
         section.NapUpsell.Should().BeFalse();
         section.NapIsPersonal.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task NextUpSection_LastFeedOnTheLeft_OffersOneTapToStartTheRight()
+    {
+        // Arrange
+        var time = new FixedTime(Now);
+        var store = Substitute.For<ICareLogStore>();
+        var clock = Substitute.For<IVersionClock>();
+        clock.NextAsync(Arg.Any<CancellationToken>()).Returns(_ => new HlcStamp(++_wall, 0, Device));
+        CareEntry? saved = null;
+        await store.SaveAsync(Arg.Do<CareEntry>(e => saved = e), Arg.Any<CancellationToken>());
+        var actions = new HomeActions(new LogEntry(store, clock, time), new ReviseEntry(store, clock, time), time) { Context = new HomeContext(Household, Baby) };
+        var section = new NextUpSection(actions);
+        section.Update(NextUpSnapshot(isPremium: false, sleep: null, at: Now.AddHours(8)));
+
+        // Act
+        await section.StartNextSideCommand!.ExecuteAsync(null);
+
+        // Assert
+        section.StartNextSide.Should().Be("Start right");
+        saved!.Details.Should().BeOfType<BreastFeed>().Which.LastSide.Should().Be(BreastSide.Right);
+    }
+
+    [Fact]
+    public void NextUpSection_WithoutActions_OffersNoStartButton()
+    {
+        // Arrange
+        var section = new NextUpSection();
+
+        // Act
+        section.Update(NextUpSnapshot(isPremium: false, sleep: null, at: Now.AddHours(8)));
+
+        // Assert
+        section.NextSide.Should().Contain("right");
+        section.StartNextSide.Should().BeEmpty();
     }
 
     [Fact]

@@ -152,6 +152,7 @@
   <data name="Chart.SummaryFeeds" xml:space="preserve"><value>Mahlzeiten {0}</value></data>
   <data name="Chart.SummaryPumps" xml:space="preserve"><value>Abpumpen {0}</value></data>
   <data name="Chart.SummarySleep" xml:space="preserve"><value>Schlaf {0}</value></data>
+  <data name="Clock.MinutesSeconds" xml:space="preserve"><value>{0}:{1:00} Min.</value></data>
   <data name="Consent.Agree" xml:space="preserve"><value>Zustimmen und teilen</value></data>
   <data name="Consent.Body" xml:space="preserve"><value>Zum Teilen speichert Mochi die Einträge deines Babys (Mahlzeiten, Windeln, Schlaf und Abpumpen, mit Zeiten, Mengen und Notizen), das Profil deines Babys und die Einstellungen deiner Familie auf dem Server von Mochi in Deutschland. Das sind Gesundheitsdaten über dein Kind, deshalb speichern wir sie nur mit deiner Erlaubnis.</value></data>
   <data name="Consent.Body2" xml:space="preserve"><value>Alle in deiner Familie können sie sehen und ergänzen. Du kannst deine Erlaubnis jederzeit widerrufen, indem du dein Konto in den Einstellungen löschst. Die Einträge auf diesem Handy bleiben immer hier.</value></data>
@@ -244,6 +245,7 @@
   <data name="Entry.Sleep" xml:space="preserve"><value>Schlaf · {0}</value></data>
   <data name="Entry.SleepPlanStopped" xml:space="preserve"><value>Schlafplan beendet</value></data>
   <data name="Entry.Sleeping" xml:space="preserve"><value>Schläft</value></data>
+  <data name="Entry.SleepingFor" xml:space="preserve"><value>Schläft · seit {0}</value></data>
   <data name="Entry.Temperature" xml:space="preserve"><value>Temperatur · {0}</value></data>
   <data name="Entry.Tummy" xml:space="preserve"><value>Bauchlage {0}</value></data>
   <data name="Entry.TummyRunning" xml:space="preserve"><value>Bauchlage · läuft</value></data>
@@ -368,6 +370,8 @@
   <data name="Feed.EveryShort" xml:space="preserve"><value>meist alle {0}</value></data>
   <data name="Feed.Cluster" xml:space="preserve"><value>Clusterfeeding-Zeit bei {0}: Mahlzeiten können dicht aufeinander folgen</value></data>
   <data name="Feed.ClusterShort" xml:space="preserve"><value>jetzt dicht aufeinander</value></data>
+  <data name="Feed.StartLeft" xml:space="preserve"><value>Links starten</value></data>
+  <data name="Feed.StartRight" xml:space="preserve"><value>Rechts starten</value></data>
   <data name="Night.NextFeed" xml:space="preserve"><value>Nächste Mahlzeit</value></data>
   <data name="Feed.Ago" xml:space="preserve"><value>vor {0}</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Fläschchen</value></data>
@@ -1013,6 +1017,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.BottleOnly" xml:space="preserve"><value>Flasche {0}</value></data>
   <data name="Totals.FeedSplit" xml:space="preserve"><value>Brust {0} · Flasche {1}</value></data>
   <data name="Totals.DiaperSplit" xml:space="preserve"><value>Nass {0} · voll {1}</value></data>
+  <data name="Totals.LastAndUsuallyByNow" xml:space="preserve"><value>Zuletzt {0} · sonst {1} bis jetzt</value></data>
   <data name="Totals.Longest" xml:space="preserve"><value>Längster {0}</value></data>
   <data name="Totals.Sessions" xml:space="preserve"><value>Sitzungen {0}</value></data>
   <data name="Totals.Last" xml:space="preserve"><value>Zuletzt {0}</value></data>
@@ -1025,6 +1030,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedMl" xml:space="preserve"><value>ml abgepumpt</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz abgepumpt</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>Schlaf</value></data>
+  <data name="Totals.UsuallyByNow" xml:space="preserve"><value>Sonst {0} bis jetzt</value></data>
   <data name="Tour.Advisor.Body" xml:space="preserve"><value>Frag zu Schlaf, Ernährung und Entwicklung. Die Antworten berücksichtigen eure Einträge. Allgemeine Informationen, keine ärztliche Beratung.</value></data>
   <data name="Tour.Advisor.Title" xml:space="preserve"><value>Berater</value></data>
   <data name="Tour.Diapers.Body" xml:space="preserve"><value>Nass oder voll mit einem Tipp, mit Tageszähler. Baden, Bauchlage und Meilensteine findest du unter Früher…, wo du auch alles nachträgst, was schon passiert ist.</value></data>

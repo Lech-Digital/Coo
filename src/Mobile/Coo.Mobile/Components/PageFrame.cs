@@ -169,7 +169,10 @@ public static class PageFrame
         return button;
     }
 
-    /// <summary>A segmented choice ("7 days | 14 days | 30 days", "Now | Earlier…"): the chosen one in the accent.</summary>
+    /// <summary>
+    /// A segmented choice ("7 days | 14 days | 30 days", "Now | Earlier…"): the chosen one on the soft matcha pill, like
+    /// the chosen tab; solid accent is kept for actions (design review, 2026-11-06).
+    /// </summary>
     public static View Segmented(IReadOnlyList<string> options, int selected, Action<int> choose)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -189,7 +192,7 @@ public static class PageFrame
                 VerticalTextAlignment = TextAlignment.Center,
                 LineBreakMode = LineBreakMode.TailTruncation,
             };
-            label.SetDynamicResource(Label.TextColorProperty, on ? "OnAccent" : "Ink");
+            label.SetDynamicResource(Label.TextColorProperty, on ? "AccentInk" : "Ink");
             var cell = new Border
             {
                 Content = label,
@@ -198,7 +201,7 @@ public static class PageFrame
                 StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 18 },
             };
             if (on)
-                cell.SetDynamicResource(VisualElement.BackgroundColorProperty, "Accent");
+                cell.SetDynamicResource(VisualElement.BackgroundColorProperty, "AccentSoft");
             else
                 cell.BackgroundColor = Colors.Transparent;
             cell.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => choose(index)) });

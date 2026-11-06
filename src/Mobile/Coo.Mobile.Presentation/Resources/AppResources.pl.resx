@@ -159,6 +159,7 @@
   <data name="Chart.SummaryFeeds" xml:space="preserve"><value>Karmienia {0}</value></data>
   <data name="Chart.SummaryPumps" xml:space="preserve"><value>Odciąganie {0}</value></data>
   <data name="Chart.SummarySleep" xml:space="preserve"><value>Sen {0}</value></data>
+  <data name="Clock.MinutesSeconds" xml:space="preserve"><value>{0}:{1:00} min</value></data>
   <data name="Consent.Agree" xml:space="preserve"><value>Zgadzam się i udostępniam</value></data>
   <data name="Consent.Body" xml:space="preserve"><value>Aby udostępniać, Mochi przechowuje dziennik opieki nad dzieckiem (karmienia, pieluchy, sen i odciąganie, z godzinami, ilościami i notatkami), profil dziecka i ustawienia rodziny na serwerze Mochi w Niemczech. To informacje o zdrowiu Twojego dziecka, dlatego przechowujemy je tylko za Twoją zgodą.</value></data>
   <data name="Consent.Body2" xml:space="preserve"><value>Wszyscy członkowie rodziny mogą go oglądać i dodawać wpisy. Zgodę możesz wycofać w każdej chwili, usuwając konto w Ustawieniach. Dziennik na tym telefonie zawsze tu zostaje.</value></data>
@@ -255,6 +256,7 @@
   <data name="Entry.Sleep" xml:space="preserve"><value>Sen · {0}</value></data>
   <data name="Entry.SleepPlanStopped" xml:space="preserve"><value>Plan snu zakończony</value></data>
   <data name="Entry.Sleeping" xml:space="preserve"><value>Śpi</value></data>
+  <data name="Entry.SleepingFor" xml:space="preserve"><value>Śpi · już {0}</value></data>
   <data name="Entry.Temperature" xml:space="preserve"><value>Temperatura · {0}</value></data>
   <data name="Entry.Tummy" xml:space="preserve"><value>Na brzuszku {0}</value></data>
   <data name="Entry.TummyRunning" xml:space="preserve"><value>Na brzuszku · trwa</value></data>
@@ -383,6 +385,8 @@
   <data name="Feed.EveryShort" xml:space="preserve"><value>zwykle co {0}</value></data>
   <data name="Feed.Cluster" xml:space="preserve"><value>Pora karmień klasterowych {0}: karmienia mogą być jedno po drugim</value></data>
   <data name="Feed.ClusterShort" xml:space="preserve"><value>teraz jedno po drugim</value></data>
+  <data name="Feed.StartLeft" xml:space="preserve"><value>Zacznij lewą</value></data>
+  <data name="Feed.StartRight" xml:space="preserve"><value>Zacznij prawą</value></data>
   <data name="Night.NextFeed" xml:space="preserve"><value>Następne karmienie</value></data>
   <data name="Feed.Ago" xml:space="preserve"><value>{0} temu</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Butelka</value></data>
@@ -1048,6 +1052,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.BottleOnly" xml:space="preserve"><value>Butelka {0}</value></data>
   <data name="Totals.FeedSplit" xml:space="preserve"><value>Pierś {0} · butelka {1}</value></data>
   <data name="Totals.DiaperSplit" xml:space="preserve"><value>Mokre {0} · brudne {1}</value></data>
+  <data name="Totals.LastAndUsuallyByNow" xml:space="preserve"><value>Ostatnio {0} · zwykle {1} o tej porze</value></data>
   <data name="Totals.Longest" xml:space="preserve"><value>Najdłuższy {0}</value></data>
   <data name="Totals.Sessions" xml:space="preserve"><value>Sesje {0}</value></data>
   <data name="Totals.Last" xml:space="preserve"><value>Ostatnio {0}</value></data>
@@ -1062,6 +1067,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedMl" xml:space="preserve"><value>ml odciągnięte</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz odciągnięte</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>snu</value></data>
+  <data name="Totals.UsuallyByNow" xml:space="preserve"><value>Zwykle {0} o tej porze</value></data>
   <data name="Tour.Advisor.Body" xml:space="preserve"><value>Pytaj o sen, karmienie i rozwój. Odpowiedzi uwzględniają dziennik dziecka. Informacje ogólne, nie porada lekarska.</value></data>
   <data name="Tour.Advisor.Title" xml:space="preserve"><value>Doradca</value></data>
   <data name="Tour.Diapers.Body" xml:space="preserve"><value>Mokra lub brudna jednym dotknięciem, z dziennym licznikiem. Kąpiele, czas na brzuszku i kamienie milowe są w Wcześniej…, gdzie zapiszesz też to, co już było.</value></data>

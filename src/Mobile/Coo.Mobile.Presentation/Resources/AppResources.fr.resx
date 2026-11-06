@@ -152,6 +152,7 @@
   <data name="Chart.SummaryFeeds" xml:space="preserve"><value>Repas {0}</value></data>
   <data name="Chart.SummaryPumps" xml:space="preserve"><value>Tirages {0}</value></data>
   <data name="Chart.SummarySleep" xml:space="preserve"><value>Sommeil {0}</value></data>
+  <data name="Clock.MinutesSeconds" xml:space="preserve"><value>{0}:{1:00} min</value></data>
   <data name="Consent.Agree" xml:space="preserve"><value>Accepter et partager</value></data>
   <data name="Consent.Body" xml:space="preserve"><value>Pour le partage, Mochi conserve le journal de soins de votre bébé (repas, couches, sommeil et tire-lait, avec leurs heures, quantités et notes), le profil de votre bébé et les réglages de votre famille sur le serveur de Mochi en Allemagne. Ce sont des données de santé concernant votre enfant : nous ne les conservons qu’avec votre autorisation.</value></data>
   <data name="Consent.Body2" xml:space="preserve"><value>Toutes les personnes de votre famille peuvent le voir et y ajouter des entrées. Vous pouvez retirer votre autorisation à tout moment en supprimant votre compte dans Réglages. Le journal de ce téléphone reste toujours ici.</value></data>
@@ -244,6 +245,7 @@
   <data name="Entry.Sleep" xml:space="preserve"><value>Sommeil · {0}</value></data>
   <data name="Entry.SleepPlanStopped" xml:space="preserve"><value>Plan de sommeil arrêté</value></data>
   <data name="Entry.Sleeping" xml:space="preserve"><value>Dort</value></data>
+  <data name="Entry.SleepingFor" xml:space="preserve"><value>Dort · depuis {0}</value></data>
   <data name="Entry.Temperature" xml:space="preserve"><value>Température · {0}</value></data>
   <data name="Entry.Tummy" xml:space="preserve"><value>Sur le ventre {0}</value></data>
   <data name="Entry.TummyRunning" xml:space="preserve"><value>Sur le ventre · en cours</value></data>
@@ -368,6 +370,8 @@
   <data name="Feed.EveryShort" xml:space="preserve"><value>toutes les {0} en général</value></data>
   <data name="Feed.Cluster" xml:space="preserve"><value>C’est l’heure des tétées rapprochées pour {0} : les repas peuvent s’enchaîner</value></data>
   <data name="Feed.ClusterShort" xml:space="preserve"><value>rapprochés en ce moment</value></data>
+  <data name="Feed.StartLeft" xml:space="preserve"><value>Commencer à gauche</value></data>
+  <data name="Feed.StartRight" xml:space="preserve"><value>Commencer à droite</value></data>
   <data name="Night.NextFeed" xml:space="preserve"><value>Prochain repas</value></data>
   <data name="Feed.Ago" xml:space="preserve"><value>il y a {0}</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Biberon</value></data>
@@ -1013,6 +1017,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.BottleOnly" xml:space="preserve"><value>Biberon {0}</value></data>
   <data name="Totals.FeedSplit" xml:space="preserve"><value>Sein {0} · biberon {1}</value></data>
   <data name="Totals.DiaperSplit" xml:space="preserve"><value>Mouillées {0} · sales {1}</value></data>
+  <data name="Totals.LastAndUsuallyByNow" xml:space="preserve"><value>Dernier {0} · d’habitude {1} à cette heure</value></data>
   <data name="Totals.Longest" xml:space="preserve"><value>Le plus long {0}</value></data>
   <data name="Totals.Sessions" xml:space="preserve"><value>Séances {0}</value></data>
   <data name="Totals.Last" xml:space="preserve"><value>Dernier {0}</value></data>
@@ -1025,6 +1030,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedMl" xml:space="preserve"><value>ml tirés</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz tirés</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>sommeil</value></data>
+  <data name="Totals.UsuallyByNow" xml:space="preserve"><value>D’habitude {0} à cette heure</value></data>
   <data name="Tour.Advisor.Body" xml:space="preserve"><value>Posez vos questions sur le sommeil, l’alimentation et le développement. Les réponses tiennent compte du journal de bébé. Information générale, pas un avis médical.</value></data>
   <data name="Tour.Advisor.Title" xml:space="preserve"><value>Conseiller</value></data>
   <data name="Tour.Diapers.Body" xml:space="preserve"><value>Mouillée ou sale en un geste, avec le total du jour. Bains, temps sur le ventre et étapes sont dans Plus tôt…, qui note aussi ce qui s’est déjà passé.</value></data>

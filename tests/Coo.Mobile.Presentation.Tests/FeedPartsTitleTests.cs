@@ -33,7 +33,7 @@ public sealed class FeedPartsTitleTests : IDisposable
         var title = Ml.Title(feed, T0.AddHours(1));
 
         // Assert
-        title.Should().Be("Breast · left 12 m · right 8 m · in 3 parts", "the length is the feeding time, never the 27 minute span");
+        title.Should().Be("Breast · L\u00A012\u00A0m · R\u00A08\u00A0m · in 3 parts", "the length is the feeding time, never the 27 minute span");
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public sealed class FeedPartsTitleTests : IDisposable
         var title = Ml.Title(feed, T0.AddHours(1));
 
         // Assert
-        title.Should().Be("Breast · left 10 m · right 5 m");
+        title.Should().Be("Breast · L\u00A010\u00A0m · R\u00A05\u00A0m");
     }
 
     [Fact]
@@ -59,7 +59,7 @@ public sealed class FeedPartsTitleTests : IDisposable
         var summary = Formats.BreastSummary(feed);
 
         // Assert
-        summary.Should().Be("left 10 m · right 8 m");
+        summary.Should().Be("L\u00A010\u00A0m · R\u00A08\u00A0m");
     }
 
     [Theory]

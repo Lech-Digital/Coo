@@ -47,13 +47,16 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
             : Strings.Format("Duration.Minutes", minutes);
     }
 
-    /// <summary>Timer digits: "08:42" under an hour, "1:08:42" from an hour.</summary>
+    /// <summary>
+    /// A running timer: "8:42 min" under an hour, "1 h 8 m" from an hour. Bare "08:42" was read as hours by a tired
+    /// parent (UX review, 2026-11-06), so the unit is always there.
+    /// </summary>
     public static string Clock(TimeSpan span)
     {
         var s = span < TimeSpan.Zero ? TimeSpan.Zero : span;
         return s.TotalHours >= 1
-            ? s.ToString(@"h\:mm\:ss", CultureInfo.InvariantCulture)
-            : s.ToString(@"mm\:ss", CultureInfo.InvariantCulture);
+            ? Strings.Format("Duration.HoursMinutes", (int)s.TotalHours, s.Minutes)
+            : Strings.Format("Clock.MinutesSeconds", s.Minutes, s.Seconds);
     }
 
     /// <summary>"120 ml", or "4 oz" in an ounces household.</summary>
@@ -102,7 +105,7 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
             BreastFeed f => Strings.Format("Entry.Breast", BreastSummary(f)),
             BottleFeed b => Strings.Format("Entry.Bottle", MilkName(b.Components), Volume(b.Total)),
             DiaperDetails d => Strings.Format("Entry.Diaper", Contents(d.Contents)),
-            SleepDetails when entry.Timing.IsInProgress => Strings.Get("Entry.Sleeping"),
+            SleepDetails when entry.Timing.IsInProgress => Strings.Format("Entry.SleepingFor", Duration(now - entry.Timing.OccurredAt)),
             SleepDetails s => Strings.Format(
                 IsNight(s, (SessionTiming)entry.Timing) ? "Entry.Sleep" : "Entry.Nap",
                 Duration(((SessionTiming)entry.Timing).Range.Duration(now))),
@@ -187,17 +190,23 @@ public sealed class Formats(bool is24Hour, VolumeUnit unit)
         return Strings.Plural("Entry.Parts", feed.Parts);
     }
 
-    /// <summary>"left 10 m · right 5 m": each side used, with its time.</summary>
+    /// <summary>
+    /// "L 10 m · R 5 m": each side used, with its time. Short sides, and no break inside a side's time, so a row never
+    /// leaves "m" alone on the next line (UX review, 2026-11-06).
+    /// </summary>
     public static string BreastSummary(BreastFeed feed)
     {
         ArgumentNullException.ThrowIfNull(feed);
         var parts = new List<string>();
         if (feed.LeftDuration > TimeSpan.Zero)
-            parts.Add(Strings.Format("Entry.BreastSide", Side(BreastSide.Left, false), Duration(feed.LeftDuration)));
+            parts.Add(Unbroken(Strings.Format("Entry.BreastSide", Side(BreastSide.Left, true), Duration(feed.LeftDuration))));
         if (feed.RightDuration > TimeSpan.Zero)
-            parts.Add(Strings.Format("Entry.BreastSide", Side(BreastSide.Right, false), Duration(feed.RightDuration)));
+            parts.Add(Unbroken(Strings.Format("Entry.BreastSide", Side(BreastSide.Right, true), Duration(feed.RightDuration))));
         return string.Join(" · ", parts);
     }
+
+    /// <summary>The text with no-break spaces, so it wraps as one word.</summary>
+    public static string Unbroken(string text) => text.Replace(' ', '\u00A0');
 
     /// <summary>"5 mo", "3 wk" or "4 days", from the corrected age (ADR 0008 §2), with "(corrected)" when it differs.</summary>
     public static string Age(BabyProfile baby, DateOnly today)

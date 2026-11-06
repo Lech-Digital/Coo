@@ -66,7 +66,8 @@ public sealed record TimelineItem(EntryId? Id, string Time, string KindCode, str
 
 public sealed record FactItem(string KindCode, string Label, string Value);
 
-public sealed record QuickItem(string KindCode, string Label, IAsyncRelayCommand Command);
+/// <param name="Suggested">The one to tap next, such as the breast side after the last feed: drawn with a ring.</param>
+public sealed record QuickItem(string KindCode, string Label, IAsyncRelayCommand Command, bool Suggested = false);
 
 /// <summary>Shared helpers for the born-stage sections.</summary>
 internal static class Running
@@ -545,12 +546,19 @@ public sealed partial class LogTilesSection(HomeActions actions) : ObservableObj
 /// age-typical wake window. Premium: the personal window with its explanation one tap away, or, at low confidence, the
 /// typical window and a word on why there is no personal one yet. Never a precise time the predictor does not believe.
 /// </summary>
-public sealed partial class NextUpSection : ObservableObject, IHomeSection
+public sealed partial class NextUpSection(HomeActions? actions = null) : ObservableObject, IHomeSection
 {
     public int Order => 35;
 
     [ObservableProperty]
     private string _nextSide = "";
+
+    /// <summary>"Start right": one tap starts the next side's timer (UX review, 2026-11-06); empty while a feed runs.</summary>
+    [ObservableProperty]
+    private string _startNextSide = "";
+
+    /// <summary>Starts the timer on the next side.</summary>
+    public IAsyncRelayCommand? StartNextSideCommand { get; private set; }
 
     [ObservableProperty]
     private string _sinceFeed = "";
@@ -604,10 +612,14 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
         {
             var nextBreast = bf.LastSide == BreastSide.Left ? BreastSide.Right : BreastSide.Left;
             NextSide = Strings.Format("Today.NextSide", Formats.Side(nextBreast, shortForm: false));
+            var feeding = t.Running.Any(e => e.Details is FeedingDetails);
+            StartNextSideCommand = actions is null ? null : new AsyncRelayCommand(() => actions.StartBreastAsync(nextBreast));
+            StartNextSide = actions is null || feeding ? "" : Strings.Get(nextBreast == BreastSide.Left ? "Feed.StartLeft" : "Feed.StartRight");
         }
         else
         {
             NextSide = "";
+            StartNextSide = "";
         }
 
         // 2. Elapsed time since last feed
@@ -1095,12 +1107,16 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
         if (Running.Changed(Facts, facts, f => f.Label + f.Value))
             Facts = facts;
 
+        // The side after the last feed, ringed, as Next up says by day (UX review, 2026-11-06); none while a feed runs.
+        BreastSide? suggested = t?.LastFeed is { Details: BreastFeed lastBreast } && t.Running.All(e => e.Details is not FeedingDetails)
+            ? (lastBreast.LastSide == BreastSide.Left ? BreastSide.Right : BreastSide.Left)
+            : null;
         IReadOnlyList<QuickItem> quick =
         [
             new("diaper", Strings.Get("Diaper.Wet"), new AsyncRelayCommand(() => actions.LogDiaperAsync(DiaperContents.Wet))),
             new("diaper", Strings.Get("Diaper.Dirty"), new AsyncRelayCommand(() => actions.LogDiaperAsync(DiaperContents.Dirty))),
-            new("feeding", Strings.Get("Night.FeedL"), new AsyncRelayCommand(() => actions.StartBreastAsync(BreastSide.Left))),
-            new("feeding", Strings.Get("Night.FeedR"), new AsyncRelayCommand(() => actions.StartBreastAsync(BreastSide.Right))),
+            new("feeding", Strings.Get("Night.FeedL"), new AsyncRelayCommand(() => actions.StartBreastAsync(BreastSide.Left)), suggested == BreastSide.Left),
+            new("feeding", Strings.Get("Night.FeedR"), new AsyncRelayCommand(() => actions.StartBreastAsync(BreastSide.Right)), suggested == BreastSide.Right),
             new("feeding", Strings.Get("Feed.Bottle"), new AsyncRelayCommand(() =>
             {
                 actions.RequestSheet(HomeSheet.Bottle);
@@ -1114,7 +1130,7 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
                 : new("sleep", Strings.Get("Kind.Sleep"), new AsyncRelayCommand(actions.StartSleepAsync)),
         ];
         quick = [.. quick.Where(q => KindVisibility.IsShown(s.Household, q.KindCode))];
-        if (Running.Changed(Quick, quick, q => q.Label))
+        if (Running.Changed(Quick, quick, q => q.Label + q.Suggested))
             Quick = quick;
     }
 }

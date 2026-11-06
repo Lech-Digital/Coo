@@ -39,7 +39,7 @@ public sealed class LogPage : ContentPage
         var outerStack = new VerticalStackLayout
         {
             Padding = new Thickness(0, 0, 0, 24),
-            Spacing = 16,
+            Spacing = 0, // the title sits as close under the bar as on Today (design review, 2026-11-06)
             Children = { _pageHeader, _logContentContainer }
         };
         _body.Content = outerStack;

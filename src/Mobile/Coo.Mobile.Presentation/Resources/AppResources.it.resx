@@ -152,6 +152,7 @@
   <data name="Chart.SummaryFeeds" xml:space="preserve"><value>Pasti {0}</value></data>
   <data name="Chart.SummaryPumps" xml:space="preserve"><value>Tiralatte {0}</value></data>
   <data name="Chart.SummarySleep" xml:space="preserve"><value>Sonno {0}</value></data>
+  <data name="Clock.MinutesSeconds" xml:space="preserve"><value>{0}:{1:00} min</value></data>
   <data name="Consent.Agree" xml:space="preserve"><value>Accetta e condividi</value></data>
   <data name="Consent.Body" xml:space="preserve"><value>Per la condivisione, Mochi conserva il registro delle cure del tuo bambino (poppate, pannolini, sonno e tiralatte, con orari, quantità e note), il profilo del bambino e le impostazioni della famiglia sul server di Mochi in Germania. Sono dati sanitari su tuo figlio, quindi li conserviamo solo con il tuo permesso.</value></data>
   <data name="Consent.Body2" xml:space="preserve"><value>Tutti nella tua famiglia possono vederlo e aggiungere voci. Puoi revocare il permesso in qualsiasi momento eliminando il tuo account in Impostazioni. Il registro su questo telefono resta sempre qui.</value></data>
@@ -244,6 +245,7 @@
   <data name="Entry.Sleep" xml:space="preserve"><value>Sonno · {0}</value></data>
   <data name="Entry.SleepPlanStopped" xml:space="preserve"><value>Piano del sonno interrotto</value></data>
   <data name="Entry.Sleeping" xml:space="preserve"><value>Dorme</value></data>
+  <data name="Entry.SleepingFor" xml:space="preserve"><value>Dorme · da {0}</value></data>
   <data name="Entry.Temperature" xml:space="preserve"><value>Temperatura · {0}</value></data>
   <data name="Entry.Tummy" xml:space="preserve"><value>Tummy time {0}</value></data>
   <data name="Entry.TummyRunning" xml:space="preserve"><value>Tummy time · in corso</value></data>
@@ -368,6 +370,8 @@
   <data name="Feed.EveryShort" xml:space="preserve"><value>di solito ogni {0}</value></data>
   <data name="Feed.Cluster" xml:space="preserve"><value>È l’ora delle poppate ravvicinate di {0}: possono susseguirsi</value></data>
   <data name="Feed.ClusterShort" xml:space="preserve"><value>ravvicinate adesso</value></data>
+  <data name="Feed.StartLeft" xml:space="preserve"><value>Inizia sinistro</value></data>
+  <data name="Feed.StartRight" xml:space="preserve"><value>Inizia destro</value></data>
   <data name="Night.NextFeed" xml:space="preserve"><value>Prossima poppata</value></data>
   <data name="Feed.Ago" xml:space="preserve"><value>{0} fa</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Biberon</value></data>
@@ -1013,6 +1017,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.BottleOnly" xml:space="preserve"><value>Biberon {0}</value></data>
   <data name="Totals.FeedSplit" xml:space="preserve"><value>Seno {0} · biberon {1}</value></data>
   <data name="Totals.DiaperSplit" xml:space="preserve"><value>Bagnati {0} · sporchi {1}</value></data>
+  <data name="Totals.LastAndUsuallyByNow" xml:space="preserve"><value>Ultimo {0} · di solito {1} a quest’ora</value></data>
   <data name="Totals.Longest" xml:space="preserve"><value>Il più lungo {0}</value></data>
   <data name="Totals.Sessions" xml:space="preserve"><value>Sessioni {0}</value></data>
   <data name="Totals.Last" xml:space="preserve"><value>Ultimo {0}</value></data>
@@ -1025,6 +1030,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedMl" xml:space="preserve"><value>ml estratti</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz estratti</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>sonno</value></data>
+  <data name="Totals.UsuallyByNow" xml:space="preserve"><value>Di solito {0} a quest’ora</value></data>
   <data name="Tour.Advisor.Body" xml:space="preserve"><value>Chiedi di sonno, alimentazione e sviluppo. Le risposte tengono conto del diario del bambino. Informazioni generali, non un parere medico.</value></data>
   <data name="Tour.Advisor.Title" xml:space="preserve"><value>Consulente</value></data>
   <data name="Tour.Diapers.Body" xml:space="preserve"><value>Bagnato o sporco con un tocco, con il totale del giorno. Bagnetto, pancia in giù e traguardi sono in Prima…, che registra anche ciò che è già successo.</value></data>

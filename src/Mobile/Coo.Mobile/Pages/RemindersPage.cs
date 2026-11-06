@@ -224,6 +224,8 @@ public sealed class RemindersPage : ContentPage
         text.Add(Ui.Text(hint, "Meta", "Ink2"));
         var box = new Switch { IsToggled = on, VerticalOptions = LayoutOptions.Center, InputTransparent = true };
         box.SetDynamicResource(Switch.OnColorProperty, "Accent");
+        // A light thumb on the accent by day, a dark one on the light matcha at night (design review, 2026-11-06).
+        box.SetDynamicResource(Switch.ThumbColorProperty, "OnAccent");
         var grid = new Grid { ColumnDefinitions = [new(GridLength.Star), new(GridLength.Auto)], ColumnSpacing = 12 };
         grid.Add(text, 0);
         grid.Add(box, 1);

@@ -119,7 +119,9 @@ public sealed partial class LogViewModel(
             new("pump", pumped.Item1, pumped.Item2),
         ];
         // What each total is made of, and the usual day of the week before (LogTotals).
-        var care = trends is null ? null : await trends.DaysAsync(household.Id, baby.Id, Date.AddDays(-7), Date, zone, now, CancellationToken.None);
+        // Today is compared with the other days up to the same time of day.
+        TimeOnly? byNow = isToday ? TimeOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, zone).DateTime) : null;
+        var care = trends is null ? null : await trends.DaysAsync(household.Id, baby.Id, Date.AddDays(-7), Date, zone, now, CancellationToken.None, byNow);
         var shownDay = care?.GetValueOrDefault(Date);
         var before = care?.Values.Where(d => d.Date < Date).ToList() ?? [];
         var shown = day.Entries.Where(e => !undo.IsPendingDelete(e.Id)).ToList();
@@ -136,7 +138,7 @@ public sealed partial class LogViewModel(
         var pumps = shown.Count(e => e.KindCode == "pump");
         totals = [.. totals.Select(t =>
         {
-            var (detail, compare) = LogTotals.For(t.KindCode, shownDay, before, pumps, last, formats);
+            var (detail, compare) = LogTotals.For(t.KindCode, shownDay, before, pumps, last, formats, byNow is not null);
             return t with { Detail = detail, Compare = compare };
         })];
         Totals = Same(Totals, [.. totals.Where(t => KindVisibility.IsShown(household, t.KindCode))]);

@@ -407,6 +407,8 @@ public sealed class SettingsPage : ContentPage
             {
                 var toggle = new Switch { IsToggled = kind.IsShown, IsEnabled = kind.CanChange, VerticalOptions = LayoutOptions.Center };
                 toggle.SetDynamicResource(Switch.OnColorProperty, "Accent");
+                // A light thumb on the accent by day, a dark one on the light matcha at night (design review, 2026-11-06).
+                toggle.SetDynamicResource(Switch.ThumbColorProperty, "OnAccent");
                 var code = kind.Code;
                 toggle.Toggled += (_, e) =>
                 {

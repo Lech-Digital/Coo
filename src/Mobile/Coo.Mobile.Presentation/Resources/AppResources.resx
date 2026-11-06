@@ -152,6 +152,7 @@
   <data name="Chart.SummaryFeeds" xml:space="preserve"><value>Feeds {0}</value></data>
   <data name="Chart.SummaryPumps" xml:space="preserve"><value>Pumping {0}</value></data>
   <data name="Chart.SummarySleep" xml:space="preserve"><value>Sleep {0}</value></data>
+  <data name="Clock.MinutesSeconds" xml:space="preserve"><value>{0}:{1:00} min</value></data>
   <data name="Consent.Agree" xml:space="preserve"><value>Agree and share</value></data>
   <data name="Consent.Body" xml:space="preserve"><value>To share, Mochi keeps your baby's care log (feeds, diapers, sleep and pumping, with their times, amounts and notes), your baby's profile and your family settings on Mochi's server in Germany. This is health information about your child, so we only store it with your permission.</value></data>
   <data name="Consent.Body2" xml:space="preserve"><value>Everyone in your family can see it and add to it. You can withdraw your permission at any time by deleting your account in Settings. The log on this phone always stays here.</value></data>
@@ -244,6 +245,7 @@
   <data name="Entry.Sleep" xml:space="preserve"><value>Sleep · {0}</value></data>
   <data name="Entry.SleepPlanStopped" xml:space="preserve"><value>Sleep plan stopped</value></data>
   <data name="Entry.Sleeping" xml:space="preserve"><value>Sleeping</value></data>
+  <data name="Entry.SleepingFor" xml:space="preserve"><value>Sleeping · {0} so far</value></data>
   <data name="Entry.Temperature" xml:space="preserve"><value>Temperature · {0}</value></data>
   <data name="Entry.Tummy" xml:space="preserve"><value>Tummy time {0}</value></data>
   <data name="Entry.TummyRunning" xml:space="preserve"><value>Tummy time · running</value></data>
@@ -368,6 +370,8 @@
   <data name="Feed.EveryShort" xml:space="preserve"><value>usually every {0}</value></data>
   <data name="Feed.Cluster" xml:space="preserve"><value>Cluster-feeding time for {0}: feeds may come close together</value></data>
   <data name="Feed.ClusterShort" xml:space="preserve"><value>close together now</value></data>
+  <data name="Feed.StartLeft" xml:space="preserve"><value>Start left</value></data>
+  <data name="Feed.StartRight" xml:space="preserve"><value>Start right</value></data>
   <data name="Night.NextFeed" xml:space="preserve"><value>Next feed</value></data>
   <data name="Feed.Ago" xml:space="preserve"><value>{0} ago</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Bottle</value></data>
@@ -1013,6 +1017,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.BottleOnly" xml:space="preserve"><value>Bottle {0}</value></data>
   <data name="Totals.FeedSplit" xml:space="preserve"><value>Breast {0} · bottle {1}</value></data>
   <data name="Totals.DiaperSplit" xml:space="preserve"><value>Wet {0} · dirty {1}</value></data>
+  <data name="Totals.LastAndUsuallyByNow" xml:space="preserve"><value>Last {0} · usually {1} by now</value></data>
   <data name="Totals.Longest" xml:space="preserve"><value>Longest {0}</value></data>
   <data name="Totals.Sessions" xml:space="preserve"><value>Sessions {0}</value></data>
   <data name="Totals.Last" xml:space="preserve"><value>Last {0}</value></data>
@@ -1025,6 +1030,7 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedMl" xml:space="preserve"><value>ml pumped</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz pumped</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>sleep</value></data>
+  <data name="Totals.UsuallyByNow" xml:space="preserve"><value>Usually {0} by now</value></data>
   <data name="Tour.Advisor.Body" xml:space="preserve"><value>Ask about sleep, feeding and development. Answers take your baby’s log into account. General information, not medical advice.</value></data>
   <data name="Tour.Advisor.Title" xml:space="preserve"><value>Baby Advisor</value></data>
   <data name="Tour.Diapers.Body" xml:space="preserve"><value>Wet or dirty in one tap, with daily counts. Baths, tummy time and milestones are under Earlier…, which also logs anything that already happened.</value></data>
