@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The launch film's soundtrack, synthesised (no samples, no licence): 120 BPM, 32 s. A soft kick, a shaker, a
+"""The launch film's soundtrack, synthesised (no samples, no licence): 120 BPM, 36 s. A soft kick, a shaker, a
 marimba-like pluck arpeggio over Fmaj7 - Am7 - Dm9 - G, a quiet pad, pops on the card beats and a riser into the end card.
 Run: python3 make-music.py  ->  public/music.wav"""
 import math, random, struct, wave, os
@@ -7,7 +7,7 @@ import math, random, struct, wave, os
 SR = 44100
 BPM = 120
 BEAT = 60 / BPM
-LENGTH = 32.0
+LENGTH = 36.0
 N = int(SR * LENGTH)
 L = [0.0] * N
 R = [0.0] * N
@@ -93,35 +93,35 @@ chords = [[53, 57, 60, 64], [57, 60, 64, 67], [50, 57, 60, 64], [55, 59, 62, 64]
 arp = [0, 2, 1, 3, 2, 1, 3, 2]
 
 bar = 4 * BEAT
-for b in range(16):
+for b in range(18):
     t_bar = b * bar
     chord = chords[(b // 2) % 4]
     # Pad under each two bars.
-    if b % 2 == 0 and b < 15:
+    if b % 2 == 0 and b < 16:
         add(t_bar, pad([hz(m) for m in chord], 2 * bar), 0.10)
     for beat in range(4):
         t = t_bar + beat * BEAT
-        if b >= 1 and b < 15:
+        if b >= 1 and b < 16:
             add(t, kick(), 0.55 if b >= 2 else 0.35)
-        if b >= 2 and b < 15:
+        if b >= 2 and b < 16:
             add(t + BEAT / 2, shaker(), 0.25, pan=0.3)
             add(t + BEAT * 0.75, shaker(), 0.12, pan=-0.3)
     for e in range(8):
         t = t_bar + e * BEAT / 2
         note = chord[arp[e] % 4] + 12
-        if b < 14:
+        if b < 16:
             add(t, pluck(hz(note)), 0.16 if b >= 1 else 0.11, pan=0.25 if e % 2 else -0.25)
 
-# The hook's question, its answer and the ring (0.5, 1, 1.5 s); the three Next up cards (17, 18, 19 s).
-for t in [0.5, 1.0, 1.5] + [17.0, 18.0, 19.0]:
+# The five words on the beat (0–2 s); the question, its answer and the ring (4.5, 5, 5.5 s); the Next up cards (21–23 s).
+for t in [0, 0.5, 1.0, 1.5, 2.0] + [4.5, 5.0, 5.5] + [21.0, 22.0, 23.0]:
     add(t, pop(), 0.22)
-# Riser into the end card at 28 s, then the last chord rings out over its four seconds.
-add(26.0, riser(2.0), 0.5)
-add(28.0, kick(0.6), 0.7)
-add(28.0, pad([hz(m) for m in [53, 60, 64, 69, 72]], 4.0), 0.18)
+# Riser into the end card at 32 s, then the last chord rings out over its four seconds.
+add(30.0, riser(2.0), 0.5)
+add(32.0, kick(0.6), 0.7)
+add(32.0, pad([hz(m) for m in [53, 60, 64, 69, 72]], 4.0), 0.18)
 for m in [65, 69, 72, 76]:
-    add(28.0, pluck(hz(m), 3.0), 0.14)
-add(28.8, pop(), 0.18)  # the bunny lands on the "i"
+    add(32.0, pluck(hz(m), 3.0), 0.14)
+add(32.8, pop(), 0.18)  # the bunny lands on the "i"
 
 peak = max(max(abs(x) for x in L), max(abs(x) for x in R))
 fade = int(0.4 * SR)

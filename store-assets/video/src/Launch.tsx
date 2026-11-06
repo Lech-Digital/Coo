@@ -6,10 +6,59 @@ import { C, Caption, Fonts, Glass, Icon, ICON, Mochi, Phone, useSpring, Wash, Wo
 export const BEAT = 15;
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
 
+// 1. Words (0–4 s): the five things it logs, one per beat, then they collapse into Mochi (owner, 2026-11-06: "the
+// first scene, with popping texts to the beat, was better").
+const HOOK = [
+  { word: 'Feeds.', k: C.feed, icon: ICON.feed },
+  { word: 'Sleep.', k: C.sleep, icon: ICON.sleep },
+  { word: 'Diapers.', k: C.diaper, icon: ICON.diaper },
+  { word: 'Pumping.', k: C.pump, icon: ICON.pump },
+  { word: 'Growth.', k: C.growth, icon: ICON.growth },
+];
+
+const Words: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const collapse = interpolate(frame, [88, 108], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
+  const square = spring({ frame: frame - 100, fps, config: { damping: 11, stiffness: 160 } });
+  return (
+    <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
+      {HOOK.map((h, i) => {
+        const s = spring({ frame: frame - i * BEAT, fps, config: { damping: 11, mass: 0.6, stiffness: 170 } });
+        const y = (i - 2) * 200;
+        return (
+          <div
+            key={h.word}
+            style={{
+              position: 'absolute',
+              top: 960 - 90 + y * (1 - collapse),
+              left: 150,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 44,
+              opacity: s * (1 - collapse),
+              transform: `translateX(${(1 - s) * -160}px) scale(${(0.6 + 0.4 * s) * (1 - collapse * 0.7)})`,
+              transformOrigin: '50% 50%',
+            }}
+          >
+            <div style={{ width: 172, height: 172, borderRadius: 48, background: h.k.tint, display: 'grid', placeItems: 'center' }}>
+              <Icon d={h.icon} color={h.k.ink} size={96} stroke={2} />
+            </div>
+            <div style={{ fontSize: 150, fontWeight: 600, letterSpacing: -5, color: h.k.ink }}>{h.word}</div>
+          </div>
+        );
+      })}
+      <div style={{ position: 'absolute', transform: `scale(${square})`, filter: 'drop-shadow(0 40px 60px rgba(63,107,74,0.35))' }}>
+        <Mochi size={460} />
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 // Where "Start right" sits in s1-today.png (1080 × 2424): Next up's one-tap button for the next breast side.
 const START = { x: 184, y: 1616, w: 308, h: 98 };
 
-// 1. Hook (0–3 s): a real screen from the first frame and a parent's question, answered by the app (marketing review,
+// 2. Question (4–7 s): a real screen from the first frame and a parent's question, answered by the app (marketing review,
 // 2026-11-06): "Left or right?", then "Mochi remembers." and a ring on Next up's "Start right".
 const Hook: React.FC = () => {
   const frame = useCurrentFrame();
@@ -48,7 +97,7 @@ const Hook: React.FC = () => {
   );
 };
 
-// 2. Breastfeeding timer (3–7 s): the tap on "Start right", and the timer on the right side runs.
+// 3. Breastfeeding timer (7–11 s): the tap on "Start right", and the timer on the right side runs.
 const OneTap: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -361,38 +410,41 @@ const End: React.FC = () => {
   );
 };
 
-/** The cuts, in frames (a beat is 15): 3 s hook, then 4, 4, 5, 4, 4, 4 and a 4 s end card. */
+/** The cuts, in frames (a beat is 15): the 4 s words, a 3 s question, then 4, 4, 5, 4, 4, 4 and a 4 s end card. */
 export const Launch: React.FC = () => {
   const frame = useCurrentFrame();
   // The dark wash: in for the night scene, out again for the family.
-  const night = interpolate(frame, [594, 610, 714, 728], [0, 1, 1, 0], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  const night = interpolate(frame, [714, 730, 834, 848], [0, 1, 1, 0], { ...clamp, easing: Easing.inOut(Easing.cubic) });
   return (
     <AbsoluteFill style={{ fontFamily: 'Figtree, sans-serif', overflow: 'hidden' }}>
       <Fonts />
       <Audio src={staticFile('music.wav')} />
       <Wash night={night} />
-      <Sequence from={0} durationInFrames={90}>
+      <Sequence from={0} durationInFrames={120}>
+        <Words />
+      </Sequence>
+      <Sequence from={120} durationInFrames={90}>
         <Hook />
       </Sequence>
-      <Sequence from={90} durationInFrames={120}>
+      <Sequence from={210} durationInFrames={120}>
         <OneTap />
       </Sequence>
-      <Sequence from={210} durationInFrames={120}>
+      <Sequence from={330} durationInFrames={120}>
         <Day />
       </Sequence>
-      <Sequence from={330} durationInFrames={150}>
+      <Sequence from={450} durationInFrames={150}>
         <Pattern />
       </Sequence>
-      <Sequence from={480} durationInFrames={120}>
+      <Sequence from={600} durationInFrames={120}>
         <Insights />
       </Sequence>
-      <Sequence from={600} durationInFrames={120}>
+      <Sequence from={720} durationInFrames={120}>
         <Night />
       </Sequence>
-      <Sequence from={720} durationInFrames={120}>
+      <Sequence from={840} durationInFrames={120}>
         <Together />
       </Sequence>
-      <Sequence from={840} durationInFrames={120}>
+      <Sequence from={960} durationInFrames={120}>
         <End />
       </Sequence>
     </AbsoluteFill>
