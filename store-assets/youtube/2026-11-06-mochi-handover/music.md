@@ -7,8 +7,8 @@ Gemini first (two prompts below); Suno as a fallback.
 
 ## Gemini: two prompts, two chats
 
-Generating the music and the whisper separately keeps the voice out of the music: in one track Gemini whispered
-"Mochi" three times (over the grandparents, the sleep pattern card and the end). The edit puts the whisper exactly
+Generating the music and the whisper separately keeps the voice out of the music: in the first track Gemini
+whispered "Mochi" more than once (over the grandparents and the sleep pattern card). The edit puts the whisper exactly
 where the end card is complete. Save them here as `soundtrack.mp3` and `whisper.mp3`.
 
 ### 1 · The music (new chat)
