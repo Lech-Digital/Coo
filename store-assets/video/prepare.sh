@@ -9,3 +9,5 @@ cp $R/src/Mobile/Coo.Mobile/Resources/Fonts/Figtree-*.ttf public/
 cp $R/src/Mobile/Coo.Mobile/Resources/Images/mochi_*.svg public/
 python3 -I make-music.py
 python3 -I make-music.py youtube
+python3 -I make-music.py handover
+mkdir -p public/handover && cp ../youtube/*-mochi-handover/clips/*.mp4 public/handover/ 2>/dev/null || true

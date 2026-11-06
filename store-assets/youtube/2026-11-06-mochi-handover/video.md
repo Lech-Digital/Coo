@@ -24,7 +24,26 @@ Mochi is a baby tracker for Android: feeds, sleep, diapers and pumping in one ta
 #babytracker #newborn #newparents #breastfeeding #babysleep #parenting
 ```
 
-## The plan
+## The cut
+
+Every Gemini shot (5 s) is followed by a full-screen Mochi card (3 s), and a small Mochi sits in the corner over the
+live-action, so any frame of the film is branded. Built in `store-assets/video/src/Handover.tsx`, 62 s:
+
+| # | Gemini shot | Then the Mochi card |
+|---|---|---|
+| 1 | Night, the nursery | Mochi asleep + the wordmark, on the night colours |
+| 2 | One hand, in the dark | Night screen (`s7-night.png`) · *Logged with one hand.* |
+| 3 | Morning | Today (`s1-today.png`) · *The whole night, at a glance.* |
+| 4 | She takes over | The running timer (`s8-timer.png`) · *Right side. One tap.* |
+| 5 | The day goes by | The Log (`s2-log.png`) · *Every feed, sleep and diaper.* |
+| 6 | Grandma checks in | The Log with Anna · Tom · Grandma · *Grandparents can follow along.* |
+| 7 | Evening, together | Stats with the sleep pattern (`s4-stats.png`) · *It learns her rhythm.* |
+| — | | End card: Mochi, the wordmark, *On Google Play*, lechdigital.nl/mochi |
+
+- Draft with grey placeholders for the shots: `npm run render:handover-draft`
+- With the clips: put them in `clips/1.mp4` … `7.mp4` here, run `./prepare.sh`, then `npm run render:handover`
+
+## The plan (notes behind the prompts)
 
 A ~50 s film about one day and one night with a newborn, told through two parents who hardly see each other but
 always know what happened, because it's in Mochi. Gemini makes the people shots (8 s each); the phone screens are

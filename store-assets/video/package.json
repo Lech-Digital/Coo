@@ -6,7 +6,9 @@
     "render": "remotion render src/index.ts Launch out/mochi-launch-9x16.mp4",
     "still": "remotion still src/index.ts Launch",
     "render:youtube": "remotion render src/index.ts YouTube out/mochi-youtube-16x9.mp4",
-    "still:youtube": "remotion still src/index.ts YouTube"
+    "still:youtube": "remotion still src/index.ts YouTube",
+    "render:handover": "remotion render src/index.ts Handover out/mochi-handover-16x9.mp4 --props='{\"clips\":true}'",
+    "render:handover-draft": "remotion render src/index.ts Handover out/mochi-handover-draft.mp4"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.375",

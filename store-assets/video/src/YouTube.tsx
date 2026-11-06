@@ -23,14 +23,14 @@ const MORE_ICON = {
   health: 'M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zM12 8v8M8 12h8',
 };
 
-const useSpringAt = (from: number, damping = 13, stiffness = 140, mass = 0.6) => {
+export const useSpringAt = (from: number, damping = 13, stiffness = 140, mass = 0.6) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   return spring({ frame: frame - from, fps, config: { damping, stiffness, mass } });
 };
 
 /** The words on the left: a kicker in the accent, the line, and an optional quieter line under it. */
-const Side: React.FC<{ kicker: string; text: string; sub?: string; from?: number; dark?: boolean; exit?: number }> = ({
+export const Side: React.FC<{ kicker: string; text: string; sub?: string; from?: number; dark?: boolean; exit?: number }> = ({
   kicker,
   text,
   sub,
@@ -560,7 +560,7 @@ const Yours: React.FC = () => {
 };
 
 // 13. End card (62–68 s).
-const End: React.FC = () => {
+export const End: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const pop = useSpringAt(0, 9, 170);

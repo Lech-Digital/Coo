@@ -143,15 +143,21 @@ export const Mochi: React.FC<{ size: number; sleep?: number; squash?: number }> 
 
 /** The wordmark (Fredoka outlines, wordmark.g.ts): <c>letter(i)</c> 0..1 brings in m, o, c, h and the stem one by one,
  * <c>dot</c> 0..1 drops the bunny onto the "i". */
-export const Wordmark: React.FC<{ height: number; letter?: (i: number) => number; dot?: number }> = ({ height, letter = () => 1, dot = 1 }) => {
+export const Wordmark: React.FC<{ height: number; letter?: (i: number) => number; dot?: number; ink?: string; accent?: string }> = ({
+  height,
+  letter = () => 1,
+  dot = 1,
+  ink = C.ink,
+  accent = C.accent,
+}) => {
   const scale = height / WORDMARK.height;
   const rise = (v: number) => `translate(0 ${(1 - v) * 30})`;
   return (
     <svg width={WORDMARK.width * scale} height={height} viewBox={`0 0 ${WORDMARK.width} ${WORDMARK.height}`} style={{ overflow: 'visible' }}>
       {WORDMARK.letters.map((d, i) => (
-        <path key={i} d={d} fill={C.ink} opacity={Math.min(1, letter(i))} transform={rise(letter(i))} />
+        <path key={i} d={d} fill={ink} opacity={Math.min(1, letter(i))} transform={rise(letter(i))} />
       ))}
-      <path d={WORDMARK.stem} fill={C.accent} opacity={Math.min(1, letter(4))} transform={rise(letter(4))} />
+      <path d={WORDMARK.stem} fill={accent} opacity={Math.min(1, letter(4))} transform={rise(letter(4))} />
       <g transform={`translate(0 ${(1 - dot) * -40})`} opacity={Math.min(1, dot * 2)}>
         <g transform={WORDMARK.dotTransform} dangerouslySetInnerHTML={{ __html: WORDMARK.dot }} />
       </g>
