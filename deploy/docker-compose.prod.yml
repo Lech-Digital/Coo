@@ -46,7 +46,7 @@ services:
       # App versions (/api/app-version): Latest is the version code live on Google Play (phones below it are offered the
       # update once a day); Minimum forces it (phones below it get the update screen). Raise Minimum only once that version
       # is live on Play, or older phones are locked out with nothing to install.
-      AppUpdates__Latest: ${APP_UPDATES_LATEST:-30}
+      AppUpdates__Latest: ${APP_UPDATES_LATEST:-33}
       AppUpdates__Minimum: ${APP_UPDATES_MINIMUM:-29}
       # Invitation codes (Spec 011b §10.3): the pepper of their stored hashes. The API refuses to start without it.
       Invitations__CodePepper: ${INVITATIONS_CODE_PEPPER:?set INVITATIONS_CODE_PEPPER in .env}

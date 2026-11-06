@@ -17,7 +17,8 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
 ## 1.12.1 (code 33) — 2026-11-06
 
 The fix for the Log's timeline and the new tour, which came after the 1.12.0 build that was uploaded (a rebuild under
-code 32 never reached Play). Once it is live, raise `AppUpdates:Latest` to 33 and deploy.
+code 32 never reached Play). Live on Google Play 2026-11-06; `AppUpdates:Latest` 33 (server `.env` and the compose
+default), `Minimum` stays 29.
 
 ### Fixed
 - **The Log no longer crashes when you tap the day's timeline**, which happened most often on a second tap while the
