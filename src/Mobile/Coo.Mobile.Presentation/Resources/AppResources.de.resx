@@ -1031,30 +1031,55 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz abgepumpt</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>Schlaf</value></data>
   <data name="Totals.UsuallyByNow" xml:space="preserve"><value>Sonst {0} bis jetzt</value></data>
-  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Frag zu Schlaf, Ernährung und Entwicklung. Die Antworten berücksichtigen eure Einträge. Allgemeine Informationen, keine ärztliche Beratung.</value></data>
-  <data name="Tour.Advisor.Title" xml:space="preserve"><value>Berater</value></data>
-  <data name="Tour.Diapers.Body" xml:space="preserve"><value>Nass oder voll mit einem Tipp, mit Tageszähler. Baden, Bauchlage und Meilensteine findest du unter Früher…, wo du auch alles nachträgst, was schon passiert ist.</value></data>
-  <data name="Tour.Diapers.Title" xml:space="preserve"><value>Windeln, Baden und Meilensteine</value></data>
+  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Frag nach Schlaf, Füttern und Entwicklung.
+Die Antworten berücksichtigen die Einträge deines Babys.
+Allgemeine Informationen, keine ärztliche Beratung.</value></data>
+  <data name="Tour.Advisor.Title" xml:space="preserve"><value>Baby-Ratgeber</value></data>
+  <data name="Tour.Advisor.Where" xml:space="preserve"><value>Berater</value></data>
   <data name="Tour.Done" xml:space="preserve"><value>Fertig</value></data>
-  <data name="Tour.Family.Body" xml:space="preserve"><value>Melde dich in den Einstellungen an und lade Partner, Nanny oder Großeltern ein. Einträge erreichen alle Handys in Sekunden, und die App funktioniert offline.</value></data>
-  <data name="Tour.Family.Title" xml:space="preserve"><value>Gemeinsames Baby-Tagebuch</value></data>
-  <data name="Tour.Feeding.Body" xml:space="preserve"><value>Tippe auf Füttern: Links oder Rechts startet den Still-Timer, mit Pausen und Seitenwechsel. Fläschchen in ml oder oz, Abpumpen mit Menge und Beikost.</value></data>
-  <data name="Tour.Feeding.Title" xml:space="preserve"><value>Stillen und Füttern</value></data>
-  <data name="Tour.Growth.Body" xml:space="preserve"><value>Gewicht, Länge und Kopfumfang auf den WHO-Wachstumskurven, mit Perzentilen. Medikamente, Temperatur und Impfungen unter Gesundheit; ein Foto vom Vorsorgeheft füllt sie aus.</value></data>
-  <data name="Tour.Growth.Title" xml:space="preserve"><value>Wachstum und Gesundheit</value></data>
-  <data name="Tour.LogFaster.Body" xml:space="preserve"><value>Sag es Mochi: „120 ml Pre-Nahrung um zwei“, und prüfe es vor dem Speichern. Widgets und die Benachrichtigungsleiste tragen ein und stoppen Timer; Erinnerungen an Mahlzeiten, Windeln und Medikamente.</value></data>
-  <data name="Tour.LogFaster.Title" xml:space="preserve"><value>Schneller eintragen</value></data>
+  <data name="Tour.Family.Body" xml:space="preserve"><value>Melde dich an und lade deinen Partner, eine Nanny oder die Großeltern ein.
+Alle sehen innerhalb von Sekunden dieselben Einträge, auch offline.</value></data>
+  <data name="Tour.Family.Title" xml:space="preserve"><value>Mit der Familie teilen</value></data>
+  <data name="Tour.Family.Where" xml:space="preserve"><value>Einstellungen</value></data>
+  <data name="Tour.Faster.Body" xml:space="preserve"><value>Sag „120 ml Pre-Milch um zwei, dann eine nasse Windel“ und prüfe es vor dem Speichern.
+Widgets und die Benachrichtigungsleiste starten, wechseln und stoppen Timer.
+Erinnerungen an Mahlzeiten, Windeln und Medikamente.</value></data>
+  <data name="Tour.Faster.Title" xml:space="preserve"><value>Schneller eintragen</value></data>
+  <data name="Tour.Faster.Where" xml:space="preserve"><value>Heute · Sag es Mochi</value></data>
+  <data name="Tour.Learns.Body" xml:space="preserve"><value>Welche Seite als Nächstes dran ist und wann Mahlzeit und Nickerchen wahrscheinlich sind.
+Berechnet aus deinen Einträgen auf dem Handy, genauer nach ein paar Tagen.
+„Warum diese Zeit?“ erklärt jede Schätzung. Persönliche Schlafzeiten gibt es mit Premium.</value></data>
+  <data name="Tour.Learns.Title" xml:space="preserve"><value>Mochi lernt den Rhythmus</value></data>
+  <data name="Tour.Learns.Where" xml:space="preserve"><value>Heute · Als Nächstes</value></data>
+  <data name="Tour.Log.Body" xml:space="preserve"><value>Das Band zeigt den Tag: Schlaf in Lavendel, Mahlzeiten und Windeln als Punkte.
+Tippe aufs Band, um ein paar Stunden zu vergrößern; tippe auf einen Eintrag, um ihn zu ändern oder zu löschen.
+Die Pfeile wechseln zum Tag davor und danach.</value></data>
+  <data name="Tour.Log.Title" xml:space="preserve"><value>Der ganze Tag auf einen Blick</value></data>
+  <data name="Tour.Log.Where" xml:space="preserve"><value>Verlauf</value></data>
   <data name="Tour.Next" xml:space="preserve"><value>Nächster Tipp</value></data>
+  <data name="Tour.Night.Body" xml:space="preserve"><value>Dunkle Farben und große Tasten für eine Hand.
+Ein Tipp trägt Nass, Voll, Stillen L oder R ein; die nächste Seite ist umrandet.
+Auf Auto schaltet er sich nachts von selbst ein.</value></data>
+  <data name="Tour.Night.Title" xml:space="preserve"><value>Nachtmodus</value></data>
+  <data name="Tour.Night.Where" xml:space="preserve"><value>Der Mond oben rechts</value></data>
   <data name="Tour.Position" xml:space="preserve"><value>{0} von {1}</value></data>
   <data name="Tour.Previous" xml:space="preserve"><value>Vorheriger Tipp</value></data>
   <data name="Tour.Skip" xml:space="preserve"><value>Überspringen</value></data>
-  <data name="Tour.Sleep.Body" xml:space="preserve"><value>Tippe auf Schlaf, um Nickerchen und Nachtschlaf zu stoppen. „Heute“ zeigt das Wachfenster für das Alter deines Babys und wann das nächste Nickerchen wahrscheinlich ist.</value></data>
-  <data name="Tour.Sleep.Title" xml:space="preserve"><value>Babyschlaf</value></data>
   <data name="Tour.Start" xml:space="preserve"><value>Mochi starten</value></data>
-  <data name="Tour.Stats.Body" xml:space="preserve"><value>Ein Durchschnittstag über 7, 14 oder 30 Tage: Milch pro Tag und pro Fläschchen, Mahlzeiten, Schlaf und Windeln. Verläufe und ein PDF-Bericht für den Kinderarzt.</value></data>
-  <data name="Tour.Stats.Title" xml:space="preserve"><value>Statistiken</value></data>
+  <data name="Tour.Stats.Body" xml:space="preserve"><value>Ein Durchschnittstag über 7, 14 oder 30 Tage und das Schlafmuster Tag für Tag.
+Verlauf: Tage, Wochen oder Monate nebeneinander; tippe auf einen Balken, um ihn mit dem davor zu vergleichen.
+Wachstumskurven stehen unter Mehr, der Bericht für die Ärztin oder den Arzt ganz unten.</value></data>
+  <data name="Tour.Stats.Title" xml:space="preserve"><value>Statistik und Muster</value></data>
+  <data name="Tour.Stats.Where" xml:space="preserve"><value>Statistik</value></data>
   <data name="Tour.Title" xml:space="preserve"><value>So funktioniert Mochi</value></data>
-  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Stillen, Fläschchen, Schlaf, Windeln und Abpumpen eintragen, das Wachstum verfolgen und die Einträge mit der Familie teilen. Funktioniert offline; zum Start kein Konto nötig.</value></data>
+  <data name="Tour.Today.Body" xml:space="preserve"><value>Füttern: Links oder Rechts startet den Still-Timer; Fläschchen in ml oder oz.
+Windel: Nass oder Voll. Schlaf startet ein Nickerchen, Aufgewacht beendet es.
+Etwas eintragen trägt alles nach, was schon passiert ist, mit Uhrzeit.</value></data>
+  <data name="Tour.Today.Title" xml:space="preserve"><value>Eintragen mit einem Tipp</value></data>
+  <data name="Tour.Today.Where" xml:space="preserve"><value>Heute</value></data>
+  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Ein Baby-Tracker für Mahlzeiten, Schlaf, Windeln und Abpumpen.
+Mochi lernt den Rhythmus deines Babys aus deinen Einträgen, direkt auf deinem Handy.
+Funktioniert offline. Zum Start brauchst du kein Konto.</value></data>
   <data name="Tour.Welcome.Title" xml:space="preserve"><value>Willkommen bei Mochi</value></data>
   <data name="Trend.Average" xml:space="preserve"><value>Durchschnitt {0}</value></data>
   <data name="Trend.Bottle" xml:space="preserve"><value>Fläschchen pro Tag</value></data>

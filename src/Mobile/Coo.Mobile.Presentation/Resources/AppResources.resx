@@ -1031,30 +1031,55 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz pumped</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>sleep</value></data>
   <data name="Totals.UsuallyByNow" xml:space="preserve"><value>Usually {0} by now</value></data>
-  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Ask about sleep, feeding and development. Answers take your baby’s log into account. General information, not medical advice.</value></data>
+  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Ask about sleep, feeding and development.
+Answers take your baby’s log into account.
+General information, not medical advice.</value></data>
   <data name="Tour.Advisor.Title" xml:space="preserve"><value>Baby Advisor</value></data>
-  <data name="Tour.Diapers.Body" xml:space="preserve"><value>Wet or dirty in one tap, with daily counts. Baths, tummy time and milestones are under Earlier…, which also logs anything that already happened.</value></data>
-  <data name="Tour.Diapers.Title" xml:space="preserve"><value>Diapers, baths and milestones</value></data>
+  <data name="Tour.Advisor.Where" xml:space="preserve"><value>Advisor</value></data>
   <data name="Tour.Done" xml:space="preserve"><value>Done</value></data>
-  <data name="Tour.Family.Body" xml:space="preserve"><value>Sign in in Settings and invite your partner, a nanny or the grandparents. Entries sync between phones within seconds, and the app works offline.</value></data>
-  <data name="Tour.Family.Title" xml:space="preserve"><value>Shared baby log</value></data>
-  <data name="Tour.Feeding.Body" xml:space="preserve"><value>Tap Feed: Left or Right starts the breastfeeding timer, with pauses and side switching. Bottles in ml or oz, pumping with yield, and solid food.</value></data>
-  <data name="Tour.Feeding.Title" xml:space="preserve"><value>Feeding tracker</value></data>
-  <data name="Tour.Growth.Body" xml:space="preserve"><value>Weight, length and head circumference on the WHO growth charts, with percentiles. Medicines, temperatures and vaccines under Health; a photo of the growth card fills them in.</value></data>
-  <data name="Tour.Growth.Title" xml:space="preserve"><value>Growth and health</value></data>
-  <data name="Tour.LogFaster.Body" xml:space="preserve"><value>Tell Mochi “120 ml formula at two” and check it before it is saved. Widgets and the notification bar log and stop timers; reminders for feeds, diapers and medicines.</value></data>
-  <data name="Tour.LogFaster.Title" xml:space="preserve"><value>Log faster</value></data>
+  <data name="Tour.Family.Body" xml:space="preserve"><value>Sign in, then invite your partner, a nanny or the grandparents.
+Everyone sees the same log within seconds, and it works offline too.</value></data>
+  <data name="Tour.Family.Title" xml:space="preserve"><value>Share with your family</value></data>
+  <data name="Tour.Family.Where" xml:space="preserve"><value>Settings</value></data>
+  <data name="Tour.Faster.Body" xml:space="preserve"><value>Say “120 ml formula at two, then a wet diaper” and check it before it is saved.
+Widgets and the notification bar start, switch and stop timers.
+Reminders for feeds, diapers and medicines.</value></data>
+  <data name="Tour.Faster.Title" xml:space="preserve"><value>Log faster</value></data>
+  <data name="Tour.Faster.Where" xml:space="preserve"><value>Today · Tell Mochi</value></data>
+  <data name="Tour.Learns.Body" xml:space="preserve"><value>Which side to offer next, and when the next feed and nap are likely.
+Worked out from your own log on your phone, and better after a few days of logging.
+“Why this time?” explains each guess. Personal nap times are Premium.</value></data>
+  <data name="Tour.Learns.Title" xml:space="preserve"><value>Mochi learns her rhythm</value></data>
+  <data name="Tour.Learns.Where" xml:space="preserve"><value>Today · Next up</value></data>
+  <data name="Tour.Log.Body" xml:space="preserve"><value>The band shows the day: sleep in lavender, feeds and diapers as dots.
+Tap the band to zoom into a few hours; tap an entry to change or delete it.
+The arrows go to the day before and after.</value></data>
+  <data name="Tour.Log.Title" xml:space="preserve"><value>The whole day at a glance</value></data>
+  <data name="Tour.Log.Where" xml:space="preserve"><value>Log</value></data>
   <data name="Tour.Next" xml:space="preserve"><value>Next tip</value></data>
+  <data name="Tour.Night.Body" xml:space="preserve"><value>Dark colours and big buttons for one hand.
+One tap logs Wet, Dirty, Feed L or Feed R; the side to use next has a ring.
+On Auto it turns on by itself at night.</value></data>
+  <data name="Tour.Night.Title" xml:space="preserve"><value>Night mode</value></data>
+  <data name="Tour.Night.Where" xml:space="preserve"><value>The moon, top right</value></data>
   <data name="Tour.Position" xml:space="preserve"><value>{0} of {1}</value></data>
   <data name="Tour.Previous" xml:space="preserve"><value>Previous tip</value></data>
   <data name="Tour.Skip" xml:space="preserve"><value>Skip</value></data>
-  <data name="Tour.Sleep.Body" xml:space="preserve"><value>Tap Sleep to time naps and night sleep. Today shows the wake window for your baby’s age and when the next nap is likely.</value></data>
-  <data name="Tour.Sleep.Title" xml:space="preserve"><value>Baby sleep tracker</value></data>
   <data name="Tour.Start" xml:space="preserve"><value>Start using Mochi</value></data>
-  <data name="Tour.Stats.Body" xml:space="preserve"><value>An average day over 7, 14 or 30 days: milk per day and per bottle, feeds, sleep and diapers. Trends, and a PDF report for the pediatrician.</value></data>
-  <data name="Tour.Stats.Title" xml:space="preserve"><value>Stats</value></data>
+  <data name="Tour.Stats.Body" xml:space="preserve"><value>An average day over 7, 14 or 30 days, and her sleep pattern day by day.
+Trends: days, weeks or months side by side; tap a bar to compare it with the one before.
+Growth charts are under More, and a report for the doctor is at the bottom.</value></data>
+  <data name="Tour.Stats.Title" xml:space="preserve"><value>Stats and patterns</value></data>
+  <data name="Tour.Stats.Where" xml:space="preserve"><value>Stats</value></data>
   <data name="Tour.Title" xml:space="preserve"><value>How Mochi works</value></data>
-  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Track breastfeeding, bottles, sleep, diapers and pumping, follow your baby’s growth, and share the log with your family. Works offline; no account needed to start.</value></data>
+  <data name="Tour.Today.Body" xml:space="preserve"><value>Feed: Left or Right starts the breastfeeding timer; Bottle in ml or oz.
+Diaper: Wet or Dirty. Sleep starts a nap, and Woke up ends it.
+Log something adds anything that already happened, with its time.</value></data>
+  <data name="Tour.Today.Title" xml:space="preserve"><value>Log in one tap</value></data>
+  <data name="Tour.Today.Where" xml:space="preserve"><value>Today</value></data>
+  <data name="Tour.Welcome.Body" xml:space="preserve"><value>A baby tracker for feeds, sleep, diapers and pumping.
+Mochi learns your baby’s rhythm from what you log, right on your phone.
+Works offline. No account needed to start.</value></data>
   <data name="Tour.Welcome.Title" xml:space="preserve"><value>Welcome to Mochi</value></data>
   <data name="Trend.Average" xml:space="preserve"><value>average {0}</value></data>
   <data name="Trend.Bottle" xml:space="preserve"><value>Bottle per day</value></data>

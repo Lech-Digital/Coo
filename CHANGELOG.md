@@ -25,6 +25,9 @@ next feed, bedtime, night wakings, the sleep pattern and this week's changes. On
   zoomed hours were still closing. Every bottom sheet now lets go of what it showed before showing it again.
 
 ### Changed
+- **"How Mochi works" explains it better**: nine tips in the order you meet things, each saying where it is in the
+  app ("Today · Next up") and what it does in a few short points, including how Mochi learns your baby's rhythm, the
+  night mode, the Log's timeline and the day, week and month comparisons in Stats.
 - **A new matcha look.** The icon is Mochi on a lighter, softer matcha green; the "mochi" name at the top has rounder
   letters and Mochi itself as the dot on the "i"; buttons and links are a fresh leaf green, and pills, the selected tab
   and the baby's avatar are matcha.

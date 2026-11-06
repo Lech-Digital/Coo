@@ -1068,30 +1068,55 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz odciągnięte</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>snu</value></data>
   <data name="Totals.UsuallyByNow" xml:space="preserve"><value>Zwykle {0} o tej porze</value></data>
-  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Pytaj o sen, karmienie i rozwój. Odpowiedzi uwzględniają dziennik dziecka. Informacje ogólne, nie porada lekarska.</value></data>
+  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Pytaj o sen, karmienie i rozwój.
+Odpowiedzi biorą pod uwagę dziennik dziecka.
+Ogólne informacje, nie porada medyczna.</value></data>
   <data name="Tour.Advisor.Title" xml:space="preserve"><value>Doradca</value></data>
-  <data name="Tour.Diapers.Body" xml:space="preserve"><value>Mokra lub brudna jednym dotknięciem, z dziennym licznikiem. Kąpiele, czas na brzuszku i kamienie milowe są w Wcześniej…, gdzie zapiszesz też to, co już było.</value></data>
-  <data name="Tour.Diapers.Title" xml:space="preserve"><value>Pieluchy, kąpiele i kamienie milowe</value></data>
+  <data name="Tour.Advisor.Where" xml:space="preserve"><value>Doradca</value></data>
   <data name="Tour.Done" xml:space="preserve"><value>Gotowe</value></data>
-  <data name="Tour.Family.Body" xml:space="preserve"><value>Zaloguj się w Ustawieniach i zaproś partnera, nianię lub dziadków. Wpisy synchronizują się między telefonami w kilka sekund, a aplikacja działa offline.</value></data>
-  <data name="Tour.Family.Title" xml:space="preserve"><value>Wspólny dziennik</value></data>
-  <data name="Tour.Feeding.Body" xml:space="preserve"><value>Dotknij Karmienie: Lewa lub Prawa włącza stoper karmienia piersią, z pauzami i zmianą strony. Butelki w ml lub oz, laktator z ilością i rozszerzanie diety.</value></data>
-  <data name="Tour.Feeding.Title" xml:space="preserve"><value>Karmienie</value></data>
-  <data name="Tour.Growth.Body" xml:space="preserve"><value>Waga, długość i obwód głowy na siatkach centylowych WHO, z centylami. Leki, temperatura i szczepienia w Zdrowie; zdjęcie książeczki je uzupełni.</value></data>
-  <data name="Tour.Growth.Title" xml:space="preserve"><value>Wzrost i zdrowie</value></data>
-  <data name="Tour.LogFaster.Body" xml:space="preserve"><value>Powiedz Mochi: „120 ml mleka modyfikowanego o drugiej” i sprawdź przed zapisaniem. Widżety i pasek powiadomień zapisują i zatrzymują stopery; przypomnienia o karmieniu, pieluchach i lekach.</value></data>
-  <data name="Tour.LogFaster.Title" xml:space="preserve"><value>Szybsze zapisywanie</value></data>
+  <data name="Tour.Family.Body" xml:space="preserve"><value>Zaloguj się i zaproś partnera, nianię albo dziadków.
+Wszyscy widzą ten sam dziennik w kilka sekund, także offline.</value></data>
+  <data name="Tour.Family.Title" xml:space="preserve"><value>Dziel się z rodziną</value></data>
+  <data name="Tour.Family.Where" xml:space="preserve"><value>Ustawienia</value></data>
+  <data name="Tour.Faster.Body" xml:space="preserve"><value>Powiedz „120 ml mleka modyfikowanego o drugiej, potem mokra pielucha” i sprawdź przed zapisaniem.
+Widżety i pasek powiadomień włączają, przełączają i zatrzymują stopery.
+Przypomnienia o karmieniu, pieluchach i lekach.</value></data>
+  <data name="Tour.Faster.Title" xml:space="preserve"><value>Zapisuj szybciej</value></data>
+  <data name="Tour.Faster.Where" xml:space="preserve"><value>Dziś · Powiedz Mochi</value></data>
+  <data name="Tour.Learns.Body" xml:space="preserve"><value>Którą pierś podać teraz i kiedy prawdopodobnie będzie karmienie i drzemka.
+Liczone z Twojego dziennika na telefonie, coraz trafniej po kilku dniach zapisów.
+„Skąd ta pora?” wyjaśnia każdą prognozę. Osobiste pory drzemek są w Premium.</value></data>
+  <data name="Tour.Learns.Title" xml:space="preserve"><value>Mochi poznaje rytm dziecka</value></data>
+  <data name="Tour.Learns.Where" xml:space="preserve"><value>Dziś · Wkrótce</value></data>
+  <data name="Tour.Log.Body" xml:space="preserve"><value>Pasek pokazuje dzień: sen na lawendowo, karmienia i pieluchy jako kropki.
+Dotknij paska, by przybliżyć kilka godzin; dotknij wpisu, by go zmienić lub usunąć.
+Strzałki przenoszą na dzień wcześniej i później.</value></data>
+  <data name="Tour.Log.Title" xml:space="preserve"><value>Cały dzień w jednym spojrzeniu</value></data>
+  <data name="Tour.Log.Where" xml:space="preserve"><value>Dziennik</value></data>
   <data name="Tour.Next" xml:space="preserve"><value>Następna wskazówka</value></data>
+  <data name="Tour.Night.Body" xml:space="preserve"><value>Ciemne kolory i duże przyciski do obsługi jedną ręką.
+Jedno dotknięcie zapisuje Mokrą, Brudną, Karm. L lub P; pierś na teraz ma obwódkę.
+W trybie Auto włącza się sam w nocy.</value></data>
+  <data name="Tour.Night.Title" xml:space="preserve"><value>Tryb nocny</value></data>
+  <data name="Tour.Night.Where" xml:space="preserve"><value>Księżyc w prawym górnym rogu</value></data>
   <data name="Tour.Position" xml:space="preserve"><value>{0} z {1}</value></data>
   <data name="Tour.Previous" xml:space="preserve"><value>Poprzednia wskazówka</value></data>
   <data name="Tour.Skip" xml:space="preserve"><value>Pomiń</value></data>
-  <data name="Tour.Sleep.Body" xml:space="preserve"><value>Dotknij Sen, by mierzyć drzemki i sen nocny. Dziś pokazuje okno aktywności dla wieku dziecka i kiedy prawdopodobna jest kolejna drzemka.</value></data>
-  <data name="Tour.Sleep.Title" xml:space="preserve"><value>Sen dziecka</value></data>
   <data name="Tour.Start" xml:space="preserve"><value>Zaczynamy</value></data>
-  <data name="Tour.Stats.Body" xml:space="preserve"><value>Przeciętny dzień z 7, 14 lub 30 dni: mleko dziennie i na butelkę, karmienia, sen i pieluchy. Trendy i raport PDF dla pediatry.</value></data>
-  <data name="Tour.Stats.Title" xml:space="preserve"><value>Statystyki</value></data>
+  <data name="Tour.Stats.Body" xml:space="preserve"><value>Przeciętny dzień z 7, 14 lub 30 dni i rytm snu dzień po dniu.
+Trendy: dni, tygodnie lub miesiące obok siebie; dotknij słupka, by porównać go z poprzednim.
+Siatki centylowe są w sekcji Więcej, a raport dla lekarza na samym dole.</value></data>
+  <data name="Tour.Stats.Title" xml:space="preserve"><value>Statystyki i rytm</value></data>
+  <data name="Tour.Stats.Where" xml:space="preserve"><value>Statystyki</value></data>
   <data name="Tour.Title" xml:space="preserve"><value>Jak działa Mochi</value></data>
-  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Zapisuj karmienie piersią, butelki, sen, pieluchy i laktator, śledź wzrost dziecka i dziel się dziennikiem z rodziną. Działa offline; na start nie potrzeba konta.</value></data>
+  <data name="Tour.Today.Body" xml:space="preserve"><value>Karmienie: Lewa lub Prawa włącza stoper karmienia piersią; Butelka w ml lub oz.
+Pielucha: Mokra lub Brudna. Sen zaczyna drzemkę, a Pobudka ją kończy.
+Zapisz coś dodaje wszystko, co już się wydarzyło, z godziną.</value></data>
+  <data name="Tour.Today.Title" xml:space="preserve"><value>Zapis jednym dotknięciem</value></data>
+  <data name="Tour.Today.Where" xml:space="preserve"><value>Dziś</value></data>
+  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Dziennik niemowlęcia: karmienia, sen, pieluchy i odciąganie.
+Mochi poznaje rytm dziecka z tego, co zapisujesz, na Twoim telefonie.
+Działa offline. Na start nie potrzeba konta.</value></data>
   <data name="Tour.Welcome.Title" xml:space="preserve"><value>Witaj w Mochi</value></data>
   <data name="Trend.Average" xml:space="preserve"><value>średnio {0}</value></data>
   <data name="Trend.Bottle" xml:space="preserve"><value>Butelka na dobę</value></data>

@@ -1031,30 +1031,55 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz gekolfd</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>slaap</value></data>
   <data name="Totals.UsuallyByNow" xml:space="preserve"><value>Meestal {0} rond nu</value></data>
-  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Vraag over slaap, voeding en ontwikkeling. De antwoorden houden rekening met het logboek van je baby. Algemene informatie, geen medisch advies.</value></data>
-  <data name="Tour.Advisor.Title" xml:space="preserve"><value>Adviseur</value></data>
-  <data name="Tour.Diapers.Body" xml:space="preserve"><value>Nat of vies in één tik, met het dagtotaal. Badjes, buikligging en mijlpalen staan onder Eerder…, waar je ook logt wat al gebeurd is.</value></data>
-  <data name="Tour.Diapers.Title" xml:space="preserve"><value>Luiers, badjes en mijlpalen</value></data>
+  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Vraag naar slaap, voeding en ontwikkeling.
+De antwoorden houden rekening met het logboek van je baby.
+Algemene informatie, geen medisch advies.</value></data>
+  <data name="Tour.Advisor.Title" xml:space="preserve"><value>Baby-adviseur</value></data>
+  <data name="Tour.Advisor.Where" xml:space="preserve"><value>Adviseur</value></data>
   <data name="Tour.Done" xml:space="preserve"><value>Klaar</value></data>
-  <data name="Tour.Family.Body" xml:space="preserve"><value>Log in bij Instellingen en nodig je partner, een oppas of de grootouders uit. Items staan binnen seconden op elke telefoon, en de app werkt offline.</value></data>
-  <data name="Tour.Family.Title" xml:space="preserve"><value>Gedeeld babylogboek</value></data>
-  <data name="Tour.Feeding.Body" xml:space="preserve"><value>Tik op Voeding: Links of Rechts start de borstvoedingstimer, met pauzes en wisselen. Flessen in ml of oz, kolven met hoeveelheid en vaste voeding.</value></data>
-  <data name="Tour.Feeding.Title" xml:space="preserve"><value>Borst- en flesvoeding</value></data>
-  <data name="Tour.Growth.Body" xml:space="preserve"><value>Gewicht, lengte en hoofdomtrek op de WHO-groeicurves, met percentielen. Medicijnen, temperatuur en vaccinaties onder Gezondheid; een foto van het groeiboekje vult ze in.</value></data>
-  <data name="Tour.Growth.Title" xml:space="preserve"><value>Groei en gezondheid</value></data>
-  <data name="Tour.LogFaster.Body" xml:space="preserve"><value>Zeg het tegen Mochi: “120 ml kunstvoeding om twee uur”, en controleer het voordat het wordt bewaard. Widgets en de meldingenbalk loggen en stoppen timers; herinneringen voor voedingen, luiers en medicijnen.</value></data>
-  <data name="Tour.LogFaster.Title" xml:space="preserve"><value>Sneller loggen</value></data>
+  <data name="Tour.Family.Body" xml:space="preserve"><value>Log in en nodig je partner, een oppas of de grootouders uit.
+Iedereen ziet binnen enkele seconden hetzelfde logboek, ook offline.</value></data>
+  <data name="Tour.Family.Title" xml:space="preserve"><value>Delen met je gezin</value></data>
+  <data name="Tour.Family.Where" xml:space="preserve"><value>Instellingen</value></data>
+  <data name="Tour.Faster.Body" xml:space="preserve"><value>Zeg „120 ml kunstvoeding om twee uur, daarna een natte luier” en controleer het voordat het wordt opgeslagen.
+Widgets en de meldingsbalk starten, wisselen en stoppen timers.
+Herinneringen voor voedingen, luiers en medicijnen.</value></data>
+  <data name="Tour.Faster.Title" xml:space="preserve"><value>Sneller loggen</value></data>
+  <data name="Tour.Faster.Where" xml:space="preserve"><value>Vandaag · Zeg het tegen Mochi</value></data>
+  <data name="Tour.Learns.Body" xml:space="preserve"><value>Welke kant de volgende is, en wanneer de volgende voeding en het dutje waarschijnlijk zijn.
+Berekend uit je eigen logboek op je telefoon, en beter na een paar dagen loggen.
+„Waarom deze tijd?” legt elke inschatting uit. Persoonlijke dutjestijden zijn Premium.</value></data>
+  <data name="Tour.Learns.Title" xml:space="preserve"><value>Mochi leert het ritme</value></data>
+  <data name="Tour.Learns.Where" xml:space="preserve"><value>Vandaag · Binnenkort</value></data>
+  <data name="Tour.Log.Body" xml:space="preserve"><value>De balk toont de dag: slaap in lavendel, voedingen en luiers als stippen.
+Tik op de balk om een paar uur in te zoomen; tik op een item om het te wijzigen of te verwijderen.
+De pijlen gaan naar de dag ervoor en erna.</value></data>
+  <data name="Tour.Log.Title" xml:space="preserve"><value>De hele dag in één oogopslag</value></data>
+  <data name="Tour.Log.Where" xml:space="preserve"><value>Logboek</value></data>
   <data name="Tour.Next" xml:space="preserve"><value>Volgende tip</value></data>
+  <data name="Tour.Night.Body" xml:space="preserve"><value>Donkere kleuren en grote knoppen voor één hand.
+Eén tik logt Nat, Vies, Voeding L of R; de volgende kant heeft een rand.
+Op Auto gaat hij ’s nachts vanzelf aan.</value></data>
+  <data name="Tour.Night.Title" xml:space="preserve"><value>Nachtmodus</value></data>
+  <data name="Tour.Night.Where" xml:space="preserve"><value>De maan, rechtsboven</value></data>
   <data name="Tour.Position" xml:space="preserve"><value>{0} van {1}</value></data>
   <data name="Tour.Previous" xml:space="preserve"><value>Vorige tip</value></data>
   <data name="Tour.Skip" xml:space="preserve"><value>Overslaan</value></data>
-  <data name="Tour.Sleep.Body" xml:space="preserve"><value>Tik op Slaap om dutjes en nachtslaap te timen. Vandaag toont de wakkertijd voor de leeftijd van je baby en wanneer het volgende dutje waarschijnlijk is.</value></data>
-  <data name="Tour.Sleep.Title" xml:space="preserve"><value>Babyslaap</value></data>
   <data name="Tour.Start" xml:space="preserve"><value>Beginnen</value></data>
-  <data name="Tour.Stats.Body" xml:space="preserve"><value>Een gemiddelde dag over 7, 14 of 30 dagen: melk per dag en per fles, voedingen, slaap en luiers. Trends en een pdf-rapport voor de kinderarts.</value></data>
-  <data name="Tour.Stats.Title" xml:space="preserve"><value>Statistieken</value></data>
+  <data name="Tour.Stats.Body" xml:space="preserve"><value>Een gemiddelde dag over 7, 14 of 30 dagen, en het slaappatroon dag voor dag.
+Trends: dagen, weken of maanden naast elkaar; tik op een balk om hem met de vorige te vergelijken.
+Groeicurves staan onder Meer, en het verslag voor de arts helemaal onderaan.</value></data>
+  <data name="Tour.Stats.Title" xml:space="preserve"><value>Statistieken en patronen</value></data>
+  <data name="Tour.Stats.Where" xml:space="preserve"><value>Statistieken</value></data>
   <data name="Tour.Title" xml:space="preserve"><value>Zo werkt Mochi</value></data>
-  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Houd borstvoeding, flessen, slaap, luiers en kolven bij, volg de groei van je baby en deel het logboek met je gezin. Werkt offline; je hebt geen account nodig om te beginnen.</value></data>
+  <data name="Tour.Today.Body" xml:space="preserve"><value>Voeding: Links of Rechts start de borstvoedingstimer; Fles in ml of oz.
+Luier: Nat of Vies. Slaap start een dutje, Wakker stopt het.
+Iets loggen voegt toe wat al gebeurd is, met de tijd erbij.</value></data>
+  <data name="Tour.Today.Title" xml:space="preserve"><value>Loggen met één tik</value></data>
+  <data name="Tour.Today.Where" xml:space="preserve"><value>Vandaag</value></data>
+  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Een babytracker voor voedingen, slaap, luiers en kolven.
+Mochi leert het ritme van je baby uit wat je logt, gewoon op je telefoon.
+Werkt offline. Geen account nodig om te beginnen.</value></data>
   <data name="Tour.Welcome.Title" xml:space="preserve"><value>Welkom bij Mochi</value></data>
   <data name="Trend.Average" xml:space="preserve"><value>gemiddeld {0}</value></data>
   <data name="Trend.Bottle" xml:space="preserve"><value>Fles per dag</value></data>

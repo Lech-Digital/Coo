@@ -1031,30 +1031,55 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz estratti</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>sonno</value></data>
   <data name="Totals.UsuallyByNow" xml:space="preserve"><value>Di solito {0} a quest’ora</value></data>
-  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Chiedi di sonno, alimentazione e sviluppo. Le risposte tengono conto del diario del bambino. Informazioni generali, non un parere medico.</value></data>
-  <data name="Tour.Advisor.Title" xml:space="preserve"><value>Consulente</value></data>
-  <data name="Tour.Diapers.Body" xml:space="preserve"><value>Bagnato o sporco con un tocco, con il totale del giorno. Bagnetto, pancia in giù e traguardi sono in Prima…, che registra anche ciò che è già successo.</value></data>
-  <data name="Tour.Diapers.Title" xml:space="preserve"><value>Pannolini, bagnetto e traguardi</value></data>
+  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Chiedi di sonno, alimentazione e sviluppo.
+Le risposte tengono conto del diario del bambino.
+Informazioni generali, non un parere medico.</value></data>
+  <data name="Tour.Advisor.Title" xml:space="preserve"><value>Consulente per il bebè</value></data>
+  <data name="Tour.Advisor.Where" xml:space="preserve"><value>Consulente</value></data>
   <data name="Tour.Done" xml:space="preserve"><value>Fatto</value></data>
-  <data name="Tour.Family.Body" xml:space="preserve"><value>Accedi in Impostazioni e invita il partner, una tata o i nonni. Le voci arrivano su ogni telefono in pochi secondi, e l’app funziona offline.</value></data>
-  <data name="Tour.Family.Title" xml:space="preserve"><value>Diario condiviso</value></data>
-  <data name="Tour.Feeding.Body" xml:space="preserve"><value>Tocca Poppata: Sinistro o Destro avvia il timer di allattamento, con pause e cambio di lato. Biberon in ml o oz, tiralatte con quantità e svezzamento.</value></data>
-  <data name="Tour.Feeding.Title" xml:space="preserve"><value>Allattamento e biberon</value></data>
-  <data name="Tour.Growth.Body" xml:space="preserve"><value>Peso, lunghezza e circonferenza cranica sulle curve dell’OMS, con percentili. Farmaci, temperatura e vaccini in Salute; una foto del libretto li compila.</value></data>
-  <data name="Tour.Growth.Title" xml:space="preserve"><value>Crescita e salute</value></data>
-  <data name="Tour.LogFaster.Body" xml:space="preserve"><value>Dillo a Mochi: «120 ml di latte artificiale alle due», e controlla prima di salvare. Widget e barra delle notifiche registrano e fermano i timer; promemoria per poppate, pannolini e farmaci.</value></data>
-  <data name="Tour.LogFaster.Title" xml:space="preserve"><value>Registra più in fretta</value></data>
+  <data name="Tour.Family.Body" xml:space="preserve"><value>Accedi e invita il partner, una tata o i nonni.
+Tutti vedono lo stesso diario in pochi secondi, anche offline.</value></data>
+  <data name="Tour.Family.Title" xml:space="preserve"><value>Condividi con la famiglia</value></data>
+  <data name="Tour.Family.Where" xml:space="preserve"><value>Impostazioni</value></data>
+  <data name="Tour.Faster.Body" xml:space="preserve"><value>Di’ «120 ml di latte artificiale alle due, poi un pannolino bagnato» e controlla prima di salvare.
+I widget e la barra delle notifiche avviano, cambiano e fermano i timer.
+Promemoria per poppate, pannolini e medicine.</value></data>
+  <data name="Tour.Faster.Title" xml:space="preserve"><value>Registra più in fretta</value></data>
+  <data name="Tour.Faster.Where" xml:space="preserve"><value>Oggi · Dillo a Mochi</value></data>
+  <data name="Tour.Learns.Body" xml:space="preserve"><value>Quale seno offrire e quando sono probabili la prossima poppata e il pisolino.
+Calcolato dal tuo diario sul telefono, e più preciso dopo qualche giorno.
+«Perché quest’ora?» spiega ogni stima. Gli orari personali dei pisolini sono Premium.</value></data>
+  <data name="Tour.Learns.Title" xml:space="preserve"><value>Mochi impara il suo ritmo</value></data>
+  <data name="Tour.Learns.Where" xml:space="preserve"><value>Oggi · Prossimo</value></data>
+  <data name="Tour.Log.Body" xml:space="preserve"><value>La fascia mostra la giornata: il sonno in lavanda, poppate e pannolini come punti.
+Tocca la fascia per ingrandire qualche ora; tocca una voce per modificarla o eliminarla.
+Le frecce portano al giorno prima e dopo.</value></data>
+  <data name="Tour.Log.Title" xml:space="preserve"><value>Tutta la giornata a colpo d’occhio</value></data>
+  <data name="Tour.Log.Where" xml:space="preserve"><value>Registro</value></data>
   <data name="Tour.Next" xml:space="preserve"><value>Consiglio successivo</value></data>
+  <data name="Tour.Night.Body" xml:space="preserve"><value>Colori scuri e pulsanti grandi per una mano sola.
+Un tocco registra Bagnato, Sporco, Poppata S o D; il seno successivo ha un cerchio.
+In Auto si attiva da sola di notte.</value></data>
+  <data name="Tour.Night.Title" xml:space="preserve"><value>Modalità notte</value></data>
+  <data name="Tour.Night.Where" xml:space="preserve"><value>La luna, in alto a destra</value></data>
   <data name="Tour.Position" xml:space="preserve"><value>{0} di {1}</value></data>
   <data name="Tour.Previous" xml:space="preserve"><value>Consiglio precedente</value></data>
   <data name="Tour.Skip" xml:space="preserve"><value>Salta</value></data>
-  <data name="Tour.Sleep.Body" xml:space="preserve"><value>Tocca Sonno per cronometrare sonnellini e notte. Oggi mostra la finestra di veglia per l’età del bambino e quando è probabile il prossimo sonnellino.</value></data>
-  <data name="Tour.Sleep.Title" xml:space="preserve"><value>Sonno del bambino</value></data>
   <data name="Tour.Start" xml:space="preserve"><value>Inizia</value></data>
-  <data name="Tour.Stats.Body" xml:space="preserve"><value>Una giornata media su 7, 14 o 30 giorni: latte al giorno e per biberon, poppate, sonno e pannolini. Andamento e report PDF per il pediatra.</value></data>
-  <data name="Tour.Stats.Title" xml:space="preserve"><value>Statistiche</value></data>
+  <data name="Tour.Stats.Body" xml:space="preserve"><value>Una giornata media su 7, 14 o 30 giorni e il ritmo del sonno giorno per giorno.
+Andamento: giorni, settimane o mesi affiancati; tocca una barra per confrontarla con la precedente.
+Le curve di crescita sono in Altro, e il report per il medico in fondo.</value></data>
+  <data name="Tour.Stats.Title" xml:space="preserve"><value>Statistiche e ritmi</value></data>
+  <data name="Tour.Stats.Where" xml:space="preserve"><value>Statistiche</value></data>
   <data name="Tour.Title" xml:space="preserve"><value>Come funziona Mochi</value></data>
-  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Registra allattamento, biberon, sonno, pannolini e tiralatte, segui la crescita del bambino e condividi il diario con la famiglia. Funziona offline; per iniziare non serve un account.</value></data>
+  <data name="Tour.Today.Body" xml:space="preserve"><value>Poppata: Sinistro o Destro avvia il timer dell’allattamento; Biberon in ml o oz.
+Pannolino: Bagnato o Sporco. Sonno avvia un pisolino, Sveglio lo termina.
+Registra altro aggiunge ciò che è già successo, con l’ora.</value></data>
+  <data name="Tour.Today.Title" xml:space="preserve"><value>Registra con un tocco</value></data>
+  <data name="Tour.Today.Where" xml:space="preserve"><value>Oggi</value></data>
+  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Un diario per poppate, sonno, pannolini e tiralatte.
+Mochi impara il ritmo del bambino da ciò che registri, direttamente sul telefono.
+Funziona offline. Per iniziare non serve un account.</value></data>
   <data name="Tour.Welcome.Title" xml:space="preserve"><value>Benvenuti in Mochi</value></data>
   <data name="Trend.Average" xml:space="preserve"><value>media {0}</value></data>
   <data name="Trend.Bottle" xml:space="preserve"><value>Biberon al giorno</value></data>

@@ -86,4 +86,31 @@ public sealed class TourViewModelTests : IDisposable
         finished.Should().BeTrue();
         await _state.Received(1).MarkSeenAsync(Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public void Where_EveryTipButTheWelcome_SaysWhereItIs()
+    {
+        // Arrange
+        var model = new TourViewModel(Substitute.For<ITourState>());
+
+        // Act
+        var places = TourViewModel.Steps.Select((_, i) => { model.Index = i; return model.Where; }).ToList();
+
+        // Assert
+        places[0].Should().BeEmpty("the welcome is not a place in the app");
+        places.Skip(1).Should().OnlyContain(p => p.Length > 0);
+    }
+
+    [Fact]
+    public void Points_EveryTip_HasTwoOrThreeShortPoints()
+    {
+        // Arrange
+        var model = new TourViewModel(Substitute.For<ITourState>());
+
+        // Act
+        var points = TourViewModel.Steps.Select((_, i) => { model.Index = i; return model.Points; }).ToList();
+
+        // Assert
+        points.Should().OnlyContain(p => p.Count >= 2 && p.Count <= 3);
+    }
 }

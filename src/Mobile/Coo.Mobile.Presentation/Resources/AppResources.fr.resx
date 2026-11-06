@@ -1031,30 +1031,55 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz tirés</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>sommeil</value></data>
   <data name="Totals.UsuallyByNow" xml:space="preserve"><value>D’habitude {0} à cette heure</value></data>
-  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Posez vos questions sur le sommeil, l’alimentation et le développement. Les réponses tiennent compte du journal de bébé. Information générale, pas un avis médical.</value></data>
-  <data name="Tour.Advisor.Title" xml:space="preserve"><value>Conseiller</value></data>
-  <data name="Tour.Diapers.Body" xml:space="preserve"><value>Mouillée ou sale en un geste, avec le total du jour. Bains, temps sur le ventre et étapes sont dans Plus tôt…, qui note aussi ce qui s’est déjà passé.</value></data>
-  <data name="Tour.Diapers.Title" xml:space="preserve"><value>Couches, bains et étapes</value></data>
+  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Posez vos questions sur le sommeil, l’alimentation et le développement.
+Les réponses tiennent compte du journal de bébé.
+Informations générales, pas un avis médical.</value></data>
+  <data name="Tour.Advisor.Title" xml:space="preserve"><value>Conseiller bébé</value></data>
+  <data name="Tour.Advisor.Where" xml:space="preserve"><value>Conseiller</value></data>
   <data name="Tour.Done" xml:space="preserve"><value>Terminé</value></data>
-  <data name="Tour.Family.Body" xml:space="preserve"><value>Connectez-vous dans Réglages et invitez votre partenaire, une nounou ou les grands-parents. Les entrées arrivent sur chaque téléphone en quelques secondes, et l’app marche hors ligne.</value></data>
-  <data name="Tour.Family.Title" xml:space="preserve"><value>Un journal partagé</value></data>
-  <data name="Tour.Feeding.Body" xml:space="preserve"><value>Touchez Repas : Gauche ou Droit lance le minuteur d’allaitement, avec pauses et changement de côté. Biberons en ml ou oz, tire-lait avec quantité, diversification.</value></data>
-  <data name="Tour.Feeding.Title" xml:space="preserve"><value>Allaitement et biberons</value></data>
-  <data name="Tour.Growth.Body" xml:space="preserve"><value>Poids, taille et périmètre crânien sur les courbes de l’OMS, avec percentiles. Médicaments, températures et vaccins dans Santé ; une photo du carnet les remplit.</value></data>
-  <data name="Tour.Growth.Title" xml:space="preserve"><value>Croissance et santé</value></data>
-  <data name="Tour.LogFaster.Body" xml:space="preserve"><value>Dites-le à Mochi : « 120 ml de lait infantile à deux heures », et vérifiez avant l’enregistrement. Widgets et barre de notifications notent et arrêtent les minuteurs ; rappels de repas, de change et de médicaments.</value></data>
-  <data name="Tour.LogFaster.Title" xml:space="preserve"><value>Noter plus vite</value></data>
+  <data name="Tour.Family.Body" xml:space="preserve"><value>Connectez-vous, puis invitez votre partenaire, une nounou ou les grands-parents.
+Tout le monde voit le même journal en quelques secondes, même hors ligne.</value></data>
+  <data name="Tour.Family.Title" xml:space="preserve"><value>Partager en famille</value></data>
+  <data name="Tour.Family.Where" xml:space="preserve"><value>Réglages</value></data>
+  <data name="Tour.Faster.Body" xml:space="preserve"><value>Dites « 120 ml de lait infantile à deux heures, puis une couche mouillée » et vérifiez avant d’enregistrer.
+Les widgets et la barre de notifications lancent, changent et arrêtent les minuteurs.
+Des rappels pour les repas, les couches et les médicaments.</value></data>
+  <data name="Tour.Faster.Title" xml:space="preserve"><value>Noter plus vite</value></data>
+  <data name="Tour.Faster.Where" xml:space="preserve"><value>Aujourd'hui · Dites-le à Mochi</value></data>
+  <data name="Tour.Learns.Body" xml:space="preserve"><value>Quel sein proposer, et quand le prochain repas et la prochaine sieste sont probables.
+Calculé à partir de votre journal, sur votre téléphone, et plus juste après quelques jours.
+« Pourquoi cette heure ? » explique chaque estimation. Les heures de sieste personnelles sont Premium.</value></data>
+  <data name="Tour.Learns.Title" xml:space="preserve"><value>Mochi apprend son rythme</value></data>
+  <data name="Tour.Learns.Where" xml:space="preserve"><value>Aujourd'hui · À suivre</value></data>
+  <data name="Tour.Log.Body" xml:space="preserve"><value>La bande montre la journée : le sommeil en lavande, repas et couches en points.
+Touchez la bande pour zoomer sur quelques heures ; touchez une entrée pour la modifier ou la supprimer.
+Les flèches vont au jour d’avant et d’après.</value></data>
+  <data name="Tour.Log.Title" xml:space="preserve"><value>Toute la journée d’un coup d’œil</value></data>
+  <data name="Tour.Log.Where" xml:space="preserve"><value>Journal</value></data>
   <data name="Tour.Next" xml:space="preserve"><value>Astuce suivante</value></data>
+  <data name="Tour.Night.Body" xml:space="preserve"><value>Couleurs sombres et grands boutons pour une seule main.
+Un toucher note Mouillée, Selles, Tétée G ou D ; le sein suivant est entouré.
+En mode Auto, il s’allume tout seul la nuit.</value></data>
+  <data name="Tour.Night.Title" xml:space="preserve"><value>Mode nuit</value></data>
+  <data name="Tour.Night.Where" xml:space="preserve"><value>La lune, en haut à droite</value></data>
   <data name="Tour.Position" xml:space="preserve"><value>{0} sur {1}</value></data>
   <data name="Tour.Previous" xml:space="preserve"><value>Astuce précédente</value></data>
   <data name="Tour.Skip" xml:space="preserve"><value>Passer</value></data>
-  <data name="Tour.Sleep.Body" xml:space="preserve"><value>Touchez Sommeil pour chronométrer siestes et nuits. Aujourd’hui affiche la fenêtre d’éveil selon l’âge et l’heure probable de la prochaine sieste.</value></data>
-  <data name="Tour.Sleep.Title" xml:space="preserve"><value>Sommeil de bébé</value></data>
   <data name="Tour.Start" xml:space="preserve"><value>Commencer</value></data>
-  <data name="Tour.Stats.Body" xml:space="preserve"><value>Une journée moyenne sur 7, 14 ou 30 jours : lait par jour et par biberon, repas, sommeil et couches. Tendances et rapport PDF pour le pédiatre.</value></data>
-  <data name="Tour.Stats.Title" xml:space="preserve"><value>Statistiques</value></data>
+  <data name="Tour.Stats.Body" xml:space="preserve"><value>Une journée moyenne sur 7, 14 ou 30 jours, et le rythme de sommeil jour par jour.
+Tendances : jours, semaines ou mois côte à côte ; touchez une barre pour la comparer à la précédente.
+Les courbes de croissance sont sous Plus, et le rapport pour le médecin tout en bas.</value></data>
+  <data name="Tour.Stats.Title" xml:space="preserve"><value>Stats et rythmes</value></data>
+  <data name="Tour.Stats.Where" xml:space="preserve"><value>Stats</value></data>
   <data name="Tour.Title" xml:space="preserve"><value>Comment marche Mochi</value></data>
-  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Suivez l’allaitement, les biberons, le sommeil, les couches et le tire-lait, la croissance de bébé, et partagez le journal en famille. Marche hors ligne ; pas de compte pour commencer.</value></data>
+  <data name="Tour.Today.Body" xml:space="preserve"><value>Repas : Gauche ou Droite lance le minuteur d’allaitement ; Biberon en ml ou oz.
+Couche : Mouillée ou Selles. Sommeil lance une sieste, Réveillé la termine.
+Noter autre chose ajoute ce qui s’est déjà passé, avec l’heure.</value></data>
+  <data name="Tour.Today.Title" xml:space="preserve"><value>Noter en un toucher</value></data>
+  <data name="Tour.Today.Where" xml:space="preserve"><value>Aujourd'hui</value></data>
+  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Un suivi bébé pour les repas, le sommeil, les couches et le tire-lait.
+Mochi apprend le rythme de bébé à partir de ce que vous notez, sur votre téléphone.
+Fonctionne hors ligne. Pas besoin de compte pour commencer.</value></data>
   <data name="Tour.Welcome.Title" xml:space="preserve"><value>Bienvenue dans Mochi</value></data>
   <data name="Trend.Average" xml:space="preserve"><value>moyenne {0}</value></data>
   <data name="Trend.Bottle" xml:space="preserve"><value>Biberon par jour</value></data>

@@ -1031,30 +1031,55 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Totals.PumpedOz" xml:space="preserve"><value>oz extraídos</value></data>
   <data name="Totals.Sleep" xml:space="preserve"><value>sueño</value></data>
   <data name="Totals.UsuallyByNow" xml:space="preserve"><value>Normalmente {0} a esta hora</value></data>
-  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Pregunta sobre sueño, alimentación y desarrollo. Las respuestas tienen en cuenta el registro de tu bebé. Información general, no consejo médico.</value></data>
-  <data name="Tour.Advisor.Title" xml:space="preserve"><value>Asesor</value></data>
-  <data name="Tour.Diapers.Body" xml:space="preserve"><value>Mojado o sucio con un toque, con el total del día. Baños, tiempo boca abajo e hitos están en Antes…, que también registra lo que ya pasó.</value></data>
-  <data name="Tour.Diapers.Title" xml:space="preserve"><value>Pañales, baños e hitos</value></data>
+  <data name="Tour.Advisor.Body" xml:space="preserve"><value>Pregunta sobre sueño, alimentación y desarrollo.
+Las respuestas tienen en cuenta el registro de tu bebé.
+Información general, no consejo médico.</value></data>
+  <data name="Tour.Advisor.Title" xml:space="preserve"><value>Asesor del bebé</value></data>
+  <data name="Tour.Advisor.Where" xml:space="preserve"><value>Asesor</value></data>
   <data name="Tour.Done" xml:space="preserve"><value>Listo</value></data>
-  <data name="Tour.Family.Body" xml:space="preserve"><value>Inicia sesión en Ajustes e invita a tu pareja, a una niñera o a los abuelos. Las entradas llegan a todos los teléfonos en segundos, y la app funciona sin conexión.</value></data>
-  <data name="Tour.Family.Title" xml:space="preserve"><value>Registro compartido</value></data>
-  <data name="Tour.Feeding.Body" xml:space="preserve"><value>Toca Toma: Izquierdo o Derecho inicia el temporizador de lactancia, con pausas y cambio de lado. Biberones en ml u oz, extracción con cantidad y alimentación complementaria.</value></data>
-  <data name="Tour.Feeding.Title" xml:space="preserve"><value>Lactancia y biberón</value></data>
-  <data name="Tour.Growth.Body" xml:space="preserve"><value>Peso, longitud y perímetro cefálico en las curvas de la OMS, con percentiles. Medicinas, temperatura y vacunas en Salud; una foto de la cartilla los rellena.</value></data>
-  <data name="Tour.Growth.Title" xml:space="preserve"><value>Crecimiento y salud</value></data>
-  <data name="Tour.LogFaster.Body" xml:space="preserve"><value>Díselo a Mochi: «120 ml de fórmula a las dos», y revísalo antes de guardar. Los widgets y la barra de notificaciones registran y paran temporizadores; recordatorios de tomas, pañales y medicinas.</value></data>
-  <data name="Tour.LogFaster.Title" xml:space="preserve"><value>Registra más rápido</value></data>
+  <data name="Tour.Family.Body" xml:space="preserve"><value>Inicia sesión e invita a tu pareja, a una niñera o a los abuelos.
+Todos ven el mismo registro en segundos, también sin conexión.</value></data>
+  <data name="Tour.Family.Title" xml:space="preserve"><value>Comparte con tu familia</value></data>
+  <data name="Tour.Family.Where" xml:space="preserve"><value>Ajustes</value></data>
+  <data name="Tour.Faster.Body" xml:space="preserve"><value>Di «120 ml de fórmula a las dos y luego un pañal mojado» y revísalo antes de guardarlo.
+Los widgets y la barra de notificaciones inician, cambian y paran los temporizadores.
+Recordatorios de tomas, pañales y medicinas.</value></data>
+  <data name="Tour.Faster.Title" xml:space="preserve"><value>Registra más rápido</value></data>
+  <data name="Tour.Faster.Where" xml:space="preserve"><value>Hoy · Díselo a Mochi</value></data>
+  <data name="Tour.Learns.Body" xml:space="preserve"><value>Qué pecho ofrecer y cuándo es probable la próxima toma y siesta.
+Calculado con tu propio registro en tu móvil, y mejor tras unos días de uso.
+«¿Por qué esta hora?» explica cada estimación. Las horas de siesta personales son Premium.</value></data>
+  <data name="Tour.Learns.Title" xml:space="preserve"><value>Mochi aprende su ritmo</value></data>
+  <data name="Tour.Learns.Where" xml:space="preserve"><value>Hoy · Próximo</value></data>
+  <data name="Tour.Log.Body" xml:space="preserve"><value>La franja muestra el día: el sueño en lavanda, tomas y pañales como puntos.
+Toca la franja para ampliar unas horas; toca un registro para cambiarlo o borrarlo.
+Las flechas van al día anterior y al siguiente.</value></data>
+  <data name="Tour.Log.Title" xml:space="preserve"><value>Todo el día de un vistazo</value></data>
+  <data name="Tour.Log.Where" xml:space="preserve"><value>Registro</value></data>
   <data name="Tour.Next" xml:space="preserve"><value>Siguiente consejo</value></data>
+  <data name="Tour.Night.Body" xml:space="preserve"><value>Colores oscuros y botones grandes para una mano.
+Un toque registra Mojado, Sucio, Toma I o D; el pecho que toca lleva un aro.
+En Auto se activa solo por la noche.</value></data>
+  <data name="Tour.Night.Title" xml:space="preserve"><value>Modo noche</value></data>
+  <data name="Tour.Night.Where" xml:space="preserve"><value>La luna, arriba a la derecha</value></data>
   <data name="Tour.Position" xml:space="preserve"><value>{0} de {1}</value></data>
   <data name="Tour.Previous" xml:space="preserve"><value>Consejo anterior</value></data>
   <data name="Tour.Skip" xml:space="preserve"><value>Saltar</value></data>
-  <data name="Tour.Sleep.Body" xml:space="preserve"><value>Toca Sueño para medir siestas y sueño nocturno. Hoy muestra la ventana de vigilia para la edad de tu bebé y cuándo es probable la próxima siesta.</value></data>
-  <data name="Tour.Sleep.Title" xml:space="preserve"><value>Sueño del bebé</value></data>
   <data name="Tour.Start" xml:space="preserve"><value>Empezar</value></data>
-  <data name="Tour.Stats.Body" xml:space="preserve"><value>Un día medio de 7, 14 o 30 días: leche al día y por biberón, tomas, sueño y pañales. Tendencias e informe PDF para el pediatra.</value></data>
-  <data name="Tour.Stats.Title" xml:space="preserve"><value>Estadísticas</value></data>
+  <data name="Tour.Stats.Body" xml:space="preserve"><value>Un día medio de 7, 14 o 30 días, y su patrón de sueño día a día.
+Tendencias: días, semanas o meses lado a lado; toca una barra para compararla con la anterior.
+Las curvas de crecimiento están en Más, y el informe para el médico al final.</value></data>
+  <data name="Tour.Stats.Title" xml:space="preserve"><value>Estadísticas y patrones</value></data>
+  <data name="Tour.Stats.Where" xml:space="preserve"><value>Estadísticas</value></data>
   <data name="Tour.Title" xml:space="preserve"><value>Cómo funciona Mochi</value></data>
-  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Registra lactancia, biberones, sueño, pañales y extracciones, sigue el crecimiento de tu bebé y comparte el registro con tu familia. Funciona sin conexión; sin cuenta para empezar.</value></data>
+  <data name="Tour.Today.Body" xml:space="preserve"><value>Toma: Izquierdo o Derecho inicia el temporizador de lactancia; Biberón en ml u oz.
+Pañal: Mojado o Sucio. Sueño inicia una siesta y Se despertó la termina.
+Registrar algo añade lo que ya ha pasado, con su hora.</value></data>
+  <data name="Tour.Today.Title" xml:space="preserve"><value>Registra con un toque</value></data>
+  <data name="Tour.Today.Where" xml:space="preserve"><value>Hoy</value></data>
+  <data name="Tour.Welcome.Body" xml:space="preserve"><value>Un registro del bebé para tomas, sueño, pañales y extracción.
+Mochi aprende el ritmo de tu bebé con lo que anotas, en tu propio móvil.
+Funciona sin conexión. No necesitas cuenta para empezar.</value></data>
   <data name="Tour.Welcome.Title" xml:space="preserve"><value>Te damos la bienvenida a Mochi</value></data>
   <data name="Trend.Average" xml:space="preserve"><value>media {0}</value></data>
   <data name="Trend.Bottle" xml:space="preserve"><value>Biberón al día</value></data>
