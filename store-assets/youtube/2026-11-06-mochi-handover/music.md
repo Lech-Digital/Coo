@@ -4,16 +4,34 @@ The film is 76 s and its cuts sit on a 120 BPM grid: a 7 s live-action shot, the
 6 s end card. Generate the track, save it as `music.mp3` (or `.wav`) next to this file, and the edit lines the cards
 up with its beats, trims it to 76 s and fades the end. It replaces the synthesised placeholder.
 
-Made for Suno (Style + Lyrics boxes). For Google's Lyria / MusicFX or Udio, paste the Style text and the timeline as
-one prompt; they can't do the whisper, so record it separately (see the end).
+Gemini first (one prompt below); Suno as a fallback.
 
-## Style (Suno: "Style of music")
+## Gemini (one prompt, copy all of it)
+
+```
+Create an instrumental soundtrack for a 76-second commercial for a baby tracker app called Mochi. Warm cinematic lullaby pop at 120 BPM with a half-time feel: felt piano, music box, soft fingerpicked acoustic guitar, marimba, light brushed percussion, a warm analog pad and gentle strings. Tender, hopeful and intimate, like a premium phone commercial. No singing.
+
+Follow this timeline exactly:
+0:00–0:20 Night. Very quiet and sparse: felt piano and a music box only, no drums.
+0:20–0:30 Morning light. A soft fingerpicked acoustic guitar comes in, still no drums.
+0:30–0:50 Daytime. A gentle groove: brushed percussion and marimba join, warm and light.
+0:50–1:10 Evening. The warmest part: soft strings swell, fuller and content.
+1:10–1:16 Ending. Everything drops to one soft, ringing piano chord. At 1:11, a single word is whispered close to the microphone, warm and smiling: "Mochi". Then the chord rings out to silence.
+
+The whispered "Mochi" is the only voice in the whole track.
+```
+
+If Gemini makes shorter tracks than 76 s, ask for the ending on its own with the same prompt and "only the last 15 seconds", and the edit joins the two.
+
+## Suno instead
+
+### Style (Suno: "Style of music")
 
 ```
 warm cinematic lullaby pop, instrumental, 120 BPM half-time feel, felt piano, music box, soft fingerpicked acoustic guitar, marimba, light brushed percussion, warm analog pad, gentle strings, hopeful, tender, intimate, premium phone commercial, no vocals except one whispered word at the very end
 ```
 
-## Lyrics / structure (Suno: "Lyrics")
+### Lyrics / structure (Suno: "Lyrics")
 
 ```
 [Intro: night, very quiet, felt piano and music box only, no drums]
