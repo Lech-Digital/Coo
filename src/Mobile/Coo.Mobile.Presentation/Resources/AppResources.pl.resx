@@ -33,6 +33,7 @@
   <data name="Action.SwitchSide" xml:space="preserve"><value>Zmień stronę</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Cofnij</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Pobudka</value></data>
+  <data name="Advisor.Ask.Naps" xml:space="preserve"><value>Wygląda na to, że {0} przechodzi z {1} drzemek na {2}. Jak pomóc w tej zmianie?</value></data>
   <data name="Advisor.Ask.SleepLess" xml:space="preserve"><value>Dlaczego {0} śpi w tym tygodniu mniej niż w zeszłym?</value></data>
   <data name="Advisor.Ask.LongestShorter" xml:space="preserve"><value>Najdłuższy sen {0} skrócił się w tym tygodniu. Dlaczego i co może pomóc?</value></data>
   <data name="Advisor.Ask.LongestLonger" xml:space="preserve"><value>{0} śpi w tym tygodniu dłuższymi odcinkami. Co zwykle będzie dalej?</value></data>
@@ -377,6 +378,12 @@
   <data name="Family.WithdrawConfirm" xml:space="preserve"><value>Wycofać to zaproszenie? Link i kod przestaną działać.</value></data>
   <data name="Family.You" xml:space="preserve"><value>{0} (ty)</value></data>
   <data name="Family.Yours" xml:space="preserve"><value>Twoja rodzina</value></data>
+  <data name="Feed.NextLikely" xml:space="preserve"><value>Następne karmienie prawdopodobnie {0}–{1}</value></data>
+  <data name="Feed.Every" xml:space="preserve"><value>O tej porze dnia karmienie zwykle co {0}</value></data>
+  <data name="Feed.EveryShort" xml:space="preserve"><value>zwykle co {0}</value></data>
+  <data name="Feed.Cluster" xml:space="preserve"><value>Pora karmień klasterowych {0}: karmienia mogą być jedno po drugim</value></data>
+  <data name="Feed.ClusterShort" xml:space="preserve"><value>teraz jedno po drugim</value></data>
+  <data name="Night.NextFeed" xml:space="preserve"><value>Następne karmienie</value></data>
   <data name="Feed.Ago" xml:space="preserve"><value>{0} temu</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Butelka</value></data>
   <data name="Feed.BreastHint" xml:space="preserve"><value>Uruchamia stoper dla tej strony</value></data>
@@ -1133,6 +1140,16 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>To długi sen (ponad 16 godzin).</value></data>
   <data name="Who.Other" xml:space="preserve"><value>Drugi rodzic</value></data>
   <data name="Who.You" xml:space="preserve"><value>Ty</value></data>
+  <data name="Week.Title" xml:space="preserve"><value>Ten tydzień</value></data>
+  <data name="Week.LongestLonger" xml:space="preserve"><value>Najdłuższy sen o {0} dłuższy niż w zeszłym tygodniu</value></data>
+  <data name="Week.LongestShorter" xml:space="preserve"><value>Najdłuższy sen o {0} krótszy niż w zeszłym tygodniu</value></data>
+  <data name="Week.SleepMore" xml:space="preserve"><value>O {0} więcej snu dziennie niż w zeszłym tygodniu</value></data>
+  <data name="Week.SleepLess" xml:space="preserve"><value>O {0} mniej snu dziennie niż w zeszłym tygodniu</value></data>
+  <data name="Week.FeedsMore" xml:space="preserve"><value>Karmień dziennie: o {0} więcej niż w zeszłym tygodniu</value></data>
+  <data name="Week.FeedsFewer" xml:space="preserve"><value>Karmień dziennie: o {0} mniej niż w zeszłym tygodniu</value></data>
+  <data name="Week.FewWet" xml:space="preserve"><value>Mniej niż 5 mokrych pieluch dziennie w tym tygodniu</value></data>
+  <data name="Week.NapsMoving" xml:space="preserve"><value>Przejście z {0} drzemek na {1}</value></data>
+  <data name="Week.NapsSettled" xml:space="preserve"><value>Teraz {1} drzemki dziennie ({0} w zeszłym tygodniu)</value></data>
   <data name="Why.Awake" xml:space="preserve"><value>Nie śpi od {0}.</value></data>
   <data name="Why.Disclaimer" xml:space="preserve"><value>Podpowiedzi opierają się na zapisanych snach i ogólnych zaleceniach. To nie jest porada medyczna: z obawami dotyczącymi snu lub rozwoju zwróć się do pediatry.</value></data>
   <data name="Why.PersonalBed" xml:space="preserve"><value>{0}: przed snem nocnym okno czuwania wynosiło ostatnio około {1} (z {2} dni zapisów).</value></data>

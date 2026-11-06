@@ -71,4 +71,47 @@ public sealed class BackToSleepTextTests : IDisposable
         // Assert
         text.Should().Be("usually within 25 m");
     }
+
+    private static FeedPrediction Feed(DateTimeOffset earliest, DateTimeOffset latest, bool cluster = false) =>
+        new(Now.AddHours(-2), earliest, latest, TimeSpan.FromHours(3), cluster, 20, 7, FeedPredictor.Version);
+
+    [Fact]
+    public void NextFeedText_BeforeTheWindow_ShowsTheRange()
+    {
+        // Arrange
+        var next = Feed(Now.AddMinutes(30), Now.AddMinutes(70));
+        var formats = new Formats(true, VolumeUnit.Millilitres);
+
+        // Act
+        var text = NextUpSection.NextFeedText(next, Snapshot(Back(null, null), Now), "Lena", shortForm: false);
+
+        // Assert
+        text.Should().Be($"Next feed likely {formats.Time(Now.AddMinutes(30))}–{formats.Time(Now.AddMinutes(70))}");
+    }
+
+    [Fact]
+    public void NextFeedText_ClusterTime_SaysFeedsComeCloseTogether()
+    {
+        // Arrange
+        var next = Feed(Now.AddMinutes(30), Now.AddMinutes(70), cluster: true);
+
+        // Act
+        var text = NextUpSection.NextFeedText(next, Snapshot(Back(null, null), Now), "Lena", shortForm: false);
+
+        // Assert
+        text.Should().Be("Cluster-feeding time for Lena: feeds may come close together");
+    }
+
+    [Fact]
+    public void NextFeedText_PastTheWindow_GivesHerUsualInterval()
+    {
+        // Arrange
+        var next = Feed(Now.AddMinutes(-60), Now.AddMinutes(-20));
+
+        // Act
+        var text = NextUpSection.NextFeedText(next, Snapshot(Back(null, null), Now), "Lena", shortForm: true);
+
+        // Assert
+        text.Should().Be($"usually every {Formats.Duration(TimeSpan.FromHours(3))}");
+    }
 }

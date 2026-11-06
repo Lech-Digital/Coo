@@ -44,6 +44,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient<GetDay>();
         services.AddTransient<GetCareTrends>();
         services.AddTransient<Insights.GetSleepPattern>();
+        services.AddTransient<Insights.GetFeedPrediction>();
+        services.AddTransient<Insights.GetWeekNote>();
         services.AddTransient<GetDailyAverages>();
         services.AddTransient<Advisor.BuildAdvisorContext>();
         services.AddTransient<Demo.SeedDemoLog>();

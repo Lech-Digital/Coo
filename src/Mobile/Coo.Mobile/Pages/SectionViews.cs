@@ -136,6 +136,7 @@ internal static class SectionViews
         AttentionSection s => Live(s, () => Attention(s, host)),
         LogTilesSection s => Live(s, () => Tiles(s, host)),
         NextUpSection s => Live(s, () => NextUp(s, host)),
+        WeekSection s => Live(s, () => Week(s)),
         DailyProgressSection s => Live(s, () => DailyProgress(s)),
         AdvisorTipSection s => Live(s, () => AdvisorTip(s, host)),
         RecentActivitySection s => Live(s, () => RecentActivity(s, host)),
@@ -602,6 +603,8 @@ internal static class SectionViews
 
         if (!string.IsNullOrEmpty(s.NextSide) || !string.IsNullOrEmpty(s.SinceFeed))
             stack.Add(Row(IconGeometry.Feed, "FeedInk", s.NextSide.Length > 0 ? s.NextSide : s.SinceFeed, s.NextSide.Length > 0 ? s.SinceFeed : null));
+        if (!string.IsNullOrEmpty(s.NextFeed))
+            stack.Add(Row(IconGeometry.Feed, "FeedInk", s.NextFeed, null));
 
         if (!string.IsNullOrEmpty(s.NextNap))
         {
@@ -624,6 +627,25 @@ internal static class SectionViews
             stack.Add(Row(IconGeometry.Sleep, "SleepInk", s.PlanLine, null, "AccentInk", host.OpenSleepPlan));
         if (!string.IsNullOrEmpty(s.StashLine))
             stack.Add(Row(IconGeometry.Pump, "PumpInk", s.StashLine, null, "AccentInk", host.OpenMilkStash));
+
+        return new Card(stack).Tap(c => c.Margin = new Thickness(PageFrame.Side, 12, PageFrame.Side, 0));
+    }
+
+    /// <summary>"This week": what changed against last week, a line each with its kind's icon; nothing when nothing did.</summary>
+    private static View Week(WeekSection s)
+    {
+        if (s.Lines.Count == 0)
+            return new ContentView();
+        var stack = new VerticalStackLayout { Spacing = 10 };
+        stack.Add(PageFrame.SectionLabel(Strings.Get("Week.Title")));
+        foreach (var line in s.Lines)
+        {
+            var look = EventAppearance.For(line.KindCode);
+            var row = new Grid { ColumnDefinitions = [new(GridLength.Auto), new(GridLength.Star)], ColumnSpacing = 10 };
+            row.Add(new Icon(look.Icon, look.Ink, 18) { VerticalOptions = LayoutOptions.Center }, 0);
+            row.Add(Ui.Text(line.Text, "Body").Tap(l => l.VerticalOptions = LayoutOptions.Center), 1);
+            stack.Add(row);
+        }
 
         return new Card(stack).Tap(c => c.Margin = new Thickness(PageFrame.Side, 12, PageFrame.Side, 0));
     }

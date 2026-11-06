@@ -49,6 +49,10 @@ public sealed partial class TodayViewModel : ObservableObject
     private EntryId? _pumpForYield;
     private readonly Coo.Mobile.Application.CareLog.AddMilkBag? _addBag;
     private readonly Coo.Mobile.Application.Insights.GetLastNight? _getNight;
+    private readonly Coo.Mobile.Application.Insights.GetFeedPrediction? _getFeed;
+    private readonly Coo.Mobile.Application.Insights.GetWeekNote? _getWeek;
+    private Coo.Mobile.Application.Insights.WeekNote? _week;
+    private (Coo.Domain.Common.BabyId Baby, DateOnly Day, int Entries)? _weekKey;
     private readonly Coo.Mobile.Application.CareLog.GetAway? _getAway;
     private Coo.Mobile.Application.Insights.LastNight? _night;
     private IReadOnlyList<Coo.Mobile.Application.CareLog.HandoverDay> _away = [];
@@ -99,6 +103,7 @@ public sealed partial class TodayViewModel : ObservableObject
     private Coo.Domain.Insights.SleepPrediction? _sleep;
     private Coo.Domain.Insights.PredictionTrackRecord? _sleepRecord;
     private Coo.Domain.Insights.NightReturn? _backToSleep;
+    private Coo.Domain.Insights.FeedPrediction? _nextFeed;
     private readonly Coo.Mobile.Application.Insights.GetSleepPlan? _getPlan;
     private Coo.Mobile.Application.Insights.SleepPlanToday? _plan;
     private readonly Coo.Mobile.Application.CareLog.ILogAccess? _logAccess;
@@ -131,10 +136,12 @@ public sealed partial class TodayViewModel : ObservableObject
         Coo.Mobile.Application.CareLog.GetHandover? getHandover = null,
         Coo.Mobile.Application.CareLog.AddMilkBag? addBag = null,
         Coo.Mobile.Application.Insights.GetLastNight? getNight = null,
-        Coo.Mobile.Application.CareLog.GetAway? getAway = null)
+        Coo.Mobile.Application.CareLog.GetAway? getAway = null,
+        Coo.Mobile.Application.Insights.GetFeedPrediction? getFeed = null,
+        Coo.Mobile.Application.Insights.GetWeekNote? getWeek = null)
     {
         _addBag = addBag;
-        (_getNight, _getAway) = (getNight, getAway);
+        (_getNight, _getAway, _getFeed, _getWeek) = (getNight, getAway, getFeed, getWeek);
         _getStash = getStash;
         _getHandover = getHandover;
         _logAccess = logAccess;
@@ -389,6 +396,17 @@ public sealed partial class TodayViewModel : ObservableObject
         _backToSleep = _sleep is null && _baby.IsBorn && _getSleep is not null
             ? await _getSleep.BackToSleepAsync(_household.Id, _baby, Zone(), _time.GetLocalNow(), CancellationToken.None)
             : null;
+        _nextFeed = _baby.IsBorn && _getFeed is not null && KindVisibility.IsShown(_household, "feeding")
+            ? await _getFeed.ExecuteAsync(_household.Id, _baby, Zone(), _time.GetLocalNow(), CancellationToken.None)
+            : null;
+        // This week against the last: once a day, or again after a change to the log.
+        var weekKey = (_baby.Id, DateOnly.FromDateTime(_time.GetLocalNow().DateTime), _summary?.TodayEntries.Count ?? 0);
+        if (_getWeek is not null && _baby.IsBorn && _weekKey != weekKey)
+        {
+            _week = await _getWeek.ExecuteAsync(_household.Id, _baby, Zone(), _time.GetLocalNow(), CancellationToken.None);
+            _weekKey = weekKey;
+        }
+
         _siblingGlances = await GlancesAsync();
         _handover = await HandoverAsync();
         _night = _getNight is not null
@@ -682,7 +700,7 @@ public sealed partial class TodayViewModel : ObservableObject
         Tick();
     }
 
-    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep, IsViewOnly, _plan, _sleepRecord, _siblingGlances, _logForAll, _stash, _handover, _night, _away, _backToSleep);
+    private HomeSnapshot Snapshot() => new(_household!, _baby!, _summary, _time.GetLocalNow(), _theme.Current, Formats(), _attentionCount, _who, _billing.IsPremiumCached, _avatarRef, _sleep, IsViewOnly, _plan, _sleepRecord, _siblingGlances, _logForAll, _stash, _handover, _night, _away, _backToSleep, _nextFeed, _baby?.IsBorn == true ? _week : null);
 
     private Formats Formats() => new(_clock.Is24Hour, _household?.VolumeUnit ?? VolumeUnit.Millilitres);
 

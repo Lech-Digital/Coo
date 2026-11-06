@@ -32,6 +32,7 @@
   <data name="Action.SwitchSide" xml:space="preserve"><value>Andere kant</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Ongedaan maken</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Wakker</value></data>
+  <data name="Advisor.Ask.Naps" xml:space="preserve"><value>{0} lijkt van {1} naar {2} dutjes te gaan. Hoe help ik met de overgang?</value></data>
   <data name="Advisor.Ask.SleepLess" xml:space="preserve"><value>Waarom slaapt {0} deze week minder dan vorige week?</value></data>
   <data name="Advisor.Ask.LongestShorter" xml:space="preserve"><value>De langste slaap van {0} is deze week korter geworden. Waarom, en wat helpt?</value></data>
   <data name="Advisor.Ask.LongestLonger" xml:space="preserve"><value>{0} slaapt deze week langere stukken. Wat komt er meestal hierna?</value></data>
@@ -362,6 +363,12 @@
   <data name="Family.WithdrawConfirm" xml:space="preserve"><value>Deze uitnodiging intrekken? De link en de code werken dan niet meer.</value></data>
   <data name="Family.You" xml:space="preserve"><value>{0} (jij)</value></data>
   <data name="Family.Yours" xml:space="preserve"><value>Je gezin</value></data>
+  <data name="Feed.NextLikely" xml:space="preserve"><value>Volgende voeding waarschijnlijk {0}–{1}</value></data>
+  <data name="Feed.Every" xml:space="preserve"><value>Op dit moment van de dag meestal elke {0} een voeding</value></data>
+  <data name="Feed.EveryShort" xml:space="preserve"><value>meestal elke {0}</value></data>
+  <data name="Feed.Cluster" xml:space="preserve"><value>Clustervoedtijd voor {0}: voedingen kunnen kort na elkaar komen</value></data>
+  <data name="Feed.ClusterShort" xml:space="preserve"><value>nu kort na elkaar</value></data>
+  <data name="Night.NextFeed" xml:space="preserve"><value>Volgende voeding</value></data>
   <data name="Feed.Ago" xml:space="preserve"><value>{0} geleden</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Fles</value></data>
   <data name="Feed.BreastHint" xml:space="preserve"><value>Start een timer aan die kant</value></data>
@@ -1095,6 +1102,16 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>Dat is een lange slaap (meer dan 16 uur).</value></data>
   <data name="Who.Other" xml:space="preserve"><value>Andere ouder</value></data>
   <data name="Who.You" xml:space="preserve"><value>Jij</value></data>
+  <data name="Week.Title" xml:space="preserve"><value>Deze week</value></data>
+  <data name="Week.LongestLonger" xml:space="preserve"><value>Langste slaap {0} langer dan vorige week</value></data>
+  <data name="Week.LongestShorter" xml:space="preserve"><value>Langste slaap {0} korter dan vorige week</value></data>
+  <data name="Week.SleepMore" xml:space="preserve"><value>{0} meer slaap per dag dan vorige week</value></data>
+  <data name="Week.SleepLess" xml:space="preserve"><value>{0} minder slaap per dag dan vorige week</value></data>
+  <data name="Week.FeedsMore" xml:space="preserve"><value>{0} voedingen per dag meer dan vorige week</value></data>
+  <data name="Week.FeedsFewer" xml:space="preserve"><value>{0} voedingen per dag minder dan vorige week</value></data>
+  <data name="Week.FewWet" xml:space="preserve"><value>Minder dan 5 natte luiers per dag deze week</value></data>
+  <data name="Week.NapsMoving" xml:space="preserve"><value>Overgang van {0} naar {1} dutjes</value></data>
+  <data name="Week.NapsSettled" xml:space="preserve"><value>Nu {1} dutjes per dag (vorige week {0})</value></data>
   <data name="Why.Awake" xml:space="preserve"><value>Wakker sinds {0}.</value></data>
   <data name="Why.Disclaimer" xml:space="preserve"><value>Suggesties komen uit de slaap die je logt en algemene richtlijnen. Ze zijn geen medisch advies: bespreek zorgen over slaap of ontwikkeling met je kinderarts of het consultatiebureau.</value></data>
   <data name="Why.PersonalBed" xml:space="preserve"><value>Voor bedtijd was {0} de afgelopen {2} dagen ongeveer {1} wakker.</value></data>

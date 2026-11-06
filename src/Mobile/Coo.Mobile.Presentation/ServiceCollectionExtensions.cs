@@ -35,6 +35,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IHomeSection, RunningSection>();
         services.AddSingleton<IHomeSection, LogTilesSection>();
         services.AddSingleton<IHomeSection, NextUpSection>();
+        services.AddSingleton<IHomeSection, WeekSection>();
         // Daily progress, the tip of the day and recent activity left Today (owner, 2026-11-05): the Log's totals compare
         // with the usual day, the Advisor has the tip, and the Log is the history.
         services.AddSingleton<IHomeSection, TimelineSection>();

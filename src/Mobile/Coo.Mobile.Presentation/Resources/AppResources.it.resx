@@ -32,6 +32,7 @@
   <data name="Action.SwitchSide" xml:space="preserve"><value>Cambia lato</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Annulla</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Sveglio</value></data>
+  <data name="Advisor.Ask.Naps" xml:space="preserve"><value>Sembra che {0} stia passando da {1} sonnellini a {2}. Come posso aiutare con il cambiamento?</value></data>
   <data name="Advisor.Ask.SleepLess" xml:space="preserve"><value>Perché {0} dorme meno questa settimana rispetto alla scorsa?</value></data>
   <data name="Advisor.Ask.LongestShorter" xml:space="preserve"><value>Il sonno più lungo di {0} si è accorciato questa settimana. Perché, e cosa può aiutare?</value></data>
   <data name="Advisor.Ask.LongestLonger" xml:space="preserve"><value>{0} dorme a tratti più lunghi questa settimana. Cosa succede di solito dopo?</value></data>
@@ -362,6 +363,12 @@
   <data name="Family.WithdrawConfirm" xml:space="preserve"><value>Ritirare questo invito? Il link e il codice smetteranno di funzionare.</value></data>
   <data name="Family.You" xml:space="preserve"><value>{0} (tu)</value></data>
   <data name="Family.Yours" xml:space="preserve"><value>La tua famiglia</value></data>
+  <data name="Feed.NextLikely" xml:space="preserve"><value>Prossima poppata probabilmente {0}–{1}</value></data>
+  <data name="Feed.Every" xml:space="preserve"><value>A quest’ora di solito una poppata ogni {0}</value></data>
+  <data name="Feed.EveryShort" xml:space="preserve"><value>di solito ogni {0}</value></data>
+  <data name="Feed.Cluster" xml:space="preserve"><value>È l’ora delle poppate ravvicinate di {0}: possono susseguirsi</value></data>
+  <data name="Feed.ClusterShort" xml:space="preserve"><value>ravvicinate adesso</value></data>
+  <data name="Night.NextFeed" xml:space="preserve"><value>Prossima poppata</value></data>
   <data name="Feed.Ago" xml:space="preserve"><value>{0} fa</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Biberon</value></data>
   <data name="Feed.BreastHint" xml:space="preserve"><value>Avvia un timer su quel lato</value></data>
@@ -1095,6 +1102,16 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>È un sonno lungo (oltre 16 ore).</value></data>
   <data name="Who.Other" xml:space="preserve"><value>Altro genitore</value></data>
   <data name="Who.You" xml:space="preserve"><value>Tu</value></data>
+  <data name="Week.Title" xml:space="preserve"><value>Questa settimana</value></data>
+  <data name="Week.LongestLonger" xml:space="preserve"><value>Sonno più lungo: {0} in più della settimana scorsa</value></data>
+  <data name="Week.LongestShorter" xml:space="preserve"><value>Sonno più lungo: {0} in meno della settimana scorsa</value></data>
+  <data name="Week.SleepMore" xml:space="preserve"><value>{0} di sonno in più al giorno rispetto alla settimana scorsa</value></data>
+  <data name="Week.SleepLess" xml:space="preserve"><value>{0} di sonno in meno al giorno rispetto alla settimana scorsa</value></data>
+  <data name="Week.FeedsMore" xml:space="preserve"><value>{0} poppate in più al giorno rispetto alla settimana scorsa</value></data>
+  <data name="Week.FeedsFewer" xml:space="preserve"><value>{0} poppate in meno al giorno rispetto alla settimana scorsa</value></data>
+  <data name="Week.FewWet" xml:space="preserve"><value>Meno di 5 pannolini bagnati al giorno questa settimana</value></data>
+  <data name="Week.NapsMoving" xml:space="preserve"><value>Passaggio da {0} sonnellini a {1}</value></data>
+  <data name="Week.NapsSettled" xml:space="preserve"><value>Ora {1} sonnellini al giorno ({0} la settimana scorsa)</value></data>
   <data name="Why.Awake" xml:space="preserve"><value>Sveglio dalle {0}.</value></data>
   <data name="Why.Disclaimer" xml:space="preserve"><value>I suggerimenti vengono dai sonni che registri e da indicazioni generali. Non sono un consiglio medico: parla con il pediatra di ogni dubbio su sonno o sviluppo.</value></data>
   <data name="Why.PersonalBed" xml:space="preserve"><value>Prima della nanna, {0} è rimasto sveglio circa {1} negli ultimi {2} giorni.</value></data>

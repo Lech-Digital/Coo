@@ -32,6 +32,7 @@
   <data name="Action.SwitchSide" xml:space="preserve"><value>Switch side</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Undo</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Woke up</value></data>
+  <data name="Advisor.Ask.Naps" xml:space="preserve"><value>{0} seems to be moving from {1} naps to {2}. How do I help with the change?</value></data>
   <data name="Advisor.Ask.SleepLess" xml:space="preserve"><value>Why is {0} sleeping less this week than last week?</value></data>
   <data name="Advisor.Ask.LongestShorter" xml:space="preserve"><value>The longest sleep of {0} got shorter this week. Why, and what can help?</value></data>
   <data name="Advisor.Ask.LongestLonger" xml:space="preserve"><value>{0} is sleeping longer stretches this week. What usually comes next?</value></data>
@@ -362,6 +363,12 @@
   <data name="Family.WithdrawConfirm" xml:space="preserve"><value>Withdraw this invitation? Its link and code stop working.</value></data>
   <data name="Family.You" xml:space="preserve"><value>{0} (you)</value></data>
   <data name="Family.Yours" xml:space="preserve"><value>Your family</value></data>
+  <data name="Feed.NextLikely" xml:space="preserve"><value>Next feed likely {0}–{1}</value></data>
+  <data name="Feed.Every" xml:space="preserve"><value>At this time of day, usually a feed every {0}</value></data>
+  <data name="Feed.EveryShort" xml:space="preserve"><value>usually every {0}</value></data>
+  <data name="Feed.Cluster" xml:space="preserve"><value>Cluster-feeding time for {0}: feeds may come close together</value></data>
+  <data name="Feed.ClusterShort" xml:space="preserve"><value>close together now</value></data>
+  <data name="Night.NextFeed" xml:space="preserve"><value>Next feed</value></data>
   <data name="Feed.Ago" xml:space="preserve"><value>{0} ago</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Bottle</value></data>
   <data name="Feed.BreastHint" xml:space="preserve"><value>Starts a timer on that side</value></data>
@@ -1095,6 +1102,16 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>That is a long sleep (over 16 hours).</value></data>
   <data name="Who.Other" xml:space="preserve"><value>Another parent</value></data>
   <data name="Who.You" xml:space="preserve"><value>You</value></data>
+  <data name="Week.Title" xml:space="preserve"><value>This week</value></data>
+  <data name="Week.LongestLonger" xml:space="preserve"><value>Longest sleep {0} longer than last week</value></data>
+  <data name="Week.LongestShorter" xml:space="preserve"><value>Longest sleep {0} shorter than last week</value></data>
+  <data name="Week.SleepMore" xml:space="preserve"><value>{0} more sleep a day than last week</value></data>
+  <data name="Week.SleepLess" xml:space="preserve"><value>{0} less sleep a day than last week</value></data>
+  <data name="Week.FeedsMore" xml:space="preserve"><value>{0} more feeds a day than last week</value></data>
+  <data name="Week.FeedsFewer" xml:space="preserve"><value>{0} fewer feeds a day than last week</value></data>
+  <data name="Week.FewWet" xml:space="preserve"><value>Fewer than 5 wet diapers a day this week</value></data>
+  <data name="Week.NapsMoving" xml:space="preserve"><value>Moving from {0} naps to {1}</value></data>
+  <data name="Week.NapsSettled" xml:space="preserve"><value>Now {1} naps a day ({0} last week)</value></data>
   <data name="Why.Awake" xml:space="preserve"><value>Awake since {0}.</value></data>
   <data name="Why.Disclaimer" xml:space="preserve"><value>Suggestions come from the sleeps you log and general guidance. They are not medical advice: talk to your pediatrician about any worries about sleep or development.</value></data>
   <data name="Why.PersonalBed" xml:space="preserve"><value>Before bedtime, {0}’s wake windows have been about {1} over the last {2} days.</value></data>

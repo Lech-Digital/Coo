@@ -32,6 +32,7 @@
   <data name="Action.SwitchSide" xml:space="preserve"><value>Seite wechseln</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Rückgängig</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Aufgewacht</value></data>
+  <data name="Advisor.Ask.Naps" xml:space="preserve"><value>{0} scheint von {1} auf {2} Schläfchen umzustellen. Wie helfe ich bei der Umstellung?</value></data>
   <data name="Advisor.Ask.SleepLess" xml:space="preserve"><value>Warum schläft {0} diese Woche weniger als letzte Woche?</value></data>
   <data name="Advisor.Ask.LongestShorter" xml:space="preserve"><value>Der längste Schlaf von {0} ist diese Woche kürzer geworden. Warum, und was hilft?</value></data>
   <data name="Advisor.Ask.LongestLonger" xml:space="preserve"><value>{0} schläft diese Woche längere Strecken. Was kommt meist als Nächstes?</value></data>
@@ -362,6 +363,12 @@
   <data name="Family.WithdrawConfirm" xml:space="preserve"><value>Diese Einladung zurückziehen? Link und Code funktionieren dann nicht mehr.</value></data>
   <data name="Family.You" xml:space="preserve"><value>{0} (du)</value></data>
   <data name="Family.Yours" xml:space="preserve"><value>Deine Familie</value></data>
+  <data name="Feed.NextLikely" xml:space="preserve"><value>Nächste Mahlzeit wahrscheinlich {0}–{1}</value></data>
+  <data name="Feed.Every" xml:space="preserve"><value>Um diese Tageszeit meist alle {0} eine Mahlzeit</value></data>
+  <data name="Feed.EveryShort" xml:space="preserve"><value>meist alle {0}</value></data>
+  <data name="Feed.Cluster" xml:space="preserve"><value>Clusterfeeding-Zeit bei {0}: Mahlzeiten können dicht aufeinander folgen</value></data>
+  <data name="Feed.ClusterShort" xml:space="preserve"><value>jetzt dicht aufeinander</value></data>
+  <data name="Night.NextFeed" xml:space="preserve"><value>Nächste Mahlzeit</value></data>
   <data name="Feed.Ago" xml:space="preserve"><value>vor {0}</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Fläschchen</value></data>
   <data name="Feed.BreastHint" xml:space="preserve"><value>Startet einen Timer auf dieser Seite</value></data>
@@ -1095,6 +1102,16 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>Das ist ein langer Schlaf (über 16 Stunden).</value></data>
   <data name="Who.Other" xml:space="preserve"><value>Anderes Elternteil</value></data>
   <data name="Who.You" xml:space="preserve"><value>Du</value></data>
+  <data name="Week.Title" xml:space="preserve"><value>Diese Woche</value></data>
+  <data name="Week.LongestLonger" xml:space="preserve"><value>Längster Schlaf {0} länger als letzte Woche</value></data>
+  <data name="Week.LongestShorter" xml:space="preserve"><value>Längster Schlaf {0} kürzer als letzte Woche</value></data>
+  <data name="Week.SleepMore" xml:space="preserve"><value>{0} mehr Schlaf am Tag als letzte Woche</value></data>
+  <data name="Week.SleepLess" xml:space="preserve"><value>{0} weniger Schlaf am Tag als letzte Woche</value></data>
+  <data name="Week.FeedsMore" xml:space="preserve"><value>{0} Mahlzeiten mehr am Tag als letzte Woche</value></data>
+  <data name="Week.FeedsFewer" xml:space="preserve"><value>{0} Mahlzeiten weniger am Tag als letzte Woche</value></data>
+  <data name="Week.FewWet" xml:space="preserve"><value>Weniger als 5 nasse Windeln am Tag diese Woche</value></data>
+  <data name="Week.NapsMoving" xml:space="preserve"><value>Umstellung von {0} auf {1} Schläfchen</value></data>
+  <data name="Week.NapsSettled" xml:space="preserve"><value>Jetzt {1} Schläfchen am Tag (letzte Woche {0})</value></data>
   <data name="Why.Awake" xml:space="preserve"><value>Wach seit {0}.</value></data>
   <data name="Why.Disclaimer" xml:space="preserve"><value>Die Vorschläge stammen aus euren eingetragenen Schlafzeiten und allgemeinen Empfehlungen. Sie sind kein medizinischer Rat: Sprich bei Sorgen um Schlaf oder Entwicklung mit eurer Kinderärztin oder eurem Kinderarzt.</value></data>
   <data name="Why.PersonalBed" xml:space="preserve"><value>Vor dem Schlafengehen war {0} in den letzten {2} Tagen meist etwa {1} wach.</value></data>

@@ -32,6 +32,7 @@
   <data name="Action.SwitchSide" xml:space="preserve"><value>Changer de côté</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Annuler</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Réveillé</value></data>
+  <data name="Advisor.Ask.Naps" xml:space="preserve"><value>{0} semble passer de {1} siestes à {2}. Comment l’accompagner dans ce changement ?</value></data>
   <data name="Advisor.Ask.SleepLess" xml:space="preserve"><value>Pourquoi {0} dort-il moins cette semaine que la semaine dernière ?</value></data>
   <data name="Advisor.Ask.LongestShorter" xml:space="preserve"><value>Le plus long sommeil de {0} a raccourci cette semaine. Pourquoi, et qu’est-ce qui peut aider ?</value></data>
   <data name="Advisor.Ask.LongestLonger" xml:space="preserve"><value>{0} dort par plus longues périodes cette semaine. Qu’est-ce qui vient ensuite, en général ?</value></data>
@@ -362,6 +363,12 @@
   <data name="Family.WithdrawConfirm" xml:space="preserve"><value>Annuler cette invitation ? Son lien et son code ne fonctionneront plus.</value></data>
   <data name="Family.You" xml:space="preserve"><value>{0} (vous)</value></data>
   <data name="Family.Yours" xml:space="preserve"><value>Votre famille</value></data>
+  <data name="Feed.NextLikely" xml:space="preserve"><value>Prochain repas probablement {0}–{1}</value></data>
+  <data name="Feed.Every" xml:space="preserve"><value>À cette heure-ci, un repas toutes les {0} en général</value></data>
+  <data name="Feed.EveryShort" xml:space="preserve"><value>toutes les {0} en général</value></data>
+  <data name="Feed.Cluster" xml:space="preserve"><value>C’est l’heure des tétées rapprochées pour {0} : les repas peuvent s’enchaîner</value></data>
+  <data name="Feed.ClusterShort" xml:space="preserve"><value>rapprochés en ce moment</value></data>
+  <data name="Night.NextFeed" xml:space="preserve"><value>Prochain repas</value></data>
   <data name="Feed.Ago" xml:space="preserve"><value>il y a {0}</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Biberon</value></data>
   <data name="Feed.BreastHint" xml:space="preserve"><value>Lance un minuteur de ce côté</value></data>
@@ -1095,6 +1102,16 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>C’est un long sommeil (plus de 16 heures).</value></data>
   <data name="Who.Other" xml:space="preserve"><value>Autre parent</value></data>
   <data name="Who.You" xml:space="preserve"><value>Vous</value></data>
+  <data name="Week.Title" xml:space="preserve"><value>Cette semaine</value></data>
+  <data name="Week.LongestLonger" xml:space="preserve"><value>Plus long sommeil : {0} de plus que la semaine dernière</value></data>
+  <data name="Week.LongestShorter" xml:space="preserve"><value>Plus long sommeil : {0} de moins que la semaine dernière</value></data>
+  <data name="Week.SleepMore" xml:space="preserve"><value>{0} de sommeil en plus par jour que la semaine dernière</value></data>
+  <data name="Week.SleepLess" xml:space="preserve"><value>{0} de sommeil en moins par jour que la semaine dernière</value></data>
+  <data name="Week.FeedsMore" xml:space="preserve"><value>{0} repas de plus par jour que la semaine dernière</value></data>
+  <data name="Week.FeedsFewer" xml:space="preserve"><value>{0} repas de moins par jour que la semaine dernière</value></data>
+  <data name="Week.FewWet" xml:space="preserve"><value>Moins de 5 couches mouillées par jour cette semaine</value></data>
+  <data name="Week.NapsMoving" xml:space="preserve"><value>Passage de {0} siestes à {1}</value></data>
+  <data name="Week.NapsSettled" xml:space="preserve"><value>Désormais {1} siestes par jour ({0} la semaine dernière)</value></data>
   <data name="Why.Awake" xml:space="preserve"><value>Éveillé depuis {0}.</value></data>
   <data name="Why.Disclaimer" xml:space="preserve"><value>Les suggestions viennent des sommeils notés et de recommandations générales. Ce ne sont pas des conseils médicaux : parlez de toute inquiétude sur le sommeil ou le développement à votre pédiatre.</value></data>
   <data name="Why.PersonalBed" xml:space="preserve"><value>Avant le coucher, {0} est resté éveillé environ {1} ces {2} derniers jours.</value></data>

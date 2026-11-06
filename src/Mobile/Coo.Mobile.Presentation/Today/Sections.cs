@@ -9,6 +9,7 @@ using Coo.Domain.Common;
 using Coo.Domain.Households;
 using Coo.Domain.Insights;
 using Coo.Mobile.Application.CareLog;
+using Coo.Mobile.Application.Insights;
 using Coo.Mobile.Presentation.Formatting;
 using Coo.Mobile.Presentation.Localization;
 using Coo.Mobile.Presentation.Theme;
@@ -557,6 +558,10 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
     [ObservableProperty]
     private string _nextNap = "";
 
+    /// <summary>"Next feed likely 3:05–3:35 PM", or her cluster time; empty before ten intervals of her own.</summary>
+    [ObservableProperty]
+    private string _nextFeed = "";
+
     [ObservableProperty]
     private string _napWindow = "";
 
@@ -622,6 +627,11 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
             SinceFeed = "";
         }
 
+        // 2b. The next feed, from her own feeds at this time of day (owner, 2026-11-06).
+        NextFeed = snapshot.NextFeed is { } next && t?.Running.Any(e => e.Details is FeedingDetails) != true
+            ? NextFeedText(next, snapshot, snapshot.Baby.Name, shortForm: false)
+            : "";
+
         // 3. The next sleep (ADR 0008 §7)
         NextNap = NapWindow = "";
         NapIsPersonal = NapUpsell = false;
@@ -668,7 +678,23 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
             }
         }
 
-        HasContent = !string.IsNullOrEmpty(NextSide) || !string.IsNullOrEmpty(SinceFeed) || !string.IsNullOrEmpty(NextNap) || !string.IsNullOrEmpty(PlanLine) || !string.IsNullOrEmpty(StashLine);
+        HasContent = !string.IsNullOrEmpty(NextSide) || !string.IsNullOrEmpty(SinceFeed) || !string.IsNullOrEmpty(NextNap) || !string.IsNullOrEmpty(NextFeed) || !string.IsNullOrEmpty(PlanLine) || !string.IsNullOrEmpty(StashLine);
+    }
+
+    /// <summary>
+    /// The next feed in words: "Next feed likely 3:05–3:35 PM"; in her cluster-feeding hours that feeds may come close
+    /// together; once past the window, her usual time between feeds at this hour. The short form is for the night list.
+    /// </summary>
+    public static string NextFeedText(FeedPrediction next, HomeSnapshot snapshot, string name, bool shortForm)
+    {
+        ArgumentNullException.ThrowIfNull(next);
+        ArgumentNullException.ThrowIfNull(snapshot);
+        if (next.Cluster)
+            return shortForm ? Strings.Get("Feed.ClusterShort") : Strings.Format("Feed.Cluster", name);
+        if (snapshot.Now > next.Latest)
+            return Strings.Format(shortForm ? "Feed.EveryShort" : "Feed.Every", Formats.Duration(next.Typical));
+        var range = (snapshot.Formats.Time(next.Earliest), snapshot.Formats.Time(next.Latest));
+        return shortForm ? Strings.Format("Night.BackLikely", range.Item1, range.Item2) : Strings.Format("Feed.NextLikely", range.Item1, range.Item2);
     }
 
     /// <summary>"likely 3:40–3:55 AM", "about 10 m after the feed" while one runs, or "usually within 25 m" once past it.</summary>
@@ -722,6 +748,56 @@ public sealed partial class NextUpSection : ObservableObject, IHomeSection
             lines.Add(Strings.Format("Why.Record", snapshot.Baby.Name, record.Hits, record.Shown));
         lines.Add(Strings.Get("Why.Disclaimer"));
         return lines;
+    }
+}
+
+/// <summary>One line of "This week": its kind's colour and what changed.</summary>
+public sealed record WeekLine(string KindCode, string Text);
+
+/// <summary>
+/// "This week" (owner, 2026-11-06): what changed against the week before, from her own log, in a few plain lines
+/// ("Longest sleep 40 m longer than last week", "Moving from 4 naps to 3"); hidden when nothing changed enough.
+/// </summary>
+public sealed partial class WeekSection : ObservableObject, IHomeSection
+{
+    public int Order => 36;
+
+    [ObservableProperty]
+    private IReadOnlyList<WeekLine> _lines = [];
+
+    public bool AppliesTo(HomeStage stage, PaletteKind palette) => stage == HomeStage.Born && palette == PaletteKind.Day;
+
+    public void Update(HomeSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        var lines = snapshot.Week is { } week
+            ? For(week, BabyAge.On(snapshot.Baby, DateOnly.FromDateTime(snapshot.Now.DateTime)).CorrectedDays, snapshot.Household)
+            : [];
+        if (Running.Changed(Lines, lines, l => l.Text))
+            Lines = lines;
+    }
+
+    /// <summary>At most three lines, the biggest change first; small changes are noise and say nothing.</summary>
+    public static IReadOnlyList<WeekLine> For(WeekNote week, int correctedDays, HouseholdSettings household)
+    {
+        ArgumentNullException.ThrowIfNull(week);
+        var c = week.Comparison;
+        var found = new List<(double Size, WeekLine Line)>();
+        if (week.Naps is { } naps)
+            found.Add((3, new WeekLine("sleep", Strings.Format(naps.Settled ? "Week.NapsSettled" : "Week.NapsMoving", naps.From, naps.To))));
+        if (c.Compared)
+        {
+            if (Math.Abs(c.Longest.TotalMinutes) >= 30)
+                found.Add((Math.Abs(c.Longest.TotalMinutes) / 30, new WeekLine("sleep", Strings.Format(c.Longest > TimeSpan.Zero ? "Week.LongestLonger" : "Week.LongestShorter", Formats.Duration(c.Longest.Duration())))));
+            if (Math.Abs(c.Sleep.TotalMinutes) >= 45)
+                found.Add((Math.Abs(c.Sleep.TotalMinutes) / 45, new WeekLine("sleep", Strings.Format(c.Sleep > TimeSpan.Zero ? "Week.SleepMore" : "Week.SleepLess", Formats.Duration(c.Sleep.Duration())))));
+            if (Math.Abs(c.Feeds) >= 1.5 && KindVisibility.IsShown(household, "feeding"))
+                found.Add((Math.Abs(c.Feeds) / 1.5, new WeekLine("feeding", Strings.Format(c.Feeds > 0 ? "Week.FeedsMore" : "Week.FeedsFewer", Math.Round(Math.Abs(c.Feeds)).ToString("0", Strings.Culture)))));
+        }
+
+        if (c.HasThisWeek && correctedDays is >= 5 and < 183 && c.WetPerDay < 5 && KindVisibility.IsShown(household, "diaper"))
+            found.Add((2, new WeekLine("diaper", Strings.Get("Week.FewWet"))));
+        return [.. found.OrderByDescending(f => f.Size).Take(3).Select(f => f.Line)];
     }
 }
 
@@ -1008,6 +1084,9 @@ public sealed partial class NightSection(HomeActions actions) : ObservableObject
             // Awake in the night: when she is likely back asleep, from her own night wakings (owner, 2026-11-06).
             .. sleeping is null && s.BackToSleep is { } back
                 ? new FactItem[] { new("sleep", Strings.Get("Night.BackToSleep"), NextUpSection.BackToSleep(back, s)) }
+                : [],
+            .. s.NextFeed is { } nextFeed && t?.Running.Any(e => e.Details is FeedingDetails) != true
+                ? new FactItem[] { new("feeding", Strings.Get("Night.NextFeed"), NextUpSection.NextFeedText(nextFeed, s, s.Baby.Name, shortForm: true)) }
                 : [],
             new("pump", Strings.Get("Kind.Pump"), t?.LastPump is { Timing.IsInProgress: true } ? Strings.Get("Tile.Running") : t?.LastPump is { } p ? s.Formats.Time(p.Timing.OccurredAt) : Strings.Get("Tile.Never")),
         ];

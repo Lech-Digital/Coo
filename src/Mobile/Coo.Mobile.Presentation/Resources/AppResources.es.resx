@@ -32,6 +32,7 @@
   <data name="Action.SwitchSide" xml:space="preserve"><value>Cambiar de lado</value></data>
   <data name="Action.Undo" xml:space="preserve"><value>Deshacer</value></data>
   <data name="Action.WokeUp" xml:space="preserve"><value>Se despertó</value></data>
+  <data name="Advisor.Ask.Naps" xml:space="preserve"><value>Parece que {0} está pasando de {1} siestas a {2}. ¿Cómo le ayudo con el cambio?</value></data>
   <data name="Advisor.Ask.SleepLess" xml:space="preserve"><value>¿Por qué {0} duerme menos esta semana que la anterior?</value></data>
   <data name="Advisor.Ask.LongestShorter" xml:space="preserve"><value>El sueño más largo de {0} se ha acortado esta semana. ¿Por qué y qué puede ayudar?</value></data>
   <data name="Advisor.Ask.LongestLonger" xml:space="preserve"><value>{0} duerme tramos más largos esta semana. ¿Qué suele venir después?</value></data>
@@ -362,6 +363,12 @@
   <data name="Family.WithdrawConfirm" xml:space="preserve"><value>¿Retirar esta invitación? Su enlace y su código dejarán de funcionar.</value></data>
   <data name="Family.You" xml:space="preserve"><value>{0} (tú)</value></data>
   <data name="Family.Yours" xml:space="preserve"><value>Tu familia</value></data>
+  <data name="Feed.NextLikely" xml:space="preserve"><value>Próxima toma probablemente {0}–{1}</value></data>
+  <data name="Feed.Every" xml:space="preserve"><value>A esta hora del día, normalmente una toma cada {0}</value></data>
+  <data name="Feed.EveryShort" xml:space="preserve"><value>normalmente cada {0}</value></data>
+  <data name="Feed.Cluster" xml:space="preserve"><value>Hora de tomas en racimo de {0}: pueden ir muy seguidas</value></data>
+  <data name="Feed.ClusterShort" xml:space="preserve"><value>muy seguidas ahora</value></data>
+  <data name="Night.NextFeed" xml:space="preserve"><value>Próxima toma</value></data>
   <data name="Feed.Ago" xml:space="preserve"><value>hace {0}</value></data>
   <data name="Feed.Bottle" xml:space="preserve"><value>Biberón</value></data>
   <data name="Feed.BreastHint" xml:space="preserve"><value>Inicia un temporizador en ese lado</value></data>
@@ -1095,6 +1102,16 @@ Mochi {0} ({1}), Android {2}</value></data>
   <data name="Warn.sleep-long" xml:space="preserve"><value>Es un sueño largo (más de 16 horas).</value></data>
   <data name="Who.Other" xml:space="preserve"><value>Otro progenitor</value></data>
   <data name="Who.You" xml:space="preserve"><value>Tú</value></data>
+  <data name="Week.Title" xml:space="preserve"><value>Esta semana</value></data>
+  <data name="Week.LongestLonger" xml:space="preserve"><value>Sueño más largo: {0} más que la semana pasada</value></data>
+  <data name="Week.LongestShorter" xml:space="preserve"><value>Sueño más largo: {0} menos que la semana pasada</value></data>
+  <data name="Week.SleepMore" xml:space="preserve"><value>{0} más de sueño al día que la semana pasada</value></data>
+  <data name="Week.SleepLess" xml:space="preserve"><value>{0} menos de sueño al día que la semana pasada</value></data>
+  <data name="Week.FeedsMore" xml:space="preserve"><value>{0} tomas más al día que la semana pasada</value></data>
+  <data name="Week.FeedsFewer" xml:space="preserve"><value>{0} tomas menos al día que la semana pasada</value></data>
+  <data name="Week.FewWet" xml:space="preserve"><value>Menos de 5 pañales mojados al día esta semana</value></data>
+  <data name="Week.NapsMoving" xml:space="preserve"><value>Pasando de {0} siestas a {1}</value></data>
+  <data name="Week.NapsSettled" xml:space="preserve"><value>Ahora {1} siestas al día ({0} la semana pasada)</value></data>
   <data name="Why.Awake" xml:space="preserve"><value>Despierto desde las {0}.</value></data>
   <data name="Why.Disclaimer" xml:space="preserve"><value>Las sugerencias salen de los sueños que registras y de pautas generales. No son consejo médico: consulta a tu pediatra cualquier duda sobre el sueño o el desarrollo.</value></data>
   <data name="Why.PersonalBed" xml:space="preserve"><value>Antes de dormir, {0} ha estado despierto unos {1} en los últimos {2} días.</value></data>
