@@ -14,11 +14,10 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
   Play's "What's new". That text, in all seven languages and ready to paste, goes in
   `store-assets/releases/<version>.md`.
 
-## 1.12.0 (code 32) — 2026-11-06
+## 1.12.1 (code 33) — 2026-11-06
 
-A new matcha look (ADR 0012), the fixes from the design and UX reviews, and Mochi learning more of the baby's rhythm:
-next feed, bedtime, night wakings, the sleep pattern and this week's changes. Once it is live, raise
-`AppUpdates:Latest` to 32 and deploy: 1.11.0 got no update prompt, so this one asks everyone.
+The fix for the Log's timeline and the new tour, which came after the 1.12.0 build that was uploaded (a rebuild under
+code 32 never reached Play). Once it is live, raise `AppUpdates:Latest` to 33 and deploy.
 
 ### Fixed
 - **The Log no longer crashes when you tap the day's timeline**, which happened most often on a second tap while the
@@ -28,6 +27,14 @@ next feed, bedtime, night wakings, the sleep pattern and this week's changes. On
 - **"How Mochi works" explains it better**: nine tips in the order you meet things, each saying where it is in the
   app ("Today · Next up") and what it does in a few short points, including how Mochi learns your baby's rhythm, the
   night mode, the Log's timeline and the day, week and month comparisons in Stats.
+
+## 1.12.0 (code 32) — 2026-11-06
+
+A new matcha look (ADR 0012), the fixes from the design and UX reviews, and Mochi learning more of the baby's rhythm:
+next feed, bedtime, night wakings, the sleep pattern and this week's changes. 1.11.0 got no update prompt; the
+prompt waits for 1.12.1.
+
+### Changed
 - **A new matcha look.** The icon is Mochi on a lighter, softer matcha green; the "mochi" name at the top has rounder
   letters and Mochi itself as the dot on the "i"; buttons and links are a fresh leaf green, and pills, the selected tab
   and the baby's avatar are matcha.
