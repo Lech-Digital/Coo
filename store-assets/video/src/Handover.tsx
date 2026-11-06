@@ -4,11 +4,10 @@ import { C, Fonts, Mochi, Phone, Wash, Wordmark } from './parts';
 import { End, Side, useSpringAt } from './YouTube';
 
 /** "The handover" (store-assets/youtube/*-mochi-handover): seven Gemini (Veo) shots of Tom and Anna, each followed by a
- * full-screen Mochi card with the real app, then the end card, 73.1 s. The music is the owner's Gemini track
- * (soundtrack.mp3 in that folder, ~124 BPM, a beat every 0.484 s, bars from 17.488 s). prepare.sh repeats two bars of
- * its day groove (40.72–44.59 s) so the film has room: every card lands on a beat and lasts six beats, the day shot
- * keeps its yoga, and the whisper "Mochi" (71.77 s in the longer track) comes 2.7 s into the end card, once
- * "On Google Play" is up (owner: the whisper was too early).
+ * full-screen Mochi card with the real app, then the end card; 78.7 s. The music and the whisper are the owner's two Gemini
+ * takes (soundtrack.mp3 and whisper.mp3 in that folder; prepare.sh decodes them). The music is 124 BPM with a bar
+ * every 1.9355 s from 31.087 s: every card lands on a beat and lasts six beats, the end card starts on the downbeat
+ * where the music begins to fade, and the whisper comes 3 s into it, once the end card is complete.
  * Until the clips are in public/handover/1.mp4 … 7.mp4, pass { clips: false } for placeholders. */
 export type HandoverProps = { clips: boolean };
 
@@ -29,15 +28,17 @@ const PAIRS: { shot: string; from: number; card: Card }[] = [
 
 // [shot start, card start] in frames, from the beat grid above; the end card starts at END.
 const CUTS: [number, number][] = [
-  [0, 205],
-  [292, 496],
-  [583, 786],
-  [873, 1076],
-  [1164, 1425], // the day: four beats longer, so the yoga at its end stays in
-  [1512, 1701],
-  [1788, 1991],
+  [0, 207],
+  [294, 497],
+  [584, 802],
+  [889, 1092],
+  [1179, 1441], // the day: long enough for the yoga at its end
+  [1528, 1731],
+  [1818, 2065],
 ];
-const END = 2071;
+const END = 2152; // a downbeat, as the music starts to fade
+const END_LENGTH = 210;
+const WHISPER = 2234; // "Mo" (0.3 s into whisper.mp3) at 74.7 s: 3 s into the end card, once "On Google Play" is up
 
 /** The Mochi logo in the corner over every live-action shot, so a frame anywhere in the film is branded. */
 const Bug: React.FC = () => (
@@ -117,12 +118,18 @@ const ScreenCard: React.FC<{ card: Extract<Card, { kind: 'screen' }> }> = ({ car
   );
 };
 
-export const HANDOVER_FRAMES = END + 180;
+export const HANDOVER_FRAMES = END + END_LENGTH;
 
 export const Handover: React.FC<HandoverProps> = ({ clips }) => (
   <AbsoluteFill style={{ fontFamily: 'Figtree, sans-serif', overflow: 'hidden', background: '#111' }}>
     <Fonts />
-    <Audio src={staticFile('soundtrack-handover.wav')} />
+    <Audio
+      src={staticFile('soundtrack-handover.wav')}
+      volume={(f) => interpolate(f, [WHISPER - 6, WHISPER + 3, WHISPER + 30, WHISPER + 45], [1, 0.6, 0.6, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}
+    />
+    <Sequence from={WHISPER - 9}>
+      <Audio src={staticFile('whisper-handover.wav')} />
+    </Sequence>
     {PAIRS.map((p, i) => {
       const [shot, card] = CUTS[i];
       const next = i + 1 < CUTS.length ? CUTS[i + 1][0] : END;
@@ -137,7 +144,7 @@ export const Handover: React.FC<HandoverProps> = ({ clips }) => (
         </React.Fragment>
       );
     })}
-    <Sequence from={END} durationInFrames={180}>
+    <Sequence from={END} durationInFrames={END_LENGTH}>
       <Wash />
       <End />
     </Sequence>
