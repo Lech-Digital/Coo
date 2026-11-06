@@ -92,3 +92,9 @@ local.properties
 
 # Python bytecode from eng/strings
 __pycache__/
+
+# Node: the launch film's Remotion build (store-assets/video) and any other JS tooling. Also in the folder's own
+# .gitignore; here too so every editor's source-control view leaves them out.
+node_modules/
+store-assets/video/out/
+store-assets/video/public/
