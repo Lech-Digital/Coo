@@ -5,23 +5,46 @@
 - **Source:** Gemini clips in `clips/` (git-ignored), cut with the real screens in `store-assets/video`
 - **Link:** _(add once uploaded)_
 
-## Title (draft)
+## Title
 
 ```
-Mochi Baby Tracker: one night, one log, two parents
+He did the night shift. She got the whole story. | Mochi Baby Tracker
 ```
 
-## Description (draft)
+## Description
 
 ```
-He did the night. She got the whole night at a glance. 🍵
+One night, one log, two parents. 🍵
 
-Mochi is a baby tracker for Android: feeds, sleep, diapers and pumping in one tap, one shared log for both parents, and a night mode for one hand in the dark. From your own log it works out which side is next and when the next feed and nap are likely.
+He logs the bottle one-handed in the dark. She wakes up and sees the whole night at a glance: when the baby slept, the last feed, which side is next. Grandma follows along from across town. By evening, Mochi has learned her rhythm.
 
-📲 Google Play: https://play.google.com/store/apps/details?id=com.lechdigital.coo
-🌐 More: https://lechdigital.nl/mochi/
+Mochi is a baby tracker for Android:
+🍼 Breastfeeding timer that remembers the side, bottles, pumping
+😴 Naps and night sleep, with her sleep pattern night after night
+💧 Diapers, wet or dirty, in one tap
+👨‍👩‍👧 One shared log for both parents, a nanny and the grandparents
+🌙 Night mode with big buttons for one hand in the dark
+⏰ When the next feed and nap are likely, worked out from her own log
 
-#babytracker #newborn #newparents #breastfeeding #babysleep #parenting
+Works offline · no ads, no trackers · in English, Deutsch, Français, Español, Italiano, Polski and Nederlands
+
+📲 Get Mochi on Google Play: https://play.google.com/store/apps/details?id=com.lechdigital.coo
+🌐 More about Mochi: https://lechdigital.nl/mochi/
+
+0:00 The night shift
+0:19 The morning handover
+0:29 She takes over
+0:39 The day goes by
+0:50 Grandma checks in
+1:00 Evening, together
+
+#babytracker #newparents #newborn #breastfeeding #babysleep #parenting #dadlife #momlife
+```
+
+## Tags
+
+```
+baby tracker, baby tracker app, newborn, new parents, breastfeeding timer, baby sleep tracker, feeding tracker, shared baby log, night feeds, Mochi
 ```
 
 ## The cut
