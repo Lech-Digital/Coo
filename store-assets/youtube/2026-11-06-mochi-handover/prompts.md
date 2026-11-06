@@ -1,70 +1,98 @@
 # The handover — Gemini prompts
 
-One block per generation: copy the whole block into Gemini (Veo). Each block already holds the style and the characters, so Tom and Anna stay the same. Make 2–4 takes of each and keep the best. For a Short, change "16:9" to "vertical 9:16".
+**One prompt per chat.** Start a new Gemini chat for every shot and paste one whole block. Each block stands alone: it describes the people, the room and the style from scratch and never mentions another shot, so Gemini has nothing to copy from. Make 2–4 takes of each and keep the best. For a Short, change "16:9" to "vertical 9:16".
 
-If Gemini takes reference images: give it the best frame of Tom (from shot 1) and of Anna (from shot 3) for the later shots. Optional, for the night glow only: `store-assets/raw/s7-night.png`, with "use this only for the colour of the phone screen’s light, never show it readable".
+**Keeping the same faces (optional).** In the new chat, attach a still of the man or the woman from a take you liked, and add this line at the end of the block:
+
+```
+Use the attached image only as a reference for the person's face and hair. Do not reuse its room, pose, framing or action.
+```
+
+Don't attach app screenshots: Gemini would try to draw them, and the text comes out garbled. The real screens are added in the edit (see `video.md`).
 
 Save the chosen takes as `clips/1.mp4` … `clips/7.mp4` next to this file.
 
 ## 1 · Night, the nursery
 
 ```
-STYLE: Cinematic, warm and natural, like a premium phone commercial. Handheld but steady, shallow depth of field, 35 mm look, soft practical light. Muted, warm palette with soft sage greens and cream; nothing neon. Real, lived-in apartment: linen, wood, plants. No text, no captions, no logos on screen. Room sound only (fabric, a kettle, a soft breath, the city far away), no music, no dialogue. 16:9.
-CHARACTERS: Tom, early thirties, short dark-blond hair, a few days of stubble, grey t-shirt, tired but gentle. Anna, early thirties, shoulder-length brown hair loosely tied up, cream knit cardigan over a sage-green top. Their newborn daughter, always swaddled in a sage-green muslin wrap, face mostly hidden against a shoulder or turned away. The phone is a dark modern Android phone; its screen is only ever a soft, unreadable glow, never readable text.
+Night in a dim nursery, lit by one small warm lamp, with blue moonlight at the edge of the curtain. The video opens on a young father standing in the middle of the room with his newborn on his shoulder. He walks slowly across the room, swaying and patting the baby's back, eyes half closed, and yawns. The camera pushes in slowly from the doorway. Calm, quiet and tender.
 
-SHOT: Night. A dim nursery lit by one small warm lamp. Tom walks slowly across the room with the baby on his shoulder, swaying, patting her back, eyes half closed. Slow push-in from the doorway. Blue moonlight at the edge of the curtain. He yawns. Calm, quiet, tender.
+The man: early thirties, short dark-blond hair, a few days of stubble, a plain grey t-shirt; tired but gentle.
+The baby: a newborn swaddled in a sage-green muslin wrap; its face stays hidden or turned away from the camera.
+
+Style: cinematic, warm and natural, like a premium phone commercial. Handheld but steady, shallow depth of field, 35 mm look, soft practical light. Muted, warm palette with soft sage greens and cream; nothing neon. A real, lived-in apartment with linen, wood and plants. No text, no captions and no logos anywhere in the frame. Room sound only: no music, no dialogue, no voice-over. 16:9, 8 seconds.
 ```
 
 ## 2 · One hand, in the dark
 
 ```
-STYLE: Cinematic, warm and natural, like a premium phone commercial. Handheld but steady, shallow depth of field, 35 mm look, soft practical light. Muted, warm palette with soft sage greens and cream; nothing neon. Real, lived-in apartment: linen, wood, plants. No text, no captions, no logos on screen. Room sound only (fabric, a kettle, a soft breath, the city far away), no music, no dialogue. 16:9.
-CHARACTERS: Tom, early thirties, short dark-blond hair, a few days of stubble, grey t-shirt, tired but gentle. Anna, early thirties, shoulder-length brown hair loosely tied up, cream knit cardigan over a sage-green top. Their newborn daughter, always swaddled in a sage-green muslin wrap, face mostly hidden against a shoulder or turned away. The phone is a dark modern Android phone; its screen is only ever a soft, unreadable glow, never readable text.
+Night in a dim nursery, lit by one small warm lamp. The video opens on a young father sitting in a soft armchair with his newborn asleep on his chest, one arm around the baby. With his free hand he picks up his phone from the armrest and taps it twice with his thumb; its dim, warm glow lights his face. Close-up on his hand and face from the side. He smiles a little and lays the phone face down on the armrest.
 
-SHOT: Night, the same nursery. Tom sits down in an armchair with the baby asleep on his chest, one arm around her. With his free hand he picks up the phone from the armrest and taps it twice with his thumb; the screen lights his face with a dim, warm glow. Close-up on his hand and face from the side, the screen angled away from the camera. He smiles a little and puts the phone face down.
+The man: early thirties, short dark-blond hair, a few days of stubble, a plain grey t-shirt; tired but gentle.
+The baby: a newborn swaddled in a sage-green muslin wrap; its face stays hidden or turned away from the camera.
+The phone: a dark modern smartphone. Its screen is only a soft, unreadable glow and stays angled away from the camera.
+
+Style: cinematic, warm and natural, like a premium phone commercial. Handheld but steady, shallow depth of field, 35 mm look, soft practical light. Muted, warm palette with soft sage greens and cream; nothing neon. A real, lived-in apartment with linen, wood and plants. No text, no captions and no logos anywhere in the frame. Room sound only: no music, no dialogue, no voice-over. 16:9, 8 seconds.
 ```
 
 ## 3 · Morning
 
 ```
-STYLE: Cinematic, warm and natural, like a premium phone commercial. Handheld but steady, shallow depth of field, 35 mm look, soft practical light. Muted, warm palette with soft sage greens and cream; nothing neon. Real, lived-in apartment: linen, wood, plants. No text, no captions, no logos on screen. Room sound only (fabric, a kettle, a soft breath, the city far away), no music, no dialogue. 16:9.
-CHARACTERS: Tom, early thirties, short dark-blond hair, a few days of stubble, grey t-shirt, tired but gentle. Anna, early thirties, shoulder-length brown hair loosely tied up, cream knit cardigan over a sage-green top. Their newborn daughter, always swaddled in a sage-green muslin wrap, face mostly hidden against a shoulder or turned away. The phone is a dark modern Android phone; its screen is only ever a soft, unreadable glow, never readable text.
+Early morning in a bedroom, soft golden light through linen curtains. The video opens on a young mother lying in bed, just waking. She reaches for her phone on the nightstand and reads it from her pillow. Her face relaxes into a small smile of relief. In the soft-focus background, through an open door, a young father sleeps in an armchair with a newborn on his chest. Slow rack focus from her face to the father and baby.
 
-SHOT: Early morning, soft golden light in a bedroom. Anna wakes, reaches for the phone on the nightstand and looks at it, still lying on her pillow, the screen angled away from the camera. Her face relaxes into a small smile of relief. In the background, through the open door, Tom is asleep in the armchair with the baby on his chest. Slow rack focus from Anna to Tom and the baby.
+The woman: early thirties, shoulder-length brown hair loosely tied up, a cream knit cardigan over a sage-green top.
+The man: early thirties, short dark-blond hair, a few days of stubble, a plain grey t-shirt; tired but gentle.
+The baby: a newborn swaddled in a sage-green muslin wrap; its face stays hidden or turned away from the camera.
+The phone: a dark modern smartphone. Its screen is only a soft, unreadable glow and stays angled away from the camera.
+
+Style: cinematic, warm and natural, like a premium phone commercial. Handheld but steady, shallow depth of field, 35 mm look, soft practical light. Muted, warm palette with soft sage greens and cream; nothing neon. A real, lived-in apartment with linen, wood and plants. No text, no captions and no logos anywhere in the frame. Room sound only: no music, no dialogue, no voice-over. 16:9, 8 seconds.
 ```
 
 ## 4 · She takes over
 
 ```
-STYLE: Cinematic, warm and natural, like a premium phone commercial. Handheld but steady, shallow depth of field, 35 mm look, soft practical light. Muted, warm palette with soft sage greens and cream; nothing neon. Real, lived-in apartment: linen, wood, plants. No text, no captions, no logos on screen. Room sound only (fabric, a kettle, a soft breath, the city far away), no music, no dialogue. 16:9.
-CHARACTERS: Tom, early thirties, short dark-blond hair, a few days of stubble, grey t-shirt, tired but gentle. Anna, early thirties, shoulder-length brown hair loosely tied up, cream knit cardigan over a sage-green top. Their newborn daughter, always swaddled in a sage-green muslin wrap, face mostly hidden against a shoulder or turned away. The phone is a dark modern Android phone; its screen is only ever a soft, unreadable glow, never readable text.
+Morning in a sunny living room with plants and a linen sofa. The video opens on a young father asleep in an armchair with a newborn on his chest. A young mother walks in, gently lifts the baby from his chest without waking him and kisses his forehead. She sits down on the sofa to breastfeed discreetly under a muslin cloth, filmed from behind her shoulder, taps her phone lying on the sofa arm once and leaves it there.
 
-SHOT: Morning, a sunny living room. Anna gently lifts the swaddled baby from Tom’s chest without waking him and kisses his forehead. She settles on the sofa to breastfeed, discreetly, under a muslin cloth, filmed from behind her shoulder. She taps the phone lying on the sofa arm once and leaves it.
+The woman: early thirties, shoulder-length brown hair loosely tied up, a cream knit cardigan over a sage-green top.
+The man: early thirties, short dark-blond hair, a few days of stubble, a plain grey t-shirt; tired but gentle.
+The baby: a newborn swaddled in a sage-green muslin wrap; its face stays hidden or turned away from the camera.
+The phone: a dark modern smartphone. Its screen is only a soft, unreadable glow and stays angled away from the camera.
+
+Style: cinematic, warm and natural, like a premium phone commercial. Handheld but steady, shallow depth of field, 35 mm look, soft practical light. Muted, warm palette with soft sage greens and cream; nothing neon. A real, lived-in apartment with linen, wood and plants. No text, no captions and no logos anywhere in the frame. Room sound only: no music, no dialogue, no voice-over. 16:9, 8 seconds.
 ```
 
 ## 5 · The day goes by
 
 ```
-STYLE: Cinematic, warm and natural, like a premium phone commercial. Handheld but steady, shallow depth of field, 35 mm look, soft practical light. Muted, warm palette with soft sage greens and cream; nothing neon. Real, lived-in apartment: linen, wood, plants. No text, no captions, no logos on screen. Room sound only (fabric, a kettle, a soft breath, the city far away), no music, no dialogue. 16:9.
-CHARACTERS: Tom, early thirties, short dark-blond hair, a few days of stubble, grey t-shirt, tired but gentle. Anna, early thirties, shoulder-length brown hair loosely tied up, cream knit cardigan over a sage-green top. Their newborn daughter, always swaddled in a sage-green muslin wrap, face mostly hidden against a shoulder or turned away. The phone is a dark modern Android phone; its screen is only ever a soft, unreadable glow, never readable text.
+Daytime in a sunny apartment. One slow, continuous camera drift through the rooms as the day passes: hands warming a baby bottle in the kitchen, hands changing a diaper on a wooden changing table, a newborn asleep in a bassinet by a bright window, a young mother stretching on a yoga mat, sunlight moving across the wooden floor.
 
-SHOT: A single slow camera drift through a sunny apartment as the day passes: a bottle being warmed in a kitchen, hands changing a diaper on a changing table, the swaddled baby asleep in a bassinet by the window, Anna stretching on a yoga mat, the sunlight moving across the wooden floor.
+The woman: early thirties, shoulder-length brown hair loosely tied up, a cream knit cardigan over a sage-green top.
+The baby: a newborn swaddled in a sage-green muslin wrap; its face stays hidden or turned away from the camera.
+
+Style: cinematic, warm and natural, like a premium phone commercial. Handheld but steady, shallow depth of field, 35 mm look, soft practical light. Muted, warm palette with soft sage greens and cream; nothing neon. A real, lived-in apartment with linen, wood and plants. No text, no captions and no logos anywhere in the frame. Room sound only: no music, no dialogue, no voice-over. 16:9, 8 seconds.
 ```
 
-## 6 · Grandma checks in (optional)
+## 6 · Grandma checks in
 
 ```
-STYLE: Cinematic, warm and natural, like a premium phone commercial. Handheld but steady, shallow depth of field, 35 mm look, soft practical light. Muted, warm palette with soft sage greens and cream; nothing neon. Real, lived-in apartment: linen, wood, plants. No text, no captions, no logos on screen. Room sound only (fabric, a kettle, a soft breath, the city far away), no music, no dialogue. 16:9.
-CHARACTERS: Tom, early thirties, short dark-blond hair, a few days of stubble, grey t-shirt, tired but gentle. Anna, early thirties, shoulder-length brown hair loosely tied up, cream knit cardigan over a sage-green top. Their newborn daughter, always swaddled in a sage-green muslin wrap, face mostly hidden against a shoulder or turned away. The phone is a dark modern Android phone; its screen is only ever a soft, unreadable glow, never readable text.
+Afternoon in a cosy kitchen with warm light. The video opens on a grandmother sitting at the kitchen table, holding her phone. She reads it and smiles warmly, then turns and shows it to her husband sitting beside her, who chuckles.
 
-SHOT: Afternoon. A grandmother in her sixties, silver bob, reading glasses on her nose, in her own cosy kitchen across town, looks at her phone and smiles warmly, then shows it to her husband beside her, who chuckles. The screen is angled away from the camera. Warm interior light.
+The grandmother: mid sixties, a silver bob, reading glasses on her nose, a soft blue jumper.
+The grandfather: late sixties, grey hair, a knitted vest over a checked shirt.
+The phone: a dark modern smartphone. Its screen is only a soft, unreadable glow and stays angled away from the camera.
+
+Style: cinematic, warm and natural, like a premium phone commercial. Handheld but steady, shallow depth of field, 35 mm look, soft practical light. Muted, warm palette with soft sage greens and cream; nothing neon. A real, lived-in apartment with linen, wood and plants. No text, no captions and no logos anywhere in the frame. Room sound only: no music, no dialogue, no voice-over. 16:9, 8 seconds.
 ```
 
 ## 7 · Evening, together
 
 ```
-STYLE: Cinematic, warm and natural, like a premium phone commercial. Handheld but steady, shallow depth of field, 35 mm look, soft practical light. Muted, warm palette with soft sage greens and cream; nothing neon. Real, lived-in apartment: linen, wood, plants. No text, no captions, no logos on screen. Room sound only (fabric, a kettle, a soft breath, the city far away), no music, no dialogue. 16:9.
-CHARACTERS: Tom, early thirties, short dark-blond hair, a few days of stubble, grey t-shirt, tired but gentle. Anna, early thirties, shoulder-length brown hair loosely tied up, cream knit cardigan over a sage-green top. Their newborn daughter, always swaddled in a sage-green muslin wrap, face mostly hidden against a shoulder or turned away. The phone is a dark modern Android phone; its screen is only ever a soft, unreadable glow, never readable text.
+Evening in a living room lit by a warm lamp. The video opens on a young couple sitting close together on a linen sofa, a newborn asleep in a bassinet beside them. The mother holds her phone between them and they both look at it; the father points at something and they share a quiet laugh. The camera slowly pulls back. It feels like a small win.
 
-SHOT: Evening, warm lamp light in the living room. Tom and Anna sit close on the sofa, the swaddled baby asleep in a bassinet beside them. Anna holds the phone between them, screen angled away from the camera, and they both look at it; Tom points at something and they share a quiet laugh. The camera slowly pulls back. It feels like a small win.
+The man: early thirties, short dark-blond hair, a few days of stubble, a plain grey t-shirt; tired but gentle.
+The woman: early thirties, shoulder-length brown hair loosely tied up, a cream knit cardigan over a sage-green top.
+The baby: a newborn swaddled in a sage-green muslin wrap; its face stays hidden or turned away from the camera.
+The phone: a dark modern smartphone. Its screen is only a soft, unreadable glow and stays angled away from the camera.
+
+Style: cinematic, warm and natural, like a premium phone commercial. Handheld but steady, shallow depth of field, 35 mm look, soft practical light. Muted, warm palette with soft sage greens and cream; nothing neon. A real, lived-in apartment with linen, wood and plants. No text, no captions and no logos anywhere in the frame. Room sound only: no music, no dialogue, no voice-over. 16:9, 8 seconds.
 ```
