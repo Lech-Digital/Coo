@@ -11,3 +11,4 @@ python3 -I make-music.py
 python3 -I make-music.py youtube
 python3 -I make-music.py handover
 mkdir -p public/handover && cp ../youtube/*-mochi-handover/clips/*.mp4 public/handover/ 2>/dev/null || true
+cp ../youtube/*-mochi-handover/soundtrack.mp3 public/music-handover.mp3 2>/dev/null || true

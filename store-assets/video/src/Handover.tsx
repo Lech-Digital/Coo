@@ -4,8 +4,10 @@ import { C, Fonts, Mochi, Phone, Wash, Wordmark } from './parts';
 import { End, Side, useSpringAt } from './YouTube';
 
 /** "The handover" (store-assets/youtube/*-mochi-handover): seven Gemini (Veo) shots of Tom and Anna, each followed by a
- * full-screen Mochi card with the real app, then the end card. A shot is 7 s of the 10 s clip, a card 3 s, so every
- * pair is 10 s = 5 bars at 120 BPM; 7 pairs and the 6 s end card make 76 s.
+ * full-screen Mochi card with the real app, then the end card, 73.1 s. The music is the owner's Gemini track
+ * (soundtrack.mp3 in that folder, ~124 BPM, a beat every 0.484 s with one at 17.004 s): every card lands on a beat
+ * and lasts six beats, and the end card starts at 67.1 s so the bunny lands on the "i" (0.8 s in) as the track
+ * whispers "Mochi" (67.9 s).
  * Until the clips are in public/handover/1.mp4 … 7.mp4, pass { clips: false } for placeholders. */
 export type HandoverProps = { clips: boolean };
 
@@ -13,7 +15,7 @@ type Card =
   | { kind: 'brand'; dark?: boolean }
   | { kind: 'screen'; src: string; kicker: string; text: string; dark?: boolean; family?: boolean };
 
-// from: where in the 10 s Gemini clip the 7 s we use starts (picked from the takes, 2026-11-06).
+// from: where in the 10 s Gemini clip the part we use starts (picked from the takes, 2026-11-06).
 const PAIRS: { shot: string; from: number; card: Card }[] = [
   { shot: 'Night, the nursery', from: 2.0, card: { kind: 'brand', dark: true } },
   { shot: 'One hand, in the dark', from: 2.0, card: { kind: 'screen', src: 's7-night.png', kicker: 'Night mode', text: 'Logged with one hand.', dark: true } },
@@ -24,8 +26,17 @@ const PAIRS: { shot: string; from: number; card: Card }[] = [
   { shot: 'Evening, together', from: 1.0, card: { kind: 'screen', src: 's4-stats.png', kicker: 'Sleep pattern', text: 'It learns her rhythm.' } },
 ];
 
-const SHOT = 210;
-const CARD = 90;
+// [shot start, card start] in frames, from the beat grid above; the end card starts at END.
+const CUTS: [number, number][] = [
+  [0, 205],
+  [292, 496],
+  [583, 786],
+  [873, 1076],
+  [1164, 1367],
+  [1454, 1643],
+  [1730, 1933],
+];
+const END = 2013;
 
 /** The Mochi logo in the corner over every live-action shot, so a frame anywhere in the film is branded. */
 const Bug: React.FC = () => (
@@ -34,7 +45,7 @@ const Bug: React.FC = () => (
   </div>
 );
 
-const Shot: React.FC<{ i: number; title: string; from: number; clips: boolean }> = ({ i, title, from, clips }) => {
+const Shot: React.FC<{ i: number; title: string; from: number; length: number; clips: boolean }> = ({ i, title, from, length, clips }) => {
   const frame = useCurrentFrame();
   const fade = interpolate(frame, [0, 6], [0, 1], { extrapolateRight: 'clamp' });
   return (
@@ -43,7 +54,7 @@ const Shot: React.FC<{ i: number; title: string; from: number; clips: boolean }>
         <OffthreadVideo
           src={staticFile(`handover/${i + 1}.mp4`)}
           startFrom={Math.round(from * 30)}
-          volume={(f) => 0.45 * interpolate(f, [0, 8, SHOT - 8, SHOT], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}
+          volume={(f) => 0.3 * interpolate(f, [0, 8, length - 8, length], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       ) : (
         <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center', background: 'linear-gradient(135deg, #2A2E26, #3A3328)' }}>
@@ -105,26 +116,27 @@ const ScreenCard: React.FC<{ card: Extract<Card, { kind: 'screen' }> }> = ({ car
   );
 };
 
-export const HANDOVER_FRAMES = PAIRS.length * (SHOT + CARD) + 180;
+export const HANDOVER_FRAMES = END + 180;
 
 export const Handover: React.FC<HandoverProps> = ({ clips }) => (
   <AbsoluteFill style={{ fontFamily: 'Figtree, sans-serif', overflow: 'hidden', background: '#111' }}>
     <Fonts />
-    <Audio src={staticFile('music-handover.wav')} />
+    <Audio src={staticFile('music-handover.mp3')} />
     {PAIRS.map((p, i) => {
-      const at = i * (SHOT + CARD);
+      const [shot, card] = CUTS[i];
+      const next = i + 1 < CUTS.length ? CUTS[i + 1][0] : END;
       return (
         <React.Fragment key={i}>
-          <Sequence from={at} durationInFrames={SHOT}>
-            <Shot i={i} title={p.shot} from={p.from} clips={clips} />
+          <Sequence from={shot} durationInFrames={card - shot}>
+            <Shot i={i} title={p.shot} from={p.from} length={card - shot} clips={clips} />
           </Sequence>
-          <Sequence from={at + SHOT} durationInFrames={CARD}>
+          <Sequence from={card} durationInFrames={next - card}>
             {p.card.kind === 'brand' ? <BrandCard dark={p.card.dark} /> : <ScreenCard card={p.card} />}
           </Sequence>
         </React.Fragment>
       );
     })}
-    <Sequence from={PAIRS.length * (SHOT + CARD)} durationInFrames={180}>
+    <Sequence from={END} durationInFrames={180}>
       <Wash />
       <End />
     </Sequence>
