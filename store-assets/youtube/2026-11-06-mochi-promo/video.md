@@ -2,7 +2,7 @@
 
 - **Uploaded:** 2026-11-06 · 16:9, 1920×1080, 68 s
 - **Source:** `store-assets/video`, composition `YouTube` → `npm run render:youtube`
-- **Thumbnail:** `thumbnail.png` (frame 200 of `YouTube`, `--scale=0.6667`)
+- **Thumbnail:** a frame picked in YouTube Studio
 - **Link:** _(add once uploaded; also paste it into Play Console as the promo video)_
 
 ## Title

@@ -2,7 +2,7 @@
 
 - **Uploaded:** 2026-11-06 · Short (9:16, 1080×1920, 36 s)
 - **Source:** `store-assets/video`, composition `Launch` → `npm run render`
-- **Thumbnail:** `thumbnail.png` (frame 180 of `Launch`)
+- **Thumbnail:** a frame picked in YouTube Studio
 - **Link:** _(add once uploaded)_
 
 ## Title
