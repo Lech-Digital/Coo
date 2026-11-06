@@ -46,6 +46,7 @@ public sealed class SeedDemoLogTests
         weeks[1].Sleep.Should().BeGreaterThan(weeks[0].Sleep);
         weeks[0].Sleep.Should().BeGreaterThan(TimeSpan.FromHours(12)).And.BeLessThan(TimeSpan.FromHours(17));
         weeks[0].Feeds.Should().BeInRange(6, 10);
+        weeks[0].Wet.Should().BeGreaterThanOrEqualTo(6, "a well-fed baby, so Today shows no wet-diaper warning in the screenshots");
     }
 
     [Fact]

@@ -90,6 +90,10 @@ public sealed class SeedDemoLog(EnsureProvisionalHousehold households, IHousehol
             var back1 = wake1.AddMinutes(45);
             var morning = At(date, 6.2 + (random.NextDouble() * 0.6));
             day.Add(Sleep(back1, morning));
+            // Six or more wet diapers a day, as a well-fed seven-week-old has (owner's review, 2026-11-06: with three,
+            // Today warned "fewer than 5 wet diapers" in the store screenshots). No draws, so the rest stays as it was.
+            day.Add(Diaper(wake1.AddMinutes(30), DiaperContents.Wet));
+            day.Add(Diaper(morning.AddMinutes(5), DiaperContents.Wet));
 
             // Daytime: feed, play, nap, about every three hours; a diaper with most feeds.
             var t = morning.AddMinutes(10);
@@ -114,6 +118,7 @@ public sealed class SeedDemoLog(EnsureProvisionalHousehold households, IHousehol
             var evening = t > At(date, 18) ? t.AddMinutes(30) : At(date, 18.5);
             day.Add(new Planned(evening, BottleFeed.Of(Milk.ExpressedBreastMilk, Volume.FromMillilitres(70 + (random.Next(4) * 10)).Value).Value, PointOf(evening)));
             day.Add(Diaper(evening.AddMinutes(40), DiaperContents.Wet));
+            day.Add(Diaper(evening.AddMinutes(110), DiaperContents.Wet));
 
             // Vitamin D every morning, and the check-ups' measurements for the growth chart (a visit with each).
             if (back <= 13)

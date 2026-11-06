@@ -6,139 +6,85 @@ import { C, Caption, Fonts, Glass, Icon, ICON, Mochi, Phone, useSpring, Wash, Wo
 export const BEAT = 15;
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
 
-// 1. Hook: the five things it logs, one per beat, then they collapse into the icon's square.
-const HOOK = [
-  { word: 'Feeds.', k: C.feed, icon: ICON.feed },
-  { word: 'Sleep.', k: C.sleep, icon: ICON.sleep },
-  { word: 'Diapers.', k: C.diaper, icon: ICON.diaper },
-  { word: 'Pumping.', k: C.pump, icon: ICON.pump },
-  { word: 'Growth.', k: C.growth, icon: ICON.growth },
-];
+// Where "Start right" sits in s1-today.png (1080 × 2424): Next up's one-tap button for the next breast side.
+const START = { x: 184, y: 1616, w: 308, h: 98 };
 
+// 1. Hook (0–3 s): a real screen from the first frame and a parent's question, answered by the app (marketing review,
+// 2026-11-06): "Left or right?", then "Mochi remembers." and a ring on Next up's "Start right".
 const Hook: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const collapse = interpolate(frame, [88, 108], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
-  const square = spring({ frame: frame - 100, fps, config: { damping: 11, stiffness: 160 } });
-  return (
-    <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
-      {HOOK.map((h, i) => {
-        const s = spring({ frame: frame - i * BEAT, fps, config: { damping: 11, mass: 0.6, stiffness: 170 } });
-        const y = (i - 2) * 200;
-        return (
-          <div
-            key={h.word}
-            style={{
-              position: 'absolute',
-              top: 960 - 90 + y * (1 - collapse),
-              left: 150,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 44,
-              opacity: s * (1 - collapse),
-              transform: `translateX(${(1 - s) * -160}px) scale(${(0.6 + 0.4 * s) * (1 - collapse * 0.7)})`,
-              transformOrigin: '50% 50%',
-            }}
-          >
-            <div style={{ width: 172, height: 172, borderRadius: 48, background: h.k.tint, display: 'grid', placeItems: 'center' }}>
-              <Icon d={h.icon} color={h.k.ink} size={96} stroke={2} />
-            </div>
-            <div style={{ fontSize: 150, fontWeight: 600, letterSpacing: -5, color: h.k.ink }}>{h.word}</div>
-          </div>
-        );
-      })}
-      <div
-        style={{
-          position: 'absolute',
-          width: 460,
-          height: 460,
-          borderRadius: 230,
-          background: C.accent,
-          transform: `scale(${square})`,
-          boxShadow: '0 40px 100px rgba(63,107,74,0.35)',
-        }}
-      />
-    </AbsoluteFill>
-  );
-};
-
-// 2. The name: the square is Mochi; it lands, flops its ears, and the wordmark writes itself.
-const Name: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const pop = spring({ frame, fps, config: { damping: 8, stiffness: 180, mass: 0.7 } });
-  const squash = Math.max(0, Math.sin((frame - 4) / 3)) * Math.exp(-frame / 10) * 2;
-  const sleep = interpolate(frame, [42, 50, 64, 70], [0, 1, 1, 0], clamp);
-  const tag = spring({ frame: frame - 60, fps, config: { damping: 14 } });
-  const exit = interpolate(frame, [112, 120], [0, 1], clamp);
-  return (
-    <AbsoluteFill style={{ alignItems: 'center', opacity: 1 - exit, transform: `translateY(${-exit * 200}px)` }}>
-      <div style={{ position: 'absolute', top: 960 - 230 - 160, transform: `scale(${0.75 + 0.25 * pop})` }}>
-        <Mochi size={460} sleep={sleep} squash={Math.min(1, squash)} />
-      </div>
-      <div style={{ position: 'absolute', top: 1090 }}>
-        <Wordmark
-          height={250}
-          letter={(i) => spring({ frame: frame - 18 - i * 3, fps, config: { damping: 10, stiffness: 200 } })}
-          dot={spring({ frame: frame - 34, fps, config: { damping: 9, stiffness: 190 } })}
-        />
-      </div>
-      <div
-        style={{
-          position: 'absolute',
-          top: 1400,
-          fontSize: 58,
-          fontWeight: 500,
-          color: C.ink2,
-          letterSpacing: -1,
-          opacity: tag,
-          transform: `translateY(${(1 - tag) * 40}px)`,
-        }}
-      >
-        Baby tracker that learns your baby.
-      </div>
-    </AbsoluteFill>
-  );
-};
-
-// 3. One tap: Today rises, a tap on Feed, the timer starts.
-const OneTap: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const rise = spring({ frame, fps, config: { damping: 15, stiffness: 120 } });
-  const exit = interpolate(frame, [112, 122], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
-  const tap = interpolate(frame, [40, 58], [0, 1], clamp);
-  const chip = spring({ frame: frame - 50, fps, config: { damping: 11 } });
-  const seconds = 88 + Math.max(0, Math.floor((frame - 50) / 30));
+  const rise = spring({ frame, fps, config: { damping: 15, stiffness: 140 } });
+  const q = spring({ frame: frame - BEAT, fps, config: { damping: 11, stiffness: 170, mass: 0.6 } });
+  const a = spring({ frame: frame - 2 * BEAT, fps, config: { damping: 11, stiffness: 170, mass: 0.6 } });
+  const ring = spring({ frame: frame - 3 * BEAT, fps, config: { damping: 9, stiffness: 180 } });
   const width = 620;
-  const screenH = (width * 2424) / 1080;
+  const k = width / 1080;
   return (
     <AbsoluteFill>
-      <Caption kicker="Breastfeeding timer" text="One tap starts a feed, a nap or pumping." from={4} />
-      <div style={{ position: 'absolute', left: (1080 - width - 36) / 2, top: 600 + (1 - rise) * 1400, transform: `translateX(${-exit * 1300}px) rotate(${-exit * 8}deg)` }}>
+      <div style={{ position: 'absolute', top: 150, left: 70, right: 70 }}>
+        <div style={{ fontSize: 118, fontWeight: 600, letterSpacing: -4, lineHeight: 1.02, color: C.ink, opacity: q, transform: `translateY(${(1 - q) * 70}px)` }}>Left or right?</div>
+        <div style={{ fontSize: 118, fontWeight: 600, letterSpacing: -4, lineHeight: 1.02, color: C.accent, opacity: a, transform: `translateY(${(1 - a) * 70}px)` }}>Mochi remembers.</div>
+      </div>
+      <div style={{ position: 'absolute', left: (1080 - width - 36) / 2, top: 520 + (1 - rise) * 1300 }}>
         <Phone src="s1-today.png" width={width}>
           <div
             style={{
               position: 'absolute',
-              left: (175 / 1080) * width - 90,
-              top: (1552 / 2424) * screenH - 90,
+              left: START.x * k - 10,
+              top: START.y * k - 10,
+              width: START.w * k + 20,
+              height: START.h * k + 20,
+              borderRadius: 40,
+              border: `5px solid ${C.feed.mark}`,
+              boxShadow: '0 0 0 9999px rgba(38,42,34,0.18)',
+              opacity: ring,
+              transform: `scale(${1.4 - 0.4 * ring})`,
+            }}
+          />
+        </Phone>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+// 2. Breastfeeding timer (3–7 s): the tap on "Start right", and the timer on the right side runs.
+const OneTap: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const exit = interpolate(frame, [110, 120], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
+  const tap = interpolate(frame, [12, 30], [0, 1], clamp);
+  const chip = spring({ frame: frame - 22, fps, config: { damping: 11 } });
+  const seconds = Math.max(0, Math.floor((frame - 22) / 30));
+  const width = 620;
+  const k = width / 1080;
+  return (
+    <AbsoluteFill>
+      <Caption kicker="Breastfeeding timer" text="One tap. Left or right." from={2} />
+      <div style={{ position: 'absolute', left: (1080 - width - 36) / 2, top: 520, transform: `translateX(${-exit * 1300}px) rotate(${-exit * 8}deg)` }}>
+        <Phone src="s1-today.png" width={width}>
+          <div
+            style={{
+              position: 'absolute',
+              left: (START.x + START.w / 2) * k - 90,
+              top: (START.y + START.h / 2) * k - 90,
               width: 180,
               height: 180,
               borderRadius: 90,
-              background: 'rgba(63,107,74,0.35)',
+              background: 'rgba(204,111,59,0.35)',
               transform: `scale(${tap * 2.2})`,
               opacity: tap > 0 ? 1 - tap : 0,
             }}
           />
         </Phone>
       </div>
-      <div style={{ position: 'absolute', right: 60, top: 1240, transform: `scale(${chip}) translateX(${-exit * 1300}px)`, transformOrigin: '100% 50%' }}>
+      <div style={{ position: 'absolute', right: 60, top: 1180, transform: `scale(${chip}) translateX(${-exit * 1300}px)`, transformOrigin: '100% 50%' }}>
         <Glass style={{ padding: '30px 40px', display: 'flex', alignItems: 'center', gap: 26 }}>
           <div style={{ width: 22, height: 22, borderRadius: 11, background: C.feed.mark }} />
           <div>
             <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: 3, color: C.ink2 }}>FEEDING · RIGHT</div>
-            <div style={{ fontSize: 84, fontWeight: 300, color: C.ink, fontVariantNumeric: 'tabular-nums' }}>
-              {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')}
+            <div style={{ fontSize: 84, fontWeight: 500, color: C.ink, fontVariantNumeric: 'tabular-nums' }}>
+              {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')} min
             </div>
           </div>
         </Glass>
@@ -157,7 +103,7 @@ const Day: React.FC = () => {
   const width = 620;
   return (
     <AbsoluteFill>
-      <Caption kicker="Baby log" text="Every feed, nap and diaper on one timeline." from={2} />
+      <Caption kicker="Baby log" text="Feeds, sleep, diapers, pumping. One timeline." from={2} />
       <div
         style={{
           position: 'absolute',
@@ -195,7 +141,7 @@ const Pattern: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const card = spring({ frame, fps, config: { damping: 15 } });
-  const exit = interpolate(frame, [112, 122], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
+  const exit = interpolate(frame, [140, 150], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
   const chartTop = 110;
   const chartH = 820;
   const left = 150;
@@ -206,7 +152,7 @@ const Pattern: React.FC = () => {
   const line = spring({ frame: frame - 74, fps, config: { damping: 13 } });
   return (
     <AbsoluteFill>
-      <Caption kicker="Sleep pattern" text="Mochi learns your baby’s rhythm." from={2} />
+      <Caption kicker="Sleep pattern" text="Her sleep pattern, from your own log." from={2} />
       <div style={{ position: 'absolute', left: 70, top: 560, transform: `translateY(${(1 - card) * 900 - exit * 1600}px)` }}>
         <Glass style={{ width: 940, height: 1060, position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', left: 40, top: 34, fontSize: 34, fontWeight: 600, color: C.ink }}>Last 14 days · noon to noon</div>
@@ -283,12 +229,12 @@ const Pattern: React.FC = () => {
   );
 };
 
-// 5b. Then it tells you what comes next, one card per beat.
+// 5b. Next up, as the app calls it: what comes next, one card per beat. Only what the demo baby's screens show; the
+// next nap is Premium and says so (marketing review, 2026-11-06).
 const CARDS = [
-  { k: C.sleep, icon: ICON.sleep, label: 'Next nap', value: 'likely 1:10 – 1:35 PM' },
-  { k: C.sleep, icon: ICON.sleep, label: 'Back to sleep', value: 'likely by 3:40 AM' },
-  { k: C.feed, icon: ICON.feed, label: 'Next feed', value: 'around 7:10 AM' },
-  { k: C.growth, icon: ICON.sparkle, label: 'This week', value: 'Moving from 4 naps to 3' },
+  { k: C.feed, icon: ICON.feed, label: 'Next side', value: 'right', premium: false },
+  { k: C.feed, icon: ICON.feed, label: 'Next feed', value: 'likely 12:37 – 1:07 PM', premium: false },
+  { k: C.sleep, icon: ICON.sleep, label: 'Next nap', value: 'likely 1:10 – 1:35 PM', premium: true },
 ];
 
 const Insights: React.FC = () => {
@@ -298,17 +244,22 @@ const Insights: React.FC = () => {
   const peek = spring({ frame: frame - 70, fps, config: { damping: 10 } });
   return (
     <AbsoluteFill style={{ opacity: 1 - exit }}>
-      <Caption kicker="Smart insights" text="Then it tells you what comes next." from={0} />
+      <Caption kicker="Next up" text="Worked out on your phone." from={0} />
       {CARDS.map((c, i) => {
-        const s = spring({ frame: frame - i * 30, fps, config: { damping: 10, stiffness: 170, mass: 0.6 } });
+        const s = spring({ frame: frame - BEAT * 2 - i * 30, fps, config: { damping: 10, stiffness: 170, mass: 0.6 } });
         return (
-          <div key={i} style={{ position: 'absolute', left: 70, right: 70, top: 600 + i * 250, transform: `translateX(${(1 - s) * (i % 2 ? 1100 : -1100)}px) rotate(${(1 - s) * (i % 2 ? 6 : -6)}deg)` }}>
+          <div key={i} style={{ position: 'absolute', left: 70, right: 70, top: 620 + i * 270, transform: `translateX(${(1 - s) * (i % 2 ? 1100 : -1100)}px) rotate(${(1 - s) * (i % 2 ? 6 : -6)}deg)` }}>
             <Glass style={{ padding: '34px 40px', display: 'flex', alignItems: 'center', gap: 36 }}>
               <div style={{ width: 130, height: 130, borderRadius: 38, background: c.k.tint, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
                 <Icon d={c.icon} color={c.k.ink} size={72} />
               </div>
               <div>
-                <div style={{ fontSize: 30, fontWeight: 700, letterSpacing: 3, color: C.ink2, textTransform: 'uppercase' }}>{c.label}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <div style={{ fontSize: 30, fontWeight: 700, letterSpacing: 3, color: C.ink2, textTransform: 'uppercase' }}>{c.label}</div>
+                  {c.premium && (
+                    <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: 2, color: '#6B4E0A', background: '#F6E2A8', borderRadius: 10, padding: '4px 12px' }}>PREMIUM</div>
+                  )}
+                </div>
                 <div style={{ fontSize: 60, fontWeight: 600, letterSpacing: -1.5, color: c.k.ink }}>{c.value}</div>
               </div>
             </Glass>
@@ -327,11 +278,11 @@ const Night: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const rise = spring({ frame: frame - 6, fps, config: { damping: 15, stiffness: 120 } });
-  const exit = interpolate(frame, [82, 90], [0, 1], clamp);
+  const exit = interpolate(frame, [112, 120], [0, 1], clamp);
   const width = 580;
   return (
     <AbsoluteFill style={{ opacity: 1 - exit }}>
-      <Caption kicker="Night colours" text="Big buttons for one hand, in the dark." from={4} dark />
+      <Caption kicker="Night mode" text="Night colours. Big buttons." from={4} dark />
       <div style={{ position: 'absolute', left: (1080 - width - 32) / 2, top: 620 + (1 - rise) * 1400 }}>
         <Phone src="s7-night.png" width={width} />
       </div>
@@ -342,15 +293,13 @@ const Night: React.FC = () => {
   );
 };
 
-// 7. Together: two phones, two parents, one log; and in seven languages.
-const LANGS = ['English', 'Polski', 'Deutsch', 'Français', 'Español', 'Italiano', 'Nederlands'];
-
+// 7. Together: two phones, two parents, one log.
 const Together: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const a = spring({ frame: frame - 4, fps, config: { damping: 13 } });
   const b = spring({ frame: frame - 12, fps, config: { damping: 13 } });
-  const exit = interpolate(frame, [82, 90], [0, 1], clamp);
+  const exit = interpolate(frame, [112, 120], [0, 1], clamp);
   const width = 430;
   const parent = (name: string, s: number, color: string) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 22, opacity: s, transform: `scale(${s})` }}>
@@ -369,15 +318,6 @@ const Together: React.FC = () => {
         {parent('Tom', b, C.pump.mark)}
         <Phone src="s1-today.png" width={width} />
       </div>
-      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 70, overflow: 'hidden' }}>
-        <div style={{ display: 'flex', gap: 22, transform: `translateX(${60 - frame * 9}px)`, whiteSpace: 'nowrap' }}>
-          {[...LANGS, ...LANGS].map((l, i) => (
-            <Glass key={i} style={{ padding: '18px 34px', borderRadius: 999, fontSize: 40, fontWeight: 600, color: C.accent }}>
-              {l}
-            </Glass>
-          ))}
-        </div>
-      </div>
     </AbsoluteFill>
   );
 };
@@ -388,15 +328,20 @@ const End: React.FC = () => {
   const { fps } = useVideoConfig();
   const pop = spring({ frame, fps, config: { damping: 9, stiffness: 170 } });
   const word = spring({ frame: frame - 6, fps, config: { damping: 13 } });
-  const sub = spring({ frame: frame - 12, fps, config: { damping: 14 } });
-  const badge = spring({ frame: frame - 18, fps, config: { damping: 12 } });
+  const sub = spring({ frame: frame - 36, fps, config: { damping: 14 } });
+  const badge = spring({ frame: frame - 48, fps, config: { damping: 12 } });
   return (
     <AbsoluteFill style={{ alignItems: 'center' }}>
       <div style={{ position: 'absolute', top: 470, transform: `scale(${pop}) rotate(${(1 - pop) * -20}deg)` }}>
         <Mochi size={360} sleep={0} />
       </div>
       <div style={{ position: 'absolute', top: 850, opacity: word, transform: `translateY(${(1 - word) * 60}px)` }}>
-        <Wordmark height={240} />
+        {/* The bunny drops onto the "i" a beat after the letters: the brand moment. */}
+        <Wordmark
+          height={240}
+          letter={(i) => spring({ frame: frame - 6 - i * 2, fps, config: { damping: 12, stiffness: 200 } })}
+          dot={spring({ frame: frame - 24, fps, config: { damping: 8, stiffness: 190 } })}
+        />
       </div>
       <div style={{ position: 'absolute', top: 1120, fontSize: 60, fontWeight: 500, color: C.ink2, opacity: sub, transform: `translateY(${(1 - sub) * 40}px)` }}>
         Baby Tracker &amp; Feeding
@@ -408,59 +353,46 @@ const End: React.FC = () => {
           </div>
         ))}
       </div>
-      <div
-        style={{
-          position: 'absolute',
-          top: 1490,
-          background: C.ink,
-          color: '#FAFAF5',
-          borderRadius: 999,
-          padding: '34px 70px',
-          fontSize: 50,
-          fontWeight: 600,
-          transform: `scale(${badge})`,
-        }}
-      >
-        Get it on Google Play
+      {/* A plain line, not a home-made badge: Google's own artwork goes here if it is ever added. */}
+      <div style={{ position: 'absolute', top: 1500, fontSize: 56, fontWeight: 600, color: C.accent, opacity: badge, transform: `translateY(${(1 - badge) * 30}px)` }}>
+        On Google Play
       </div>
     </AbsoluteFill>
   );
 };
 
+/** The cuts, in frames (a beat is 15): 3 s hook, then 4, 4, 5, 4, 4, 4 and a 4 s end card. */
 export const Launch: React.FC = () => {
   const frame = useCurrentFrame();
   // The dark wash: in for the night scene, out again for the family.
-  const night = interpolate(frame, [714, 730, 804, 818], [0, 1, 1, 0], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  const night = interpolate(frame, [594, 610, 714, 728], [0, 1, 1, 0], { ...clamp, easing: Easing.inOut(Easing.cubic) });
   return (
     <AbsoluteFill style={{ fontFamily: 'Figtree, sans-serif', overflow: 'hidden' }}>
       <Fonts />
       <Audio src={staticFile('music.wav')} />
       <Wash night={night} />
-      <Sequence from={0} durationInFrames={120}>
+      <Sequence from={0} durationInFrames={90}>
         <Hook />
       </Sequence>
-      <Sequence from={120} durationInFrames={120}>
-        <Name />
-      </Sequence>
-      <Sequence from={240} durationInFrames={122}>
+      <Sequence from={90} durationInFrames={120}>
         <OneTap />
       </Sequence>
-      <Sequence from={360} durationInFrames={120}>
+      <Sequence from={210} durationInFrames={120}>
         <Day />
       </Sequence>
-      <Sequence from={480} durationInFrames={122}>
+      <Sequence from={330} durationInFrames={150}>
         <Pattern />
       </Sequence>
-      <Sequence from={600} durationInFrames={120}>
+      <Sequence from={480} durationInFrames={120}>
         <Insights />
       </Sequence>
-      <Sequence from={720} durationInFrames={90}>
+      <Sequence from={600} durationInFrames={120}>
         <Night />
       </Sequence>
-      <Sequence from={810} durationInFrames={90}>
+      <Sequence from={720} durationInFrames={120}>
         <Together />
       </Sequence>
-      <Sequence from={900} durationInFrames={60}>
+      <Sequence from={840} durationInFrames={120}>
         <End />
       </Sequence>
     </AbsoluteFill>

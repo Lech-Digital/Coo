@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Store images from the demo build's screenshots (store-assets/PLAN.md §3): captioned 1080x1920 phone images, the
 1024x500 feature graphic and the 512 px icon, rendered from HTML by headless Chrome. Raw shots: store-assets/raw/
-(made with -p:CooDemo=true on the coo-review emulator, 2026-11-05). Run: python3 store-assets/_src/compose.py
+(made with -p:CooDemo=true on the coo-review emulator, 2026-11-06). Run: python3 store-assets/_src/compose.py
 (add `brand` to render only the icon and the feature graphic)."""
 import base64, os, subprocess, tempfile
 

@@ -109,18 +109,19 @@ for b in range(16):
     for e in range(8):
         t = t_bar + e * BEAT / 2
         note = chord[arp[e] % 4] + 12
-        if b < 15:
+        if b < 14:
             add(t, pluck(hz(note)), 0.16 if b >= 1 else 0.11, pan=0.25 if e % 2 else -0.25)
 
-# Pops on the hook words and the learning cards (seconds).
-for t in [0, 0.5, 1.0, 1.5, 2.0] + [20.0, 21.0, 22.0, 23.0]:
+# The hook's question, its answer and the ring (0.5, 1, 1.5 s); the three Next up cards (17, 18, 19 s).
+for t in [0.5, 1.0, 1.5] + [17.0, 18.0, 19.0]:
     add(t, pop(), 0.22)
-# Riser into the end card, then the last chord rings out.
-add(28.0, riser(2.0), 0.5)
-add(30.0, kick(0.6), 0.7)
-add(30.0, pad([hz(m) for m in [53, 60, 64, 69, 72]], 2.0), 0.18)
+# Riser into the end card at 28 s, then the last chord rings out over its four seconds.
+add(26.0, riser(2.0), 0.5)
+add(28.0, kick(0.6), 0.7)
+add(28.0, pad([hz(m) for m in [53, 60, 64, 69, 72]], 4.0), 0.18)
 for m in [65, 69, 72, 76]:
-    add(30.0, pluck(hz(m), 1.8), 0.14)
+    add(28.0, pluck(hz(m), 3.0), 0.14)
+add(28.8, pop(), 0.18)  # the bunny lands on the "i"
 
 peak = max(max(abs(x) for x in L), max(abs(x) for x in R))
 fade = int(0.4 * SR)

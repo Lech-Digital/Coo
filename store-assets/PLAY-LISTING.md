@@ -18,13 +18,14 @@ Mochi: Baby Tracker & Feeding
 Baby tracker: breastfeeding timer, bottle, sleep, diapers, pumping, growth
 ```
 
-### Full description — 2,713 / 4,000
+### Full description — 3,001 / 4,000
 
 ```
 Mochi is a baby tracker for newborns and babies. Log breastfeeding, bottle feeding, sleep, diapers and pumping, follow growth on the WHO charts, and share one baby log with your partner, a nanny and the grandparents.
 
 FEEDING TRACKER
 • Breastfeeding timer for left and right, with side switching and pauses. Mochi shows which side to offer next.
+• When the next feed is likely, learned from your baby’s own feeds.
 • Bottle feeding in ml or oz: formula, breast milk or both, with one-tap amounts.
 • Pumping log with left, right and total yield.
 • Solid food: what your baby ate, how much, and any reaction.
@@ -33,6 +34,8 @@ BABY SLEEP TRACKER
 • Naps and night sleep with a sleep timer. A sleep past midnight stays one sleep.
 • Wake windows for your baby’s age, and personal nap times learned from your baby’s own sleep (Premium).
 • A nap reminder before the next sleep window.
+• A sleep pattern: the last days side by side, noon to noon, and when the night usually starts.
+• At night, when your baby is likely back asleep, from her own wakings.
 
 DIAPERS, BATHS AND MILESTONES
 • Wet and dirty diapers with daily counts.
@@ -48,6 +51,7 @@ STATS
 • An average day over the last 7, 14 or 30 days: milk per day and per bottle, feeds, sleep and diapers.
 • Daily, weekly and monthly trends.
 • A written summary of the week.
+• This week on Today: what changed since last week.
 
 LOG FASTER
 • Home-screen widgets for left, right, wet, dirty, sleep and pump.
@@ -91,13 +95,14 @@ Mochi: Dziennik maluszka i sen
 Dziennik dziecka: karmienie piersią, butelka, sen, pieluchy, laktator, wzrost
 ```
 
-### Full description — 2,840 / 4,000
+### Full description — 3,171 / 4,000
 
 ```
 Mochi to dziennik dziecka dla noworodków i niemowląt. Zapisuj karmienie piersią, karmienie butelką, sen, pieluchy i odciąganie mleka, śledź wzrost na siatkach centylowych WHO i prowadź jeden wspólny dziennik z partnerem, nianią i dziadkami.
 
 KARMIENIE
 • Stoper karmienia piersią dla lewej i prawej strony, ze zmianą strony i pauzami. Mochi pokazuje, którą pierś podać teraz.
+• Kiedy prawdopodobnie będzie następne karmienie, na podstawie karmień Twojego dziecka.
 • Karmienie butelką w ml lub oz: mleko modyfikowane, mleko mamy lub oba, z ilościami na jedno dotknięcie.
 • Dziennik laktatora: lewa, prawa i razem.
 • Rozszerzanie diety: co dziecko zjadło, ile i jak zareagowało.
@@ -106,6 +111,8 @@ SEN DZIECKA
 • Drzemki i sen nocny ze stoperem snu. Sen po północy zostaje jednym snem.
 • Okna aktywności dla wieku dziecka i własne pory drzemek wyliczone ze snu Twojego dziecka (Premium).
 • Przypomnienie przed kolejnym oknem snu.
+• Rytm snu: ostatnie dni obok siebie, od południa do południa, i kiedy zwykle zaczyna się noc.
+• W nocy: kiedy dziecko prawdopodobnie znów zaśnie, na podstawie jego pobudek.
 
 PIELUCHY, KĄPIELE I KAMIENIE MILOWE
 • Mokre i brudne pieluchy z dziennym licznikiem.
@@ -121,6 +128,7 @@ STATYSTYKI
 • Przeciętny dzień z ostatnich 7, 14 lub 30 dni: mleko dziennie i na butelkę, karmienia, sen i pieluchy.
 • Trendy dzienne, tygodniowe i miesięczne.
 • Opisowe podsumowanie tygodnia.
+• Ten tydzień na ekranie Dziś: co się zmieniło od zeszłego tygodnia.
 
 SZYBSZE ZAPISYWANIE
 • Widżety na ekranie głównym: lewa, prawa, mokra, brudna, sen i laktator.
@@ -164,13 +172,14 @@ Mochi: Baby Tracker & Stillen
 Baby Tracker: Stillen, Fläschchen, Schlaf, Windeln, Abpumpen und Wachstum
 ```
 
-### Full description — 2,974 / 4,000
+### Full description — 3,330 / 4,000
 
 ```
 Mochi ist ein Baby Tracker für Neugeborene und Babys. Trag Stillen, Fläschchen, Schlaf, Windeln und Abpumpen ein, verfolge das Wachstum auf den WHO-Kurven und teile ein Baby-Tagebuch mit Partner, Nanny und Großeltern.
 
 STILLEN UND FÜTTERN
 • Still-Timer für links und rechts, mit Seitenwechsel und Pausen. Mochi zeigt, welche Seite als Nächstes dran ist.
+• Wann die nächste Mahlzeit wahrscheinlich ist, gelernt aus den Mahlzeiten deines Babys.
 • Fläschchen in ml oder oz: Pre-Nahrung, Muttermilch oder beides, mit Mengen per Tipp.
 • Abpump-Protokoll mit links, rechts und gesamt.
 • Beikost: was dein Baby gegessen hat, wie viel und wie es vertragen wurde.
@@ -179,6 +188,8 @@ BABYSCHLAF
 • Nickerchen und Nachtschlaf mit Schlaf-Timer. Ein Schlaf über Mitternacht bleibt ein Schlaf.
 • Wachfenster für das Alter deines Babys und persönliche Schlafzeiten, gelernt aus dem Schlaf deines Babys (Premium).
 • Eine Erinnerung vor dem nächsten Schlaffenster.
+• Ein Schlafmuster: die letzten Tage nebeneinander, von Mittag bis Mittag, und wann die Nacht meist beginnt.
+• Nachts: wann dein Baby wahrscheinlich wieder einschläft, aus seinem eigenen Aufwachen.
 
 WINDELN, BADEN UND MEILENSTEINE
 • Nasse und volle Windeln mit Tageszähler.
@@ -194,6 +205,7 @@ STATISTIKEN
 • Ein Durchschnittstag der letzten 7, 14 oder 30 Tage: Milch pro Tag und pro Fläschchen, Mahlzeiten, Schlaf und Windeln.
 • Verläufe nach Tagen, Wochen und Monaten.
 • Eine geschriebene Zusammenfassung der Woche.
+• Diese Woche auf „Heute“: was sich seit letzter Woche geändert hat.
 
 SCHNELLER EINTRAGEN
 • Widgets auf dem Startbildschirm: links, rechts, nass, voll, Schlaf und Abpumpen.
@@ -237,13 +249,14 @@ Mochi: Suivi bébé, allaitement
 Suivi bébé : allaitement, biberon, sommeil, couches, tire-lait et croissance
 ```
 
-### Full description — 3,161 / 4,000
+### Full description — 3,509 / 4,000
 
 ```
 Mochi est une application de suivi bébé pour les nouveau-nés et les bébés. Notez l’allaitement, les biberons, le sommeil, les couches et le tire-lait, suivez la croissance sur les courbes de l’OMS et partagez un seul journal avec votre partenaire, la nounou et les grands-parents.
 
 SUIVI DE L’ALLAITEMENT ET DES BIBERONS
 • Minuteur d’allaitement gauche et droit, avec changement de côté et pauses. Mochi indique le sein à proposer.
+• Quand la prochaine tétée est probable, d’après les repas de votre bébé.
 • Biberons en ml ou en oz : lait infantile, lait maternel ou les deux, avec des quantités en un geste.
 • Journal du tire-lait : gauche, droit et total.
 • Diversification : ce que bébé a mangé, combien, et les réactions.
@@ -252,6 +265,8 @@ SOMMEIL DE BÉBÉ
 • Siestes et nuits avec un minuteur de sommeil. Un sommeil qui passe minuit reste un seul sommeil.
 • Fenêtres d’éveil selon l’âge, et heures de sieste propres à votre bébé, apprises de son sommeil (Premium).
 • Un rappel avant la prochaine fenêtre de sommeil.
+• Un rythme du sommeil : les derniers jours côte à côte, de midi à midi, et l’heure habituelle du début de la nuit.
+• La nuit : quand bébé va sans doute se rendormir, d’après ses propres réveils.
 
 COUCHES, BAINS ET ÉTAPES
 • Couches mouillées et sales, avec le total du jour.
@@ -267,6 +282,7 @@ STATISTIQUES
 • Une journée moyenne sur 7, 14 ou 30 jours : lait par jour et par biberon, repas, sommeil et couches.
 • Tendances par jour, semaine et mois.
 • Un résumé écrit de la semaine.
+• Cette semaine sur Aujourd’hui : ce qui a changé depuis la semaine dernière.
 
 NOTER PLUS VITE
 • Widgets sur l’écran d’accueil : gauche, droit, mouillée, sale, sommeil et tire-lait.
@@ -310,13 +326,14 @@ Mochi: Registro bebé y sueño
 Registro de bebé: lactancia, biberón, sueño, pañales, extractor y crecimiento
 ```
 
-### Full description — 3,031 / 4,000
+### Full description — 3,361 / 4,000
 
 ```
 Mochi es un registro de bebé para recién nacidos y bebés. Anota la lactancia, los biberones, el sueño, los pañales y la extracción de leche, sigue el crecimiento en las curvas de la OMS y comparte un único registro con tu pareja, la niñera y los abuelos.
 
 LACTANCIA Y BIBERÓN
 • Temporizador de lactancia para el pecho izquierdo y derecho, con cambio de lado y pausas. Mochi indica qué pecho toca.
+• Cuándo es probable la próxima toma, según las tomas de tu bebé.
 • Biberones en ml u oz: fórmula, leche materna o ambas, con cantidades de un toque.
 • Registro del extractor: izquierdo, derecho y total.
 • Alimentación complementaria: qué comió tu bebé, cuánto y cómo le sentó.
@@ -325,6 +342,8 @@ SUEÑO DEL BEBÉ
 • Siestas y sueño nocturno con temporizador. Un sueño que pasa de medianoche sigue siendo uno.
 • Ventanas de vigilia para la edad de tu bebé, y horas de siesta propias aprendidas de su sueño (Premium).
 • Un aviso antes de la próxima ventana de sueño.
+• Un patrón de sueño: los últimos días lado a lado, de mediodía a mediodía, y cuándo suele empezar la noche.
+• De noche: cuándo es probable que tu bebé vuelva a dormirse, según sus propios despertares.
 
 PAÑALES, BAÑOS E HITOS
 • Pañales mojados y sucios con el total del día.
@@ -340,6 +359,7 @@ ESTADÍSTICAS
 • Un día medio de los últimos 7, 14 o 30 días: leche al día y por biberón, tomas, sueño y pañales.
 • Tendencias por días, semanas y meses.
 • Un resumen escrito de la semana.
+• Esta semana en Hoy: qué ha cambiado desde la semana pasada.
 
 REGISTRA MÁS RÁPIDO
 • Widgets en la pantalla de inicio: izquierdo, derecho, mojado, sucio, sueño y extractor.
@@ -383,13 +403,14 @@ Mochi: Diario del bebè e sonno
 Diario del bebè: allattamento, biberon, sonno, pannolini, tiralatte, crescita
 ```
 
-### Full description — 3,012 / 4,000
+### Full description — 3,364 / 4,000
 
 ```
 Mochi è un diario del bebè per neonati e bambini piccoli. Registra allattamento, biberon, sonno, pannolini e tiralatte, segui la crescita sulle curve dell’OMS e condividi un unico diario con il partner, la tata e i nonni.
 
 ALLATTAMENTO E BIBERON
 • Timer di allattamento per seno sinistro e destro, con cambio di lato e pause. Mochi indica quale seno offrire.
+• Quando è probabile la prossima poppata, dalle poppate del tuo bambino.
 • Biberon in ml o oz: latte artificiale, latte materno o entrambi, con quantità in un tocco.
 • Registro del tiralatte: sinistro, destro e totale.
 • Svezzamento: cosa ha mangiato il bambino, quanto e come è andata.
@@ -398,6 +419,8 @@ SONNO DEL BAMBINO
 • Sonnellini e sonno notturno con timer. Un sonno oltre la mezzanotte resta un solo sonno.
 • Finestre di veglia per l’età del bambino e orari dei sonnellini imparati dal suo sonno (Premium).
 • Un promemoria prima della prossima finestra di sonno.
+• L’andamento del sonno: gli ultimi giorni affiancati, da mezzogiorno a mezzogiorno, e quando di solito inizia la notte.
+• Di notte: quando probabilmente il bambino si riaddormenterà, dai suoi risvegli.
 
 PANNOLINI, BAGNETTO E TRAGUARDI
 • Pannolini bagnati e sporchi con il totale del giorno.
@@ -413,6 +436,7 @@ STATISTICHE
 • Una giornata media degli ultimi 7, 14 o 30 giorni: latte al giorno e per biberon, poppate, sonno e pannolini.
 • Andamento per giorni, settimane e mesi.
 • Un riassunto scritto della settimana.
+• Questa settimana in Oggi: cosa è cambiato rispetto alla settimana scorsa.
 
 REGISTRA PIÙ IN FRETTA
 • Widget nella schermata Home: sinistro, destro, bagnato, sporco, sonno e tiralatte.
@@ -456,13 +480,14 @@ Mochi: Baby Tracker & Voeding
 Babytracker: borstvoeding, fles, slaap, luiers, kolven en groei bijhouden
 ```
 
-### Full description — 2,878 / 4,000
+### Full description — 3,219 / 4,000
 
 ```
 Mochi is een babytracker voor pasgeborenen en baby’s. Houd borstvoeding, flesvoeding, slaap, luiers en kolven bij, volg de groei op de WHO-groeicurves en deel één babylogboek met je partner, een oppas en de grootouders.
 
 BORSTVOEDING EN FLESVOEDING
 • Borstvoedingstimer voor links en rechts, met wisselen en pauzes. Mochi laat zien welke kant nu aan de beurt is.
+• Wanneer de volgende voeding waarschijnlijk is, uit de voedingen van je baby.
 • Flesvoeding in ml of oz: kunstvoeding, moedermelk of allebei, met hoeveelheden in één tik.
 • Kolflogboek: links, rechts en totaal.
 • Vaste voeding: wat je baby at, hoeveel en hoe het ging.
@@ -471,6 +496,8 @@ BABYSLAAP
 • Dutjes en nachtslaap met een slaaptimer. Slaap over middernacht blijft één slaap.
 • Wakkertijden voor de leeftijd van je baby, en eigen dutjestijden geleerd van de slaap van je baby (Premium).
 • Een herinnering vóór het volgende slaapvenster.
+• Een slaappatroon: de laatste dagen naast elkaar, van middag tot middag, en wanneer de nacht meestal begint.
+• ’s Nachts: wanneer je baby waarschijnlijk weer slaapt, uit de eigen keren wakker worden.
 
 LUIERS, BADJES EN MIJLPALEN
 • Natte en vieze luiers met het dagtotaal.
@@ -486,6 +513,7 @@ STATISTIEKEN
 • Een gemiddelde dag over de laatste 7, 14 of 30 dagen: melk per dag en per fles, voedingen, slaap en luiers.
 • Trends per dag, week en maand.
 • Een geschreven samenvatting van de week.
+• Deze week op Vandaag: wat er sinds vorige week veranderde.
 
 SNELLER LOGGEN
 • Widgets op het startscherm: links, rechts, nat, vies, slaap en kolven.

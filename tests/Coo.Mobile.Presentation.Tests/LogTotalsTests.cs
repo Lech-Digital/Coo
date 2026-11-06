@@ -36,7 +36,7 @@ public sealed class LogTotalsTests : IDisposable
 
         // Assert
         detail.Should().Be("Breast 2 · bottle 1, 90 ml");
-        compare.Should().Be("Last 09:52 · usually 7");
+        compare.Should().Be("Last 09:52 · usually\u00A07");
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public sealed class LogTotalsTests : IDisposable
 
         // Assert
         detail.Should().BeEmpty();
-        compare.Should().Be("Usually 6");
+        compare.Should().Be("Usually\u00A06");
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public sealed class LogTotalsTests : IDisposable
         var (_, compare) = LogTotals.For("feeding", day, before, 0, last, Ml, byNow: true);
 
         // Assert
-        compare.Should().Be("Last 09:52 · usually 3 by now");
+        compare.Should().Be("Last 09:52 · usually 3 by\u00A0now");
     }
 
     [Fact]
@@ -120,6 +120,6 @@ public sealed class LogTotalsTests : IDisposable
         var (_, compare) = LogTotals.For("diaper", null, before, 0, NoLast, Ml, byNow: true);
 
         // Assert
-        compare.Should().Be("Usually 2 by now");
+        compare.Should().Be("Usually 2 by\u00A0now");
     }
 }

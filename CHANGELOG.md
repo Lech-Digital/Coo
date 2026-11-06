@@ -14,7 +14,11 @@ Every build that leaves this machine (Play upload, a phone other than the owner'
   Play's "What's new". That text, in all seven languages and ready to paste, goes in
   `store-assets/releases/<version>.md`.
 
-## Unreleased
+## 1.12.0 (code 32) — 2026-11-06
+
+A new matcha look (ADR 0012), the fixes from the design and UX reviews, and Mochi learning more of the baby's rhythm:
+next feed, bedtime, night wakings, the sleep pattern and this week's changes. Once it is live, raise
+`AppUpdates:Latest` to 32 and deploy: 1.11.0 got no update prompt, so this one asks everyone.
 
 ### Changed
 - **A new matcha look.** The icon is Mochi on a lighter, softer matcha green; the "mochi" name at the top has rounder

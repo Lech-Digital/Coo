@@ -20,26 +20,25 @@ app learns this baby's rhythm, then names it.
 > decisive; things arrive from the direction they will leave to; nothing fades in slowly. Colour carries meaning: feed
 > is peach, diaper is mustard, sleep is lavender, pump is sky, the brand is matcha green.
 >
-> 1. **Hook (0–4 s)**: five words slam in on the beat, one per kind, each in its colour with its icon: *Feeds. Sleep.
->    Diapers. Pumping. Growth.* They stack, then collapse into one rounded square.
-> 2. **The name (4–8 s)**: the square becomes the Mochi icon; the bunny bounces, ears flop; "mochi" writes itself with the
->    green "i". Under it: *Baby tracker that learns your baby.*
-> 3. **One tap (8–12 s)**: the Today screen rises in the phone. A tap ripple on Feed; a breastfeeding timer ticks up
->    with the side shown. Caption: *One tap starts a feed, a nap or pumping.*
-> 4. **The whole day (12–16 s)**: the Log screen; the day band draws itself left to right, sleeps in lavender, feeds as
->    peach dots. Caption: *Every feed, nap and diaper on one timeline.*
-> 5. **It learns her (16–24 s)**: the hero section. Columns of days grow side by side, noon to noon, until the nights
->    line up into one lavender block, a dashed line snaps to "usually 8:40 PM". Then four glass cards pop in on the beat,
->    one per bar: *Next nap likely 1:10–1:35 · Back to sleep likely 3:40 · Next feed around 7:10 · Moving from 4 naps
->    to 3.* Caption: *Mochi learns her rhythm from your log.*
-> 6. **Night colours (24–27 s)**: a wipe to the dark night screen, big buttons. Caption: *Night colours, big buttons,
->    one hand.*
-> 7. **Together (27–30 s)**: two phones, two parents' names, the same log. Caption: *One shared baby log for the whole
->    family. Seven languages.*
-> 8. **End card (30–32 s)**: icon, wordmark, *Mochi: Baby Tracker & Feeding*, *On Google Play*. Hold.
+> 1. **Hook (0–3 s)**: the Today screen is in frame from the first frame. Big type, on the beat: *Left or right?*, then
+>    *Mochi remembers.* in the accent, and a ring lands on Next up's "Start right".
+> 2. **Breastfeeding timer (3–7 s)**: a tap on "Start right"; the timer on the right side starts counting. Caption:
+>    *One tap. Left or right.*
+> 3. **Baby log (7–11 s)**: a full day in the Log. Caption: *Feeds, sleep, diapers, pumping. One timeline.*
+> 4. **Sleep pattern (11–16 s)**: the hero. Columns of days grow side by side, noon to noon, until the nights line up;
+>    a dashed line snaps to when the longest sleep usually starts. Caption: *Her sleep pattern, from your own log.*
+> 5. **Next up (16–20 s)**: three cards pop in on the beat: *Next side: right · Next feed likely 12:37–1:07 PM · Next
+>    nap likely 1:10–1:35 PM* (marked Premium). Caption: *Worked out on your phone.*
+> 6. **Night mode (20–24 s)**: a wipe to the dark night screen, big buttons, the next side ringed. Caption: *Night
+>    colours. Big buttons.*
+> 7. **Together (24–28 s)**: two phones, two parents' names, the same log. Caption: *One log for the whole family.*
+> 8. **End card (28–32 s)**: the icon pops, the wordmark's letters arrive and the bunny drops onto the "i"; *Baby
+>    Tracker & Feeding*, the five kinds, *On Google Play* (Google's own badge artwork if it is ever added, never a
+>    home-made one). Hold.
 >
 > Sound: a warm, light electronic loop at 120 BPM (soft kick, shaker, marimba-like plucks on the beat changes), a
-> small "pop" on each card and word, a riser into the end card. No voice-over; every line is on screen.
+> small "pop" on the hook's lines and each Next up card, a riser into the end card and a pop as the bunny lands. No
+> voice-over; every line is on screen.
 
 ## Do and don't
 
@@ -47,6 +46,13 @@ app learns this baby's rhythm, then names it.
 - Don't: stock babies, sleeping-baby clichés, the moon-and-stars look of other trackers, AI-generated faces, lens flares.
 - Don't claim what the app does not do: no "AI" in the hook (the learning is plain statistics on the phone), no
   medical promises.
+
+## History
+
+- 2026-11-06: re-cut after a marketing review: the hook is a parent's question answered by a real screen inside
+  2 s (the old one listed five nouns and showed no app until 8 s); the name moved to a 4 s end card; "Smart insights"
+  became the app's own "Next up" (no "AI" wording for the on-phone statistics); only what the demo baby's screens show.
+  Alternative hooks to test: "When's the next feed?" and "Log a feed in one tap."
 
 ## Cuts
 

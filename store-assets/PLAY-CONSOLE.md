@@ -6,7 +6,7 @@ what's new per release in `releases/`.
 ## Screenshots and graphics
 
 All rendered by `python3 store-assets/_src/compose.py` from the demo build's shots in `raw/` (made with
-`-p:CooDemo=true` on the `coo-review` emulator, 2026-11-05: the made-up baby Lena, 7 weeks). The captions are in the
+`-p:CooDemo=true` on the `coo-review` emulator, 2026-11-06, the matcha build: the made-up baby Lena, 7 weeks). The captions are in the
 `SHOTS` list in `compose.py`, English only.
 
 | Slot | File | Headline / subline | Screen |

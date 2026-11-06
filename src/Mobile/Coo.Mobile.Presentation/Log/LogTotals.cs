@@ -56,6 +56,13 @@ public static class LogTotals
             (null, { } u) => Strings.Format(byNow ? "Totals.UsuallyByNow" : "Totals.Usually", u),
             _ => "",
         };
-        return (detail, compare);
+        return (detail, KeepLastWordsTogether(compare));
+    }
+
+    /// <summary>The last two words joined by a no-break space, so a tile never ends on a lone "now" (2026-11-06).</summary>
+    private static string KeepLastWordsTogether(string text)
+    {
+        var last = text.LastIndexOf(' ');
+        return last <= 0 ? text : string.Concat(text.AsSpan(0, last), "\u00A0", text.AsSpan(last + 1));
     }
 }
