@@ -193,7 +193,15 @@ public sealed class StatsPage : ContentPage
             ? new TimeOnly(h, 0).ToString("HH:mm", Strings.Culture)
             : new DateTime(2000, 1, 1, h, 0, 0).ToString("h tt", Strings.Culture))];
         var chart = new PatternChartView();
-        chart.Show(pattern, labels, hours, _pattern.FeedsShown, WashiPalette.For(_theme.Current));
+        // Diapers as dots up to 14 days; at 30 the columns are too narrow for them.
+        var diapers = _pattern.DiapersShown && count <= 14;
+        chart.Show(pattern, labels, hours, _pattern.FeedsShown, WashiPalette.For(_theme.Current), diapers);
+        chart.Tapped += async (_, day) =>
+        {
+            // A column opens that day in the Log.
+            _services.GetRequiredService<LogViewModel>().Show(day);
+            await Shell.Current.GoToAsync("//log");
+        };
         SemanticProperties.SetDescription(chart, _pattern.Summary);
 
         var legend = new FlexLayout { Wrap = Microsoft.Maui.Layouts.FlexWrap.Wrap };
@@ -208,6 +216,8 @@ public sealed class StatsPage : ContentPage
         Key("SleepMark", 0.5, Strings.Get("Kind.Sleep"));
         if (_pattern.FeedsShown)
             Key("FeedMark", 1, Strings.Get("Kind.Feed"));
+        if (diapers)
+            Key("DiaperMark", 1, Strings.Get("Kind.Diaper"));
 
         yield return new Card(new VerticalStackLayout
         {

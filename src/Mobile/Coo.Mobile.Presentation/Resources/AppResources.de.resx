@@ -560,7 +560,7 @@ Wenn der Link Mochi nicht öffnet, geh in Mochi zu Einstellungen → Familie →
   <data name="Pattern.Title" xml:space="preserve"><value>Schlafmuster</value></data>
   <data name="Pattern.Usual" xml:space="preserve"><value>Der längste Schlaf von {0} beginnt meist gegen {1} und dauert etwa {2}.</value></data>
   <data name="Pattern.Empty" xml:space="preserve"><value>Trage an {0} Tagen Schlaf ein, um zu sehen, wann der längste Schlaf meist beginnt.</value></data>
-  <data name="Pattern.Hint" xml:space="preserve"><value>Jede Spalte ist ein Tag, von Mittag bis Mittag, der älteste links.</value></data>
+  <data name="Pattern.Hint" xml:space="preserve"><value>Jede Spalte ist ein Tag, von Mittag bis Mittag, der älteste links. Tippe auf einen Tag, um ihn im Verlauf zu öffnen.</value></data>
   <data name="Pattern.Longest" xml:space="preserve"><value>Längster Schlaf</value></data>
   <data name="Plan.Accept" xml:space="preserve"><value>Ausprobieren</value></data>
   <data name="Plan.Adj.DropANap" xml:space="preserve"><value>{0} lässt schon ein Schläfchen weg: Plane eines weniger.</value></data>

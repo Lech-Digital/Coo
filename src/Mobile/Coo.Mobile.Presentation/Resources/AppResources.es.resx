@@ -560,7 +560,7 @@ Si el enlace no abre Mochi, ve a Ajustes → Familia → Unirse a una familia en
   <data name="Pattern.Title" xml:space="preserve"><value>Patrón de sueño</value></data>
   <data name="Pattern.Usual" xml:space="preserve"><value>El sueño más largo de {0} suele empezar hacia las {1} y dura unos {2}.</value></data>
   <data name="Pattern.Empty" xml:space="preserve"><value>Registra el sueño durante {0} días para ver cuándo suele empezar el sueño más largo.</value></data>
-  <data name="Pattern.Hint" xml:space="preserve"><value>Cada columna es un día, de mediodía a mediodía, el más antiguo a la izquierda.</value></data>
+  <data name="Pattern.Hint" xml:space="preserve"><value>Cada columna es un día, de mediodía a mediodía, el más antiguo a la izquierda. Toca un día para abrirlo en el Registro.</value></data>
   <data name="Pattern.Longest" xml:space="preserve"><value>Sueño más largo</value></data>
   <data name="Plan.Accept" xml:space="preserve"><value>Probarlo</value></data>
   <data name="Plan.Adj.DropANap" xml:space="preserve"><value>{0} ya está dejando una siesta: planifica una menos.</value></data>

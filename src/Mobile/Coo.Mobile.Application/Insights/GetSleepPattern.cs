@@ -14,8 +14,11 @@ public sealed record PatternSleep(double From, double To, bool IsLongest);
 /// <summary>One column: the day that ends with this evening's night, noon to noon.</summary>
 /// <param name="Evening">The date the column's evening falls on.</param>
 /// <param name="Feeds">When feeds started, as fractions of the column.</param>
+/// <param name="Diapers">When diapers were changed, as fractions of the column.</param>
 /// <param name="Logged">Anything was logged in it; an empty column is a day nobody logged, not a day without sleep.</param>
-public sealed record PatternDay(DateOnly Evening, IReadOnlyList<PatternSleep> Sleeps, IReadOnlyList<double> Feeds, bool Logged, TimeSpan Longest, TimeOnly? LongestStart);
+public sealed record PatternDay(
+    DateOnly Evening, IReadOnlyList<PatternSleep> Sleeps, IReadOnlyList<double> Feeds, bool Logged, TimeSpan Longest, TimeOnly? LongestStart,
+    IReadOnlyList<double>? Diapers = null);
 
 /// <summary>
 /// The days side by side, noon to noon, so a night stays in one piece (owner, 2026-11-06: "by looking at them next to each
@@ -46,7 +49,8 @@ public sealed class GetSleepPattern(ICareLogStore store)
             .Select(r => (r.Start, End: r.End ?? now))
             .ToList();
         var feeds = entries.Where(e => e.Details is FeedingDetails).Select(e => e.Timing.OccurredAt).ToList();
-        return Build(sleeps, feeds, lastEvening, days, zone, now);
+        var diapers = entries.Where(e => e.Details is Coo.Domain.CareLog.Kinds.Diaper.DiaperDetails).Select(e => e.Timing.OccurredAt).ToList();
+        return Build(sleeps, feeds, lastEvening, days, zone, now, diapers);
     }
 
     /// <summary>The column holding <paramref name="now"/>: before noon it is the one that began yesterday at noon.</summary>
@@ -61,7 +65,7 @@ public sealed class GetSleepPattern(ICareLogStore store)
     /// <summary>Lays the sleeps and feeds out in columns, oldest first; sleeps across noon are cut at it.</summary>
     public static SleepPattern Build(
         IReadOnlyList<(DateTimeOffset Start, DateTimeOffset End)> sleeps, IReadOnlyList<DateTimeOffset> feeds, DateOnly lastEvening, int days,
-        TimeZoneInfo zone, DateTimeOffset now)
+        TimeZoneInfo zone, DateTimeOffset now, IReadOnlyList<DateTimeOffset>? diapers = null)
     {
         ArgumentNullException.ThrowIfNull(sleeps);
         ArgumentNullException.ThrowIfNull(feeds);
@@ -82,13 +86,15 @@ public sealed class GetSleepPattern(ICareLogStore store)
                 .ToList();
             var longest = pieces.Count == 0 ? default : pieces.MaxBy(s => s.End - s.Start);
             var columnFeeds = feeds.Where(f => f >= start && f < end).Select(At).ToList();
+            var columnDiapers = (diapers ?? []).Where(f => f >= start && f < end).Select(At).ToList();
             columns.Add(new PatternDay(
                 evening,
                 [.. pieces.Select(s => new PatternSleep(At(s.Start), At(s.End), s == longest))],
                 columnFeeds,
-                pieces.Count > 0 || columnFeeds.Count > 0,
+                pieces.Count > 0 || columnFeeds.Count > 0 || columnDiapers.Count > 0,
                 pieces.Count == 0 ? TimeSpan.Zero : longest.End - longest.Start,
-                pieces.Count == 0 ? null : TimeOnly.FromDateTime(TimeZoneInfo.ConvertTime(longest.Start, zone).DateTime)));
+                pieces.Count == 0 ? null : TimeOnly.FromDateTime(TimeZoneInfo.ConvertTime(longest.Start, zone).DateTime),
+                columnDiapers));
         }
 
         // Only days that are over: today's longest may still be running.

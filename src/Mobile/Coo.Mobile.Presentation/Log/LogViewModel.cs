@@ -195,6 +195,14 @@ public sealed partial class LogViewModel(
         return RefreshAsync();
     }
 
+    /// <summary>Opens a given day, as from a column of Stats → Sleep pattern; a past day stays shown when Log appears.</summary>
+    public void Show(DateOnly date)
+    {
+        var today = DateOnly.FromDateTime(time.GetLocalNow().DateTime);
+        Date = date > today ? today : date;
+        _explicitPastDate = Date < today;
+    }
+
     /// <summary>Resets viewing date to current local day if needed (e.g. overnight transition).</summary>
     public void ResetToToday(bool force = false)
     {

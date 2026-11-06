@@ -31,6 +31,9 @@ public sealed partial class SleepPatternViewModel(IHouseholdStore households, Ge
     [ObservableProperty]
     private bool _feedsShown = true;
 
+    [ObservableProperty]
+    private bool _diapersShown = true;
+
     [RelayCommand]
     private async Task SetDaysAsync(int days)
     {
@@ -53,6 +56,7 @@ public sealed partial class SleepPatternViewModel(IHouseholdStore households, Ge
         }
 
         FeedsShown = KindVisibility.IsShown(household, "feeding");
+        DiapersShown = KindVisibility.IsShown(household, "diaper");
         var zone = TimeZoneInfo.FindSystemTimeZoneById(household.TimeZoneId);
         var result = await pattern.ExecuteAsync(household.Id, baby.Id, Days, zone, time.GetLocalNow(), CancellationToken.None);
         Pattern = result;

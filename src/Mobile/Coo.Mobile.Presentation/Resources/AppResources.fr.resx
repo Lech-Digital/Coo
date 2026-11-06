@@ -560,7 +560,7 @@ Si le lien n'ouvre pas Mochi, va dans Réglages → Famille → Rejoindre une fa
   <data name="Pattern.Title" xml:space="preserve"><value>Rythme de sommeil</value></data>
   <data name="Pattern.Usual" xml:space="preserve"><value>Le plus long sommeil de {0} commence d’habitude vers {1} et dure environ {2}.</value></data>
   <data name="Pattern.Empty" xml:space="preserve"><value>Notez le sommeil sur {0} jours pour voir quand commence d’habitude le plus long sommeil.</value></data>
-  <data name="Pattern.Hint" xml:space="preserve"><value>Chaque colonne est une journée, de midi à midi, la plus ancienne à gauche.</value></data>
+  <data name="Pattern.Hint" xml:space="preserve"><value>Chaque colonne est une journée, de midi à midi, la plus ancienne à gauche. Touchez un jour pour l’ouvrir dans le Journal.</value></data>
   <data name="Pattern.Longest" xml:space="preserve"><value>Plus long sommeil</value></data>
   <data name="Plan.Accept" xml:space="preserve"><value>Essayer</value></data>
   <data name="Plan.Adj.DropANap" xml:space="preserve"><value>{0} abandonne déjà une sieste : prévoyez-en une de moins.</value></data>

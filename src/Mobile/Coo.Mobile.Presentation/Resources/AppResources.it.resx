@@ -560,7 +560,7 @@ Se il link non apre Mochi, vai su Impostazioni → Famiglia → Unisciti a una f
   <data name="Pattern.Title" xml:space="preserve"><value>Ritmo del sonno</value></data>
   <data name="Pattern.Usual" xml:space="preserve"><value>Il sonno più lungo di {0} di solito inizia verso le {1} e dura circa {2}.</value></data>
   <data name="Pattern.Empty" xml:space="preserve"><value>Registra il sonno per {0} giorni per vedere quando inizia di solito il sonno più lungo.</value></data>
-  <data name="Pattern.Hint" xml:space="preserve"><value>Ogni colonna è un giorno, da mezzogiorno a mezzogiorno, il più vecchio a sinistra.</value></data>
+  <data name="Pattern.Hint" xml:space="preserve"><value>Ogni colonna è un giorno, da mezzogiorno a mezzogiorno, il più vecchio a sinistra. Tocca un giorno per aprirlo nel Registro.</value></data>
   <data name="Pattern.Longest" xml:space="preserve"><value>Sonno più lungo</value></data>
   <data name="Plan.Accept" xml:space="preserve"><value>Provalo</value></data>
   <data name="Plan.Adj.DropANap" xml:space="preserve"><value>{0} sta già lasciando un pisolino: prevedine uno in meno.</value></data>

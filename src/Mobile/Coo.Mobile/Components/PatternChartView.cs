@@ -6,22 +6,42 @@ namespace Coo.Mobile.Components;
 /// <summary>
 /// The sleep pattern (owner, 2026-11-06): one column per day, side by side, oldest on the left, each running from noon at
 /// the top to the next noon at the bottom, so a night stays in one piece. Sleeps are bars in the sleep colour, the day's
-/// longest one solid; feeds are short ticks across the column; a dashed line marks when the longest sleep usually starts.
+/// longest one solid; feeds are short ticks across the column, diapers dots beside it; a dashed line marks when the
+/// longest sleep usually starts. A tap reports the column, to open that day in the Log.
 /// </summary>
 public sealed class PatternChartView : GraphicsView
 {
     private readonly PatternDrawable _drawable = new();
+    private PointF? _down;
 
     public PatternChartView()
     {
         Drawable = _drawable;
         HeightRequest = 340;
+        StartInteraction += (_, e) => _down = e.Touches.FirstOrDefault();
+        EndInteraction += (_, e) =>
+        {
+            var up = e.Touches.FirstOrDefault();
+            if (_down is { } down && e.IsInsideBounds && _drawable.Pattern is { Days.Count: > 0 } pattern && Math.Abs(up.X - down.X) < 16
+                && up.X > PatternDrawable.Gutter)
+            {
+                var slot = (Width - PatternDrawable.Gutter) / pattern.Days.Count;
+                var index = Math.Clamp((int)((up.X - PatternDrawable.Gutter) / slot), 0, pattern.Days.Count - 1);
+                Tapped?.Invoke(this, pattern.Days[index].Evening);
+            }
+
+            _down = null;
+        };
     }
+
+    /// <summary>The day of the column that was tapped.</summary>
+    public event EventHandler<DateOnly>? Tapped;
 
     /// <param name="labels">One label per column under it ("Mon", "12"); empty to leave a column unlabelled.</param>
     /// <param name="hours">The five hour labels down the side: noon, 6 PM, midnight, 6 AM, noon.</param>
-    public void Show(SleepPattern pattern, IReadOnlyList<string> labels, IReadOnlyList<string> hours, bool feeds, Palette palette)
+    public void Show(SleepPattern pattern, IReadOnlyList<string> labels, IReadOnlyList<string> hours, bool feeds, Palette palette, bool diapers = false)
     {
+        _drawable.Diapers = diapers;
         _drawable.Pattern = pattern;
         _drawable.Labels = labels;
         _drawable.Hours = hours;
@@ -32,7 +52,8 @@ public sealed class PatternChartView : GraphicsView
 
     private sealed class PatternDrawable : IDrawable
     {
-        private const float Gutter = 44, Top = 6, LabelHeight = 22;
+        public const float Gutter = 44;
+        private const float Top = 6, LabelHeight = 22;
 
         public SleepPattern? Pattern { get; set; }
 
@@ -41,6 +62,8 @@ public sealed class PatternChartView : GraphicsView
         public IReadOnlyList<string> Hours { get; set; } = [];
 
         public bool Feeds { get; set; } = true;
+
+        public bool Diapers { get; set; }
 
         public Palette Palette { get; set; } = WashiPalette.Day;
 
@@ -97,6 +120,13 @@ public sealed class PatternChartView : GraphicsView
                     var tick = Math.Min(slot * 0.9f, barWidth + 6);
                     foreach (var feed in day.Feeds)
                         canvas.DrawLine(centre - (tick / 2), Y(feed), centre + (tick / 2), Y(feed));
+                }
+
+                if (Diapers && day.Diapers is { Count: > 0 } changes)
+                {
+                    canvas.FillColor = C(Palette.DiaperMark);
+                    foreach (var change in changes)
+                        canvas.FillCircle(x + barWidth + Math.Min(4, (slot - barWidth) / 2), Y(change), 2.2f);
                 }
 
                 if (i < Labels.Count && Labels[i].Length > 0)

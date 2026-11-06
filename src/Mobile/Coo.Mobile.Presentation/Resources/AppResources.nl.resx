@@ -560,7 +560,7 @@ Als de link Mochi niet opent, ga in Mochi naar Instellingen → Gezin → Aanslu
   <data name="Pattern.Title" xml:space="preserve"><value>Slaappatroon</value></data>
   <data name="Pattern.Usual" xml:space="preserve"><value>De langste slaap van {0} begint meestal rond {1} en duurt zo’n {2}.</value></data>
   <data name="Pattern.Empty" xml:space="preserve"><value>Log {0} dagen slaap om te zien wanneer de langste slaap meestal begint.</value></data>
-  <data name="Pattern.Hint" xml:space="preserve"><value>Elke kolom is een dag, van 12 uur ’s middags tot 12 uur, de oudste links.</value></data>
+  <data name="Pattern.Hint" xml:space="preserve"><value>Elke kolom is een dag, van 12 uur ’s middags tot 12 uur, de oudste links. Tik op een dag om die in het Logboek te openen.</value></data>
   <data name="Pattern.Longest" xml:space="preserve"><value>Langste slaap</value></data>
   <data name="Plan.Accept" xml:space="preserve"><value>Proberen</value></data>
   <data name="Plan.Adj.DropANap" xml:space="preserve"><value>{0} laat al een dutje vallen: plan er één minder.</value></data>

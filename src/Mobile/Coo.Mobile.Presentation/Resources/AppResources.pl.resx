@@ -587,7 +587,7 @@ Jeśli link nie otworzy Mochi, przejdź w Mochi do Ustawienia → Rodzina → Do
   <data name="Pattern.Title" xml:space="preserve"><value>Rytm snu</value></data>
   <data name="Pattern.Usual" xml:space="preserve"><value>Najdłuższy sen {0} zaczyna się zwykle około {1} i trwa ok. {2}.</value></data>
   <data name="Pattern.Empty" xml:space="preserve"><value>Zapisz sen z {0} dni, aby zobaczyć, kiedy zwykle zaczyna się najdłuższy sen.</value></data>
-  <data name="Pattern.Hint" xml:space="preserve"><value>Każda kolumna to jeden dzień, od południa do południa, najstarszy po lewej.</value></data>
+  <data name="Pattern.Hint" xml:space="preserve"><value>Każda kolumna to jeden dzień, od południa do południa, najstarszy po lewej. Stuknij dzień, aby otworzyć go w Dzienniku.</value></data>
   <data name="Pattern.Longest" xml:space="preserve"><value>Najdłuższy sen</value></data>
   <data name="Plan.Accept" xml:space="preserve"><value>Spróbuj</value></data>
   <data name="Plan.Adj.DropANap" xml:space="preserve"><value>{0} już rezygnuje z drzemki: zaplanuj o jedną mniej.</value></data>

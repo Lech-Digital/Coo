@@ -560,7 +560,7 @@ If the link doesn't open Mochi, go to Settings → Family → Join a family in M
   <data name="Pattern.Title" xml:space="preserve"><value>Sleep pattern</value></data>
   <data name="Pattern.Usual" xml:space="preserve"><value>{0}’s longest sleep usually starts around {1} and lasts about {2}.</value></data>
   <data name="Pattern.Empty" xml:space="preserve"><value>Log sleep on {0} days to see when the longest sleep usually starts.</value></data>
-  <data name="Pattern.Hint" xml:space="preserve"><value>Each column is a day, noon to noon, oldest on the left.</value></data>
+  <data name="Pattern.Hint" xml:space="preserve"><value>Each column is a day, noon to noon, oldest on the left. Tap a day to open it in the Log.</value></data>
   <data name="Pattern.Longest" xml:space="preserve"><value>Longest sleep</value></data>
   <data name="Plan.Accept" xml:space="preserve"><value>Try it</value></data>
   <data name="Plan.Adj.DropANap" xml:space="preserve"><value>{0} is dropping a nap already: plan one nap fewer.</value></data>
