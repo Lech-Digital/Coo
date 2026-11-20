@@ -1,14 +1,20 @@
 #!/usr/bin/env bash
 # Builds the Play upload: a signed, trimmed Release AAB of Coo (Increment 18).
 # The upload key is ~/keystores/coo-upload.jks; its password is read from the macOS Keychain item "coo-upload-keystore"
-# and handed to MSBuild through an environment variable, so it never appears in a command line or log.
+# (on Linux: ~/keystores/coo-upload.pass.txt, mode 600) and handed to MSBuild through an environment variable, so it
+# never appears in a command line or log.
 # Before running: bump ApplicationDisplayVersion and ApplicationVersion and write CHANGELOG.md (see its header).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 export DOTNET_ROOT="$HOME/dotnet-maui" PATH="$HOME/dotnet-maui:$PATH"
-export JAVA_HOME="$HOME/Library/Java/JavaVirtualMachines/jdk-17.0.20+8/Contents/Home"
-COO_UPLOAD_PASS="$(security find-generic-password -s coo-upload-keystore -w)"
+if [ "$(uname)" = Darwin ]; then
+  export JAVA_HOME="$HOME/Library/Java/JavaVirtualMachines/jdk-17.0.20+8/Contents/Home"
+  COO_UPLOAD_PASS="$(security find-generic-password -s coo-upload-keystore -w)"
+else
+  export JAVA_HOME="${JAVA_HOME:-/usr/lib/jvm/java-17-openjdk-amd64}"
+  COO_UPLOAD_PASS="$(cat "$HOME/keystores/coo-upload.pass.txt")"
+fi
 export COO_UPLOAD_PASS
 
 # Start clean: MAUI's resizetizer keeps generated icons in obj/ and an incremental build can ship the old ones

@@ -176,6 +176,12 @@ client:
 - **A Debug APK installed with `adb install` needs `-p:EmbedAssembliesIntoApk=true`** (see "The Android app" above).
 - **.NET for Android signs Debug builds with `~/Library/Application Support/Xamarin/Mono for Android/debug.keystore`,**
   not `~/.android/debug.keystore`. Register that key's SHA-1 with the Google Android client.
+  On the Linux dev box the same key (SHA-1 `21:BE:45:…:83:4D`) sits at `~/.local/share/Xamarin/Mono for Android/debug.keystore`,
+  so Debug builds there keep Google sign-in working and install over phone builds.
+- **Release signing on the Linux dev box:** `eng/release-aab.sh` reads the upload key password from
+  `~/keystores/coo-upload.pass.txt` instead of the Keychain (`~/keystores` links to `~/dev/secrets/keystores`, mode 700).
+  The `coo-play-billing` service account key is `~/dev/secrets/service-accounts/coo-play-billing.json` (it goes into
+  `/opt/coo/.env` on the server, see DEPLOY.md).
 
 ## MAUI lessons from Increment 11
 
