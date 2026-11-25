@@ -67,6 +67,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" VersionOverride="11.0.0" />
     <PackageReference Include="Microsoft.Maui.Controls" />
     <PackageReference Include="Xamarin.Google.Android.Play.App.Update" />
     <PackageReference Include="Xamarin.Google.Android.Play.Review" />
